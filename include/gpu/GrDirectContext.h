@@ -94,9 +94,9 @@ public:
      * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
-     * GrContext and any of its created resource objects will not make backend 3D API calls. Content
+     * context and any of its created resource objects will not make backend 3D API calls. Content
      * rendered but not previously flushed may be lost. After this function is called all subsequent
-     * calls on the GrContext will fail or be no-ops.
+     * calls on the context will fail or be no-ops.
      *
      * The typical use case for this function is that the underlying 3D context was lost and further
      * API calls may crash.
@@ -373,6 +373,118 @@ public:
     GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
+
+    /**
+     * The explicitly allocated backend texture API allows clients to use Skia to create backend
+     * objects outside of Skia proper (i.e., Skia's caching system will not know about them.)
+     *
+     * It is the client's responsibility to delete all these objects (using deleteBackendTexture)
+     * before deleting the context used to create them. If the backend is Vulkan, the textures must
+     * be deleted before abandoning the context as well. Additionally, clients should only delete
+     * these objects on the thread for which that context is active.
+     *
+     * The client is responsible for ensuring synchronization between different uses
+     * of the backend object (i.e., wrapping it in a surface, rendering to it, deleting the
+     * surface, rewrapping it in a image and drawing the image will require explicit
+     * synchronization on the client's part).
+     */
+
+     /**
+      * If possible, create an uninitialized backend texture. The client should ensure that the
+      * returned backend texture is valid.
+      * For the Vulkan backend the layout of the created VkImage will be:
+      *      VK_IMAGE_LAYOUT_UNDEFINED.
+      */
+     GrBackendTexture createBackendTexture(int width, int height,
+                                           const GrBackendFormat&,
+                                           GrMipmapped,
+                                           GrRenderable,
+                                           GrProtected = GrProtected::kNo);
+
+     /**
+      * If possible, create an uninitialized backend texture. The client should ensure that the
+      * returned backend texture is valid.
+      * If successful, the created backend texture will be compatible with the provided
+      * SkColorType.
+      * For the Vulkan backend the layout of the created VkImage will be:
+      *      VK_IMAGE_LAYOUT_UNDEFINED.
+      */
+     GrBackendTexture createBackendTexture(int width, int height,
+                                           SkColorType,
+                                           GrMipmapped,
+                                           GrRenderable,
+                                           GrProtected = GrProtected::kNo);
+
+     /**
+      * If possible, create a backend texture initialized to a particular color. The client should
+      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
+      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
+      * client is required to call `submit` to send the upload work to the gpu. The
+      * finishedProc will always get called even if we failed to create the GrBackendTexture.
+      * For the Vulkan backend the layout of the created VkImage will be:
+      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+      */
+     GrBackendTexture createBackendTexture(int width, int height,
+                                           const GrBackendFormat&,
+                                           const SkColor4f& color,
+                                           GrMipmapped,
+                                           GrRenderable,
+                                           GrProtected = GrProtected::kNo,
+                                           GrGpuFinishedProc finishedProc = nullptr,
+                                           GrGpuFinishedContext finishedContext = nullptr);
+
+     /**
+      * If possible, create a backend texture initialized to a particular color. The client should
+      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
+      * to be notified when the data has been uploaded by the gpu and the texture can be deleted. The
+      * client is required to call `submit` to send the upload work to the gpu. The
+      * finishedProc will always get called even if we failed to create the GrBackendTexture.
+      * If successful, the created backend texture will be compatible with the provided
+      * SkColorType.
+      * For the Vulkan backend the layout of the created VkImage will be:
+      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+      */
+     GrBackendTexture createBackendTexture(int width, int height,
+                                           SkColorType,
+                                           const SkColor4f& color,
+                                           GrMipmapped,
+                                           GrRenderable,
+                                           GrProtected = GrProtected::kNo,
+                                           GrGpuFinishedProc finishedProc = nullptr,
+                                           GrGpuFinishedContext finishedContext = nullptr);
+
+     /**
+      * If possible, create a backend texture initialized with the provided pixmap data. The client
+      * should ensure that the returned backend texture is valid. The client can pass in a
+      * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+      * deleted. The client is required to call `submit` to send the upload work to the gpu.
+      * The finishedProc will always get called even if we failed to create the GrBackendTexture.
+      * If successful, the created backend texture will be compatible with the provided
+      * pixmap(s). Compatible, in this case, means that the backend format will be the result
+      * of calling defaultBackendFormat on the base pixmap's colortype. The src data can be deleted
+      * when this call returns.
+      * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
+      * the data for all the mipmap levels must be provided. In the mipmapped case all the
+      * colortypes of the provided pixmaps must be the same. Additionally, all the miplevels
+      * must be sized correctly (please see SkMipmap::ComputeLevelSize and ComputeLevelCount).
+      * Note: the pixmap's alphatypes and colorspaces are ignored.
+      * For the Vulkan backend the layout of the created VkImage will be:
+      *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+      */
+     GrBackendTexture createBackendTexture(const SkPixmap srcData[], int numLevels,
+                                           GrRenderable, GrProtected,
+                                           GrGpuFinishedProc finishedProc = nullptr,
+                                           GrGpuFinishedContext finishedContext = nullptr);
+
+     // Helper version of above for a single level.
+     GrBackendTexture createBackendTexture(const SkPixmap& srcData,
+                                           GrRenderable renderable,
+                                           GrProtected isProtected,
+                                           GrGpuFinishedProc finishedProc = nullptr,
+                                           GrGpuFinishedContext finishedContext = nullptr) {
+         return this->createBackendTexture(&srcData, 1, renderable, isProtected, finishedProc,
+                                           finishedContext);
+     }
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
 
