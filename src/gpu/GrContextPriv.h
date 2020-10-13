@@ -22,7 +22,8 @@ class GrSurfaceProxy;
 class SkDeferredDisplayList;
 class SkTaskGroup;
 
-/** Class that adds methods to GrContext that are only intended for use internal to Skia.
+/** TODO: Rename to GrDirectContextPriv.
+    Class that adds methods to GrDirectContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
     data members or virtual methods. */
 class GrContextPriv {
@@ -168,7 +169,7 @@ public:
 #endif
 
 private:
-    explicit GrContextPriv(GrContext* context) : fContext(context) {}
+    explicit GrContextPriv(GrDirectContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&) = delete;
     GrContextPriv& operator=(const GrContextPriv&) = delete;
 
@@ -176,15 +177,15 @@ private:
     const GrContextPriv* operator&() const;
     GrContextPriv* operator&();
 
-    GrContext* fContext;
+    GrDirectContext* fContext;
 
-    friend class GrContext; // to construct/copy this type.
+    friend class GrDirectContext; // to construct/copy this type.
 };
 
-inline GrContextPriv GrContext::priv() { return GrContextPriv(this); }
+inline GrContextPriv GrDirectContext::priv() { return GrContextPriv(this); }
 
-inline const GrContextPriv GrContext::priv() const {  // NOLINT(readability-const-return-type)
-    return GrContextPriv(const_cast<GrContext*>(this));
+inline const GrContextPriv GrDirectContext::priv() const {  // NOLINT(readability-const-return-type)
+    return GrContextPriv(const_cast<GrDirectContext*>(this));
 }
 
 #endif

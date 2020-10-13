@@ -15,14 +15,22 @@
 // We shouldn't need this but currently Android is relying on this being include transitively.
 #include "include/core/SkUnPreMultiply.h"
 
+class GrAtlasManager;
 class GrBackendSemaphore;
+class GrClientMappedBufferManager;
+class GrContextPriv;
 class GrContextThreadSafeProxy;
 struct GrD3DBackendContext;
 class GrFragmentProcessor;
+class GrGpu;
 struct GrGLInterface;
 struct GrMockOptions;
 class GrPath;
+class GrResourceCache;
+class GrSmallPathAtlasMgr;
 class GrRenderTargetContext;
+class GrResourceProvider;
+class GrStrikeCache;
 class GrSurfaceProxy;
 class GrSwizzle;
 class GrTextureProxy;
@@ -32,6 +40,7 @@ class SkImage;
 class SkString;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
+class SkTaskGroup;
 class SkTraceMemoryDump;
 
 class SK_API GrDirectContext : public GrContext {
@@ -708,20 +717,44 @@ public:
     SkString dump() const;
 #endif
 
+    // Provides access to functions that aren't part of the public API.
+    GrContextPriv priv();
+    const GrContextPriv priv() const;  // NOLINT(readability-const-return-type)
+
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
 
     bool init() override;
 
-    GrAtlasManager* onGetAtlasManager() override { return fAtlasManager.get(); }
-    GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr() override;
+    GrAtlasManager* onGetAtlasManager() { return fAtlasManager.get(); }
+    GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr();
 
     GrDirectContext* asDirectContext() override { return this; }
 
 private:
+    // fTaskGroup must appear before anything that uses it (e.g. fGpu), so that it is destroyed
+    // after all of its users. Clients of fTaskGroup will generally want to ensure that they call
+    // wait() on it as they are being destroyed, to avoid the possibility of pending tasks being
+    // invoked after objects they depend upon have already been destroyed.
+    std::unique_ptr<SkTaskGroup>            fTaskGroup;
+    std::unique_ptr<GrStrikeCache>          fStrikeCache;
+    sk_sp<GrGpu>                            fGpu;
+    std::unique_ptr<GrResourceCache>        fResourceCache;
+    std::unique_ptr<GrResourceProvider>     fResourceProvider;
+
+    bool                                    fDidTestPMConversions;
+    // true if the PM/UPM conversion succeeded; false otherwise
+    bool                                    fPMUPMConversionsRoundTrip;
+
+    GrContextOptions::PersistentCache*      fPersistentCache;
+    GrContextOptions::ShaderErrorHandler*   fShaderErrorHandler;
+
+    std::unique_ptr<GrClientMappedBufferManager> fMappedBufferManager;
     std::unique_ptr<GrAtlasManager> fAtlasManager;
 
     std::unique_ptr<GrSmallPathAtlasMgr> fSmallPathAtlasMgr;
+
+    friend class GrContextPriv;
 
     using INHERITED = GrContext;
 };
