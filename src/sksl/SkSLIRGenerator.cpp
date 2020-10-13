@@ -469,7 +469,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         !fSettings->fCaps->gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
-    return std::make_unique<ModifiersDeclaration>(modifiers);
+    return std::make_unique<ModifiersDeclaration>(fModifiers->handle(modifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {

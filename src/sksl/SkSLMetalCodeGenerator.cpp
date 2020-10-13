@@ -1658,7 +1658,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunction(e.as<FunctionDefinition>());
             break;
         case ProgramElement::Kind::kModifiers:
-            this->writeModifiers(e.as<ModifiersDeclaration>().fModifiers, true);
+            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(), true);
             this->writeLine(";");
             break;
         default:

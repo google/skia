@@ -83,6 +83,11 @@ IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const ModifiersDeclarationData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const SectionData& data)
 : fOffset(offset)
 , fKind(kind)

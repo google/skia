@@ -2717,7 +2717,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const auto& e : fProgram.elements()) {
             if (e->is<ModifiersDeclaration>()) {
-                const Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
+                const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
                 update_sk_in_count(m, &fSkInCount);
             }
         }
@@ -3094,7 +3094,7 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
     int invocations = 1;
     for (const auto& e : fProgram.elements()) {
         if (e->is<ModifiersDeclaration>()) {
-            const Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
+            const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
             if (m.fFlags & Modifiers::kIn_Flag) {
                 if (m.fLayout.fInvocations != -1) {
                     invocations = m.fLayout.fInvocations;
@@ -3169,7 +3169,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                 break;
             }
             case ProgramElement::Kind::kModifiers: {
-                Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
+                const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
                 if (m.fFlags & Modifiers::kIn_Flag) {
                     switch (m.fLayout.fPrimitive) {
                         case Layout::kPoints_Primitive: // break
