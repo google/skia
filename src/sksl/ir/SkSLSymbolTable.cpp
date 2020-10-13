@@ -23,12 +23,12 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
     }
 }
 
-Symbol* SymbolTable::operator[](StringFragment name) {
+const Symbol* SymbolTable::operator[](StringFragment name) {
     return this->lookup(MakeSymbolKey(name));
 }
 
-Symbol* SymbolTable::lookup(const SymbolKey& key) {
-    Symbol** symbolPPtr = fSymbols.find(key);
+const Symbol* SymbolTable::lookup(const SymbolKey& key) {
+    const Symbol** symbolPPtr = fSymbols.find(key);
     if (!symbolPPtr) {
         if (fParent) {
             return fParent->lookup(key);
@@ -36,7 +36,7 @@ Symbol* SymbolTable::lookup(const SymbolKey& key) {
         return nullptr;
     }
 
-    Symbol* symbol = *symbolPPtr;
+    const Symbol* symbol = *symbolPPtr;
     if (fParent) {
         auto functions = GetFunctions(*symbol);
         if (functions.size() > 0) {
@@ -77,14 +77,14 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
     return result;
 }
 
-void SymbolTable::addAlias(StringFragment name, Symbol* symbol) {
+void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
     this->add(std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
 }
 
-void SymbolTable::addWithoutOwnership(Symbol* symbol) {
+void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     const StringFragment& name = symbol->name();
 
-    Symbol*& refInSymbolTable = fSymbols[MakeSymbolKey(name)];
+    const Symbol*& refInSymbolTable = fSymbols[MakeSymbolKey(name)];
     if (refInSymbolTable == nullptr) {
         refInSymbolTable = symbol;
         return;

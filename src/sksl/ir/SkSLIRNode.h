@@ -121,7 +121,7 @@ protected:
         ModifiersPool::Handle fModifiersHandle;
         // FIXME after killing fExpressionChildren / fStatementChildren in favor of just fChildren,
         // the parameters should move into that vector
-        std::vector<Variable*> fParameters;
+        std::vector<const Variable*> fParameters;
         const Type* fReturnType;
         mutable std::atomic<int> fCallCount;
         bool fBuiltin;
@@ -183,7 +183,7 @@ protected:
 
     struct SymbolAliasData {
         StringFragment fName;
-        Symbol* fOrigSymbol;
+        const Symbol* fOrigSymbol;
     };
 
     struct TypeReferenceData {

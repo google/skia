@@ -62,10 +62,6 @@ public:
         return this->variableData().fModifiersHandle;
     }
 
-    void setModifiersHandle(const ModifiersPool::Handle& handle) {
-        this->variableData().fModifiersHandle = handle;
-    }
-
     bool isBuiltin() const {
         return this->variableData().fBuiltin;
     }

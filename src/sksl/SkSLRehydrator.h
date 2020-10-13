@@ -203,7 +203,7 @@ private:
         return StringFragment(chars, length);
     }
 
-    void addSymbol(int id, Symbol* symbol) {
+    void addSymbol(int id, const Symbol* symbol) {
         while ((size_t) id >= fSymbols.size()) {
             fSymbols.push_back(nullptr);
         }
@@ -221,7 +221,7 @@ private:
 
     Modifiers modifiers();
 
-    Symbol* symbol();
+    const Symbol* symbol();
 
     std::unique_ptr<ProgramElement> element();
 
@@ -235,7 +235,7 @@ private:
     ModifiersPool& fModifiers;
     ErrorReporter* fErrors;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    std::vector<Symbol*> fSymbols;
+    std::vector<const Symbol*> fSymbols;
 
     const uint8_t* fStart;
     const uint8_t* fIP;

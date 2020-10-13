@@ -722,7 +722,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                                 /*offset=*/-1,
                                                                 fModifiers->handle(invokeModifiers),
                                                                 "_invoke",
-                                                                std::vector<Variable*>(),
+                                                                std::vector<const Variable*>(),
                                                                 fContext.fVoid_Type.get(),
                                                                 /*builtin=*/false));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
@@ -884,7 +884,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     const ASTNode::FunctionData& funcData = f.getFunctionData();
     this->checkModifiers(f.fOffset, funcData.fModifiers, Modifiers::kHasSideEffects_Flag |
                                                          Modifiers::kInline_Flag);
-    std::vector<Variable*> parameters;
+    std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
@@ -920,7 +920,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             }
         }
 
-        Variable* var = fSymbolTable->takeOwnershipOfSymbol(
+        const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
                 std::make_unique<Variable>(param.fOffset, fModifiers->handle(m), pd.fName, type,
                                            fIsBuiltinCode, Variable::Storage::kParameter));
         parameters.push_back(var);
@@ -1042,7 +1042,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         fCurrentFunction = decl;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
-        const std::vector<Variable*>& declParameters = decl->parameters();
+        const std::vector<const Variable*>& declParameters = decl->parameters();
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(declParameters[i]);
         }
@@ -1149,7 +1149,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             sizes.push_back(nullptr);
         }
     }
-    Variable* var = old->takeOwnershipOfSymbol(
+    const Variable* var = old->takeOwnershipOfSymbol(
             std::make_unique<Variable>(intf.fOffset,
                                        fModifiers->handle(id.fModifiers),
                                        id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,

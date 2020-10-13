@@ -580,7 +580,7 @@ SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     String key = to_string(this->getType(function.returnType())) + "(";
     String separator;
-    const std::vector<Variable*>& parameters = function.parameters();
+    const std::vector<const Variable*>& parameters = function.parameters();
     for (size_t i = 0; i < parameters.size(); i++) {
         key += separator;
         separator = ", ";
@@ -2586,7 +2586,7 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     this->writeInstruction(SpvOpFunction, this->getType(f.returnType()), result,
                            SpvFunctionControlMaskNone, this->getFunctionType(f), out);
     this->writeInstruction(SpvOpName, result, f.name(), fNameBuffer);
-    const std::vector<Variable*>& parameters = f.parameters();
+    const std::vector<const Variable*>& parameters = f.parameters();
     for (size_t i = 0; i < parameters.size(); i++) {
         SpvId id = this->nextId();
         fVariableMap[parameters[i]] = id;

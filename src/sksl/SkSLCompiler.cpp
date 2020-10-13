@@ -465,7 +465,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
             }
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& c = expr->as<FunctionCall>();
-                const std::vector<Variable*>& parameters = c.function().parameters();
+                const std::vector<const Variable*>& parameters = c.function().parameters();
                 for (size_t i = 0; i < parameters.size(); ++i) {
                     if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
                         this->addDefinition(

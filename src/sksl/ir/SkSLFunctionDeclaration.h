@@ -30,7 +30,7 @@ public:
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(int offset, ModifiersPool::Handle modifiers, StringFragment name,
-                        std::vector<Variable*> parameters, const Type* returnType,
+                        std::vector<const Variable*> parameters, const Type* returnType,
                         bool builtin)
     : INHERITED(offset, FunctionDeclarationData{name, /*fDefiniition=*/nullptr, modifiers,
                                                 std::move(parameters), returnType,
@@ -52,7 +52,7 @@ public:
         this->functionDeclarationData().fDefinition = definition;
     }
 
-    const std::vector<Variable*>& parameters() const {
+    const std::vector<const Variable*>& parameters() const {
         return this->functionDeclarationData().fParameters;
     }
 
@@ -84,8 +84,8 @@ public:
         if (this->name() != f.name()) {
             return false;
         }
-        const std::vector<Variable*>& parameters = this->parameters();
-        const std::vector<Variable*>& otherParameters = f.parameters();
+        const std::vector<const Variable*>& parameters = this->parameters();
+        const std::vector<const Variable*>& otherParameters = f.parameters();
         if (parameters.size() != otherParameters.size()) {
             return false;
         }
@@ -115,7 +115,7 @@ public:
     using ParamTypes = SkSTArray<8, const Type*>;
     bool determineFinalTypes(const ExpressionArray& arguments,
                              ParamTypes* outParameterTypes, const Type** outReturnType) const {
-        const std::vector<Variable*>& parameters = this->parameters();
+        const std::vector<const Variable*>& parameters = this->parameters();
         SkASSERT(arguments.size() == parameters.size());
 
         outParameterTypes->reserve(arguments.size());
