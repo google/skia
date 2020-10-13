@@ -342,9 +342,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         return nullptr;
     };
-    auto argList = [&](const std::vector<std::unique_ptr<Expression>>& originalArgs)
-            -> std::vector<std::unique_ptr<Expression>> {
-        std::vector<std::unique_ptr<Expression>> args;
+    auto argList = [&](const ExpressionArray& originalArgs) -> ExpressionArray {
+        ExpressionArray args;
         args.reserve(originalArgs.size());
         for (const std::unique_ptr<Expression>& arg : originalArgs) {
             args.push_back(expr(arg));
@@ -592,7 +591,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(call);
     SkASSERT(this->isSafeToInline(call->function().definition()));
 
-    std::vector<std::unique_ptr<Expression>>& arguments = call->arguments();
+    ExpressionArray& arguments = call->arguments();
     const int offset = call->fOffset;
     const FunctionDefinition& function = *call->function().definition();
     const bool hasEarlyReturn = has_early_return(function);

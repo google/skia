@@ -466,7 +466,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kConstructor_Command: {
             const Type* type = this->type();
             uint8_t argCount = this->readU8();
-            std::vector<std::unique_ptr<Expression>> args;
+            ExpressionArray args;
             args.reserve(argCount);
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
@@ -489,7 +489,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             const FunctionDeclaration* f = this->symbolRef<FunctionDeclaration>(
                                                                 Symbol::Kind::kFunctionDeclaration);
             uint8_t argCount = this->readU8();
-            std::vector<std::unique_ptr<Expression>> args;
+            ExpressionArray args;
             args.reserve(argCount);
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());

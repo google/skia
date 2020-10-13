@@ -773,7 +773,7 @@ static void delete_right(BasicBlock* b,
  * Constructs the specified type using a single argument.
  */
 static std::unique_ptr<Expression> construct(const Type* type, std::unique_ptr<Expression> v) {
-    std::vector<std::unique_ptr<Expression>> args;
+    ExpressionArray args;
     args.push_back(std::move(v));
     std::unique_ptr<Expression> result = std::make_unique<Constructor>(-1, type, std::move(args));
     return result;
