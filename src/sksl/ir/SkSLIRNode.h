@@ -35,6 +35,7 @@ enum class VariableRefKind : int8_t;
 enum class VariableStorage : int8_t;
 
 using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
+using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -590,8 +591,7 @@ protected:
         }
     };
 
-    IRNode(int offset, int kind, const BlockData& data,
-           std::vector<std::unique_ptr<Statement>> stmts);
+    IRNode(int offset, int kind, const BlockData& data, StatementArray stmts);
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
 
@@ -856,7 +856,7 @@ protected:
     ExpressionArray fExpressionChildren;
     // it's important to keep fStatements defined after (and thus destroyed before) fData,
     // because destroying statements can modify reference counts in a SymbolTable contained in fData
-    std::vector<std::unique_ptr<Statement>> fStatementChildren;
+    StatementArray fStatementChildren;
 };
 
 }  // namespace SkSL
