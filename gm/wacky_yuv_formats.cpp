@@ -1006,56 +1006,6 @@ static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
     return SkColorFilters::Matrix(kJPEGConversionMatrix);
 }
 
-// Get the SkColorType to use when creating an SkSurface wrapping 'format'.
-static SkColorType get_color_type(const GrBackendFormat& format) {
-
-    GrGLFormat glFormat = format.asGLFormat();
-    if (GrGLFormat::kUnknown != glFormat) {
-        switch (glFormat) {
-            case GrGLFormat::kLUMINANCE8:   // fall through
-            case GrGLFormat::kR8:           // fall through
-            case GrGLFormat::kALPHA8:       return kAlpha_8_SkColorType;
-            case GrGLFormat::kRG8:          return kR8G8_unorm_SkColorType;
-            case GrGLFormat::kRGB8:         return kRGB_888x_SkColorType;
-            case GrGLFormat::kRGBA8:        return kRGBA_8888_SkColorType;
-            case GrGLFormat::kBGRA8:        return kBGRA_8888_SkColorType;
-            case GrGLFormat::kRGB10_A2:     return kRGBA_1010102_SkColorType;
-            case GrGLFormat::kLUMINANCE16F: // fall through
-            case GrGLFormat::kR16F:         return kA16_float_SkColorType;
-            case GrGLFormat::kRG16F:        return kR16G16_float_SkColorType;
-            case GrGLFormat::kR16:          return kA16_unorm_SkColorType;
-            case GrGLFormat::kRG16:         return kR16G16_unorm_SkColorType;
-            case GrGLFormat::kRGBA16:       return kR16G16B16A16_unorm_SkColorType;
-            default:                        return kUnknown_SkColorType;
-        }
-
-        SkUNREACHABLE;
-    }
-
-    VkFormat vkFormat;
-    if (format.asVkFormat(&vkFormat)) {
-        switch (vkFormat) {
-            case VK_FORMAT_R8_UNORM:                 return kAlpha_8_SkColorType;
-            case VK_FORMAT_R8G8_UNORM:               return kR8G8_unorm_SkColorType;
-            case VK_FORMAT_R8G8B8_UNORM:             return kRGB_888x_SkColorType;
-            case VK_FORMAT_R8G8B8A8_UNORM:           return kRGBA_8888_SkColorType;
-            case VK_FORMAT_B8G8R8A8_UNORM:           return kBGRA_8888_SkColorType;
-            case VK_FORMAT_A2B10G10R10_UNORM_PACK32: return kRGBA_1010102_SkColorType;
-            case VK_FORMAT_A2R10G10B10_UNORM_PACK32: return kBGRA_1010102_SkColorType;
-            case VK_FORMAT_R16_SFLOAT:               return kA16_float_SkColorType;
-            case VK_FORMAT_R16G16_SFLOAT:            return kR16G16_float_SkColorType;
-            case VK_FORMAT_R16_UNORM:                return kA16_unorm_SkColorType;
-            case VK_FORMAT_R16G16_UNORM:             return kR16G16_unorm_SkColorType;
-            case VK_FORMAT_R16G16B16A16_UNORM:       return kR16G16B16A16_unorm_SkColorType;
-            default:                                 return kUnknown_SkColorType;
-        }
-
-        SkUNREACHABLE;
-    }
-
-    return kUnknown_SkColorType;
-}
-
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -1082,8 +1032,6 @@ public:
         kYUVATextures,     // SkImage::MakeFromYUVATextures.
         kGenerator,        // SkImage_Lazy backed by generator that supports YUVA. This is the only
                            // mode that runs on CPU but CPU uses the flattening onGetPixels.
-        kResizeOnGpu,      // Planes uploaded to GPU then resized and fed to
-                           // SkImage::MakeFromYUVATextures.
     };
 
     WackyYUVFormatsGM(bool useTargetColorSpace, bool useSubset, ImageType imageType)
@@ -1110,9 +1058,6 @@ protected:
                 break;
             case ImageType::kGenerator:
                 name += "_imggen";
-                break;
-            case ImageType::kResizeOnGpu:
-                name += "_qtr";
                 break;
         }
 
@@ -1151,90 +1096,6 @@ protected:
         }
     }
 
-    // Resize all the backend textures in 'yuvaTextures' to a quarter their size.
-    sk_sp<SkImage> resizeOnGpu(GrDirectContext* dContext,
-                               YUVFormat yuvFormat,
-                               SkYUVColorSpace yuvColorSpace,
-                               bool opaque,
-                               const GrBackendTexture yuvaTextures[],
-                               const SkYUVAIndex yuvaIndices[4],
-                               int numTextures,
-                               SkISize imageSize) {
-        auto releaseContext = new YUVABackendReleaseContext(dContext);
-
-        for (int i = 0; i < numTextures; ++i) {
-            const GrBackendTexture& curTex = yuvaTextures[i];
-
-            SkColorType ct = get_color_type(curTex.getBackendFormat());
-            if (ct == kUnknown_SkColorType || !dContext->colorTypeSupportedAsSurface(ct)) {
-                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
-                return nullptr;
-            }
-
-            if (ct == kRGBA_8888_SkColorType || ct == kRGBA_1010102_SkColorType) {
-                // We disallow resizing AYUV and Y410 formats on the GPU bc resizing them w/ a
-                // premul draw combines the YUV channels w/ the A channel in an inappropriate
-                // manner.
-                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
-                return nullptr;
-            }
-
-            SkISize shrunkPlaneSize = {curTex.width() / 2, curTex.height() / 2 };
-
-            sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(dContext, curTex,
-                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                  ct,
-                                                                  kPremul_SkAlphaType,
-                                                                  nullptr /* colorSpace */,
-                                                                  nullptr /* releaseProc */,
-                                                                  nullptr /* releaseContext */);
-
-            GrBackendTexture tmp = dContext->createBackendTexture(shrunkPlaneSize.width(),
-                                                                  shrunkPlaneSize.height(),
-                                                                  curTex.getBackendFormat(),
-                                                                  GrMipmapped::kNo,
-                                                                  GrRenderable::kYes);
-            if (!tmp.isValid()) {
-                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
-                return nullptr;
-            }
-
-            releaseContext->set(i, tmp);
-            // uninitialized beTextures don't have any pending work
-            releaseContext->setCreationComplete(i);
-
-            sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(dContext, tmp,
-                                                                   kTopLeft_GrSurfaceOrigin, 0,
-                                                                   ct, nullptr, nullptr);
-            if (!s) {
-                YUVABackendReleaseContext::Unwind(dContext, releaseContext, true);
-                return nullptr;
-            }
-            SkCanvas* c = s->getCanvas();
-
-            SkPaint paint;
-            paint.setBlendMode(SkBlendMode::kSrc);
-
-            c->drawImageRect(wrappedOrig,
-                             SkRect::MakeWH(shrunkPlaneSize.width(), shrunkPlaneSize.height()),
-                             &paint);
-
-            s->flushAndSubmit();
-        }
-
-        SkISize shrunkImageSize = { imageSize.width() / 2, imageSize.height() / 2 };
-
-        return SkImage::MakeFromYUVATextures(dContext,
-                                             yuvColorSpace,
-                                             releaseContext->beTextures(),
-                                             yuvaIndices,
-                                             shrunkImageSize,
-                                             kTopLeft_GrSurfaceOrigin,
-                                             nullptr,
-                                             YUVABackendReleaseContext::Release,
-                                             releaseContext);
-    }
-
     bool createImages(GrDirectContext* dContext) {
         for (bool opaque : { false, true }) {
             for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
@@ -1249,8 +1110,7 @@ protected:
                     const YUVAPlanarConfig planarConfig(format, opaque);
                     SkASSERT(numPlanes == planarConfig.numPlanes());
 
-                    if (fImageType == ImageType::kYUVATextures ||
-                        fImageType == ImageType::kResizeOnGpu) {
+                    if (fImageType == ImageType::kYUVATextures) {
                         SkASSERT(dContext);
 
                         if (dContext->abandoned()) {
@@ -1281,30 +1141,16 @@ protected:
                             continue;
                         }
 
-                        if (fImageType == ImageType::kResizeOnGpu) {
-                            fImages[opaque][cs][format] =
-                                    this->resizeOnGpu(dContext,
-                                                      format,
-                                                      (SkYUVColorSpace)cs,
-                                                      opaque,
-                                                      releaseCtx->beTextures(),
-                                                      yuvaIndices,
-                                                      numPlanes,
-                                                      fOriginalBMs[opaque].dimensions());
-                            YUVABackendReleaseContext::Unwind(dContext, releaseCtx, true);
-                        } else {
-                            SkASSERT(fImageType == ImageType::kYUVATextures);
-                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATextures(
-                                    dContext,
-                                    (SkYUVColorSpace)cs,
-                                    releaseCtx->beTextures(),
-                                    yuvaIndices,
-                                    fOriginalBMs[opaque].dimensions(),
-                                    kTopLeft_GrSurfaceOrigin,
-                                    nullptr,
-                                    YUVABackendReleaseContext::Release,
-                                    releaseCtx);
-                        }
+                        fImages[opaque][cs][format] =
+                                SkImage::MakeFromYUVATextures(dContext,
+                                                              (SkYUVColorSpace)cs,
+                                                              releaseCtx->beTextures(),
+                                                              yuvaIndices,
+                                                              fOriginalBMs[opaque].dimensions(),
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              nullptr,
+                                                              YUVABackendReleaseContext::Release,
+                                                              releaseCtx);
                     } else if (fImageType == ImageType::kGenerator) {
                         SkImageInfo ii = SkImageInfo::MakeN32(fOriginalBMs[opaque].width(),
                                                               fOriginalBMs[opaque].height(),
@@ -1380,19 +1226,9 @@ protected:
         SkRect srcRect = SkRect::Make(fOriginalBMs[0].dimensions());
         SkRect dstRect = SkRect::MakeXYWH(kLabelWidth, 0.f, srcRect.width(), srcRect.height());
 
-        SkRect origSrcRect = srcRect;
-        if (fImageType == ImageType::kResizeOnGpu) {
-            srcRect = SkRect::MakeWH(fOriginalBMs[0].width() /2.0f,
-                                     fOriginalBMs[0].height()/2.0f);
-            dstRect = SkRect::MakeXYWH(kLabelWidth, 0.f,
-                                       fOriginalBMs[0].width() /2.0f,
-                                       fOriginalBMs[0].height()/2.0f);
-        }
-
         SkCanvas::SrcRectConstraint constraint = SkCanvas::kFast_SrcRectConstraint;
         if (fUseSubset) {
             srcRect.inset(kSubsetPadding, kSubsetPadding);
-            origSrcRect.inset(kSubsetPadding, kSubsetPadding);
             // Draw a larger rectangle to ensure bilerp filtering would normally read outside the
             // srcRect and hit the red pixels, if strict constraint weren't used.
             dstRect.fRight = kLabelWidth + 1.5f * srcRect.width();
@@ -1413,8 +1249,7 @@ protected:
 
                 draw_col_label(canvas, dstRect.fLeft + cellWidth / 2, cs, opaque);
 
-                canvas->drawBitmapRect(fOriginalBMs[opaque], origSrcRect, dstRect,
-                                       nullptr, constraint);
+                canvas->drawBitmapRect(fOriginalBMs[opaque], srcRect, dstRect, nullptr, constraint);
                 dstRect.offset(0.f, cellHeight + kPad);
 
                 for (int format = kP016_YUVFormat; format <= kLast_YUVFormat; ++format) {
@@ -1460,9 +1295,6 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ true,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::ImageType::kYUVATextures);)
-DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
-                                    /* subset */ false,
-                                    WackyYUVFormatsGM::ImageType::kResizeOnGpu);)
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::ImageType::kGenerator);)
