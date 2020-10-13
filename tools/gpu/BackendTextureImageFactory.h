@@ -5,12 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 
 class GrDirectContext;
+class SkColorSpace;
 class SkImage;
 class SkPixmap;
+struct SkISize;
 
 namespace sk_gpu_test {
 /**
@@ -20,6 +23,17 @@ namespace sk_gpu_test {
  * For testing purposes the texture can be made renderable to exercise different code paths for
  * renderable textures/formats.
  */
-sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*, const SkPixmap&,
-                                       GrRenderable, GrSurfaceOrigin);
+sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
+                                       const SkPixmap&,
+                                       GrRenderable,
+                                       GrSurfaceOrigin);
+
+/** Creates an image of with a solid color. */
+sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
+                                       const SkImageInfo& info,
+                                       SkColor4f,
+                                       GrMipmapped = GrMipmapped::kNo,
+                                       GrRenderable = GrRenderable::kNo,
+                                       GrSurfaceOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin);
+
 }  // namespace sk_gpu_test
