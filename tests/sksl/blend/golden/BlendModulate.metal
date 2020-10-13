@@ -20,6 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     {
         _0_blend_modulate = _in.src * _in.dst;
     }
+
     _out->sk_FragColor = _0_blend_modulate;
 
     return *_out;
