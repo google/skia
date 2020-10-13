@@ -20,10 +20,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         {
             _3_0_foo = _1_y[0] * _1_y[1];
         }
+
         _2_z = _3_0_foo;
 
         x = _2_z;
     }
+
 
     _out->sk_FragColor = float4(x);
     return *_out;

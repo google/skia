@@ -10,6 +10,7 @@ void main() {
     {
         _0_blend_difference = vec4((src.xyz + dst.xyz) - 2.0 * min(src.xyz * dst.w, dst.xyz * src.w), src.w + (1.0 - src.w) * dst.w);
     }
+
     sk_FragColor = _0_blend_difference;
 
 }

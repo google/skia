@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLInliner.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -94,7 +95,7 @@ private:
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, ErrorReporter& errorReporter);
+    IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter);
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
@@ -219,6 +220,7 @@ private:
     const Program::Settings* fSettings = nullptr;
     Program::Kind fKind;
 
+    Inliner* fInliner = nullptr;
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;

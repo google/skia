@@ -10,6 +10,7 @@ void main() {
     {
         _0_blend_plus = min(src + dst, 1.0);
     }
+
     sk_FragColor = _0_blend_plus;
 
 }
