@@ -272,7 +272,7 @@ void GrCoverageCountingPathRenderer::preFlush(
     // copy them to cached atlas(es).
     int numCopies = specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kFillIdx] +
                     specs.fNumCopiedPaths[GrCCPerFlushResourceSpecs::kStrokeIdx];
-    auto doCopies = DoCopiesToA8Coverage(numCopies > 100 ||
+    auto doCopies = DoCopiesToA8Coverage(numCopies > kDoCopiesThreshold ||
                                          specs.fCopyAtlasSpecs.fApproxNumPixels > 256 * 256);
     if (numCopies && DoCopiesToA8Coverage::kNo == doCopies) {
         specs.cancelCopies();

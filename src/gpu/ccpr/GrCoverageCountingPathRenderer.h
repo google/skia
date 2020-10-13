@@ -83,6 +83,8 @@ public:
     // than this will be converted to fill paths and drawn by the CCPR filler instead.
     static constexpr float kMaxBoundsInflationFromStroke = 4096;
 
+    static constexpr int kDoCopiesThreshold = 100;
+
     static float GetStrokeDevWidth(const SkMatrix&, const SkStrokeRec&,
                                    float* inflationRadius = nullptr);
 
