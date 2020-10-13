@@ -32,29 +32,29 @@ public:
     : fParent(parent)
     , fErrorReporter(parent->fErrorReporter) {}
 
-    Symbol* operator[](StringFragment name);
+    const Symbol* operator[](StringFragment name);
 
-    void addAlias(StringFragment name, Symbol* symbol);
-    void addWithoutOwnership(Symbol* symbol);
+    void addAlias(StringFragment name, const Symbol* symbol);
+    void addWithoutOwnership(const Symbol* symbol);
 
     template <typename T>
-    T* add(std::unique_ptr<T> symbol) {
-        T* ptr = symbol.get();
+    const T* add(std::unique_ptr<T> symbol) {
+        const T* ptr = symbol.get();
         this->addWithoutOwnership(ptr);
         this->takeOwnershipOfSymbol(std::move(symbol));
         return ptr;
     }
 
     template <typename T>
-    T* takeOwnershipOfSymbol(std::unique_ptr<T> symbol) {
-        T* ptr = symbol.get();
+    const T* takeOwnershipOfSymbol(std::unique_ptr<T> symbol) {
+        const T* ptr = symbol.get();
         fOwnedSymbols.push_back(std::move(symbol));
         return ptr;
     }
 
     template <typename T>
-    T* takeOwnershipOfIRNode(std::unique_ptr<T> node) {
-        T* ptr = node.get();
+    const T* takeOwnershipOfIRNode(std::unique_ptr<T> node) {
+        const T* ptr = node.get();
         fOwnedNodes.push_back(std::move(node));
         return ptr;
     }
@@ -92,12 +92,12 @@ private:
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 
-    Symbol* lookup(const SymbolKey& key);
+    const Symbol* lookup(const SymbolKey& key);
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
     std::vector<std::unique_ptr<String>> fOwnedStrings;
-    SkTHashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
+    SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
 
     friend class Dehydrator;
