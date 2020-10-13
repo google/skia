@@ -137,6 +137,11 @@ IRNode::IRNode(int offset, int kind, const UnresolvedFunctionData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const VarDeclarationData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const VariableData& data)
 : fOffset(offset)
 , fKind(kind)

@@ -30,9 +30,10 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
     for (const auto& p : fProgram.elements()) {
         switch (p->kind()) {
             case ProgramElement::Kind::kGlobalVar: {
-                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-                if (IsParameter(*decl.fVar)) {
-                    fParameters.push_back(decl.fVar);
+                const VarDeclaration& decl =
+                                  p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+                if (IsParameter(decl.var())) {
+                    fParameters.push_back(&decl.var());
                 }
                 break;
             }

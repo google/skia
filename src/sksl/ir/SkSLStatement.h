@@ -58,6 +58,9 @@ public:
     Statement(int offset, const InlineMarkerData& data)
     : INHERITED(offset, (int) Kind::kInlineMarker, data) {}
 
+    Statement(int offset, const VarDeclarationData& data)
+    : INHERITED(offset, (int) Kind::kVarDeclaration, data) {}
+
     Kind kind() const {
         return (Kind) fKind;
     }

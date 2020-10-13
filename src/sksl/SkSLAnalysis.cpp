@@ -479,12 +479,12 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kVarDeclaration: {
             auto& v = s.template as<VarDeclaration>();
-            for (auto& sizeExpr : v.fSizes) {
-                if (sizeExpr && this->visitExpression(*sizeExpr)) {
+            for (int i = 0; i < v.sizeCount(); ++i) {
+                if (v.size(i) && this->visitExpression(*v.size(i))) {
                     return true;
                 }
             }
-            return v.fValue && this->visitExpression(*v.fValue);
+            return v.value() && this->visitExpression(*v.value());
         }
         case Statement::Kind::kWhile: {
             auto& w = s.template as<WhileStatement>();
@@ -517,7 +517,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
             return false;
 
         case ProgramElement::Kind::kGlobalVar:
-            if (this->visitStatement(*pe.template as<GlobalVarDeclaration>().fDecl)) {
+            if (this->visitStatement(*pe.template as<GlobalVarDeclaration>().declaration())) {
                 return true;
             }
             return false;

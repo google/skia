@@ -154,9 +154,10 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     for (const auto& elem : program->elements()) {
         // Variables (uniform, varying, etc.)
         if (elem->is<SkSL::GlobalVarDeclaration>()) {
-            const auto& varDecl = elem->as<SkSL::GlobalVarDeclaration>().fDecl;
+            const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
+            const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
 
-            const SkSL::Variable& var = *varDecl->fVar;
+            const SkSL::Variable& var = varDecl.var();
             const SkSL::Type& varType = var.type();
 
             // Varyings (only used in conjunction with drawVertices)
