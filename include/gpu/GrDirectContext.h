@@ -112,8 +112,8 @@ public:
     /**
      * Returns true if the context was abandoned or if the if the backend specific context has
      * gotten into an unrecoverarble, lost state (e.g. in Vulkan backend if we've gotten a
-     * VK_ERROR_DEVICE_LOST). If the backend context is lost, this call will also abandon the
-     * GrContext.
+     * VK_ERROR_DEVICE_LOST). If the backend context is lost, this call will also abandon this
+     * context.
      */
     bool abandoned() override;
 
@@ -545,6 +545,92 @@ public:
      * The caller should check that the returned format is valid.
      */
     using GrRecordingContext::compressedBackendFormat;
+
+    /**
+     *If possible, create a compressed backend texture initialized to a particular color. The
+     * client should ensure that the returned backend texture is valid. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * For the Vulkan backend the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    const GrBackendFormat&,
+                                                    const SkColor4f& color,
+                                                    GrMipmapped,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
+
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkImage::CompressionType,
+                                                    const SkColor4f& color,
+                                                    GrMipmapped,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
+
+    /**
+     * If possible, create a backend texture initialized with the provided raw data. The client
+     * should ensure that the returned backend texture is valid. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture
+     * If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
+     * the data for all the mipmap levels must be provided. Additionally, all the miplevels
+     * must be sized correctly (please see SkMipmap::ComputeLevelSize and ComputeLevelCount).
+     * For the Vulkan backend the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    const GrBackendFormat&,
+                                                    const void* data, size_t dataSize,
+                                                    GrMipmapped,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
+
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkImage::CompressionType,
+                                                    const void* data, size_t dataSize,
+                                                    GrMipmapped,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrGpuFinishedProc finishedProc = nullptr,
+                                                    GrGpuFinishedContext finishedContext = nullptr);
+
+    /**
+     * If possible, updates a backend texture filled with the provided color. If the texture is
+     * mipmapped, all levels of the mip chain will be updated to have the supplied color. The client
+     * should check the return value to see if the update was successful. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateCompressedBackendTexture(const GrBackendTexture&,
+                                        const SkColor4f& color,
+                                        GrGpuFinishedProc finishedProc,
+                                        GrGpuFinishedContext finishedContext);
+
+    /**
+     * If possible, updates a backend texture filled with the provided raw data. The client
+     * should check the return value to see if the update was successful. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * If a mipMapped texture is passed in, the data for all the mipmap levels must be provided.
+     * Additionally, all the miplevels must be sized correctly (please see
+     * SkMipMap::ComputeLevelSize and ComputeLevelCount).
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateCompressedBackendTexture(const GrBackendTexture&,
+                                        const void* data,
+                                        size_t dataSize,
+                                        GrGpuFinishedProc finishedProc,
+                                        GrGpuFinishedContext finishedContext);
 
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
