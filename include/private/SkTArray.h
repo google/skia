@@ -14,6 +14,7 @@
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 #include <string.h>
 #include <memory>
@@ -90,7 +91,7 @@ public:
         }
         fCount = 0;
         this->checkRealloc(that.count());
-        fCount = that.count();
+        fCount = that.fCount;
         this->copy(that.fItemArray);
         return *this;
     }
@@ -103,7 +104,7 @@ public:
         }
         fCount = 0;
         this->checkRealloc(that.count());
-        fCount = that.count();
+        fCount = that.fCount;
         that.move(fItemArray);
         that.fCount = 0;
         return *this;
@@ -327,8 +328,14 @@ public:
         }
         if (fOwnMemory && that.fOwnMemory) {
             swap(fItemArray, that.fItemArray);
-            swap(fCount, that.fCount);
-            swap(fAllocCount, that.fAllocCount);
+
+            auto count = fCount;
+            fCount = that.fCount;
+            that.fCount = count;
+
+            auto allocCount = fAllocCount;
+            fAllocCount = that.fAllocCount;
+            that.fAllocCount = allocCount;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(that));
@@ -470,16 +477,14 @@ private:
     static constexpr int kMinHeapAllocCount = 8;
 
     void init(int count = 0, int reserveCount = 0) {
-        SkASSERT(count >= 0);
-        SkASSERT(reserveCount >= 0);
-        fCount = count;
+        fCount = SkToU32(count);
         if (!count && !reserveCount) {
             fAllocCount = 0;
             fItemArray = nullptr;
             fOwnMemory = true;
             fReserved = false;
         } else {
-            fAllocCount = std::max(count, std::max(kMinHeapAllocCount, reserveCount));
+            fAllocCount = SkToU32(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
@@ -572,7 +577,7 @@ private:
             return;
         }
 
-        fAllocCount = Sk64_pin_to_s32(newAllocCount);
+        fAllocCount = SkToU32(Sk64_pin_to_s32(newAllocCount));
         SkASSERT(fAllocCount >= newCount);
         T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
@@ -586,10 +591,10 @@ private:
     }
 
     T* fItemArray;
-    int fCount;
-    int fAllocCount;
-    bool fOwnMemory : 1;
-    bool fReserved : 1;
+    uint32_t fOwnMemory  :  1;
+    uint32_t fCount      : 31;
+    uint32_t fReserved   :  1;
+    uint32_t fAllocCount : 31;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
