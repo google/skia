@@ -16,6 +16,24 @@
       "message": "Ignore this error? Wondering why it pulls one of the old domain alias...\nI did add *@vibe.us to the AUTHORS, and signed the corporate CLA.\n\n```\nstatus: FAILURE\nsummary_markdown: \"There are 1 error(s), 0 warning(s), and 0 notifications(s). Here are the errors:\\n\\n**ERROR**\\n\\nThe email jiulongw@inlight.ai is not in Skia\u0027s AUTHORS file.\\n\\nIssue owner, this CL must include an addition to the Skia AUTHORS file.\\n\\n\"\n```",
       "revId": "c38032dd4f37cac2f8dadf6c9cd4b0c209fe3ef1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0fef942_0ea8c42f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-10-13T19:21:46Z",
+      "side": 1,
+      "message": "We unfortunately can\u0027t ignore, either need the @inlight ID added to CLAs and AUTHORS or to (ideally) to resubmit under the @vibe. Sorry about that!",
+      "parentUuid": "ab48bcc4_5bb0ab7c",
+      "revId": "c38032dd4f37cac2f8dadf6c9cd4b0c209fe3ef1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
