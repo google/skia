@@ -223,6 +223,10 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.build("", "return float4(p - 0.5, 0, 1);");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
+    // ... and support GLSL type names
+    effect.build("", "return vec4(p - 0.5, 0, 1);");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+
     //
     // Sampling children
     //
