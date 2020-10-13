@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6522891e_1c2b1211",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-13T15:10:04Z",
+      "side": 0,
+      "message": "This variable was dead/never used",
+      "range": {
+        "startLine": 713,
+        "startChar": 45,
+        "endLine": 713,
+        "endChar": 55
+      },
+      "revId": "521ddf00c96d3235f2a68012d5ae3eafa0544105",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
