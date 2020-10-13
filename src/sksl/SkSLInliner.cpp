@@ -542,7 +542,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
-            std::vector<std::unique_ptr<Expression>> sizes;
+            ExpressionArray sizes;
             sizes.reserve(decl.fSizes.size());
             for (const auto& size : decl.fSizes) {
                 sizes.push_back(expr(size));
@@ -646,12 +646,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         std::unique_ptr<Statement> variable;
         if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
             variable = std::make_unique<VarDeclaration>(
-                    variableSymbol, type, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                    (*initialValue)->clone());
+                    variableSymbol, type, /*sizes=*/ExpressionArray{}, (*initialValue)->clone());
         } else {
             variable = std::make_unique<VarDeclaration>(
-                    variableSymbol, type, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                    std::move(*initialValue));
+                    variableSymbol, type, /*sizes=*/ExpressionArray{}, std::move(*initialValue));
         }
 
         // Add the new variable-declaration statement to our block of extra statements.
