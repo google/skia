@@ -119,7 +119,7 @@ static SkCanvas* prepare_canvas(SkCanvas * canvas) {
 }
 
 #ifdef SK_GL
-static bool setup_backend_objects(GrContext* context,
+static bool setup_backend_objects(GrDirectContext* context,
                                   const SkBitmap& bm,
                                   const DrawOptions& options) {
     if (!context) {
