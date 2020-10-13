@@ -455,7 +455,7 @@ std::unordered_map<StringFragment, GLSLCodeGenerator::FunctionClass>*
 
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
 #ifdef SKSL_STANDALONE
     if (!fFunctionClasses) {
 #else

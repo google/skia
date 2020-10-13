@@ -8,6 +8,7 @@
 #ifndef SKSL_CONSTRUCTOR
 #define SKSL_CONSTRUCTOR
 
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -29,16 +30,16 @@ class Constructor : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
-    Constructor(int offset, const Type* type, std::vector<std::unique_ptr<Expression>> arguments)
+    Constructor(int offset, const Type* type, ExpressionArray arguments)
             : INHERITED(offset, kExpressionKind, type) {
         fExpressionChildren = std::move(arguments);
     }
 
-    std::vector<std::unique_ptr<Expression>>& arguments() {
+    ExpressionArray& arguments() {
         return fExpressionChildren;
     }
 
-    const std::vector<std::unique_ptr<Expression>>& arguments() const {
+    const ExpressionArray& arguments() const {
         return fExpressionChildren;
     }
 
@@ -55,7 +56,7 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
+        ExpressionArray cloned;
         cloned.reserve(this->arguments().size());
         for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             cloned.push_back(arg->clone());
