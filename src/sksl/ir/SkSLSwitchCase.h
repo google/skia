@@ -19,20 +19,20 @@ namespace SkSL {
 struct SwitchCase : public Statement {
     static constexpr Kind kStatementKind = Kind::kSwitchCase;
 
-    SwitchCase(int offset, std::unique_ptr<Expression> value,
-               std::vector<std::unique_ptr<Statement>> statements)
-    : INHERITED(offset, kStatementKind)
-    , fValue(std::move(value))
-    , fStatements(std::move(statements)) {}
+    SwitchCase(int offset, std::unique_ptr<Expression> value, StatementArray statements)
+            : INHERITED(offset, kStatementKind)
+            , fValue(std::move(value))
+            , fStatements(std::move(statements)) {}
 
     std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Statement>> cloned;
+        StatementArray cloned;
+        cloned.reserve(fStatements.size());
         for (const auto& s : fStatements) {
             cloned.push_back(s->clone());
         }
-        return std::unique_ptr<Statement>(new SwitchCase(fOffset,
-                                                         fValue ? fValue->clone() : nullptr,
-                                                         std::move(cloned)));
+        return std::make_unique<SwitchCase>(fOffset,
+                                            fValue ? fValue->clone() : nullptr,
+                                            std::move(cloned));
     }
 
     String description() const override {
@@ -50,7 +50,7 @@ struct SwitchCase : public Statement {
 
     // null value implies "default" case
     std::unique_ptr<Expression> fValue;
-    std::vector<std::unique_ptr<Statement>> fStatements;
+    StatementArray fStatements;
 
     using INHERITED = Statement;
 };

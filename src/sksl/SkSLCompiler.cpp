@@ -1172,14 +1172,13 @@ static bool contains_unconditional_break(Statement& stmt) {
     return ContainsUnconditionalBreak{}.visitStatement(stmt);
 }
 
-static void move_all_but_break(std::unique_ptr<Statement>& stmt,
-                               std::vector<std::unique_ptr<Statement>>* target) {
+static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray* target) {
     switch (stmt->kind()) {
         case Statement::Kind::kBlock: {
             // Recurse into the block.
             Block& block = static_cast<Block&>(*stmt);
 
-            std::vector<std::unique_ptr<Statement>> blockStmts;
+            StatementArray blockStmts;
             blockStmts.reserve(block.children().size());
             for (std::unique_ptr<Statement>& stmt : block.children()) {
                 move_all_but_break(stmt, &blockStmts);
@@ -1245,7 +1244,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
 
     // We fell off the bottom of the switch or encountered a break. We know the range of statements
     // that we need to move over, and we know it's safe to do so.
-    std::vector<std::unique_ptr<Statement>> caseStmts;
+    StatementArray caseStmts;
 
     // We can move over most of the statements as-is.
     while (startIter != iter) {
