@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1d12088_d3002f1c",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-13T16:04:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0f7c243_dbcf446a",
+      "revId": "368d233dad619d3bd8b19b3e161b65dfc92e99a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7926a7e6_43dd6a82",
@@ -69,6 +87,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12cb323d_d3f9d025",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-13T16:04:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7926a7e6_43dd6a82",
+      "revId": "368d233dad619d3bd8b19b3e161b65dfc92e99a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3cef7597_24c3ef09",
@@ -82,6 +118,30 @@
       "writtenOn": "2020-10-13T14:42:14Z",
       "side": 1,
       "message": "Got it. Looks like we account for that path reuse here.\n\nCan you delete the \"fWasCountedAsRender\" member and move this block to the one you just added above? (We don\u0027t need this member anymore because we can deduce it from the fact that fCachedEntry exists and fCachedAtlasProxy does not.)",
+      "range": {
+        "startLine": 388,
+        "startChar": 0,
+        "endLine": 395,
+        "endChar": 6
+      },
+      "revId": "368d233dad619d3bd8b19b3e161b65dfc92e99a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0fe4472_e5646356",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-13T16:04:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cef7597_24c3ef09",
       "range": {
         "startLine": 388,
         "startChar": 0,
