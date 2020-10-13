@@ -40,6 +40,26 @@ public:
 
     void reset(const Context*, ModifiersPool* modifiers, const Program::Settings*);
 
+    /**
+     * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
+     * replaced with `fReplacementExpr`. If non-null, `fInlinedBody` should be inserted immediately
+     * above the statement containing the inlined expression.
+     */
+    struct InlinedCall {
+        std::unique_ptr<Block> fInlinedBody;
+        std::unique_ptr<Expression> fReplacementExpr;
+    };
+    InlinedCall inlineCall(FunctionCall*, SymbolTable*, const FunctionDeclaration* caller);
+
+    /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
+    void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
+
+    /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
+    bool isSafeToInline(const FunctionDefinition* functionDef);
+
+    /** Checks whether a function's size exceeds the inline threshold from Settings. */
+    bool isLargeFunction(const FunctionDefinition* functionDef);
+
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(Program& program);
 
@@ -64,26 +84,8 @@ private:
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);
 
-    /** Checks whether a function's size exceeds the inline threshold from Settings. */
     using LargeFunctionCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache);
-
-    /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
-    void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
-
-    /**
-     * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
-     * replaced with `fReplacementExpr`. If non-null, `fInlinedBody` should be inserted immediately
-     * above the statement containing the inlined expression.
-     */
-    struct InlinedCall {
-        std::unique_ptr<Block> fInlinedBody;
-        std::unique_ptr<Expression> fReplacementExpr;
-    };
-    InlinedCall inlineCall(FunctionCall*, SymbolTable*, const FunctionDeclaration* caller);
-
-    /** Checks whether inlining is viable for a FunctionCall, modulo recursion and function size. */
-    bool isSafeToInline(const FunctionDefinition* functionDef);
 
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
