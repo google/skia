@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22c95df4_222a847c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-13T14:06:56Z",
+      "side": 1,
+      "message": "Chrome is fixed by cl https://chromium-review.googlesource.com/c/chromium/src/+/2466523",
+      "revId": "2621b593834c75f8b964817f51be9ea1f19f9587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
