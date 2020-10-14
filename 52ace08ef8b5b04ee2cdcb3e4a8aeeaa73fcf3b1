@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "277f813a_14969b07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-14T19:20:23Z",
+      "side": 1,
+      "message": "RRect needs to moved upstack, and just implemented as custom SkSL",
+      "revId": "52ace08ef8b5b04ee2cdcb3e4a8aeeaa73fcf3b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
