@@ -58,9 +58,6 @@ private:
 };
 
 bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
-    if (!vertexBuffer) {
-        return false;
-    }
     const SkData* data = vertexBuffer->getUniqueKey().getCustomData();
     SkASSERT(data);
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
@@ -119,6 +116,46 @@ private:
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
+    size_t fLockStride = 0;
+};
+
+class CpuVertexAllocator : public GrEagerVertexAllocator {
+public:
+    CpuVertexAllocator() = default;
+
+#ifdef SK_DEBUG
+    ~CpuVertexAllocator() override {
+        SkASSERT(!fLockStride && !fVertices);
+    }
+#endif
+
+    void* lock(size_t stride, int eagerCount) override {
+        SkASSERT(!fLockStride && !fVertices);
+        SkASSERT(stride && eagerCount);
+
+        fVertices = sk_malloc_throw(eagerCount * stride);
+        fLockStride = stride;
+
+        return fVertices;
+    }
+
+    void unlock(int actualCount) override {
+        SkASSERT(fLockStride && fVertices);
+
+        fVertices = sk_realloc_throw(fVertices, actualCount * fLockStride);
+        fLockStride = 0;
+    }
+
+    void* detachVertices() {
+        SkASSERT(!fLockStride && fVertices);
+
+        void* tmp = fVertices;
+        fVertices = nullptr;
+        return tmp;
+    }
+
+private:
+    void* fVertices = nullptr;
     size_t fLockStride = 0;
 };
 
@@ -258,6 +295,30 @@ private:
         builder.finish();
     }
 
+    static int Triangulate(GrEagerVertexAllocator* allocator,
+                           const SkMatrix& viewMatrix,
+                           const GrStyledShape& shape,
+                           const SkIRect& devClipBounds,
+                           SkScalar tol,
+                           int* numCountedCurves) {
+        SkRect clipBounds = SkRect::Make(devClipBounds);
+
+        SkMatrix vmi;
+        if (!viewMatrix.invert(&vmi)) {
+            return 0;
+        }
+        vmi.mapRect(&clipBounds);
+
+        SkASSERT(!shape.style().applies());
+        SkPath path;
+        shape.asPath(&path);
+
+        return GrTriangulator::PathToTriangles(path, tol, clipBounds,
+                                               allocator,
+                                               GrTriangulator::Mode::kNormal,
+                                               numCountedCurves);
+    }
+
     void createNonAAMesh(Target* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
@@ -265,38 +326,37 @@ private:
         GrUniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
 
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
+                                                        fViewMatrix, fShape.bounds());
+
         sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
-        int actualCount;
-        SkScalar tol = GrPathUtils::kDefaultTolerance;
-        tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
-        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
-            return;
+        if (cachedVertexBuffer) {
+            int actualCount;
+
+            if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
+                this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
+                return;
+            }
         }
 
-        SkRect clipBounds = SkRect::Make(fDevClipBounds);
-
-        SkMatrix vmi;
-        if (!fViewMatrix.invert(&vmi)) {
-            return;
-        }
-        vmi.mapRect(&clipBounds);
-        int numCountedCurves;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int vertexCount = GrTriangulator::PathToTriangles(this->getPath(), tol, clipBounds,
-                                                          &allocator, GrTriangulator::Mode::kNormal,
-                                                          &numCountedCurves);
+
+        int numCountedCurves;
+        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                      &numCountedCurves);
         if (vertexCount == 0) {
             return;
         }
+
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
         TessInfo info;
         info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
         info.fCount = vertexCount;
+        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
+
         fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
-        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 
         this->createMesh(target, std::move(vb), 0, vertexCount);
@@ -375,6 +435,39 @@ private:
                                                              std::move(appliedClip), dstProxyView,
                                                              gp, primitiveType,
                                                              renderPassXferBarriers);
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* rContext,
+                           const GrSurfaceProxyView* writeView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrXferBarrierFlags renderPassXferBarriers) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+        INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
+                                     renderPassXferBarriers);
+
+        SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
+
+        GrUniqueKey key;
+        CreateKey(&key, fShape, fDevClipBounds);
+
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
+                                                        fViewMatrix, fShape.bounds());
+
+        // check in cache!
+
+        CpuVertexAllocator allocator;
+
+        int numCountedCurves;
+        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                      &numCountedCurves);
+        if (vertexCount == 0) {
+            return;
+        }
+
+        fVertices = allocator.detachVertices();
+
     }
 
     void onPrepareDraws(Target* target) override {
