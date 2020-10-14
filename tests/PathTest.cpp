@@ -5447,8 +5447,14 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         add_verbs(&shared_path, verbs);
 
         const SkPath copy = shared_path;
+
         REPORTER_ASSERT(reporter, shared_path == unique_path);
         REPORTER_ASSERT(reporter, shared_path == copy);
+
+        uint32_t uID = unique_path.getGenerationID();
+        uint32_t sID = shared_path.getGenerationID();
+        uint32_t cID =        copy.getGenerationID();
+        REPORTER_ASSERT(reporter, sID == cID);
 
 #ifdef SK_DEBUG
         size_t before = PathTest_Private::GetFreeSpace(unique_path);
@@ -5457,6 +5463,17 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         shared_path.shrinkToFit();
         REPORTER_ASSERT(reporter, shared_path == unique_path);
         REPORTER_ASSERT(reporter, shared_path == copy);
+
+        // since the unique_path is "unique", it's genID need not have changed even though
+        // unique_path has changed (been shrunk)
+        REPORTER_ASSERT(reporter, uID == unique_path.getGenerationID());
+        // since the copy has not been changed, its ID should be the same
+        REPORTER_ASSERT(reporter, cID == copy.getGenerationID());
+        // but since shared_path has changed, and was not uniquely owned, it's gen ID needs to have
+        // changed, breaking the "sharing" -- this is done defensively in case there were any
+        // outstanding Iterators active on copy, which could have been invalidated during
+        // shrinkToFit.
+        REPORTER_ASSERT(reporter, sID != shared_path.getGenerationID());
 
 #ifdef SK_DEBUG
         size_t after = PathTest_Private::GetFreeSpace(unique_path);
