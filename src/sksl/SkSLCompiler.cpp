@@ -1677,6 +1677,8 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
 }
 
 bool Compiler::toGLSL(Program& program, String* out) {
+
+    printf("---------- CHECKPOINT compilation complete -------\n");
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {

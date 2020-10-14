@@ -926,12 +926,12 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     SkBitmap bitmap;
     SkDynamicMemoryWStream stream;
     SkString log;
-    Result result = sink->draw(justOneRect, &bitmap, &stream, &log);
+/*    Result result = sink->draw(justOneRect, &bitmap, &stream, &log);
     if (result.isFatal()) {
         info("Could not run %s: %s\n", config.getTag().c_str(), result.c_str());
         exit(1);
     }
-
+*/
     TaggedSink& ts = gSinks->push_back();
     ts.reset(sink.release());
     ts.tag = config.getTag();

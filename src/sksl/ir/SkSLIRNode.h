@@ -43,6 +43,24 @@ using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
  */
 class IRNode {
 public:
+    struct IRNodeCounter {
+        IRNodeCounter() {
+            ++s_curNodes;
+            s_highWaterMark = std::max(s_curNodes, s_highWaterMark);
+            printf("IRNodes: ++ now %d, high-water %d\n", s_curNodes, s_highWaterMark);
+        }
+
+        ~IRNodeCounter() {
+            --s_curNodes;
+            printf("IRNodes: -- now %d, high-water %d\n", s_curNodes, s_highWaterMark);
+        }
+
+        static int s_curNodes;
+        static int s_highWaterMark;
+    };
+
+    IRNodeCounter fCounter;
+
     virtual ~IRNode();
 
     IRNode& operator=(const IRNode& other) {
@@ -662,6 +680,8 @@ protected:
     IRNode(int offset, int kind, const VariableData& data);
 
     IRNode(int offset, int kind, const VariableReferenceData& data);
+
+    IRNode();
 
     Expression& expressionChild(int index) const {
         SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());

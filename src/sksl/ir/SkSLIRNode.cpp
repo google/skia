@@ -11,6 +11,14 @@
 
 namespace SkSL {
 
+int IRNode::IRNodeCounter::s_curNodes = 0;
+int IRNode::IRNodeCounter::s_highWaterMark = 0;
+void ResetCounters() {
+    printf("*** COUNTER RESET ***\n");
+    IRNode::IRNodeCounter::s_curNodes = 0;
+    IRNode::IRNodeCounter::s_highWaterMark = 0;
+}
+
 IRNode::IRNode(int offset, int kind, const BlockData& data, StatementArray stmts)
 : fOffset(offset)
 , fKind(kind)
