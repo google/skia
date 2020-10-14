@@ -42,6 +42,14 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
 // allocations to just fit the current needs. makeSpace() will only grow, but never shrinks.
 //
 void SkPath::shrinkToFit() {
+    // Since this can relocate the allocated arrays, we have to defensively copy ourselves if
+    // we're not the only owner of the pathref... since relocating the arrays will invalidate
+    // any existing iterators.
+    if (!fPathRef->unique()) {
+        SkPathRef* pr = new SkPathRef;
+        pr->copy(*fPathRef, 0, 0);
+        fPathRef.reset(pr);
+    }
     fPathRef->fPoints.shrinkToFit();
     fPathRef->fVerbs.shrinkToFit();
     fPathRef->fConicWeights.shrinkToFit();

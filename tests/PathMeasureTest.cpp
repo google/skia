@@ -279,6 +279,23 @@ static void test_MLM_contours(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_shrink(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.addRect({1, 2, 3, 4});
+    path.incReserve(100);   // force the allocation to be larger than needed
+
+    SkContourMeasureIter iter(path, false);
+    path.shrinkToFit(); // shrink the allocation, (hopefully) invalidating any prev iterators
+
+    // For this to properly succeed, the iter needs to have copied the original path
+    // *before* we shrank it, hence in the constructor.
+
+    // Note, this fails (before the fix) on an ASAN build, which notices that we were
+    // using an internal iterator of the passed-in path, not our copy.
+    while (iter.next())
+        ;
+}
+
 DEF_TEST(contour_measure, reporter) {
     SkPath path;
     path.addCircle(0, 0, 100);
@@ -305,4 +322,6 @@ DEF_TEST(contour_measure, reporter) {
 
     test_empty_contours(reporter);
     test_MLM_contours(reporter);
+
+    test_shrink(reporter);
 }
