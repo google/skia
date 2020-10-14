@@ -122,7 +122,7 @@ DEF_TEST(SkShaperTest_VisualizeCluster, reporter) {
 
 // Example use of the SkShaperJSONWriter.
 // Set to 1 to see use.
-#if 0
+#if 1
 DEF_TEST(SkShaperTest_basic, reporter) {
     std::unique_ptr<SkShaper> shaper = SkShaper::Make();
     SkFont font(nullptr, 14);
