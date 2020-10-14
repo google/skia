@@ -53,7 +53,7 @@ public:
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
                      std::unique_ptr<Expression> right, const Type* type)
     : INHERITED(offset, kExpressionKind, TypeTokenData{type, op}) {
-        fExpressionChildren.reserve(2);
+        fExpressionChildren.reserve_back(2);
         fExpressionChildren.push_back(std::move(left));
         fExpressionChildren.push_back(std::move(right));
         // If we are assigning to a VariableReference, ensure that it is set to Write or ReadWrite

@@ -572,12 +572,12 @@ void GrCCStrokeGeometry::recordCapsIfAny() {
 
     // Reserve the space first, since push_back() takes the point by reference and might
     // invalidate the reference if the array grows.
-    fPoints.reserve(fPoints.count() + 1);
+    fPoints.reserve_back(fPoints.count() + 1);
     fPoints.push_back(fPoints[fCurrContourFirstPtIdx]);
 
     // Reserve the space first, since push_back() takes the normal by reference and might
     // invalidate the reference if the array grows. (Although in this case we should be fine
     // since there is a negate operator.)
-    fNormals.reserve(fNormals.count() + 1);
+    fNormals.reserve_back(fNormals.count() + 1);
     fNormals.push_back(-fNormals[fCurrContourFirstNormalIdx]);
 }

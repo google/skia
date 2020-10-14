@@ -738,8 +738,8 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    regions->reserve(numMipLevels);
-    individualMipOffsets->reserve(numMipLevels);
+    regions->reserve_back(numMipLevels);
+    individualMipOffsets->reserve_back(numMipLevels);
 
     size_t bytesPerBlock = GrVkFormatBytesPerBlock(vkFormat);
 

@@ -38,7 +38,7 @@ struct InterfaceBlock : public ProgramElement {
 
     std::unique_ptr<ProgramElement> clone() const override {
         ExpressionArray sizesClone;
-        sizesClone.reserve(fSizes.size());
+        sizesClone.reserve_back(fSizes.size());
         for (const auto& s : fSizes) {
             sizesClone.push_back(s ? s->clone() : nullptr);
         }
