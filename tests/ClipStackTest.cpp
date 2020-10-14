@@ -31,7 +31,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrClipStackClip.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrTexture.h"
