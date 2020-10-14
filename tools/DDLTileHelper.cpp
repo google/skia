@@ -121,7 +121,7 @@ void DDLTileHelper::TileData::precompile(GrDirectContext* direct) {
     }
 }
 
-sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext* context) {
+sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrContext* context) {
     SkASSERT(fCallbackContext && fCallbackContext->promiseImageTexture());
 
     auto promiseImageTexture = fCallbackContext->promiseImageTexture();
@@ -141,7 +141,7 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
                                              &fCharacterization.surfaceProps());
 }
 
-void DDLTileHelper::TileData::drawSKPDirectly(GrRecordingContext* context) {
+void DDLTileHelper::TileData::drawSKPDirectly(GrContext* context) {
     SkASSERT(!fDisplayList && !fTileSurface && fReconstitutedPicture);
 
     fTileSurface = this->makeWrappedTileDest(context);
@@ -335,7 +335,7 @@ void DDLTileHelper::interleaveDDLCreationAndDraw(GrDirectContext* direct) {
 }
 
 // Only called from skpbench
-void DDLTileHelper::drawAllTilesDirectly(GrDirectContext* context) {
+void DDLTileHelper::drawAllTilesDirectly(GrContext* context) {
     for (int i = 0; i < this->numTiles(); ++i) {
         fTiles[i].drawSKPDirectly(context);
     }

@@ -17,6 +17,7 @@
 #endif
 
 class GrBackendFormat;
+class GrContext;
 class GrRecordingContext;
 class SkBitmap;
 class SkCanvas;

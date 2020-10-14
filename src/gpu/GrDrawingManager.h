@@ -202,6 +202,7 @@ private:
 
     SkDEBUGCODE(void validate() const);
 
+    friend class GrContext; // access to: flush & cleanup
     friend class GrDirectContext; // access to: flush & cleanup
     friend class GrDirectContextPriv; // access to: flush
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class

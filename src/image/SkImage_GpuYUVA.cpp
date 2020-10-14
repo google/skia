@@ -234,7 +234,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newC
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* ctx,
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                              SkYUVColorSpace colorSpace,
                                              const GrBackendTexture yuvaTextures[],
                                              const SkYUVAIndex yuvaIndices[4],

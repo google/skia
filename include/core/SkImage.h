@@ -34,6 +34,7 @@ class SkPicture;
 class SkSurface;
 class SkYUVAPixmaps;
 class GrBackendTexture;
+class GrContext;
 class GrDirectContext;
 class GrRecordingContext;
 class GrContextThreadSafeProxy;
@@ -252,7 +253,7 @@ public:
         will be decompressed and then wrapped in a GPU-backed image.
 
         Note: one can query the supported compression formats via
-        GrRecordingContext::compressedBackendFormat.
+        GrContext::compressedBackendFormat.
 
         @param context     GPU context
         @param data        compressed data to store in SkImage
@@ -426,7 +427,7 @@ public:
         @param releaseContext     state passed to textureReleaseProc
         @return                   created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+    static sk_sp<SkImage> MakeFromYUVATextures(GrContext* context,
                                                SkYUVColorSpace yuvColorSpace,
                                                const GrBackendTexture yuvaTextures[],
                                                const SkYUVAIndex yuvaIndices[4],
@@ -468,7 +469,7 @@ public:
     /** To be deprecated.
     */
     static sk_sp<SkImage> MakeFromYUVTexturesCopyWithExternalBackend(
-            GrRecordingContext* context,
+            GrContext* context,
             SkYUVColorSpace yuvColorSpace,
             const GrBackendTexture yuvTextures[3],
             GrSurfaceOrigin textureOrigin,
@@ -493,7 +494,7 @@ public:
         @return                   created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromNV12TexturesCopyWithExternalBackend(
-            GrRecordingContext* context,
+            GrContext* context,
             SkYUVColorSpace yuvColorSpace,
             const GrBackendTexture nv12Textures[2],
             GrSurfaceOrigin textureOrigin,
@@ -951,7 +952,7 @@ public:
         guarantee a finite time before the callback is called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the SkImage
-        is GPU-backed the data is immediately invalidated if the context is abandoned or
+        is GPU-backed the data is immediately invalidated if the GrContext is abandoned or
         destroyed.
 
         @param info            info of the requested pixels
@@ -984,7 +985,7 @@ public:
         called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the SkImage
-        is GPU-backed the data is immediately invalidated if the context is abandoned or
+        is GPU-backed the data is immediately invalidated if the GrContext is abandoned or
         destroyed.
 
         @param yuvColorSpace  The transformation from RGB to YUV. Applied to the resized image
@@ -1132,7 +1133,7 @@ public:
         @param GrDirectContext the GrDirectContext in play, if it exists
         @param GrMipmapped     whether created SkImage texture must allocate mip map levels
         @param SkBudgeted      whether to count a newly created texture for the returned image
-                               counts against the context's budget.
+                               counts against the GrContext's budget.
         @return                created SkImage, or nullptr
     */
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
@@ -1221,7 +1222,7 @@ public:
         @param backendTextureReleaseProc  storage for clean up function
         @return                           true if back-end texture was created
     */
-    static bool MakeBackendTextureFromSkImage(GrDirectContext* context,
+    static bool MakeBackendTextureFromSkImage(GrContext* context,
                                               sk_sp<SkImage> image,
                                               GrBackendTexture* backendTexture,
                                               BackendTextureReleaseProc* backendTextureReleaseProc);

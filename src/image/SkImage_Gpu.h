@@ -15,8 +15,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/image/SkImage_GpuBase.h"
 
-class GrDirectContext;
-class GrRecordingContext;
+class GrContext;
 class GrTexture;
 
 class SkBitmap;
