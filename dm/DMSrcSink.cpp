@@ -71,8 +71,8 @@
 #endif
 
 #if defined(SK_XML)
-    #include "experimental/svg/model/SkSVGDOM.h"
     #include "include/svg/SkSVGCanvas.h"
+    #include "modules/svg/include/SkSVGDOM.h"
     #include "src/xml/SkXMLWriter.h"
 #endif
 
@@ -2339,8 +2339,8 @@ Result ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkS
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #ifdef TEST_VIA_SVG
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/svg/SkSVGCanvas.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "src/xml/SkXMLWriter.h"
 
 Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
