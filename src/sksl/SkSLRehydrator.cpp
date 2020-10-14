@@ -300,7 +300,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 refs.insert(this->symbolRef<FunctionDeclaration>(
                                                                Symbol::Kind::kFunctionDeclaration));
             }
-            FunctionDefinition* result = new FunctionDefinition(-1, *decl, std::move(body),
+            FunctionDefinition* result = new FunctionDefinition(-1, decl, std::move(body),
                                                                 std::move(refs));
             decl->setDefinition(result);
             return std::unique_ptr<ProgramElement>(result);

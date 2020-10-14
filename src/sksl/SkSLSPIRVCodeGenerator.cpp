@@ -2598,17 +2598,17 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
 
 SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStream& out) {
     fVariableBuffer.reset();
-    SpvId result = this->writeFunctionStart(f.fDeclaration, out);
+    SpvId result = this->writeFunctionStart(f.declaration(), out);
     this->writeLabel(this->nextId(), out);
     StringStream bodyBuffer;
-    this->writeBlock((Block&) *f.fBody, bodyBuffer);
+    this->writeBlock((Block&) *f.body(), bodyBuffer);
     write_stringstream(fVariableBuffer, out);
-    if (f.fDeclaration.name() == "main") {
+    if (f.declaration().name() == "main") {
         write_stringstream(fGlobalInitializersBuffer, out);
     }
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
-        if (f.fDeclaration.returnType() == *fContext.fVoid_Type) {
+        if (f.declaration().returnType() == *fContext.fVoid_Type) {
             this->writeInstruction(SpvOpReturn, out);
         } else {
             this->writeInstruction(SpvOpUnreachable, out);
@@ -3167,7 +3167,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = e->as<FunctionDefinition>();
-                fFunctionMap[&f.fDeclaration] = this->nextId();
+                fFunctionMap[&f.declaration()] = this->nextId();
                 break;
             }
             case ProgramElement::Kind::kModifiers: {
