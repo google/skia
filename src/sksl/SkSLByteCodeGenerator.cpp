@@ -184,14 +184,14 @@ bool ByteCodeGenerator::generateCode() {
 
 std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunction = &f;
-    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.fDeclaration));
+    std::unique_ptr<ByteCodeFunction> result(new ByteCodeFunction(&f.declaration()));
     fParameterCount = result->fParameterCount;
     fLoopCount = fMaxLoopCount = 0;
     fConditionCount = fMaxConditionCount = 0;
     fStackCount = fMaxStackCount = 0;
     fCode = &result->fCode;
 
-    this->writeStatement(*f.fBody);
+    this->writeStatement(*f.body());
     if (0 == fErrors.errorCount()) {
         SkASSERT(fLoopCount == 0);
         SkASSERT(fConditionCount == 0);
@@ -204,7 +204,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     result->fLoopCount      = fMaxLoopCount;
     result->fStackCount     = fMaxStackCount;
 
-    const Type& returnType = f.fDeclaration.returnType();
+    const Type& returnType = f.declaration().returnType();
     if (returnType != *fContext.fVoid_Type) {
         result->fReturnCount = SlotCount(returnType);
     }
@@ -441,7 +441,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
         }
         case Variable::Storage::kParameter: {
             int offset = 0;
-            for (const auto& p : fFunction->fDeclaration.parameters()) {
+            for (const auto& p : fFunction->declaration().parameters()) {
                 if (p == &var) {
                     SkASSERT(offset <= 255);
                     return { offset, Storage::kLocal };
@@ -1238,7 +1238,7 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
     // before they're defined. This is an easy-to-understand rule that prevents recursion.
     int idx = -1;
     for (size_t i = 0; i < fFunctions.size(); ++i) {
-        if (f.function().matches(fFunctions[i]->fDeclaration)) {
+        if (f.function().matches(fFunctions[i]->declaration())) {
             idx = i;
             break;
         }

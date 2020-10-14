@@ -654,7 +654,7 @@ CFG CFGGenerator::getCFG(FunctionDefinition& f) {
     CFG result;
     result.fStart = result.newBlock();
     result.fCurrent = result.fStart;
-    this->addStatement(result, &f.fBody);
+    this->addStatement(result, &f.body());
     result.newBlock();
     result.fExit = result.fCurrent;
     return result;

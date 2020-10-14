@@ -83,7 +83,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         int index = 0;
         for (const auto& e : fProgram.elements()) {
             if (e->is<FunctionDefinition>()) {
-                if (&e->as<FunctionDefinition>().fDeclaration == &function) {
+                if (&e->as<FunctionDefinition>().declaration() == &function) {
                     break;
                 }
                 ++index;
@@ -175,8 +175,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    if (f.fDeclaration.name() == "main") {
-        for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+    if (f.declaration().name() == "main") {
+        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }
@@ -184,7 +184,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        const FunctionDeclaration& decl = f.fDeclaration;
+        const FunctionDeclaration& decl = f.declaration();
         Compiler::GLSLFunction result;
         if (!type_to_grsltype(fContext, decl.returnType(), &result.fReturnType)) {
             fErrors.error(f.fOffset, "unsupported return type");
@@ -199,7 +199,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
             }
             result.fParameters.emplace_back(v->name(), paramSLType);
         }
-        for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }

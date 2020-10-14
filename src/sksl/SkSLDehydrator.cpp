@@ -529,11 +529,11 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kFunction: {
             const FunctionDefinition& f = e.as<FunctionDefinition>();
             this->writeCommand(Rehydrator::kFunctionDefinition_Command);
-            this->writeU16(this->symbolId(&f.fDeclaration));
-            this->write(f.fBody.get());
-            this->writeU8(f.fReferencedIntrinsics.size());
+            this->writeU16(this->symbolId(&f.declaration()));
+            this->write(f.body().get());
+            this->writeU8(f.referencedIntrinsics().size());
             std::set<uint16_t> ordered;
-            for (const FunctionDeclaration* ref : f.fReferencedIntrinsics) {
+            for (const FunctionDeclaration* ref : f.referencedIntrinsics()) {
                 ordered.insert(this->symbolId(ref));
             }
             for (uint16_t ref : ordered) {

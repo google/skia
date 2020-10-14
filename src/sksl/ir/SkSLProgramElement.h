@@ -37,19 +37,22 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    ProgramElement(int offset, const EnumData& enumData)
-    : INHERITED(offset, (int) Kind::kEnum, enumData) {}
+    ProgramElement(int offset, const EnumData& data)
+    : INHERITED(offset, (int) Kind::kEnum, data) {}
 
-    ProgramElement(int offset, const ModifiersDeclarationData& enumData)
-    : INHERITED(offset, (int) Kind::kModifiers, enumData) {}
+    ProgramElement(int offset, const FunctionDefinitionData& data)
+    : INHERITED(offset, (int) Kind::kFunction, data) {}
+
+    ProgramElement(int offset, const ModifiersDeclarationData& data)
+    : INHERITED(offset, (int) Kind::kModifiers, data) {}
 
     ProgramElement(int offset, Kind kind, const String& data)
     : INHERITED(offset, (int) kind, data) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    ProgramElement(int offset, const SectionData& sectionData)
-    : INHERITED(offset, (int) Kind::kSection, sectionData) {}
+    ProgramElement(int offset, const SectionData& data)
+    : INHERITED(offset, (int) Kind::kSection, data) {}
 
     Kind kind() const {
         return (Kind) fKind;

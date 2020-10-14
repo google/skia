@@ -324,7 +324,7 @@ bool Analysis::ReferencesFragCoords(const Program& program) {
 }
 
 bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
-    return NodeCountVisitor{limit}.visit(*function.fBody) > limit;
+    return NodeCountVisitor{limit}.visit(*function.body()) > limit;
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
@@ -506,7 +506,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
             return false;
 
         case ProgramElement::Kind::kFunction:
-            return this->visitStatement(*pe.template as<FunctionDefinition>().fBody);
+            return this->visitStatement(*pe.template as<FunctionDefinition>().body());
 
         case ProgramElement::Kind::kInterfaceBlock:
             for (auto& e : pe.template as<InterfaceBlock>().fSizes) {

@@ -214,7 +214,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
         // Functions
         else if (elem->is<SkSL::FunctionDefinition>()) {
             const auto& func = elem->as<SkSL::FunctionDefinition>();
-            const SkSL::FunctionDeclaration& decl = func.fDeclaration;
+            const SkSL::FunctionDeclaration& decl = func.declaration();
             if (decl.name() == "main") {
                 hasMain = true;
             }

@@ -595,7 +595,7 @@ static const char* glsltype_string(const Context& context, const Type& type) {
 }
 
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    const FunctionDeclaration& decl = f.fDeclaration;
+    const FunctionDeclaration& decl = f.declaration();
     if (decl.isBuiltin()) {
         return;
     }
@@ -605,7 +605,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = &buffer;
     if (decl.name() == "main") {
         fInMain = true;
-        for (const std::unique_ptr<Statement>& s : f.fBody->as<Block>().children()) {
+        for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
             this->writeStatement(*s);
             this->writeLine();
         }
@@ -625,7 +625,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         args += "};";
         this->addExtraEmitCodeLine(args.c_str());
-        for (const std::unique_ptr<Statement>& s : f.fBody->as<Block>().children()) {
+        for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
             this->writeStatement(*s);
             this->writeLine();
         }

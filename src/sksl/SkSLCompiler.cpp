@@ -360,8 +360,8 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
         switch (element->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = element->as<FunctionDefinition>();
-                SkASSERT(f.fDeclaration.isBuiltin());
-                intrinsics->insertOrDie(f.fDeclaration.description(), std::move(element));
+                SkASSERT(f.declaration().isBuiltin());
+                intrinsics->insertOrDie(f.declaration().description(), std::move(element));
                 break;
             }
             case ProgramElement::Kind::kEnum: {
@@ -1525,9 +1525,9 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     }
 
     // check for missing return
-    if (f.fDeclaration.returnType() != *fContext->fVoid_Type) {
+    if (f.declaration().returnType() != *fContext->fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fIsReachable) {
-            this->error(f.fOffset, String("function '" + String(f.fDeclaration.name()) +
+            this->error(f.fOffset, String("function '" + String(f.declaration().name()) +
                                           "' can exit without returning a value"));
         }
     }
@@ -1601,8 +1601,8 @@ bool Compiler::optimize(Program& program) {
                                            return false;
                                        }
                                        const auto& fn = element->as<FunctionDefinition>();
-                                       bool dead = fn.fDeclaration.callCount() == 0 &&
-                                                   fn.fDeclaration.name() != "main";
+                                       bool dead = fn.declaration().callCount() == 0 &&
+                                                   fn.declaration().name() != "main";
                                        madeChanges |= dead;
                                        return dead;
                                    }),

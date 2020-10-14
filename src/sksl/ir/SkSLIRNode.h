@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <unordered_set>
 #include <vector>
 
 namespace SkSL {
@@ -138,6 +139,18 @@ protected:
         }
     };
 
+    struct FunctionDefinitionData {
+        const FunctionDeclaration* fDeclaration;
+        // We track intrinsic functions we reference so that we can ensure that all of them end up
+        // copied into the final output.
+        std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
+        // This pointer may be null, and even when non-null is not guaranteed to remain valid for
+        // the entire lifespan of this object. The parse tree's lifespan is normally controlled by
+        // IRGenerator, so the IRGenerator being destroyed or being used to compile another file
+        // will invalidate this pointer.
+        const ASTNode* fSource;
+    };
+
     struct FunctionReferenceData {
         const Type* fType;
         std::vector<const FunctionDeclaration*> fFunctions;
@@ -239,6 +252,7 @@ protected:
             kForStatement,
             kFunctionCall,
             kFunctionDeclaration,
+            kFunctionDefinition,
             kFunctionReference,
             kIfStatement,
             kInlineMarker,
@@ -271,6 +285,7 @@ protected:
             ForStatementData fForStatement;
             FunctionCallData fFunctionCall;
             FunctionDeclarationData fFunctionDeclaration;
+            FunctionDefinitionData fFunctionDefinition;
             FunctionReferenceData fFunctionReference;
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
@@ -343,6 +358,11 @@ protected:
         NodeData(const FunctionDeclarationData& data)
             : fKind(Kind::kFunctionDeclaration) {
             *(new(&fContents) FunctionDeclarationData) = data;
+        }
+
+        NodeData(const FunctionDefinitionData& data)
+            : fKind(Kind::kFunctionDefinition) {
+            *(new(&fContents) FunctionDefinitionData) = data;
         }
 
         NodeData(const FunctionReferenceData& data)
@@ -474,6 +494,9 @@ protected:
                     *(new(&fContents) FunctionDeclarationData) =
                                                                other.fContents.fFunctionDeclaration;
                     break;
+                case Kind::kFunctionDefinition:
+                    *(new(&fContents) FunctionDefinitionData) = other.fContents.fFunctionDefinition;
+                    break;
                 case Kind::kFunctionReference:
                     *(new(&fContents) FunctionReferenceData) = other.fContents.fFunctionReference;
                     break;
@@ -570,6 +593,9 @@ protected:
                 case Kind::kFunctionDeclaration:
                     fContents.fFunctionDeclaration.~FunctionDeclarationData();
                     break;
+                case Kind::kFunctionDefinition:
+                    fContents.fFunctionDefinition.~FunctionDefinitionData();
+                    break;
                 case Kind::kFunctionReference:
                     fContents.fFunctionReference.~FunctionReferenceData();
                     break;
@@ -646,6 +672,8 @@ protected:
     IRNode(int offset, int kind, const FunctionCallData& data);
 
     IRNode(int offset, int kind, const FunctionDeclarationData& data);
+
+    IRNode(int offset, int kind, const FunctionDefinitionData& data);
 
     IRNode(int offset, int kind, const FunctionReferenceData& data);
 
@@ -780,6 +808,16 @@ protected:
     const FunctionDeclarationData& functionDeclarationData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFunctionDeclaration);
         return fData.fContents.fFunctionDeclaration;
+    }
+
+    FunctionDefinitionData& functionDefinitionData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDefinition);
+        return fData.fContents.fFunctionDefinition;
+    }
+
+    const FunctionDefinitionData& functionDefinitionData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDefinition);
+        return fData.fContents.fFunctionDefinition;
     }
 
     const FunctionReferenceData& functionReferenceData() const {
