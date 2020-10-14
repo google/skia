@@ -50,6 +50,13 @@ void SkPath::shrinkToFit() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+size_t SkPathRef::approximateBytesUsed() const {
+    return sizeof(SkPathRef)
+         + fPoints      .reserved() * sizeof(fPoints      [0])
+         + fVerbs       .reserved() * sizeof(fVerbs       [0])
+         + fConicWeights.reserved() * sizeof(fConicWeights[0]);
+}
+
 SkPathRef::~SkPathRef() {
     // Deliberately don't validate() this path ref, otherwise there's no way
     // to read one that's not valid and then free its memory without asserting.

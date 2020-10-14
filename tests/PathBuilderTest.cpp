@@ -270,3 +270,23 @@ DEF_TEST(pathbuilder_addPolygon, reporter) {
         }
     }
 }
+
+DEF_TEST(pathbuilder_shrinkToFit, reporter) {
+    // SkPathBuilder::snapshot() creates copies of its arrays for perfectly sized paths,
+    // where SkPathBuilder::detach() moves its larger scratch arrays for speed.
+    bool any_smaller = false;
+    for (int pts = 0; pts < 10; pts++) {
+
+        SkPathBuilder b;
+        for (int i = 0; i < pts; i++) {
+            b.lineTo(i,i);
+        }
+        b.close();
+
+        SkPath s = b.snapshot(),
+               d = b.detach();
+        REPORTER_ASSERT(reporter, s.approximateBytesUsed() <= d.approximateBytesUsed());
+        any_smaller |=            s.approximateBytesUsed() <  d.approximateBytesUsed();
+    }
+    REPORTER_ASSERT(reporter, any_smaller);
+}

@@ -294,6 +294,8 @@ public:
     int countVerbs() const { return fVerbs.count(); }
     int countWeights() const { return fConicWeights.count(); }
 
+    size_t approximateBytesUsed() const;
+
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
