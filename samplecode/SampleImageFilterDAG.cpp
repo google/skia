@@ -42,224 +42,87 @@ struct FilterNode {
     int fDepth;
 
     // The source content rect (this is the same for all nodes, but is stored here for convenience)
-    SkRect fContent;
-    // The portion of the original CTM that is kept as the local matrix/ctm when filtering
-    SkMatrix fLocalCTM;
-    // The portion of the original CTM that the results should be drawn with (or given current
-    // canvas impl., the portion of the CTM that is baked into a new DAG)
-    SkMatrix fRemainingCTM;
+    skif::ParameterSpace<SkRect> fContent;
+    // The mapping for the filter dag (same for all nodes, but stored here for convenience)
+    skif::Mapping fMapping;
 
-    // Cached reverse bounds using device-space clip bounds (e.g. SkCanvas::clipRectBounds with
-    // null first argument). This represents the layer calculated in SkCanvas for the filtering.
-    // FIXME: SkCanvas (and this sample), this is seeded with the device-space clip bounds so that
-    // the implicit matrix node's reverse bounds are updated appropriately when it recurses to the
-    // original root node.
-    SkIRect fLayerBounds;
+    // Cached reverse bounds using device-space clip bounds (e.g. no local bounds hint passed to
+    // saveLayer). This represents the layer calculated in SkCanvas for the filtering.
+    skif::LayerSpace<SkIRect> fUnhintedLayerBounds;
 
-    // Cached reverse bounds using the local draw bounds (e.g. SkCanvas::clipRectBounds with the
-    // draw bounds provided as first argument). For intermediate nodes in a DAG, this is calculated
-    // to match what the filter would compute when being evaluated as part of the original DAG
-    // (i.e. if the implicit matrix filter node were not inserted at the beginning).
-    // fReverseLocalIsolatedBounds is the same, except it represents what would be calculated if
-    // only this node were being applied as the image filter.
-    SkIRect fReverseLocalBounds;
-    SkIRect fReverseLocalIsolatedBounds;
+    // Cached input bounds using the local draw bounds (e.g. saveLayer with a bounds rect, or
+    // an auto-layer for a draw with image filter). This represents the layer bounds up to this
+    // point of the DAG.
+    skif::LayerSpace<SkIRect> fHintedLayerBounds;
 
-    // Cached forward bounds based on local draw bounds. For intermediate nodes in a DAG, this is
-    // calculated to match what the filter computes as part of the whole DAG. fForwardIsolatedBounds
-    // is the same but represents what would be calculated if only this node were applied.
-    SkIRect fForwardBounds;
-    SkIRect fForwardIsolatedBounds;
+    // Cached output bounds based on local draw bounds. This represents the output up to this
+    // point of the DAG.
+    skif::LayerSpace<SkIRect> fOutputBounds;
 
-    // Should be called after the input nodes have been created since this will complete the
-    // entire tree.
-    void computeBounds() {
-        // In normal usage, forward bounds are filter-space bounds of the geometry content, so
-        // fContent mapped by the local matrix, since we assume the layer content is made by
-        // concat(localCTM) -> clipRect(content) -> drawRect(content).
-        // Similarly, in normal usage, reverse bounds are the filter-space bounds of the space to
-        // be filled by image filter results. Since the clip rect is set to the same as the content,
-        // it's the same bounds forward or reverse in this contrived case.
-        SkIRect inputRect;
-        fLocalCTM.mapRect(fContent).roundOut(&inputRect);
-
-        this->computeForwardBounds(inputRect);
-
-        // The layer bounds (matching what SkCanvas computes), use the content rect mapped by the
-        // entire CTM as its input rect. If this is an implicit matrix node, the computeReverseX
-        // functions will switch to using the local-mapped bounds for children in order to simulate
-        // what would happen if the last step were done as a draw. When there's no implicit matrix
-        // node, this calculated rectangle is the same as inputRect.
-        SkIRect deviceRect;
-        SkMatrix ctm = SkMatrix::Concat(fRemainingCTM, fLocalCTM);
-        ctm.mapRect(fContent).roundOut(&deviceRect);
-
-        SkASSERT(this->isImplicitMatrixNode() || inputRect == deviceRect);
-        this->computeReverseLocalIsolatedBounds(deviceRect);
-        this->computeReverseBounds(deviceRect, false);
-        // Unlike the above two calls, calculating layer bounds will keep the device bounds for
-        // intermediate nodes to show the current SkCanvas behavior vs. the ideal
-        this->computeReverseBounds(deviceRect, true);
-    }
-
-    bool isImplicitMatrixNode() const {
-        // In the future we wish to replace the implicit matrix node with direct draws to the final
-        // destination (instead of using an SkMatrixImageFilter). Visualizing the DAG correctly
-        // requires handling these nodes differently since it has part of the canvas CTM built in.
-        return fDepth == 1 && !fRemainingCTM.isIdentity();
+    FilterNode(const SkImageFilter* filter,
+               const skif::Mapping& mapping,
+               const skif::ParameterSpace<SkRect>& content,
+               int depth)
+            : fFilter(sk_ref_sp(filter))
+            , fDepth(depth)
+            , fContent(content)
+            , fMapping(mapping) {
+        this->computeInputBounds();
+        this->computeOutputBounds();
+        if (fFilter) {
+            fInputNodes.reserve(fFilter->countInputs());
+            for (int i = 0; i < fFilter->countInputs(); ++i) {
+                fInputNodes.emplace_back(fFilter->getInput(i), mapping, content, depth + 1);
+            }
+        }
     }
 
 private:
-    void computeForwardBounds(const SkIRect srcRect) {
+    void computeOutputBounds() {
         if (fFilter) {
-            // For forward filtering, the leaves of the DAG are evaluated first and are then
-            // propagated to the root. This means that every filter's filterBounds() function sees
-            // the original src rect. It is never dependent on the parent node (unlike reverse
-            // filtering), so calling filterBounds() on an intermediate node gives us the correct
-            // intermediate values.
-            fForwardBounds = fFilter->filterBounds(
-                    srcRect, fLocalCTM, SkImageFilter::kForward_MapDirection, nullptr);
-
-            // For isolated forward filtering, it uses the same input but should not be propagated
-            // to the inputs, so get the filter node bounds directly.
-            fForwardIsolatedBounds = as_IFB(fFilter)->filterNodeBounds(
-                    srcRect, fLocalCTM, SkImageFilter::kForward_MapDirection, nullptr);
+            // For visualization purposes, we want the output bounds in layer space, before it's
+            // been transformed to device space. To achieve that, we mock a new mapping with the
+            // identity matrix transform.
+            skif::Mapping layerOnly = skif::Mapping(SkMatrix::I(), fMapping.layerMatrix());
+            skif::DeviceSpace<SkIRect> pseudoDeviceBounds =
+                    as_IFB(fFilter)->getOutputBounds(layerOnly, fContent);
+            // Since layerOnly's device matrix is I, this is effectively a cast to layer space
+            fOutputBounds = layerOnly.deviceToLayer(pseudoDeviceBounds);
         } else {
-            fForwardBounds = srcRect;
-            fForwardIsolatedBounds = srcRect;
+            fOutputBounds = fMapping.paramToLayer(fContent).roundOut();
         }
 
         // Fill in children
         for (int i = 0; i < fInputNodes.count(); ++i) {
-            fInputNodes[i].computeForwardBounds(srcRect);
+            fInputNodes[i].computeOutputBounds();
         }
     }
 
-    void computeReverseLocalIsolatedBounds(const SkIRect& srcRect) {
-        if (fFilter) {
-            fReverseLocalIsolatedBounds = as_IFB(fFilter)->filterNodeBounds(
-                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
-        } else {
-            fReverseLocalIsolatedBounds = srcRect;
-        }
-
-        SkIRect childSrcRect = srcRect;
-        if (this->isImplicitMatrixNode()) {
-            // Switch srcRect from the device-space bounds to what would be used when the draw is
-            // the final step of filtering, as if the implicit node weren't needed
-            fLocalCTM.mapRect(fContent).roundOut(&childSrcRect);
-        }
-
-        // Fill in children. Unlike regular reverse bounds mapping, the input nodes see the original
-        // bounds. Normally, the bounds that the child nodes see have already been mapped processed
-        // by this node.
-        for (int i = 0; i < fInputNodes.count(); ++i) {
-            fInputNodes[i].computeReverseLocalIsolatedBounds(childSrcRect);
-        }
-    }
-
-    // fReverseLocalBounds and fLayerBounds are computed the same, except they differ in what the
-    // initial bounding rectangle was. It is assumed that the 'srcRect' has already been processed
-    // by the parent node's onFilterNodeBounds() function, as in SkImageFilter::filterBounds().
-    void computeReverseBounds(const SkIRect& srcRect, bool writeToLayerBounds) {
-        SkIRect reverseBounds = srcRect;
+    void computeInputBounds() {
+        // As a proxy for what the base device had, use the content rect mapped to device space
+        // (e.g. clipRect() was called with the same coords prior to the draw).
+        skif::DeviceSpace<SkIRect> targetOutput(fMapping.totalMatrix()
+                                                        .mapRect(SkRect(fContent))
+                                                        .roundOut());
 
         if (fFilter) {
-            // Since srcRect has been through parent's onFilterNodeBounds(), calling filterBounds()
-            // directly on this node will calculate the same rectangle that this filter would report
-            // during the parent node's onFilterBounds() recursion.
-            reverseBounds = fFilter->filterBounds(
-                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
-
-            SkIRect nextSrcRect;
-            if (this->isImplicitMatrixNode() && !writeToLayerBounds) {
-                // When not writing to the layer bounds, and we're the implicit matrix node
-                // we reset the src rect to be what it should be if no implicit node was necessary.
-                fLocalCTM.mapRect(fContent).roundOut(&nextSrcRect);
-            } else {
-                // To calculate the appropriate intermediate reverse bounds for the children, we
-                // need this node's onFilterNodeBounds() results based on its parents' bounds (the
-                // current 'srcRect').
-                nextSrcRect = as_IFB(fFilter)->filterNodeBounds(
-                    srcRect, fLocalCTM, SkImageFilter::kReverse_MapDirection, &srcRect);
-            }
-
-            // Fill in the children. The union of these bounds should equal the value calculated
-            // for reverseBounds already.
-            SkDEBUGCODE(SkIRect netReverseBounds = SkIRect::MakeEmpty();)
-            for (int i = 0; i < fInputNodes.count(); ++i) {
-                fInputNodes[i].computeReverseBounds(nextSrcRect, writeToLayerBounds);
-                SkDEBUGCODE(netReverseBounds.join(
-                        writeToLayerBounds ? fInputNodes[i].fLayerBounds
-                                           : fInputNodes[i].fReverseLocalBounds);)
-            }
-            // Because of the resetting done when not computing layer bounds for the implicit
-            // matrix node, this assertion doesn't hold in that particular scenario.
-            SkASSERT(netReverseBounds == reverseBounds ||
-                     (this->isImplicitMatrixNode() && !writeToLayerBounds));
-        }
-
-        if (writeToLayerBounds) {
-            fLayerBounds = reverseBounds;
+            fHintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, &fContent);
+            fUnhintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, nullptr);
         } else {
-            fReverseLocalBounds = reverseBounds;
+            fHintedLayerBounds = fMapping.paramToLayer(fContent).roundOut();
+            fUnhintedLayerBounds = fMapping.deviceToLayer(targetOutput);
         }
     }
 };
 
 } // anonymous namespace
 
-static FilterNode build_dag(const SkMatrix& local, const SkMatrix& remainder, const SkRect& rect,
-                            const SkImageFilter* filter, int depth) {
-    FilterNode node;
-    node.fFilter = sk_ref_sp(filter);
-    node.fDepth = depth;
-    node.fContent = rect;
-
-    node.fLocalCTM = local;
-    node.fRemainingCTM = remainder;
-
-    if (node.fFilter) {
-        if (depth > 0) {
-            // We don't visit children when at the root because the real child filters are replaced
-            // with the internalSaveLayer decomposition emulation, which then cycles back to the
-            // original filter but with an updated matrix (and then we process the children).
-            node.fInputNodes.reserve(node.fFilter->countInputs());
-            for (int i = 0; i < node.fFilter->countInputs(); ++i) {
-                node.fInputNodes.push_back() =
-                        build_dag(local, remainder, rect, node.fFilter->getInput(i), depth + 1);
-            }
-        }
-    }
-
-    return node;
-}
-
 static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
                             const SkImageFilter* rootFilter) {
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
-    SkMatrix local;
-    sk_sp<SkImageFilter> finalFilter = as_IFB(rootFilter)->applyCTM(ctm, &local);
-
-    // In ApplyCTMToFilter, the CTM is decomposed such that CTM = remainder * local. The matrix
-    // that is embedded in 'finalFilter' is actually local^-1*remainder*local to account for
-    // how SkMatrixImageFilter is specified, but we want the true remainder since it is what should
-    // transform the results to put in the correct place after filtering.
-    SkMatrix invLocal, remaining;
-    if (as_IFB(rootFilter)->uniqueID() != as_IFB(finalFilter)->uniqueID()) {
-        remaining = SkMatrix::Concat(ctm, invLocal);
-    } else {
-        remaining = SkMatrix::I();
-    }
-
-    // Create a root node that represents the full result
-    FilterNode rootNode = build_dag(ctm, SkMatrix::I(), rect, rootFilter, 0);
-    // Set its only child as the modified DAG that handles the CTM decomposition
-    rootNode.fInputNodes.push_back() =
-            build_dag(local, remaining, rect, finalFilter.get(), 1);
-    // Fill in bounds information that requires the entire node DAG to have been extracted first.
-    rootNode.fInputNodes[0].computeBounds();
-    return rootNode;
+    skif::Mapping mapping = skif::Mapping::DecomposeCTM(ctm, rootFilter);
+    skif::ParameterSpace<SkRect> content(rect);
+    return FilterNode(rootFilter, mapping, content, 0);
 }
 
 static void draw_node(SkCanvas* canvas, const FilterNode& node) {
@@ -268,10 +131,11 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
     SkPaint filterPaint;
     filterPaint.setImageFilter(node.fFilter);
 
+    SkRect content = SkRect(node.fContent);
     SkPaint paint;
     static const SkColor kColors[2] = {SK_ColorGREEN, SK_ColorWHITE};
-    SkPoint points[2] = { {node.fContent.fLeft + 15.f, node.fContent.fTop + 15.f},
-                          {node.fContent.fRight - 15.f, node.fContent.fBottom - 15.f} };
+    SkPoint points[2] = { {content.fLeft + 15.f, content.fTop + 15.f},
+                          {content.fRight - 15.f, content.fBottom - 15.f} };
     paint.setShader(SkGradientShader::MakeLinear(points, kColors, nullptr, SK_ARRAY_COUNT(kColors),
                                                  SkTileMode::kRepeat));
 
@@ -279,77 +143,40 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
     line.setStrokeWidth(0.f);
     line.setStyle(SkPaint::kStroke_Style);
 
-    if (node.fDepth == 0) {
-        // The root node, so draw this one the canonical way through SkCanvas to show current
-        // net behavior. Will not include bounds visualization.
-        canvas->save();
-        canvas->concat(node.fLocalCTM);
-        SkASSERT(node.fRemainingCTM.isIdentity());
+    canvas->save();
+    canvas->concat(node.fMapping.deviceMatrix());
+    canvas->save();
+    canvas->concat(node.fMapping.layerMatrix());
 
-        canvas->clipRect(node.fContent, /* aa */ true);
-        canvas->saveLayer(nullptr, &filterPaint);
-        canvas->drawRect(node.fContent, paint);
-        canvas->restore(); // Completes the image filter
-        canvas->restore(); // Undoes matrix and clip
+    canvas->saveLayer(&content, &filterPaint);
+    canvas->drawRect(content, paint);
+    canvas->restore(); // Completes the image filter
 
-        // Draw content rect (no clipping)
-        canvas->save();
-        canvas->concat(node.fLocalCTM);
-        line.setColor(SK_ColorBLACK);
-        canvas->drawRect(node.fContent, line);
-        canvas->restore();
-    } else {
-        canvas->save();
-        if (!node.isImplicitMatrixNode()) {
-            canvas->concat(node.fRemainingCTM);
-        }
-        canvas->concat(node.fLocalCTM);
+    // Draw content-rect bounds
+    line.setColor(SK_ColorBLACK);
+    canvas->drawRect(content, line);
 
-        canvas->saveLayer(nullptr, &filterPaint);
-        canvas->drawRect(node.fContent, paint);
-        canvas->restore(); // Completes the image filter
+    // Bounding boxes have all been mapped by the layer matrix from local to layer space, so undo
+    // the layer matrix, leaving just the device matrix.
+    canvas->restore();
 
-        // Draw content-rect bounds
-        line.setColor(SK_ColorBLACK);
-        if (node.isImplicitMatrixNode()) {
-            canvas->setMatrix(SkMatrix::Concat(node.fRemainingCTM, node.fLocalCTM));
-        }
-        canvas->drawRect(node.fContent, line);
-        canvas->restore(); // Undoes the matrix
+    // The hinted bounds of the layer saved for the filtering
+    line.setColor(SK_ColorRED);
+    canvas->drawRect(SkRect::Make(SkIRect(node.fHintedLayerBounds)).makeOutset(3.f, 3.f), line);
+    // The bounds of the layer if there was no local content hint
+    line.setColor(SK_ColorGREEN);
+    canvas->drawRect(SkRect::Make(SkIRect(node.fUnhintedLayerBounds)).makeOutset(2.f, 2.f), line);
 
-        // Bounding boxes have all been mapped by the local matrix already, so drawing them with
-        // the remaining CTM should align everything to the already drawn filter outputs. The
-        // exception is forward bounds of the implicit matrix node, which also have been mapped
-        // by the remainder matrix.
-        canvas->save();
-        canvas->concat(node.fRemainingCTM);
-
-        // The bounds of the layer saved for the filtering as currently implemented
-        line.setColor(SK_ColorRED);
-        canvas->drawRect(SkRect::Make(node.fLayerBounds).makeOutset(5.f, 5.f), line);
-        // The bounds of the layer that could be saved if the last step were a draw
-        line.setColor(SK_ColorMAGENTA);
-        canvas->drawRect(SkRect::Make(node.fReverseLocalBounds).makeOutset(4.f, 4.f), line);
-
-        // Dashed lines for the isolated shapes
-        static const SkScalar kDashParams[] = {6.f, 12.f};
-        line.setPathEffect(SkDashPathEffect::Make(kDashParams, 2, 0.f));
-        // The bounds of the layer if it were the only filter in the DAG
-        canvas->drawRect(SkRect::Make(node.fReverseLocalIsolatedBounds).makeOutset(3.f, 3.f), line);
-
-        if (node.isImplicitMatrixNode()) {
-            canvas->resetMatrix();
-        }
-        // The output bounds calculated as if the node were the only filter in the DAG
-        line.setColor(SK_ColorBLUE);
-        canvas->drawRect(SkRect::Make(node.fForwardIsolatedBounds).makeOutset(1.f, 1.f), line);
-
-        // The output bounds calculated for the node
-        line.setPathEffect(nullptr);
-        canvas->drawRect(SkRect::Make(node.fForwardBounds).makeOutset(2.f, 2.f), line);
-
-        canvas->restore();
-    }
+    // The output bounds in layer space
+    line.setColor(SK_ColorBLUE);
+    canvas->drawRect(SkRect::Make(SkIRect(node.fOutputBounds)).makeOutset(1.f, 1.f), line);
+    // Device-space bounding box of the output bounds (e.g. what legacy DAG manipulation via
+    // MatrixTransform would produce).
+    static const SkScalar kDashParams[] = {6.f, 12.f};
+    line.setPathEffect(SkDashPathEffect::Make(kDashParams, 2, 0.f));
+    SkRect devOutputBounds = SkRect::Make(SkIRect(node.fMapping.layerToDevice(node.fOutputBounds)));
+    canvas->restore(); // undoes device matrix
+    canvas->drawRect(devOutputBounds, line);
 }
 
 static constexpr float kLineHeight = 16.f;
@@ -385,21 +212,23 @@ static float print_info(SkCanvas* canvas, const FilterNode& node) {
     text.setAntiAlias(true);
 
     float y = kLineHeight;
-    if (node.fDepth == 0) {
-        canvas->drawString("Final Results", kLineInset, y, font, text);
-        // The actual interesting matrices are in the root node's first child
-        y = print_matrix(canvas, "Local", node.fInputNodes[0].fLocalCTM,
-                     kLineInset, y + kLineHeight, font, text);
-        y = print_matrix(canvas, "Embedded", node.fInputNodes[0].fRemainingCTM,
-                     kLineInset, y, font, text);
-    } else if (node.fFilter) {
+    if (node.fFilter) {
         canvas->drawString(node.fFilter->getTypeName(), kLineInset, y, font, text);
-        print_size(canvas, "Layer Size", node.fLayerBounds, kLineInset, y + kLineHeight,
-                   font, text);
-        y = print_size(canvas, "Ideal Size", node.fReverseLocalBounds, 10 * kLineInset,
-                       y + kLineHeight, font, text);
+        y += kLineHeight;
+        if (node.fDepth == 0) {
+            // The mapping is the same for all nodes, so only print at the root
+            y = print_matrix(canvas, "Param->Layer", node.fMapping.layerMatrix(),
+                        kLineInset, y, font, text);
+            y = print_matrix(canvas, "Layer->Device", node.fMapping.deviceMatrix(),
+                        kLineInset, y, font, text);
+        }
+
+        y = print_size(canvas, "Layer Size", SkIRect(node.fUnhintedLayerBounds),
+                       kLineInset, y, font, text);
+        y = print_size(canvas, "Layer Size (hinted)", SkIRect(node.fHintedLayerBounds),
+                       kLineInset, y, font, text);
     } else {
-        canvas->drawString("Source Input", kLineInset, kLineHeight, font, text);
+        canvas->drawString("Source Input", kLineInset, y, font, text);
         y += kLineHeight;
     }
 

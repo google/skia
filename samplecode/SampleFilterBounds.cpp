@@ -1,0 +1,164 @@
+/*
+ * Copyright 2019 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "samplecode/Sample.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkImageFilters.h"
+
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
+
+#include "tools/ToolUtils.h"
+
+static constexpr float kLineHeight = 16.f;
+static constexpr float kLineInset = 8.f;
+
+static float print_size(SkCanvas* canvas, const char* prefix, const SkIRect& rect,
+                        float x, float y, const SkFont& font, const SkPaint& paint) {
+    canvas->drawString(prefix, x, y, font, paint);
+    y += kLineHeight;
+    SkString sz;
+    sz.appendf("%d x %d", rect.width(), rect.height());
+    canvas->drawString(sz, x, y, font, paint);
+    return y + kLineHeight;
+}
+
+static float print_info(SkCanvas* canvas,
+                        const SkIRect& layerContentBounds,
+                        const SkIRect& outputBounds,
+                        const SkIRect& hintedOutputBounds,
+                        const SkIRect& unhintedLayerBounds) {
+    SkFont font(nullptr, 12);
+    SkPaint text;
+    text.setAntiAlias(true);
+
+    float y = kLineHeight;
+
+    text.setColor(SK_ColorRED);
+    y = print_size(canvas, "Content (in layer)", layerContentBounds, kLineInset, y, font, text);
+    text.setColor(SK_ColorDKGRAY);
+    y = print_size(canvas, "Target (in device)", outputBounds, kLineInset, y, font, text);
+    text.setColor(SK_ColorBLUE);
+    y = print_size(canvas, "Output (w/ hint)", hintedOutputBounds, kLineInset, y, font, text);
+    text.setColor(SK_ColorGREEN);
+    y = print_size(canvas, "Input (w/ no hint)", unhintedLayerBounds, kLineInset, y, font, text);
+
+    return y;
+}
+
+static SkPaint line_paint(SkColor color, bool dashed = false) {
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setStrokeWidth(0.f);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    if (dashed) {
+        SkScalar dash[2] = {10.f, 10.f};
+        paint.setPathEffect(SkDashPathEffect::Make(dash, 2, 0.f));
+    }
+    return paint;
+}
+
+static SkPath create_axis_path(const SkRect& rect, float axisSpace) {
+    SkPath localSpace;
+    for (float y = rect.fTop + axisSpace; y <= rect.fBottom; y += axisSpace) {
+        localSpace.moveTo(rect.fLeft, y);
+        localSpace.lineTo(rect.fRight, y);
+    }
+    for (float x = rect.fLeft + axisSpace; x <= rect.fRight; x += axisSpace) {
+        localSpace.moveTo(x, rect.fTop);
+        localSpace.lineTo(x, rect.fBottom);
+    }
+    return localSpace;
+}
+
+class FilterBoundsSample : public Sample {
+public:
+    FilterBoundsSample() {}
+
+    void onOnceBeforeDraw() override {
+        fBlur = SkImageFilters::Blur(8.f, 8.f, nullptr);
+        fImage = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(
+                300, 300, SK_ColorMAGENTA, SK_ColorLTGRAY, 50));
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        // The local content, e.g. what would be submitted to drawRect or the bounds to saveLayer
+        const SkRect localContentRect = SkRect::MakeLTRB(100.f, 20.f, 180.f, 140.f);
+        SkMatrix ctm = canvas->getTotalMatrix();
+
+        // Base rendering of a filter
+        SkPaint blurPaint;
+        blurPaint.setImageFilter(fBlur);
+        canvas->saveLayer(&localContentRect, &blurPaint);
+        SkPaint imagePaint;
+        imagePaint.setFilterQuality(kLow_SkFilterQuality);
+        canvas->drawImageRect(fImage, localContentRect, &imagePaint);
+        canvas->restore();
+
+        // Now visualize the underlying bounds calculations used to determine the layer for the blur
+        skif::Mapping mapping = skif::Mapping::DecomposeCTM(ctm, fBlur.get());
+
+        // Add axis lines, to show perspective distortion
+        canvas->drawPath(create_axis_path(localContentRect, 10.f), line_paint(SK_ColorGRAY));
+
+        // The device content rect, e.g. the clip bounds if 'localContentRect' were used as a clip
+        // before the draw or saveLayer, representing what the filter must cover if it affects
+        // transparent black or doesn't have a local content hint.
+        const SkRect devContentRect = ctm.mapRect(localContentRect);
+        canvas->setMatrix(SkMatrix::I());
+        canvas->drawRect(devContentRect, line_paint(SK_ColorDKGRAY));
+
+        // Layer bounds for the filter, in the layer space compatible with the filter's matrix
+        // type requirements.
+        skif::ParameterSpace<SkRect> contentBounds(localContentRect);
+        skif::DeviceSpace<SkIRect> targetOutput(devContentRect.roundOut());
+        skif::LayerSpace<SkIRect> targetOutputInLayer = mapping.deviceToLayer(targetOutput);
+
+        skif::LayerSpace<SkIRect> hintedLayerBounds = as_IFB(fBlur)->getInputBounds(
+                mapping, targetOutput, &contentBounds);
+        skif::LayerSpace<SkIRect> unhintedLayerBounds = as_IFB(fBlur)->getInputBounds(
+                mapping, targetOutput, nullptr);
+
+        canvas->setMatrix(mapping.deviceMatrix());
+        canvas->drawRect(SkRect::Make(SkIRect(targetOutputInLayer)),
+                         line_paint(SK_ColorDKGRAY, true));
+        canvas->drawRect(SkRect::Make(SkIRect(hintedLayerBounds)), line_paint(SK_ColorRED));
+        canvas->drawRect(SkRect::Make(SkIRect(unhintedLayerBounds)), line_paint(SK_ColorGREEN));
+
+        // For visualization purposes, we want to show the layer-space output, this is what we get
+        // when contentBounds is provided as a hint in local/parameter space.
+        skif::Mapping layerOnly(SkMatrix::I(), mapping.layerMatrix());
+        skif::DeviceSpace<SkIRect> hintedOutputBounds = as_IFB(fBlur)->getOutputBounds(
+                layerOnly, contentBounds);
+        canvas->drawRect(SkRect::Make(SkIRect(hintedOutputBounds)), line_paint(SK_ColorBLUE));
+
+        canvas->resetMatrix();
+        print_info(canvas, SkIRect(mapping.paramToLayer(contentBounds).roundOut()),
+                           devContentRect.roundOut(),
+                           SkIRect(hintedOutputBounds),
+                           SkIRect(unhintedLayerBounds));
+    }
+
+    SkString name() override { return SkString("FilterBounds"); }
+
+private:
+    sk_sp<SkImageFilter> fBlur;
+    sk_sp<SkImage>       fImage;
+
+    using INHERITED = Sample;
+};
+
+DEF_SAMPLE(return new FilterBoundsSample();)

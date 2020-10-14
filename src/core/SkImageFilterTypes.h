@@ -407,7 +407,7 @@ public:
             , fParamToLayerMatrix(paramToLayer) {}
 
     // Make the default decomposition Mapping, given the total CTM and the root image filter.
-    static Mapping Make(const SkMatrix& ctm, const SkImageFilter* filter);
+    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter);
 
     // Return a new Mapping object whose parameter-to-layer matrix is equal to this->layerMatrix() *
     // local, but both share the same layer-to-device matrix.
