@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1326cf01_5651228a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-14T19:19:12Z",
+      "side": 1,
+      "message": "Cherry-pick; approved on Chromium issue.",
+      "revId": "f0c449ec6a66c11ea1ba0ed165408d67b86dacd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
