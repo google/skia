@@ -229,6 +229,47 @@
       "parentUuid": "62665370_9b42cf84",
       "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef693069_9a843a19",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-14T19:15:20Z",
+      "side": 1,
+      "message": "oh, i\u0027m not sure it\u0027s important then.  This looks fine as the COW as-is, and I\u0027d rather we try removing shrinkToFit() or making it stricter than fiddle around refactoring Editor.",
+      "parentUuid": "67af6427_4ead8746",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b403d9c_fc3ef72d",
+        "filename": "tests/PathMeasureTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-14T19:15:20Z",
+      "side": 1,
+      "message": "It\u0027s _very_ unusual for any data type to survive this sort of treatment.  Might be we want to call the code using the iterator this way buggy, note it on shrinkToFit(), and SkASSERT(this-\u003eunique()) in shrinkToFit()?",
+      "range": {
+        "startLine": 287,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 0
+      },
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
