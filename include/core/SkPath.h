@@ -545,8 +545,11 @@ public:
     void incReserve(int extraPtCount);
 
     /** Shrinks SkPath verb array and SkPoint array storage to discard unused capacity.
-        May reduce the heap overhead for SkPath known to be fully constructed.
-    */
+     *  May reduce the heap overhead for SkPath known to be fully constructed.
+     *
+     *  NOTE: This may relocate the underlying buffers, and thus any Iterators referencing
+     *        this path should be discarded after calling shrinkToFit().
+     */
     void shrinkToFit();
 
 #ifdef SK_HIDE_PATH_EDIT_METHODS
