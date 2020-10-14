@@ -63,6 +63,11 @@ public:
     // purposes
     int fOffset;
 
+    static void operator delete(void* ptr) {
+        printf("Deleting IRNode at 0x%08llX\n", ptr);
+        ::operator delete(ptr);
+    }
+
 protected:
     struct BlockData {
         std::shared_ptr<SymbolTable> fSymbolTable;

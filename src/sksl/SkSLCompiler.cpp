@@ -1677,6 +1677,35 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
 }
 
 bool Compiler::toGLSL(Program& program, String* out) {
+
+    // Visitor that counts the number of nodes visited
+    class NodeCountVisitor : public ProgramVisitor {
+    public:
+        bool visitExpression(const Expression& e) override {
+            ++fCount;
+            return INHERITED::visitExpression(e);
+        }
+
+        bool visitProgramElement(const ProgramElement& p) override {
+            ++fCount;
+            return INHERITED::visitProgramElement(p);
+        }
+
+        bool visitStatement(const Statement& s) override {
+            ++fCount;
+            return INHERITED::visitStatement(s);
+        }
+
+        int fCount = 0;
+
+    private:
+        using INHERITED = ProgramVisitor;
+    };
+
+    NodeCountVisitor v;
+    v.visit(program);
+    printf("~~~~~~~ toGLSL: contains %d nodes\n", v.fCount);
+
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {
