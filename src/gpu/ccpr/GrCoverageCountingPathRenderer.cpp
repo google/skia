@@ -246,7 +246,7 @@ void GrCoverageCountingPathRenderer::preFlush(
 
     // Move the per-opsTask paths that are about to be flushed from fPendingPaths to fFlushingPaths,
     // and count them up so we can preallocate buffers.
-    fFlushingPaths.reserve(numOpsTaskIDs);
+    fFlushingPaths.reserve_back(numOpsTaskIDs);
     for (int i = 0; i < numOpsTaskIDs; ++i) {
         auto iter = fPendingPaths.find(opsTaskIDs[i]);
         if (fPendingPaths.end() == iter) {

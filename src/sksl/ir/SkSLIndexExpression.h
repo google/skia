@@ -48,7 +48,7 @@ struct IndexExpression : public Expression {
                     std::unique_ptr<Expression> index)
     : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type())) {
         SkASSERT(index->type() == *context.fInt_Type || index->type() == *context.fUInt_Type);
-        fExpressionChildren.reserve(2);
+        fExpressionChildren.reserve_back(2);
         fExpressionChildren.push_back(std::move(base));
         fExpressionChildren.push_back(std::move(index));
     }
@@ -89,7 +89,7 @@ private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
     : INHERITED(base->fOffset, Kind::kIndex, type) {
-        fExpressionChildren.reserve(2);
+        fExpressionChildren.reserve_back(2);
         fExpressionChildren.push_back(std::move(base));
         fExpressionChildren.push_back(std::move(index));
     }

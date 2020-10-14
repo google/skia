@@ -162,9 +162,9 @@ public:
     /**
      * Ensures there is enough reserved space for n additional elements. The is guaranteed at least
      * until the array size grows above n and subsequently shrinks below n, any version of reset()
-     * is called, or reserve() is called again.
+     * is called, or reserve_back() is called again.
      */
-    void reserve(int n) {
+    void reserve_back(int n) {
         SkASSERT(n >= 0);
         if (n > 0) {
             this->checkRealloc(n);

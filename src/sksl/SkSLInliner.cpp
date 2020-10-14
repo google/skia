@@ -344,7 +344,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
     };
     auto argList = [&](const ExpressionArray& originalArgs) -> ExpressionArray {
         ExpressionArray args;
-        args.reserve(originalArgs.size());
+        args.reserve_back(originalArgs.size());
         for (const std::unique_ptr<Expression>& arg : originalArgs) {
             args.push_back(expr(arg));
         }
@@ -444,7 +444,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     };
     auto blockStmts = [&](const Block& block) {
         StatementArray result;
-        result.reserve(block.children().size());
+        result.reserve_back(block.children().size());
         for (const std::unique_ptr<Statement>& child : block.children()) {
             result.push_back(stmt(child));
         }
@@ -452,7 +452,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     };
     auto stmts = [&](const StatementArray& ss) {
         StatementArray result;
-        result.reserve(ss.size());
+        result.reserve_back(ss.size());
         for (const auto& s : ss) {
             result.push_back(stmt(s));
         }
@@ -513,7 +513,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                 &resultExpr->type()));
                 if (haveEarlyReturns) {
                     StatementArray block;
-                    block.reserve(2);
+                    block.reserve_back(2);
                     block.push_back(std::move(assignment));
                     block.push_back(std::make_unique<BreakStatement>(offset));
                     return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
@@ -543,7 +543,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             ExpressionArray sizes;
-            sizes.reserve(decl.sizeCount());
+            sizes.reserve_back(decl.sizeCount());
             for (int i = 0; i < decl.sizeCount(); ++i) {
                 sizes.push_back(expr(decl.size(i)));
             }
@@ -607,7 +607,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                        /*isScope=*/false);
 
     Block& inlinedBody = *inlinedCall.fInlinedBody;
-    inlinedBody.children().reserve(1 +                // Inline marker
+    inlinedBody.children().reserve_back(1 +                // Inline marker
                                    1 +                // Result variable
                                    arguments.size() + // Function arguments (passing in)
                                    arguments.size() + // Function arguments (copy out-params back)
@@ -695,7 +695,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     const Block& body = function.body()->as<Block>();
     auto inlineBlock = std::make_unique<Block>(offset, StatementArray{});
-    inlineBlock->children().reserve(body.children().size());
+    inlineBlock->children().reserve_back(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
                                                                 resultExpr.get(), hasEarlyReturn,

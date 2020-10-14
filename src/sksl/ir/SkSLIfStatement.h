@@ -23,7 +23,7 @@ struct IfStatement : public Statement {
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
     : INHERITED(offset, IfStatementData{isStatic}) {
         fExpressionChildren.push_back(std::move(test));
-        fStatementChildren.reserve(2);
+        fStatementChildren.reserve_back(2);
         fStatementChildren.push_back(std::move(ifTrue));
         fStatementChildren.push_back(std::move(ifFalse));
     }

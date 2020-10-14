@@ -29,7 +29,7 @@ public:
                    ExpressionArray sizes,
                    std::unique_ptr<Expression> value)
             : INHERITED(var->fOffset, VarDeclarationData{baseType, var}) {
-        fExpressionChildren.reserve(sizes.size() + 1);
+        fExpressionChildren.reserve_back(sizes.size() + 1);
         fExpressionChildren.move_back_n(sizes.size(), sizes.data());
         fExpressionChildren.push_back(std::move(value));
     }
@@ -65,7 +65,7 @@ public:
 
     std::unique_ptr<Statement> clone() const override {
         ExpressionArray sizesClone;
-        sizesClone.reserve(this->sizeCount());
+        sizesClone.reserve_back(this->sizeCount());
         for (int i = 0; i < this->sizeCount(); ++i) {
             if (this->size(i)) {
                 sizesClone.push_back(this->size(i)->clone());

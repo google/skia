@@ -86,7 +86,7 @@ bool SkTTopoSort(SkTArray<sk_sp<T>>* graph) {
     SkTTopoSort_CheckAllUnmarked<T, Traits>(*graph);
 #endif
 
-    result.reserve(graph->count());
+    result.reserve_back(graph->count());
 
     for (int i = 0; i < graph->count(); ++i) {
         if (Traits::WasOutput((*graph)[i].get())) {

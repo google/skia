@@ -115,7 +115,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
 
 #if defined(SK_PDF_CAN_USE_DW)
     std::vector<int16_t> advances;
-    advances.reserve(glyphs.size());
+    advances.reserve_back(glyphs.size());
     for (const SkGlyph* glyph : glyphs) {
         advances.push_back((int16_t)glyph->advanceX());
     }

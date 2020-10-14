@@ -24,7 +24,7 @@ public:
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
     : INHERITED(offset, kExpressionKind, &ifTrue->type()) {
         SkASSERT(ifTrue->type() == ifFalse->type());
-        fExpressionChildren.reserve(3);
+        fExpressionChildren.reserve_back(3);
         fExpressionChildren.push_back(std::move(test));
         fExpressionChildren.push_back(std::move(ifTrue));
         fExpressionChildren.push_back(std::move(ifFalse));

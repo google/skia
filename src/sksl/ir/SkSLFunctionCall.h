@@ -63,7 +63,7 @@ public:
 
     std::unique_ptr<Expression> clone() const override {
         ExpressionArray cloned;
-        cloned.reserve(this->arguments().size());
+        cloned.reserve_back(this->arguments().size());
         for (const auto& arg : this->arguments()) {
             cloned.push_back(arg->clone());
         }

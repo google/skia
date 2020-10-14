@@ -118,7 +118,7 @@ public:
         const std::vector<const Variable*>& parameters = this->parameters();
         SkASSERT(arguments.size() == parameters.size());
 
-        outParameterTypes->reserve(arguments.size());
+        outParameterTypes->reserve_back(arguments.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
             const Type& parameterType = parameters[i]->type();

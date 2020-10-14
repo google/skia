@@ -26,7 +26,7 @@ struct SwitchCase : public Statement {
 
     std::unique_ptr<Statement> clone() const override {
         StatementArray cloned;
-        cloned.reserve(fStatements.size());
+        cloned.reserve_back(fStatements.size());
         for (const auto& s : fStatements) {
             cloned.push_back(s->clone());
         }

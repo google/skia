@@ -70,7 +70,7 @@ struct FilterNode {
         this->computeInputBounds();
         this->computeOutputBounds();
         if (fFilter) {
-            fInputNodes.reserve(fFilter->countInputs());
+            fInputNodes.reserve_back(fFilter->countInputs());
             for (int i = 0; i < fFilter->countInputs(); ++i) {
                 fInputNodes.emplace_back(fFilter->getInput(i), mapping, content, depth + 1);
             }
