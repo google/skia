@@ -16,6 +16,24 @@
       "message": "The non-YUV GMs in this file ran on the CPU backend before this change.",
       "revId": "f4c64636950cffb5b30d114da5e9dc374f4be398",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5899dba5_7391b61b",
+        "filename": "gm/asyncrescaleandread.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-14T19:50:42Z",
+      "side": 0,
+      "message": "Ack - I will fix",
+      "parentUuid": "743905d0_5aae0df3",
+      "revId": "f4c64636950cffb5b30d114da5e9dc374f4be398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
