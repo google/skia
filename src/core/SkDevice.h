@@ -344,7 +344,6 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    virtual GrContext* context() const { return nullptr; }
     virtual GrRecordingContext* recordingContext() const { return nullptr; }
 
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
