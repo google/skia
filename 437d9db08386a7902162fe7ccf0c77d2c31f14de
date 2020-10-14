@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a26886d2_6ea29464",
+        "filename": "src/sksl/ir/SkSLFunctionDefinition.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-14T17:35:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a16e89c6_ea7c1af8",
+      "range": {
+        "startLine": 46,
+        "startChar": 55,
+        "endLine": 46,
+        "endChar": 57
+      },
+      "revId": "437d9db08386a7902162fe7ccf0c77d2c31f14de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69f2ea59_0ad7e10b",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-14T14:54:07Z",
       "side": 1,
       "message": "Shouldn\u0027t there be a shared fSymbolChildren array? FunctionDeclarationData could use it too. This doesn\u0027t really need to be a set.",
+      "range": {
+        "startLine": 146,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 76
+      },
+      "revId": "437d9db08386a7902162fe7ccf0c77d2c31f14de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bd128d9_42e4c72f",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-14T17:35:16Z",
+      "side": 1,
+      "message": "These aren\u0027t children - they\u0027re not owned. We\u0027re just keeping track of who\u0027s referring to us. And we are using this as a set: we\u0027re expecting it to eliminate duplicates.",
+      "parentUuid": "69f2ea59_0ad7e10b",
       "range": {
         "startLine": 146,
         "startChar": 8,
