@@ -9,7 +9,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkOpts.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrStencilSettings.h"

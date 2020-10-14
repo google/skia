@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"

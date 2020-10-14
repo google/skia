@@ -10,7 +10,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrBackendSurfaceMutableStateImpl.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
