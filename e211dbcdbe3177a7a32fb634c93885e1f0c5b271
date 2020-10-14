@@ -155,6 +155,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9bb203c2_b11b9126",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-14T20:30:31Z",
+      "side": 1,
+      "message": "section 14.6.4 of the vulkan spec. But now I\u0027m reversing my thoughts again. I think below where you outputting the declaration you don\u0027t want the \"uniform\" declaration there with push constants.",
+      "parentUuid": "dd080070_94610b2a",
+      "range": {
+        "startLine": 240,
+        "startChar": 22,
+        "endLine": 240,
+        "endChar": 44
+      },
+      "revId": "e211dbcdbe3177a7a32fb634c93885e1f0c5b271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16063ede_29d6e198",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 3
