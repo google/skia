@@ -224,7 +224,7 @@ static FilterNode build_dag(const SkMatrix& local, const SkMatrix& remainder, co
             // We don't visit children when at the root because the real child filters are replaced
             // with the internalSaveLayer decomposition emulation, which then cycles back to the
             // original filter but with an updated matrix (and then we process the children).
-            node.fInputNodes.reserve(node.fFilter->countInputs());
+            node.fInputNodes.reserve_back(node.fFilter->countInputs());
             for (int i = 0; i < node.fFilter->countInputs(); ++i) {
                 node.fInputNodes.push_back() =
                         build_dag(local, remainder, rect, node.fFilter->getInput(i), depth + 1);

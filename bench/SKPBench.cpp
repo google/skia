@@ -57,7 +57,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileW));
     int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileH));
 
-    fSurfaces.reserve(xTiles * yTiles);
+    fSurfaces.reserve_back(xTiles * yTiles);
     fTileRects.setReserve(xTiles * yTiles);
 
     SkImageInfo ii = canvas->imageInfo().makeWH(tileW, tileH);

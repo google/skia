@@ -205,7 +205,7 @@ uniform half blurRadius;
         }
 
         std::vector<float> topVec;
-        topVec.reserve(dimensions.width());
+        topVec.reserve_back(dimensions.width());
         for (int x = 0; x < dimensions.width(); ++x) {
             if (x < rrectToDraw.rect().fLeft || x > rrectToDraw.rect().fRight) {
                 topVec.push_back(-1);

@@ -1180,7 +1180,7 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
             Block& block = static_cast<Block&>(*stmt);
 
             StatementArray blockStmts;
-            blockStmts.reserve(block.children().size());
+            blockStmts.reserve_back(block.children().size());
             for (std::unique_ptr<Statement>& stmt : block.children()) {
                 move_all_but_break(stmt, &blockStmts);
             }

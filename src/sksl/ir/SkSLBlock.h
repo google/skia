@@ -56,7 +56,7 @@ public:
 
     std::unique_ptr<Statement> clone() const override {
         StatementArray cloned;
-        cloned.reserve(this->children().size());
+        cloned.reserve_back(this->children().size());
         for (const std::unique_ptr<Statement>& stmt : this->children()) {
             cloned.push_back(stmt->clone());
         }

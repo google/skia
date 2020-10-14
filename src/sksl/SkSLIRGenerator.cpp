@@ -209,7 +209,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
                     FunctionCall& fc = expr.as<FunctionCall>();
                     if (fc.function().isBuiltin() && fc.function().name() == "EmitVertex") {
                         StatementArray statements;
-                        statements.reserve(2);
+                        statements.reserve_back(2);
                         statements.push_back(getNormalizeSkPositionCode());
                         statements.push_back(std::move(result));
                         return std::make_unique<Block>(statement.fOffset, std::move(statements),
@@ -378,7 +378,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         const ASTNode::VarData& varData = varDecl.getVarData();
         const Type* type = baseType;
         ExpressionArray sizes;
-        sizes.reserve(varData.fSizeCount);
+        sizes.reserve_back(varData.fSizeCount);
         auto iter = varDecl.begin();
         for (size_t i = 0; i < varData.fSizeCount; ++i, ++iter) {
             const ASTNode& rawSize = *iter;
@@ -746,7 +746,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     SkASSERT(endPrimitive);
 
     StatementArray loopBody;
-    loopBody.reserve(2);
+    loopBody.reserve_back(2);
     loopBody.push_back(std::make_unique<ExpressionStatement>(this->call(
                                                     /*offset=*/-1, *invokeDecl,
                                                     ExpressionArray{})));
@@ -798,7 +798,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
                                    new BinaryExpression(-1, left, op, right, \
                                                         fContext.fFloat2_Type.get()))
     ExpressionArray children;
-    children.reserve(3);
+    children.reserve_back(3);
     children.push_back(OP(OP(SWIZZLE(POS, 0, 1), Token::Kind::TK_STAR, SWIZZLE(ADJUST, 0, 2)),
                           Token::Kind::TK_PLUS,
                           OP(SWIZZLE(POS, 3, 3), Token::Kind::TK_STAR, SWIZZLE(ADJUST, 1, 3))));
@@ -1120,7 +1120,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     const Type* type =
             old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
     ExpressionArray sizes;
-    sizes.reserve(id.fSizeCount);
+    sizes.reserve_back(id.fSizeCount);
     for (size_t i = 0; i < id.fSizeCount; ++i) {
         const ASTNode& size = *(iter++);
         if (size) {
@@ -2558,7 +2558,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     // contiguously. The benefits are minor, so skip the optimization to keep the algorithm simple.
     // The constructor will have at most three arguments: { base value, constant 0, constant 1 }
     ExpressionArray constructorArgs;
-    constructorArgs.reserve(3);
+    constructorArgs.reserve_back(3);
     constructorArgs.push_back(std::move(expr));
 
     // Apply another swizzle to shuffle the constants into the correct place. Any constant values we
