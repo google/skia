@@ -74,10 +74,11 @@ bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
 class StaticVertexAllocator : public GrEagerVertexAllocator {
 public:
     StaticVertexAllocator(GrResourceProvider* resourceProvider, bool canMapVB)
-      : fResourceProvider(resourceProvider)
-      , fCanMapVB(canMapVB)
-      , fVertices(nullptr) {
+            : fResourceProvider(resourceProvider)
+            , fCanMapVB(canMapVB)
+            , fVertices(nullptr) {
     }
+
 #ifdef SK_DEBUG
     ~StaticVertexAllocator() override {
         SkASSERT(!fLockStride);
@@ -235,25 +236,35 @@ private:
         return path;
     }
 
-    void draw(Target* target) {
-        SkASSERT(!fAntiAlias);
-        GrResourceProvider* rp = target->resourceProvider();
-        bool inverseFill = fShape.inverseFilled();
-        // construct a cache key from the path's genID and the view matrix
+    static void CreateKey(GrUniqueKey* key,
+                          const GrStyledShape& shape,
+                          const SkIRect& devClipBounds) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
-        static constexpr int kClipBoundsCnt = sizeof(fDevClipBounds) / sizeof(uint32_t);
-        int shapeKeyDataCnt = fShape.unstyledKeySize();
+
+        bool inverseFill = shape.inverseFilled();
+
+        static constexpr int kClipBoundsCnt = sizeof(devClipBounds) / sizeof(uint32_t);
+        int shapeKeyDataCnt = shape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
-        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
-        fShape.writeUnstyledKey(&builder[0]);
+        GrUniqueKey::Builder builder(key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
+        shape.writeUnstyledKey(&builder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (inverseFill) {
-            memcpy(&builder[shapeKeyDataCnt], &fDevClipBounds, sizeof(fDevClipBounds));
+            memcpy(&builder[shapeKeyDataCnt], &devClipBounds, sizeof(devClipBounds));
         } else {
-            memset(&builder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
+            memset(&builder[shapeKeyDataCnt], 0, sizeof(devClipBounds));
         }
+
         builder.finish();
+    }
+
+    void createNonAAMesh(Target* target) {
+        SkASSERT(!fAntiAlias);
+        GrResourceProvider* rp = target->resourceProvider();
+
+        GrUniqueKey key;
+        CreateKey(&key, fShape, fDevClipBounds);
+
         sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
         int actualCount;
         SkScalar tol = GrPathUtils::kDefaultTolerance;
@@ -273,8 +284,8 @@ private:
         int numCountedCurves;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int vertexCount = GrTriangulator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
-                                                          GrTriangulator::Mode::kNormal,
+        int vertexCount = GrTriangulator::PathToTriangles(this->getPath(), tol, clipBounds,
+                                                          &allocator, GrTriangulator::Mode::kNormal,
                                                           &numCountedCurves);
         if (vertexCount == 0) {
             return;
@@ -291,9 +302,9 @@ private:
         this->createMesh(target, std::move(vb), 0, vertexCount);
     }
 
-    void drawAA(Target* target) {
+    void createAAMesh(Target* target) {
         SkASSERT(fAntiAlias);
-        SkPath path = getPath();
+        SkPath path = this->getPath();
         if (path.isEmpty()) {
             return;
         }
@@ -368,9 +379,9 @@ private:
 
     void onPrepareDraws(Target* target) override {
         if (fAntiAlias) {
-            this->drawAA(target);
+            this->createAAMesh(target);
         } else {
-            this->draw(target);
+            this->createNonAAMesh(target);
         }
     }
 
