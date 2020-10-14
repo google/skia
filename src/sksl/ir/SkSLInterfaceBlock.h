@@ -29,12 +29,38 @@ struct InterfaceBlock : public ProgramElement {
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
                    ExpressionArray sizes, std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(offset, kProgramElementKind)
-    , fVariable(var)
-    , fTypeName(std::move(typeName))
-    , fInstanceName(std::move(instanceName))
-    , fSizes(std::move(sizes))
-    , fTypeOwner(typeOwner) {}
+    : INHERITED(offset, InterfaceBlockData{var, std::move(typeName), std::move(instanceName),
+                                           std::move(typeOwner)}) {
+        fExpressionChildren.move_back_n(sizes.size(), sizes.data());
+    }
+
+    const Variable& variable() const {
+        return *this->interfaceBlockData().fVariable;
+    }
+
+    void setVariable(const Variable* var) {
+        this->interfaceBlockData().fVariable = var;
+    }
+
+    const String& typeName() const {
+        return this->interfaceBlockData().fTypeName;
+    }
+
+    const String& instanceName() const {
+        return this->interfaceBlockData().fInstanceName;
+    }
+
+    const std::shared_ptr<SymbolTable>& typeOwner() const {
+        return this->interfaceBlockData().fTypeOwner;
+    }
+
+    int sizeCount() const {
+        return fExpressionChildren.size();
+    }
+
+    const std::unique_ptr<Expression>& size(int index) const {
+        return fExpressionChildren[index];
+    }
 
     std::unique_ptr<ProgramElement> clone() const override {
         ExpressionArray sizesClone;
@@ -42,13 +68,14 @@ struct InterfaceBlock : public ProgramElement {
         for (const auto& s : fSizes) {
             sizesClone.push_back(s ? s->clone() : nullptr);
         }
-        return std::make_unique<InterfaceBlock>(fOffset, fVariable, fTypeName, fInstanceName,
-                                                std::move(sizesClone), fTypeOwner);
+        return std::make_unique<InterfaceBlock>(fOffset, &this->variable(), this->typeName(),
+                                                this->instanceName(), std::move(sizesClone),
+                                                this->typeOwner());
     }
 
     String description() const override {
-        String result = fVariable->modifiers().description() + fTypeName + " {\n";
-        const Type* structType = &fVariable->type();
+        String result = this->variable().modifiers().description() + this->typeName() + " {\n";
+        const Type* structType = &this->variable().type();
         while (structType->typeKind() == Type::TypeKind::kArray) {
             structType = &structType->componentType();
         }
@@ -56,8 +83,8 @@ struct InterfaceBlock : public ProgramElement {
             result += f.description() + "\n";
         }
         result += "}";
-        if (fInstanceName.size()) {
-            result += " " + fInstanceName;
+        if (this->instanceName().size()) {
+            result += " " + this->instanceName();
             for (const auto& size : fSizes) {
                 result += "[";
                 if (size) {
@@ -69,11 +96,7 @@ struct InterfaceBlock : public ProgramElement {
         return result + ";";
     }
 
-    const Variable* fVariable;
-    const String fTypeName;
-    const String fInstanceName;
     ExpressionArray fSizes;
-    const std::shared_ptr<SymbolTable> fTypeOwner;
 
     using INHERITED = ProgramElement;
 };
