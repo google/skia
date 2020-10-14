@@ -555,7 +555,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext*,
     return nullptr;
 }
 
-bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
+bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext*,
                                             sk_sp<SkImage>,
                                             GrBackendTexture*,
                                             BackendTextureReleaseProc*) {
