@@ -541,7 +541,8 @@ export interface FontStyle {
 }
 
 /**
- * See GrContext.h for more on this class.
+ * See GrDirectContext.h for more on this class.
+ * TODO: Rename this class.
  */
 export interface GrContext extends EmbindObject<GrContext> {
     getResourceCacheLimitBytes(): number;
