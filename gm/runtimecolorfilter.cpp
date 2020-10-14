@@ -34,11 +34,36 @@ const char* gLumaSrcWithCoords = R"(
     }
 )";
 
-DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256) {
+// A runtime effect with a small amount of control flow (if, else, etc., and
+// early return) that can in principle still be reduced to a single basic block.
+// Distilled from AOSP tone mapping shaders.
+const char* gComplex = R"(
+    in shader input;
+    half4 main() {
+        half4 color = sample(input);
+
+        half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
+
+        half scale = 0;
+
+        if (luma < 0.33333) {
+            return half4(color.rgb * 0.5, color.a);
+        } else if (luma < 0.66666) {
+            scale = 0.166666 + 2.0 * (luma - 0.33333);
+        } else {
+            scale = 0.833333 + 0.5 * (luma - 0.66666);
+        }
+
+        return half4(color.rgb * (scale/luma), color.a);
+    }
+)";
+
+
+DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 4, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
-    for (auto src : { gLumaSrc, gLumaSrcWithCoords }) {
+    for (auto src : { gLumaSrc, gLumaSrcWithCoords, gComplex }) {
         sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(src)));
         SkASSERT(effect);
         SkPaint p;
