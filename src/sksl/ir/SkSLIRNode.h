@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModifiersPool.h"
+#include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLString.h"
 
 #include <algorithm>
@@ -62,6 +63,20 @@ public:
     // character offset of this element within the program being compiled, for error reporting
     // purposes
     int fOffset;
+
+    // Override operator new and delete to allow us to control allocation behavior.
+    void* operator new(const size_t size) {
+        // TODO: once all IRNodes hold their data in fData, everything should come out of the pool,
+        // and check should become an assertion.
+        if (size == sizeof(IRNode)) {
+            return Pool::AllocIRNode();
+        }
+        return malloc(size);
+    }
+
+    void operator delete(void* ptr) {
+        Pool::FreeIRNode(static_cast<IRNode*>(ptr));
+    }
 
 protected:
     struct BlockData {
