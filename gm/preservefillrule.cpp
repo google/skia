@@ -59,7 +59,7 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* rContext, GrRenderTargetContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
         using CoverageType = GrCCAtlas::CoverageType;
 
@@ -68,7 +68,7 @@ private:
             return DrawResult::kSkip;
         }
 
-        auto* ccpr = ctx->priv().drawingManager()->getCoverageCountingPathRenderer();
+        auto* ccpr = rContext->priv().drawingManager()->getCoverageCountingPathRenderer();
         if (!ccpr) {
             errorMsg->set("ccpr only");
             return DrawResult::kSkip;
@@ -80,6 +80,8 @@ private:
                           "Are you using viewer? Launch with \"--cachePathMasks true\".");
             return DrawResult::kFail;
         }
+
+        auto dContext = GrAsDirectContext(rContext);
 
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
@@ -136,8 +138,11 @@ private:
                 }
                 ++numCachedPaths;
             }
-            // Verify all 4 paths are tracked by the path cache.
-            ERR_MSG_ASSERT(4 == numCachedPaths);
+
+            if (dContext) {
+                // Verify all 4 paths are tracked by the path cache.
+                ERR_MSG_ASSERT(4 == numCachedPaths);
+            }
         }
 
         return DrawResult::kOk;
