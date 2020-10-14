@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2cc00a5_18c52822",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-14T13:37:33Z",
+      "side": 1,
+      "message": "Link to CR bug.",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4c2048b7_b567eb58",
@@ -32,6 +49,41 @@
       "side": 1,
       "message": "This sgtm.  It\u0027s easy to continue to fake temporarily as\n\n   void shrinkToFit() { /* oops, too hard with ref counting! */ }\n\nand it\u0027s been kind of obsoleted by SkPath::Make() and co.",
       "parentUuid": "4c2048b7_b567eb58",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbd8fe6b_b14aadeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-14T13:37:33Z",
+      "side": 1,
+      "message": "+1\n\nWe should also make SkPathBuilder shrink the arrays on detach().",
+      "parentUuid": "2b4a256e_61904d40",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "369f2353_78ba5dbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-14T13:37:33Z",
+      "side": 1,
+      "message": "Fix LGTM modulo Mike\u0027s comments, or feel free to turn into a nop.",
       "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
