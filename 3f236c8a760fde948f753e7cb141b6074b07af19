@@ -1,6 +1,52 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "dab5eebe_53022cc0",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-14T17:57:03Z",
+      "side": 1,
+      "message": "InterfaceBlock",
+      "range": {
+        "startLine": 489,
+        "startChar": 38,
+        "endLine": 489,
+        "endChar": 52
+      },
+      "revId": "3f236c8a760fde948f753e7cb141b6074b07af19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "686c28a1_520e3003",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-14T17:57:03Z",
+      "side": 1,
+      "message": "fInterfaceBlock",
+      "range": {
+        "startLine": 489,
+        "startChar": 72,
+        "endLine": 489,
+        "endChar": 83
+      },
+      "revId": "3f236c8a760fde948f753e7cb141b6074b07af19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3e0b35ff_86f77fdd",
