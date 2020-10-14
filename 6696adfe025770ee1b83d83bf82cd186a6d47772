@@ -211,6 +211,24 @@
       "parentUuid": "e1f22734_36f4fad9",
       "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67af6427_4ead8746",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-14T19:10:52Z",
+      "side": 1,
+      "message": "invoking the editor also zeros the genID and marks the bounds as dirty, neither of which are needed for the shrink.\n\nI agree that some code sharing/encapsulation would be good. Do that now, or in a follow-on cl?",
+      "parentUuid": "62665370_9b42cf84",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
