@@ -106,6 +106,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a54f0ef_9d7fc87b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-14T13:57:25Z",
+      "side": 1,
+      "message": "Actually... no.  I think we already have this behavior as SkPathBuilder::snapshot().  Shrinking in detach() would make detach() strictly less useful than snapshot(), wouldn\u0027t it?",
+      "parentUuid": "6181414b_24a74c34",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1f22734_36f4fad9",
