@@ -51,6 +51,24 @@
       "message": "Could we get this same behavior with\n\n    // Since this changes the SkPathRef, attach an editor to copy-on-write.\n    SkPathRef::Editor ed(\u0026fPathRef);\n    ...\n\n?",
       "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62665370_9b42cf84",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-14T13:05:40Z",
+      "side": 1,
+      "message": "... might even go as far to have SkPath hold an sk_sp\u003cconst SkPathRef\u003e, and make SkPathRef::Editor the only way to give you a non-const SkPathRef*.",
+      "parentUuid": "e1f22734_36f4fad9",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
