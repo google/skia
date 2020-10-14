@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fbf3457_681adeab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-14T18:28:47Z",
+      "side": 1,
+      "message": "This is in prep for actually changing how filters are applied in SkCanvas. Updating them to match the eventual system and no longer use the applyCTM() function that wraps a filter DAG.",
+      "revId": "9cab55b78b1b9da8582c56645204e2ff72020e07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
