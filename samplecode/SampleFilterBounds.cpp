@@ -15,10 +15,12 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMatrixPriv.h"
 
 #include "tools/ToolUtils.h"
 
@@ -56,6 +58,17 @@ static float print_info(SkCanvas* canvas,
     y = print_size(canvas, "Input (w/ no hint)", unhintedLayerBounds, kLineInset, y, font, text);
 
     return y;
+}
+
+static void print_label(SkCanvas* canvas, float x, float y, float value) {
+    SkFont font(nullptr, 12);
+    SkPaint text;
+    text.setAntiAlias(true);
+
+    SkString label;
+    label.printf("%.3f", value);
+
+    canvas->drawString(label, x, y + kLineHeight / 2.f, font, text);
 }
 
 static SkPaint line_paint(SkColor color, bool dashed = false) {
@@ -113,6 +126,52 @@ public:
         }
         canvas->drawPath(localSpace, line_paint(SK_ColorGRAY));
 
+        // Visualize scale factors at the four corners and center of the local rect
+        static const SkColor4f kScaleGradientColors[] =
+                { { 0.05f, 0.6f, 0.f,  1.f },   // Severe downscaling, s < 1/8, log(s) < -3
+                  { 0.4f,  0.7f, 0.4f, 0.5f },  // Okay downscaling,   s < 1/2, log(s) < -1
+                  { 1.f,   1.f,  1.f,  0.1f },  // No scaling,         s = 1,   log(s) = 0
+                  { 0.85f, 0.4f, 0.3f, 0.5f },  // Okay upscaling,     s > 2,   log(s) > 1
+                  { 0.8f,  0.1f, 0.f,  1.f } }; // Severe upscaling,   s > 8,   log(s) > 3
+        static const SkScalar kLogScaleFactors[] = { -3.f, -1.f, 0.f, 1.f, 3.f };
+        static const SkScalar kGradientStops[] = { 0.f, 0.33333f, 0.5f, 0.66667f, 1.f };
+        static const int kStopCount = (int) SK_ARRAY_COUNT(kScaleGradientColors);
+
+        SkPoint testPoints[5];
+        testPoints[0] = {localContentRect.centerX(), localContentRect.centerY()};
+        localContentRect.toQuad(testPoints + 1);
+        for (int i = 0; i < 5; ++i) {
+            float scale = SkMatrixPriv::DifferentialScale(
+                    mapping.deviceMatrix(),
+                    SkPoint(mapping.paramToLayer(skif::ParameterSpace<SkPoint>(testPoints[i]))));
+            float logScale = SkScalarLog2(scale);
+            SkColor4f color = {0.f, 0.f, 0.f, 0.f};
+            for (int j = 0; j <= kStopCount; ++j) {
+                if (j == kStopCount) {
+                    color = kScaleGradientColors[j - 1];
+                    break;
+                } else if (kLogScaleFactors[j] >= logScale) {
+                    if (j == 0) {
+                        color = kScaleGradientColors[0];
+                    } else {
+                        SkScalar t = (logScale - kLogScaleFactors[j - 1]) /
+                                     (kLogScaleFactors[j] - kLogScaleFactors[j - 1]);
+
+                        SkColor4f a = kScaleGradientColors[j - 1] * (1.f - t);
+                        SkColor4f b = kScaleGradientColors[j] * t;
+                        color = {a.fR + b.fR, a.fG + b.fG, a.fB + b.fB, a.fA + b.fA};
+                    }
+                    break;
+                }
+            }
+
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setColor4f(color, nullptr);
+            canvas->drawRect(SkRect::MakeLTRB(testPoints[i].fX - 4.f, testPoints[i].fY - 4.f,
+                                              testPoints[i].fX + 4.f, testPoints[i].fY + 4.f), p);
+        }
+
         // The device content rect, e.g. the clip bounds if 'localContentRect' were used as a clip
         // before the draw or saveLayer, representing what the filter must cover if it affects
         // transparent black or doesn't have a local content hint.
@@ -145,10 +204,24 @@ public:
         canvas->drawRect(SkRect::Make(SkIRect(hintedOutputBounds)), line_paint(SK_ColorBLUE));
 
         canvas->resetMatrix();
-        print_info(canvas, SkIRect(mapping.paramToLayer(contentBounds).roundOut()),
+        float y = print_info(canvas, SkIRect(mapping.paramToLayer(contentBounds).roundOut()),
                            devContentRect.roundOut(),
                            SkIRect(hintedOutputBounds),
                            SkIRect(unhintedLayerBounds));
+
+        // Draw color key for layer visualization
+        SkRect key = SkRect::MakeXYWH(15.f, y + 30.f, 15.f, 100.f);
+        SkPoint pts[] = {{key.centerX(), key.fTop}, {key.centerX(), key.fBottom}};
+        sk_sp<SkShader> gradient = SkGradientShader::MakeLinear(
+                pts, kScaleGradientColors, nullptr, kGradientStops, kStopCount, SkTileMode::kClamp,
+                SkGradientShader::kInterpolateColorsInPremul_Flag, nullptr);
+        SkPaint keyPaint;
+        keyPaint.setShader(gradient);
+        canvas->drawRect(key, keyPaint);
+        for (int i = 0; i < kStopCount; ++i) {
+            print_label(canvas, key.fRight + 5.f, key.fTop + kGradientStops[i] * key.height(),
+                        SkScalarPow(2.f, kLogScaleFactors[i]));
+        }
     }
 
     SkString name() override { return SkString("FilterBounds"); }
