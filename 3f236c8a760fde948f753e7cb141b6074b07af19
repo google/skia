@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e0b35ff_86f77fdd",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-14T17:54:49Z",
+      "side": 1,
+      "message": "Nice SkTArray benefit!",
+      "range": {
+        "startLine": 34,
+        "startChar": 28,
+        "endLine": 34,
+        "endChar": 39
+      },
+      "revId": "3f236c8a760fde948f753e7cb141b6074b07af19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdf448c2_338b9208",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-14T17:54:49Z",
+      "side": 1,
+      "message": "Isn\u0027t this in fExpressionChildren now?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 27
+      },
+      "revId": "3f236c8a760fde948f753e7cb141b6074b07af19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
