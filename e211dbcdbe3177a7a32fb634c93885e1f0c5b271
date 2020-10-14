@@ -107,6 +107,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0d5a8eac_bf0ba4ae",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-14T20:21:16Z",
+      "side": 1,
+      "message": "Ahh I think I am wrong. The push constant block is still a uniform block in the shader (I missed the uniform part), and I think those still require the extended alignment.\n\n\"If the uniformBufferStandardLayout feature is not enabled on the device, then any member of an OpTypeStruct with a storage class of Uniform and a decoration of Block must be aligned according to its extended alignment.\"\n\nSo I believe that is what we have here?",
+      "parentUuid": "c4e3e3e1_602991f7",
+      "range": {
+        "startLine": 240,
+        "startChar": 22,
+        "endLine": 240,
+        "endChar": 44
+      },
+      "revId": "e211dbcdbe3177a7a32fb634c93885e1f0c5b271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16063ede_29d6e198",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 3
