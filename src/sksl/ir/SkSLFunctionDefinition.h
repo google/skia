@@ -12,8 +12,6 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 
-#include <unordered_set>
-
 namespace SkSL {
 
 struct ASTNode;
@@ -25,33 +23,47 @@ struct FunctionDefinition : public ProgramElement {
     static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     FunctionDefinition(int offset,
-                       const FunctionDeclaration& declaration,
+                       const FunctionDeclaration* declaration,
                        std::unique_ptr<Statement> body,
                        std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
-        : INHERITED(offset, kProgramElementKind)
-        , fDeclaration(declaration)
-        , fBody(std::move(body))
-        , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
+        : INHERITED(offset, FunctionDefinitionData{declaration, std::move(referencedIntrinsics),
+                                                   nullptr}) {
+        fStatementChildren.push_back(std::move(body));
+    }
+
+    const FunctionDeclaration& declaration() const {
+        return *this->functionDefinitionData().fDeclaration;
+    }
+
+    std::unique_ptr<Statement>& body() {
+        return this->fStatementChildren[0];
+    }
+
+    const std::unique_ptr<Statement>& body() const {
+        return this->fStatementChildren[0];
+    }
+
+    const std::unordered_set<const FunctionDeclaration*>& referencedIntrinsics() const {
+        return this->functionDefinitionData().fReferencedIntrinsics;
+    }
+
+    const ASTNode* source() const {
+        return this->functionDefinitionData().fSource;
+    }
+
+    void setSource(const ASTNode* source) {
+        this->functionDefinitionData().fSource = source;
+    }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionDefinition>(fOffset, fDeclaration,
-                                                    fBody->clone(), fReferencedIntrinsics);
+        return std::make_unique<FunctionDefinition>(fOffset, &this->declaration(),
+                                                    this->body()->clone(),
+                                                    this->referencedIntrinsics());
     }
 
     String description() const override {
-        return fDeclaration.description() + " " + fBody->description();
+        return this->declaration().description() + " " + this->body()->description();
     }
-
-    const FunctionDeclaration& fDeclaration;
-    std::unique_ptr<Statement> fBody;
-    // We track intrinsic functions we reference so that we can ensure that all of them end up
-    // copied into the final output.
-    std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
-    // This pointer may be null, and even when non-null is not guaranteed to remain valid for the
-    // entire lifespan of this object. The parse tree's lifespan is normally controlled by
-    // IRGenerator, so the IRGenerator being destroyed or being used to compile another file will
-    // invalidate this pointer.
-    const ASTNode* fSource = nullptr;
 
     using INHERITED = ProgramElement;
 };

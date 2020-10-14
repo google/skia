@@ -62,6 +62,11 @@ IRNode::IRNode(int offset, int kind, const FunctionDeclarationData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const FunctionDefinitionData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const FunctionReferenceData& data)
 : fOffset(offset)
 , fKind(kind)

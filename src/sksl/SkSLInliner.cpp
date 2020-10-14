@@ -660,10 +660,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
-    if (function.fDeclaration.returnType() != *fContext->fVoid_Type) {
+    if (function.declaration().returnType() != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        resultExpr = makeInlineVar(String(function.fDeclaration.name()),
-                                   &function.fDeclaration.returnType(),
+        resultExpr = makeInlineVar(String(function.declaration().name()),
+                                   &function.declaration().returnType(),
                                    Modifiers{}, &noInitialValue);
    }
 
@@ -672,13 +672,13 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     VariableRewriteMap varMap;
     std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
-        const Variable* param = function.fDeclaration.parameters()[i];
+        const Variable* param = function.declaration().parameters()[i];
         bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
 
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
         if (is_trivial_argument(*arguments[i])) {
             // ... and it's an `out` param, or it isn't written to within the inline function...
-            if (isOutParam || !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
+            if (isOutParam || !Analysis::StatementWritesToVariable(*function.body(), *param)) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
                 varMap[param] = arguments[i]->clone();
                 continue;
@@ -693,7 +693,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                       param->modifiers(), &arguments[i]);
     }
 
-    const Block& body = function.fBody->as<Block>();
+    const Block& body = function.body()->as<Block>();
     auto inlineBlock = std::make_unique<Block>(offset, StatementArray{});
     inlineBlock->children().reserve(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
@@ -718,7 +718,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Copy back the values of `out` parameters into their real destinations.
     for (int i : argsToCopyBack) {
-        const Variable* p = function.fDeclaration.parameters()[i];
+        const Variable* p = function.declaration().parameters()[i];
         SkASSERT(varMap.find(p) != varMap.end());
         inlinedBody.children().push_back(
                 std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
@@ -823,7 +823,7 @@ public:
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
                 fEnclosingFunction = &funcDef;
-                this->visitStatement(&funcDef.fBody);
+                this->visitStatement(&funcDef.body());
                 break;
             }
             default:
@@ -1164,7 +1164,7 @@ bool Inliner::analyze(Program& program) {
 
         // Convert the function call to its inlined equivalent.
         InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols,
-                                                   &candidate.fEnclosingFunction->fDeclaration);
+                                                   &candidate.fEnclosingFunction->declaration());
         if (inlinedCall.fInlinedBody) {
             // Ensure that the inlined body has a scope if it needs one.
             this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt->get());
