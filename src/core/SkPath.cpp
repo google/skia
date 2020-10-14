@@ -525,11 +525,8 @@ int SkPath::getVerbs(uint8_t dst[], int max) const {
 size_t SkPath::approximateBytesUsed() const {
     size_t size = sizeof (SkPath);
     if (fPathRef != nullptr) {
-        size += fPathRef->countPoints() * sizeof(SkPoint)
-              + fPathRef->countVerbs()
-              + fPathRef->countWeights() * sizeof(SkScalar);
+        size += fPathRef->approximateBytesUsed();
     }
-
     return size;
 }
 
