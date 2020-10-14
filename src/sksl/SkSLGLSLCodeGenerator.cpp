@@ -1044,11 +1044,11 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // accidentally end up here.
     SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
 
-    this->writeTypePrecision(f.fDeclaration.returnType());
-    this->writeType(f.fDeclaration.returnType());
-    this->write(" " + f.fDeclaration.name() + "(");
+    this->writeTypePrecision(f.declaration().returnType());
+    this->writeType(f.declaration().returnType());
+    this->write(" " + f.declaration().name() + "(");
     const char* separator = "";
-    for (const auto& param : f.fDeclaration.parameters()) {
+    for (const auto& param : f.declaration().parameters()) {
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), false);
@@ -1076,7 +1076,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+    for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
         if (!stmt->isEmpty()) {
             this->writeStatement(*stmt);
             this->writeLine();
