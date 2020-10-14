@@ -8,7 +8,7 @@
 #ifndef GrDirectContext_DEFINED
 #define GrDirectContext_DEFINED
 
-#include "include/private/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 
 #include "include/gpu/GrBackendSurface.h"
 
@@ -43,7 +43,7 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
-class SK_API GrDirectContext : public GrContext {
+class SK_API GrDirectContext : public GrRecordingContext {
 public:
 #ifdef SK_GL
     /**
@@ -698,9 +698,9 @@ public:
     //
     // Steps to use this API:
     //
-    // 1) Create a GrContext as normal, but set fPersistentCache on GrContextOptions to something
-    //    that will save the cached shader blobs. Set fShaderCacheStrategy to kSkSL. This will
-    //    ensure that the blobs are SkSL, and are suitable for pre-compilation.
+    // 1) Create a GrDirectContext as normal, but set fPersistentCache on GrContextOptions to
+    //    something that will save the cached shader blobs. Set fShaderCacheStrategy to kSkSL. This
+    //    will ensure that the blobs are SkSL, and are suitable for pre-compilation.
     // 2) Run your application, and save all of the key/data pairs that are fed to the cache.
     //
     // 3) Switch over to shipping your application. Include the key/data pairs from above.
@@ -756,7 +756,7 @@ private:
 
     friend class GrDirectContextPriv;
 
-    using INHERITED = GrContext;
+    using INHERITED = GrRecordingContext;
 };
 
 
