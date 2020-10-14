@@ -142,6 +142,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16b55fc0_b4d095c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-14T14:48:22Z",
+      "side": 1,
+      "message": "We happen to be using SkTDArray here, which does malloc() exactly what it needs on a copy.  For what it\u0027s worth I\u0027ve never seen a std::vector that doesn\u0027t also copy exactly.\n\nWe do have incReserve() on SkPathBuilder for this sort of pattern if you like.  I like that pattern, but the shrink_to_fit() part of it is usually the least important part if you\u0027ve done a good job with the reserve() call.  If you reserve perfectly then detach() is perfect, and it degrades pretty smoothly as long as you\u0027re overestimating... if you overestimate by a verb or two, probably no big win from shrink_to_fit().",
+      "parentUuid": "a156c5db_957e8001",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1f22734_36f4fad9",
