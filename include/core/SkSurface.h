@@ -31,7 +31,7 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendSurfaceMutableState;
 class GrBackendTexture;
-class GrDirectContext;
+class GrContext;
 class GrRecordingContext;
 class GrRenderTarget;
 
@@ -769,7 +769,7 @@ public:
         occur to guarantee a finite time before the callback is called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the
-        SkSurface is GPU-backed the data is immediately invalidated if the context is abandoned
+        SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
         or destroyed.
 
         @param info            info of the requested pixels
@@ -802,7 +802,7 @@ public:
         called.
 
         The data is valid for the lifetime of AsyncReadResult with the exception that if the
-        SkSurface is GPU-backed the data is immediately invalidated if the context is abandoned
+        SkSurface is GPU-backed the data is immediately invalidated if the GrContext is abandoned
         or destroyed.
 
         @param yuvColorSpace  The transformation from RGB to YUV. Applied to the resized image
@@ -868,10 +868,9 @@ public:
     /** Call to ensure all reads/writes of the surface have been issued to the underlying 3D API.
         Skia will correctly order its own draws and pixel operations. This must to be used to ensure
         correct ordering when the surface backing store is accessed outside Skia (e.g. direct use of
-        the 3D API or a windowing system). GrDirectContext has additional flush and submit methods
-        that apply to all surfaces and images created from a GrDirectContext. This is equivalent to
-        calling SkSurface::flush with a default GrFlushInfo followed by
-        GrDirectContext::submit(syncCpu).
+        the 3D API or a windowing system). GrContext has additional flush and submit methods that
+        apply to all surfaces and images created from a GrContext. This is equivalent to calling
+        SkSurface::flush with a default GrFlushInfo followed by GrContext::submit(syncCpu).
     */
     void flushAndSubmit(bool syncCpu = false);
 
@@ -881,8 +880,8 @@ public:
     };
 
     /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
-        MSAA. A call to GrDirectContext::submit is always required to ensure work is actually sent
-        to the gpu. Some specific API details:
+        MSAA. A call to GrContext::submit is always required to ensure work is actually sent to the
+        gpu. Some specific API details:
             GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
                 sync objects from the flush will not be valid until a submission occurs.
 
@@ -927,8 +926,8 @@ public:
     GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
 
     /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
-        MSAA. A call to GrDirectContext::submit is always required to ensure work is actually sent
-        to the gpu. Some specific API details:
+        MSAA. A call to GrContext::submit is always required to ensure work is actually sent to the
+        gpu. Some specific API details:
             GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
                 sync objects from the flush will not be valid until a submission occurs.
 

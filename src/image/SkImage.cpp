@@ -555,7 +555,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext*,
     return nullptr;
 }
 
-bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext*,
+bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
                                             sk_sp<SkImage>,
                                             GrBackendTexture*,
                                             BackendTextureReleaseProc*) {
@@ -582,7 +582,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudget
 }
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
-       GrRecordingContext*, SkYUVColorSpace, const GrBackendTexture[2], GrSurfaceOrigin,
+       GrContext*, SkYUVColorSpace, const GrBackendTexture[2], GrSurfaceOrigin,
        const GrBackendTexture&, sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext) {
     return nullptr;
 }

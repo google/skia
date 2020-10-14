@@ -32,6 +32,7 @@
 #include <memory>
 #include <vector>
 
+class GrContext;
 class GrRecordingContext;
 class GrRenderTargetContext;
 class SkBaseDevice;

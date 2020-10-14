@@ -21,6 +21,7 @@
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
+class GrContext;
 class GrRenderTargetContext;
 
 namespace skiagm {

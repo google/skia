@@ -14,7 +14,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 
-class GrDirectContext;
+class GrContext;
 
 extern "C" {
     typedef struct AHardwareBuffer AHardwareBuffer;

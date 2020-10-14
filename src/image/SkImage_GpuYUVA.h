@@ -12,8 +12,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_GpuBase.h"
 
-class GrDirectContext;
-class GrRecordingContext;
+class GrContext;
 class GrTexture;
 struct SkYUVASizeInfo;
 

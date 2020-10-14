@@ -30,6 +30,8 @@
 #include <memory>
 #include <utility>
 
+class GrContext;
+
 static const int kWidth = 64;
 static const int kHeight = 64;
 

@@ -20,6 +20,7 @@
 #include "tools/gpu/GrContextFactory.h"
 
 class SkColorSpace;
+class GrContext;
 
 class DeviceTestingAccess {
 public:

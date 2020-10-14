@@ -24,6 +24,7 @@ class SkImage;
 class SkPath;
 class SkPicture;
 class SkRasterPipeline;
+class GrContext;
 class GrFragmentProcessor;
 
 /** \class SkShader
