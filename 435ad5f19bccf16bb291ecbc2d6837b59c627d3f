@@ -22,6 +22,30 @@
       },
       "revId": "435ad5f19bccf16bb291ecbc2d6837b59c627d3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "976baf7b_bd5d7ded",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-14T19:40:18Z",
+      "side": 1,
+      "message": "Done; I don\u0027t see any other references to the function name `reserve` in the header docs, but a lot of \"reserve count\" which conceptually still seems right and doesn\u0027t seem to need changing AFAICS.",
+      "parentUuid": "6a389fff_d7b72bb0",
+      "range": {
+        "startLine": 165,
+        "startChar": 21,
+        "endLine": 165,
+        "endChar": 28
+      },
+      "revId": "435ad5f19bccf16bb291ecbc2d6837b59c627d3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
