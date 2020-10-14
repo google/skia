@@ -10,13 +10,16 @@
 
 #include "include/core/SkPoint.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkNx.h"
+#include "include/private/SkVx.h"
 #include "src/gpu/tessellate/GrVectorXform.h"
 
 // Wang's formulas for cubics and quadratics (1985) give us the minimum number of evenly spaced (in
 // the parametric sense) line segments that a curve must be chopped into in order to guarantee all
 // lines stay within a distance of "1/intolerance" pixels from the true curve.
 namespace GrWangsFormula {
+
+using float2 = skvx::Vec<2, float>;
+using float4 = skvx::Vec<4, float>;
 
 SK_ALWAYS_INLINE static float root4(float x) {
     // rsqrt() is quicker than sqrt(), and 1/sqrt(1/sqrt(x)) == sqrt(sqrt(x)).
@@ -37,12 +40,12 @@ constexpr float quadratic_constant(float intolerance) {
 // The math is quickest when we calculate this value raised to the 4th power.
 SK_ALWAYS_INLINE static float quadratic_pow4(float intolerance, const SkPoint pts[],
                                              const GrVectorXform& vectorXform = GrVectorXform()) {
-    Sk2f p0 = Sk2f::Load(pts);
-    Sk2f p1 = Sk2f::Load(pts + 1);
-    Sk2f p2 = Sk2f::Load(pts + 2);
-    Sk2f v = p0 + p1*-2 + p2;
+    float2 p0 = float2::Load(pts);
+    float2 p1 = float2::Load(pts + 1);
+    float2 p2 = float2::Load(pts + 2);
+    float2 v = p0 + p1*-2 + p2;
     v = vectorXform(v);
-    Sk2f vv = v*v;
+    float2 vv = v*v;
     float k = quadratic_constant(intolerance);
     return k*k * (vv[0] + vv[1]);
 }
@@ -71,15 +74,15 @@ constexpr float cubic_constant(float intolerance) {
 // The math is quickest when we calculate this value raised to the 4th power.
 SK_ALWAYS_INLINE static float cubic_pow4(float intolerance, const SkPoint pts[],
                                          const GrVectorXform& vectorXform = GrVectorXform()) {
-    Sk4f p01 = Sk4f::Load(pts);
-    Sk4f p12 = Sk4f::Load(pts + 1);
-    Sk4f p23 = Sk4f::Load(pts + 2);
-    Sk4f v = p01 + p12*-2 + p23;
+    float4 p01 = float4::Load(pts);
+    float4 p12 = float4::Load(pts + 1);
+    float4 p23 = float4::Load(pts + 2);
+    float4 v = p01 + p12*-2 + p23;
     v = vectorXform(v);
-    Sk4f vv = v*v;
-    vv = Sk4f::Max(vv, SkNx_shuffle<2,3,0,1>(vv));
+    float4 vv = v*v;
+    float2 m = skvx::max(vv.lo, vv.hi);
     float k = cubic_constant(intolerance);
-    return k*k * (vv[0] + vv[1]);
+    return k*k * (m[0] + m[1]);
 }
 
 // Returns the minimum number of evenly spaced (in the parametric sense) line segments that the

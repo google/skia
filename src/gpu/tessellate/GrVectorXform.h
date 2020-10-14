@@ -9,10 +9,7 @@
 #define GrVectorXform_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkNx.h"
-
-// We enclose this class in the anonymous namespace so it can have Sk2f/Sk4f members.
-namespace {  // NOLINT(google-build-namespaces)
+#include "include/private/SkVx.h"
 
 // Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
 //
@@ -20,6 +17,8 @@ namespace {  // NOLINT(google-build-namespaces)
 //
 class GrVectorXform {
 public:
+    using float2 = skvx::Vec<2, float>;
+    using float4 = skvx::Vec<4, float>;
     explicit GrVectorXform() : fType(Type::kIdentity) {}
     explicit GrVectorXform(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
@@ -38,36 +37,34 @@ public:
             fType = Type::kIdentity;
         }
     }
-    Sk2f operator()(const Sk2f& vector) const {
+    float2 operator()(float2 vector) const {
         switch (fType) {
             case Type::kIdentity:
                 return vector;
             case Type::kScale:
                 return fScaleXY * vector;
             case Type::kAffine:
-                return fScaleXSkewY * vector[0] + fSkewXScaleY * vector[1];
+                return fScaleXSkewY * float2(vector[0]) + fSkewXScaleY * vector[1];
         }
         SkUNREACHABLE;
     }
-    Sk4f operator()(const Sk4f& vectors) const {
+    float4 operator()(float4 vectors) const {
         switch (fType) {
             case Type::kIdentity:
                 return vectors;
             case Type::kScale:
                 return vectors * fScaleXYXY;
             case Type::kAffine:
-                return fScaleXYXY * vectors + fSkewXYXY * SkNx_shuffle<1,0,3,2>(vectors);
+                return fScaleXYXY * vectors + fSkewXYXY * skvx::shuffle<1,0,3,2>(vectors);
         }
         SkUNREACHABLE;
     }
 private:
     enum class Type { kIdentity, kScale, kAffine } fType;
-    union { Sk2f fScaleXY, fScaleXSkewY; };
-    Sk2f fSkewXScaleY;
-    Sk4f fScaleXYXY;
-    Sk4f fSkewXYXY;
+    union { float2 fScaleXY, fScaleXSkewY; };
+    float2 fSkewXScaleY;
+    float4 fScaleXYXY;
+    float4 fSkewXYXY;
 };
-
-}  // namespace
 
 #endif
