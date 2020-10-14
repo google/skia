@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58d5f280_53ebe752",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-14T16:35:31Z",
+      "side": 1,
+      "message": "nit: spacing. May want to just put the whole \u0027Make\u0027 call on the next line.",
+      "range": {
+        "startLine": 809,
+        "startChar": 80,
+        "endLine": 809,
+        "endChar": 87
+      },
+      "revId": "67a58a4d93ec19ec7ae03b26fe90d7919921b424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
