@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9095c40b_889d5742",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-14T20:44:51Z",
+      "side": 1,
+      "message": "Thanks for the revert, Robert! FYI, this also broke Android: https://android-build.googleplex.com/builds/pending/P17260243/aosp_crosshatch-userdebug/latest/view/logs/build_error.log, so we\u0027ll need to fix that before relanding.",
+      "revId": "3172208ad0dc7c29f07d907fc050f1d69fc4980e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
