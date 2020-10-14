@@ -7,7 +7,7 @@
 
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/vk/GrVkAttachment.h"

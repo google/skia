@@ -9,8 +9,8 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTexture.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
 namespace sk_gpu_test {

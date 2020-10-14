@@ -16,7 +16,7 @@
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTSort.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrTexture.h"

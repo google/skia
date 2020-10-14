@@ -12,7 +12,7 @@
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #endif
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)

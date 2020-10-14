@@ -25,7 +25,7 @@
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 
 static bool is_valid_lazy(const SkISize& dimensions, SkBackingFit fit) {

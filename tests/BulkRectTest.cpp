@@ -7,7 +7,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkBlendModePriv.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"

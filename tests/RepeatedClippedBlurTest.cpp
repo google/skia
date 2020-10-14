@@ -9,7 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
 #include "tests/Test.h"
 

@@ -10,7 +10,7 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
 #ifdef SK_GL

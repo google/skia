@@ -16,7 +16,7 @@
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrPathRenderer.h"
