@@ -378,9 +378,9 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
                 break;
             }
             case ProgramElement::Kind::kInterfaceBlock: {
-                const Variable* var = element->as<InterfaceBlock>().fVariable;
-                SkASSERT(var->isBuiltin());
-                intrinsics->insertOrDie(var->name(), std::move(element));
+                const Variable& var = element->as<InterfaceBlock>().variable();
+                SkASSERT(var.isBuiltin());
+                intrinsics->insertOrDie(var.name(), std::move(element));
                 break;
             }
             default:
