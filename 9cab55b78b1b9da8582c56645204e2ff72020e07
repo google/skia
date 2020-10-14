@@ -16,6 +16,29 @@
       "message": "This is in prep for actually changing how filters are applied in SkCanvas. Updating them to match the eventual system and no longer use the applyCTM() function that wraps a filter DAG.",
       "revId": "9cab55b78b1b9da8582c56645204e2ff72020e07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8668cce1_62a77250",
+        "filename": "samplecode/SampleFilterBounds.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-14T18:40:53Z",
+      "side": 1,
+      "message": "create_axis_path helper ?",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 9
+      },
+      "revId": "9cab55b78b1b9da8582c56645204e2ff72020e07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
