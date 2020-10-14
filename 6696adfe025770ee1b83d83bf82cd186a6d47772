@@ -124,6 +124,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a156c5db_957e8001",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-14T14:37:46Z",
+      "side": 1,
+      "message": "Is the vector copy ctor guaranteed to allocate the exact number of elements?  It would certainly make sense, but I\u0027m wary of making any stl sanity assumptions.\n\nI guess if detach() starts shrinking/reallocing, its value is diminished in the general case, but if one can estimate the count upfront and reserve then it could operate under \"perfect\" builder conditions (zero copy, zero allocation slack).  E.g. maybe not directly applicable to paths, but I\u0027ve been running into this pattern repeatedly:\n\n  vectorish\u003c\u003e container;\n\n  // there\u0027s usually a good estimate for the number of elements, e.g. number\n  // of json array elements before validation.\n  container.reserve(estimate);\n\n  while(something) {\n    container.push_back();\n  }\n\n  // done mutating, now I want to minimize the allocation.\n  // if the initial estimate was right, this is a no op\n  container.shrink_to_fit();",
+      "parentUuid": "3a54f0ef_9d7fc87b",
+      "revId": "6696adfe025770ee1b83d83bf82cd186a6d47772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1f22734_36f4fad9",
