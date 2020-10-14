@@ -14,8 +14,8 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGpuDevice.h"
 

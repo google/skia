@@ -14,7 +14,7 @@
 class SkSurfaceCharacterization;
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTask.h"
 #include "src/gpu/ccpr/GrCCPerOpsTaskPaths.h"
 #endif
