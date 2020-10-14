@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acd22af1_17d3c357",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-14T19:12:31Z",
+      "side": 1,
+      "message": "There is const, and I\u0027m surprised it didn\u0027t work. It may not be supported in all contexts, or the backends might not be correctly stripping it out. John has done some recent work on clamping down allowed modifiers in different places - I\u0027ll file a bug and take a look.",
+      "revId": "c97f6ebdf1b95acc56e01014ef78c11f060a466e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
