@@ -856,7 +856,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*arguments[0], out);
             ExpressionArray args;
-            args.reserve(2);
+            args.reserve_back(2);
             args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
             args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
             Constructor ctor(-1, fContext.fInt2_Type.get(), std::move(args));
@@ -1005,7 +1005,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSaturate_SpecialIntrinsic: {
             SkASSERT(arguments.size() == 1);
             ExpressionArray finalArgs;
-            finalArgs.reserve(3);
+            finalArgs.reserve_back(3);
             finalArgs.push_back(arguments[0]->clone());
             finalArgs.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1,
                                                                /*value=*/0));

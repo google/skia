@@ -327,7 +327,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         } break;
         case SK_PICT_PICTURE_TAG: {
             SkASSERT(fPictures.empty());
-            fPictures.reserve(SkToInt(size));
+            fPictures.reserve_back(SkToInt(size));
 
             for (uint32_t i = 0; i < size; i++) {
                 auto pic = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback);

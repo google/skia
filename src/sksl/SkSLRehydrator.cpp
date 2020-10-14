@@ -312,7 +312,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             StringFragment instanceName = this->readString();
             uint8_t sizeCount = this->readU8();
             ExpressionArray sizes;
-            sizes.reserve(sizeCount);
+            sizes.reserve_back(sizeCount);
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
             }
@@ -338,7 +338,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             AutoRehydratorSymbolTable symbols(this);
             int count = this->readU8();
             StatementArray statements;
-            statements.reserve(count);
+            statements.reserve_back(count);
             for (int i = 0; i < count; ++i) {
                 statements.push_back(this->statement());
             }
@@ -406,7 +406,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 std::unique_ptr<Expression> value = this->expression();
                 int statementCount = this->readU8();
                 StatementArray statements;
-                statements.reserve(statementCount);
+                statements.reserve_back(statementCount);
                 for (int j = 0; j < statementCount; ++j) {
                     statements.push_back(this->statement());
                 }
@@ -421,7 +421,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             const Type* baseType = this->type();
             uint8_t sizeCount = this->readU8();
             ExpressionArray sizes;
-            sizes.reserve(sizeCount);
+            sizes.reserve_back(sizeCount);
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
             }
@@ -466,7 +466,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             const Type* type = this->type();
             uint8_t argCount = this->readU8();
             ExpressionArray args;
-            args.reserve(argCount);
+            args.reserve_back(argCount);
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
@@ -489,7 +489,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
                                                                 Symbol::Kind::kFunctionDeclaration);
             uint8_t argCount = this->readU8();
             ExpressionArray args;
-            args.reserve(argCount);
+            args.reserve_back(argCount);
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
