@@ -25,7 +25,7 @@ static SkVector map_as_vector(SkScalar x, SkScalar y, const SkMatrix& matrix) {
 
 namespace skif {
 
-Mapping Mapping::Make(const SkMatrix& ctm, const SkImageFilter* filter) {
+Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter) {
     SkMatrix remainder, layer;
     SkSize scale;
     if (ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
