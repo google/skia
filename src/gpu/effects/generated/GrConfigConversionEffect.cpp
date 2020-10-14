@@ -28,7 +28,7 @@ public:
         (void)pmConversion;
 
         fragBuilder->forceHighPrecision();
-        SkString _sample5773 = this->invokeChild(0, args);
+        SkString _sample5779 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
 @switch (%d) {
@@ -40,7 +40,7 @@ public:
         break;
 }
 )SkSL",
-                args.fOutputColor, _sample5773.c_str(), (int)_outer.pmConversion, args.fOutputColor,
+                args.fOutputColor, _sample5779.c_str(), (int)_outer.pmConversion, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);
     }
