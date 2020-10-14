@@ -9,7 +9,6 @@
 
 #ifdef SK_XML
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -30,6 +29,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNoDrawCanvas.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
