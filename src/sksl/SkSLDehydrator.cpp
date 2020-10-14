@@ -544,11 +544,11 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kInterfaceBlock: {
             const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeCommand(Rehydrator::kInterfaceBlock_Command);
-            this->write(*i.fVariable);
-            this->write(i.fTypeName);
-            this->write(i.fInstanceName);
-            this->writeU8(i.fSizes.size());
-            for (const auto& s : i.fSizes) {
+            this->write(i.variable());
+            this->write(i.typeName());
+            this->write(i.instanceName());
+            this->writeU8(i.sizes().count());
+            for (const auto& s : i.sizes()) {
                 this->write(s.get());
             }
             break;
