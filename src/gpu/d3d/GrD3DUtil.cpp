@@ -7,8 +7,8 @@
 
 #include "src/gpu/d3d/GrD3DUtil.h"
 
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/sksl/SkSLCompiler.h"
 

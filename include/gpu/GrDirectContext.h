@@ -18,7 +18,7 @@
 class GrAtlasManager;
 class GrBackendSemaphore;
 class GrClientMappedBufferManager;
-class GrContextPriv;
+class GrDirectContextPriv;
 class GrContextThreadSafeProxy;
 struct GrD3DBackendContext;
 class GrFragmentProcessor;
@@ -718,8 +718,8 @@ public:
 #endif
 
     // Provides access to functions that aren't part of the public API.
-    GrContextPriv priv();
-    const GrContextPriv priv() const;  // NOLINT(readability-const-return-type)
+    GrDirectContextPriv priv();
+    const GrDirectContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
@@ -754,7 +754,7 @@ private:
 
     std::unique_ptr<GrSmallPathAtlasMgr> fSmallPathAtlasMgr;
 
-    friend class GrContextPriv;
+    friend class GrDirectContextPriv;
 
     using INHERITED = GrContext;
 };

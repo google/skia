@@ -73,7 +73,7 @@ extern bool gSkVMJITViaDylib;
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLGpu.h"

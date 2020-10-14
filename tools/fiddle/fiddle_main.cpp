@@ -23,7 +23,7 @@ static DEFINE_double(frame, 1.0,
                      "A double value in [0, 1] that specifies the point in animation to draw.");
 
 #include "include/gpu/GrBackendSurface.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "tools/gpu/gl/GLTestContext.h"

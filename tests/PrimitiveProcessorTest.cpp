@@ -15,7 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPointPriv.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"

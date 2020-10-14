@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
@@ -30,21 +30,20 @@
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
 #define RETURN_VALUE_IF_ABANDONED(value) if (fContext->abandoned()) { return (value); }
-#define RETURN_IF_ABANDONED RETURN_VALUE_IF_ABANDONED(void)
 
-sk_sp<const GrCaps> GrContextPriv::refCaps() const {
+sk_sp<const GrCaps> GrDirectContextPriv::refCaps() const {
     return fContext->refCaps();
 }
 
-void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
+void GrDirectContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
-                                                   const GrFlushInfo& info) {
+GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
+                                                         const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     RETURN_VALUE_IF_ABANDONED(GrSemaphoresSubmitted::kNo)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "flushSurfaces", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", fContext);
     SkASSERT(numProxies >= 0);
     SkASSERT(!numProxies || proxies);
     for (int i = 0; i < numProxies; ++i) {
@@ -55,16 +54,16 @@ GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], in
             proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
-void GrContextPriv::flushSurface(GrSurfaceProxy* proxy) {
+void GrDirectContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
-void GrContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
-                                           GrRenderTargetProxy* newDest) {
+void GrDirectContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
+                                                 GrRenderTargetProxy* newDest) {
     fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
 }
 
-bool GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
+bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
     GrGpu* gpu = this->getGpu();
     if (!gpu) {
         return false;
@@ -77,79 +76,80 @@ bool GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info
 //////////////////////////////////////////////////////////////////////////////
 #if GR_TEST_UTILS
 
-void GrContextPriv::dumpCacheStats(SkString* out) const {
+void GrDirectContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
     fContext->fResourceCache->dumpStats(out);
 #endif
 }
 
-void GrContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                      SkTArray<double>* values) const {
 #if GR_CACHE_STATS
     fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContextPriv::printCacheStats() const {
+void GrDirectContextPriv::printCacheStats() const {
     SkString out;
     this->dumpCacheStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
 /////////////////////////////////////////////////
-void GrContextPriv::resetGpuStats() const {
+void GrDirectContextPriv::resetGpuStats() const {
 #if GR_GPU_STATS
     fContext->fGpu->stats()->reset();
 #endif
 }
 
-void GrContextPriv::dumpGpuStats(SkString* out) const {
+void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
     return fContext->fGpu->stats()->dump(out);
 #endif
 }
 
-void GrContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                              SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                    SkTArray<double>* values) const {
 #if GR_GPU_STATS
     return fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContextPriv::printGpuStats() const {
+void GrDirectContextPriv::printGpuStats() const {
     SkString out;
     this->dumpGpuStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
 /////////////////////////////////////////////////
-void GrContextPriv::resetContextStats() const {
+void GrDirectContextPriv::resetContextStats() const {
 #if GR_GPU_STATS
     fContext->stats()->reset();
 #endif
 }
 
-void GrContextPriv::dumpContextStats(SkString* out) const {
+void GrDirectContextPriv::dumpContextStats(SkString* out) const {
 #if GR_GPU_STATS
     return fContext->stats()->dump(out);
 #endif
 }
 
-void GrContextPriv::dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                  SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys,
+                                                        SkTArray<double>* values) const {
 #if GR_GPU_STATS
     return fContext->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
-void GrContextPriv::printContextStats() const {
+void GrDirectContextPriv::printContextStats() const {
     SkString out;
     this->dumpContextStats(&out);
     SkDebugf("%s", out.c_str());
 }
 
 /////////////////////////////////////////////////
-sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format, unsigned int index) {
+sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
+                                                                  unsigned int index) {
     auto atlasManager = this->getAtlasManager();
     if (!atlasManager) {
         return nullptr;
@@ -168,26 +168,23 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
     return image;
 }
 
-void GrContextPriv::testingOnly_purgeAllUnlockedResources() {
+void GrDirectContextPriv::testingOnly_purgeAllUnlockedResources() {
     fContext->fResourceCache->purgeAllUnlocked();
 }
 
-void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
-    fContext->asDirectContext()->flushAndSubmit();
+void GrDirectContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(
+        GrOnFlushCallbackObject* cb) {
+    fContext->flushAndSubmit();
     fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
 
-bool GrContextPriv::validPMUPMConversionExists() {
+bool GrDirectContextPriv::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
-
-    // CONTEXT TODO: remove this downcast when this class becomes GrDirectContextPriv
-    auto direct = GrAsDirectContext(fContext);
-    SkASSERT(direct);
 
     if (!fContext->fDidTestPMConversions) {
         fContext->fPMUPMConversionsRoundTrip =
-                GrConfigConversionEffect::TestForPreservingPMConversions(direct);
+                GrConfigConversionEffect::TestForPreservingPMConversions(fContext);
         fContext->fDidTestPMConversions = true;
     }
 
@@ -195,7 +192,7 @@ bool GrContextPriv::validPMUPMConversionExists() {
     return fContext->fPMUPMConversionsRoundTrip;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrContextPriv::createPMToUPMEffect(
+std::unique_ptr<GrFragmentProcessor> GrDirectContextPriv::createPMToUPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->priv().validPMUPMConversionExists() in this case
@@ -206,7 +203,7 @@ std::unique_ptr<GrFragmentProcessor> GrContextPriv::createPMToUPMEffect(
     return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToUnpremul);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrContextPriv::createUPMToPMEffect(
+std::unique_ptr<GrFragmentProcessor> GrDirectContextPriv::createUPMToPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->priv().validPMUPMConversionExists() in this case

@@ -14,8 +14,8 @@
 
 #include <memory>
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCpuBuffer.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrResourceProvider.h"

@@ -18,7 +18,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrMemoryPool.h"

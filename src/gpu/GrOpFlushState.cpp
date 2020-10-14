@@ -9,8 +9,8 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
