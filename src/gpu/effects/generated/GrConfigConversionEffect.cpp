@@ -28,7 +28,7 @@ public:
         (void)pmConversion;
 
         fragBuilder->forceHighPrecision();
-        SkString _sample5773 = this->invokeChild(0, args);
+        SkString _sample5768 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
 @switch (%d) {
@@ -40,7 +40,7 @@ public:
         break;
 }
 )SkSL",
-                args.fOutputColor, _sample5773.c_str(), (int)_outer.pmConversion, args.fOutputColor,
+                args.fOutputColor, _sample5768.c_str(), (int)_outer.pmConversion, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
                 args.fOutputColor, args.fOutputColor);
     }
@@ -124,7 +124,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
     // draw
     readRTC->discard();
 
-    // This function is only ever called if we are in a GrContext that has a GrGpu since we are
+    // This function is only ever called if we are in a GrDirectContext since we are
     // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
     // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
     SkBitmap bitmap;
