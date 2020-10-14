@@ -57,7 +57,7 @@ in fragmentProcessor inputFP;
         // draw
         readRTC->discard();
 
-        // This function is only ever called if we are in a GrContext that has a GrGpu since we are
+        // This function is only ever called if we are in a GrDirectContext since we are
         // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
         // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
         SkBitmap bitmap;
