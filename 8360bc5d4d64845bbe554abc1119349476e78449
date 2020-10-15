@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a18abef_a894e713",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-10-15T15:00:02Z",
+      "side": 1,
+      "message": "I\u0027m not the right person to comment on the details of this CL, but I can give a big thumbs up for it exposing the features I\u0027m hoping to use to build my demo.",
+      "revId": "8360bc5d4d64845bbe554abc1119349476e78449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
