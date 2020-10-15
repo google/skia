@@ -15,6 +15,7 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrYUVABackendTextures.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkScopeExit.h"
 #include "tools/Resources.h"
