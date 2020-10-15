@@ -181,6 +181,20 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
+class CallCountVisitor : public ProgramVisitor {
+public:
+    bool visitExpression(const Expression& e) override {
+        if (e.is<FunctionCall>()) {
+            const FunctionDeclaration* f = &e.as<FunctionCall>().function();
+            fCounts[f]++;
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    Analysis::CallCountMap fCounts;
+    using INHERITED = ProgramVisitor;
+};
+
 class VariableWriteVisitor : public ProgramVisitor {
 public:
     VariableWriteVisitor(const Variable* var)
@@ -325,6 +339,12 @@ bool Analysis::ReferencesFragCoords(const Program& program) {
 
 bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
     return NodeCountVisitor{limit}.visit(*function.body()) > limit;
+}
+
+Analysis::CallCountMap Analysis::GetCallCounts(const Program& program) {
+    CallCountVisitor visitor;
+    visitor.visit(program);
+    return std::move(visitor.fCounts);
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {

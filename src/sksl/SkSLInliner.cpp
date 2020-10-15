@@ -1131,6 +1131,30 @@ void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidat
     }
 }
 
+static bool multiple_calls_to(const Program& program, const FunctionDeclaration* fn) {
+    class MulitpleCallVisitor : public ProgramVisitor {
+    public:
+        MulitpleCallVisitor(const FunctionDeclaration* function) : fFunction(function) {}
+
+        bool visitExpression(const Expression& e) override {
+            if (e.is<FunctionCall>() && &e.as<FunctionCall>().function() == fFunction) {
+                if (fCalled) {
+                    return true;
+                }
+                fCalled = true;
+            }
+            return INHERITED::visitExpression(e);
+        }
+
+        const FunctionDeclaration* fFunction;
+        bool fCalled = false;
+        using INHERITED = ProgramVisitor;
+    };
+
+    MulitpleCallVisitor visitor(fn);
+    return visitor.visit(program);
+}
+
 bool Inliner::analyze(Program& program) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (fSettings->fInlineThreshold <= 0) {
@@ -1151,7 +1175,7 @@ bool Inliner::analyze(Program& program) {
         // idea to inline it.
         if (candidate.fIsLargeFunction &&
             !(funcDecl->modifiers().fFlags & Modifiers::kInline_Flag) &&
-            funcDecl->callCount() > 1) {
+            multiple_calls_to(program, funcDecl)) {
             continue;
         }
 

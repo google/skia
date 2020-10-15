@@ -8,15 +8,15 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
-#include <vector>
-
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLDefines.h"
 
 namespace SkSL {
 
 class ErrorReporter;
 class Expression;
+class FunctionDeclaration;
 struct FunctionDefinition;
 struct Program;
 class ProgramElement;
@@ -36,6 +36,9 @@ struct Analysis {
     static bool ReferencesFragCoords(const Program& program);
 
     static bool NodeCountExceeds(const FunctionDefinition& function, int limit);
+
+    using CallCountMap = SkTHashMap<const FunctionDeclaration*, int>;
+    static CallCountMap GetCallCounts(const Program& program);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
