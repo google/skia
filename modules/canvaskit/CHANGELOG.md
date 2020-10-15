@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+ - `MakeFractalNoise`, `MakeImprovedNoise`, and `MakeTurbulence` have been added to 
+   `CanvasKit.Shader`.
+
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
  - `CanvasKit.MakePathFromOp` was renamed to `CanvasKit.Path.MakeFromOp`
