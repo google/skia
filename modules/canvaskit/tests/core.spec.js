@@ -535,7 +535,7 @@ describe('Core canvas behavior', () => {
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            null, // color space
+            null, // no local matrix
         );
         paint.setShader(cgs);
         let r = CanvasKit.LTRBRect(0, 0, 100, 100);
@@ -763,17 +763,17 @@ describe('Core canvas behavior', () => {
     });
 
     gm('combined_shaders', (canvas) => {
-        const rShader = CanvasKit.Shader.Color(CanvasKit.Color(255, 0, 0, 1.0));
-        const gShader = CanvasKit.Shader.Color(CanvasKit.Color(0, 255, 0, 0.6));
-        const bShader = CanvasKit.Shader.Color(CanvasKit.Color(0, 0, 255, 1.0));
+        const rShader = CanvasKit.Shader.Color(CanvasKit.Color(255, 0, 0, 1.0)); // deprecated
+        const gShader = CanvasKit.Shader.MakeColor(CanvasKit.Color(0, 255, 0, 0.6));
+        const bShader = CanvasKit.Shader.MakeColor(CanvasKit.Color(0, 0, 255, 1.0));
 
-        const rgShader = CanvasKit.Shader.Blend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
+        const rgShader = CanvasKit.Shader.MakeBlend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
 
         const p = new CanvasKit.Paint();
         p.setShader(rgShader);
         canvas.drawPaint(p);
 
-        const gbShader = CanvasKit.Shader.Lerp(0.5, gShader, bShader);
+        const gbShader = CanvasKit.Shader.MakeLerp(0.5, gShader, bShader);
 
         p.setShader(gbShader);
         canvas.drawRect(CanvasKit.LTRBRect(5, 100, 300, 400), p);

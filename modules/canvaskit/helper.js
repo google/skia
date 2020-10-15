@@ -278,7 +278,7 @@ function copy2dArray(arr, dest, ptr) {
 // Copies an array of colors to wasm, returning an object with the pointer
 // and info necessary to use the copied colors.
 // Accepts either a flat Float32Array, flat Uint32Array or Array of Float32Arrays.
-// If color is an object that was allocated with CanvasKit.Malloc, it's pointer is
+// If color is an object that was allocated with CanvasKit.Malloc, its pointer is
 // returned and no extra copy is performed.
 // Array of Float32Arrays is deprecated and planned to be removed, prefer flat
 // Float32Array
