@@ -1801,8 +1801,8 @@ if (skia_enable_tools) {
       defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
     }
     deps = [
+      ":experimental_svg_model",
       ":flags",
-      "modules/svg",
     ]
     public_deps = [ ":gpu_tool_utils" ]
   }
@@ -1866,6 +1866,7 @@ if (skia_enable_tools) {
       sources -= [ "//tests/FontMgrFontConfigTest.cpp" ]
     }
     deps = [
+      ":experimental_svg_model",
       ":flags",
       ":skia",
       ":skvm_builders",
@@ -1900,6 +1901,52 @@ if (skia_enable_tools) {
     ]
   }
 
+  # TODO(fmalita): componentize & relocate
+  test_lib("experimental_svg_model") {
+    if (skia_use_expat) {
+      sources = [
+        "experimental/svg/model/SkSVGAttribute.cpp",
+        "experimental/svg/model/SkSVGAttributeParser.cpp",
+        "experimental/svg/model/SkSVGCircle.cpp",
+        "experimental/svg/model/SkSVGClipPath.cpp",
+        "experimental/svg/model/SkSVGContainer.cpp",
+        "experimental/svg/model/SkSVGDOM.cpp",
+        "experimental/svg/model/SkSVGEllipse.cpp",
+        "experimental/svg/model/SkSVGGradient.cpp",
+        "experimental/svg/model/SkSVGLine.cpp",
+        "experimental/svg/model/SkSVGLinearGradient.cpp",
+        "experimental/svg/model/SkSVGNode.cpp",
+        "experimental/svg/model/SkSVGPath.cpp",
+        "experimental/svg/model/SkSVGPattern.cpp",
+        "experimental/svg/model/SkSVGPoly.cpp",
+        "experimental/svg/model/SkSVGRadialGradient.cpp",
+        "experimental/svg/model/SkSVGRect.cpp",
+        "experimental/svg/model/SkSVGRenderContext.cpp",
+        "experimental/svg/model/SkSVGSVG.cpp",
+        "experimental/svg/model/SkSVGShape.cpp",
+        "experimental/svg/model/SkSVGStop.cpp",
+        "experimental/svg/model/SkSVGText.cpp",
+        "experimental/svg/model/SkSVGTransformableNode.cpp",
+        "experimental/svg/model/SkSVGUse.cpp",
+        "experimental/svg/model/SkSVGValue.cpp",
+      ]
+      deps = [
+        ":skia",
+        ":xml",
+      ]
+    }
+  }
+
+  if (skia_use_expat && !skia_use_wuffs) {
+    test_app("svg_tool") {
+      sources = [ "experimental/svg/utils/SvgTool.cpp" ]
+      deps = [
+        ":experimental_svg_model",
+        ":flags",
+      ]
+    }
+  }
+
   test_lib("experimental_xform") {
     sources = [
       "experimental/xform/SkShape.cpp",
@@ -1912,9 +1959,6 @@ if (skia_enable_tools) {
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [ "modules/skottie:tool" ]
-    }
-    test_app("svg_tool") {
-      deps = [ "modules/svg:tool" ]
     }
   }
 
@@ -1931,6 +1975,7 @@ if (skia_enable_tools) {
     }
     public_deps = [ ":tool_utils" ]
     deps = [
+      ":experimental_svg_model",
       ":flags",
       ":gpu_tool_utils",
       ":xml",
@@ -1970,6 +2015,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_gpu",
+        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
@@ -1980,7 +2026,6 @@ if (skia_enable_tools) {
         ":trace",
         "modules/skottie",
         "modules/skottie:utils",
-        "modules/svg",
       ]
     }
     test_app("dm") {
@@ -1995,6 +2040,7 @@ if (skia_enable_tools) {
         ":common_flags_config",
         ":common_flags_gpu",
         ":common_flags_images",
+        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
@@ -2006,7 +2052,6 @@ if (skia_enable_tools) {
         "experimental/skrive",
         "modules/skottie",
         "modules/skottie:utils",
-        "modules/svg",
       ]
     }
   }
@@ -2033,6 +2078,7 @@ if (skia_enable_tools) {
       ":common_flags_config",
       ":common_flags_gpu",
       ":common_flags_images",
+      ":experimental_svg_model",
       ":flags",
       ":gm",
       ":gpu_tool_utils",
@@ -2532,6 +2578,7 @@ if (skia_enable_tools) {
 
       deps = [
         ":common_flags_gpu",
+        ":experimental_svg_model",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
@@ -2546,7 +2593,6 @@ if (skia_enable_tools) {
         "modules/skottie",
         "modules/skottie:utils",
         "modules/sksg:samples",
-        "modules/svg",
         "//third_party/imgui",
       ]
       if (skia_use_experimental_xform) {
@@ -2737,7 +2783,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestSVGTypeface.cpp",
         "tools/fonts/TestTypeface.cpp",
       ]
-      deps = [ "modules/svg" ]
+      deps = [ ":experimental_svg_model" ]
     }
 
     libfuzzer_app("region_set_path") {
@@ -2757,7 +2803,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestSVGTypeface.cpp",
         "tools/fonts/TestTypeface.cpp",
       ]
-      deps = [ "modules/svg" ]
+      deps = [ ":experimental_svg_model" ]
     }
 
     libfuzzer_app("path_deserialize") {
@@ -2794,7 +2840,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
-        "modules/svg",
+        ":experimental_svg_model",
         "//third_party/libpng",
       ]
     }
@@ -2868,7 +2914,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
-        "modules/svg",
+        ":experimental_svg_model",
         "//third_party/libpng",
       ]
     }
@@ -2895,7 +2941,7 @@ if (skia_enable_tools) {
           "tools/fonts/TestTypeface.cpp",
         ]
         deps = [
-          "modules/svg",
+          ":experimental_svg_model",
           "//third_party/libpng",
         ]
       }
@@ -2921,7 +2967,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
-        "modules/svg",
+        ":experimental_svg_model",
         "//third_party/libpng",
       ]
     }
@@ -2945,7 +2991,7 @@ if (skia_enable_tools) {
         "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
-        "modules/svg",
+        ":experimental_svg_model",
         "//third_party/libpng",
       ]
     }
@@ -2983,8 +3029,8 @@ if (skia_enable_tools) {
         "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
+        ":experimental_svg_model",
         "modules/skottie:skottie",
-        "modules/svg",
       ]
     }
 
@@ -3038,7 +3084,7 @@ if (skia_enable_tools) {
 
     libfuzzer_app("svg_dom") {
       sources = [ "fuzz/oss_fuzz/FuzzSVG.cpp" ]
-      deps = [ "modules/svg" ]
+      deps = [ ":experimental_svg_model" ]
     }
 
     libfuzzer_app("skruntimeeffect") {

@@ -1,10 +1,36 @@
 /*
- * Copyright 2020 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-// Transitional forwarding header.  To be removed.
-#include "modules/svg/include/SkSVGTransformableNode.h"
+#ifndef SkSVGTransformableNode_DEFINED
+#define SkSVGTransformableNode_DEFINED
 
+#include "experimental/svg/model/SkSVGNode.h"
+#include "include/core/SkMatrix.h"
+
+class SkSVGTransformableNode : public SkSVGNode {
+public:
+    ~SkSVGTransformableNode() override = default;
+
+    void setTransform(const SkSVGTransformType& t) { fTransform = t; }
+
+protected:
+    SkSVGTransformableNode(SkSVGTag);
+
+    bool onPrepareToRender(SkSVGRenderContext*) const override;
+
+    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+
+    void mapToParent(SkPath*) const;
+
+private:
+    // FIXME: should be sparse
+    SkSVGTransformType fTransform;
+
+    using INHERITED = SkSVGNode;
+};
+
+#endif // SkSVGTransformableNode_DEFINED

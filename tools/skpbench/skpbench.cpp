@@ -34,7 +34,7 @@
 #include "tools/gpu/GrContextFactory.h"
 
 #ifdef SK_XML
-#include "modules/svg/include/SkSVGDOM.h"
+#include "experimental/svg/model/SkSVGDOM.h"
 #include "src/xml/SkDOM.h"
 #endif
 
