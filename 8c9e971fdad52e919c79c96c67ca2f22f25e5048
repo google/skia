@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f8d10f8_d9faffc0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T10:28:44Z",
+      "side": 1,
+      "message": "It is not - https://github.com/google/skia/blob/e07f2b21917d886c5ed6ab1a95d0c1eb28636d0d/modules/canvaskit/canvaskit/types/index.d.ts#L2788 for the list of image filters we expose",
+      "parentUuid": "af24c323_0873cb26",
+      "revId": "8c9e971fdad52e919c79c96c67ca2f22f25e5048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c73d59a3_55ab2b43",
