@@ -16,6 +16,24 @@
       "message": "Looking at the failures, I noticed all those inputs fail to parse (they use XML entity declarations which we specifically disallow for security reasons).\n\nWe should probably look into making the DM failure message more useful, but for not you can just skip those files:\n\ncoords-viewattr-01-b.svg\ncoords-viewattr-02-b.svg\nrender-elems-03-t.svg",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee2cbabd_959e99fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-15T17:02:14Z",
+      "side": 1,
+      "message": "Thanks for checking those out, will do. @Kevin/Ravi should I just reupload a new version (11)? Or is there a way to update the version 10 I made for this CL?",
+      "parentUuid": "85cb0444_497682c4",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
