@@ -33,6 +33,29 @@
       "message": "Does this work if you write:\n  fStatementChildren.push_back(std::move(c));",
       "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "447ad633_0d28d179",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-15T19:24:38Z",
+      "side": 1,
+      "message": "Why can\u0027t this just be\n\n    this-\u003egetCase(i).clone()\n\n? What do all the casts do?",
+      "range": {
+        "startLine": 71,
+        "startChar": 29,
+        "endLine": 72,
+        "endChar": 98
+      },
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
