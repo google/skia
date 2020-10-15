@@ -9,6 +9,7 @@
 #define ManagedBackendTexture_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkYUVAInfo.h"
 #include "include/gpu/GrDirectContext.h"
 
 class GrRefCntedCallback;
@@ -69,6 +70,14 @@ public:
      * MBET without deleting the texture.
      */
     void wasAdopted();
+
+    /**
+     * SkImage::MakeFromYUVATextures takes a single release proc that is called once for all the
+     * textures. This makes a single release context for the group of textures. It's used with the
+     * standard ReleaseProc. Like releaseContext(), it must be balanced by a ReleaseProc call for
+     * proper ref counting.
+     */
+    static void* MakeYUVAReleaseContext(const sk_sp<ManagedBackendTexture>[SkYUVAInfo::kMaxPlanes]);
 
     const GrBackendTexture& texture() { return fTexture; }
 

@@ -49,7 +49,7 @@ static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
     if (!imageHelper) {
         return nullptr;
     }
-    return imageHelper->refImage(rContext);
+    return imageHelper->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
 }
 
 // This GM tests that the YUVA image code path in the GPU backend handles odd sized images with
