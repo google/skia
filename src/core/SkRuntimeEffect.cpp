@@ -358,6 +358,9 @@ static skvm::Color program_fn(skvm::Builder* p,
         push(p->splat(0.0f));
     }
 
+    std::vector<skvm::I32> cond_stack = { p->splat(0xffff'ffff) };
+    std::vector<skvm::I32> mask_stack = cond_stack;
+
     for (const uint8_t *ip = fn.code(), *end = ip + fn.size(); ip != end; ) {
         using Inst = SkSL::ByteCodeInstruction;
 
@@ -365,7 +368,7 @@ static skvm::Color program_fn(skvm::Builder* p,
         ip += sizeof(Inst);
 
         auto u8  = [&]{ auto x = sk_unaligned_load<uint8_t >(ip); ip += sizeof(x); return x; };
-      //auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
+        auto u16 = [&]{ auto x = sk_unaligned_load<uint16_t>(ip); ip += sizeof(x); return x; };
         auto u32 = [&]{ auto x = sk_unaligned_load<uint32_t>(ip); ip += sizeof(x); return x; };
 
         auto unary = [&](auto&& fn) {
@@ -412,9 +415,10 @@ static skvm::Color program_fn(skvm::Builder* p,
             return false;
         };
 
+        #define DEBUGGING_PROGRAM_FN 0
         switch (inst) {
             default:
-                #if 0
+                #if DEBUGGING_PROGRAM_FN
                     fn.disassemble();
                     SkDebugf("inst %02x unimplemented\n", inst);
                     __builtin_debugtrap();
@@ -490,7 +494,9 @@ static skvm::Color program_fn(skvm::Builder* p,
                 int N  = u8(),
                     ix = u8();
                 for (int i = N; i --> 0; ) {
-                    stack[ix + i] = pop();
+                    skvm::F32 next = pop(),
+                              curr = stack[ix+i];
+                    stack[ix + i] = select(mask_stack.back(), next, curr);
                 }
             } break;
 
@@ -565,10 +571,26 @@ static skvm::Color program_fn(skvm::Builder* p,
                 }
             } break;
 
-            // Baby steps... just leaving test conditions on the stack for now.
-            case Inst::kMaskPush:   break;
-            case Inst::kMaskNegate: break;
+            // This still is a simplified version of what you'd see in SkSLByteCode,
+            // in that we're only maintaining mask stack and cond stack, and don't support loops.
 
+            case Inst::kMaskPush:
+                cond_stack.push_back(bit_cast(pop()));
+                mask_stack.push_back(mask_stack.back() & cond_stack.back());
+                break;
+
+            case Inst::kMaskPop:
+                cond_stack.pop_back();
+                mask_stack.pop_back();
+                break;
+
+            case Inst::kMaskNegate:
+                mask_stack.pop_back();
+                mask_stack.push_back(mask_stack.back() & ~cond_stack.back());
+                break;
+
+            // Comparisons all should write their results to the main data stack;
+            // maskpush moves them from there onto the mask stack as needed.
             case Inst::kCompareFLT:
                 binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<y); });
                 break;
@@ -576,14 +598,42 @@ static skvm::Color program_fn(skvm::Builder* p,
             case Inst::kMaskBlend: {
                 std::vector<skvm::F32> if_true,
                                        if_false;
+
                 int count = u8();
                 for (int i = 0; i < count; i++) { if_false.push_back(pop()); }
                 for (int i = 0; i < count; i++) { if_true .push_back(pop()); }
 
-                skvm::I32 cond = bit_cast(pop());
+                skvm::I32 cond = cond_stack.back();
+                cond_stack.pop_back();
+                mask_stack.pop_back();
                 for (int i = count; i --> 0; ) {
                     push(select(cond, if_true[i], if_false[i]));
                 }
+            } break;
+
+            case Inst::kBranchIfAllFalse: {
+                int target = u16();
+
+                if (fn.code() + target > ip) {
+                    // This is a forward jump, e.g. an if-else block.
+                    // Instead of testing if all values are false and branching,
+                    // we act _as if_ some value were not false, and don't branch.
+                    // This must always be legal (some value very well could be true),
+                    // and between cond_stack and mask_stack and their use in kStore,
+                    // no side effects of the branch we "shouldn't take" can be observed.
+                    //
+                    // So, do nothing here.
+                } else {
+                    // This is backward jump, e.g. a loop.
+                    // We can't handle those yet.
+                    #if DEBUGGING_PROGRAM_FN
+                        fn.disassemble();
+                        SkDebugf("inst %02x has a backward jump to %d\n", inst, target);
+                        __builtin_debugtrap();
+                    #endif
+                    return {};
+                }
+
             } break;
 
             case Inst::kReturn: {
