@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLCFGGenerator.h"
@@ -1551,6 +1552,10 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fSource = textPtr.get();
 
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+
+    // Enable node pooling while converting and optimizing the program for a performance boost.
+    SkSL::Pool::Enable();
+    SkScopeExit onExit([] { SkSL::Pool::Disable(); });
 
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
