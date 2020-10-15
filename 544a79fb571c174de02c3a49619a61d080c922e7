@@ -124,6 +124,24 @@
       "parentUuid": "82b8f967_a12f3199",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbbf3d34_a9d55b25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-10-15T20:30:43Z",
+      "side": 1,
+      "message": "The previous line in https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks_logic/dm_flags.go#512 says they are skipped only for GPU bots. So maybe something in the newly captured SVG breaks that CPU bot.",
+      "parentUuid": "8aec73a2_bc98189b",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
