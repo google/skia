@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "gm/gm.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
@@ -13,6 +12,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTHash.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkOSFile.h"

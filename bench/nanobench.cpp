@@ -48,7 +48,7 @@
 #include "tools/trace/SkDebugfTracer.h"
 
 #ifdef SK_XML
-#include "experimental/svg/model/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #endif  // SK_XML
 
 #ifdef SK_ENABLE_ANDROID_UTILS
