@@ -982,15 +982,15 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 }
             } else if (e->is<InterfaceBlock>()) {
                 const InterfaceBlock& intf = e->as<InterfaceBlock>();
-                if ("sk_PerVertex" == intf.fTypeName) {
+                if (intf.typeName() == "sk_PerVertex") {
                     continue;
                 }
                 this->write(", constant ");
-                this->writeType(intf.fVariable->type());
+                this->writeType(intf.variable().type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(to_string(intf.fVariable->modifiers().fLayout.fBinding));
+                this->write(to_string(intf.variable().modifiers().fLayout.fBinding));
                 this->write(")]]");
             }
         }
@@ -1113,13 +1113,13 @@ void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
 }
 
 void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    if ("sk_PerVertex" == intf.fTypeName) {
+    if ("sk_PerVertex" == intf.typeName()) {
         return;
     }
-    this->writeModifiers(intf.fVariable->modifiers(), true);
+    this->writeModifiers(intf.variable().modifiers(), true);
     this->write("struct ");
-    this->writeLine(intf.fTypeName + " {");
-    const Type* structType = &intf.fVariable->type();
+    this->writeLine(intf.typeName() + " {");
+    const Type* structType = &intf.variable().type();
     fWrittenStructs.push_back(structType);
     while (structType->typeKind() == Type::TypeKind::kArray) {
         structType = &structType->componentType();
@@ -1131,17 +1131,17 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation--;
     this->write("}");
-    if (intf.fInstanceName.size()) {
+    if (intf.instanceName().size()) {
         this->write(" ");
-        this->write(intf.fInstanceName);
-        for (const auto& size : intf.fSizes) {
+        this->write(intf.instanceName());
+        for (const auto& size : intf.sizes()) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
             }
             this->write("]");
         }
-        fInterfaceBlockNameMap[&intf] = intf.fInstanceName;
+        fInterfaceBlockNameMap[&intf] = intf.instanceName();
     } else {
         fInterfaceBlockNameMap[&intf] = "_anonInterface" +  to_string(fAnonInterfaceCount++);
     }
@@ -1537,7 +1537,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
         void VisitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
             this->AddElement();
             fCodeGen->write("    constant ");
-            fCodeGen->write(block.fTypeName);
+            fCodeGen->write(block.typeName());
             fCodeGen->write("* ");
             fCodeGen->writeName(blockName);
             fCodeGen->write(";\n");

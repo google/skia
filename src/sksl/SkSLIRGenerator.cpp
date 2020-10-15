@@ -774,7 +774,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     const Variable* skPerVertex = nullptr;
     if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
         SkASSERT(perVertexDecl->is<InterfaceBlock>());
-        skPerVertex = perVertexDecl->as<InterfaceBlock>().fVariable;
+        skPerVertex = &perVertexDecl->as<InterfaceBlock>().variable();
     }
 
     // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
@@ -2835,7 +2835,7 @@ void IRGenerator::cloneBuiltinVariables() {
                     initialValue = decl.value().get();
                 } else {
                     SkASSERT(clonedDecl->is<InterfaceBlock>());
-                    sharedVar = clonedDecl->as<InterfaceBlock>().fVariable;
+                    sharedVar = &clonedDecl->as<InterfaceBlock>().variable();
                 }
 
                 // Now clone the Variable, and add the clone to the Program's symbol table.
@@ -2852,7 +2852,7 @@ void IRGenerator::cloneBuiltinVariables() {
                     GlobalVarDeclaration& global = clonedDecl->as<GlobalVarDeclaration>();
                     global.declaration()->as<VarDeclaration>().setVar(clonedVar);
                 } else {
-                    clonedDecl->as<InterfaceBlock>().fVariable = clonedVar;
+                    clonedDecl->as<InterfaceBlock>().setVariable(clonedVar);
                 }
 
                 // Remember this new re-mapping...

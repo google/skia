@@ -160,6 +160,13 @@ protected:
         bool fIsStatic;
     };
 
+    struct InterfaceBlockData {
+        const Variable* fVariable;
+        String fTypeName;
+        String fInstanceName;
+        std::shared_ptr<SymbolTable> fTypeOwner;
+    };
+
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -256,6 +263,7 @@ protected:
             kFunctionReference,
             kIfStatement,
             kInlineMarker,
+            kInterfaceBlock,
             kIntLiteral,
             kModifiersDeclaration,
             kSection,
@@ -289,6 +297,7 @@ protected:
             FunctionReferenceData fFunctionReference;
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
+            InterfaceBlockData fInterfaceBlock;
             IntLiteralData fIntLiteral;
             ModifiersDeclarationData fModifiersDeclaration;
             SectionData fSection;
@@ -378,6 +387,11 @@ protected:
         NodeData(InlineMarkerData data)
             : fKind(Kind::kInlineMarker) {
             *(new(&fContents) InlineMarkerData) = data;
+        }
+
+        NodeData(InterfaceBlockData data)
+            : fKind(Kind::kInterfaceBlock) {
+            *(new(&fContents) InterfaceBlockData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -506,6 +520,9 @@ protected:
                 case Kind::kInlineMarker:
                     *(new(&fContents) InlineMarkerData) = other.fContents.fInlineMarker;
                     break;
+                case Kind::kInterfaceBlock:
+                    *(new(&fContents) InterfaceBlockData) = other.fContents.fInterfaceBlock;
+                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -605,6 +622,9 @@ protected:
                 case Kind::kInlineMarker:
                     fContents.fInlineMarker.~InlineMarkerData();
                     break;
+                case Kind::kInterfaceBlock:
+                    fContents.fInterfaceBlock.~InterfaceBlockData();
+                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -680,6 +700,8 @@ protected:
     IRNode(int offset, int kind, const IfStatementData& data);
 
     IRNode(int offset, int kind, const InlineMarkerData& data);
+
+    IRNode(int offset, int kind, const InterfaceBlockData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -833,6 +855,16 @@ protected:
     const InlineMarkerData& inlineMarkerData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kInlineMarker);
         return fData.fContents.fInlineMarker;
+    }
+
+    InterfaceBlockData& interfaceBlockData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kInterfaceBlock);
+        return fData.fContents.fInterfaceBlock;
+    }
+
+    const InterfaceBlockData& interfaceBlockData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kInterfaceBlock);
+        return fData.fContents.fInterfaceBlock;
     }
 
     const IntLiteralData& intLiteralData() const {

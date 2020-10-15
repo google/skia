@@ -509,7 +509,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
             return this->visitStatement(*pe.template as<FunctionDefinition>().body());
 
         case ProgramElement::Kind::kInterfaceBlock:
-            for (auto& e : pe.template as<InterfaceBlock>().fSizes) {
+            for (auto& e : pe.template as<InterfaceBlock>().sizes()) {
                 if (e && this->visitExpression(*e)) {
                     return true;
                 }

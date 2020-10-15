@@ -1175,13 +1175,13 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    if (intf.fTypeName == "sk_PerVertex") {
+    if (intf.typeName() == "sk_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.fVariable->modifiers(), true);
-    this->writeLine(intf.fTypeName + " {");
+    this->writeModifiers(intf.variable().modifiers(), true);
+    this->writeLine(intf.typeName() + " {");
     fIndentation++;
-    const Type* structType = &intf.fVariable->type();
+    const Type* structType = &intf.variable().type();
     while (structType->typeKind() == Type::TypeKind::kArray) {
         structType = &structType->componentType();
     }
@@ -1193,10 +1193,10 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation--;
     this->write("}");
-    if (intf.fInstanceName.size()) {
+    if (intf.instanceName().size()) {
         this->write(" ");
-        this->write(intf.fInstanceName);
-        for (const auto& size : intf.fSizes) {
+        this->write(intf.instanceName());
+        for (const auto& size : intf.sizes()) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
