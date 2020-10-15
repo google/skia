@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5e2e4e76_ddbce8e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T17:00:54Z",
+      "side": 1,
+      "message": "https://gold.skia.org/search?corpus\u003dcanvaskit\u0026crs\u003dgerrit\u0026issue\u003d327197 has the diffs",
+      "parentUuid": "1371cad9_72c5a4e2",
+      "revId": "8360bc5d4d64845bbe554abc1119349476e78449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "39aff82f_f78ff75f",
         "filename": "modules/canvaskit/CHANGELOG.md",
         "patchSetId": 2
@@ -48,6 +66,30 @@
       "writtenOn": "2020-10-15T16:34:17Z",
       "side": 1,
       "message": "IINM this one does not work on CPU.  Probably not super important for CK, unless we run in fallback mode?  Either way, we should address it in Skia.",
+      "range": {
+        "startLine": 10,
+        "startChar": 24,
+        "endLine": 10,
+        "endChar": 41
+      },
+      "revId": "8360bc5d4d64845bbe554abc1119349476e78449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fab6d747_4c25a96d",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T17:00:54Z",
+      "side": 1,
+      "message": "MakeImprovedNoise produces something noise-like (similar to the old fractal noise) on the CPU and a different noise on the GPU. Since both produce something, I\u0027m not super worried.",
+      "parentUuid": "39aff82f_f78ff75f",
       "range": {
         "startLine": 10,
         "startChar": 24,
