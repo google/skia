@@ -105,15 +105,14 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 
             // It also creates a separate word; it does not count in fMinIntrinsicWidth
             fWords.extend(cluster);
-            continue;
-        }
+        } else {
+            fClusters.extend(cluster);
 
-        fClusters.extend(cluster);
-
-        // Keep adding clusters/words
-        if (fClusters.endOfWord()) {
-            fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
-            fWords.extend(fClusters);
+            // Keep adding clusters/words
+            if (fClusters.endOfWord()) {
+                fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
+                fWords.extend(fClusters);
+            }
         }
 
         if ((fHardLineBreak = cluster->isHardBreak())) {
