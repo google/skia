@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "898151d0_14cb5461",
+        "filename": "infra/bots/task_drivers/compile_wasm_gm_tests/compile_wasm_gm_tests.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T09:41:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "073adffa_b317d3e4",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 2
+      },
+      "revId": "377227f495efa1c24c2ad9fdc763e32ccb4354bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e63b9cff_30a129f6",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-10-09T16:26:52Z",
       "side": 1,
       "message": "Nit: should we use -R here?",
+      "range": {
+        "startLine": 25,
+        "startChar": 5,
+        "endLine": 25,
+        "endChar": 6
+      },
+      "revId": "377227f495efa1c24c2ad9fdc763e32ccb4354bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6c86d42_d68e35ed",
+        "filename": "infra/canvaskit/build_gmtests.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T09:41:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e63b9cff_30a129f6",
       "range": {
         "startLine": 25,
         "startChar": 5,
