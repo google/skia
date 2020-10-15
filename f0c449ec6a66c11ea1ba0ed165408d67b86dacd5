@@ -16,6 +16,23 @@
       "message": "Cherry-pick; approved on Chromium issue.",
       "revId": "f0c449ec6a66c11ea1ba0ed165408d67b86dacd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76ae839a_50b99856",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10800
+      },
+      "writtenOn": "2020-10-15T20:50:21Z",
+      "side": 1,
+      "message": "reed@, friendly ping :)",
+      "revId": "f0c449ec6a66c11ea1ba0ed165408d67b86dacd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
