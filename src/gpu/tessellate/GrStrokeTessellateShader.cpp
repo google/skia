@@ -76,6 +76,15 @@ private:
         v->declareGlobal(GrShaderVar("vsTans01", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans23", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsPrevJoinTangent", kFloat2_GrSLType, TypeModifier::Out));
+
+        // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
+        // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
+        // The responsibility falls on the caller to ensure t != 1 before calling.
+        v->appendRawFunctionDefinition(R"(
+        float4 unchecked_mix(float4 a, float4 b, float4 t) {
+            return fma(b - a, t, a);
+        })");
+
         v->codeAppendf(R"(
         // Unpack the control points.
         float4x2 P = float4x2(inputPts01, inputPts23);
@@ -206,13 +215,13 @@ private:
         }
 
         // Chop the curve at chopT[0] and chopT[1].
-        float4 ab = mix(P[0].xyxy, P[1].xyxy, chopT.sstt);
-        float4 bc = mix(P[1].xyxy, P[2].xyxy, chopT.sstt);
-        float4 cd = mix(P[2].xyxy, P[3].xyxy, chopT.sstt);
-        float4 abc = mix(ab, bc, chopT.sstt);
-        float4 bcd = mix(bc, cd, chopT.sstt);
-        float4 abcd = mix(abc, bcd, chopT.sstt);
-        float4 middle = mix(abc, bcd, chopT.ttss);
+        float4 ab = unchecked_mix(P[0].xyxy, P[1].xyxy, chopT.sstt);
+        float4 bc = unchecked_mix(P[1].xyxy, P[2].xyxy, chopT.sstt);
+        float4 cd = unchecked_mix(P[2].xyxy, P[3].xyxy, chopT.sstt);
+        float4 abc = unchecked_mix(ab, bc, chopT.sstt);
+        float4 bcd = unchecked_mix(bc, cd, chopT.sstt);
+        float4 abcd = unchecked_mix(abc, bcd, chopT.sstt);
+        float4 middle = unchecked_mix(abc, bcd, chopT.ttss);
 
         // Find tangents at the chop points if an inner tangent wasn't specified.
         if (innerTangents[0] == float2(0)) {
