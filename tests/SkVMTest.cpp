@@ -2508,3 +2508,21 @@ DEF_TEST(SkVM_Q14, r) {
     }
 
 }
+
+DEF_TEST(SkVM_maskstore32, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg dst = b.varying<int>(),
+                  src = b.varying<int>();
+        skvm::I32 s = b.load32(src);
+        maskstore32(dst, s, (s & 1) == 1);
+    }
+
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
+        int dst[] = {  0, 1, 2, 3, 4, 5, 6, 7,  8, 9,10,11,12,13,14,15, 16 },
+            src[] = { 17,18,19,20,21,22,23,24, 25,26,27,28,29,30,31,32, 33 },
+            wnt[] = { 17, 1,19, 3,21, 5,23, 7, 25, 9,27,11,29,13,31,15, 33 };
+        program.eval(17, dst, src);
+        for (int i = 0; i < 17; i++) { REPORTER_ASSERT(r, dst[i] == wnt[i]); }
+    });
+}

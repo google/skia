@@ -53,6 +53,28 @@ static inline skvx::Vec<N,int> gather32(const int* ptr, const skvx::Vec<N,int>& 
     return map([&](int i) { return ptr[i]; }, ix);
 }
 
+template <int N>
+static inline void maskstore32(void* ptr, const skvx::Vec<N,int>& val
+                                        , const skvx::Vec<N,int>& mask) {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    if constexpr (N == 8) {
+        return _mm256_maskstore_epi32((int*)ptr, skvx::bit_pun<__m256i>(mask)
+                                               , skvx::bit_pun<__m256i>(val));
+    }
+#endif
+    if constexpr (N > 8) {
+        maskstore32((char*)ptr      , val.lo, mask.lo);
+        maskstore32((char*)ptr+4*N/2, val.hi, mask.hi);
+        return;
+    }
+
+    auto fallback = [](int v, int m, int& p) {
+        if (m) { p = v; }
+        return 0;
+    };
+    (void)map(fallback, val,mask,(int*)ptr);
+}
+
 namespace SK_OPTS_NS {
 
     inline void interpret_skvm(const skvm::InterpreterInstruction insts[], const int ninsts,
@@ -143,6 +165,11 @@ namespace SK_OPTS_NS {
                     STRIDE_K(Op::store64): (skvx::cast<uint64_t>(r[x].u32) << 0 |
                                             skvx::cast<uint64_t>(r[y].u32) << 32).store(args[immz]);
                                            break;
+
+                    STRIDE_1(Op::maskstore32): if (r[y].i32[0]) {
+                                                   memcpy(args[immz], &r[x].i32, 4);
+                                               } break;
+                    STRIDE_K(Op::maskstore32): maskstore32(args[immz], r[x].i32, r[y].i32); break;
 
                     STRIDE_1(Op::load8 ): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 1); break;
                     STRIDE_1(Op::load16): r[d].i32 = 0; memcpy(&r[d].i32, args[immy], 2); break;

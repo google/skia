@@ -270,6 +270,8 @@ namespace skvm {
             case Op::store64:  write(o, op, Arg{immz}   , V{x},V{y},             fs(id)...); break;
             case Op::store128: write(o, op, Arg{immz>>1}, V{x},V{y},Hex{immz&1}, fs(id)...); break;
 
+            case Op::maskstore32: write(o, op, Arg{immz}, V{x},V{y}, fs(id)...); break;
+
             case Op::index: write(o, V{id}, "=", op, fs(id)...); break;
 
             case Op::load8:   write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
@@ -421,6 +423,8 @@ namespace skvm {
                 case Op::store32:  write(o, op, Arg{immy}   , R{x}                   ); break;
                 case Op::store64:  write(o, op, Arg{immz}   , R{x}, R{y}             ); break;
                 case Op::store128: write(o, op, Arg{immz>>1}, R{x}, R{y}, Hex{immz&1}); break;
+
+                case Op::maskstore32: write(o, op, Arg{immz}, R{x}, R{y}); break;
 
                 case Op::index: write(o, R{d}, "=", op); break;
 
@@ -747,6 +751,13 @@ namespace skvm {
     }
     void Builder::store128(Arg ptr, I32 lo, I32 hi, int lane) {
         (void)push(Op::store128, lo.id,hi.id,NA, NA,(ptr.ix<<1)|(lane&1));
+    }
+
+    void Builder::maskstore32(Arg ptr, I32 val, I32 mask) {
+        if (this->isImm(mask.id, 0x0000'0000)) { return /*noop*/; }
+        if (this->isImm(mask.id, 0xffff'ffff)) { return this->store32(ptr, val); }
+
+        (void)push(Op::maskstore32, val.id,mask.id,NA, NA,ptr.ix);
     }
 
     I32 Builder::index() { return {this, push(Op::index , NA,NA,NA,0) }; }
@@ -3545,6 +3556,9 @@ namespace skvm {
                 case Op::splat_q14:
                     (void)constants[immy];
                     break;
+
+                case Op::maskstore32:
+                    return false;   // TODO
 
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
