@@ -400,10 +400,11 @@ namespace skvm {
         int disp19(Label*);
     };
 
-    // Order matters a little: Ops <=store128 are treated as having side effects.
+    // Order matters a little: stores and assert_true are treated as having side effects.
     #define SKVM_OPS(M)                                              \
         M(assert_true)                                               \
         M(store8)   M(store16)   M(store32) M(store64) M(store128)   \
+        M(maskstore32)                                               \
         M(index)                                                     \
         M(load8)    M(load16)    M(load32)  M(load64) M(load128)     \
         M(gather8)  M(gather16)  M(gather32)                         \
@@ -435,7 +436,7 @@ namespace skvm {
     };
 
     static inline bool has_side_effect(Op op) {
-        return op <= Op::store128;
+        return op <= Op::maskstore32;
     }
     static inline bool is_always_varying(Op op) {
         return op <= Op::gather32 && op != Op::assert_true;
@@ -628,6 +629,8 @@ namespace skvm {
         void storeF  (Arg ptr, F32 val) { store32(ptr, bit_cast(val)); }
         void store64 (Arg ptr, I32 lo, I32 hi);            // *ptr = lo|(hi<<32)
         void store128(Arg ptr, I32 lo, I32 hi, int lane);  // 64-bit lane 0-1 at ptr = lo|(hi<<32).
+
+        void maskstore32(Arg ptr, I32 val, I32 mask);   // if (mask) { *ptr = val }
 
         // Returns varying {n, n-1, n-2, ..., 1}, where n is the argument to Program::eval().
         I32 index();
@@ -1121,6 +1124,8 @@ namespace skvm {
     static inline void storeF  (Arg ptr, F32 val)                { val->storeF  (ptr, val); }
     static inline void store64 (Arg ptr, I32 lo, I32 hi)         { lo ->store64 (ptr, lo,hi); }
     static inline void store128(Arg ptr, I32 lo, I32 hi, int ix) { lo ->store128(ptr, lo,hi, ix); }
+
+    static inline void maskstore32(Arg ptr, I32 val, I32 m) { val->maskstore32(ptr, val, m); }
 
     static inline I32 gather8 (Arg ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
     static inline I32 gather16(Arg ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
