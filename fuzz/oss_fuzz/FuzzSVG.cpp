@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "modules/svg/include/SkSVGDOM.h"
 
 void FuzzSVG(sk_sp<SkData> bytes) {
     uint8_t w = 100;
