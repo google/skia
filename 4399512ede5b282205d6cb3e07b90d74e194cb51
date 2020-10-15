@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcfa668c_592ba913",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-15T15:22:22Z",
+      "side": 1,
+      "message": "\u003e Removed Commit-Queue+2 by Mike Klein \u003cmtklein@google.com\u003e\n\nMight not even need this now that I\u0027m trying it...",
+      "revId": "4399512ede5b282205d6cb3e07b90d74e194cb51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
