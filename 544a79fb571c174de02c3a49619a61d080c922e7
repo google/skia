@@ -88,6 +88,24 @@
       "parentUuid": "47feb028_6af12657",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b8f967_a12f3199",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-10-15T17:46:12Z",
+      "side": 1,
+      "message": "They are skipped on the bots: https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks_logic/dm_flags.go#512",
+      "parentUuid": "242a0eac_7853f0b2",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
