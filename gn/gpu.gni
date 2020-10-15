@@ -19,6 +19,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrDriverBugWorkarounds.h",
   "$_include/gpu/GrRecordingContext.h",
   "$_include/gpu/GrTypes.h",
+  "$_include/gpu/GrYUVABackendTextures.h",
 
   # Private includes
   "$_include/private/GrContext.h",
@@ -269,6 +270,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrWindowRectsState.h",
   "$_src/gpu/GrXferProcessor.cpp",
   "$_src/gpu/GrXferProcessor.h",
+  "$_src/gpu/GrYUVABackendTextures.cpp",
 
   # Ops
   "$_src/gpu/effects/GrBezierEffect.cpp",
