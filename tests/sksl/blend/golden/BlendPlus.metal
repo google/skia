@@ -10,9 +10,6 @@ struct Outputs {
 };
 
 
-float4 blend_plus(float4 src, float4 dst) {
-    return min(src + dst, 1.0);
-}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
