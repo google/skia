@@ -566,12 +566,13 @@ DM_SRCS_ALL = struct(
         "dm/*.h",
         "experimental/pipe/*.cpp",
         "experimental/pipe/*.h",
-        "experimental/svg/model/*.cpp",
-        "experimental/svg/model/*.h",
         "gm/*.cpp",
         "gm/*.h",
         "gm/verifiers/*.cpp",
         "gm/verifiers/*.h",
+        # TODO(fmalita): SVG sources should not be included here
+        "modules/svg/include/*.h",
+        "modules/svg/src/*.cpp",
         "src/utils/SkMultiPictureDocument.cpp",
         "src/xml/*.cpp",
         "tests/*.cpp",
@@ -987,17 +988,21 @@ SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
 ################################################################################
 
 def svg_lib_hdrs():
-    return native.glob(["experimental/svg/model/*.h"])
+    return native.glob([
+        # transitional headers, to be removed
+        "experimental/svg/model/*.h",
+        "modules/svg/include/*.h",
+    ])
 
 def svg_lib_srcs():
-    return native.glob(["experimental/svg/model/*.cpp"])
+    return native.glob(["modules/svg/src/*.cpp"])
 
 ################################################################################
 ## svg_tool
 ################################################################################
 
 SVG_TOOL_SRCS = [
-    "experimental/svg/utils/SvgTool.cpp",
+    "modules/svg/utils/SvgTool.cpp",
     # TODO(benjaminwagner): Add "flags" target.
     "tools/flags/CommandLineFlags.cpp",
     "tools/flags/CommandLineFlags.h",

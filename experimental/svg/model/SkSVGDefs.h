@@ -1,23 +1,10 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2020 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SkSVGDefs_DEFINED
-#define SkSVGDefs_DEFINED
+// Transitional forwarding header.  To be removed.
+#include "modules/svg/include/SkSVGDefs.h"
 
-#include "experimental/svg/model/SkSVGHiddenContainer.h"
-
-class SkSVGDefs : public SkSVGHiddenContainer {
-public:
-    static sk_sp<SkSVGDefs> Make() { return sk_sp<SkSVGDefs>(new SkSVGDefs()); }
-
-private:
-    SkSVGDefs() : INHERITED(SkSVGTag::kDefs) {}
-
-    using INHERITED = SkSVGHiddenContainer;
-};
-
-#endif // SkSVGDefs_DEFINED

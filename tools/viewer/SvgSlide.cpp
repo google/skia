@@ -9,9 +9,9 @@
 
 #if defined(SK_XML)
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
+#include "modules/svg/include/SkSVGDOM.h"
 
 SvgSlide::SvgSlide(const SkString& name, const SkString& path)
         : SvgSlide(name, SkStream::MakeFromFile(path.c_str())) {

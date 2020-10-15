@@ -39,7 +39,8 @@ roots = [
 # Don't count our local Vulkan headers as Skia headers;
 # we don't want #include <vulkan/vulkan_foo.h> rewritten to point to them.
 # Nor do we care about things in node_modules, used by *Kits.
-ignorelist = ['include/third_party/vulkan', 'node_modules']
+# Also ignore transitional SVG headers.
+ignorelist = ['include/third_party/vulkan', 'node_modules', 'experimental/svg/model']
 
 assert '/' in [os.sep, os.altsep]
 def fix_path(p):
