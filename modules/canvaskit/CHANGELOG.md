@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Breaking
+ - `CanvasKit.GrContext` was renamed to `CanvasKit.GrDirectContext`
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
  - `CanvasKit.MakePathFromOp` was renamed to `CanvasKit.Path.MakeFromOp`
 

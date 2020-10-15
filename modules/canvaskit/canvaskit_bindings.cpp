@@ -157,11 +157,10 @@ sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
         printf("failed to make webgl context current %d\n", r);
         return nullptr;
     }
-    // setup GrDirectContext
+    // setup interface
     auto interface = GrGLMakeNativeInterface();
-    // setup contexts
-    sk_sp<GrDirectContext> dContext(GrDirectContext::MakeGL(interface));
-    return dContext;
+    // setup context
+    return GrDirectContext::MakeGL(interface);
 }
 
 sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int width, int height,
@@ -893,7 +892,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 
 #ifdef SK_GL
-    class_<GrDirectContext>("GrContext")
+    class_<GrDirectContext>("GrDirectContext")
         .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>")
         .function("getResourceCacheLimitBytes",
                 optional_override([](GrDirectContext& self)->size_t {
