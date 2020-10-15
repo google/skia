@@ -1354,19 +1354,20 @@ void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
 
 void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->write("switch (");
-    this->writeExpression(*s.fValue, kTopLevel_Precedence);
+    this->writeExpression(*s.value(), kTopLevel_Precedence);
     this->writeLine(") {");
     fIndentation++;
-    for (const auto& c : s.fCases) {
-        if (c->fValue) {
+    for (int i = 0; i < s.caseCount(); ++i) {
+        const SwitchCase& c = s.getCase(i);
+        if (c.value()) {
             this->write("case ");
-            this->writeExpression(*c->fValue, kTopLevel_Precedence);
+            this->writeExpression(*c.value(), kTopLevel_Precedence);
             this->writeLine(":");
         } else {
             this->writeLine("default:");
         }
         fIndentation++;
-        for (const auto& stmt : c->fStatements) {
+        for (const auto& stmt : c.statements()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }
@@ -1790,9 +1791,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         }
         case Statement::Kind::kSwitch: {
             const SwitchStatement& sw = s->as<SwitchStatement>();
-            Requirements result = this->requirements(sw.fValue.get());
-            for (const auto& c : sw.fCases) {
-                for (const auto& st : c->fStatements) {
+            Requirements result = this->requirements(sw.value().get());
+            for (int i = 0; i < sw.caseCount(); ++i) {
+                for (const auto& st : sw.getCase(i).statements()) {
                     result |= this->requirements(st.get());
                 }
             }
