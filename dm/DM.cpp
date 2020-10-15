@@ -355,7 +355,7 @@ static void find_culprit() {
         find_culprit();
 
     #if !defined(SK_BUILD_FOR_ANDROID)
-        void* stack[64];
+        void* stack[128];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
         char** symbols = backtrace_symbols(stack, count);
         info("\nStack trace:\n");
