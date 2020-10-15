@@ -713,21 +713,33 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
 
     std::unique_ptr<GrFragmentProcessor> fp;
 
+    SkRRect devRRect;
+    bool devRRectIsValid = srcRRect.transform(viewMatrix, &devRRect);
+
+    bool devRRectIsCircle = devRRectIsValid && SkRRectPriv::IsCircle(devRRect);
+
     bool canBeRect = srcRRect.isRect() && viewMatrix.preservesRightAngles();
-    bool canBeCircle = SkRRectPriv::IsCircle(srcRRect) && viewMatrix.isSimilarity();
+    bool canBeCircle = (SkRRectPriv::IsCircle(srcRRect) && viewMatrix.isSimilarity()) ||
+                       devRRectIsCircle;
+
     if (canBeRect || canBeCircle) {
         if (canBeRect) {
             fp = GrRectBlurEffect::Make(
                     /*inputFP=*/nullptr, context, *context->priv().caps()->shaderCaps(),
                     srcRRect.rect(), viewMatrix, xformedSigma);
         } else {
-            SkPoint center = {srcRRect.getBounds().centerX(), srcRRect.getBounds().centerY()};
-            viewMatrix.mapPoints(&center, 1);
-            SkScalar radius = viewMatrix.mapVector(0, srcRRect.width()/2.f).length();
-            SkRect devBounds = {center.x() - radius,
-                                center.y() - radius,
-                                center.x() + radius,
-                                center.y() + radius};
+            SkRect devBounds;
+            if (devRRectIsCircle) {
+                devBounds = devRRect.getBounds();
+            } else {
+                SkPoint center = {srcRRect.getBounds().centerX(), srcRRect.getBounds().centerY()};
+                viewMatrix.mapPoints(&center, 1);
+                SkScalar radius = viewMatrix.mapVector(0, srcRRect.width()/2.f).length();
+                devBounds = {center.x() - radius,
+                             center.y() - radius,
+                             center.x() + radius,
+                             center.y() + radius};
+            }
             fp = GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, context, devBounds,
                                                      xformedSigma);
         }
@@ -760,8 +772,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
     if (!viewMatrix.isScaleTranslate()) {
         return false;
     }
-    SkRRect devRRect;
-    if (!srcRRect.transform(viewMatrix, &devRRect) || !SkRRectPriv::AllCornersCircular(devRRect)) {
+    if (!devRRectIsValid || !SkRRectPriv::AllCornersCircular(devRRect)) {
         return false;
     }
 
