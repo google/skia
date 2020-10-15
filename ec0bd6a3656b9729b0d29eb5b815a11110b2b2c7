@@ -16,6 +16,24 @@
       "message": "yikes",
       "revId": "ec0bd6a3656b9729b0d29eb5b815a11110b2b2c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db1205ba_87c22f16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-15T17:38:09Z",
+      "side": 1,
+      "message": "It seems to be doubling up on every stack frame anyway? No idea what\u0027s up there, but if you look close, it\u0027s really only 32 frames.",
+      "parentUuid": "80e278ca_4e6ebc71",
+      "revId": "ec0bd6a3656b9729b0d29eb5b815a11110b2b2c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
