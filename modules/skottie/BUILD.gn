@@ -85,8 +85,8 @@ if (skia_enable_skottie) {
         ]
 
         deps = [
-          "../..:experimental_svg_model",
           "../..:skia",
+          "../svg",
         ]
 
         public_deps = [ ":skottie" ]

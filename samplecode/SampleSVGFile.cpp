@@ -9,9 +9,9 @@
 
 #ifdef SK_XML
 
-#include "experimental/svg/model/SkSVGDOM.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
+#include "modules/svg/include/SkSVGDOM.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
