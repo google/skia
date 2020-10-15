@@ -44,6 +44,7 @@
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/utils/SkParsePath.h"
@@ -1490,6 +1491,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
             })
         )
         .class_function("MakeLerp", select_overload<sk_sp<SkShader>(float, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Lerp))
+        .class_function("MakeFractalNoise", optional_override([](
+                                                SkScalar baseFreqX, SkScalar baseFreqY,
+                                                int numOctaves, SkScalar seed,
+                                                int tileW, int tileH)->sk_sp<SkShader> {
+            // if tileSize is empty (e.g. tileW <= 0 or tileH <= 0, it will be ignored.
+            SkISize tileSize = SkISize::Make(tileW, tileH);
+            return SkPerlinNoiseShader::MakeFractalNoise(baseFreqX, baseFreqY,
+                                                         numOctaves, seed, &tileSize);
+        }))
+        .class_function("MakeImprovedNoise", &SkPerlinNoiseShader::MakeImprovedNoise)
          // Here and in other gradient functions, cPtr is a pointer to an array of data
          // representing colors. whether this is an array of SkColor or SkColor4f is indicated
          // by the colorType argument. Only RGBA_8888 and RGBA_F32 are accepted.
@@ -1559,6 +1570,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkDebugf("%d is not an accepted colorType\n", colorType);
             return nullptr;
         }), allow_raw_pointers())
+        .class_function("MakeTurbulence", optional_override([](
+                                                SkScalar baseFreqX, SkScalar baseFreqY,
+                                                int numOctaves, SkScalar seed,
+                                                int tileW, int tileH)->sk_sp<SkShader> {
+            // if tileSize is empty (e.g. tileW <= 0 or tileH <= 0, it will be ignored.
+            SkISize tileSize = SkISize::Make(tileW, tileH);
+            return SkPerlinNoiseShader::MakeTurbulence(baseFreqX, baseFreqY,
+                                                       numOctaves, seed, &tileSize);
+        }))
         .class_function("_MakeTwoPointConicalGradient", optional_override([](
                                          SkPoint start, SkScalar startRadius,
                                          SkPoint end, SkScalar endRadius,
