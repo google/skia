@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b70f236_9dc56aa2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T14:18:19Z",
+      "side": 1,
+      "message": "Be sure to update modules/canvaskit/CHANGELOG.md as well as make sure `make typecheck` passes in modules/canvaskit. You may need to run `npm ci` first ",
+      "revId": "a5697aa1f0f3965eb2dcb8ddb0dd6af22a6172c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
