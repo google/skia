@@ -476,6 +476,14 @@ SINTU Vec<N,T> max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
 SINTU Vec<N,T> min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
 SINTU Vec<N,T> max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
 
+// Returns 'value' pinned (clamped) between min and max, inclusively.
+//
+// NOTE: Unlike std::clamp, pin has well-defined behavior if 'value' is a
+//       floating point NaN. In that case, 'max' is returned.
+//
+SINT Vec<N,T> pin(const Vec<N,T>& value, const Vec<N,T>& min, const Vec<N,T>& max) {
+    return naive_if_then_else((value < min), min, naive_if_then_else((value < max), value, max));
+}
 
 // Shuffle values from a vector pretty arbitrarily:
 //    skvx::Vec<4,float> rgba = {R,G,B,A};
@@ -663,6 +671,14 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
              * cast<uint16_t>(y);
     }
 #endif
+
+    using float4 = Vec<4,float>;
+    using uint4 = Vec<4,uint32_t>;
+    using int4 = Vec<4,int32_t>;
+
+    using float2 = Vec<2,float>;
+    using uint2 = Vec<2,uint32_t>;
+    using int2 = Vec<2,int32_t>;
 
 }  // namespace skvx
 
