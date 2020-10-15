@@ -16,6 +16,23 @@
       "message": "Kevin, thoughts on this? I\u0027m kind of taking a stab here.",
       "revId": "3cd6d19fa71948ca353630916529ace7e9fdd086",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27fc214a_c2720813",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T09:38:56Z",
+      "side": 1,
+      "message": "SkottieKit isn\u0027t currently something we automatically build, but I think those are the changes we want to see.",
+      "revId": "3cd6d19fa71948ca353630916529ace7e9fdd086",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
