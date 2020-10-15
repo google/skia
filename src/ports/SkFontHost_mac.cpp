@@ -2597,12 +2597,47 @@ class SkFontMgr_Mac : public SkFontMgr {
         return new SkFontStyleSet_Mac(desc.get());
     }
 
+#ifdef SK_BUILD_FOR_IOS
+    static CFArrayRef LoadAvailableFontFamilyNames() {
+        auto getFamilyNameProc = [](const void* value, void* context) -> void {
+            SkUniqueCFRef<CFTypeRef> family(
+                CTFontDescriptorCopyAttribute((CTFontDescriptorRef)value, kCTFontFamilyNameAttribute));
+            if (family.get()) {
+                CFSetAddValue((CFMutableSetRef)context, family.get());
+            }
+        };
+
+        // get the font families into a set
+        SkUniqueCFRef<CTFontCollectionRef> collection(
+            CTFontCollectionCreateFromAvailableFonts(nullptr));
+        SkUniqueCFRef<CFArrayRef> descriptors(
+            CTFontCollectionCreateMatchingFontDescriptors(collection.get()));
+        SkUniqueCFRef<CFMutableSetRef> familySet(
+            CFSetCreateMutable(kCFAllocatorDefault, 0, &kCFTypeSetCallBacks));
+        CFArrayApplyFunction(descriptors.get(), CFRangeMake(0, CFArrayGetCount(descriptors.get())),
+            getFamilyNameProc, familySet.get());
+
+        // copy into an array
+        CFIndex count = CFSetGetCount(familySet.get());
+        const void** values = new const void* [count];
+        CFSetGetValues(familySet.get(), values);
+
+        // make sure not to release this one
+        CFArrayRef families =
+            CFArrayCreate(kCFAllocatorDefault, values, count, &kCFTypeArrayCallBacks);
+
+        delete[] values;
+
+        return families;
+    }
+#endif
+
     /** CTFontManagerCopyAvailableFontFamilyNames() is not always available, so we
      *  provide a wrapper here that will return an empty array if need be.
      */
     static SkUniqueCFRef<CFArrayRef> CopyAvailableFontFamilyNames() {
 #ifdef SK_BUILD_FOR_IOS
-        return SkUniqueCFRef<CFArrayRef>(CFArrayCreate(nullptr, nullptr, 0, nullptr));
+        return SkUniqueCFRef<CFArrayRef>(LoadAvailableFontFamilyNames());
 #else
         return SkUniqueCFRef<CFArrayRef>(CTFontManagerCopyAvailableFontFamilyNames());
 #endif
