@@ -192,8 +192,9 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
     }
+
     auto dContext = GrAsDirectContext(canvas->recordingContext());
-    if (!dContext) {
+    if (!dContext && canvas->recordingContext()) {
         *errorMsg = "Not supported in DDL mode";
         return skiagm::DrawResult::kSkip;
     }
@@ -292,7 +293,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
     }
 
     auto dContext = GrAsDirectContext(surface->recordingContext());
-    if (!dContext) {
+    if (!dContext && surface->recordingContext()) {
         *errorMsg = "Not supported in DDL mode";
         return skiagm::DrawResult::kSkip;
     }
@@ -322,7 +323,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     }
 
     auto dContext = GrAsDirectContext(canvas->recordingContext());
-    if (!dContext) {
+    if (!dContext && canvas->recordingContext()) {
         *errorMsg = "Not supported in DDL mode";
         return skiagm::DrawResult::kSkip;
     }
