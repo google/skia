@@ -50,6 +50,23 @@
       "message": "Thanks! I don\u0027t seem to have the permissions, so could someone submit for me?",
       "revId": "f0c449ec6a66c11ea1ba0ed165408d67b86dacd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3adf3b87_7ad31b19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-15T21:07:36Z",
+      "side": 1,
+      "message": "Very clean change, thanks.",
+      "revId": "f0c449ec6a66c11ea1ba0ed165408d67b86dacd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
