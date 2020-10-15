@@ -16,6 +16,23 @@
       "message": "I\u0027m not the right person to comment on the details of this CL, but I can give a big thumbs up for it exposing the features I\u0027m hoping to use to build my demo.",
       "revId": "8360bc5d4d64845bbe554abc1119349476e78449",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1371cad9_72c5a4e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-15T16:32:02Z",
+      "side": 1,
+      "message": "I guess you have already triaged the gold diffs? will anything update that tag here?",
+      "revId": "8360bc5d4d64845bbe554abc1119349476e78449",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
