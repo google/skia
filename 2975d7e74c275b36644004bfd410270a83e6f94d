@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "105aefb5_b1db2366",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-15T13:05:26Z",
+      "side": 1,
+      "message": "Move the SVG rendering code to modules/svg, and componentize.  Also split into include/src/utils.\n\nAs external clients still reference the old header locations, introduce temporary forwarding headers to facilitate the migration.",
+      "revId": "2975d7e74c275b36644004bfd410270a83e6f94d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
