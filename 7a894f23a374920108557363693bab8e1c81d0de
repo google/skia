@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fedf823_c745b2e9",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-15T16:55:42Z",
+      "side": 1,
+      "message": "Conversely - do we really need both of the free-list pointers? We could simplify the bookkeeping with just one, at the expense of Alloc having to check\n  if (fEnabled \u0026\u0026 fFreeListHead)\n\nRight?",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 0
+      },
+      "revId": "7a894f23a374920108557363693bab8e1c81d0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "376c31b0_dbbf9e4c",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-15T16:55:42Z",
+      "side": 1,
+      "message": "FYI: We probably need to find a way to make the actual pool storage not global/static. Chrome\u0027s bots that check for .bss size are going to complain. Can we do a lazy-initialized pointer-to-pool as the global, instead? (This is a large amount of data to have per-thread, anyway).",
+      "revId": "7a894f23a374920108557363693bab8e1c81d0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
