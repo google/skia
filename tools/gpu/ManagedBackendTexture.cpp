@@ -14,9 +14,9 @@
 namespace {
 
 struct Context {
-    sk_sp<sk_gpu_test::ManagedBackendTexture> fMBET;
     GrGpuFinishedProc fWrappedProc = nullptr;
     GrGpuFinishedContext fWrappedContext = nullptr;
+    sk_sp<sk_gpu_test::ManagedBackendTexture> fMBETs[SkYUVAInfo::kMaxPlanes];
 };
 
 }  // anonymous namespace
@@ -40,7 +40,16 @@ void* ManagedBackendTexture::releaseContext(GrGpuFinishedProc wrappedProc,
                                             GrGpuFinishedContext wrappedCtx) const {
     // Make sure we don't get a wrapped ctx without a wrapped proc
     SkASSERT(!wrappedCtx || wrappedProc);
-    return new Context{sk_ref_sp(this), wrappedProc, wrappedCtx};
+    return new Context{wrappedProc, wrappedCtx, {sk_ref_sp(this)}};
+}
+
+void* ManagedBackendTexture::MakeYUVAReleaseContext(
+        const sk_sp<ManagedBackendTexture> mbets[SkYUVAInfo::kMaxPlanes]) {
+    auto context = new Context;
+    for (int i = 0; i < SkYUVAInfo::kMaxPlanes; ++i) {
+        context->fMBETs[i] = mbets[i];
+    }
+    return context;
 }
 
 sk_sp<GrRefCntedCallback> ManagedBackendTexture::refCountedCallback() const {

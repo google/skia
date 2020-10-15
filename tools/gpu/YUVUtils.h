@@ -25,92 +25,42 @@ namespace sk_gpu_test {
 // the image if the context has changed, as in Viewer)
 class LazyYUVImage {
 public:
-    // Returns null if the data could not be extracted into YUVA8 planes
-    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data, GrMipmapped = GrMipmapped::kNo);
+    // Returns null if the data could not be extracted into YUVA planes
+    static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data,
+                                              GrMipmapped = GrMipmapped::kNo,
+                                              sk_sp<SkColorSpace> = nullptr);
+    static std::unique_ptr<LazyYUVImage> Make(SkYUVAPixmaps,
+                                              GrMipmapped = GrMipmapped::kNo,
+                                              sk_sp<SkColorSpace> = nullptr);
 
-    sk_sp<SkImage> refImage(GrRecordingContext* rContext);
+    enum class Type {
+        kFromPixmaps,
+        kFromGenerator,
+        kFromTextures,
+    };
 
-    const SkImage* getImage(GrRecordingContext* rContext);
+    SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
+
+    sk_sp<SkImage> refImage(GrRecordingContext* rContext, Type);
 
 private:
     // Decoded YUV data
     SkYUVAPixmaps fPixmaps;
 
-    // Legacy representation used to import to SkImage.
-    SkYUVASizeInfo fSizeInfo;
-    SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
-
     GrMipmapped fMipmapped;
 
-    // Memoized SkImage formed with planes
-    sk_sp<SkImage> fYUVImage;
+    sk_sp<SkColorSpace> fColorSpace;
+
+    // Memoized SkImages formed with planes, one for each Type.
+    sk_sp<SkImage> fYUVImage[3];
 
     LazyYUVImage() = default;
 
-    bool reset(sk_sp<SkData> data, GrMipmapped);
+    bool reset(sk_sp<SkData> data, GrMipmapped, sk_sp<SkColorSpace>);
+    bool reset(SkYUVAPixmaps pixmaps, GrMipmapped, sk_sp<SkColorSpace>);
 
-    bool ensureYUVImage(GrRecordingContext* rContext);
+    bool ensureYUVImage(GrRecordingContext* rContext, Type type);
 };
-
-// A helper for managing the lifetime of backend textures for YUVA images.
-class YUVABackendReleaseContext {
-public:
-    static GrGpuFinishedProc CreationCompleteProc(int index);
-
-    // A stock 'TextureReleaseProc' to use with this class
-    static void Release(void* releaseContext) {
-        auto beContext = reinterpret_cast<YUVABackendReleaseContext*>(releaseContext);
-
-        delete beContext;
-    }
-
-    // Given how and when backend textures are created, just deleting this object often
-    // isn't enough. This helper encapsulates the extra work needed.
-    static void Unwind(GrDirectContext*, YUVABackendReleaseContext* beContext, bool fullFlush);
-
-    YUVABackendReleaseContext(GrDirectContext*);
-    ~YUVABackendReleaseContext();
-
-    void set(int index, const GrBackendTexture& beTex) {
-        SkASSERT(index >= 0 && index < 4);
-        SkASSERT(!fBETextures[index].isValid());
-        SkASSERT(beTex.isValid());
-
-        fBETextures[index] = beTex;
-    }
-
-    void setCreationComplete(int index) {
-        SkASSERT(index >= 0 && index < 4);
-        // In GL, the finished proc can fire before the backend texture is returned to the client
-        // SkASSERT(fBETextures[index].isValid());
-
-        fCreationComplete[index] = true;
-    }
-
-    bool creationCompleted() const {
-        for (int i = 0; i < 4; ++i) {
-            if (fBETextures[i].isValid() && !fCreationComplete[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    const GrBackendTexture* beTextures() const { return fBETextures; }
-
-    const GrBackendTexture& beTexture(int index) {
-        SkASSERT(index >= 0 && index < 4);
-        SkASSERT(fBETextures[index].isValid());
-        return fBETextures[index];
-    }
-
-private:
-    GrDirectContext* fDContext;
-    GrBackendTexture fBETextures[4];
-    bool             fCreationComplete[4] = { false };
-};
-
 
 } // namespace sk_gpu_test
 

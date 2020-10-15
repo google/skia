@@ -11,6 +11,7 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkYUVAIndex.h"
 
 /**
  * Specifies the structure of planes for a YUV image with optional alpha. The actual planar data
@@ -97,6 +98,15 @@ public:
      */
     static constexpr int NumChannelsInPlane(PlanarConfig, int i);
 
+    /**
+     * Given a PlanarConfig and a set of channel flags for each plane, convert to SkYUVAIndex
+     * representation. Fails if channel flags aren't valid for the PlanarConfig (i.e. don't have
+     * enough channels in a plane).
+     */
+    static bool GetYUVAIndices(PlanarConfig,
+                               const uint32_t planeChannelFlags[kMaxPlanes],
+                               SkYUVAIndex indices[SkYUVAIndex::kIndexCount]);
+
     /** Does the PlanarConfig have alpha values? */
     static bool HasAlpha(PlanarConfig);
 
@@ -154,6 +164,15 @@ public:
     int numPlanes() const { return NumPlanes(fPlanarConfig); }
 
     int numChannelsInPlane(int i) const { return NumChannelsInPlane(fPlanarConfig, i); }
+
+    /**
+     * Given a set of channel flags for each plane, converts this->planarConfig() to SkYUVAIndex
+     * representation. Fails if the channel flags aren't valid for the PlanarConfig (i.e. don't have
+     * enough channels in a plane).
+     */
+    bool toYUVAIndices(const uint32_t channelFlags[4], SkYUVAIndex indices[4]) const {
+        return GetYUVAIndices(fPlanarConfig, channelFlags, indices);
+    }
 
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
