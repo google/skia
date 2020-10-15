@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa3a76d8_660390d8",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-15T17:27:22Z",
+      "side": 1,
+      "message": "and I snuck it this little change that popped on when my drivers updated.",
+      "range": {
+        "startLine": 663,
+        "startChar": 12,
+        "endLine": 667,
+        "endChar": 13
+      },
+      "revId": "07afd7fa28c1c42a8f839f4bbf642965872ca615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
