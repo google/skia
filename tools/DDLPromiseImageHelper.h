@@ -19,7 +19,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
 
-class GrContext;
+class GrDirectContext;
 class SkImage;
 class SkMipmap;
 class SkPicture;

@@ -21,7 +21,6 @@ skia_gpu_sources = [
   "$_include/gpu/GrTypes.h",
 
   # Private includes
-  "$_include/private/GrContext.h",
   "$_include/private/GrContext_Base.h",
   "$_include/private/GrGLTypesPriv.h",
   "$_include/private/GrImageContext.h",
@@ -71,7 +70,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrColorInfo.h",
   "$_src/gpu/GrColorSpaceXform.cpp",
   "$_src/gpu/GrColorSpaceXform.h",
-  "$_src/gpu/GrContext.cpp",
   "$_src/gpu/GrContextThreadSafeProxy.cpp",
   "$_src/gpu/GrContextThreadSafeProxyPriv.h",
   "$_src/gpu/GrContext_Base.cpp",
