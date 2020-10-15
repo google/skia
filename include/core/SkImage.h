@@ -38,6 +38,7 @@ class GrContext;
 class GrDirectContext;
 class GrRecordingContext;
 class GrContextThreadSafeProxy;
+class GrYUVABackendTextures;
 
 struct SkYUVAIndex;
 
@@ -407,6 +408,25 @@ public:
                                                  SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
+
+    /** Creates an SkImage from YUV[A] planar textures.
+
+        @param context         GPU context
+        @param yuvColorSpace   How the YUV values are converted to RGB
+        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
+                               possibly interleaved, YUVA planes
+        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
+                               in that texture, maps to each component of YUVA.
+        @param imageSize       size of the resulting image
+        @param imageOrigin     origin of the resulting image.
+        @param imageColorSpace range of colors of the resulting image; may be nullptr
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+                                               const GrYUVABackendTextures& yuvaTextures,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
+                                               TextureReleaseProc textureReleaseProc = nullptr,
+                                               ReleaseContext releaseContext = nullptr);
 
     /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
