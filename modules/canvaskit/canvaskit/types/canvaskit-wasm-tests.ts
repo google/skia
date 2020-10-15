@@ -358,7 +358,7 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
 
 function pathTests(CK: CanvasKit) {
     const path = new CK.Path();  // $ExpectType Path
-    const p2 = CK.Path.MakeFromCmds([ // $ExpectType Path
+    const p2 = CK.Path.MakeFromCmds([ // $ExpectType Path | null
         [CK.MOVE_VERB, 0, 10],
         [CK.LINE_VERB, 30, 40],
         [CK.QUAD_VERB, 20, 50, 45, 60],
@@ -367,8 +367,8 @@ function pathTests(CK: CanvasKit) {
     const points = CK.Malloc(Float32Array, 10);
     const p3 = CK.Path.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]); // $ExpectType Path
     const p4 = CK.Path.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
-    const p5 = CK.MakePathFromOp(p4, p2, CK.PathOp.ReverseDifference); // $ExpectType Path | null
-    const p6 = CK.MakePathFromSVGString('M 205,5 L 795,5 z'); // $ExpectType Path | null
+    const p5 = CK.Path.MakeFromOp(p4, p2!, CK.PathOp.ReverseDifference); // $ExpectType Path | null
+    const p6 = CK.Path.MakeFromSVGString('M 205,5 L 795,5 z'); // $ExpectType Path | null
 
     const someRect = CK.LTRBRect(10, 20, 30, 40);
     // Making sure arrays are accepted as rrects.
@@ -409,7 +409,7 @@ function pathTests(CK: CanvasKit) {
     path.lineTo(10, -20);
     path.moveTo(-20, -30);
     path.offset(100, 100);
-    ok = path.op(p2, CK.PathOp.Difference);
+    ok = path.op(p2!, CK.PathOp.Difference);
     path.quadTo(10, 20, 30, 40);
     path.rArcTo(10, 10, 90, false, true, 2, 4);
     path.rConicTo(-1, 2, 4, 9, 3);
@@ -641,10 +641,105 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
 }
 
 function shaderTests(CK: CanvasKit) {
-    const s1 = CK.Shader.Color([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
+    const s1 = CK.Shader.MakeColor([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
                                  CK.ColorSpace.SRGB);
-    const s2 = CK.Shader.Blend(CK.BlendMode.Src, s1, s1); // $ExpectType Shader
-    const s3 = CK.Shader.Lerp(0.3, s1, s2); // $ExpectType Shader
+    const s2 = CK.Shader.MakeBlend(CK.BlendMode.Src, s1, s1); // $ExpectType Shader
+    const s3 = CK.Shader.MakeLerp(0.3, s1, s2); // $ExpectType Shader
+    const s4 = CK.Shader.MakeLinearGradient(// $ExpectType Shader
+        [0, 0], [50, 100],
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        [0, 0.65, 1.0],
+        CK.TileMode.Mirror
+    );
+    const s5 = CK.Shader.MakeLinearGradient(// $ExpectType Shader
+        [0, 0], [50, 100],
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        null,
+        CK.TileMode.Clamp,
+        CK.Matrix.rotated(Math.PI / 4, 0, 100),
+        1,
+        CK.ColorSpace.SRGB,
+    );
+    const s6 = CK.Shader.MakeRadialGradient(// $ExpectType Shader
+        [0, 0], 50,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        [0, 0.65, 1.0],
+        CK.TileMode.Decal,
+    );
+    const s7 = CK.Shader.MakeRadialGradient(// $ExpectType Shader
+        [0, 0], 50,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        null,
+        CK.TileMode.Clamp,
+        CK.Matrix.skewed(3, -3),
+        1,
+        CK.ColorSpace.SRGB,
+    );
+    const s8 = CK.Shader.MakeTwoPointConicalGradient(// $ExpectType Shader
+        [0, 0], 20,
+        [50, 100], 60,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        [0, 0.65, 1.0],
+        CK.TileMode.Mirror
+    );
+    const s9 = CK.Shader.MakeTwoPointConicalGradient(// $ExpectType Shader
+        [0, 0], 20,
+        [50, 100], 60,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        [0, 0.65, 1.0],
+        CK.TileMode.Mirror,
+        CK.Matrix.rotated(Math.PI / 4, 0, 100),
+        1,
+        CK.ColorSpace.SRGB,
+    );
+    const s10 = CK.Shader.MakeSweepGradient(// $ExpectType Shader
+        0, 20,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        [0, 0.65, 1.0],
+        CK.TileMode.Mirror
+    );
+    const s11 = CK.Shader.MakeSweepGradient(// $ExpectType Shader
+        0, 20,
+        Float32Array.of(
+            0, 1, 0, 0.8,
+            1, 0, 0, 1,
+            0, 0, 1, 0.5,
+        ),
+        null,
+        CK.TileMode.Mirror,
+        CK.Matrix.rotated(Math.PI / 4, 0, 100),
+        1,
+        15, 275, // start, end angle in degrees.
+        CK.ColorSpace.SRGB,
+    );
 }
 
 function shapedTextTests(CK: CanvasKit, textFont?: Font) {

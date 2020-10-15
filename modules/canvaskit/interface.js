@@ -1333,22 +1333,26 @@ CanvasKit.onRuntimeInitialized = function() {
     return dpe;
   }
 
-  CanvasKit.Shader.Color = function(color4f, colorSpace) {
+  CanvasKit.Shader.MakeColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null
     var cPtr = copyColorToWasm(color4f);
-    var result = CanvasKit.Shader._Color(cPtr, colorSpace);
-    return result;
+    return CanvasKit.Shader._MakeColor(cPtr, colorSpace);
   }
+
+  // TODO(kjlubick) remove deprecated names.
+  CanvasKit.Shader.Blend = CanvasKit.Shader.MakeBlend;
+  CanvasKit.Shader.Color = CanvasKit.Shader.MakeColor;
+  CanvasKit.Shader.Lerp = CanvasKit.Shader.MakeLerp;
 
   CanvasKit.Shader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
     var cPtrInfo = copyFlexibleColorArray(colors);
-    var posPtr =   copy1dArray(pos, 'HEAPF32');
+    var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var lgs = CanvasKit._MakeLinearGradientShader(start, end, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
-                                                  cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
+    var lgs = CanvasKit.Shader._MakeLinearGradient(start, end, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                   cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
@@ -1358,12 +1362,12 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.Shader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
     var cPtrInfo = copyFlexibleColorArray(colors);
-    var posPtr =   copy1dArray(pos,    'HEAPF32');
+    var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit._MakeRadialGradientShader(center, radius, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
-                                                  cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
+    var rgs = CanvasKit.Shader._MakeRadialGradient(center, radius, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                   cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
@@ -1373,16 +1377,16 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.Shader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
     colorSpace = colorSpace || null
     var cPtrInfo = copyFlexibleColorArray(colors);
-    var posPtr =   copy1dArray(pos,    'HEAPF32');
+    var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     startAngle = startAngle || 0;
     endAngle = endAngle || 360;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var sgs = CanvasKit._MakeSweepGradientShader(cx, cy, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
-                                                 cPtrInfo.count, mode,
-                                                 startAngle, endAngle, flags,
-                                                 localMatrixPtr, colorSpace);
+    var sgs = CanvasKit.Shader._MakeSweepGradient(cx, cy, cPtrInfo.colorPtr, cPtrInfo.colorType, posPtr,
+                                                  cPtrInfo.count, mode,
+                                                  startAngle, endAngle, flags,
+                                                  localMatrixPtr, colorSpace);
 
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
@@ -1390,14 +1394,14 @@ CanvasKit.onRuntimeInitialized = function() {
   }
 
   CanvasKit.Shader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
-                                                            colors, pos, mode, localMatrix, flags, colorSpace) {
+                                                          colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
     var cPtrInfo = copyFlexibleColorArray(colors);
-    var posPtr =   copy1dArray(pos,    'HEAPF32');
+    var posPtr =   copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
 
-    var rgs = CanvasKit._MakeTwoPointConicalGradientShader(
+    var rgs = CanvasKit.Shader._MakeTwoPointConicalGradient(
                           start, startRadius, end, endRadius, cPtrInfo.colorPtr, cPtrInfo.colorType,
                           posPtr, cPtrInfo.count, mode, flags, localMatrixPtr, colorSpace);
 
