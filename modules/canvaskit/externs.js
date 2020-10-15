@@ -604,14 +604,17 @@ var CanvasKit = {
     Blend: function() {},
     Color: function() {},
     Lerp: function() {},
-    // public API (from JS)
+    // public API (from JS / C++ bindings)
     MakeBlend: function() {},
     MakeColor: function() {},
+    MakeFractalNoise: function() {},
+    MakeImprovedNoise: function() {},
     MakeLerp: function() {},
     MakeLinearGradient: function() {},
     MakeRadialGradient: function() {},
-    MakeTwoPointConicalGradient: function() {},
     MakeSweepGradient: function() {},
+    MakeTurbulence: function() {},
+    MakeTwoPointConicalGradient: function() {},
 
     // private API (from C++ bindings)
     _MakeColor: function() {},

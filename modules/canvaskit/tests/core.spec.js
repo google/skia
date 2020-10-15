@@ -827,6 +827,56 @@ describe('Core canvas behavior', () => {
                               CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
     })
 
+    gm('fractal_noise_shader', (canvas) => {
+        const shader = CanvasKit.Shader.MakeFractalNoise(0.1, 0.05, 2, 0, 0, 0);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.BLACK);
+        paint.setShader(shader);
+        canvas.drawPaint(paint);
+        paint.delete();
+        shader.delete();
+    });
+
+    gm('turbulance_shader', (canvas) => {
+        const shader = CanvasKit.Shader.MakeTurbulence(0.1, 0.05, 2, 117, 0, 0);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.BLACK);
+        paint.setShader(shader);
+        canvas.drawPaint(paint);
+        paint.delete();
+        shader.delete();
+    });
+
+    gm('fractal_noise_tiled_shader', (canvas) => {
+        const shader = CanvasKit.Shader.MakeFractalNoise(0.1, 0.05, 2, 0, 80, 80);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.BLACK);
+        paint.setShader(shader);
+        canvas.drawPaint(paint);
+        paint.delete();
+        shader.delete();
+    });
+
+    gm('turbulance_tiled_shader', (canvas) => {
+        const shader = CanvasKit.Shader.MakeTurbulence(0.1, 0.05, 2, 117, 80, 80);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.BLACK);
+        paint.setShader(shader);
+        canvas.drawPaint(paint);
+        paint.delete();
+        shader.delete();
+    });
+
+    gm('improved_noise_shader', (canvas) => {
+        const shader = CanvasKit.Shader.MakeImprovedNoise(0.1, 0.05, 2, 10);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.BLACK);
+        paint.setShader(shader);
+        canvas.drawPaint(paint);
+        paint.delete();
+        shader.delete();
+    });
+
     describe('ColorSpace Support', () => {
         it('Can create an SRGB 8888 surface', () => {
             const colorSpace = CanvasKit.ColorSpace.SRGB;

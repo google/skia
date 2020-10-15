@@ -2942,6 +2942,31 @@ export interface ShaderFactory {
     MakeColor(color: InputColor, space: ColorSpace): Shader;
 
     /**
+     * Returns a shader with Perlin Fractal Noise.
+     * See SkPerlinNoiseShader.h for more details
+     * @param baseFreqX - base frequency in the X direction; range [0.0, 1.0]
+     * @param baseFreqY - base frequency in the Y direction; range [0.0, 1.0]
+     * @param octaves
+     * @param seed
+     * @param tileW - if this and tileH are non-zero, the frequencies will be modified so that the
+     *                noise will be tileable for the given size.
+     * @param tileH - if this and tileW are non-zero, the frequencies will be modified so that the
+     *                noise will be tileable for the given size.
+     */
+    MakeFractalNoise(baseFreqX: number, baseFreqY: number, octaves: number, seed: number,
+                     tileW: number, tileH: number): Shader;
+
+    /**
+     * Returns a shader with Improved Perlin Noise.
+     * See SkPerlinNoiseShader.h for more details
+     * @param baseFreqX - base frequency in the X direction; range [0.0, 1.0]
+     * @param baseFreqY - base frequency in the Y direction; range [0.0, 1.0]
+     * @param octaves
+     * @param z - like seed, but minor variations to z will only slightly change the noise.
+     */
+    MakeImprovedNoise(baseFreqX: number, baseFreqY: number, octaves: number, z: number): Shader;
+
+    /**
      * Returns a shader is a linear interpolation combines the given shaders with a BlendMode.
      * @param t - range of [0.0, 1.0], indicating how far we should be between one and two.
      * @param one
@@ -3005,6 +3030,21 @@ export interface ShaderFactory {
                       pos: number[] | null, mode: TileMode, localMatrix?: InputMatrix | null,
                       flags?: number, startAngle?: AngleInDegrees, endAngle?: AngleInDegrees,
                       colorSpace?: ColorSpace): Shader;
+
+    /**
+     * Returns a shader with Perlin Turbulence.
+     * See SkPerlinNoiseShader.h for more details
+     * @param baseFreqX - base frequency in the X direction; range [0.0, 1.0]
+     * @param baseFreqY - base frequency in the Y direction; range [0.0, 1.0]
+     * @param octaves
+     * @param seed
+     * @param tileW - if this and tileH are non-zero, the frequencies will be modified so that the
+     *                noise will be tileable for the given size.
+     * @param tileH - if this and tileW are non-zero, the frequencies will be modified so that the
+     *                noise will be tileable for the given size.
+     */
+    MakeTurbulence(baseFreqX: number, baseFreqY: number, octaves: number, seed: number,
+                   tileW: number, tileH: number): Shader;
 
     /**
      * Returns a shader that generates a conical gradient given two circles.
