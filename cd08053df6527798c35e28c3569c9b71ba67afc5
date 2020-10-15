@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0415907_7f34c885",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1369,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-15T19:18:45Z",
+      "side": 1,
+      "message": "Curious - Do we need these calls to setIsStatic(false) here? We\u0027re already producing an error, what\u0027s the point in altering the node state? (I know it was like this before). Just asking because if we simply produce the error, we can get rid of setIsStatic entirely, and it\u0027s one less state-mutating function on an IR node.",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "340bbc45_30afe7f3",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-15T19:18:45Z",
+      "side": 1,
+      "message": "Does this work if you write:\n  fStatementChildren.push_back(std::move(c));",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
