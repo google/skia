@@ -178,6 +178,24 @@
       "parentUuid": "4ed92d6e_1cc0e124",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5943a50b_2990e41e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-10-15T20:38:20Z",
+      "side": 1,
+      "message": "I would file a bug and assign it to csmartdalton@ because of https://bugs.chromium.org/p/skia/issues/detail?id\u003d6918 (would also be good to reference that bug)",
+      "parentUuid": "4ed92d6e_1cc0e124",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
