@@ -15,6 +15,11 @@
  * geometry for the rasterizer.
  */
 class GrGLSLVertexGeoBuilder : public GrGLSLShaderBuilder {
+public:
+    void appendRawFunctionDefinition(const char* functionDefinition) {
+        this->functions().append(functionDefinition);
+    }
+
 protected:
     GrGLSLVertexGeoBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
 
