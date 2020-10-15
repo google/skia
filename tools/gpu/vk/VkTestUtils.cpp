@@ -660,6 +660,12 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         if (0 != strncmp(deviceExtensions[i].extensionName, "VK_KHX", 6) &&
             0 != strncmp(deviceExtensions[i].extensionName, "VK_NVX", 6)) {
 
+            // This is an nvidia extension that isn't supported by the debug layers so we get lots
+            // of warnings. We don't actually use it, so it is easiest to just not enable it.
+            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency")) {
+                continue;
+            }
+
             if (!hasKHRBufferDeviceAddress ||
                 0 != strcmp(deviceExtensions[i].extensionName, "VK_EXT_buffer_device_address")) {
                 deviceExtensionNames.push_back(deviceExtensions[i].extensionName);
