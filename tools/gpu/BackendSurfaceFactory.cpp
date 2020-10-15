@@ -71,13 +71,13 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* dContext,
     auto ct = SkColorTypeToGrColorType(ii.colorType());
 
     struct ReleaseContext {
-        GrDirectContext* fContext;
+        sk_sp<GrDirectContext> fContext;
         GrBackendRenderTarget fRenderTarget;
     };
 
     auto bert = dContext->priv().getGpu()->createTestingOnlyBackendRenderTarget(
             ii.dimensions(), ct, sampleCnt, isProtected);
-    auto rc = new ReleaseContext{dContext, bert};
+    auto rc = new ReleaseContext{sk_ref_sp(dContext), bert};
     SkASSERT(!bert.isValid() || bert.sampleCnt() >= sampleCnt);
 
     auto proc = [](void* c) {
