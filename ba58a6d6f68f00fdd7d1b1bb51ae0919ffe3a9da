@@ -16,6 +16,24 @@
       "message": "Can you share an image of the new visualization?",
       "revId": "ba58a6d6f68f00fdd7d1b1bb51ae0919ffe3a9da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d5f1d52_2fd1347c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-15T16:03:06Z",
+      "side": 1,
+      "message": "Here are some examples under different situations:\n\nrotation, so no scale factor: https://drive.google.com/file/d/1W5RRcmuiwOFOHjBLHeUoDj0on8zj5sQY/view?usp\u003dsharing\n\nperspective, that causes some downscaling: https://drive.google.com/file/d/17TImWydjpSug0dq0ucBJH8ycE8Qd2HuC/view?usp\u003dsharing\n\nperspective, that causes some upscaling: https://drive.google.com/file/d/1vXNiJxIzdYu-fNVdyrZ6YS6DEV3nzWyu/view?usp\u003dsharing\n\nIt\u0027s a relatively simple viz of just drawing rectangles at the 4 corners and center. When there\u0027s no to little scaling, the color map has a low alpha so the viz fades away. I didn\u0027t want to make things more cluttered than it already is.\n\nA few notes as well:\n1. The filtered image is wrong when there\u0027s perspective. See skbug.com/9074, but the bounds and axes reflect what should be happening once perspective filtering works.\n2. The colored rectangles are drawn in the local/parameter space, but the scale factor (and color) is calculated from the layer-\u003edevice matrix since that reflects the distortion that is applied when drawing the results of the image filter from layer to device space.\n3. At the moment, the CTM decomposition for perspective matrices always has the param-\u003elayer matrix \u003d I, so the distinction in #2 doesn\u0027t matter yet. In a follow-up CL, I am updating the decomposition to extract a single uniform scale factor to try and best mitigate the non-uniform scaling from perspective.",
+      "parentUuid": "e232d2ba_1531cc40",
+      "revId": "ba58a6d6f68f00fdd7d1b1bb51ae0919ffe3a9da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
