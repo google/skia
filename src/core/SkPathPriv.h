@@ -102,6 +102,10 @@ public:
      */
     static bool DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 
+    static void ShrinkToFit(SkPath* path) {
+        path->shrinkToFit();
+    }
+
     /**
      * Returns a C++11-iterable object that traverses a path's verbs in order. e.g:
      *
