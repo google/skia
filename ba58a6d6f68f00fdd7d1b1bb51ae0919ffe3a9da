@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e232d2ba_1531cc40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-15T14:51:22Z",
+      "side": 1,
+      "message": "Can you share an image of the new visualization?",
+      "revId": "ba58a6d6f68f00fdd7d1b1bb51ae0919ffe3a9da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
