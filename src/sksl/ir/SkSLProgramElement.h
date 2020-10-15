@@ -43,6 +43,9 @@ public:
     ProgramElement(int offset, const FunctionDefinitionData& data)
     : INHERITED(offset, (int) Kind::kFunction, data) {}
 
+    ProgramElement(int offset, const InterfaceBlockData& data)
+    : INHERITED(offset, (int) Kind::kInterfaceBlock, data) {}
+
     ProgramElement(int offset, const ModifiersDeclarationData& data)
     : INHERITED(offset, (int) Kind::kModifiers, data) {}
 
