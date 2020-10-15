@@ -70,6 +70,24 @@
       "parentUuid": "8a480e29_695fc702",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "242a0eac_7853f0b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-15T17:35:08Z",
+      "side": 1,
+      "message": "Interesting, I\u0027ve noticed those too locally.  Looking at gold/svg, we only seem to render a handful of inputs, and they don\u0027t include the failing ones: https://gold.skia.org/list?corpus\u003dsvg\n\nAre we sure they\u0027re present in the SVG corpus?  Or maybe there\u0027s another filter excluding them?\n\nI would just leave them alone if the bots are not complaining.",
+      "parentUuid": "47feb028_6af12657",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
