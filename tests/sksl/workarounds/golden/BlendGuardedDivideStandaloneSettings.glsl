@@ -2,9 +2,6 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
-float _guarded_divide(float n, float d) {
-    return n / d;
-}
 float _color_dodge_component(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -24,9 +21,6 @@ float _color_dodge_component(vec2 s, vec2 d) {
         }
     }
 }
-vec4 blend_color_dodge(vec4 src, vec4 dst) {
-    return vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
-}
 float _color_burn_component(vec2 s, vec2 d) {
     if (d.y == d.x) {
         return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
@@ -42,9 +36,6 @@ float _color_burn_component(vec2 s, vec2 d) {
 
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
-}
-vec4 blend_color_burn(vec4 src, vec4 dst) {
-    return vec4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
@@ -70,9 +61,6 @@ float _soft_light_component(vec2 s, vec2 d) {
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
-}
-vec4 blend_soft_light(vec4 src, vec4 dst) {
-    return dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 void main() {
     vec4 _0_blend_color_dodge;
