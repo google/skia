@@ -25,12 +25,9 @@ public:
                  ExpressionArray arguments)
     : INHERITED(offset, FunctionCallData{type, function}) {
         fExpressionChildren = std::move(arguments);
-        ++this->function().callCount();
     }
 
-    ~FunctionCall() override {
-        --this->function().callCount();
-    }
+    ~FunctionCall() override {}
 
     const Type& type() const override {
         return *this->functionCallData().fType;

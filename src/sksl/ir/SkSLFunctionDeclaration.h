@@ -16,8 +16,6 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
-#include <atomic>
-
 namespace SkSL {
 
 struct FunctionDefinition;
@@ -33,8 +31,7 @@ public:
                         std::vector<const Variable*> parameters, const Type* returnType,
                         bool builtin)
     : INHERITED(offset, FunctionDeclarationData{name, /*fDefiniition=*/nullptr, modifiers,
-                                                std::move(parameters), returnType,
-                                                /*fCallCount=*/0, builtin}) {}
+                                                std::move(parameters), returnType, builtin}) {}
 
     const Modifiers& modifiers() const {
         return *this->functionDeclarationData().fModifiersHandle;
@@ -62,10 +59,6 @@ public:
 
     bool isBuiltin() const {
         return this->functionDeclarationData().fBuiltin;
-    }
-
-    std::atomic<int>& callCount() const {
-        return this->functionDeclarationData().fCallCount;
     }
 
     String description() const override {
