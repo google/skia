@@ -32,8 +32,6 @@
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
-using sk_gpu_test::YUVABackendReleaseContext;
-
 class GrRenderTargetContext;
 
 namespace skiagm {
@@ -50,128 +48,90 @@ protected:
 
     SkISize onISize() override { return {1420, 610}; }
 
-    static SkBitmap CreateBmpAndPlanes(const char* name, SkBitmap yuvaBmps[4]) {
+    static std::unique_ptr<sk_gpu_test::LazyYUVImage> CreatePlanes(const char* name) {
         SkBitmap bmp;
         if (!GetResourceAsBitmap(name, &bmp)) {
             return {};
         }
-        auto ii = SkImageInfo::Make(bmp.dimensions(), kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-
-        SkBitmap rgbaBmp;
-        rgbaBmp.allocPixels(ii);
-        bmp.readPixels(rgbaBmp.pixmap(), 0, 0);
-
-        SkImageInfo yaInfo = SkImageInfo::Make(rgbaBmp.dimensions(), kAlpha_8_SkColorType,
-                                               kUnpremul_SkAlphaType);
-        yuvaBmps[0].allocPixels(yaInfo);
-        SkISize uvSize = {rgbaBmp.width()/2, rgbaBmp.height()/2};
-        SkImageInfo uvInfo = SkImageInfo::Make(uvSize, kAlpha_8_SkColorType, kUnpremul_SkAlphaType);
-        yuvaBmps[1].allocPixels(uvInfo);
-        yuvaBmps[2].allocPixels(uvInfo);
-        yuvaBmps[3].allocPixels(yaInfo);
+        if (bmp.colorType() != kRGBA_8888_SkColorType) {
+            auto info = bmp.info().makeColorType(kRGBA_8888_SkColorType);
+            SkBitmap copy;
+            copy.allocPixels(info);
+            SkAssertResult(bmp.readPixels(copy.pixmap()));
+            bmp = copy;
+        }
+        SkYUVAPixmapInfo pixmapInfo({bmp.dimensions(),
+                                     SkYUVAInfo::PlanarConfig::kY_U_V_A_4204,
+                                     kJPEG_Full_SkYUVColorSpace},
+                                    SkYUVAPixmapInfo::DataType::kUnorm8,
+                                    nullptr);
+        auto pixmaps = SkYUVAPixmaps::Allocate(pixmapInfo);
 
         unsigned char* yuvPixels[] = {
-                static_cast<unsigned char*>(yuvaBmps[0].getPixels()),
-                static_cast<unsigned char*>(yuvaBmps[1].getPixels()),
-                static_cast<unsigned char*>(yuvaBmps[2].getPixels()),
-                static_cast<unsigned char*>(yuvaBmps[3].getPixels()),
+                static_cast<unsigned char*>(pixmaps.planes()[0].writable_addr()),
+                static_cast<unsigned char*>(pixmaps.planes()[1].writable_addr()),
+                static_cast<unsigned char*>(pixmaps.planes()[2].writable_addr()),
+                static_cast<unsigned char*>(pixmaps.planes()[3].writable_addr()),
         };
 
         float m[20];
-        SkColorMatrix_RGB2YUV(kJPEG_SkYUVColorSpace, m);
+        SkColorMatrix_RGB2YUV(pixmaps.yuvaInfo().yuvColorSpace(), m);
         // Here we encode using the kJPEG_SkYUVColorSpace (i.e., full-swing Rec 601) even though
         // we will draw it with all the supported yuv color spaces when converted back to RGB
-        for (int j = 0; j < yaInfo.height(); ++j) {
-            for (int i = 0; i < yaInfo.width(); ++i) {
-                auto rgba = *rgbaBmp.getAddr32(i, j);
+        for (int j = 0; j < pixmaps.planes()[0].height(); ++j) {
+            for (int i = 0; i < pixmaps.planes()[0].width(); ++i) {
+                auto rgba = *bmp.getAddr32(i, j);
                 auto r = (rgba & 0x000000ff) >>  0;
                 auto g = (rgba & 0x0000ff00) >>  8;
                 auto b = (rgba & 0x00ff0000) >> 16;
                 auto a = (rgba & 0xff000000) >> 24;
-                yuvPixels[0][j*yaInfo.width() + i] = SkToU8(
+                yuvPixels[0][j*pixmaps.planes()[0].width() + i] = SkToU8(
                         sk_float_round2int(m[0]*r + m[1]*g + m[2]*b + m[3]*a + 255*m[4]));
-                yuvPixels[3][j*yaInfo.width() + i] = SkToU8(sk_float_round2int(
+                yuvPixels[3][j*pixmaps.planes()[0].width() + i] = SkToU8(sk_float_round2int(
                         m[15]*r + m[16]*g + m[17]*b + m[18]*a + 255*m[19]));
             }
         }
-        for (int j = 0; j < uvInfo.height(); ++j) {
-            for (int i = 0; i < uvInfo.width(); ++i) {
+        for (int j = 0; j < pixmaps.planes()[1].height(); ++j) {
+            for (int i = 0; i < pixmaps.planes()[1].width(); ++i) {
                 // Average together 4 pixels of RGB.
                 int rgba[] = {0, 0, 0, 0};
-                for (int y = 0; y < 2; ++y) {
-                    for (int x = 0; x < 2; ++x) {
-                        auto src = *rgbaBmp.getAddr32(2 * i + x, 2 * j + y);
+                int denom = 0;
+                int ylimit = std::min(2*j + 2, pixmaps.planes()[0].height());
+                int xlimit = std::min(2*i + 2, pixmaps.planes()[0].width());
+                for (int y = 2*j; y < ylimit; ++y) {
+                    for (int x = 2*i; x < xlimit; ++x) {
+                        auto src = *bmp.getAddr32(x, y);
                         rgba[0] += (src & 0x000000ff) >> 0;
                         rgba[1] += (src & 0x0000ff00) >> 8;
                         rgba[2] += (src & 0x00ff0000) >> 16;
                         rgba[3] += (src & 0xff000000) >> 24;
+                        ++denom;
                     }
                 }
                 for (int c = 0; c < 4; ++c) {
-                    rgba[c] /= 4;
+                    rgba[c] /= denom;
                 }
-                int uvIndex = j*uvInfo.width() + i;
+                int uvIndex = j*pixmaps.planes()[1].width() + i;
                 yuvPixels[1][uvIndex] = SkToU8(sk_float_round2int(
                         m[5]*rgba[0] + m[6]*rgba[1] + m[7]*rgba[2] + m[8]*rgba[3] + 255*m[9]));
                 yuvPixels[2][uvIndex] = SkToU8(sk_float_round2int(
                         m[10]*rgba[0] + m[11]*rgba[1] + m[12]*rgba[2] + m[13]*rgba[3] + 255*m[14]));
             }
         }
-        return rgbaBmp;
-    }
-
-    static bool CreateYUVBackendTextures(GrDirectContext* context, SkBitmap bmps[4],
-                                         SkYUVAIndex indices[4],
-                                         YUVABackendReleaseContext* beContext) {
-        for (int i = 0; i < 4; ++i) {
-            GrBackendTexture tmp = context->createBackendTexture(
-                                        bmps[i].pixmap(), GrRenderable::kNo, GrProtected::kNo,
-                                        YUVABackendReleaseContext::CreationCompleteProc(i),
-                                        beContext);
-            if (!tmp.isValid()) {
-                return false;
-            }
-
-            beContext->set(i, tmp);
-        }
-
-        for (int i = 0; i < 4; ++i) {
-            auto chanMask = beContext->beTexture(i).getBackendFormat().channelMask();
-            // We expect the single channel bitmaps to produce single channel textures.
-            SkASSERT(chanMask && SkIsPow2(chanMask));
-            if (chanMask & kGray_SkColorChannelFlag) {
-                indices[i].fChannel = SkColorChannel::kR;
-            } else {
-                indices[i].fChannel = static_cast<SkColorChannel>(31 - SkCLZ(chanMask));
-            }
-            indices[i].fIndex = i;
-        }
-
-        return true;
+        return sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
     }
 
     sk_sp<SkImage> makeYUVAImage(GrDirectContext* context) {
-        auto releaseContext = new YUVABackendReleaseContext(context);
-        SkYUVAIndex indices[4];
-
-        if (!CreateYUVBackendTextures(context, fYUVABmps, indices, releaseContext)) {
-            YUVABackendReleaseContext::Unwind(context, releaseContext, false);
-            return nullptr;
-        }
-
-        return SkImage::MakeFromYUVATextures(context,
-                                             kJPEG_SkYUVColorSpace,
-                                             releaseContext->beTextures(),
-                                             indices,
-                                             fRGBABmp.dimensions(),
-                                             kTopLeft_GrSurfaceOrigin,
-                                             nullptr,
-                                             YUVABackendReleaseContext::Release,
-                                             releaseContext);
+        return fLazyYUVImage->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
     }
 
     sk_sp<SkImage> createReferenceImage(GrDirectContext* dContext) {
-        auto resultInfo = SkImageInfo::Make(fRGBABmp.dimensions(),
+        auto planarImage = this->makeYUVAImage(dContext);
+        if (!planarImage) {
+            return nullptr;
+        }
+
+        auto resultInfo = SkImageInfo::Make(fLazyYUVImage->dimensions(),
                                             kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType);
         auto resultSurface = SkSurface::MakeRenderTarget(dContext,
@@ -184,27 +144,7 @@ protected:
             return nullptr;
         }
 
-        auto planeReleaseContext = new YUVABackendReleaseContext(dContext);
-        SkYUVAIndex indices[4];
-
-        if (!CreateYUVBackendTextures(dContext, fYUVABmps, indices, planeReleaseContext)) {
-            YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, false);
-            return nullptr;
-        }
-
-        auto tmp = SkImage::MakeFromYUVATextures(dContext,
-                                                 kJPEG_SkYUVColorSpace,
-                                                 planeReleaseContext->beTextures(),
-                                                 indices,
-                                                 fRGBABmp.dimensions(),
-                                                 kTopLeft_GrSurfaceOrigin,
-                                                 nullptr);
-        if (!tmp) {
-            YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, false);
-            return nullptr;
-        }
-        resultSurface->getCanvas()->drawImage(std::move(tmp), 0, 0);
-        YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, true);
+        resultSurface->getCanvas()->drawImage(std::move(planarImage), 0, 0);
         return resultSurface->makeImageSnapshot();
     }
 
@@ -213,7 +153,9 @@ protected:
             return DrawResult::kSkip;
         }
 
-        fRGBABmp = CreateBmpAndPlanes("images/mandrill_32.png", fYUVABmps);
+        if (!fLazyYUVImage) {
+            fLazyYUVImage = CreatePlanes("images/mandrill_32.png");
+        }
 
         // We make a version of this image for each draw because, if any draw flattens it to
         // RGBA, then all subsequent draws would use the RGBA texture.
@@ -320,8 +262,7 @@ protected:
      }
 
 private:
-    SkBitmap fRGBABmp; // TODO: oddly, it looks like this could just be an SkISize
-    SkBitmap fYUVABmps[4];
+    std::unique_ptr<sk_gpu_test::LazyYUVImage> fLazyYUVImage;
 
     // 3 draws x 3 scales x 4 filter qualities
     static constexpr int kNumImages = 3 * 3 * 4;
