@@ -47,8 +47,8 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+noperspective in half2 v_texCoord0;
+uniform sampler2D u_texture;
+void main() {  sk_FragColor = sample(u_texture, v_texCoord0); }
          )__SkSL__");
 }
