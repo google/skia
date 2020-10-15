@@ -604,17 +604,21 @@ var CanvasKit = {
   },
 
   Shader: {
+    // Deprecated names
     Blend: function() {},
     Color: function() {},
-    Empty: function() {},
     Lerp: function() {},
+    // public API (from JS)
+    MakeBlend: function() {},
+    MakeColor: function() {},
+    MakeLerp: function() {},
     MakeLinearGradient: function() {},
     MakeRadialGradient: function() {},
     MakeTwoPointConicalGradient: function() {},
     MakeSweepGradient: function() {},
 
     // private API (from C++ bindings)
-    _Color: function() {},
+    _MakeColor: function() {},
   },
 
   Surface: {

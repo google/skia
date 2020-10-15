@@ -535,7 +535,7 @@ describe('Core canvas behavior', () => {
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            null, // color space
+            null, // no local matrix
         );
         paint.setShader(cgs);
         let r = CanvasKit.LTRBRect(0, 0, 100, 100);
