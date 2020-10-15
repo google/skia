@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+ - `MakeFractalNoise`, `MakeImprovedNoise`, and `MakeTurbulence` have been added to
+   `CanvasKit.Shader`.
+
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
  - `CanvasKit.MakePathFromOp` was renamed to `CanvasKit.Path.MakeFromOp`
@@ -14,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - We now compile CanvasKit with emsdk 2.0.6 when testing and deploying to npm.
  - We no longer compile with rtti on, saving about 1% in code size.
  - `CanvasKit.Shader.Blend`, `...Color`, and `...Lerp` have been renamed to
-   `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to allign with naming conventions.
+   `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to align with naming conventions.
    The old names will be removed in an upcoming release.
 
 ### Removed
