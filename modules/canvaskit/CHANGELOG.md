@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.6 when testing and deploying to npm.
  - We no longer compile with rtti on, saving about 1% in code size.
+ - `CanvasKit.Shader.Blend`, `...Color`, and `...Lerp` have been renamed to
+   `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to allign with naming conventions.
+   The old names will be removed in an upcoming release.
 
 ### Removed
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
@@ -21,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Type Changes (index.d.ts)
  - Return value for MakeFromCmds correctly reflects the possibility of null.
- - `CanvasKit.GrContext` was renamed to `CanvasKit.GrDirectContext`
+ - `CanvasKit.GrContext` was renamed to `CanvasKit.GrDirectContext`.
+ - Add docs/types for Shader Gradients (e.g. `CanvasKit.Shader.MakeLinearGradient`).
 
 ## [0.19.0] - 2020-10-08
 
