@@ -142,6 +142,24 @@
       "parentUuid": "8aec73a2_bc98189b",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ed92d6e_1cc0e124",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-15T20:32:43Z",
+      "side": 1,
+      "message": "Oh I see, yes they should probably be skipped on all bots since it\u0027s a parsing issue, not a rendering issue. Should I file an infra bug?",
+      "parentUuid": "fbbf3d34_a9d55b25",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
