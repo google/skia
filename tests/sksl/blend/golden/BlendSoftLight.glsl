@@ -2,9 +2,6 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
-float _guarded_divide(float n, float d) {
-    return n / d;
-}
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         float _1_guarded_divide;
@@ -29,9 +26,6 @@ float _soft_light_component(vec2 s, vec2 d) {
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
-}
-vec4 blend_soft_light(vec4 src, vec4 dst) {
-    return dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 void main() {
     vec4 _0_blend_soft_light;

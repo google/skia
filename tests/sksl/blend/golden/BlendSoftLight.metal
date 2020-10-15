@@ -10,9 +10,6 @@ struct Outputs {
 };
 
 
-float _guarded_divide(float n, float d) {
-    return n / d;
-}
 float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
         float _1_guarded_divide;
@@ -37,9 +34,6 @@ float _soft_light_component(float2 s, float2 d) {
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
-}
-float4 blend_soft_light(float4 src, float4 dst) {
-    return dst.w == 0.0 ? src : float4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;

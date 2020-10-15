@@ -124,7 +124,6 @@ protected:
         // the parameters should move into that vector
         std::vector<const Variable*> fParameters;
         const Type* fReturnType;
-        mutable std::atomic<int> fCallCount;
         bool fBuiltin;
 
         FunctionDeclarationData& operator=(const FunctionDeclarationData& other) {
@@ -133,7 +132,6 @@ protected:
             fModifiersHandle = other.fModifiersHandle;
             fParameters = other.fParameters;
             fReturnType = other.fReturnType;
-            fCallCount = other.fCallCount.load();
             fBuiltin = other.fBuiltin;
             return *this;
         }

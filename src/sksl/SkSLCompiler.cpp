@@ -1593,6 +1593,8 @@ bool Compiler::optimize(Program& program) {
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
         if (program.fSettings.fRemoveDeadFunctions) {
+            Analysis::CallCountMap callCounts = Analysis::GetCallCounts(program);
+
             program.fElements.erase(
                     std::remove_if(program.fElements.begin(),
                                    program.fElements.end(),
@@ -1601,8 +1603,8 @@ bool Compiler::optimize(Program& program) {
                                            return false;
                                        }
                                        const auto& fn = element->as<FunctionDefinition>();
-                                       bool dead = fn.declaration().callCount() == 0 &&
-                                                   fn.declaration().name() != "main";
+                                       bool dead = fn.declaration().name() != "main" &&
+                                                   callCounts[&fn.declaration()] == 0;
                                        madeChanges |= dead;
                                        return dead;
                                    }),

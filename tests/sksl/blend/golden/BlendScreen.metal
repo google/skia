@@ -10,9 +10,6 @@ struct Outputs {
 };
 
 
-float4 blend_screen(float4 src, float4 dst) {
-    return src + (1.0 - src) * dst;
-}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;

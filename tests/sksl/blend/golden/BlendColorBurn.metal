@@ -10,9 +10,6 @@ struct Outputs {
 };
 
 
-float _guarded_divide(float n, float d) {
-    return n / d;
-}
 float _color_burn_component(float2 s, float2 d) {
     if (d.y == d.x) {
         return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
@@ -28,9 +25,6 @@ float _color_burn_component(float2 s, float2 d) {
 
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
-}
-float4 blend_color_burn(float4 src, float4 dst) {
-    return float4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
