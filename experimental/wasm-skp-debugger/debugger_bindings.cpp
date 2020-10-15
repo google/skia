@@ -422,25 +422,24 @@ class SkpDebugPlayer {
 };
 
 #ifdef SK_GL
-sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
     if (r < 0) {
         SkDebugf("failed to make webgl context current %d\n", r);
         return nullptr;
     }
-    // setup GrContext
+    // setup interface
     auto interface = GrGLMakeNativeInterface();
     if (!interface) {
         SkDebugf("failed to make GrGLMakeNativeInterface\n");
         return nullptr;
     }
-    // setup contexts
-    sk_sp<GrContext> grContext(GrDirectContext::MakeGL(interface));
-    return grContext;
+    // setup context
+    return GrDirectContext::MakeGL(interface);
 }
 
-sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, int height) {
+sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int width, int height) {
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -459,16 +458,16 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, in
 
     GrBackendRenderTarget target(width, height, 0, 8, info);
 
-    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(dContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
                                                                     colorType, nullptr, nullptr));
     return surface;
 }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int height) {
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
                              SkBudgeted::kYes,
                              info, 0,
                              kBottomLeft_GrSurfaceOrigin,
@@ -476,8 +475,8 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int hei
     return surface;
 }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, SimpleImageInfo sii) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageInfo sii) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
                              SkBudgeted::kYes,
                              toSkImageInfo(sii), 0,
                              kBottomLeft_GrSurfaceOrigin,
@@ -569,16 +568,16 @@ EMSCRIPTEN_BINDINGS(my_module) {
     }));
 
   #ifdef SK_GL
-    class_<GrContext>("GrContext")
-        .smart_ptr<sk_sp<GrContext>>("sk_sp<GrContext>");
+    class_<GrDirectContext>("GrDirectContext")
+        .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>");
     function("currentContext", &emscripten_webgl_get_current_context);
     function("setCurrentContext", &emscripten_webgl_make_context_current);
     function("MakeGrContext", &MakeGrContext);
     function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
-      sk_sp<GrContext>, int, int)>(&MakeRenderTarget));
+      sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
     function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
-      sk_sp<GrContext>, SimpleImageInfo)>(&MakeRenderTarget));
+      sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
     constant("gpu", true);
   #endif
 }

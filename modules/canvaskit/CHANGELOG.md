@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Type Changes (index.d.ts)
  - Return value for MakeFromCmds correctly reflects the possibility of null.
+ - `CanvasKit.GrContext` was renamed to `CanvasKit.GrDirectContext`
 
 ## [0.19.0] - 2020-10-08
 
