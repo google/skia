@@ -46,6 +46,62 @@ static void testChopCubic(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, pts[i].fX == pts[i].fY);
         REPORTER_ASSERT(reporter, pts[i].fX == i * .5f);
     }
+
+    static const float testTs[] = {
+        0, 3/83.f, 3/79.f, 3/73.f, 3/71.f, 3/67.f, 3/61.f, 3/59.f, 3/53.f, 3/47.f, 3/43.f, 3/41.f,
+        3/37.f, 3/31.f, 3/29.f, 3/23.f, 3/19.f, 3/17.f, 3/13.f, 3/11.f, 3/7.f, 3/5.f, 1,
+    };
+
+    // static const float testTs[] = {3/17.f, 3/13.f, 3/11.f, 3/7.f, 3/5.f};
+
+    // Ensure an odd number of T values so we exercise the single chop code at the end of
+    // SkChopCubicAt form multiple T.
+    static_assert(SK_ARRAY_COUNT(testTs) % 2 == 1);
+
+    SkRandom rand;
+    for (int iterIdx = 0; iterIdx < 5; ++iterIdx) {
+        SkPoint pts[4] = {{rand.nextF(), rand.nextF()}, {rand.nextF(), rand.nextF()},
+                          {rand.nextF(), rand.nextF()}, {rand.nextF(), rand.nextF()}};
+
+        SkPoint allChops[4 + SK_ARRAY_COUNT(testTs)*3];
+        SkChopCubicAt(pts, allChops, testTs, SK_ARRAY_COUNT(testTs));
+        int i = 3;
+        for (float testT : testTs) {
+            // Ensure we chop at approximately the correct points when we chop an entire list.
+            SkPoint expectedPt;
+            SkEvalCubicAt(pts, testT, &expectedPt, nullptr, nullptr);
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(allChops[i].x(), expectedPt.x()));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(allChops[i].y(), expectedPt.y()));
+            if (testT == 0) {
+                REPORTER_ASSERT(reporter, allChops[i] == pts[0]);
+            }
+            if (testT == 1) {
+                REPORTER_ASSERT(reporter, allChops[i] == pts[3]);
+            }
+            i += 3;
+
+            // Ensure the middle is exactly degenerate when we chop at two equal points.
+            SkPoint localChops[10];
+            SkChopCubicAt(pts, localChops, testT, testT);
+            REPORTER_ASSERT(reporter, localChops[3] == localChops[4]);
+            REPORTER_ASSERT(reporter, localChops[3] == localChops[5]);
+            REPORTER_ASSERT(reporter, localChops[3] == localChops[6]);
+            if (testT == 0) {
+                // Also ensure the first curve is exactly p0 when we chop at T=0.
+                REPORTER_ASSERT(reporter, localChops[0] == pts[0]);
+                REPORTER_ASSERT(reporter, localChops[1] == pts[0]);
+                REPORTER_ASSERT(reporter, localChops[2] == pts[0]);
+                REPORTER_ASSERT(reporter, localChops[3] == pts[0]);
+            }
+            if (testT == 1) {
+                // Also ensure the last curve is exactly p3 when we chop at T=1.
+                REPORTER_ASSERT(reporter, localChops[6] == pts[3]);
+                REPORTER_ASSERT(reporter, localChops[7] == pts[3]);
+                REPORTER_ASSERT(reporter, localChops[8] == pts[3]);
+                REPORTER_ASSERT(reporter, localChops[9] == pts[3]);
+            }
+        }
+    }
 }
 
 static void check_pairs(skiatest::Reporter* reporter, int index, SkScalar t, const char name[],
