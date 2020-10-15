@@ -612,26 +612,27 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kSwitch: {
             SwitchStatement& ss = (*s)->as<SwitchStatement>();
-            this->addExpression(cfg, &ss.fValue, /*constantPropagate=*/true);
+            this->addExpression(cfg, &ss.value(), /*constantPropagate=*/true);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             BlockId start = cfg.fCurrent;
             BlockId switchExit = cfg.newIsolatedBlock();
             fLoopExits.push(switchExit);
-            for (const auto& c : ss.fCases) {
+            for (int i = 0; i < ss.caseCount(); ++i) {
+                SwitchCase& c = ss.getCase(i);
                 cfg.newBlock();
                 cfg.addExit(start, cfg.fCurrent);
-                if (c->fValue) {
+                if (c.value()) {
                     // technically this should go in the start block, but it doesn't actually matter
                     // because it must be constant. Not worth running two loops for.
-                    this->addExpression(cfg, &c->fValue, /*constantPropagate=*/true);
+                    this->addExpression(cfg, &c.value(), /*constantPropagate=*/true);
                 }
-                for (auto& caseStatement : c->fStatements) {
+                for (auto& caseStatement : c.statements()) {
                     this->addStatement(cfg, &caseStatement);
                 }
             }
             cfg.addExit(cfg.fCurrent, switchExit);
             // note that unlike GLSL, our grammar requires the default case to be last
-            if (ss.fCases.empty() || ss.fCases.back()->fValue) {
+            if (ss.caseCount() == 0 || ss.getCase(ss.caseCount() - 1).value()) {
                 // switch does not have a default clause, mark that it can skip straight to the end
                 cfg.addExit(start, switchExit);
             }

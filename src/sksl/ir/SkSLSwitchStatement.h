@@ -18,47 +18,78 @@ class SymbolTable;
 /**
  * A 'switch' statement.
  */
-struct SwitchStatement : public Statement {
+class SwitchStatement : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kSwitch;
 
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kStatementKind)
-    , fIsStatic(isStatic)
-    , fValue(std::move(value))
-    , fSymbols(std::move(symbols))
-    , fCases(std::move(cases)) {}
+    : INHERITED(offset, SwitchStatementData{isStatic, std::move(symbols)}) {
+        fExpressionChildren.push_back(std::move(value));
+        fStatementChildren.reserve_back(cases.size());
+        for (std::unique_ptr<SwitchCase>& c : cases) {
+            fStatementChildren.emplace_back(c.release());
+        }
+    }
+
+    std::unique_ptr<Expression>& value() {
+        return fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& value() const {
+        return fExpressionChildren[0];
+    }
+
+    int caseCount() const {
+        return fStatementChildren.size();
+    }
+
+    SwitchCase& getCase(int index) {
+        return fStatementChildren[index]->as<SwitchCase>();
+    }
+
+    const SwitchCase& getCase(int index) const {
+        return fStatementChildren[index]->as<SwitchCase>();
+    }
+
+    bool isStatic() const {
+        return this->switchStatementData().fIsStatic;
+    }
+
+    void setIsStatic(bool isStatic) {
+        this->switchStatementData().fIsStatic = isStatic;
+    }
+
+    const std::shared_ptr<SymbolTable>& symbols() const {
+        return this->switchStatementData().fSymbols;
+    }
 
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<SwitchCase>> cloned;
-        for (const auto& s : fCases) {
-            cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
+        for (int i = 0; i < this->caseCount(); ++i) {
+            cloned.push_back(std::unique_ptr<SwitchCase>(
+                                                 (SwitchCase*) this->getCase(i).clone().release()));
         }
-        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
-                                                              std::move(cloned), fSymbols));
+        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, this->isStatic(),
+                                                              this->value()->clone(),
+                                                              std::move(cloned), this->symbols()));
     }
 
     String description() const override {
         String result;
-        if (fIsStatic) {
+        if (this->isStatic()) {
             result += "@";
         }
-        result += String::printf("switch (%s) {\n", fValue->description().c_str());
-        for (const auto& c : fCases) {
-            result += c->description();
+        result += String::printf("switch (%s) {\n", this->value()->description().c_str());
+        for (int i = 0; i < this->caseCount(); ++i) {
+            result += this->getCase(i).description();
         }
         result += "}";
         return result;
     }
 
-    bool fIsStatic;
-    std::unique_ptr<Expression> fValue;
-    // it's important to keep fCases defined after (and thus destroyed before) fSymbols, because
-    // destroying statements can modify reference counts in symbols
-    const std::shared_ptr<SymbolTable> fSymbols;
-    std::vector<std::unique_ptr<SwitchCase>> fCases;
-
+private:
     using INHERITED = Statement;
 };
 

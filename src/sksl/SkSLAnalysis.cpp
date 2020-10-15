@@ -462,14 +462,15 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kSwitch: {
             auto& sw = s.template as<SwitchStatement>();
-            if (this->visitExpression(*sw.fValue)) {
+            if (this->visitExpression(*sw.value())) {
                 return true;
             }
-            for (auto& c : sw.fCases) {
-                if (c->fValue && this->visitExpression(*c->fValue)) {
+            for (int i = 0; i < sw.caseCount(); ++i) {
+                const SwitchCase& c = sw.getCase(i);
+                if (c.value() && this->visitExpression(*c.value())) {
                     return true;
                 }
-                for (auto& st : c->fStatements) {
+                for (auto& st : c.statements()) {
                     if (this->visitStatement(*st)) {
                         return true;
                     }
