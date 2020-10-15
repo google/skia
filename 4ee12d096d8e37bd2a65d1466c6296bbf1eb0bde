@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe12b92d_1a2e4ea2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-15T14:07:58Z",
+      "side": 1,
+      "message": "Mostly mechanical, plus build file tweaks.\n\nThe G3 canary failures look like flakes/unrelated.",
+      "revId": "4ee12d096d8e37bd2a65d1466c6296bbf1eb0bde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
