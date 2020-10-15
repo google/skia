@@ -528,7 +528,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // Adreno devices fail when trying to read the dest using an input attachment and texture
     // barriers.
     if (kQualcomm_VkVendor == properties.vendorID) {
-        fTextureBarrierSupport = false;
+        //fTextureBarrierSupport = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////
