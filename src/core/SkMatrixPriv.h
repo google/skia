@@ -171,6 +171,13 @@ public:
                m.rc(3,3) == 1;
 
     }
+
+    // Returns the differential area scale factor for a local point 'p' that will be transformed
+    // by 'm' (which may have perspective). If 'm' does not have perspective, this scale factor is
+    // constant regardless of 'p'; when it does have perspective, it is specific to that point.
+    //
+    // This can be crudely thought of as "device pixel area" / "local pixel area" at 'p'.
+    static SkScalar DifferentialScale(const SkMatrix& m, const SkPoint& p);
 };
 
 #endif
