@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5992863_f212f0b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-15T10:30:22Z",
+      "side": 1,
+      "message": "Of note, I don\u0027t think we have yet exposed any crop rects for image filters on CanvasKit\nhttps://github.com/google/skia/blob/e07f2b21917d886c5ed6ab1a95d0c1eb28636d0d/modules/canvaskit/canvaskit/types/index.d.ts#L2788",
+      "revId": "c98d5b6250dc485f7a43733f59a7d650d9f67081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
