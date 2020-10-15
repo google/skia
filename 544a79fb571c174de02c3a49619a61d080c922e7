@@ -52,6 +52,24 @@
       "parentUuid": "ee2cbabd_959e99fc",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47feb028_6af12657",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-15T17:21:29Z",
+      "side": 1,
+      "message": "Interestingly when I run dm locally some of the existing SVGs are also failing to parse:\n\nFailures:\n\t8888 svg  svgparse_Florida-StateSeal.svg: Unable to parse file: svgparse_Florida-StateSeal.svg\n\t8888 svg  svgparse_Seal_of_Mississippi_%282014-present%29.svg: Unable to parse file: svgparse_Seal_of_Mississippi_%282014-present%29.svg\n\t8888 svg  svgparse_Montana-StateSeal.svg: Unable to parse file: svgparse_Montana-StateSeal.svg\n\t8888 svg  svgparse_Seal_of_California.svg: Unable to parse file: svgparse_Seal_of_California.svg\n\t8888 svg  svgparse_NewMexico-StateSeal.svg: Unable to parse file: svgparse_NewMexico-StateSeal.svg\n\t8888 svg  svgparse_Nevada-StateSeal.svg: Unable to parse file: svgparse_Nevada-StateSeal.svg\n6 failures\n\nShould I remove those for now too? Not sure why they\u0027re failing right now.",
+      "parentUuid": "8a480e29_695fc702",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
