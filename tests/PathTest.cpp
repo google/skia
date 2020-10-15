@@ -5459,8 +5459,8 @@ DEF_TEST(Path_shrinkToFit, reporter) {
 #ifdef SK_DEBUG
         size_t before = PathTest_Private::GetFreeSpace(unique_path);
 #endif
-        unique_path.shrinkToFit();
-        shared_path.shrinkToFit();
+        SkPathPriv::ShrinkToFit(&unique_path);
+        SkPathPriv::ShrinkToFit(&shared_path);
         REPORTER_ASSERT(reporter, shared_path == unique_path);
         REPORTER_ASSERT(reporter, shared_path == copy);
 
