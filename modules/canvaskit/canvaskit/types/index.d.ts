@@ -201,19 +201,19 @@ export interface CanvasKit {
     GetWebGLContext(canvas: HTMLCanvasElement, opts?: WebGLOptions): WebGLContextHandle;
 
     /**
-     * Creates a GrContext from the given WebGL Context.
+     * Creates a GrDirectContext from the given WebGL Context.
      * @param ctx
      */
-    MakeGrContext(ctx: WebGLContextHandle): GrContext;
+    MakeGrContext(ctx: WebGLContextHandle): GrDirectContext;
 
     /**
-     * Creates a Surface that will be drawn to the given GrContext (and show up on screen).
+     * Creates a Surface that will be drawn to the given GrDirectContext (and show up on screen).
      * @param ctx
      * @param width - number of pixels of the width of the visible area.
      * @param height - number of pixels of the height of the visible area.
      * @param colorSpace
      */
-    MakeOnScreenGLSurface(ctx: GrContext, width: number, height: number,
+    MakeOnScreenGLSurface(ctx: GrDirectContext, width: number, height: number,
                           colorSpace: ColorSpace): Surface | null;
 
     /**
@@ -223,7 +223,7 @@ export interface CanvasKit {
      * @param width
      * @param height
      */
-    MakeRenderTarget(ctx: GrContext, width: number, height: number): Surface | null;
+    MakeRenderTarget(ctx: GrDirectContext, width: number, height: number): Surface | null;
 
     /**
      * Returns a (non-visible) Surface on the GPU. It has the settings provided by image info.
@@ -231,7 +231,7 @@ export interface CanvasKit {
      * @param ctx
      * @param info
      */
-    MakeRenderTarget(ctx: GrContext, info: ImageInfo): Surface | null;
+    MakeRenderTarget(ctx: GrDirectContext, info: ImageInfo): Surface | null;
 
     /**
      * Returns the current WebGLContext that the wasm code is configured to draw to. It is
@@ -541,9 +541,9 @@ export interface FontStyle {
 }
 
 /**
- * See GrContext.h for more on this class.
+ * See GrDirectContext.h for more on this class.
  */
-export interface GrContext extends EmbindObject<GrContext> {
+export interface GrDirectContext extends EmbindObject<GrDirectContext> {
     getResourceCacheLimitBytes(): number;
     getResourceCacheUsageBytes(): number;
     releaseResourcesAndAbandonContext(): void;
