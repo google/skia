@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPathMeasure.h"
+#include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
 static void test_small_segment3() {
@@ -289,7 +290,7 @@ static void test_shrink(skiatest::Reporter* reporter) {
     // shrinks the allocation, possibly relocating the underlying arrays.
     // The contouremasureiter needs to have safely copied path, to be unaffected by this
     // change to "path".
-    path.shrinkToFit();
+    SkPathPriv::ShrinkToFit(&path);
 
     // Note, this failed (before the fix) on an ASAN build, which notices that we were
     // using an internal iterator of the passed-in path, not our copy.

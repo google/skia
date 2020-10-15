@@ -14,6 +14,7 @@
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
+#include "src/core/SkPathPriv.h"
 
 #include <cmath>
 
@@ -52,7 +53,7 @@ SkRect GeometryEffect::onRevalidate(InvalidationController* ic, const SkMatrix& 
     fChild->revalidate(ic, ctm);
 
     fPath = this->onRevalidateEffect(fChild);
-    fPath.shrinkToFit();
+    SkPathPriv::ShrinkToFit(&fPath);
 
     return fPath.computeTightBounds();
 }
