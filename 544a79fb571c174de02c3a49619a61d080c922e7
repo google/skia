@@ -160,6 +160,24 @@
       "parentUuid": "fbbf3d34_a9d55b25",
       "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9faa5352_0fa3a7aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-15T20:37:25Z",
+      "side": 1,
+      "message": "Actually I still don\u0027t understand how any of the CPU SVG bots were passing before (unless there\u0027s just the one?). I think the right thing to do might be to remove those problematic state seals. @Florin any thoughts?",
+      "parentUuid": "4ed92d6e_1cc0e124",
+      "revId": "544a79fb571c174de02c3a49619a61d080c922e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
