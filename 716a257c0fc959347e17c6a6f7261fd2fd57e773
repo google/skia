@@ -1,6 +1,92 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "542a663b_3637bc95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T17:58:10Z",
+      "side": 1,
+      "message": "Looks like you\u0027re -1ing but here\u0027s what I had so far comment-wise.",
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55675afc_0d56ac34",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T17:58:10Z",
+      "side": 1,
+      "message": "Please add a little more explanatory text here. For instance:\n- This looks like it is not actually an array, but a wrapper around an existing SkSTArray. That is subtle and should be called out explicitly.\n- What\u0027s T? What\u0027s Base? How do they relate?\n- Is this class going away soon? (Does it deserve a `// TODO:remove me`?)\n\nAlso... is there any reason this couldn\u0027t be a wrapper around `SkTArray\u003cstd::unique_ptr\u003cBase\u003e\u003e\u0026`? That\u0027s a base class but it has all the same functionality. It would be more general purpose and would also save us from needing to know N.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 54
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e9654ac_0119e8d5",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T17:58:10Z",
+      "side": 1,
+      "message": "Can we use `move_back_n` here? That was a cool trick.",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 35,
+        "endChar": 9
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed991164_ba268303",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T17:58:10Z",
+      "side": 1,
+      "message": "This looks like it\u0027s copying the array... if we keep the names (NodeArray, CaseArray) the same, this deserves a comment.",
+      "range": {
+        "startLine": 47,
+        "startChar": 15,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7a9143d_6011963a",
@@ -19,6 +105,29 @@
         "startChar": 0,
         "endLine": 50,
         "endChar": 35
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a767b22_af5adb80",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T17:58:10Z",
+      "side": 1,
+      "message": "Same",
+      "range": {
+        "startLine": 51,
+        "startChar": 15,
+        "endLine": 51,
+        "endChar": 24
       },
       "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
