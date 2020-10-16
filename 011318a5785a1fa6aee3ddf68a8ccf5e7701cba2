@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daeedc1f_4f47c963",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T21:05:13Z",
+      "side": 1,
+      "message": "Don\u0027t see any diffs in GMs.",
+      "revId": "011318a5785a1fa6aee3ddf68a8ccf5e7701cba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
