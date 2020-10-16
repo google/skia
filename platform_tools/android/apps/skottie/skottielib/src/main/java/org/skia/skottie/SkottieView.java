@@ -38,10 +38,12 @@ public class SkottieView extends FrameLayout {
         TypedArray a = context.getTheme()
             .obtainStyledAttributes(attrs, R.styleable.SkottieView, 0, 0);
         try {
+            // set backing view and background color
             switch (a.getInteger(R.styleable.SkottieView_backing_view, -1)) {
                 case BACKING_VIEW_TEXTURE:
                     mBackingView = new TextureView(context);
                     ((TextureView) mBackingView).setOpaque(false);
+                    mBackgroundColor = a.getColor(R.styleable.SkottieView_background_color, 0);
                     break;
                 case BACKING_VIEW_SURFACE:
                     mBackingView = new SurfaceView(context);
@@ -57,6 +59,11 @@ public class SkottieView extends FrameLayout {
                 default:
                     throw new RuntimeException("backing_view attribute needed to "
                         + "specify between texture_view or surface_view");
+            }
+            // set source
+            int src = a.getResourceId(R.styleable.SkottieView_src, -1);
+            if (src != -1) {
+                setSource(src);
             }
         } finally {
             a.recycle();
@@ -85,7 +92,6 @@ public class SkottieView extends FrameLayout {
         addView(mBackingView);
     }
 
-    //TODO handle SurfaceView
     public void setSource(InputStream inputStream) {
         mAnimation = setSourceHelper(inputStream);
     }
