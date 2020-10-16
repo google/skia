@@ -476,6 +476,13 @@ SINTU Vec<N,T> max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
 SINTU Vec<N,T> min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
 SINTU Vec<N,T> max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
 
+// Returns x pinned (clamped) between lo and hi, inclusively.
+//
+// Unlike std::clamp(), pin always returns a value between lo and hi.
+// If x is NaN, SkTPin() returns hi but std::clamp() returns NaN.
+SINT Vec<N,T> pin(const Vec<N,T>& x, const Vec<N,T>& lo, const Vec<N,T>& hi) {
+    return max(min(hi, x), lo);
+}
 
 // Shuffle values from a vector pretty arbitrarily:
 //    skvx::Vec<4,float> rgba = {R,G,B,A};
