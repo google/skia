@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ec01470c_9a098556",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1369,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-16T17:38:21Z",
+      "side": 1,
+      "message": "It prevents other, redundant errors from being reported. For reference, removing those setStatics changes the output from StaticSwitchConditionalBreak from:\n\nerror: 3: static switch contains non-static conditional break\n1 error\n\nto:\n\nerror: 3: static switch contains non-static conditional break\nerror: 3: static switch contains non-static conditional break\nerror: 3: static switch has non-static test\n4 errors",
+      "parentUuid": "c0415907_7f34c885",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "340bbc45_30afe7f3",
         "filename": "src/sksl/ir/SkSLSwitchStatement.h",
         "patchSetId": 2
@@ -31,6 +49,24 @@
       "writtenOn": "2020-10-15T19:18:45Z",
       "side": 1,
       "message": "Does this work if you write:\n  fStatementChildren.push_back(std::move(c));",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ac1eb7_89c3f485",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-16T17:38:21Z",
+      "side": 1,
+      "message": "Yep, done.",
+      "parentUuid": "340bbc45_30afe7f3",
       "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -48,6 +84,30 @@
       "writtenOn": "2020-10-15T19:24:38Z",
       "side": 1,
       "message": "Why can\u0027t this just be\n\n    this-\u003egetCase(i).clone()\n\n? What do all the casts do?",
+      "range": {
+        "startLine": 71,
+        "startChar": 29,
+        "endLine": 72,
+        "endChar": 98
+      },
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5d6e7cf_50e5ccba",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-16T17:38:21Z",
+      "side": 1,
+      "message": "Oof, remnants of an earlier point in the process when the types weren\u0027t nailed down. Fixed.",
+      "parentUuid": "447ad633_0d28d179",
       "range": {
         "startLine": 71,
         "startChar": 29,
