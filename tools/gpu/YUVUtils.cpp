@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/gpu/YUVUtils.h"
+#include "include/gpu/GrYUVABackendTextures.h"
 
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
@@ -15,6 +15,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/gpu/YUVUtils.h"
 
 namespace {
 
@@ -226,30 +227,23 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
             if (auto direct = rContext->asDirectContext()) {
                 sk_sp<sk_gpu_test::ManagedBackendTexture> mbets[SkYUVAInfo::kMaxPlanes];
                 GrBackendTexture textures[SkYUVAInfo::kMaxPlanes];
-                uint32_t componentFlags[SkYUVAInfo::kMaxPlanes] = {};
                 for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
                     mbets[i] = sk_gpu_test::ManagedBackendTexture::MakeWithData(
                             direct, fPixmaps.plane(i), GrRenderable::kNo, GrProtected::kNo);
                     if (mbets[i]) {
                         textures[i] = mbets[i]->texture();
-                        componentFlags[i] = textures[i].getBackendFormat().channelMask();
                     } else {
                         return false;
                     }
                 }
-                SkYUVAIndex indices[SkYUVAIndex::kIndexCount];
-                if (!fPixmaps.yuvaInfo().toYUVAIndices(componentFlags, indices)) {
-                    return false;
-                }
+                GrYUVABackendTextures yuvaTextures(fPixmaps.yuvaInfo(),
+                                                   textures,
+                                                   kTopLeft_GrSurfaceOrigin);
                 void* relContext =
                         sk_gpu_test::ManagedBackendTexture::MakeYUVAReleaseContext(mbets);
                 fYUVImage[idx] = SkImage::MakeFromYUVATextures(
                         direct,
-                        fPixmaps.yuvaInfo().yuvColorSpace(),
-                        textures,
-                        indices,
-                        fPixmaps.yuvaInfo().dimensions(),
-                        kTopLeft_GrSurfaceOrigin,
+                        yuvaTextures,
                         fColorSpace,
                         sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                         relContext);
