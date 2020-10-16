@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2acac753_d3af72c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-16T16:02:05Z",
+      "side": 1,
+      "message": "This will have to wait until the g3 cleanup lands, but otherwise ready for review.",
+      "revId": "22a819339bfdcb4b4218ee760e6deba0481725c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
