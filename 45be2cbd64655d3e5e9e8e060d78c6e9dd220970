@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7ec2580_bbaf718f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T16:31:51Z",
+      "side": 1,
+      "message": "Speed is basically a straight 2x improvement. We do the chop logic once now instead of twice, and we don\u0027t do a divide in between anymore either. Precision is also better since we don\u0027t divide then re-chop on the chopped points.\n\nChopping at inflections is a sizable chunk of the work it takes to prepare strokes for indirect draws, so this helps a lot on strokes where both inflections are inside 0..1.\n\nGold says it sees pixel differences, but then when I click it doesn\u0027t show me any. It\u0027s certainly possible there will be pixel differences (improvements) though that need to be rebaselined. What bots can I run to check?",
+      "parentUuid": "abad5160_77cd62a5",
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e37f3be7_7146e6b0",
@@ -60,6 +78,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "594f9a79_52b354ec",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T16:31:51Z",
+      "side": 1,
+      "message": "Done. I think my preference is skvx::pin, but it\u0027s not a strong opinion. The name \"pin\" seems well understood in Skia and the parallel is obvious enough to me.\n\nLet\u0027s hold off though and see if we can change the behavior to pin to lo instead of hi.",
+      "parentUuid": "e37f3be7_7146e6b0",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 1
+      },
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e6280942_138c7c94",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
@@ -71,6 +113,24 @@
       "writtenOn": "2020-10-16T14:56:57Z",
       "side": 1,
       "message": "Let\u0027s drop the aliases from SkVx.h.  It\u0027s just as easy and clear to write\n\n   using float4 \u003d skvx::Vec\u003c4,float\u003e;\n   using float2 \u003d skvx::Vec\u003c2,float\u003e;",
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9876936_32e42792",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T16:31:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6280942_138c7c94",
       "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
