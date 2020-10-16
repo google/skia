@@ -39,8 +39,6 @@ public:
      * this expands.
      */
     enum class PlanarConfig {
-        kUnknown,
-
         kY_U_V_444,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
         kY_U_V_422,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
         kY_U_V_420,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
@@ -179,12 +177,10 @@ public:
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
 
-    bool isValid() const { return fPlanarConfig != PlanarConfig::kUnknown; }
-
 private:
     SkISize fDimensions = {0, 0};
 
-    PlanarConfig fPlanarConfig = PlanarConfig::kUnknown;
+    PlanarConfig fPlanarConfig = PlanarConfig::kY_U_V_444;
 
     SkYUVColorSpace fYUVColorSpace = SkYUVColorSpace::kIdentity_SkYUVColorSpace;
 
@@ -200,8 +196,6 @@ private:
 
 constexpr int SkYUVAInfo::NumPlanes(PlanarConfig planarConfig) {
     switch (planarConfig) {
-        case PlanarConfig::kUnknown:      return 0;
-
         case PlanarConfig::kY_U_V_444:    return 3;
         case PlanarConfig::kY_U_V_422:    return 3;
         case PlanarConfig::kY_U_V_420:    return 3;
@@ -229,9 +223,6 @@ constexpr int SkYUVAInfo::NumPlanes(PlanarConfig planarConfig) {
 
 constexpr int SkYUVAInfo::NumChannelsInPlane(PlanarConfig config, int i) {
     switch (config) {
-        case PlanarConfig::kUnknown:
-            return 0;
-
         case SkYUVAInfo::PlanarConfig::kY_U_V_444:
         case SkYUVAInfo::PlanarConfig::kY_U_V_422:
         case SkYUVAInfo::PlanarConfig::kY_U_V_420:

@@ -11,7 +11,7 @@
 int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
                                 PlanarConfig planarConfig,
                                 SkEncodedOrigin origin,
-                                SkISize planeDimensions[SkYUVAInfo::kMaxPlanes]) {
+                                SkISize* planeDimensions) {
     int w = imageDimensions.width();
     int h = imageDimensions.height();
     if (origin >= kLeftTop_SkEncodedOrigin) {
@@ -21,12 +21,6 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
     auto down2 = [](int x) { return (x + 1)/2; };
     auto down4 = [](int x) { return (x + 3)/4; };
     switch (planarConfig) {
-        case PlanarConfig::kUnknown:
-            planeDimensions[0] =
-            planeDimensions[1] =
-            planeDimensions[2] =
-            planeDimensions[3] = {0, 0};
-            return 0;
         case PlanarConfig::kY_U_V_444:
             planeDimensions[0] = planeDimensions[1] = planeDimensions[2] = {w, h};
             planeDimensions[3] = {0, 0};
@@ -131,9 +125,6 @@ bool SkYUVAInfo::GetYUVAIndices(PlanarConfig config,
     struct Location {int plane, chanIdx;};
     const Location* locations = nullptr;
     switch (config) {
-        case PlanarConfig::kUnknown:
-            return false;
-
         case PlanarConfig::kY_U_V_444:
         case PlanarConfig::kY_U_V_422:
         case PlanarConfig::kY_U_V_420:
@@ -219,8 +210,6 @@ bool SkYUVAInfo::GetYUVAIndices(PlanarConfig config,
 
 bool SkYUVAInfo::HasAlpha(PlanarConfig planarConfig) {
     switch (planarConfig) {
-        case PlanarConfig::kUnknown:      return false;
-
         case PlanarConfig::kY_U_V_444:    return false;
         case PlanarConfig::kY_U_V_422:    return false;
         case PlanarConfig::kY_U_V_420:    return false;
@@ -258,20 +247,11 @@ SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
     , fYUVColorSpace(yuvColorSpace)
     , fOrigin(origin)
     , fSitingX(sitingX)
-    , fSitingY(sitingY) {
-    if (fDimensions.width() <= 0 ||
-        fDimensions.height() <= 0 ||
-        planarConfig == PlanarConfig::kUnknown) {
-        *this = {};
-        SkASSERT(!this->isValid());
-        return;
-    }
-    SkASSERT(this->isValid());
-}
+    , fSitingY(sitingY) {}
 
 size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
                                      size_t planeSizes[kMaxPlanes]) const {
-    if (!this->isValid()) {
+    if (fDimensions.isEmpty()) {
         return 0;
     }
     SkSafeMath safe;
