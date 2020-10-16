@@ -12,6 +12,7 @@
 namespace SkSL {
 
 static TypeCategory type_category(const Type& type) {
+    SkDebugf("hi\n");
     switch (type.typeKind()) {
         case Type::TypeKind::kVector:
         case Type::TypeKind::kMatrix:
