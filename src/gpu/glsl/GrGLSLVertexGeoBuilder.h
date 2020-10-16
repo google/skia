@@ -15,6 +15,14 @@
  * geometry for the rasterizer.
  */
 class GrGLSLVertexGeoBuilder : public GrGLSLShaderBuilder {
+public:
+    // Copies the given text verbatim to the function definitions section. Does not mangle the name.
+    // 'functionDefinition' should be a fully valid SkSL function, complete with return type, name,
+    // arguments, braces, and a body.
+    void insertFunction(const char* functionDefinition) {
+        this->functions().append(functionDefinition);
+    }
+
 protected:
     GrGLSLVertexGeoBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
 
