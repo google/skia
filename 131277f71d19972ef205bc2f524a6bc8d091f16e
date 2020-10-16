@@ -33,6 +33,24 @@
       "message": "Is this intentional?",
       "revId": "131277f71d19972ef205bc2f524a6bc8d091f16e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75cc5f8e_4043ab24",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-16T16:30:20Z",
+      "side": 1,
+      "message": "I\u0027m always turning it off to test unclipped perspective in my samples (the resetmatrix calls they do to draw the status in device space don\u0027t mix well with these clips). I forgot to undo it, fixed.",
+      "parentUuid": "9258fb38_3bc0376a",
+      "revId": "131277f71d19972ef205bc2f524a6bc8d091f16e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
