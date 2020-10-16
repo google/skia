@@ -581,13 +581,21 @@ template <typename T> static inline T SkTAbs(T value) {
     return value;
 }
 
-/** @return value pinned (clamped) between min and max, inclusively.
+/** @return x pinned (clamped) between lo and hi, inclusively.
 
-    NOTE: Unlike std::clamp, SkTPin has well-defined behavior if 'value' is a
-          floating point NaN. In that case, 'max' is returned.
+    Unlike std::clamp(), SkTPin() always returns a value between lo and hi.
+    If x is NaN, SkTPin() returns hi but std::clamp() returns NaN.
 */
-template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
-    return value < min ? min : (value < max ? value : max);
+template <typename T>
+static constexpr const T& SkTPin(const T& x, const T& lo, const T& hi) {
+#if 0
+    return std::max(std::min(hi, x), lo);
+#else
+    // To avoid the need to #include <algorithm>, we use this equivalent logic:
+    return x < lo ? lo
+        :  x < hi ? x
+        : /*else*/  hi;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

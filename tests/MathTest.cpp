@@ -16,6 +16,7 @@
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
+#include <algorithm>
 #include <cinttypes>
 
 static void test_clz(skiatest::Reporter* reporter) {
@@ -685,6 +686,13 @@ DEF_TEST(FloatSaturate32, reporter) {
         // Ensure that SkTPin bounds even non-finite values (including NaN)
         SkScalar p = SkTPin<SkScalar>(r.fFloat, 0, 100);
         REPORTER_ASSERT(reporter, p >= 0 && p <= 100);
+
+        // SkTPin has a logical equivalent in terms of std::min and std::max that we don't use,
+        // I think only because we'd like to avoid pulling <algorithm> into SkTypes.h.
+        auto equiv = [](float x, float lo, float hi) {
+            return std::max(std::min(hi, x), lo);
+        };
+        REPORTER_ASSERT(reporter, p == equiv(r.fFloat, 0, 100));
     }
 }
 
