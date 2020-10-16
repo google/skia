@@ -226,8 +226,8 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     // An informal survey of skottie animations and gms revealed that even with a bare minimum of 64
     // tessellation segments, 99.9%+ of quadratics take this early out.
     float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fLinearizationIntolerance, p);
-    if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
-        prevJoinType != JoinType::kCusp) {
+    if (true/*numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
+        prevJoinType != JoinType::kCusp*/) {
         this->cubicToRaw(prevJoinType, asCubic);
         return;
     }
@@ -312,8 +312,8 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     // An informal survey of skottie animations revealed that with a bare minimum of 64 tessellation
     // segments, 95% of cubics take this early out.
     float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fLinearizationIntolerance, p);
-    if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
-        prevJoinType != JoinType::kCusp) {
+    if (true/*numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
+        prevJoinType != JoinType::kCusp*/) {
         this->cubicToRaw(prevJoinType, p);
         return;
     }

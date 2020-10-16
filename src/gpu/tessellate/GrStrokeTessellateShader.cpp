@@ -75,6 +75,7 @@ private:
         v->declareGlobal(GrShaderVar("vsPts89", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans01", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans23", kFloat4_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsChopTs", kFloat2_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsPrevJoinTangent", kFloat2_GrSLType, TypeModifier::Out));
         v->codeAppendf(R"(
         // Unpack the control points.
@@ -230,12 +231,22 @@ private:
         vsPts89 = float4(cd.zw, P[3]);
         vsTans01 = float4(tan0, innerTangents[0]);
         vsTans23 = float4(innerTangents[1], tan1);
+        vsChopTs = chopT;
         vsPrevJoinTangent = (prevJoinTangent == float2(0)) ? tan0 : prevJoinTangent;
         )");
 
         // The fragment shader just outputs a uniform color.
-        args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, colorUniformName);
-        args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        auto* f = args.fFragBuilder;
+        f->declareGlobal(GrShaderVar("strokeCoord", kHalf2_GrSLType, TypeModifier::In));
+        f->codeAppendf(R"(
+        half x = strokeCoord.x * 1.5;
+        half q = strokeCoord.x * 2 - 1;
+        %s.r = clamp(x, 0, 1);
+        %s.g = 1 - q*q;
+        %s.b = clamp(1 - x, 0, 1);
+        %s.a = 1;
+        )", args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
+        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -315,11 +326,13 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     in vec4 vsPts89[];
     in vec4 vsTans01[];
     in vec4 vsTans23[];
+    in vec2 vsChopTs[];
     in vec2 vsPrevJoinTangent[];
 
     out vec4 tcsPts01[];
     out vec4 tcsPt2Tan0[];
     out vec4 tcsTessArgs[];
+    out vec2 tcsLocalToStrokeT[];
     patch out vec4 tcsEndPtEndTan;
     patch out vec3 tcsJoinArgs;
 
@@ -350,18 +363,22 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
             // This is the join section of the patch.
             P = mat4x2(vsPts01[0].xyxy, vsPts01[0].xyxy);
             tangents = mat2(vsPrevJoinTangent[0], vsTans01[0].xy);
+            tcsLocalToStrokeT[gl_InvocationID] = vec2(0);
         } else if (gl_InvocationID == 1) {
             // This is the first curve section of the patch.
             P = mat4x2(vsPts01[0], vsPts23[0]);
             tangents = mat2(vsTans01[0]);
+            tcsLocalToStrokeT[gl_InvocationID] = vec2(vsChopTs[0].s, 0);
         } else if (gl_InvocationID == 2) {
             // This is the second curve section of the patch.
             P = mat4x2(vsPts23[0].zw, vsPts45[0], vsPts67[0].xy);
             tangents = mat2(vsTans01[0].zw, vsTans23[0].xy);
+            tcsLocalToStrokeT[gl_InvocationID] = vec2(vsChopTs[0].t - vsChopTs[0].s, vsChopTs[0].s);
         } else {
             // This is the third curve section of the patch.
             P = mat4x2(vsPts67[0], vsPts89[0]);
             tangents = mat2(vsTans23[0]);
+            tcsLocalToStrokeT[gl_InvocationID] = vec2(1 - vsChopTs[0].t, vsChopTs[0].t);
         }
 
         // Calculate the number of evenly spaced (in the parametric sense) segments to chop this
@@ -517,8 +534,11 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     in vec4 tcsPts01[];
     in vec4 tcsPt2Tan0[];
     in vec4 tcsTessArgs[];
+    in vec2 tcsLocalToStrokeT[];
     patch in vec4 tcsEndPtEndTan;
     patch in vec3 tcsJoinArgs;
+
+    out vec2 strokeCoord;
 
     uniform vec4 sk_RTAdjust;
 
@@ -539,6 +559,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         vec3 tessellationArgs;
         float strokeRadius = uStrokeRadius;
         vec2 strokeOutsetClamp = vec2(-1, 1);
+        vec2 localToStrokeT;
         if (localEdgeID < tcsTessArgs[0].x || tcsTessArgs[0].x == numTotalCombinedSegments) {
             // Our edge belongs to the join preceding the curve.
             P = mat4x2(tcsPts01[0], tcsPt2Tan0[0].xy, tcsPts01[1].xy);
@@ -546,22 +567,26 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
             tessellationArgs = tcsTessArgs[0].yzw;
             strokeRadius *= (localEdgeID == 1) ? tcsJoinArgs.x : 1;
             strokeOutsetClamp = tcsJoinArgs.yz;
+            localToStrokeT = tcsLocalToStrokeT[0];
         } else if ((localEdgeID -= tcsTessArgs[0].x) < tcsTessArgs[1].x) {
             // Our edge belongs to the first curve section.
             P = mat4x2(tcsPts01[1], tcsPt2Tan0[1].xy, tcsPts01[2].xy);
             tan0 = tcsPt2Tan0[1].zw;
             tessellationArgs = tcsTessArgs[1].yzw;
+            localToStrokeT = tcsLocalToStrokeT[1];
         } else if ((localEdgeID -= tcsTessArgs[1].x) < tcsTessArgs[2].x) {
             // Our edge belongs to the second curve section.
             P = mat4x2(tcsPts01[2], tcsPt2Tan0[2].xy, tcsPts01[3].xy);
             tan0 = tcsPt2Tan0[2].zw;
             tessellationArgs = tcsTessArgs[2].yzw;
+            localToStrokeT = tcsLocalToStrokeT[2];
         } else {
             // Our edge belongs to the third curve section.
             localEdgeID -= tcsTessArgs[2].x;
             P = mat4x2(tcsPts01[3], tcsPt2Tan0[3].xy, tcsEndPtEndTan.xy);
             tan0 = tcsPt2Tan0[3].zw;
             tessellationArgs = tcsTessArgs[3].yzw;
+            localToStrokeT = tcsLocalToStrokeT[3];
         }
         float numParametricSegments = tessellationArgs.x;
         float angle0 = tessellationArgs.y;
@@ -693,14 +718,17 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
             // ensures crack-free seaming between patches.
             position = tcsEndPtEndTan.xy;
             tangent = tcsEndPtEndTan.zw;
+            T = 1;
         }
 
         // Determine how far to outset our vertex orthogonally from the curve.
         float outset = gl_TessCoord.y * 2 - 1;
         outset = clamp(outset, strokeOutsetClamp.x, strokeOutsetClamp.y);
-        outset *= strokeRadius;
 
-        vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;
+        strokeCoord.x = fma(T, localToStrokeT.x, localToStrokeT.y);
+        strokeCoord.y = outset;
+
+        vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset * strokeRadius;
     )");
 
     // Transform after tessellation. Stroke widths and normals are defined in (pre-transform) local
