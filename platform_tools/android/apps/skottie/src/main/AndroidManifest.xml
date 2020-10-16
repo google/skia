@@ -13,6 +13,10 @@
         android:exported="true">
     </activity>
     <activity
+        android:name=".DemoActivity"
+        android:exported="true">
+    </activity>
+    <activity
         android:name=".PerfActivity"
         android:exported="true">
     </activity>
