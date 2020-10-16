@@ -179,7 +179,7 @@ public:
     // This can be crudely thought of as "device pixel area" / "local pixel area" at 'p'.
     //
     // Returns positive infinity if the transformed homogeneous point has w <= 0.
-    static SkScalar DifferentialScale(const SkMatrix& m, const SkPoint& p);
+    static SkScalar DifferentialAreaScale(const SkMatrix& m, const SkPoint& p);
 };
 
 #endif
