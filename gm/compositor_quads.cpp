@@ -897,7 +897,8 @@ public:
     int drawTiles(SkCanvas* canvas) override {
         // Refresh the SkImage at the start, so that it's not attempted for every set entry
         if (fYUVData) {
-            fImage = fYUVData->refImage(canvas->recordingContext());
+            fImage = fYUVData->refImage(canvas->recordingContext(),
+                                        sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
             if (!fImage) {
                 return 0;
             }
