@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2e8b24d_38f5ee7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T21:13:39Z",
+      "side": 1,
+      "message": "Rebased and updated skvx::pin",
+      "revId": "45bc4811cc78c4adf898f89ffcfb2deaddc5827f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
