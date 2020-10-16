@@ -38,6 +38,7 @@ class GrContext;
 class GrDirectContext;
 class GrRecordingContext;
 class GrContextThreadSafeProxy;
+class GrYUVABackendTextures;
 
 struct SkYUVAIndex;
 
@@ -408,7 +409,26 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
-    /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
+    /** Creates an SkImage from YUV[A] planar textures.
+
+        @param context            GPU context
+        @param yuvColorSpace      How the YUV values are converted to RGB
+        @param yuvaTextures       A set of textures containing YUVA data and a description of the
+                                  data and transformation to RGBA.
+        @param textureReleaseProc called when the backend textures can be released
+        @param releaseContext     state passed to textureReleaseProc
+        @return                   created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+                                               const GrYUVABackendTextures& yuvaTextures,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
+                                               TextureReleaseProc textureReleaseProc = nullptr,
+                                               ReleaseContext releaseContext = nullptr);
+
+    /**
+        Deprecated. Use version that takes GrYUVABackendTextures.
+
+        Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
 
         When all the provided backend textures can be released 'textureReleaseProc' will be called
