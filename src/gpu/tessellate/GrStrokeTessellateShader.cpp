@@ -697,18 +697,17 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         }
 
         if (localEdgeID == 0) {
-            // The first local edge of each section uses the provided P[0] and tan0. This ensures
-            // continuous rotation across chops made by the vertex shader as well as crack-free
-            // seaming between patches.
-            position = P[0];
+            // The first local edge of each section uses the provided tan0. This ensures continuous
+            // rotation across chops made by the vertex shader as well as crack-free seaming between
+            // patches. (NOTE: position is always equal to P[0] here when localEdgeID==0.)
             tangent = tan0;
         }
 
         if (gl_TessCoord.x == 1) {
             // The final edge of the quad strip always uses the provided endPt and endTan. This
             // ensures crack-free seaming between patches.
-            position = tcsEndPtEndTan.xy;
             tangent = tcsEndPtEndTan.zw;
+            position = tcsEndPtEndTan.xy;
         }
 
         // Determine how far to outset our vertex orthogonally from the curve.
