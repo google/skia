@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d82a5319_4861d0e8",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T15:44:47Z",
+      "side": 1,
+      "message": "I\u0027m not sure.  I do prefer both using min/max over ternaries and using max(lo, min(x,hi)) over max(min(hi,x), lo).  I\u0027ll try both changes as a follow up, leaving this CL a noop refactor.",
+      "parentUuid": "8a7c42c2_c4e42860",
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bc945ea2_59757b3c",
         "filename": "include/core/SkTypes.h",
         "patchSetId": 3
@@ -67,6 +85,30 @@
       "writtenOn": "2020-10-16T15:38:07Z",
       "side": 1,
       "message": "Do we still have SkTMin/SkTMax? Or can SkTPin go to a less common header and include \u003calgorithm\u003e?",
+      "range": {
+        "startLine": 594,
+        "startChar": 7,
+        "endLine": 594,
+        "endChar": 49
+      },
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fdb62b8_5074ba91",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T15:44:47Z",
+      "side": 1,
+      "message": "There\u0027s no SkTMin/SkTMax anymore, but yeah, I will try moving SkTPin to its own header with \u003calgorithm\u003e, probably first before I try swapping it to pin NaN to lo.",
+      "parentUuid": "bc945ea2_59757b3c",
       "range": {
         "startLine": 594,
         "startChar": 7,
