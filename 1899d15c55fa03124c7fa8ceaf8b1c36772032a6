@@ -34,6 +34,47 @@
       "parentUuid": "a046e4bc_8f227f06",
       "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a7c42c2_c4e42860",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T15:38:07Z",
+      "side": 1,
+      "message": "Would it be a problem to change NaN to clamp to lo instead? \rDoes any of our code actually rely on the clamp-to-hi behavior intentionally?\n\nIt\u0027s common enough to pin to 0..1, in which case it might make more sense for NaN to fall to 0 anyway.",
+      "parentUuid": "e73a6336_7e5d7c45",
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc945ea2_59757b3c",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-16T15:38:07Z",
+      "side": 1,
+      "message": "Do we still have SkTMin/SkTMax? Or can SkTPin go to a less common header and include \u003calgorithm\u003e?",
+      "range": {
+        "startLine": 594,
+        "startChar": 7,
+        "endLine": 594,
+        "endChar": 49
+      },
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
