@@ -581,23 +581,6 @@ template <typename T> static inline T SkTAbs(T value) {
     return value;
 }
 
-/** @return x pinned (clamped) between lo and hi, inclusively.
-
-    Unlike std::clamp(), SkTPin() always returns a value between lo and hi.
-    If x is NaN, SkTPin() returns hi but std::clamp() returns NaN.
-*/
-template <typename T>
-static constexpr const T& SkTPin(const T& x, const T& lo, const T& hi) {
-#if 0
-    return std::max(std::min(hi, x), lo);
-#else
-    // To avoid the need to #include <algorithm>, we use this equivalent logic:
-    return x < lo ? lo
-        :  x < hi ? x
-        : /*else*/  hi;
-#endif
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Indicates whether an allocation should count against a cache budget.

@@ -10,6 +10,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 

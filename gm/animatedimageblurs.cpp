@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 

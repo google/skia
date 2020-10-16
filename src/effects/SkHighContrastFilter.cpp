@@ -8,6 +8,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"

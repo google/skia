@@ -7,6 +7,7 @@
 
 #include "include/core/SkPathMeasure.h"
 #include "include/effects/SkTrimPathEffect.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkTrimPE.h"

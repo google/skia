@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkTPin.h"
 #include "modules/particles/include/SkParticleData.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkAutoMalloc.h"

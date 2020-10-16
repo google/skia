@@ -14,6 +14,7 @@
 #include "include/core/SkPaint.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/SkTPin.h"
 
 // Draw a line through the two points, outset by a fixed length in screen space
 static void draw_extended_line(SkCanvas* canvas, const SkPaint paint,

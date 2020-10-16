@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkColorData.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"

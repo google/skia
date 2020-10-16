@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPaint.h"
+#include "include/private/SkTPin.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
 
 #include <cmath>

@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSafe_math.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 
 /** \file SkFixed.h

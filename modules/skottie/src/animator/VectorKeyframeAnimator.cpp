@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkNx.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"

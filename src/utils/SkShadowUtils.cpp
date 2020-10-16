@@ -15,6 +15,7 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkColorFilterBase.h"

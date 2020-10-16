@@ -8,6 +8,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint3.h"
 #include "include/private/SkNx.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 

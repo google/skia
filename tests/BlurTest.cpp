@@ -32,6 +32,7 @@
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkFloatBits.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkBlurPriv.h"
 #include "src/core/SkMask.h"

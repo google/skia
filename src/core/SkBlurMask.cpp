@@ -9,6 +9,7 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkMath.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkEndian.h"
