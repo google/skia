@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7a9143d_6011963a",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-16T17:57:13Z",
+      "side": 1,
+      "message": "Derp, clearly didn\u0027t think this through. Fix coming later today.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 35
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
