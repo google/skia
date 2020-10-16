@@ -7,6 +7,7 @@
 
 #include "src/gpu/ccpr/GrCCAtlas.h"
 
+#include "include/private/SkTPin.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"

@@ -16,6 +16,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlendModePriv.h"

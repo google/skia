@@ -29,6 +29,7 @@
 #include "include/ports/SkFontMgr_mac_ct.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkFontDescriptor.h"

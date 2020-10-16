@@ -9,6 +9,7 @@
 
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkM44.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/text/RangeSelector.h"
 #include "modules/skottie/src/text/TextAnimator.h"
