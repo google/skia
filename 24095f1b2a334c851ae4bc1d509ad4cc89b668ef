@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3e6bdbf_58e29ae4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-16T13:42:51Z",
+      "side": 1,
+      "message": "Removed:\n\n- https://upload.wikimedia.org/wikipedia/commons/0/0f/Seal_of_California.svg\n- https://upload.wikimedia.org/wikipedia/commons/b/bf/Florida-StateSeal.svg\n- https://upload.wikimedia.org/wikipedia/commons/d/d1/Seal_of_Mississippi_%282014-present%29.svg\n- https://upload.wikimedia.org/wikipedia/commons/e/ed/Montana-StateSeal.svg\n- https://upload.wikimedia.org/wikipedia/commons/7/77/Nevada-StateSeal.svg\n- https://upload.wikimedia.org/wikipedia/commons/3/3b/NewMexico-StateSeal.svg\n",
+      "revId": "24095f1b2a334c851ae4bc1d509ad4cc89b668ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
