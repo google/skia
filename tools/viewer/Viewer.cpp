@@ -1474,9 +1474,9 @@ void Viewer::drawSlide(SkSurface* surface) {
         }
     } else {
         slideCanvas->concat(this->computeMatrix());
-        if (kPerspective_Real == fPerspectiveMode) {
-            slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
-        }
+        // if (kPerspective_Real == fPerspectiveMode) {
+        //     slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
+        // }
         OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides, &fFont, &fFontOverrides);
         fSlides[fCurrentSlide]->draw(&filterCanvas);
     }
