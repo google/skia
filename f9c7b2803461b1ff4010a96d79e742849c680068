@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea005327_2d5d7ec0",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T21:43:06Z",
+      "side": 0,
+      "message": "Not sure why this was all the way up here, 30 lines away from where it was used.",
+      "range": {
+        "startLine": 1861,
+        "startChar": 45,
+        "endLine": 1861,
+        "endChar": 74
+      },
+      "revId": "f9c7b2803461b1ff4010a96d79e742849c680068",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

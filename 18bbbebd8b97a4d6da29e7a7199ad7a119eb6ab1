@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "514ba286_5f30fa01",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-16T21:43:06Z",
+      "side": 1,
+      "message": "I believe this was accidentally but harmlessly invoking the SymbolTable(parent SymbolTable) constructor before.",
+      "range": {
+        "startLine": 439,
+        "startChar": 28,
+        "endLine": 439,
+        "endChar": 29
+      },
+      "revId": "18bbbebd8b97a4d6da29e7a7199ad7a119eb6ab1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
