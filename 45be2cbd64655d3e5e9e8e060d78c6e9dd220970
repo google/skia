@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad13d837_9f5dbc67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T14:34:17Z",
+      "side": 1,
+      "message": "SkTPin\u0027s got some issues I want to fix first before we copy it here, namely\n\n   1) it does have well-defined behavior when value is NaN; and\n   2) I\u0027m not sure I understand why it\u0027s not implemented in terms of std::min / std::max.\n\nBoth of these points apply here, but I\u0027d like to address the original before we move on here.",
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
