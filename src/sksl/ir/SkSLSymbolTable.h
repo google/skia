@@ -92,7 +92,7 @@ private:
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 
-    const Symbol* lookup(const SymbolKey& key);
+    const Symbol* lookup(SymbolTable* topLevelSymbolTable, const SymbolKey& key);
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
