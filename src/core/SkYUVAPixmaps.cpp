@@ -10,6 +10,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkConvertPixels.h"
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrImageContext.h"
@@ -96,7 +97,10 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
     bool ok = true;
     for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
         fRowBytes[i] = rowBytes[i];
-        fPlaneInfos[i] = SkImageInfo::Make(planeDimensions[i], colorTypes[i], kPremul_SkAlphaType);
+        // Use kUnpremul so that we never multiply alpha when copying data in.
+        fPlaneInfos[i] = SkImageInfo::Make(planeDimensions[i],
+                                           colorTypes[i],
+                                           kUnpremul_SkAlphaType);
         int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
         SkASSERT(numRequiredChannels > 0);
         auto [numColorTypeChannels, colorTypeDataType] = NumChannelsAndDataType(colorTypes[i]);
@@ -191,6 +195,27 @@ SkYUVAPixmaps SkYUVAPixmaps::FromData(const SkYUVAPixmapInfo& yuvaPixmapInfo, sk
     return SkYUVAPixmaps(yuvaPixmapInfo, std::move(data));
 }
 
+SkYUVAPixmaps SkYUVAPixmaps::MakeCopy(const SkYUVAPixmaps& src) {
+    if (!src.isValid()) {
+        return {};
+    }
+    SkYUVAPixmaps result = Allocate(src.pixmapsInfo());
+    int n = result.numPlanes();
+    for (int i = 0; i < n; ++i) {
+        // We use SkRectMemCpy rather than readPixels to ensure that we don't do any alpha type
+        // conversion.
+        const SkPixmap& s = src.plane(i);
+        const SkPixmap& d = result.plane(i);
+        SkRectMemcpy(d.writable_addr(),
+                     d.rowBytes(),
+                     s.addr(),
+                     s.rowBytes(),
+                     s.info().minRowBytes(),
+                     s.height());
+    }
+    return result;
+}
+
 SkYUVAPixmaps SkYUVAPixmaps::FromExternalMemory(const SkYUVAPixmapInfo& yuvaPixmapInfo,
                                                 void* memory) {
     if (!yuvaPixmapInfo.isValid()) {
@@ -230,168 +255,43 @@ SkYUVAPixmaps::SkYUVAPixmaps(const SkYUVAInfo& yuvaInfo, const SkPixmap pixmaps[
     std::copy_n(pixmaps, yuvaInfo.numPlanes(), fPlanes.data());
 }
 
+SkYUVAPixmapInfo SkYUVAPixmaps::pixmapsInfo() const {
+    if (!this->isValid()) {
+        return {};
+    }
+    SkColorType colorTypes[kMaxPlanes] = {};
+    size_t rowBytes[kMaxPlanes] = {};
+    int numPlanes = this->numPlanes();
+    for (int i = 0; i < numPlanes; ++i) {
+        colorTypes[i] = fPlanes[i].colorType();
+        rowBytes[i] = fPlanes[i].rowBytes();
+    }
+    return {fYUVAInfo, colorTypes, rowBytes};
+}
+
+bool SkYUVAPixmaps::toYUVAIndices(SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount]) const {
+    SkASSERT(yuvaIndices);
+    uint32_t channelFlags[] = {SkColorTypeChannelFlags(fPlanes[0].colorType()),
+                               SkColorTypeChannelFlags(fPlanes[1].colorType()),
+                               SkColorTypeChannelFlags(fPlanes[2].colorType()),
+                               SkColorTypeChannelFlags(fPlanes[3].colorType())};
+    bool result = fYUVAInfo.toYUVAIndices(channelFlags, yuvaIndices);
+    SkASSERT(result == this->isValid());
+    return result;
+}
+
 bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndices[4]) const {
     if (!this->isValid()) {
         return false;
     }
-    bool ok = true;
-    auto getIthChannel = [&ok](SkColorType ct, int idx) -> SkColorChannel {
-      switch (SkColorTypeChannelFlags(ct)) {
-          case kAlpha_SkColorChannelFlag:
-              ok &= idx == 0;
-              return SkColorChannel::kA;
-          case kGray_SkColorChannelFlag:
-          case kRed_SkColorChannelFlag:
-              ok &= idx == 0;
-              return SkColorChannel::kR;
-          case kRG_SkColorChannelFlags:
-              ok &= idx < 2;
-              return static_cast<SkColorChannel>(idx);
-          case kRGB_SkColorChannelFlags:
-              ok &= idx < 3;
-              return static_cast<SkColorChannel>(idx);
-          case kRGBA_SkColorChannelFlags:
-              ok &= idx < 4;
-              return static_cast<SkColorChannel>(idx);
-          default:
-              ok = false;
-              return SkColorChannel::kR;
-      }
-    };
-    SkColorType cts[] = {fPlanes[0].colorType(),
-                         fPlanes[1].colorType(),
-                         fPlanes[2].colorType(),
-                         fPlanes[3].colorType()};
-    switch (fYUVAInfo.planarConfig()) {
-        case SkYUVAInfo::PlanarConfig::kY_U_V_444:
-        case SkYUVAInfo::PlanarConfig::kY_U_V_422:
-        case SkYUVAInfo::PlanarConfig::kY_U_V_420:
-        case SkYUVAInfo::PlanarConfig::kY_U_V_440:
-        case SkYUVAInfo::PlanarConfig::kY_U_V_411:
-        case SkYUVAInfo::PlanarConfig::kY_U_V_410:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  2;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_V_U_420:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  2;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[2], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_A_4204:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 2;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 3;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[3], 0);
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_V_U_A_4204:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 2;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 3;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[2], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[3], 0);
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_UV_420:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 1);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_VU_420:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 1);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_UV_A_4204:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 2;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 1);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[2], 0);
-            break;
-        case SkYUVAInfo::PlanarConfig::kY_VU_A_4204:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 1;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 2;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 1);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[2], 0);
-            break;
-        case SkYUVAInfo::PlanarConfig::kYUV_444:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 1);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kUYV_444:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 1);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
-            break;
-        case SkYUVAInfo::PlanarConfig::kYUVA_4444:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 1);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[0], 3);
-            break;
-        case SkYUVAInfo::PlanarConfig::kUYVA_4444:
-            yuvaIndices[SkYUVAIndex::kY_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kU_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kV_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = 0;
-            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 1);
-            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 0);
-            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[0], 3);
-            break;
+    SkYUVAIndex tempIndices[4];
+    if (!yuvaIndices) {
+        yuvaIndices = tempIndices;
     }
-    if (!ok) {
+    if (!this->toYUVAIndices(yuvaIndices)) {
         return false;
     }
+
     if (yuvaSizeInfo) {
         yuvaSizeInfo->fOrigin = fYUVAInfo.origin();
         int n = fYUVAInfo.numPlanes();
