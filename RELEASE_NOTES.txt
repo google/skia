@@ -7,11 +7,16 @@ This file includes a list of high level updates for each milestone release.
 Milestone 88
 ------------
   * <insert new release notes here>
+  
+  * Legacy 8-bit YUV interface removed from SkImageGenerator. Use more flexible SkYUVAPixmaps-
+    based interface instead.
+    https://review.skia.org/327917
 
   * New variant of SkImage::MakeFromYUVATextures. Takes a new type GrYUVATextures
     which wraps an SkYUVAInfo and compatible set of GrBackendTextures. The provides
     a more complete and structured specification of the planar configuration. Previous
     version is deprecated.
+    https://review.skia.org/317762
 
   * SkTPin() removed from public API.
 
