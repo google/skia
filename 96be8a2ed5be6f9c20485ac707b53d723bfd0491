@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005578715",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/324699?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c0cb81f2_9e155dd4",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-16T15:19:35Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 159,
+        "startChar": 36,
+        "endLine": 159,
+        "endChar": 45
+      },
+      "revId": "96be8a2ed5be6f9c20485ac707b53d723bfd0491",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
