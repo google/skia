@@ -322,7 +322,7 @@ void HCodeGenerator::writeFields() {
 }
 
 String HCodeGenerator::GetHeader(const Program& program, ErrorReporter& errors) {
-    SymbolTable types(&errors);
+    SymbolTable types(&errors, /*builtin=*/true);
     Parser parser(program.fSource->c_str(), program.fSource->length(), types, errors);
     for (;;) {
         Token header = parser.nextRawToken();

@@ -560,8 +560,9 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
     SkASSERT(command == kSymbolTable_Command);
     uint16_t ownedCount = this->readU16();
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
-    std::shared_ptr<SymbolTable> result = inherit ? std::make_shared<SymbolTable>(fSymbolTable)
-                                                  : std::make_shared<SymbolTable>(fErrors);
+    std::shared_ptr<SymbolTable> result =
+            inherit ? std::make_shared<SymbolTable>(fSymbolTable, /*builtin=*/true)
+                    : std::make_shared<SymbolTable>(fErrors, /*builtin=*/true);
     fSymbolTable = result;
     std::vector<const Symbol*> ownedSymbols;
     ownedSymbols.reserve(ownedCount);

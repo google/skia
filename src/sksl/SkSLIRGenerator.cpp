@@ -128,7 +128,8 @@ IRGenerator::IRGenerator(const Context* context, Inliner* inliner, ErrorReporter
 }
 
 void IRGenerator::pushSymbolTable() {
-    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable)));
+    auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), /*builtin=*/false);
+    fSymbolTable = std::move(childSymTable);
 }
 
 void IRGenerator::popSymbolTable() {
@@ -1205,7 +1206,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
-    fSymbolTable = std::make_shared<SymbolTable>(fSymbolTable);
+    fSymbolTable = std::make_shared<SymbolTable>(fSymbolTable, /*builtin=*/false);
     for (auto iter = e.begin(); iter != e.end(); ++iter) {
         const ASTNode& child = *iter;
         SkASSERT(child.fKind == ASTNode::Kind::kEnumCase);
