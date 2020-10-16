@@ -38,7 +38,6 @@ class GrContext;
 class GrDirectContext;
 class GrRecordingContext;
 class GrContextThreadSafeProxy;
-class GrYUVABackendTextures;
 
 struct SkYUVAIndex;
 
@@ -409,30 +408,7 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
-    /** Creates an SkImage from YUV[A] planar textures. This requires that the textures stay valid
-        for the lifetime of the image. The ReleaseContext can be used to know when it is safe to
-        either delete or overwrite the textures. If ReleaseProc is provided it is also called before
-        return on failure.
-
-        @param context            GPU context
-        @param yuvaTextures       A set of textures containing YUVA data and a description of the
-                                  data and transformation to RGBA.
-        @param imageColorSpace    range of colors of the resulting image after conversion to RGB;
-                                  may be nullptr
-        @param textureReleaseProc called when the backend textures can be released
-        @param releaseContext     state passed to textureReleaseProc
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
-                                               const GrYUVABackendTextures& yuvaTextures,
-                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
-                                               TextureReleaseProc textureReleaseProc = nullptr,
-                                               ReleaseContext releaseContext = nullptr);
-
-    /**
-        Deprecated. Use version that takes GrYUVABackendTextures.
-
-        Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
+    /** Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
         via multitexturing.
 
         When all the provided backend textures can be released 'textureReleaseProc' will be called
