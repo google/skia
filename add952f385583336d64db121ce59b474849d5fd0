@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b66dfa6_663c4594",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-10-16T02:32:19Z",
+      "side": 1,
+      "message": "This should fix the Android roller (the canary did pass, if you drill down).",
+      "revId": "add952f385583336d64db121ce59b474849d5fd0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
