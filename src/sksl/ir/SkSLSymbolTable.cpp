@@ -24,14 +24,21 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
 }
 
 const Symbol* SymbolTable::operator[](StringFragment name) {
-    return this->lookup(MakeSymbolKey(name));
+    return this->lookup(fBuiltin ? nullptr : this, MakeSymbolKey(name));
 }
 
-const Symbol* SymbolTable::lookup(const SymbolKey& key) {
+const Symbol* SymbolTable::lookup(SymbolTable* writableSymbolTable, const SymbolKey& key) {
+    // Symbol-table lookup can cause new UnresolvedFunction nodes to be created; however, we don't
+    // want these to end up in built-in root symbol tables (where they will outlive the Program
+    // associated with those UnresolvedFunction nodes). `writableSymbolTable` tracks the closest
+    // symbol table to the root which is not a built-in.
+    if (!fBuiltin) {
+        writableSymbolTable = this;
+    }
     const Symbol** symbolPPtr = fSymbols.find(key);
     if (!symbolPPtr) {
         if (fParent) {
-            return fParent->lookup(key);
+            return fParent->lookup(writableSymbolTable, key);
         }
         return nullptr;
     }
@@ -41,7 +48,7 @@ const Symbol* SymbolTable::lookup(const SymbolKey& key) {
         auto functions = GetFunctions(*symbol);
         if (functions.size() > 0) {
             bool modified = false;
-            const Symbol* previous = fParent->lookup(key);
+            const Symbol* previous = fParent->lookup(writableSymbolTable, key);
             if (previous) {
                 auto previousFunctions = GetFunctions(*previous);
                 for (const FunctionDeclaration* prev : previousFunctions) {
@@ -59,8 +66,10 @@ const Symbol* SymbolTable::lookup(const SymbolKey& key) {
                 }
                 if (modified) {
                     SkASSERT(functions.size() > 1);
-                    return this->takeOwnershipOfSymbol(
-                            std::make_unique<UnresolvedFunction>(functions));
+                    return writableSymbolTable
+                                   ? writableSymbolTable->takeOwnershipOfSymbol(
+                                             std::make_unique<UnresolvedFunction>(functions))
+                                   : nullptr;
                 }
             }
         }

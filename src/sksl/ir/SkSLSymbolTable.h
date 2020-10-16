@@ -98,7 +98,7 @@ private:
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 
-    const Symbol* lookup(const SymbolKey& key);
+    const Symbol* lookup(SymbolTable* writableSymbolTable, const SymbolKey& key);
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     bool fBuiltin = false;
