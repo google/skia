@@ -9,6 +9,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkEndian.h"

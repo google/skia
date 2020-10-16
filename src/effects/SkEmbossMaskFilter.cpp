@@ -8,6 +8,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkBlurMaskFilter.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"

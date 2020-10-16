@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrMemoryPool.h"
 
+#include "include/private/SkTPin.h"
 #include "src/gpu/ops/GrOp.h"
 
 #ifdef SK_DEBUG

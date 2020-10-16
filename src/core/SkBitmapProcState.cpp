@@ -10,6 +10,7 @@
 #include "include/core/SkShader.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkBitmapProcState.h"

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTPin.h"
 #include "src/gpu/ccpr/GrOctoBounds.h"
 #include <algorithm>
 
