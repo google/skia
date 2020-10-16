@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "def2cd96_a858c5a9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "749e0cc9_f6efa5e5",
+      "range": {
+        "startLine": 417,
+        "startChar": 0,
+        "endLine": 417,
+        "endChar": 73
+      },
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "936e98d2_2a684c0a",
@@ -37,6 +61,24 @@
       "writtenOn": "2020-10-16T19:06:15Z",
       "side": 1,
       "message": "add imageColorSpace ?",
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89f1bfa4_9b771bc7",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "936e98d2_2a684c0a",
       "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55765611_7798d7fb",
+        "filename": "src/core/SkYUVAInfo.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "aligned them all",
+      "parentUuid": "d20fae40_9b9395cf",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 48
+      },
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d7606fe_ff61261d",
@@ -77,6 +143,24 @@
       "writtenOn": "2020-10-16T19:06:15Z",
       "side": 1,
       "message": "\\n ?",
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02bcb9dc_0e1d0bc4",
+        "filename": "src/gpu/GrYUVABackendTextures.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d7606fe_ff61261d",
       "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -100,6 +184,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d8fee8f4_e9c9bdd0",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "Seems self-documenting here. Added a comment to the .h for the caller.",
+      "parentUuid": "b4b183f9_2fdf33b6",
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4828de0f_ac2660b6",
         "filename": "tools/gpu/YUVUtils.cpp",
         "patchSetId": 13
@@ -111,6 +213,24 @@
       "writtenOn": "2020-10-16T19:06:15Z",
       "side": 1,
       "message": "I thought you were in favor of having this at the top ?",
+      "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffca5607_39f0fa4f",
+        "filename": "tools/gpu/YUVUtils.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T19:18:30Z",
+      "side": 1,
+      "message": "Hm, I must have copied the wrong one to the top. Done.",
+      "parentUuid": "4828de0f_ac2660b6",
       "revId": "c0db9b76fe715d7094f968b7ba447681a2313a66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
