@@ -6,11 +6,5 @@ vec4 blend_plus(vec4 src, vec4 dst) {
     return min(src + dst, 1.0);
 }
 void main() {
-    vec4 _0_blend_plus;
-    {
-        _0_blend_plus = min(src + dst, 1.0);
-    }
-
-    sk_FragColor = _0_blend_plus;
-
+    sk_FragColor = blend_plus(src, dst);
 }
