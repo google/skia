@@ -1858,7 +1858,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             // need to remap to a top-left coordinate system
             if (fRTHeightStructId == (SpvId)-1) {
                 // height variable hasn't been written yet
-                std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
                 SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
                 std::vector<Type::Field> fields;
                 SkASSERT(fProgram.fSettings.fRTHeightOffset >= 0);
@@ -1887,7 +1886,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    &intfStruct,
                                                    /*builtin=*/false,
                                                    Variable::Storage::kGlobal));
-                InterfaceBlock intf(-1, intfVar, name, String(""), ExpressionArray(), st);
+                InterfaceBlock intf(/*offset=*/-1, intfVar, name, /*instanceName=*/"",
+                                    /*sizes=*/ExpressionArray(),
+                                    std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
 
                 fRTHeightStructId = this->writeInterfaceBlock(intf, false);
                 fRTHeightFieldIndex = 0;

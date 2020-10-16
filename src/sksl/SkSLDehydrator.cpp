@@ -436,7 +436,7 @@ void Dehydrator::write(const Statement* s) {
                 this->write(f.test().get());
                 this->write(f.next().get());
                 this->write(f.statement().get());
-                this->write(f.symbols());
+                this->write(*f.symbols());
                 break;
             }
             case Statement::Kind::kIf: {

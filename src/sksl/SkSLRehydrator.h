@@ -147,18 +147,7 @@ public:
     // src must remain in memory as long as the objects created from it do
     Rehydrator(const Context* context, ModifiersPool* modifiers,
                std::shared_ptr<SymbolTable> symbolTable, ErrorReporter* errorReporter,
-               const uint8_t* src, size_t length)
-        : fContext(*context)
-        , fModifiers(*modifiers)
-        , fErrors(errorReporter)
-        , fSymbolTable(std::move(symbolTable))
-        , fStart(src)
-        SkDEBUGCODE(, fEnd(fStart + length)) {
-        SkASSERT(fSymbolTable);
-        // skip past string data
-        fIP = fStart;
-        fIP += this->readU16();
-    }
+               const uint8_t* src, size_t length);
 
     std::vector<std::unique_ptr<ProgramElement>> elements();
 
