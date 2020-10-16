@@ -12,6 +12,10 @@
 #include <stdlib.h>
 
 #if defined(SK_BUILD_FOR_GOOGLE3)
+    #include "base/config.h"   // May define GOOGLE_ENABLE_SIGNAL_HANDLERS.
+#endif
+
+#if defined(GOOGLE_ENABLE_SIGNAL_HANDLERS)
     #include "base/process_state.h"
     void SetupCrashHandler() { InstallSignalHandlers(); }
 
