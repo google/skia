@@ -13,6 +13,7 @@
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrYUVABackendTextures.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
@@ -233,6 +234,45 @@ sk_sp<SkImage> SkImage_GpuYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newC
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
+                                             const GrYUVABackendTextures& yuvaTextures,
+                                             sk_sp<SkColorSpace> imageColorSpace,
+                                             TextureReleaseProc textureReleaseProc,
+                                             ReleaseContext releaseContext) {
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
+
+    SkYUVAIndex yuvaIndices[4];
+    yuvaTextures.toYUVAIndices(yuvaIndices);
+    int numTextures;
+    if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
+        return nullptr;
+    }
+    SkASSERT(numTextures == yuvaTextures.numPlanes());
+
+    GrSurfaceProxyView tempViews[4];
+    if (!SkImage_GpuBase::MakeTempTextureProxies(context,
+                                                 yuvaTextures.textures().data(),
+                                                 numTextures,
+                                                 yuvaIndices,
+                                                 yuvaTextures.textureOrigin(),
+                                                 tempViews,
+                                                 std::move(releaseHelper))) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context),
+                                       yuvaTextures.yuvaInfo().dimensions(),
+                                       kNeedNewImageUniqueID,
+                                       yuvaTextures.yuvaInfo().yuvColorSpace(),
+                                       tempViews,
+                                       numTextures,
+                                       yuvaIndices,
+                                       imageColorSpace);
+}
 
 sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                              SkYUVColorSpace colorSpace,
