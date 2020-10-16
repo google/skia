@@ -730,9 +730,32 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
     // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
     expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
 
-    // returns are not allowed inside conditionals (or loops, which are effectively the same thing)
-    expect_failure(r, "float main(float x, float y) { if (x < y) { return x; } return y; }");
+    // returns are not allowed inside loops
     expect_failure(r, "float main(float x) { while (x > 1) { return x; } return 0; }");
+}
+
+DEF_TEST(SkSLInterpreterEarlyReturn, r) {
+    // Unlike returns in loops, returns in conditionals should work.
+    const char* src = "float main(float x, float y) { if (x < y) { return x; } return y; }";
+
+    SkSL::Compiler compiler;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src),
+                                                                     SkSL::Program::Settings{});
+    REPORTER_ASSERT(r, program);
+
+    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, byteCode);
+
+    const SkSL::ByteCodeFunction* fun = byteCode->getFunction("main");
+    float in[] = { 1.0f, 2.0f };
+    float ret;
+    REPORTER_ASSERT(r, byteCode->run(fun, in,2, &ret,1, nullptr,0));
+    REPORTER_ASSERT(r, ret == 1.0f);
+
+    in[0] = 3.0f;
+    REPORTER_ASSERT(r, byteCode->run(fun, in,2, &ret,1, nullptr,0));
+    REPORTER_ASSERT(r, ret == 2.0f);
 }
 
 DEF_TEST(SkSLInterpreterArrayBounds, r) {
