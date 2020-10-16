@@ -150,6 +150,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "46bc1b3d_973ca54a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T16:50:44Z",
+      "side": 1,
+      "message": "yeah, that sgtm",
+      "parentUuid": "3b1ffcec_a349df1d",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 1
+      },
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e6280942_138c7c94",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4

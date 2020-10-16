@@ -16,6 +16,29 @@
       "message": "This is ready to land",
       "revId": "da46a2734af8e67d8bfb1a0c57d341b85ad5c7cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f567803_11b6545a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T16:50:44Z",
+      "side": 1,
+      "message": "This sort of thing is confusing.  Let\u0027s either write the comments here to not mention SkTPin(), or write the comments to say only \"this does what SkTPin does\".",
+      "range": {
+        "startLine": 482,
+        "startChar": 16,
+        "endLine": 482,
+        "endChar": 24
+      },
+      "revId": "da46a2734af8e67d8bfb1a0c57d341b85ad5c7cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
