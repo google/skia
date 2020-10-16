@@ -16,6 +16,29 @@
       "message": "Hey Brian, do you mind taking a look at this one since it modifies the shader builder?",
       "revId": "0f426519da5e2f465208f1d3662421668cf1d24c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8668929a_dd407db3",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-16T15:52:37Z",
+      "side": 1,
+      "message": "WDYT about just calling this addFunction() or insertFunction()? The way I read the \"append\" functions is that there is some cursor at the end of the current definition of the vertex shader and we\u0027re appending new stuff there. This function is adding something above the definition of the function we\u0027re currently writing.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 5
+      },
+      "revId": "0f426519da5e2f465208f1d3662421668cf1d24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
