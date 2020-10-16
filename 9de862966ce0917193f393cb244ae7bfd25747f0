@@ -34,6 +34,24 @@
       "parentUuid": "b4522744_174ba978",
       "revId": "9de862966ce0917193f393cb244ae7bfd25747f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af984949_841a6eea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T16:57:13Z",
+      "side": 1,
+      "message": "OK, please add a unit test if possible.  I like your suggestion to deserialize some crafted bytes and not crash where we\u0027d have crashed before.\n\nWhen reasonably possible, I\u0027d like add a test that we can run any time we like when fuzzers find regressions; whether fuzzers rerun their findings and how often and under what build configurations is all pretty opaque to me.",
+      "parentUuid": "9c65c94f_efe56b11",
+      "revId": "9de862966ce0917193f393cb244ae7bfd25747f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
