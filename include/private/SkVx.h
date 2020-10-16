@@ -476,6 +476,11 @@ SINTU Vec<N,T> max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
 SINTU Vec<N,T> min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
 SINTU Vec<N,T> max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
 
+// pin matches the logic of SkTPin, which is important when NaN is involved. It always returns
+// values in the range lo..hi, and if x is NaN, it returns lo.
+SINT Vec<N,T> pin(const Vec<N,T>& x, const Vec<N,T>& lo, const Vec<N,T>& hi) {
+    return max(lo, min(x, hi));
+}
 
 // Shuffle values from a vector pretty arbitrarily:
 //    skvx::Vec<4,float> rgba = {R,G,B,A};

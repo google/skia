@@ -133,13 +133,19 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull,
                    SkVector* tangentOrNull, SkVector* curvatureOrNull);
 
 /** Given a src cubic bezier, chop it at the specified t value,
-    where 0 < t < 1, and return the two new cubics in dst:
+    where 0 <= t <= 1, and return the two new cubics in dst:
     dst[0..3] and dst[3..6]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t);
 
+/** Given a src cubic bezier, chop it at the specified t0 and t1 values,
+    where 0 <= t0 <= t1 <= 1, and return the three new cubics in dst:
+    dst[0..3], dst[3..6], and dst[6..9]
+*/
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1);
+
 /** Given a src cubic bezier, chop it at the specified t values,
-    where 0 < t < 1, and return the new cubics in dst:
+    where 0 <= t0 <= t1 <= ... <= 1, and return the new cubics in dst:
     dst[0..3],dst[3..6],...,dst[3*t_count..3*(t_count+1)]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar t[],
