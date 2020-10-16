@@ -79,6 +79,135 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
     SkUNREACHABLE;
 }
 
+static bool channel_index_to_channel(uint32_t channelFlags,
+                                     int channelIdx,
+                                     SkColorChannel* channel) {
+    switch (channelFlags) {
+        case kGray_SkColorChannelFlag:  // For gray returning any of R, G, or B for index 0 is ok.
+        case kRed_SkColorChannelFlag:
+            if (channelIdx == 0) {
+                *channel = SkColorChannel::kR;
+                return true;
+            }
+            return false;
+        case kAlpha_SkColorChannelFlag:
+            if (channelIdx == 0) {
+                *channel = SkColorChannel::kA;
+                return true;
+            }
+            return false;
+        case kRG_SkColorChannelFlags:
+            if (channelIdx == 0 || channelIdx == 1) {
+                *channel = static_cast<SkColorChannel>(channelIdx);
+                return true;
+            }
+            return false;
+        case kRGB_SkColorChannelFlags:
+            if (channelIdx >= 0 && channelIdx <= 2) {
+                *channel = static_cast<SkColorChannel>(channelIdx);
+                return true;
+            }
+            return false;
+        case kRGBA_SkColorChannelFlags:
+            if (channelIdx >= 0 && channelIdx <= 3) {
+                *channel = static_cast<SkColorChannel>(channelIdx);
+                return true;
+            }
+            return false;
+        default:
+            return false;
+    }
+}
+
+bool SkYUVAInfo::GetYUVAIndices(PlanarConfig config,
+                                const uint32_t planeChannelFlags[kMaxPlanes],
+                                SkYUVAIndex indices[SkYUVAIndex::kIndexCount]) {
+    struct Location {int plane, chanIdx;};
+    const Location* locations = nullptr;
+    switch (config) {
+        case PlanarConfig::kY_U_V_444:
+        case PlanarConfig::kY_U_V_422:
+        case PlanarConfig::kY_U_V_420:
+        case PlanarConfig::kY_U_V_440:
+        case PlanarConfig::kY_U_V_411:
+        case PlanarConfig::kY_U_V_410: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {2, 0}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_V_U_420: {
+            static constexpr Location kLocations[] = {{0, 0}, {2, 0}, {1, 0}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_U_V_A_4204: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {2, 0}, {3, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_V_U_A_4204: {
+            static constexpr Location kLocations[] = {{0, 0}, {2, 0}, {1, 0}, {3, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_UV_420: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {1, 1}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_VU_420: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 1}, {1, 0}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_UV_A_4204: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kY_VU_A_4204: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 1}, {1, 0}, {2, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kYUV_444: {
+            static constexpr Location kLocations[] = {{0, 0}, {0, 1}, {0, 2}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kUYV_444: {
+            static constexpr Location kLocations[] = {{0, 1}, {0, 0}, {0, 2}, {-1, -1}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kYUVA_4444: {
+            static constexpr Location kLocations[] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}};
+            locations = kLocations;
+            break;
+        }
+        case PlanarConfig::kUYVA_4444: {
+            static constexpr Location kLocations[] = {{0, 1}, {0, 0}, {0, 2}, {0, 3}};
+            locations = kLocations;
+            break;
+        }
+    }
+    SkASSERT(locations);
+    for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
+        auto [plane, chanIdx] = locations[i];
+        SkColorChannel channel;
+        if (plane >= 0) {
+            if (!channel_index_to_channel(planeChannelFlags[plane], chanIdx, &channel)) {
+                return false;
+            }
+            indices[i] = {plane, channel};
+        } else {
+            SkASSERT(i == 3);
+            indices[i] = {-1, SkColorChannel::kR};
+        }
+    }
+    return true;
+}
+
 bool SkYUVAInfo::HasAlpha(PlanarConfig planarConfig) {
     switch (planarConfig) {
         case PlanarConfig::kY_U_V_444:    return false;
