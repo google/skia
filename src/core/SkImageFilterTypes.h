@@ -407,7 +407,8 @@ public:
             , fParamToLayerMatrix(paramToLayer) {}
 
     // Make the default decomposition Mapping, given the total CTM and the root image filter.
-    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter);
+    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
+                                const skif::ParameterSpace<SkPoint>& representativePoint);
 
     // Return a new Mapping object whose parameter-to-layer matrix is equal to this->layerMatrix() *
     // local, but both share the same layer-to-device matrix.

@@ -127,7 +127,7 @@ static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, c
     testPoints[0] = {rect.centerX(), rect.centerY()};
     rect.toQuad(testPoints + 1);
     for (int i = 0; i < 5; ++i) {
-        float scale = SkMatrixPriv::DifferentialScale(
+        float scale = SkMatrixPriv::DifferentialAreaScale(
                 mapping.deviceMatrix(),
                 SkPoint(mapping.paramToLayer(skif::ParameterSpace<SkPoint>(testPoints[i]))));
         SkColor4f color = {0.f, 0.f, 0.f, 1.f};
@@ -187,10 +187,23 @@ public:
         canvas->restore();
 
         // Now visualize the underlying bounds calculations used to determine the layer for the blur
-        skif::Mapping mapping = skif::Mapping::DecomposeCTM(ctm, fBlur.get());
+        SkIRect target = ctm.mapRect(localContentRect).roundOut();
+        if (!target.intersect(SkIRect::MakeWH(canvas->imageInfo().width(),
+                                              canvas->imageInfo().height()))) {
+            return;
+        }
+        skif::DeviceSpace<SkIRect> targetOutput(target);
+        skif::ParameterSpace<SkRect> contentBounds(localContentRect);
+        skif::Mapping mapping = skif::Mapping::DecomposeCTM(
+                ctm, fBlur.get(), skif::ParameterSpace<SkPoint>({localContentRect.centerX(),
+                                                                 localContentRect.centerY()}));
 
         // Add axis lines, to show perspective distortion
-        canvas->drawPath(create_axis_path(localContentRect, 10.f), line_paint(SK_ColorGRAY));
+        canvas->save();
+        canvas->setMatrix(mapping.deviceMatrix());
+        canvas->drawPath(create_axis_path(SkRect(mapping.paramToLayer(contentBounds)), 20.f),
+                         line_paint(SK_ColorGRAY));
+        canvas->restore();
 
         // Visualize scale factors at the four corners and center of the local rect
         draw_scale_factors(canvas, mapping, localContentRect);
@@ -198,16 +211,12 @@ public:
         // The device content rect, e.g. the clip bounds if 'localContentRect' were used as a clip
         // before the draw or saveLayer, representing what the filter must cover if it affects
         // transparent black or doesn't have a local content hint.
-        const SkRect devContentRect = ctm.mapRect(localContentRect);
         canvas->setMatrix(SkMatrix::I());
-        canvas->drawRect(devContentRect, line_paint(SK_ColorDKGRAY));
+        canvas->drawRect(ctm.mapRect(localContentRect), line_paint(SK_ColorDKGRAY));
 
         // Layer bounds for the filter, in the layer space compatible with the filter's matrix
         // type requirements.
-        skif::ParameterSpace<SkRect> contentBounds(localContentRect);
-        skif::DeviceSpace<SkIRect> targetOutput(devContentRect.roundOut());
         skif::LayerSpace<SkIRect> targetOutputInLayer = mapping.deviceToLayer(targetOutput);
-
         skif::LayerSpace<SkIRect> hintedLayerBounds = as_IFB(fBlur)->getInputBounds(
                 mapping, targetOutput, &contentBounds);
         skif::LayerSpace<SkIRect> unhintedLayerBounds = as_IFB(fBlur)->getInputBounds(
@@ -228,9 +237,9 @@ public:
 
         canvas->resetMatrix();
         float y = print_info(canvas, SkIRect(mapping.paramToLayer(contentBounds).roundOut()),
-                           devContentRect.roundOut(),
-                           SkIRect(hintedOutputBounds),
-                           SkIRect(unhintedLayerBounds));
+                             SkIRect(targetOutput),
+                             SkIRect(hintedOutputBounds),
+                             SkIRect(unhintedLayerBounds));
 
         // Draw color key for layer visualization
         draw_scale_key(canvas, y);

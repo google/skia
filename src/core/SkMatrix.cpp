@@ -1858,7 +1858,7 @@ SkFilterQuality SkMatrixPriv::AdjustHighQualityFilterLevel(const SkMatrix& matri
     return kHigh_SkFilterQuality;
 }
 
-SkScalar SkMatrixPriv::DifferentialScale(const SkMatrix& m, const SkPoint& p) {
+SkScalar SkMatrixPriv::DifferentialAreaScale(const SkMatrix& m, const SkPoint& p) {
     //              [m00 m01 m02]                                 [f(u,v)]
     // Assuming M = [m10 m11 m12], define the projected p'(u,v) = [g(u,v)] where
     //              [m20 m12 m22]
