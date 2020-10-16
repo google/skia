@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00741a85_74b3c9b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-16T14:06:00Z",
+      "side": 1,
+      "message": "I don\u0027t quite recall what the original issue was, but it looks like the Android canary is passing, so it should be ok to remove?",
+      "revId": "2daeab651c9b917488b80553e00afc211a6a8b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
