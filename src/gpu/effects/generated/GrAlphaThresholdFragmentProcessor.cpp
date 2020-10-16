@@ -21,6 +21,7 @@ class GrGLSLAlphaThresholdFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     GrGLSLAlphaThresholdFragmentProcessor() {}
     void emitCode(EmitArgs& args) override {
+        SkDebugf("hello\n");
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrAlphaThresholdFragmentProcessor& _outer =
                 args.fFp.cast<GrAlphaThresholdFragmentProcessor>();
