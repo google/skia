@@ -11,15 +11,14 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkYUVAInfo.h"
-#include "include/core/SkYUVAPixmaps.h"
+#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkScopeExit.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-#include "tools/gpu/YUVUtils.h"
 
 namespace {
 struct AsyncContext {
@@ -94,17 +93,33 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     if (!asyncContext.fResult) {
         return nullptr;
     }
-    SkYUVAInfo yuvaInfo(size, SkYUVAInfo::PlanarConfig::kY_U_V_420, yuvCS);
-    SkPixmap yuvPMs[] = {
-            {yII,  asyncContext.fResult->data(0), asyncContext.fResult->rowBytes(0)},
-            {uvII, asyncContext.fResult->data(1), asyncContext.fResult->rowBytes(1)},
-            {uvII, asyncContext.fResult->data(2), asyncContext.fResult->rowBytes(2)}
+    GrBackendTexture backendTextures[3];
+
+    SkPixmap yPM(yII, asyncContext.fResult->data(0), asyncContext.fResult->rowBytes(0));
+    SkPixmap uPM(uvII, asyncContext.fResult->data(1), asyncContext.fResult->rowBytes(1));
+    SkPixmap vPM(uvII, asyncContext.fResult->data(2), asyncContext.fResult->rowBytes(2));
+
+    backendTextures[0] = direct->createBackendTexture(yPM, GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[1] = direct->createBackendTexture(uPM, GrRenderable::kNo, GrProtected::kNo);
+    backendTextures[2] = direct->createBackendTexture(vPM, GrRenderable::kNo, GrProtected::kNo);
+
+    SkYUVAIndex indices[4] = {
+        { 0, SkColorChannel::kR},
+        { 1, SkColorChannel::kR},
+        { 2, SkColorChannel::kR},
+        {-1, SkColorChannel::kR}
     };
-    auto pixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, yuvPMs);
-    SkASSERT(pixmaps.isValid());
-    auto lazyYUVImage = sk_gpu_test::LazyYUVImage::Make(pixmaps);
-    SkASSERT(lazyYUVImage);
-    return lazyYUVImage->refImage(direct, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+
+    *cleanup = {[direct, backendTextures] {
+        direct->flush();
+        direct->submit(true);
+        direct->deleteBackendTexture(backendTextures[0]);
+        direct->deleteBackendTexture(backendTextures[1]);
+        direct->deleteBackendTexture(backendTextures[2]);
+    }};
+
+    return SkImage::MakeFromYUVATextures(direct, yuvCS, backendTextures, indices, size,
+                                         kTopLeft_GrSurfaceOrigin, SkColorSpace::MakeSRGB());
 }
 
 // Draws a grid of rescales. The columns are none, low, and high filter quality. The rows are
