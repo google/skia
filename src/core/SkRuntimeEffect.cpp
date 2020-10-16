@@ -614,7 +614,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             case Inst::kBranchIfAllFalse: {
                 int target = u16();
 
-                if (fn.code() + target > ip) {
+                if (fn.code() + target >= ip) {
                     // This is a forward jump, e.g. an if-else block.
                     // Instead of testing if all values are false and branching,
                     // we act _as if_ some value were not false, and don't branch.
