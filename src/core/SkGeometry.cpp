@@ -9,6 +9,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
@@ -442,92 +443,122 @@ int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d,
     return SkFindUnitQuadRoots(A, B, C, tValues);
 }
 
-void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
-    SkASSERT(t > 0 && t < SK_Scalar1);
-
-    Sk2s    p0 = from_point(src[0]);
-    Sk2s    p1 = from_point(src[1]);
-    Sk2s    p2 = from_point(src[2]);
-    Sk2s    p3 = from_point(src[3]);
-    Sk2s    tt(t);
-
-    Sk2s    ab = interp(p0, p1, tt);
-    Sk2s    bc = interp(p1, p2, tt);
-    Sk2s    cd = interp(p2, p3, tt);
-    Sk2s    abc = interp(ab, bc, tt);
-    Sk2s    bcd = interp(bc, cd, tt);
-    Sk2s    abcd = interp(abc, bcd, tt);
-
-    dst[0] = to_point(p0);
-    dst[1] = to_point(ab);
-    dst[2] = to_point(abc);
-    dst[3] = to_point(abcd);
-    dst[4] = to_point(bcd);
-    dst[5] = to_point(cd);
-    dst[6] = to_point(p3);
+// This does not return b when t==1, but it otherwise seems to get better precision than
+// "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
+// The responsibility falls on the caller to check that t != 1 before calling.
+template<int N, typename T>
+inline static skvx::Vec<N,T> unchecked_mix(const skvx::Vec<N,T>& a, const skvx::Vec<N,T>& b,
+                                           const skvx::Vec<N,T>& t) {
+    return (b - a)*t + a;
 }
 
-/*  http://code.google.com/p/skia/issues/detail?id=32
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
+    using float2 = skvx::Vec<2,float>;
+    SkASSERT(0 <= t && t <= 1);
 
-    This test code would fail when we didn't check the return result of
-    valid_unit_divide in SkChopCubicAt(... tValues[], int roots). The reason is
-    that after the first chop, the parameters to valid_unit_divide are equal
-    (thanks to finite float precision and rounding in the subtracts). Thus
-    even though the 2nd tValue looks < 1.0, after we renormalize it, we end
-    up with 1.0, hence the need to check and just return the last cubic as
-    a degenerate clump of 4 points in the sampe place.
-
-    static void test_cubic() {
-        SkPoint src[4] = {
-            { 556.25000, 523.03003 },
-            { 556.23999, 522.96002 },
-            { 556.21997, 522.89001 },
-            { 556.21997, 522.82001 }
-        };
-        SkPoint dst[10];
-        SkScalar tval[] = { 0.33333334f, 0.99999994f };
-        SkChopCubicAt(src, dst, tval, 2);
+    if (t == 1) {
+        memcpy(dst, src, sizeof(SkPoint) * 4);
+        dst[4] = dst[5] = dst[6] = src[3];
+        return;
     }
- */
+
+    float2 p0 = skvx::bit_pun<float2>(src[0]);
+    float2 p1 = skvx::bit_pun<float2>(src[1]);
+    float2 p2 = skvx::bit_pun<float2>(src[2]);
+    float2 p3 = skvx::bit_pun<float2>(src[3]);
+    float2 T = t;
+
+    float2 ab = unchecked_mix(p0, p1, T);
+    float2 bc = unchecked_mix(p1, p2, T);
+    float2 cd = unchecked_mix(p2, p3, T);
+    float2 abc = unchecked_mix(ab, bc, T);
+    float2 bcd = unchecked_mix(bc, cd, T);
+    float2 abcd = unchecked_mix(abc, bcd, T);
+
+    dst[0] = skvx::bit_pun<SkPoint>(p0);
+    dst[1] = skvx::bit_pun<SkPoint>(ab);
+    dst[2] = skvx::bit_pun<SkPoint>(abc);
+    dst[3] = skvx::bit_pun<SkPoint>(abcd);
+    dst[4] = skvx::bit_pun<SkPoint>(bcd);
+    dst[5] = skvx::bit_pun<SkPoint>(cd);
+    dst[6] = skvx::bit_pun<SkPoint>(p3);
+}
+
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
+    using float4 = skvx::Vec<4,float>;
+    using float2 = skvx::Vec<2,float>;
+    SkASSERT(0 <= t0 && t0 <= t1 && t1 <= 1);
+
+    if (t1 == 1) {
+        SkChopCubicAt(src, dst, t0);
+        dst[7] = dst[8] = dst[9] = src[3];
+        return;
+    }
+
+    // Perform both chops in parallel using 4-lane SIMD.
+    float4 p00, p11, p22, p33, T;
+    p00.lo = p00.hi = skvx::bit_pun<float2>(src[0]);
+    p11.lo = p11.hi = skvx::bit_pun<float2>(src[1]);
+    p22.lo = p22.hi = skvx::bit_pun<float2>(src[2]);
+    p33.lo = p33.hi = skvx::bit_pun<float2>(src[3]);
+    T.lo = t0;
+    T.hi = t1;
+
+    float4 ab = unchecked_mix(p00, p11, T);
+    float4 bc = unchecked_mix(p11, p22, T);
+    float4 cd = unchecked_mix(p22, p33, T);
+    float4 abc = unchecked_mix(ab, bc, T);
+    float4 bcd = unchecked_mix(bc, cd, T);
+    float4 abcd = unchecked_mix(abc, bcd, T);
+    float4 middle = unchecked_mix(abc, bcd, skvx::shuffle<2,3,0,1>(T));
+
+    dst[0] = skvx::bit_pun<SkPoint>(p00.lo);
+    dst[1] = skvx::bit_pun<SkPoint>(ab.lo);
+    dst[2] = skvx::bit_pun<SkPoint>(abc.lo);
+    dst[3] = skvx::bit_pun<SkPoint>(abcd.lo);
+    middle.store(dst + 4);
+    dst[6] = skvx::bit_pun<SkPoint>(abcd.hi);
+    dst[7] = skvx::bit_pun<SkPoint>(bcd.hi);
+    dst[8] = skvx::bit_pun<SkPoint>(cd.hi);
+    dst[9] = skvx::bit_pun<SkPoint>(p33.hi);
+}
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
-                   const SkScalar tValues[], int roots) {
+                   const SkScalar tValues[], int tCount) {
+    using float2 = skvx::Vec<2,float>;
+
 #ifdef SK_DEBUG
-    {
-        for (int i = 0; i < roots - 1; i++)
-        {
-            SkASSERT(0 < tValues[i] && tValues[i] < 1);
-            SkASSERT(0 < tValues[i+1] && tValues[i+1] < 1);
-            SkASSERT(tValues[i] < tValues[i+1]);
-        }
+    float lastT = 0;
+    for (int i = 0; i < tCount; i++) {
+        SkASSERT(lastT <= tValues[i] && tValues[i] <= 1);
+        lastT = tValues[i];
     }
 #endif
 
     if (dst) {
-        if (roots == 0) { // nothing to chop
+        if (tCount == 0) { // nothing to chop
             memcpy(dst, src, 4*sizeof(SkPoint));
         } else {
-            SkScalar    t = tValues[0];
-            SkPoint     tmp[4];
-
-            for (int i = 0; i < roots; i++) {
+            int i = 0;
+            for (; i < tCount - 1; i += 2) {
+                // Do two chops at once.
+                float2 tt = float2::Load(tValues + i);
+                if (i != 0) {
+                    float lastT = tValues[i - 1];
+                    tt = skvx::pin((tt - lastT) / (1 - lastT), float2(0), float2(1));
+                }
+                SkChopCubicAt(src, dst, tt[0], tt[1]);
+                src = dst = dst + 6;
+            }
+            if (i < tCount) {
+                // Chop the final cubic if there was an odd number of chops.
+                SkASSERT(i + 1 == tCount);
+                float t = tValues[i];
+                if (i != 0) {
+                    float lastT = tValues[i - 1];
+                    t = SkTPin((t - lastT) / (1 - lastT), 0.f, 1.f);
+                }
                 SkChopCubicAt(src, dst, t);
-                if (i == roots - 1) {
-                    break;
-                }
-
-                dst += 3;
-                // have src point to the remaining cubic (after the chop)
-                memcpy(tmp, dst, 4 * sizeof(SkPoint));
-                src = tmp;
-
-                // watch out in case the renormalized t isn't in range
-                if (!valid_unit_divide(tValues[i+1] - tValues[i],
-                                       SK_Scalar1 - tValues[i], &t)) {
-                    // if we can't, just create a degenerate cubic
-                    dst[4] = dst[5] = dst[6] = src[3];
-                    break;
-                }
             }
         }
     }
