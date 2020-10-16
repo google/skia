@@ -128,7 +128,8 @@ IRGenerator::IRGenerator(const Context* context, Inliner* inliner, ErrorReporter
 }
 
 void IRGenerator::pushSymbolTable() {
-    fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable)));
+    auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
+    fSymbolTable = std::move(childSymTable);
 }
 
 void IRGenerator::popSymbolTable() {
@@ -725,7 +726,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                                 "_invoke",
                                                                 std::vector<const Variable*>(),
                                                                 fContext.fVoid_Type.get(),
-                                                                /*builtin=*/false));
+                                                                fIsBuiltinCode));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
                                                                      invokeDecl,
                                                                      std::move(main)));
@@ -1205,7 +1206,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
-    fSymbolTable = std::make_shared<SymbolTable>(fSymbolTable);
+    fSymbolTable = std::make_shared<SymbolTable>(fSymbolTable, fIsBuiltinCode);
     for (auto iter = e.begin(); iter != e.end(); ++iter) {
         const ASTNode& child = *iter;
         SkASSERT(child.fKind == ASTNode::Kind::kEnumCase);
