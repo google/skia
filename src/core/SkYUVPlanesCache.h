@@ -14,36 +14,25 @@
 #include "src/core/SkCachedData.h"
 
 class SkResourceCache;
+class SkYUVAPixmaps;
 
 class SkYUVPlanesCache {
 public:
     /**
-     * The Info struct contains data about the 4 Y, U, V, and A planes of memory stored
-     * contiguously, in that order, as a single block of memory within SkYUVPlanesCache.
-     *
-     * fSizeInfo: fWidth, fHeight, and fWidthBytes of each of the Y, U, V, and A planes.
-     * fColorSpace: color space that will be used for the YUV -> RGB conversion.
-     *
-     * TODO: Replace this with SkYUVAPixmaps
-     */
-    struct Info {
-        SkYUVASizeInfo  fSizeInfo;
-        SkYUVAIndex     fYUVAIndices[SkYUVAIndex::kIndexCount];
-        SkYUVColorSpace fColorSpace;
-        SkPixmap        fPlanes[SkYUVASizeInfo::kMaxCount];
-    };
-    /**
-     * On success, return a ref to the SkCachedData that holds the pixels.
+     * On success, return a ref to the SkCachedData that holds the pixel data. The SkYUVAPixmaps
+     * contains a description of the YUVA data and has a SkPixmap for each plane that points
+     * into the SkCachedData.
      *
      * On failure, return nullptr.
      */
-    static SkCachedData* FindAndRef(uint32_t genID, Info* info,
-                                    SkResourceCache* localCache = nullptr);
+    static sk_sp<SkCachedData> FindAndRef(uint32_t genID, SkYUVAPixmaps* pixmaps,
+                                          SkResourceCache* localCache = nullptr);
 
     /**
-     * Add a pixelRef ID and its YUV planes data to the cache.
+     * Add a pixelRef ID and its YUV planes data to the cache. The SkYUVAPixmaps should contain
+     * SkPixmaps that store their pixel data in the SkCachedData.
      */
-    static void Add(uint32_t genID, SkCachedData* data, Info* info,
+    static void Add(uint32_t genID, SkCachedData* data, const SkYUVAPixmaps& pixmaps,
                     SkResourceCache* localCache = nullptr);
 };
 
