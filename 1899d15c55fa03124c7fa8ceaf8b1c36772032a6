@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a046e4bc_8f227f06",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T15:13:09Z",
+      "side": 1,
+      "message": "I believe\n\n    std::max(lo, std::min(x, hi))\n\nis also a viable option for safe pinning to [lo,hi].  And maybe in general a better option, in that it reads nicer, with lo,x,hi in their natural order... you can probably even remember how to type this one without reference.\n\nBut switching SkTPin to this form or its equivalent would change behavior, clamping NaN to lo instead of hi.",
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
