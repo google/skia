@@ -16,6 +16,24 @@
       "message": "I believe\n\n    std::max(lo, std::min(x, hi))\n\nis also a viable option for safe pinning to [lo,hi].  And maybe in general a better option, in that it reads nicer, with lo,x,hi in their natural order... you can probably even remember how to type this one without reference.\n\nBut switching SkTPin to this form or its equivalent would change behavior, clamping NaN to lo instead of hi.",
       "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e73a6336_7e5d7c45",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T15:24:51Z",
+      "side": 1,
+      "message": "While I\u0027m thinking about this, I think the double-ternary equivalent for std::max(lo, std::min(x, hi)) is\n\n     return hi \u003c x ? hi\n          : lo \u003c x ? x\n          :          lo;\n\nJust like the existing double-ternary SkTPin() today, it\u0027s not particularly easy to rattle off my brain and fingers.",
+      "parentUuid": "a046e4bc_8f227f06",
+      "revId": "1899d15c55fa03124c7fa8ceaf8b1c36772032a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
