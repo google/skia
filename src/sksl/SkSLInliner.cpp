@@ -532,13 +532,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             std::vector<std::unique_ptr<SwitchCase>> cases;
-            cases.reserve(ss.fCases.size());
-            for (const auto& sc : ss.fCases) {
-                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->fValue),
-                                                             stmts(sc->fStatements)));
+            cases.reserve(ss.cases().count());
+            for (const SwitchCase& sc : ss.cases()) {
+                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc.value()),
+                                                             stmts(sc.statements())));
             }
-            return std::make_unique<SwitchStatement>(offset, ss.fIsStatic, expr(ss.fValue),
-                                                     std::move(cases), ss.fSymbols);
+            return std::make_unique<SwitchStatement>(offset, ss.isStatic(), expr(ss.value()),
+                                                     std::move(cases), ss.symbols());
         }
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
@@ -925,14 +925,14 @@ public:
             }
             case Statement::Kind::kSwitch: {
                 SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
-                if (switchStmt.fSymbols) {
-                    fSymbolTableStack.push_back(switchStmt.fSymbols.get());
+                if (switchStmt.symbols()) {
+                    fSymbolTableStack.push_back(switchStmt.symbols().get());
                 }
 
-                this->visitExpression(&switchStmt.fValue);
-                for (std::unique_ptr<SwitchCase>& switchCase : switchStmt.fCases) {
+                this->visitExpression(&switchStmt.value());
+                for (SwitchCase& switchCase : switchStmt.cases()) {
                     // The switch-case's fValue cannot be a FunctionCall; skip it.
-                    for (std::unique_ptr<Statement>& caseBlock : switchCase->fStatements) {
+                    for (std::unique_ptr<Statement>& caseBlock : switchCase.statements()) {
                         this->visitStatement(&caseBlock);
                     }
                 }
