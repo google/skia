@@ -16,6 +16,24 @@
       "message": "Can we add a unit test?",
       "revId": "9de862966ce0917193f393cb244ae7bfd25747f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c65c94f_efe56b11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-16T16:48:25Z",
+      "side": 1,
+      "message": "I\u0027ve been looking to see why this wasn\u0027t already caught. This would have happened decoding any pre-79 version skp with a variable font in it which didn\u0027t also store the data. I suppose our skps these days usually have the data embedded. Also the set of system fonts when they are recorded probably doesn\u0027t have variable fonts. (Of course with this change the crash is mitigated, but system fonts variable fonts aren\u0027t deserialized correctly when the data isn\u0027t embedded, since the variation isn\u0027t being passed along to the created typeface, though I\u0027m not sure what difference it makes since doing a lookup by name is basically a wild guess that can return anything). It seems we don\u0027t have such an skp about, but the fuzzer managed to create one.\n\nThe code path in question isn\u0027t actually reachable from any current serialization, it\u0027s there to pick up and handle old serializations. I don\u0027t expect this bit of code to ever really change except to be removed when support is removed for version 79 and earlier skps. The fuzzer created an issue with this bit pattern as an skp, so will keep testing it. I\u0027m not really sure I can make a more interesting test than that. I\u0027ll have to think about it.\n\nInterestingly, part of the difficulty with writing such a test in an understandable way it that it means setting up a lot of internal state in the class. If there were an easy way to write a \u0027this is an in-class test of just the internals of this class\u0027 which could be inline in the TU and a friend of the class that would make things easier. The alternative is to write a test which is literally a bunch of hex bytes to deserialize and then make a call and say \u0027it shouldn\u0027t crash\u0027. This seems quite fragile and difficult to explain what the test is doing, and the fuzzer case is already doing that.",
+      "parentUuid": "b4522744_174ba978",
+      "revId": "9de862966ce0917193f393cb244ae7bfd25747f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
