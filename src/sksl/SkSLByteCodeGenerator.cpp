@@ -1740,8 +1740,8 @@ void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
 }
 
 void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
-    if (fLoopCount || fConditionCount) {
-        fErrors.error(r.fOffset, "return not allowed inside conditional or loop");
+    if (fLoopCount) {
+        fErrors.error(r.fOffset, "return not allowed inside loop");
         return;
     }
     int count = SlotCount(r.expression()->type());

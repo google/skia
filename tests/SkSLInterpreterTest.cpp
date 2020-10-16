@@ -730,8 +730,7 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
     // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
     expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
 
-    // returns are not allowed inside conditionals (or loops, which are effectively the same thing)
-    expect_failure(r, "float main(float x, float y) { if (x < y) { return x; } return y; }");
+    // returns are not allowed inside loops
     expect_failure(r, "float main(float x) { while (x > 1) { return x; } return 0; }");
 }
 
