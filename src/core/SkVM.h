@@ -1219,6 +1219,9 @@ namespace skvm {
     static inline Q14& operator|=(Q14& x, Q14a y) { return (x = x | y); }
     static inline Q14& operator^=(Q14& x, Q14a y) { return (x = x ^ y); }
 
+    static inline I32 bit_clear(I32 x, I32a y) { return x->bit_clear(x,y); }
+    static inline I32 bit_clear(int x, I32  y) { return y->bit_clear(x,y); }
+
     static inline I32 select(I32 cond, I32a t, I32a f) { return cond->select(cond,t,f); }
     static inline F32 select(I32 cond, F32a t, F32a f) { return cond->select(cond,t,f); }
     static inline Q14 select(Q14 cond, Q14a t, Q14a f) { return cond->select(cond,t,f); }
