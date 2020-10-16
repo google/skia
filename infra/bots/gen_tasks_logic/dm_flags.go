@@ -551,6 +551,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("lottie")
 	}
 
+	if b.extraConfig("TSAN") {
+		// skbug.com/10848
+		removeFromArgs("svg")
+	}
+
 	// TODO: ???
 	skip("f16 _ _ dstreadshuffle")
 	skip("glsrgb image _ _")
