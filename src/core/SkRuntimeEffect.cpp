@@ -361,6 +361,14 @@ static skvm::Color program_fn(skvm::Builder* p,
     std::vector<skvm::I32> cond_stack = { p->splat(0xffff'ffff) };
     std::vector<skvm::I32> mask_stack = cond_stack;
 
+    skvm::Color result = {
+        p->splat(0.0f),
+        p->splat(0.0f),
+        p->splat(0.0f),
+        p->splat(0.0f),
+    };
+    skvm::I32 result_locked_in = p->splat(0);
+
     for (const uint8_t *ip = fn.code(), *end = ip + fn.size(); ip != end; ) {
         using Inst = SkSL::ByteCodeInstruction;
 
@@ -637,21 +645,30 @@ static skvm::Color program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kReturn: {
-                SkAssertResult(u8() == 4);
-                // We'd like to assert that (ip == end) -> there is only one return, but ByteCode
-                // always includes a kReturn/0 at the end of each function, as a precaution.
-                SkASSERT(stack.size() >= 4);
-                skvm::F32 a = pop(),
-                          b = pop(),
-                          g = pop(),
-                          r = pop();
-                return { r, g, b, a };
+                int count = u8();
+                SkAssertResult(count == 4 || count == 0);
+
+                if (count == 4) {
+                    SkASSERT(stack.size() >= 4);
+
+                    // Lane-by-lane, if we've already returned a value, that result is locked in;
+                    // later return instructions don't happen for that lane.
+                    skvm::I32 returns_here = bit_clear(mask_stack.back(),
+                                                       result_locked_in);
+
+                    result.a = select(returns_here, pop(), result.a);
+                    result.b = select(returns_here, pop(), result.b);
+                    result.g = select(returns_here, pop(), result.g);
+                    result.r = select(returns_here, pop(), result.r);
+
+                    result_locked_in |= returns_here;
+                }
             } break;
         }
     }
 
-    SkUNREACHABLE;
-    return {};
+    assert_true(result_locked_in);
+    return result;
 }
 
 static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
