@@ -102,6 +102,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9f3d3217_6b163a6d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-16T16:35:54Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to wait.  If skvx::pin() lands first I\u0027ll keep it in sync with SkTPin().\n\nOr you can really decouple things by removing it from SkVx.h and instead writing your own static/inline/lambda near where its used that you do whatever you want with.  Part of the design of SkVx.h is that it is intentionally left open to extension externally, and not everything needs to be in SkVx.h.",
+      "parentUuid": "594f9a79_52b354ec",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 486,
+        "endChar": 1
+      },
+      "revId": "45be2cbd64655d3e5e9e8e060d78c6e9dd220970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e6280942_138c7c94",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
