@@ -33,6 +33,24 @@
       "message": "If this passes the canary then it\u0027s good with me",
       "revId": "2daeab651c9b917488b80553e00afc211a6a8b8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bc6352a_932ff3a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-16T16:00:44Z",
+      "side": 1,
+      "message": "For some reason all recent Android canary runs are turning purple, but if you look at the actual test CL it does pass: https://googleplex-android-review.googlesource.com/c/platform/external/skia/+/12861372",
+      "parentUuid": "a594a4f6_2e5b0682",
+      "revId": "2daeab651c9b917488b80553e00afc211a6a8b8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
