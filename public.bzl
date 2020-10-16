@@ -988,11 +988,7 @@ SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
 ################################################################################
 
 def svg_lib_hdrs():
-    return native.glob([
-        # transitional headers, to be removed
-        "experimental/svg/model/*.h",
-        "modules/svg/include/*.h",
-    ])
+    return native.glob(["modules/svg/include/*.h"])
 
 def svg_lib_srcs():
     return native.glob(["modules/svg/src/*.cpp"])
