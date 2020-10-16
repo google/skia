@@ -6,5 +6,6 @@
       <enum name="surface_view" value="1"/>
     </attr>
     <attr name="background_color" format="color"/>
+    <attr name="src" format="reference"/>
   </declare-styleable>
 </resources>

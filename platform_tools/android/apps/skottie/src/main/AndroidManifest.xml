@@ -13,10 +13,14 @@
         android:exported="true">
     </activity>
     <activity
+        android:name=".SkottieActivity"
+        android:exported="true">
+    </activity>
+    <activity
         android:name=".PerfActivity"
         android:exported="true">
     </activity>
-    <activity android:name=".SkottieActivity">
+    <activity android:name=".DemoActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
