@@ -13,6 +13,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"

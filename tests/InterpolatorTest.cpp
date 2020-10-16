@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTPin.h"
 #include "include/utils/SkInterpolator.h"
 
 #include "tests/Test.h"

@@ -9,6 +9,7 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkShaderMaskFilter.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"

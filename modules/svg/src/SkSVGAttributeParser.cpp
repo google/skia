@@ -6,6 +6,7 @@
  */
 
 #include "include/utils/SkParse.h"
+#include "include/private/SkTPin.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGTypes.h"
 

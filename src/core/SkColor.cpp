@@ -8,6 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
+#include "include/private/SkTPin.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPremultiplyARGBInline(a, r, g, b);

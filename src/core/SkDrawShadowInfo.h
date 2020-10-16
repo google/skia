@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
+#include "include/private/SkTPin.h"
 
 class SkMatrix;
 class SkPath;

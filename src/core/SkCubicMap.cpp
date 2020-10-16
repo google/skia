@@ -7,6 +7,7 @@
 
 #include "include/core/SkCubicMap.h"
 #include "include/private/SkNx.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkOpts.h"
 
 //#define CUBICMAP_TRACK_MAX_ERROR

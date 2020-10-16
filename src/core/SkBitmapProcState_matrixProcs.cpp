@@ -7,6 +7,7 @@
 
 #include "include/core/SkShader.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkUtils.h"
 

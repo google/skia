@@ -8,6 +8,7 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/effects/SkTableColorFilter.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
