@@ -16,12 +16,6 @@ float4 blend_src(float4 src, float4 dst) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    float4 _0_blend_src;
-    {
-        _0_blend_src = _in.src;
-    }
-
-    _out->sk_FragColor = _0_blend_src;
-
+    _out->sk_FragColor = blend_src(_in.src, _in.dst);
     return *_out;
 }

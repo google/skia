@@ -6,6 +6,5 @@ vec4 blend_clear(vec4 src, vec4 dst) {
     return vec4(0.0);
 }
 void main() {
-    sk_FragColor = vec4(0.0);
-
+    sk_FragColor = blend_clear(src, dst);
 }
