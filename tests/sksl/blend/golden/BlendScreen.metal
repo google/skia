@@ -16,12 +16,6 @@ float4 blend_screen(float4 src, float4 dst) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    float4 _0_blend_screen;
-    {
-        _0_blend_screen = _in.src + (1.0 - _in.src) * _in.dst;
-    }
-
-    _out->sk_FragColor = _0_blend_screen;
-
+    _out->sk_FragColor = blend_screen(_in.src, _in.dst);
     return *_out;
 }

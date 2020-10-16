@@ -24,14 +24,14 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
 }
 
 const Symbol* SymbolTable::operator[](StringFragment name) {
-    return this->lookup(MakeSymbolKey(name));
+    return this->lookup(this, MakeSymbolKey(name));
 }
 
-const Symbol* SymbolTable::lookup(const SymbolKey& key) {
+const Symbol* SymbolTable::lookup(SymbolTable* topLevelSymbolTable, const SymbolKey& key) {
     const Symbol** symbolPPtr = fSymbols.find(key);
     if (!symbolPPtr) {
         if (fParent) {
-            return fParent->lookup(key);
+            return fParent->lookup(topLevelSymbolTable, key);
         }
         return nullptr;
     }
@@ -41,7 +41,7 @@ const Symbol* SymbolTable::lookup(const SymbolKey& key) {
         auto functions = GetFunctions(*symbol);
         if (functions.size() > 0) {
             bool modified = false;
-            const Symbol* previous = fParent->lookup(key);
+            const Symbol* previous = fParent->lookup(topLevelSymbolTable, key);
             if (previous) {
                 auto previousFunctions = GetFunctions(*previous);
                 for (const FunctionDeclaration* prev : previousFunctions) {
@@ -59,7 +59,7 @@ const Symbol* SymbolTable::lookup(const SymbolKey& key) {
                 }
                 if (modified) {
                     SkASSERT(functions.size() > 1);
-                    return this->takeOwnershipOfSymbol(
+                    return topLevelSymbolTable->takeOwnershipOfSymbol(
                             std::make_unique<UnresolvedFunction>(functions));
                 }
             }

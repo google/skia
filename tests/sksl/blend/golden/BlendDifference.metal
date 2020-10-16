@@ -16,12 +16,6 @@ float4 blend_difference(float4 src, float4 dst) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    float4 _0_blend_difference;
-    {
-        _0_blend_difference = float4((_in.src.xyz + _in.dst.xyz) - 2.0 * min(_in.src.xyz * _in.dst.w, _in.dst.xyz * _in.src.w), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
-    }
-
-    _out->sk_FragColor = _0_blend_difference;
-
+    _out->sk_FragColor = blend_difference(_in.src, _in.dst);
     return *_out;
 }

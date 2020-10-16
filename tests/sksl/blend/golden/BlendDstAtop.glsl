@@ -6,11 +6,5 @@ vec4 blend_src_atop(vec4 src, vec4 dst) {
     return dst.w * src + (1.0 - src.w) * dst;
 }
 void main() {
-    vec4 _0_blend_src_atop;
-    {
-        _0_blend_src_atop = dst.w * src + (1.0 - src.w) * dst;
-    }
-
-    sk_FragColor = _0_blend_src_atop;
-
+    sk_FragColor = blend_src_atop(src, dst);
 }
