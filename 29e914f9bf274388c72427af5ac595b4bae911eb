@@ -16,6 +16,23 @@
       "message": "The failing bot (also noted in the bug) was Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN_Vulkan, which is passing now as a trybot.",
       "revId": "29e914f9bf274388c72427af5ac595b4bae911eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee5abb6b_ac6d7a9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-16T21:02:07Z",
+      "side": 1,
+      "message": "Marking autosubmit for the weekend since AFAIK this is good to go.",
+      "revId": "29e914f9bf274388c72427af5ac595b4bae911eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
