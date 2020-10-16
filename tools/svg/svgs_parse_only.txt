@@ -11,11 +11,9 @@ https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/yinyang.svg
 https://upload.wikimedia.org/wikipedia/commons/6/6d/Alabama-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/2/2b/Alaska-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/7/7e/Arizona-StateSeal.svg
-https://upload.wikimedia.org/wikipedia/commons/0/0f/Seal_of_California.svg
 https://upload.wikimedia.org/wikipedia/commons/5/51/Colorado-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/e/e5/Connecticut-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/c/c0/Delaware-StateSeal.svg
-https://upload.wikimedia.org/wikipedia/commons/b/bf/Florida-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/e/e0/Georgia-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/c/c5/Hawaii-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/4/49/Idaho-StateSeal.svg
@@ -29,14 +27,10 @@ https://upload.wikimedia.org/wikipedia/commons/0/00/Seal_of_Maryland_%28reverse%
 https://upload.wikimedia.org/wikipedia/commons/8/82/Seal_of_Massachusetts.svg
 https://upload.wikimedia.org/wikipedia/commons/3/3f/Seal_of_Michigan.svg
 https://upload.wikimedia.org/wikipedia/commons/6/63/Minnesota-StateSeal.svg
-https://upload.wikimedia.org/wikipedia/commons/d/d1/Seal_of_Mississippi_%282014-present%29.svg
 https://upload.wikimedia.org/wikipedia/commons/d/de/Seal_of_Missouri.svg
-https://upload.wikimedia.org/wikipedia/commons/e/ed/Montana-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/6/60/Nebraska-StateSeal.svg
-https://upload.wikimedia.org/wikipedia/commons/7/77/Nevada-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/a/aa/Seal_of_New_Hampshire.svg
 https://upload.wikimedia.org/wikipedia/commons/8/8d/Seal_of_New_Jersey.svg
-https://upload.wikimedia.org/wikipedia/commons/3/3b/NewMexico-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/c/ca/NewYork-StateSeal.svg
 https://upload.wikimedia.org/wikipedia/commons/7/72/Seal_of_North_Carolina.svg
 https://upload.wikimedia.org/wikipedia/commons/e/e7/NorthDakota-StateSeal.svg
