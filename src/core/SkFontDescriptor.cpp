@@ -56,7 +56,7 @@ static size_t SK_WARN_UNUSED_RESULT read_id(SkStream* stream) {
 }
 
 std::unique_ptr<SkFontData> SkFontDescriptor::maybeAsSkFontData() {
-    if (!fVariationDataIsOldAndBad) {
+    if (!fVariationDataIsOldAndBad || !this->hasStream()) {
         return nullptr;
     }
     SkFontArguments args;
