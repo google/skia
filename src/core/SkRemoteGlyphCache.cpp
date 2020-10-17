@@ -432,7 +432,8 @@ void RemoteStrike::writePendingGlyphs(Serializer* serializer) {
 
 void RemoteStrike::ensureScalerContext() {
     if (fContext == nullptr) {
-        fContext = fTypeface->createScalerContext(fEffects, fDescriptor.getDesc());
+        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+                                          cinfo.fTextContrast, cinfo.fTextGamma);
     }
 }
 
@@ -817,7 +818,8 @@ public:
     }
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
-        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+        const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry,
+                                          cinfo.fTextContrast, cinfo.fTextGamma);
         return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps, fStrikeServerImpl,
                                     cinfo.fInfo.refColorSpace(), fDFTSupport);
     }

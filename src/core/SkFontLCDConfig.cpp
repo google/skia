@@ -10,6 +10,8 @@
 #ifdef SK_LEGACY_SURFACE_PROPS
 static SkFontLCDConfig::LCDOrientation gLCDOrientation = SkFontLCDConfig::kHorizontal_LCDOrientation;
 static SkFontLCDConfig::LCDOrder gLCDOrder = SkFontLCDConfig::kRGB_LCDOrder;
+static SkScalar gTextContrast = SK_GAMMA_CONTRAST;
+static SkScalar gTextGamma = SK_GAMMA_EXPONENT;
 
 SkFontLCDConfig::LCDOrientation SkFontLCDConfig::GetSubpixelOrientation() {
     return gLCDOrientation;
@@ -26,4 +28,13 @@ SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
 void SkFontLCDConfig::SetSubpixelOrder(LCDOrder order) {
     gLCDOrder = order;
 }
+
+SkScalar SkFontLCDConfig::GetTextContrast() { return gTextContrast; }
+
+void SkFontLCDConfig::SetTextContrast(SkScalar contrast) { gTextContrast = contrast; }
+
+SkScalar SkFontLCDConfig::GetTextGamma() { return gTextGamma; }
+
+void SkFontLCDConfig::SetTextGamma(SkScalar gamma) { gTextGamma = gamma; }
+
 #endif
