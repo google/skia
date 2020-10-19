@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14d27706_eac2bcb1",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-19T16:47:00Z",
+      "side": 1,
+      "message": "This seems bad",
+      "range": {
+        "startLine": 126,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 34
+      },
+      "revId": "07afd7fa28c1c42a8f839f4bbf642965872ca615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aa3a76d8_660390d8",
         "filename": "tools/gpu/vk/VkTestUtils.cpp",
         "patchSetId": 2
