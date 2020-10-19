@@ -123,11 +123,21 @@ protected:
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numSamples();
-        if (numColorSamples > 1) {
-            // Add one to account for the resolved VkImage.
-            numColorSamples += 1;
+        int numColorSamples = 0;
+        if (this->numSamples() > 1) {
+            // If we have an msaa attachment then its size will be handled by the attachment itself.
+            if (!fMSAAAttachment) {
+                numColorSamples += this->numSamples();
+            }
+            if (fResolveAttachmentView) {
+                // Add one to account for the resolved VkImage.
+                numColorSamples += 1;
+            }
+        } else {
+            SkASSERT(!fResolveAttachmentView);
+            numColorSamples = 1;
         }
+
         return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
                                       numColorSamples, GrMipmapped::kNo);
     }

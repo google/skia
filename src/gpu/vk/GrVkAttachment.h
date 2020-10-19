@@ -46,14 +46,16 @@ private:
                                       int sampleCnt,
                                       VkFormat format,
                                       VkImageUsageFlags vkUsageFlags,
-                                      GrProtected isProtected);
+                                      GrProtected isProtected,
+                                      SkBudgeted);
 
     GrVkAttachment(GrVkGpu* gpu,
                    SkISize dimensions,
                    UsageFlags supportedUsages,
                    const GrVkImageInfo&,
                    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                   sk_sp<const GrVkImageView> view);
+                   sk_sp<const GrVkImageView> view,
+                   SkBudgeted);
 
     GrVkGpu* getVkGpu() const;
 
