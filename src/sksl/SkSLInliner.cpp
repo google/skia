@@ -758,6 +758,11 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
+    if (functionDef->declaration().isBuiltin()) {
+        // Don't attempt to inline builtins.
+        return false;
+    }
+
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
@@ -822,8 +827,11 @@ public:
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
-                fEnclosingFunction = &funcDef;
-                this->visitStatement(&funcDef.body());
+                if (!funcDef.declaration().isBuiltin()) {
+                    // Don't attempt to mutate any function labeled as a builtin.
+                    fEnclosingFunction = &funcDef;
+                    this->visitStatement(&funcDef.body());
+                }
                 break;
             }
             default:

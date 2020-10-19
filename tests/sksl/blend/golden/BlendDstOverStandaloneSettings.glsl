@@ -6,11 +6,5 @@ vec4 blend_dst_over(vec4 src, vec4 dst) {
     return (1.0 - dst.w) * src + dst;
 }
 void main() {
-    vec4 _0_blend_dst_over;
-    {
-        _0_blend_dst_over = (1.0 - dst.w) * src + dst;
-    }
-
-    sk_FragColor = _0_blend_dst_over;
-
+    sk_FragColor = blend_dst_over(src, dst);
 }
