@@ -9,6 +9,11 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * New variant of SkImage::MakeFromYUVATextures. Takes a new type GrYUVATextures
+    which wraps an SkYUVAInfo and compatible set of GrBackendTextures. The provides
+    a more complete and structured specification of the planar configuration. Previous
+    version is deprecated.
+
   * Add field to GrContextOptions to disable mipmap support even if the backend
     supports it.
 

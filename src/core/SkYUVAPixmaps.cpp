@@ -80,7 +80,7 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
                                    const SkColorType colorTypes[kMaxPlanes],
                                    const size_t rowBytes[kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
-    if (yuvaInfo.dimensions().isEmpty()) {
+    if (!yuvaInfo.isValid()) {
         *this = {};
         SkASSERT(!this->isValid());
         return;
