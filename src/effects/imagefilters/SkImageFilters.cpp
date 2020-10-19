@@ -47,6 +47,10 @@ static SkImageFilter::CropRect to_legacy_crop_rect(const SkImageFilters::CropRec
                                          : SkImageFilter::CropRect(SkRect::MakeEmpty(), 0x0);
 }
 
+// Allow kNoCropRect to be referenced (for certain builds, e.g. macOS libFuzzer chromium target,
+// see crbug.com/1139725)
+constexpr SkRect SkImageFilters::CropRect::kNoCropRect;
+
 void SkImageFilters::RegisterFlattenables() {
     SkAlphaThresholdFilter::RegisterFlattenables();
     SkArithmeticImageFilter::RegisterFlattenables();
