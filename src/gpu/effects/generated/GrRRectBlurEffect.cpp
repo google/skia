@@ -359,35 +359,35 @@ public:
         blurRadiusVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                          kHalf_GrSLType, "blurRadius");
         fragBuilder->codeAppendf(
-                R"SkSL(half2 translatedFragPos = half2(sk_FragCoord.xy - %s.xy);
-half2 proxyCenter = half2((%s.zw - %s.xy) * 0.5);
+                R"SkSL(float2 translatedFragPosFloat = sk_FragCoord.xy - %s.xy;
+float2 proxyCenter = (%s.zw - %s.xy) * 0.5;
 half edgeSize = (2.0 * %s + %s) + 0.5;
-translatedFragPos -= proxyCenter;
-half2 fragDirection = sign(translatedFragPos);
-translatedFragPos = abs(translatedFragPos);
-translatedFragPos -= proxyCenter - edgeSize;
-translatedFragPos = max(translatedFragPos, 0.0);
-translatedFragPos *= fragDirection;
-translatedFragPos += half2(edgeSize);
+translatedFragPosFloat -= proxyCenter;
+half2 fragDirection = half2(sign(translatedFragPosFloat));
+translatedFragPosFloat = abs(translatedFragPosFloat);
+half2 translatedFragPosHalf = half2(translatedFragPosFloat - (proxyCenter - float(edgeSize)));
+translatedFragPosHalf = max(translatedFragPosHalf, 0.0);
+translatedFragPosHalf *= fragDirection;
+translatedFragPosHalf += half2(edgeSize);
 half2 proxyDims = half2(2.0 * edgeSize);
-half2 texCoord = translatedFragPos / proxyDims;)SkSL",
+half2 texCoord = translatedFragPosHalf / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample17184 = this->invokeChild(0, args);
+        SkString _sample17267 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample17184.c_str());
-        SkString _coords17232("float2(texCoord)");
-        SkString _sample17232 = this->invokeChild(1, args, _coords17232.c_str());
+                _sample17267.c_str());
+        SkString _coords17315("float2(texCoord)");
+        SkString _sample17315 = this->invokeChild(1, args, _coords17315.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample17232.c_str());
+                args.fOutputColor, _sample17315.c_str());
     }
 
 private:
