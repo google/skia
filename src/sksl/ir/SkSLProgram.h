@@ -11,6 +11,8 @@
 #include <vector>
 #include <memory>
 
+#include "include/private/SkTHash.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
@@ -33,6 +35,27 @@ namespace SkSL {
 
 class Context;
 class Pool;
+
+/**
+ * Side-car class holding mutable information about a Program's IR
+ */
+class ProgramUsage {
+public:
+    struct VariableCounts { int fRead = 0; int fWrite = 0; };
+    VariableCounts get(const Variable&) const;
+    bool isDead(const Variable&) const;
+
+    int get(const FunctionDeclaration&) const;
+
+    void replace(const Expression* oldExpr, const Expression* newExpr);
+    void add(const Statement* stmt);
+    void remove(const Expression* expr);
+    void remove(const Statement* stmt);
+    void remove(const ProgramElement& element);
+
+    SkTHashMap<const Variable*, VariableCounts> fVariableCounts;
+    SkTHashMap<const FunctionDeclaration*, int> fCallCounts;
+};
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -176,7 +199,9 @@ struct Program {
     , fPool(std::move(pool))
     , fInputs(inputs)
     , fElements(std::move(elements))
-    , fModifiers(std::move(modifiers)) {}
+    , fModifiers(std::move(modifiers)) {
+        fUsage = Analysis::GetUsage(*this);
+    }
 
     ~Program() {
         // Some or all of the program elements are in the pool. To free them safely, we must attach
@@ -209,8 +234,10 @@ struct Program {
 private:
     std::vector<std::unique_ptr<ProgramElement>> fElements;
     std::unique_ptr<ModifiersPool> fModifiers;
+    std::unique_ptr<ProgramUsage> fUsage;
 
     friend class Compiler;
+    friend class Inliner;             // fUsage
     friend class SPIRVCodeGenerator;  // fModifiers
 };
 

@@ -584,22 +584,24 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
 /**
  * Returns true if assigning to this lvalue has no effect.
  */
-static bool is_dead(const Expression& lvalue) {
+static bool is_dead(const Expression& lvalue, ProgramUsage* usage) {
     switch (lvalue.kind()) {
         case Expression::Kind::kVariableReference:
-            return lvalue.as<VariableReference>().variable()->dead();
+            return usage->isDead(*lvalue.as<VariableReference>().variable());
         case Expression::Kind::kSwizzle:
-            return is_dead(*lvalue.as<Swizzle>().base());
+            return is_dead(*lvalue.as<Swizzle>().base(), usage);
         case Expression::Kind::kFieldAccess:
-            return is_dead(*lvalue.as<FieldAccess>().base());
+            return is_dead(*lvalue.as<FieldAccess>().base(), usage);
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = lvalue.as<IndexExpression>();
-            return is_dead(*idx.base()) &&
+            return is_dead(*idx.base(), usage) &&
                    !idx.index()->hasProperty(Expression::Property::kSideEffects);
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = lvalue.as<TernaryExpression>();
-            return !t.test()->hasSideEffects() && is_dead(*t.ifTrue()) && is_dead(*t.ifFalse());
+            return !t.test()->hasSideEffects() &&
+                   is_dead(*t.ifTrue(), usage) &&
+                   is_dead(*t.ifFalse(), usage);
         }
         case Expression::Kind::kExternalValue:
             return false;
@@ -615,11 +617,11 @@ static bool is_dead(const Expression& lvalue) {
  * Returns true if this is an assignment which can be collapsed down to just the right hand side due
  * to a dead target and lack of side effects on the left hand side.
  */
-static bool dead_assignment(const BinaryExpression& b) {
+static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
     if (!Compiler::IsAssignment(b.getOperator())) {
         return false;
     }
-    return is_dead(b.left());
+    return is_dead(b.left(), usage);
 }
 
 void Compiler::computeDataFlow(CFG* cfg) {
@@ -720,6 +722,8 @@ static void delete_left(BasicBlock* b,
     } else {
         result = b->tryRemoveExpressionBefore(iter, &left);
     }
+    // Remove references within LHS.
+    optimizationContext->fUsage->remove(&left);
     *target = std::move(rightPointer);
     if (!result) {
         optimizationContext->fNeedsRescan = true;
@@ -751,6 +755,8 @@ static void delete_right(BasicBlock* b,
     std::unique_ptr<Expression>& leftPointer = bin.leftPointer();
     Expression& right = bin.right();
     SkASSERT(!right.hasSideEffects());
+    // Remove references within RHS.
+    optimizationContext->fUsage->remove(&right);
     if (!b->tryRemoveExpressionBefore(iter, &right)) {
         *target = std::move(leftPointer);
         optimizationContext->fNeedsRescan = true;
@@ -813,6 +819,8 @@ static void vectorize_left(BasicBlock* b,
                            std::vector<BasicBlock::Node>::iterator* iter,
                            Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
+    // Remove references within RHS. Vectorization of LHS doesn't change reference counts.
+    optimizationContext->fUsage->remove(bin.rightPointer().get());
     vectorize(b, iter, bin.right().type(), &bin.leftPointer(), optimizationContext);
 }
 
@@ -824,6 +832,8 @@ static void vectorize_right(BasicBlock* b,
                             std::vector<BasicBlock::Node>::iterator* iter,
                             Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
+    // Remove references within LHS. Vectorization of RHS doesn't change reference counts.
+    optimizationContext->fUsage->remove(bin.leftPointer().get());
     vectorize(b, iter, bin.left().type(), &bin.rightPointer(), optimizationContext);
 }
 
@@ -862,6 +872,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             optimizationContext->fUpdated = true;
             optimized = fIRGenerator->coerce(std::move(optimized), expr->type());
             SkASSERT(optimized);
+            // Remove references within 'expr', add references within 'optimized'
+            optimizationContext->fUsage->replace(expr, optimized.get());
             if (!try_replace_expression(&b, iter, &optimized)) {
                 optimizationContext->fNeedsRescan = true;
                 return;
@@ -890,9 +902,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 // ternary has a constant test, replace it with either the true or
                 // false branch
                 if (t->test()->as<BoolLiteral>().value()) {
-                    (*iter)->setExpression(std::move(t->ifTrue()));
+                    (*iter)->setExpression(std::move(t->ifTrue()), optimizationContext->fUsage);
                 } else {
-                    (*iter)->setExpression(std::move(t->ifFalse()));
+                    (*iter)->setExpression(std::move(t->ifFalse()), optimizationContext->fUsage);
                 }
                 optimizationContext->fUpdated = true;
                 optimizationContext->fNeedsRescan = true;
@@ -901,7 +913,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         }
         case Expression::Kind::kBinary: {
             BinaryExpression* bin = &expr->as<BinaryExpression>();
-            if (dead_assignment(*bin)) {
+            if (dead_assignment(*bin, optimizationContext->fUsage)) {
                 delete_left(&b, iter, optimizationContext);
                 break;
             }
@@ -1082,6 +1094,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 }
                 if (identity) {
                     optimizationContext->fUpdated = true;
+                    // No fUsage change: foo.rgba and foo have equivalent reference counts
                     if (!try_replace_expression(&b, iter, &s.base())) {
                         optimizationContext->fNeedsRescan = true;
                         return;
@@ -1100,6 +1113,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 optimizationContext->fUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
                                                                     std::move(final)));
+                // No fUsage change: foo.gbr.gbr and foo.brg have equivalent reference counts
                 if (!try_replace_expression(&b, iter, &replacement)) {
                     optimizationContext->fNeedsRescan = true;
                     return;
@@ -1275,11 +1289,12 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  BasicBlock& b,
                                  std::vector<BasicBlock::Node>::iterator* iter,
                                  OptimizationContext* optimizationContext) {
+    ProgramUsage* usage = optimizationContext->fUsage;
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->kind()) {
         case Statement::Kind::kVarDeclaration: {
             const auto& varDecl = stmt->as<VarDeclaration>();
-            if (varDecl.var().dead() &&
+            if (usage->isDead(varDecl.var()) &&
                 (!varDecl.value() ||
                  !varDecl.value()->hasSideEffects())) {
                 if (varDecl.value()) {
@@ -1288,7 +1303,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         optimizationContext->fNeedsRescan = true;
                     }
                 }
-                (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                (*iter)->setStatement(std::make_unique<Nop>(), usage);
                 optimizationContext->fUpdated = true;
             }
             break;
@@ -1299,12 +1314,12 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 // constant if, collapse down to a single branch
                 if (i.test()->as<BoolLiteral>().value()) {
                     SkASSERT(i.ifTrue());
-                    (*iter)->setStatement(std::move(i.ifTrue()));
+                    (*iter)->setStatement(std::move(i.ifTrue()), usage);
                 } else {
                     if (i.ifFalse()) {
-                        (*iter)->setStatement(std::move(i.ifFalse()));
+                        (*iter)->setStatement(std::move(i.ifFalse()), usage);
                     } else {
-                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                        (*iter)->setStatement(std::make_unique<Nop>(), usage);
                     }
                 }
                 optimizationContext->fUpdated = true;
@@ -1321,12 +1336,12 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 // if block doesn't do anything, no else block
                 if (i.test()->hasSideEffects()) {
                     // test has side effects, keep it
-                    (*iter)->setStatement(std::unique_ptr<Statement>(
-                                                     new ExpressionStatement(std::move(i.test()))));
+                    (*iter)->setStatement(
+                            std::make_unique<ExpressionStatement>(std::move(i.test())), usage);
                 } else {
                     // no if, no else, no test side effects, kill the whole if
                     // statement
-                    (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                    (*iter)->setStatement(std::make_unique<Nop>(), usage);
                 }
                 optimizationContext->fUpdated = true;
                 optimizationContext->fNeedsRescan = true;
@@ -1350,7 +1365,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                     if (caseValue == switchValue) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, &c);
                         if (newBlock) {
-                            (*iter)->setStatement(std::move(newBlock));
+                            (*iter)->setStatement(std::move(newBlock), usage);
                             found = true;
                             break;
                         } else {
@@ -1370,7 +1385,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                     if (defaultCase) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, defaultCase);
                         if (newBlock) {
-                            (*iter)->setStatement(std::move(newBlock));
+                            (*iter)->setStatement(std::move(newBlock), usage);
                         } else {
                             if (s.isStatic() && !(fFlags & kPermitInvalidStaticTests_Flag) &&
                                 optimizationContext->fSilences.find(&s) ==
@@ -1382,7 +1397,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             return; // can't simplify
                         }
                     } else {
-                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                        (*iter)->setStatement(std::make_unique<Nop>(), usage);
                     }
                 }
                 optimizationContext->fUpdated = true;
@@ -1399,7 +1414,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                     optimizationContext->fNeedsRescan = true;
                 }
                 SkASSERT((*iter)->statement()->get() == stmt);
-                (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                (*iter)->setStatement(std::make_unique<Nop>(), usage);
                 optimizationContext->fUpdated = true;
             }
             break;
@@ -1409,7 +1424,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
     }
 }
 
-bool Compiler::scanCFG(FunctionDefinition& f) {
+bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     bool madeChanges = false;
 
     CFG cfg = CFGGenerator().getCFG(f);
@@ -1442,6 +1457,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
     // check for dead code & undefined variables, perform constant propagation
     OptimizationContext optimizationContext;
+    optimizationContext.fUsage = usage;
     do {
         if (optimizationContext.fNeedsRescan) {
             cfg = CFGGenerator().getCFG(f);
@@ -1459,7 +1475,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 // have not been properly assigned. Kill it by replacing all statements with Nops.
                 for (BasicBlock::Node& node : b.fNodes) {
                     if (node.isStatement() && !(*node.statement())->is<Nop>()) {
-                        node.setStatement(std::make_unique<Nop>());
+                        node.setStatement(std::make_unique<Nop>(), usage);
                         madeChanges = true;
                     }
                 }
@@ -1584,6 +1600,7 @@ bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
     fIRGenerator->fKind = program.fKind;
     fIRGenerator->fSettings = &program.fSettings;
+    ProgramUsage* usage = program.fUsage.get();
 
     while (fErrorCount == 0) {
         bool madeChanges = false;
@@ -1591,7 +1608,7 @@ bool Compiler::optimize(Program& program) {
         // Scan and optimize based on the control-flow graph for each function.
         for (const auto& element : program.elements()) {
             if (element->is<FunctionDefinition>()) {
-                madeChanges |= this->scanCFG(element->as<FunctionDefinition>());
+                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage);
             }
         }
 
@@ -1601,8 +1618,6 @@ bool Compiler::optimize(Program& program) {
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
         if (program.fSettings.fRemoveDeadFunctions) {
-            Analysis::CallCountMap callCounts = Analysis::GetCallCounts(program);
-
             program.fElements.erase(
                     std::remove_if(program.fElements.begin(),
                                    program.fElements.end(),
@@ -1612,8 +1627,11 @@ bool Compiler::optimize(Program& program) {
                                        }
                                        const auto& fn = element->as<FunctionDefinition>();
                                        bool dead = fn.declaration().name() != "main" &&
-                                                   callCounts[&fn.declaration()] == 0;
-                                       madeChanges |= dead;
+                                                   usage->get(fn.declaration()) == 0;
+                                       if (dead) {
+                                           madeChanges = true;
+                                           usage->remove(*element);
+                                       }
                                        return dead;
                                    }),
                     program.fElements.end());
@@ -1630,7 +1648,7 @@ bool Compiler::optimize(Program& program) {
                                        const auto& global = element->as<GlobalVarDeclaration>();
                                        const auto& varDecl =
                                                          global.declaration()->as<VarDeclaration>();
-                                       bool dead = varDecl.var().dead();
+                                       bool dead = usage->isDead(varDecl.var());
                                        madeChanges |= dead;
                                        return dead;
                                    }),

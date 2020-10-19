@@ -1141,36 +1141,13 @@ void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidat
     }
 }
 
-static bool multiple_calls_to(const Program& program, const FunctionDeclaration* fn) {
-    class MultipleCallVisitor : public ProgramVisitor {
-    public:
-        MultipleCallVisitor(const FunctionDeclaration* function) : fFunction(function) {}
-
-        bool visitExpression(const Expression& e) override {
-            if (e.is<FunctionCall>() && &e.as<FunctionCall>().function() == fFunction) {
-                if (fCalled) {
-                    return true;
-                }
-                fCalled = true;
-            }
-            return INHERITED::visitExpression(e);
-        }
-
-        const FunctionDeclaration* fFunction;
-        bool fCalled = false;
-        using INHERITED = ProgramVisitor;
-    };
-
-    MultipleCallVisitor visitor(fn);
-    return visitor.visit(program);
-}
-
 bool Inliner::analyze(Program& program) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (fSettings->fInlineThreshold <= 0) {
         return false;
     }
 
+    ProgramUsage* usage = program.fUsage.get();
     InlineCandidateList candidateList;
     this->buildCandidateList(program, &candidateList);
 
@@ -1179,13 +1156,12 @@ bool Inliner::analyze(Program& program) {
     bool madeChanges = false;
     for (const InlineCandidate& candidate : candidateList.fCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration* funcDecl = &funcCall.function();
+        const FunctionDeclaration& funcDecl = funcCall.function();
 
         // If the function is large, not marked `inline`, and is called more than once, it's a bad
         // idea to inline it.
         if (candidate.fIsLargeFunction &&
-            !(funcDecl->modifiers().fFlags & Modifiers::kInline_Flag) &&
-            multiple_calls_to(program, funcDecl)) {
+            !(funcDecl.modifiers().fFlags & Modifiers::kInline_Flag) && usage->get(funcDecl) > 1) {
             continue;
         }
 
@@ -1203,6 +1179,9 @@ bool Inliner::analyze(Program& program) {
             // Ensure that the inlined body has a scope if it needs one.
             this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt->get());
 
+            // Add references within the inlined body
+            usage->add(inlinedCall.fInlinedBody.get());
+
             // Move the enclosing statement to the end of the unscoped Block containing the inlined
             // function, then replace the enclosing statement with that Block.
             // Before:
@@ -1216,6 +1195,7 @@ bool Inliner::analyze(Program& program) {
         }
 
         // Replace the candidate function call with our replacement expression.
+        usage->replace(candidate.fCandidateExpr->get(), inlinedCall.fReplacementExpr.get());
         *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
         madeChanges = true;
 
