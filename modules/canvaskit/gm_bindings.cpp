@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <set>
 #include <string>
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -69,6 +70,12 @@ static sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE cont
     // setup contexts
     sk_sp<GrDirectContext> dContext(GrDirectContext::MakeGL(interface));
     return dContext;
+}
+
+static std::set<std::string> gKnownDigests;
+
+static void LoadKnownDigest(std::string md5) {
+  gKnownDigests.insert(md5);
 }
 
 /**
@@ -140,31 +147,36 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
         md5.appendf("%02x", digest.data[i]);
     }
 
-    // We do not need to include the keys because they are optional - they are not read by Gold.
-    CommandLineFlags::StringArray empty;
-    SkDynamicMemoryWStream stream;
-    // TODO(kjlubick) make emission of PNGs optional and make it so we can check the hash against
-    //  the list of known digests to not emit it. This will hopefully speed tests up.
-    hashAndEncode->encodePNG(&stream, md5.c_str(), empty, empty);
+    auto ok = gKnownDigests.find(md5.c_str());
+    if (ok == gKnownDigests.end()) {
+        // We only need to decode the image if it is "interesting", that is, we have not written it
+        // before to disk and uploaded it to gold.
+        SkDynamicMemoryWStream stream;
+        // We do not need to include the keys because they are optional - they are not read by Gold.
+        CommandLineFlags::StringArray empty;
+        hashAndEncode->encodePNG(&stream, md5.c_str(), empty, empty);
 
-    auto data = stream.detachAsData();
+        auto data = stream.detachAsData();
 
-    // This is the cleanest way to create a new Uint8Array with a copy of the data that is not
-    // in the WASM heap. kjlubick tried returning a pointer inside an SkData, but that lead to some
-    // use after free issues. By making the copy using the JS transliteration, we don't risk the
-    // SkData object being cleaned up before we make the copy.
-    Uint8Array pngData = emscripten::val(
-        // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views
-        typed_memory_view(data->size(), data->bytes())
-    ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
+        // This is the cleanest way to create a new Uint8Array with a copy of the data that is not
+        // in the WASM heap. kjlubick tried returning a pointer inside an SkData, but that lead to
+        // some use after free issues. By making the copy using the JS transliteration, we don't
+        // risk the SkData object being cleaned up before we make the copy.
+        Uint8Array pngData = emscripten::val(
+            // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views
+            typed_memory_view(data->size(), data->bytes())
+        ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
 
-    result.set("png", pngData);
+        result.set("png", pngData);
+        gKnownDigests.emplace(md5.c_str());
+    }
     result.set("hash", md5.c_str());
     return result;
 }
 
 EMSCRIPTEN_BINDINGS(GMs) {
     function("ListGMs", &ListGMs);
+    function("LoadKnownDigest", &LoadKnownDigest);
     function("MakeGrContext", &MakeGrContext);
     function("RunGM", &RunGM);
 
