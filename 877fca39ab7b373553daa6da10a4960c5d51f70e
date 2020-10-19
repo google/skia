@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ae5caec_405af358",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "NodeArray should really be in its own CL, and honestly it should probably have a unit test if we think it\u0027s going to last for more than ~2 weeks.  There\u0027s a lot going on.",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 3,
+        "endChar": 1
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "464ec41a_ab61ee59",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "Let\u0027s use static_cast (anywhere a C style case is used). The two types should be related and if they\u0027re not, we should fail to compile.",
+      "range": {
+        "startLine": 22,
+        "startChar": 19,
+        "endLine": 22,
+        "endChar": 23
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "040b1e56_9eaa98e5",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "fContents is a reference. Why is there a `std::move`? We\u0027re just wrapping the same base array in two NodeArrays, right?",
+      "range": {
+        "startLine": 86,
+        "startChar": 20,
+        "endLine": 86,
+        "endChar": 46
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c2b75c6_ea965172",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "I think this doesn\u0027t work, right? fContents is a reference.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d34239a_1e3bab8f",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "If I\u0027m reading this right, assigning one NodeArray to another NodeArray actually copies the array contents, not the wrapped array, right? Which is different from the copy constructors, which makes a new NodeArray wrapper around the same array and leaves the array contents alone. This is spooky; assignment and copy construction should not have completely different semantics. Is this actually used anywhere?\n\n(Or am I misinterpreting?)",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 99,
+        "endChar": 5
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "540f6d76_3ffc02a3",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "emplace_back?",
+      "range": {
+        "startLine": 134,
+        "startChar": 31,
+        "endLine": 134,
+        "endChar": 40
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cff3293_409cdfd0",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "Why is this not using the SkTArray `push_back_n` and `move_back_n`?",
+      "range": {
+        "startLine": 137,
+        "startChar": 1,
+        "endLine": 160,
+        "endChar": 5
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "269d8253_1f8793fa",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "This is safe since `resize` and `resize_back` are synonyms, but I had to double check this when reading the code. Let\u0027s call resize and cross our fingers that the inliner does the right thing.",
+      "range": {
+        "startLine": 171,
+        "startChar": 18,
+        "endLine": 171,
+        "endChar": 29
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "323ab1d4_8fcdc4e0",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:23:02Z",
+      "side": 1,
+      "message": "Can we use `SkTArray\u003cstd::unique_ptr\u003cBase\u003e\u003e\u0026` here? We don\u0027t actually care that it\u0027s an SkSTArray afaics",
+      "range": {
+        "startLine": 211,
+        "startChar": 4,
+        "endLine": 211,
+        "endChar": 39
+      },
+      "revId": "877fca39ab7b373553daa6da10a4960c5d51f70e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
