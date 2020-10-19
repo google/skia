@@ -27,6 +27,12 @@
 
 namespace SkSL {
 
+void BasicBlock::Node::setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage) {
+    SkASSERT(!this->isStatement());
+    usage->replace(fExpression->get(), expr.get());
+    *fExpression = std::move(expr);
+}
+
 BlockId CFG::newBlock() {
     BlockId result = fBlocks.size();
     fBlocks.emplace_back();

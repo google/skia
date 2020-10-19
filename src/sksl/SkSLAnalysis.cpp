@@ -181,17 +181,35 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-class CallCountVisitor : public ProgramVisitor {
+class ProgramUsageVisitor : public ProgramVisitor {
 public:
+    ProgramUsageVisitor(ProgramUsage* usage) : fUsage(usage) {}
+
     bool visitExpression(const Expression& e) override {
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
-            fCounts[f]++;
+            fUsage->fCallCounts[f]++;
+        } else if (e.is<VariableReference>()) {
+            const VariableReference& ref = e.as<VariableReference>();
+            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[ref.variable()];
+            switch (ref.refKind()) {
+                case VariableRefKind::kRead:
+                    counts.fRead++;
+                    break;
+                case VariableRefKind::kWrite:
+                    counts.fWrite++;
+                    break;
+                case VariableRefKind::kReadWrite:
+                case VariableRefKind::kPointer:
+                    counts.fRead++;
+                    counts.fWrite++;
+                    break;
+            }
         }
         return INHERITED::visitExpression(e);
     }
 
-    Analysis::CallCountMap fCounts;
+    ProgramUsage* fUsage;
     using INHERITED = ProgramVisitor;
 };
 
@@ -341,10 +359,41 @@ bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
     return NodeCountVisitor{limit}.visit(*function.body()) > limit;
 }
 
-Analysis::CallCountMap Analysis::GetCallCounts(const Program& program) {
-    CallCountVisitor visitor;
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
+    auto usage = std::make_unique<ProgramUsage>();
+    ProgramUsageVisitor visitor(usage.get());
     visitor.visit(program);
-    return std::move(visitor.fCounts);
+    return usage;
+}
+
+ProgramUsage::VariableCounts ProgramUsage::get(const Variable* v) const {
+    VariableCounts result = { 0, v->initialValue() ? 1 : 0 };
+    if (const VariableCounts* counts = fVariableCounts.find(v)) {
+        result.fRead += counts->fRead;
+        result.fWrite += counts->fWrite;
+    }
+    return result;
+}
+
+bool ProgramUsage::dead(const Variable* v) const {
+    const Modifiers& modifiers = v->modifiers();
+    VariableCounts counts = this->get(v);
+    if ((v->storage() != Variable::Storage::kLocal && counts.fRead) ||
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
+                             Modifiers::kVarying_Flag))) {
+        return false;
+    }
+    return !counts.fWrite || (!counts.fRead && !(modifiers.fFlags &
+                                                 (Modifiers::kPLS_Flag | Modifiers::kPLSOut_Flag)));
+}
+
+int ProgramUsage::get(const FunctionDeclaration* f) const {
+    const int* count = fCallCounts.find(f);
+    return count ? *count : 0;
+}
+
+void ProgramUsage::replace(const Expression* oldExpr, const Expression* newExpr) {
+    // TODO: Update counts!
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {

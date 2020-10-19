@@ -12,6 +12,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"

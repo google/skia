@@ -16,6 +16,8 @@
 
 namespace SkSL {
 
+class ProgramUsage;
+
 // index of a block within CFG.fBlocks
 typedef size_t BlockId;
 
@@ -35,21 +37,18 @@ struct BasicBlock {
             return fExpression != nullptr;
         }
 
-        std::unique_ptr<Expression>* expression() const {
+        const std::unique_ptr<Expression>* expression() const {
             SkASSERT(!this->isStatement());
             return fExpression;
         }
 
-        void setExpression(std::unique_ptr<Expression> expr) {
-            SkASSERT(!this->isStatement());
-            *fExpression = std::move(expr);
-        }
+        void setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage);
 
         bool isStatement() const {
             return fStatement != nullptr;
         }
 
-        std::unique_ptr<Statement>* statement() const {
+        const std::unique_ptr<Statement>* statement() const {
             SkASSERT(!this->isExpression());
             return fStatement;
         }
