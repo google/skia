@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20d59879_4b2909a9",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T13:29:54Z",
+      "side": 1,
+      "message": "Interestingly, this now allows this specific flow-control to work in SkVM, but not the stack interpreter. skbug.com/10852",
+      "revId": "b2312ff291abdeb752cb8a3e8fbe37768dedbb3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
