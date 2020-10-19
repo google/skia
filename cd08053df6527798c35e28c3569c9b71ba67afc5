@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8348e544_4dd6e23f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1369,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T17:01:49Z",
+      "side": 1,
+      "message": "What if we instead add to the scanCFG loop, inserting (eg):\n\n  if (fErrorCount) { return madeChanges; }\n\nat the end of the do {} while loop?",
+      "parentUuid": "ec01470c_9a098556",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "340bbc45_30afe7f3",
         "filename": "src/sksl/ir/SkSLSwitchStatement.h",
         "patchSetId": 2
