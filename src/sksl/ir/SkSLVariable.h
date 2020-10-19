@@ -38,17 +38,7 @@ public:
 
     Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
              bool builtin, Storage storage, const Expression* initialValue = nullptr)
-    : INHERITED(offset, VariableData{name, type, initialValue, modifiers, /*readCount=*/0,
-                                     /*writeCount=*/(int16_t) (initialValue ? 1 : 0),
-                                     storage, builtin}) {}
-
-    ~Variable() override {
-        // can't destroy a variable while there are remaining references to it
-        if (this->initialValue()) {
-            --this->variableData().fWriteCount;
-        }
-        SkASSERT(!this->variableData().fReadCount && !this->variableData().fWriteCount);
-    }
+    : INHERITED(offset, VariableData{name, type, initialValue, modifiers, storage, builtin}) {}
 
     const Type& type() const override {
         return *this->variableData().fType;
@@ -76,17 +66,7 @@ public:
 
     void setInitialValue(const Expression* initialValue) {
         SkASSERT(!this->initialValue());
-        SkASSERT(this->variableData().fWriteCount == 0);
         this->variableData().fInitialValue = initialValue;
-        ++this->variableData().fWriteCount;
-    }
-
-    int readCount() const {
-        return this->variableData().fReadCount;
-    }
-
-    int writeCount() const {
-        return this->variableData().fWriteCount;
     }
 
     StringFragment name() const override {
@@ -97,38 +77,7 @@ public:
         return this->modifiers().description() + this->type().name() + " " + this->name();
     }
 
-    bool dead() const {
-        const VariableData& data = this->variableData();
-        const Modifiers& modifiers = this->modifiers();
-        if ((data.fStorage != Storage::kLocal && this->variableData().fReadCount) ||
-            (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
-                                 Modifiers::kUniform_Flag | Modifiers::kVarying_Flag))) {
-            return false;
-        }
-        return !data.fWriteCount ||
-               (!data.fReadCount && !(modifiers.fFlags & (Modifiers::kPLS_Flag |
-                                                          Modifiers::kPLSOut_Flag)));
-    }
-
 private:
-    void referenceCreated(VariableReference::RefKind refKind) const {
-        if (refKind != VariableReference::RefKind::kRead) {
-            ++this->variableData().fWriteCount;
-        }
-        if (refKind != VariableReference::RefKind::kWrite) {
-            ++this->variableData().fReadCount;
-        }
-    }
-
-    void referenceDestroyed(VariableReference::RefKind refKind) const {
-        if (refKind != VariableReference::RefKind::kRead) {
-            --this->variableData().fWriteCount;
-        }
-        if (refKind != VariableReference::RefKind::kWrite) {
-            --this->variableData().fReadCount;
-        }
-    }
-
     using INHERITED = Symbol;
 
     friend class VariableReference;

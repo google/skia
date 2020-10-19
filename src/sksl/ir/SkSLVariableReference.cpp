@@ -17,11 +17,6 @@ namespace SkSL {
 VariableReference::VariableReference(int offset, const Variable* variable, RefKind refKind)
         : INHERITED(offset, VariableReferenceData{variable, refKind}) {
     SkASSERT(this->variable());
-    this->variable()->referenceCreated(refKind);
-}
-
-VariableReference::~VariableReference() {
-    this->variable()->referenceDestroyed(this->refKind());
 }
 
 const Type& VariableReference::type() const {
@@ -47,15 +42,11 @@ String VariableReference::description() const {
 }
 
 void VariableReference::setRefKind(RefKind refKind) {
-    this->variable()->referenceDestroyed(this->refKind());
     this->variableReferenceData().fRefKind = refKind;
-    this->variable()->referenceCreated(this->refKind());
 }
 
 void VariableReference::setVariable(const Variable* variable) {
-    this->variable()->referenceDestroyed(this->refKind());
     this->variableReferenceData().fVariable = variable;
-    this->variable()->referenceCreated(this->refKind());
 }
 
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
