@@ -1654,7 +1654,17 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         tools.SetMessageConsumer(dumpmsg);
         // Verify that the SPIR-V we produced is valid. If this SkASSERT fails, check the logs prior
         // to the failure to see the validation errors.
-        SkAssertResult(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4));
+        bool validate = tools.Validate((const uint32_t*)data.c_str(), data.size() / 4);
+        if (!validate) {
+            const char* cstring = program.fSource->c_str();
+            SkDebugf("----\n%s\n----\n", cstring);
+            std::string disasm;
+            tools.Disassemble((const uint32_t*)data.c_str(), data.size() / 4,
+                              &disasm);
+            cstring = disasm.c_str();
+            SkDebugf("----%s\n", cstring);
+        }
+        SkAssertResult(validate);
         out.write(data.c_str(), data.size());
     }
 #else

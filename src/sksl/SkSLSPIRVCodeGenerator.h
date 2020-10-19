@@ -398,6 +398,7 @@ private:
     std::stack<SpvId> fContinueTarget;
     SpvId fRTHeightStructId = (SpvId) -1;
     SpvId fRTHeightFieldIndex = (SpvId) -1;
+    SpvStorageClass_ fRTHeightStorageClass;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;
