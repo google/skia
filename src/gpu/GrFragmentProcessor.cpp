@@ -425,7 +425,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
                 void emitCode(EmitArgs& args) override {
                     SkString result = this->invokeChild(0, args);
                     result = this->invokeChild(1, result.c_str(), args);
-                    args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, result.c_str());
+                    args.fFragBuilder->codeAppendf("return %s;", result.c_str());
                 }
             };
             return new GLFP;
@@ -447,6 +447,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
+        bool usesExplicitReturn() const override { return true; }
 
         SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
             SkPMColor4f color = inColor;
