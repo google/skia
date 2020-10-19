@@ -12,6 +12,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
@@ -401,6 +402,7 @@ private:
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;
+    Analysis::VariableUsage fVarUsage;
 
     friend class PointerLValue;
     friend class SwizzleLValue;
