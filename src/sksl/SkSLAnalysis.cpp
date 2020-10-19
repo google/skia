@@ -181,17 +181,43 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-class CallCountVisitor : public ProgramVisitor {
+class ProgramUsageVisitor : public ProgramVisitor {
 public:
+    enum class Mode { kAdd, kSubtract };
+
+    ProgramUsageVisitor(ProgramUsage* usage, Mode mode) : fUsage(usage), fMode(mode) {}
+
     bool visitExpression(const Expression& e) override {
+        const int delta = (fMode == Mode::kAdd) ? 1 : -1;
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
-            fCounts[f]++;
+            fUsage->fCallCounts[f] += delta;
+            SkASSERT(fUsage->fCallCounts[f] >= 0);
+        } else if (e.is<VariableReference>()) {
+            const VariableReference& ref = e.as<VariableReference>();
+            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[ref.variable()];
+            switch (ref.refKind()) {
+                case VariableRefKind::kRead:
+                    counts.fRead += delta;
+                    break;
+                case VariableRefKind::kWrite:
+                    counts.fWrite += delta;
+                    break;
+                case VariableRefKind::kReadWrite:
+                case VariableRefKind::kPointer:
+                    counts.fRead += delta;
+                    counts.fWrite += delta;
+                    break;
+            }
+            SkASSERT(counts.fRead >= 0 && counts.fWrite >= 0);
         }
         return INHERITED::visitExpression(e);
     }
 
-    Analysis::CallCountMap fCounts;
+    using ProgramVisitor::visitStatement;
+
+    ProgramUsage* fUsage;
+    Mode fMode;
     using INHERITED = ProgramVisitor;
 };
 
@@ -341,10 +367,53 @@ bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
     return NodeCountVisitor{limit}.visit(*function.body()) > limit;
 }
 
-Analysis::CallCountMap Analysis::GetCallCounts(const Program& program) {
-    CallCountVisitor visitor;
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
+    auto usage = std::make_unique<ProgramUsage>();
+    ProgramUsageVisitor visitor(usage.get(), ProgramUsageVisitor::Mode::kAdd);
     visitor.visit(program);
-    return std::move(visitor.fCounts);
+    return usage;
+}
+
+ProgramUsage::VariableCounts ProgramUsage::get(const Variable* v) const {
+    VariableCounts result = { 0, v->initialValue() ? 1 : 0 };
+    if (const VariableCounts* counts = fVariableCounts.find(v)) {
+        result.fRead += counts->fRead;
+        result.fWrite += counts->fWrite;
+    }
+    return result;
+}
+
+bool ProgramUsage::dead(const Variable* v) const {
+    const Modifiers& modifiers = v->modifiers();
+    VariableCounts counts = this->get(v);
+    if ((v->storage() != Variable::Storage::kLocal && counts.fRead) ||
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
+                             Modifiers::kVarying_Flag))) {
+        return false;
+    }
+    return !counts.fWrite || (!counts.fRead && !(modifiers.fFlags &
+                                                 (Modifiers::kPLS_Flag | Modifiers::kPLSOut_Flag)));
+}
+
+int ProgramUsage::get(const FunctionDeclaration* f) const {
+    const int* count = fCallCounts.find(f);
+    return count ? *count : 0;
+}
+
+void ProgramUsage::replace(const Expression* oldExpr, const Expression* newExpr) {
+    ProgramUsageVisitor subtract(this, ProgramUsageVisitor::Mode::kSubtract);
+    subtract.visitExpression(*oldExpr);
+
+    ProgramUsageVisitor add(this, ProgramUsageVisitor::Mode::kAdd);
+    add.visitExpression(*newExpr);
+}
+
+void ProgramUsage::replace(const Statement* oldStmt, const Statement* newStmt) {
+    ProgramUsageVisitor subtract(this, ProgramUsageVisitor::Mode::kSubtract);
+    subtract.visitStatement(*oldStmt);
+
+    ProgramUsageVisitor add(this, ProgramUsageVisitor::Mode::kAdd);
+    add.visitStatement(*newStmt);
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {

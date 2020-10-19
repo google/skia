@@ -16,6 +16,8 @@
 
 namespace SkSL {
 
+class ProgramUsage;
+
 // index of a block within CFG.fBlocks
 typedef size_t BlockId;
 
@@ -35,29 +37,37 @@ struct BasicBlock {
             return fExpression != nullptr;
         }
 
-        std::unique_ptr<Expression>* expression() const {
+        class ExprPtrWrapper {
+        public:
+            ExprPtrWrapper(std::unique_ptr<Expression>* ptr) : fPtr(ptr) {}
+            void set(std::unique_ptr<Expression> expr, ProgramUsage* usage);
+            std::unique_ptr<Expression>* get() { return fPtr; }
+        private:
+            std::unique_ptr<Expression>* fPtr;
+        };
+
+        const std::unique_ptr<Expression>* expression() const {
             SkASSERT(!this->isStatement());
             return fExpression;
         }
 
-        void setExpression(std::unique_ptr<Expression> expr) {
+        ExprPtrWrapper mutableExpression() {
             SkASSERT(!this->isStatement());
-            *fExpression = std::move(expr);
+            return ExprPtrWrapper(fExpression);
         }
+
+        void setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage);
 
         bool isStatement() const {
             return fStatement != nullptr;
         }
 
-        std::unique_ptr<Statement>* statement() const {
+        const std::unique_ptr<Statement>* statement() const {
             SkASSERT(!this->isExpression());
             return fStatement;
         }
 
-        void setStatement(std::unique_ptr<Statement> stmt) {
-            SkASSERT(!this->isExpression());
-            *fStatement = std::move(stmt);
-        }
+        void setStatement(std::unique_ptr<Statement> stmt, ProgramUsage* usage);
 
 #ifdef SK_DEBUG
         String description() const {
