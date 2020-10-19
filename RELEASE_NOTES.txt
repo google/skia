@@ -9,6 +9,9 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Add field to GrContextOptions to disable mipmap support even if the backend
+    supports it.
+
   * SkTPin() removed from public API.
 
   * Add new SkImageFilters::Blend factory function, in place of the now deprecated

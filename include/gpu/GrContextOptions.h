@@ -236,6 +236,11 @@ struct SK_API GrContextOptions {
      */
     int fMaxCachedVulkanSecondaryCommandBuffers = -1;
 
+    /**
+     * If true, the caps will never support mipmaps.
+     */
+    bool fSuppressMipmapSupport = false;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.

@@ -152,6 +152,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fShouldInitializeTextures = true;
     }
 #endif
+    if (options.fSuppressMipmapSupport) {
+        fMipmapSupport = false;
+    }
 
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
         SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
@@ -442,4 +445,3 @@ GrDstSampleType GrCaps::getDstSampleTypeForProxy(const GrRenderTargetProxy* rt) 
     }
     return GrDstSampleType::kAsTextureCopy;
 }
-
