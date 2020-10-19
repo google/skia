@@ -6,18 +6,8 @@ float _blend_color_luminance(vec3 color) {
     return dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), color);
 }
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
-    float _4_blend_color_luminance;
-    {
-        _4_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
-    }
-    float lum = _4_blend_color_luminance;
-
-    float _5_blend_color_luminance;
-    {
-        _5_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor);
-    }
-    vec3 result = (lum - _5_blend_color_luminance) + hueSatColor;
-
+    float lum = _blend_color_luminance(lumColor);
+    vec3 result = (lum - _blend_color_luminance(hueSatColor)) + hueSatColor;
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
     if (minComp < 0.0 && lum != minComp) {

@@ -11,13 +11,7 @@ float _color_burn_component(vec2 s, vec2 d) {
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _1_guarded_divide;
-        float _2_n = (d.y - d.x) * s.y;
-        {
-            _1_guarded_divide = _2_n / s.x;
-        }
-        float delta = max(0.0, d.y - _1_guarded_divide);
-
+        float delta = max(0.0, d.y - _guarded_divide((d.y - d.x) * s.y, s.x));
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }

@@ -14,12 +14,7 @@ float4 blend_src_over(float4 src, float4 dst) {
     return src + (1.0 - src.w) * dst;
 }
 float4 blend_lighten(float4 src, float4 dst) {
-    float4 _2_blend_src_over;
-    {
-        _2_blend_src_over = src + (1.0 - src.w) * dst;
-    }
-    float4 result = _2_blend_src_over;
-
+    float4 result = blend_src_over(src, dst);
     result.xyz = max(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
     return result;
 }
@@ -28,11 +23,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_lighten;
     {
-        float4 _3_blend_src_over;
+        float4 _2_blend_src_over;
         {
-            _3_blend_src_over = _in.src + (1.0 - _in.src.w) * _in.dst;
+            _2_blend_src_over = _in.src + (1.0 - _in.src.w) * _in.dst;
         }
-        float4 _1_result = _3_blend_src_over;
+        float4 _1_result = _2_blend_src_over;
 
         _1_result.xyz = max(_1_result.xyz, (1.0 - _in.dst.w) * _in.src.xyz + _in.dst.xyz);
         _0_blend_lighten = _1_result;
