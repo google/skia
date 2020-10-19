@@ -23,16 +23,25 @@ struct FunctionDefinition : public ProgramElement {
     static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     FunctionDefinition(int offset,
-                       const FunctionDeclaration* declaration,
+                       const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body,
                        std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
-        : INHERITED(offset, FunctionDefinitionData{declaration, std::move(referencedIntrinsics),
-                                                   nullptr}) {
+        : INHERITED(offset,
+                    FunctionDefinitionData{declaration, builtin, std::move(referencedIntrinsics),
+                                           /*fSource=*/nullptr}) {
         fStatementChildren.push_back(std::move(body));
     }
 
     const FunctionDeclaration& declaration() const {
         return *this->functionDefinitionData().fDeclaration;
+    }
+
+    bool isBuiltin() const {
+        return this->functionDefinitionData().fBuiltin;
+    }
+
+    void setBuiltin(bool builtin) {
+        this->functionDefinitionData().fBuiltin = builtin;
     }
 
     std::unique_ptr<Statement>& body() {
@@ -57,7 +66,7 @@ struct FunctionDefinition : public ProgramElement {
 
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fOffset, &this->declaration(),
-                                                    this->body()->clone(),
+                                                    this->isBuiltin(), this->body()->clone(),
                                                     this->referencedIntrinsics());
     }
 

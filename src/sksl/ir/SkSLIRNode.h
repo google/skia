@@ -141,6 +141,7 @@ protected:
 
     struct FunctionDefinitionData {
         const FunctionDeclaration* fDeclaration;
+        bool fBuiltin;
         // We track intrinsic functions we reference so that we can ensure that all of them end up
         // copied into the final output.
         std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;

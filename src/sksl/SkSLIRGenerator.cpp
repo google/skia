@@ -728,7 +728,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                                 fContext.fVoid_Type.get(),
                                                                 fIsBuiltinCode));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
-                                                                     invokeDecl,
+                                                                     invokeDecl, fIsBuiltinCode,
                                                                      std::move(main)));
 
     std::vector<std::unique_ptr<VarDeclaration>> variables;
@@ -1062,8 +1062,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (Program::kVertex_Kind == fKind && funcData.fName == "main" && fRTAdjust) {
             body->children().push_back(this->getNormalizeSkPositionCode());
         }
-        auto result = std::make_unique<FunctionDefinition>(f.fOffset, decl, std::move(body),
-                                                           std::move(fReferencedIntrinsics));
+        auto result = std::make_unique<FunctionDefinition>(
+                f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
         decl->setDefinition(result.get());
         result->setSource(&f);
         fProgramElements->push_back(std::move(result));
@@ -2020,7 +2020,11 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
         for (const FunctionDeclaration* f : intrinsics) {
             this->copyIntrinsicIfNeeded(*f);
         }
-        fProgramElements->push_back(original.clone());
+
+        // Unmark the function as a built-in when cloning it, so that it is eligible for alteration.
+        std::unique_ptr<ProgramElement> clonedIntrinsicFn = original.clone();
+        clonedIntrinsicFn->as<FunctionDefinition>().setBuiltin(false);
+        fProgramElements->push_back(std::move(clonedIntrinsicFn));
     }
 }
 
