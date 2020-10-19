@@ -49,7 +49,8 @@ public:
         std::unique_ptr<Block> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
-    InlinedCall inlineCall(FunctionCall*, SymbolTable*, const FunctionDeclaration* caller);
+    InlinedCall inlineCall(FunctionCall*, std::shared_ptr<SymbolTable>,
+                           const FunctionDeclaration* caller);
 
     /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);

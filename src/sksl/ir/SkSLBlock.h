@@ -61,7 +61,13 @@ public:
             cloned.push_back(stmt->clone());
         }
         const BlockData& data = this->blockData();
-        return std::make_unique<Block>(fOffset, std::move(cloned), data.fSymbolTable,
+        // Cloned blocks are intended to be mutable. If the symbol table is a builtin, though, we
+        // can't alter it; in that case, wrap it.
+        std::shared_ptr<SymbolTable> symTable =
+                data.fSymbolTable->isBuiltin()
+                        ? std::make_shared<SymbolTable>(data.fSymbolTable, /*builtin=*/false)
+                        : data.fSymbolTable;
+        return std::make_unique<Block>(fOffset, std::move(cloned), std::move(symTable),
                                        data.fIsScope);
     }
 

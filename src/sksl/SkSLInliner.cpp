@@ -580,7 +580,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 }
 
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
-                                         SymbolTable* symbolTableForCall,
+                                         std::shared_ptr<SymbolTable> symbolTableForCall,
                                          const FunctionDeclaration* caller) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
@@ -600,18 +600,27 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     const int offset = call->fOffset;
     const FunctionDefinition& function = *call->function().definition();
     const bool hasEarlyReturn = has_early_return(function);
-
     InlinedCall inlinedCall;
-    inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
-                                                       /*symbols=*/nullptr,
-                                                       /*isScope=*/false);
+
+    // Builtins can't be mutated, so wrap the parent symbol table if it is a builtin.
+    if (symbolTableForCall->isBuiltin()) {
+        symbolTableForCall = std::make_shared<SymbolTable>(symbolTableForCall, /*builtin=*/false);
+        inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
+                                                           symbolTableForCall,
+                                                           /*isScope=*/false);
+    } else {
+        inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
+                                                           /*symbols=*/nullptr,
+                                                           /*isScope=*/false);
+    }
 
     Block& inlinedBody = *inlinedCall.fInlinedBody;
-    inlinedBody.children().reserve_back(1 +                // Inline marker
-                                   1 +                // Result variable
-                                   arguments.size() + // Function arguments (passing in)
-                                   arguments.size() + // Function arguments (copy out-params back)
-                                   1);                // Inlined code (Block or do-while loop)
+    inlinedBody.children().reserve_back(
+            1 +                 // Inline marker
+            1 +                 // Result variable
+            arguments.size() +  // Function arguments (passing in)
+            arguments.size() +  // Function arguments (copy out-params back)
+            1);                 // Inlined code (Block or do-while loop)
 
     inlinedBody.children().push_back(std::make_unique<InlineMarker>(&call->function()));
 
@@ -630,7 +639,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         }
 
         // Provide our new variable with a unique name, and add it to our symbol table.
-        String uniqueName = this->uniqueNameForInlineVar(baseName, symbolTableForCall);
+        String uniqueName = this->uniqueNameForInlineVar(baseName, symbolTableForCall.get());
         const String* namePtr = symbolTableForCall->takeOwnershipOfString(
                 std::make_unique<String>(std::move(uniqueName)));
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
@@ -697,9 +706,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     auto inlineBlock = std::make_unique<Block>(offset, StatementArray{});
     inlineBlock->children().reserve_back(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
-                                                                resultExpr.get(), hasEarlyReturn,
-                                                                *stmt, caller->isBuiltin()));
+        inlineBlock->children().push_back(
+                this->inlineStatement(offset, &varMap, symbolTableForCall.get(), resultExpr.get(),
+                                      hasEarlyReturn, *stmt, caller->isBuiltin()));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -779,7 +788,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
 struct InlineCandidate {
-    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    std::shared_ptr<SymbolTable> fSymbols;        // the SymbolTable of the candidate
     std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
     std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
     std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
@@ -798,7 +807,7 @@ public:
 
     // A stack of the symbol tables; since most nodes don't have one, expected to be shallower than
     // the enclosing-statement stack.
-    std::vector<SymbolTable*> fSymbolTableStack;
+    std::vector<std::shared_ptr<SymbolTable>> fSymbolTableStack;
     // A stack of "enclosing" statements--these would be suitable for the inliner to use for adding
     // new instructions. Not all statements are suitable (e.g. a for-loop's initializer). The
     // inliner might replace a statement with a block containing the statement.
@@ -808,7 +817,7 @@ public:
 
     void visit(Program& program, InlineCandidateList* candidateList) {
         fCandidateList = candidateList;
-        fSymbolTableStack.push_back(program.fSymbols.get());
+        fSymbolTableStack.push_back(program.fSymbols);
 
         for (const auto& pe : program.elements()) {
             this->visitProgramElement(pe.get());
@@ -858,7 +867,7 @@ public:
             case Statement::Kind::kBlock: {
                 Block& block = (*stmt)->as<Block>();
                 if (block.symbolTable()) {
-                    fSymbolTableStack.push_back(block.symbolTable().get());
+                    fSymbolTableStack.push_back(block.symbolTable());
                 }
 
                 for (std::unique_ptr<Statement>& stmt : block.children()) {
@@ -889,7 +898,7 @@ public:
             case Statement::Kind::kFor: {
                 ForStatement& forStmt = (*stmt)->as<ForStatement>();
                 if (forStmt.symbols()) {
-                    fSymbolTableStack.push_back(forStmt.symbols().get());
+                    fSymbolTableStack.push_back(forStmt.symbols());
                 }
 
                 // The initializer and loop body are candidates for inlining.
@@ -928,7 +937,7 @@ public:
             case Statement::Kind::kSwitch: {
                 SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
                 if (switchStmt.fSymbols) {
-                    fSymbolTableStack.push_back(switchStmt.fSymbols.get());
+                    fSymbolTableStack.push_back(switchStmt.fSymbols);
                 }
 
                 this->visitExpression(&switchStmt.fValue);
