@@ -26,14 +26,18 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
-        , fMatrixScale(fViewMatrix.getMaxScale())
         , fStroke(stroke)
+        , fMatrixScale(fViewMatrix.getMaxScale())
+        , fParametricIntolerance(fMatrixScale *
+                                 GrTessellationPathRenderer::kLinearizationIntolerance)
+        , fNumRadialSegmentsPerRadian(.5f / acosf(
+                std::max(1 - 2/(fParametricIntolerance * fStroke.getWidth()), -1.f)))
         , fColor(get_paint_constant_blended_color(paint))
         , fProcessors(std::move(paint))
         , fPaths(path)
         , fTotalCombinedVerbCnt(path.countVerbs()) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
-    SkASSERT(fMatrixScale >= 0);
+    SkASSERT(fParametricIntolerance >= 0);
     SkRect devBounds = path.getBounds();
     float inflationRadius = fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
@@ -91,8 +95,10 @@ void GrStrokeTessellateOp::prePrepareColorProgram(SkArenaAlloc* arena,
                                                   const GrXferProcessor::DstProxyView& dstProxyView,
                                                   GrXferBarrierFlags renderPassXferBarriers,
                                                   const GrCaps& caps) {
-    auto* strokeShader = arena->make<GrStrokeTessellateShader>(fStroke, fMatrixScale, fViewMatrix,
-                                                               fColor);
+    auto* strokeShader = arena->make<GrStrokeTessellateShader>(fStroke, fMatrixScale,
+                                                               fParametricIntolerance,
+                                                               fNumRadialSegmentsPerRadian,
+                                                               fViewMatrix, fColor);
     auto pipelineFlags = GrPipeline::InputFlags::kNone;
     if (GrAAType::kNone != fAAType) {
         pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
@@ -111,8 +117,8 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                      flushState->detachAppliedClip(), flushState->dstProxyView(),
                                      flushState->renderPassBarriers(), flushState->caps());
     }
-    GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fStroke,
-                                 fTotalCombinedVerbCnt);
+    GrStrokePatchBuilder builder(flushState, &fPatchChunks, fStroke, fParametricIntolerance,
+                                 fNumRadialSegmentsPerRadian, fTotalCombinedVerbCnt);
     for (const SkPath& path : fPaths) {
         builder.addPath(path);
     }
