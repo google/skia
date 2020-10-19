@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65c14337_e96e4351",
+        "filename": "src/core/SkYUVPlanesCache.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-19T16:44:20Z",
+      "side": 1,
+      "message": "I know this isn\u0027t yours to deal with but, why isn\u0027t this sk_sp ?",
+      "range": {
+        "startLine": 26,
+        "startChar": 11,
+        "endLine": 26,
+        "endChar": 24
+      },
+      "revId": "a0a5d6192da892903a9ac9fa24e2b4fa97529e2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20ac804c_22508bd4",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-19T16:44:20Z",
+      "side": 1,
+      "message": "Just \"dataStorage.release()\" ?",
+      "range": {
+        "startLine": 296,
+        "startChar": 29,
+        "endLine": 296,
+        "endChar": 53
+      },
+      "revId": "a0a5d6192da892903a9ac9fa24e2b4fa97529e2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "469170b7_ba8d165f",
+        "filename": "tests/ImageGeneratorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-19T16:44:20Z",
+      "side": 1,
+      "message": "Maybe \"rowBytes[]\" ?",
+      "range": {
+        "startLine": 74,
+        "startChar": 40,
+        "endLine": 74,
+        "endChar": 49
+      },
+      "revId": "a0a5d6192da892903a9ac9fa24e2b4fa97529e2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16bea25d_0af5ffbe",
+        "filename": "tests/YUVCacheTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-19T16:44:20Z",
+      "side": 1,
+      "message": "same here ?",
+      "range": {
+        "startLine": 41,
+        "startChar": 37,
+        "endLine": 41,
+        "endChar": 47
+      },
+      "revId": "a0a5d6192da892903a9ac9fa24e2b4fa97529e2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
