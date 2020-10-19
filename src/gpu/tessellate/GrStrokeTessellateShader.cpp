@@ -13,16 +13,13 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-constexpr static float kLinearizationIntolerance =
-        GrTessellationPathRenderer::kLinearizationIntolerance;
-
 class GrStrokeTessellateShader::Impl : public GrGLSLGeometryProcessor {
 public:
     const char* getTessArgs1UniformName(const GrGLSLUniformHandler& uniformHandler) const {
         return uniformHandler.getUniformCStr(fTessArgs1Uniform);
     }
-    const char* getTessArgs2UniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fTessArgs2Uniform);
+    const char* getStrokeRadiusUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fStrokeRadiusUniform);
     }
     const char* getTranslateUniformName(const GrGLSLUniformHandler& uniformHandler) const {
         return uniformHandler.getUniformCStr(fTranslateUniform);
@@ -41,11 +38,8 @@ private:
         // uNumSegmentsInJoin, uCubicConstantPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
         fTessArgs1Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
                                                    kFloat4_GrSLType, "tessArgs1", nullptr);
-        // uRadialTolerancePow2, uStrokeRadius.
-        fTessArgs2Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag |
-                                                            kTessEvaluation_GrShaderFlag,
-                                                   kFloat2_GrSLType,
-                                                   "tessArgs2", nullptr);
+        fStrokeRadiusUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+                                                      kFloat_GrSLType, "strokeRadius", nullptr);
         if (!shader.viewMatrix().isIdentity()) {
             fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
                                                        kFloat2_GrSLType, "translate", nullptr);
@@ -262,19 +256,14 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        float intolerance = kLinearizationIntolerance * shader.fMatrixScale;
-        float cubicConstant = GrWangsFormula::cubic_constant(intolerance);
-        float strokeRadius = shader.fStroke.getWidth() * .5;
-        float radialIntolerance = 1 / (strokeRadius * intolerance);
+        float cubicConstant = GrWangsFormula::cubic_constant(shader.fParametricIntolerance);
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
             numSegmentsInJoin,  // uNumSegmentsInJoin
             cubicConstant * cubicConstant,  // uCubicConstantPow2 in path space.
-            .5f / acosf(std::max(1 - radialIntolerance, -1.f)),  // uNumRadialSegmentsPerRadian
+            shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
-        pdman.set2f(fTessArgs2Uniform,
-                    radialIntolerance * radialIntolerance,  // uRadialTolerancePow2.
-                    strokeRadius);  // uStrokeRadius.
+        pdman.set1f(fStrokeRadiusUniform, shader.fStroke.getWidth() * .5);
         const SkMatrix& m = shader.viewMatrix();
         if (!m.isIdentity()) {
             pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
@@ -285,7 +274,7 @@ private:
     }
 
     GrGLSLUniformHandler::UniformHandle fTessArgs1Uniform;
-    GrGLSLUniformHandler::UniformHandle fTessArgs2Uniform;
+    GrGLSLUniformHandler::UniformHandle fStrokeRadiusUniform;
     GrGLSLUniformHandler::UniformHandle fTranslateUniform;
     GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
@@ -311,10 +300,6 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     code.appendf("#define uCubicConstantPow2 %s.y\n", tessArgs1Name);
     code.appendf("#define uNumRadialSegmentsPerRadian %s.z\n", tessArgs1Name);
     code.appendf("#define uMiterLimitInvPow2 %s.w\n", tessArgs1Name);
-
-    const char* tessArgs2Name = impl->getTessArgs2UniformName(uniformHandler);
-    code.appendf("uniform vec2 %s;\n", tessArgs2Name);
-    code.appendf("#define uRadialTolerancePow2 %s.x\n", tessArgs2Name);
 
     code.append(R"(
     in vec4 vsPts01[];
@@ -411,27 +396,26 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // into. Radial segments divide the curve's rotation into even steps. The final tessellated
         // strip will be a composition of both parametric and radial segments.
         float numRadialSegments = abs(rotation) * uNumRadialSegmentsPerRadian;
-        numRadialSegments = max(ceil(numRadialSegments), 1);
-
         if (gl_InvocationID == 0) {
             // Set up joins.
             numParametricSegments = 1;  // Joins don't have parametric segments.
-            numRadialSegments = (uNumSegmentsInJoin == 0) ? numRadialSegments : uNumSegmentsInJoin;
             float innerStrokeRadiusMultiplier = 1;
-            if (uNumSegmentsInJoin == 2) {
-                // Miter join: extend the middle radius to either the miter point or the bevel edge.
-                float x = fma(cosTheta, .5, .5);
-                innerStrokeRadiusMultiplier = (x >= uMiterLimitInvPow2) ? inversesqrt(x) : sqrt(x);
-            }
             vec2 strokeOutsetClamp = vec2(-1, 1);
-            if (length_pow2(tan1norm - tan0norm) > uRadialTolerancePow2) {
-                // Clamp the join to the exterior side of its junction. We only do this if the join
-                // angle is large enough to guarantee there won't be cracks on the interior side of
-                // the junction.
+            // Clamp the join to the exterior side of its junction. We only do this if the join
+            // angle is large enough to guarantee there won't be cracks on the interior side of
+            // the junction.
+            if (numRadialSegments > 1e-2f) {
+                numRadialSegments = (uNumSegmentsInJoin == 0) ? numRadialSegments : uNumSegmentsInJoin;
+                if (uNumSegmentsInJoin == 2) {
+                    // Miter join: extend the middle radius to either the miter point or the bevel edge.
+                    float x = fma(cosTheta, .5, .5);
+                    innerStrokeRadiusMultiplier = (x >= uMiterLimitInvPow2) ? inversesqrt(x) : sqrt(x);
+                }
                 strokeOutsetClamp = (rotation > 0) ? vec2(-1,0) : vec2(0,1);
             }
             tcsJoinArgs = vec3(innerStrokeRadiusMultiplier, strokeOutsetClamp);
         }
+        numRadialSegments = max(ceil(numRadialSegments), 1);
 
         // The first and last edges are shared by both the parametric and radial sets of edges, so
         // the total number of edges is:
@@ -509,9 +493,9 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
     code.appendf("const float kPI = 3.141592653589793238;\n");
 
-    const char* tessArgs2Name = impl->getTessArgs2UniformName(uniformHandler);
-    code.appendf("uniform vec2 %s;\n", tessArgs2Name);
-    code.appendf("#define uStrokeRadius %s.y\n", tessArgs2Name);
+    const char* strokeRadiusName = impl->getStrokeRadiusUniformName(uniformHandler);
+    code.appendf("uniform float %s;\n", strokeRadiusName);
+    code.appendf("#define uStrokeRadius %s\n", strokeRadiusName);
 
     if (!this->viewMatrix().isIdentity()) {
         const char* translateName = impl->getTranslateUniformName(uniformHandler);
