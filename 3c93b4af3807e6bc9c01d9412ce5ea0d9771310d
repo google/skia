@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23275cb3_04806832",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-19T22:26:19Z",
+      "side": 1,
+      "message": "Should somebody be calling LoadKnownDigest with the known digests in gold? Or is the idea that if we draw the same thing twice during a single gm run that we don\u0027t upload a locally identical png twice?\n\nAny idea if we can get away with not having this be global?",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 27
+      },
+      "revId": "3c93b4af3807e6bc9c01d9412ce5ea0d9771310d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
