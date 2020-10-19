@@ -466,14 +466,14 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kSwitch: {
                 const SwitchStatement& ss = s->as<SwitchStatement>();
                 this->writeCommand(Rehydrator::kSwitch_Command);
-                this->writeU8(ss.fIsStatic);
-                AutoDehydratorSymbolTable symbols(this, ss.fSymbols);
-                this->write(ss.fValue.get());
-                this->writeU8(ss.fCases.size());
-                for (const std::unique_ptr<SwitchCase>& sc : ss.fCases) {
-                    this->write(sc->fValue.get());
-                    this->writeU8(sc->fStatements.size());
-                    for (const std::unique_ptr<Statement>& stmt : sc->fStatements) {
+                this->writeU8(ss.isStatic());
+                AutoDehydratorSymbolTable symbols(this, ss.symbols());
+                this->write(ss.value().get());
+                this->writeU8(ss.cases().count());
+                for (const SwitchCase& sc : ss.cases()) {
+                    this->write(sc.value().get());
+                    this->writeU8(sc.statements().size());
+                    for (const std::unique_ptr<Statement>& stmt : sc.statements()) {
                         this->write(stmt.get());
                     }
                 }
