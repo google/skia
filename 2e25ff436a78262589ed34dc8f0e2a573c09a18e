@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "449d1371_d4307187",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T17:38:38Z",
+      "side": 0,
+      "message": "These were just unused in simplifyStatement",
+      "revId": "2e25ff436a78262589ed34dc8f0e2a573c09a18e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

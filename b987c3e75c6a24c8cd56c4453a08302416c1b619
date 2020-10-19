@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9ee4cfe_1f828907",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T17:38:38Z",
+      "side": 1,
+      "message": "I think this early return may squelch the extra errors you were seeing in the Switch CL, Ethan?",
+      "revId": "b987c3e75c6a24c8cd56c4453a08302416c1b619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
