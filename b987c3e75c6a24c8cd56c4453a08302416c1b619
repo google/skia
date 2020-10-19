@@ -16,6 +16,23 @@
       "message": "I think this early return may squelch the extra errors you were seeing in the Switch CL, Ethan?",
       "revId": "b987c3e75c6a24c8cd56c4453a08302416c1b619",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d32a8a0d_065092d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T18:52:18Z",
+      "side": 1,
+      "message": "LGTM, but not sure if we should land it yet if Ethan\u0027s got an OptimizerContext change on deck? ",
+      "revId": "b987c3e75c6a24c8cd56c4453a08302416c1b619",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
