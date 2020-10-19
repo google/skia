@@ -22,6 +22,30 @@
       },
       "revId": "3c93b4af3807e6bc9c01d9412ce5ea0d9771310d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2158533_320653e1",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-19T22:32:56Z",
+      "side": 1,
+      "message": "Nevermind. I see how this get used in your follow-on CL.",
+      "parentUuid": "23275cb3_04806832",
+      "range": {
+        "startLine": 77,
+        "startChar": 12,
+        "endLine": 77,
+        "endChar": 27
+      },
+      "revId": "3c93b4af3807e6bc9c01d9412ce5ea0d9771310d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
