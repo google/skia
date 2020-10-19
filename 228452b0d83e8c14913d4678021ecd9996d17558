@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95d658d5_2e0a1b3e",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-19T14:04:33Z",
+      "side": 1,
+      "message": "nit: four spaces.",
+      "revId": "228452b0d83e8c14913d4678021ecd9996d17558",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
