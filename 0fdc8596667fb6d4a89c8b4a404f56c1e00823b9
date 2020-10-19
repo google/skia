@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d3c0d39_241f2947",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T14:34:35Z",
+      "side": 1,
+      "message": "Ideally we should do this full-program scan once, during candidate-list building, and capture it as a boolean on the candidate (like fIsLargeFunction). Probably using GetCallCounts. This implementation costs a full program scan for every inline candidate.",
+      "range": {
+        "startLine": 1178,
+        "startChar": 12,
+        "endLine": 1178,
+        "endChar": 48
+      },
+      "revId": "0fdc8596667fb6d4a89c8b4a404f56c1e00823b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
