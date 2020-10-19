@@ -101,3 +101,21 @@ class SimpleBlurRoundRectGM : public skiagm::GM {
 //DEF_GM(return new BlurRoundRectGM(600, 5514, 6);)
 
 DEF_GM(return new SimpleBlurRoundRectGM();)
+
+// From crbug.com/1138810
+DEF_SIMPLE_GM(blur_large_rrects, canvas, 300, 300) {
+    SkPaint paint;
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 20.f));
+
+    auto rect = SkRect::MakeLTRB(5.f, -20000.f, 240.f,  25.f);
+    SkRRect rrect = SkRRect::MakeRectXY(rect, 40.f, 40.f);
+    for (int i = 0; i < 4; ++i) {
+        SkColor4f color{(i & 1) ? 1.f : 0.f,
+                        (i & 2) ? 1.f : 0.f,
+                        (i < 2) ? 1.f : 0.f,
+                        1.f};
+        paint.setColor(color);
+        canvas->drawRRect(rrect, paint);
+        canvas->rotate(90.f, 150.f, 150.f);
+    }
+}
