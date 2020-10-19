@@ -3,7 +3,13 @@ out vec4 sk_FragColor;
 uniform vec2 h2;
 uniform vec2 f2;
 void main() {
+    vec2 _1_a = vec2(1.0, 2.0);
+    vec2 _2_b = vec2(3.0, 4.0);
+
     sk_FragColor = vec4(-2.0);
+
+    vec2 _4_a = vec2(5.0, 6.0);
+    vec2 _5_b = vec2(7.0, 8.0);
 
     sk_FragColor = vec4(-2.0);
 

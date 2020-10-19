@@ -252,12 +252,6 @@ protected:
         const Type* fType;
         const Expression* fInitialValue = nullptr;
         ModifiersPool::Handle fModifiersHandle;
-        // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
-        // becomes zero during optimization), the variable is dead and may be eliminated.
-        mutable int16_t fReadCount;
-        // Tracks how many sites write to the variable. If this is zero, the variable is dead and
-        // may be eliminated.
-        mutable int16_t fWriteCount;
         VariableStorage fStorage;
         bool fBuiltin;
     };

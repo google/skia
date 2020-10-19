@@ -4,6 +4,8 @@ uniform vec2 h2;
 uniform vec2 f2;
 void main() {
     float _0_cross;
+    vec2 _1_a = vec2(1.0, 2.0);
+    vec2 _2_b = vec2(3.0, 4.0);
     {
         _0_cross = determinant(mat2(vec2(1.0, 2.0), vec2(3.0, 4.0)));
     }
@@ -11,6 +13,8 @@ void main() {
     sk_FragColor = vec4(_0_cross);
 
     float _3_cross;
+    vec2 _4_a = vec2(5.0, 6.0);
+    vec2 _5_b = vec2(7.0, 8.0);
     {
         _3_cross = determinant(mat2(vec2(5.0, 6.0), vec2(7.0, 8.0)));
     }

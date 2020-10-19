@@ -9,8 +9,9 @@
 #define SkSLAnalysis_DEFINED
 
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLDefines.h"
+
+#include <memory>
 
 namespace SkSL {
 
@@ -20,6 +21,7 @@ class FunctionDeclaration;
 struct FunctionDefinition;
 struct Program;
 class ProgramElement;
+class ProgramUsage;
 class Statement;
 class Variable;
 class VariableReference;
@@ -37,8 +39,7 @@ struct Analysis {
 
     static bool NodeCountExceeds(const FunctionDefinition& function, int limit);
 
-    using CallCountMap = SkTHashMap<const FunctionDeclaration*, int>;
-    static CallCountMap GetCallCounts(const Program& program);
+    static std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,

@@ -181,17 +181,44 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-class CallCountVisitor : public ProgramVisitor {
+class ProgramUsageVisitor : public ProgramVisitor {
 public:
+    enum class Mode { kAdd, kSubtract };
+
+    ProgramUsageVisitor(ProgramUsage* usage, Mode mode) : fUsage(usage), fMode(mode) {}
+
     bool visitExpression(const Expression& e) override {
+        const int delta = (fMode == Mode::kAdd) ? 1 : -1;
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
-            fCounts[f]++;
+            fUsage->fCallCounts[f] += delta;
+            SkASSERT(fUsage->fCallCounts[f] >= 0);
+        } else if (e.is<VariableReference>()) {
+            const VariableReference& ref = e.as<VariableReference>();
+            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[ref.variable()];
+            switch (ref.refKind()) {
+                case VariableRefKind::kRead:
+                    counts.fRead += delta;
+                    break;
+                case VariableRefKind::kWrite:
+                    counts.fWrite += delta;
+                    break;
+                case VariableRefKind::kReadWrite:
+                case VariableRefKind::kPointer:
+                    counts.fRead += delta;
+                    counts.fWrite += delta;
+                    break;
+            }
+            SkASSERT(counts.fRead >= 0 && counts.fWrite >= 0);
         }
         return INHERITED::visitExpression(e);
     }
 
-    Analysis::CallCountMap fCounts;
+    using ProgramVisitor::visitProgramElement;
+    using ProgramVisitor::visitStatement;
+
+    ProgramUsage* fUsage;
+    Mode fMode;
     using INHERITED = ProgramVisitor;
 };
 
@@ -341,10 +368,64 @@ bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
     return NodeCountVisitor{limit}.visit(*function.body()) > limit;
 }
 
-Analysis::CallCountMap Analysis::GetCallCounts(const Program& program) {
-    CallCountVisitor visitor;
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
+    auto usage = std::make_unique<ProgramUsage>();
+    ProgramUsageVisitor visitor(usage.get(), ProgramUsageVisitor::Mode::kAdd);
     visitor.visit(program);
-    return std::move(visitor.fCounts);
+    return usage;
+}
+
+ProgramUsage::VariableCounts ProgramUsage::get(const Variable* v) const {
+    VariableCounts result = { 0, v->initialValue() ? 1 : 0 };
+    if (const VariableCounts* counts = fVariableCounts.find(v)) {
+        result.fRead += counts->fRead;
+        result.fWrite += counts->fWrite;
+    }
+    return result;
+}
+
+bool ProgramUsage::dead(const Variable* v) const {
+    const Modifiers& modifiers = v->modifiers();
+    VariableCounts counts = this->get(v);
+    if ((v->storage() != Variable::Storage::kLocal && counts.fRead) ||
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
+                             Modifiers::kVarying_Flag))) {
+        return false;
+    }
+    return !counts.fWrite || (!counts.fRead && !(modifiers.fFlags &
+                                                 (Modifiers::kPLS_Flag | Modifiers::kPLSOut_Flag)));
+}
+
+int ProgramUsage::get(const FunctionDeclaration* f) const {
+    const int* count = fCallCounts.find(f);
+    return count ? *count : 0;
+}
+
+void ProgramUsage::replace(const Expression* oldExpr, const Expression* newExpr) {
+    if (oldExpr) {
+        ProgramUsageVisitor subtract(this, ProgramUsageVisitor::Mode::kSubtract);
+        subtract.visitExpression(*oldExpr);
+    }
+    if (newExpr) {
+        ProgramUsageVisitor add(this, ProgramUsageVisitor::Mode::kAdd);
+        add.visitExpression(*newExpr);
+    }
+}
+
+void ProgramUsage::replace(const Statement* oldStmt, const Statement* newStmt) {
+    if (oldStmt) {
+        ProgramUsageVisitor subtract(this, ProgramUsageVisitor::Mode::kSubtract);
+        subtract.visitStatement(*oldStmt);
+    }
+    if (newStmt) {
+        ProgramUsageVisitor add(this, ProgramUsageVisitor::Mode::kAdd);
+        add.visitStatement(*newStmt);
+    }
+}
+
+void ProgramUsage::remove(const ProgramElement& element) {
+    ProgramUsageVisitor subtract(this, ProgramUsageVisitor::Mode::kSubtract);
+    subtract.visitProgramElement(element);
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
@@ -388,7 +469,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
 
         case Expression::Kind::kBinary: {
             auto& b = e.template as<BinaryExpression>();
-            return this->visitExpression(b.left()) || this->visitExpression(b.right());
+            return (b.leftPointer() && this->visitExpression(b.left())) ||
+                   (b.rightPointer() && this->visitExpression(b.right()));
         }
         case Expression::Kind::kConstructor: {
             auto& c = e.template as<Constructor>();
@@ -410,7 +492,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
         case Expression::Kind::kFunctionCall: {
             auto& c = e.template as<FunctionCall>();
             for (auto& arg : c.arguments()) {
-                if (this->visitExpression(*arg)) { return true; }
+                if (arg && this->visitExpression(*arg)) { return true; }
             }
             return false;
         }
@@ -424,13 +506,16 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
         case Expression::Kind::kPrefix:
             return this->visitExpression(*e.template as<PrefixExpression>().operand());
 
-        case Expression::Kind::kSwizzle:
-            return this->visitExpression(*e.template as<Swizzle>().base());
+        case Expression::Kind::kSwizzle: {
+            auto& s = e.template as<Swizzle>();
+            return s.base() && this->visitExpression(*s.base());
+        }
 
         case Expression::Kind::kTernary: {
             auto& t = e.template as<TernaryExpression>();
-            return this->visitExpression(*t.test()) || this->visitExpression(*t.ifTrue()) ||
-                   this->visitExpression(*t.ifFalse());
+            return this->visitExpression(*t.test()) ||
+                   (t.ifTrue() && this->visitExpression(*t.ifTrue())) ||
+                   (t.ifFalse() && this->visitExpression(*t.ifFalse()));
         }
         default:
             SkUNREACHABLE;
@@ -450,7 +535,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
 
         case Statement::Kind::kBlock:
             for (auto& stmt : s.template as<Block>().children()) {
-                if (this->visitStatement(*stmt)) {
+                if (stmt && this->visitStatement(*stmt)) {
                     return true;
                 }
             }
@@ -473,7 +558,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         case Statement::Kind::kIf: {
             auto& i = s.template as<IfStatement>();
             return this->visitExpression(*i.test()) ||
-                   this->visitStatement(*i.ifTrue()) ||
+                   (i.ifTrue() && this->visitStatement(*i.ifTrue())) ||
                    (i.ifFalse() && this->visitStatement(*i.ifFalse()));
         }
         case Statement::Kind::kReturn: {
@@ -490,7 +575,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
                     return true;
                 }
                 for (auto& st : c.statements()) {
-                    if (this->visitStatement(*st)) {
+                    if (st && this->visitStatement(*st)) {
                         return true;
                     }
                 }
