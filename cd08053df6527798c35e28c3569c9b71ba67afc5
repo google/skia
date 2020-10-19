@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12a63b6f_a43e60a5",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1369,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-19T21:32:30Z",
+      "side": 1,
+      "message": "A rather more complex solution than proposed, but I believe this solves the issue.",
+      "parentUuid": "8348e544_4dd6e23f",
+      "revId": "cd08053df6527798c35e28c3569c9b71ba67afc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "340bbc45_30afe7f3",
