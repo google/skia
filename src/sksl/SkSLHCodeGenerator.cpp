@@ -356,7 +356,7 @@ bool HCodeGenerator::generateCode() {
                  "public:\n",
                  fFullName.c_str());
     for (const auto& p : fProgram.elements()) {
-        if (p->is<Enum>() && !p->as<Enum>().isBuiltin()) {
+        if (p->is<Enum>() && !p->as<Enum>().isSharedWithCpp()) {
             this->writef("%s\n", p->as<Enum>().code().c_str());
         }
     }

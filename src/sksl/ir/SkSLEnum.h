@@ -25,8 +25,8 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kEnum;
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
-         bool isBuiltin = true)
-    : INHERITED(offset, EnumData{typeName, std::move(symbols), isBuiltin}) {}
+         bool isSharedWithCpp, bool isBuiltin = true)
+    : INHERITED(offset, EnumData{typeName, std::move(symbols), isSharedWithCpp, isBuiltin}) {}
 
     StringFragment typeName() const {
         return this->enumData().fTypeName;
@@ -40,9 +40,13 @@ public:
         return this->enumData().fIsBuiltin;
     }
 
+    bool isSharedWithCpp() const {
+        return this->enumData().fIsSharedWithCpp;
+    }
+
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Enum(fOffset, this->typeName(), this->symbols(),
-                                                        this->isBuiltin()));
+        return std::make_unique<Enum>(fOffset, this->typeName(), this->symbols(),
+                                      this->isSharedWithCpp(), /*isBuiltin=*/false);
     }
 
     String code() const {
