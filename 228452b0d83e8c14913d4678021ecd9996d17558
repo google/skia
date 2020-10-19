@@ -16,6 +16,24 @@
       "message": "nit: four spaces.",
       "revId": "228452b0d83e8c14913d4678021ecd9996d17558",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f67aa6bd_01514db0",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 10562
+      },
+      "writtenOn": "2020-10-19T14:09:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95d658d5_2e0a1b3e",
+      "revId": "228452b0d83e8c14913d4678021ecd9996d17558",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
