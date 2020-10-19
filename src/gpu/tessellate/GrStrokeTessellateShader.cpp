@@ -13,9 +13,6 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-constexpr static float kLinearizationIntolerance =
-        GrTessellationPathRenderer::kLinearizationIntolerance;
-
 class GrStrokeTessellateShader::Impl : public GrGLSLGeometryProcessor {
 public:
     const char* getTessArgs1UniformName(const GrGLSLUniformHandler& uniformHandler) const {
@@ -262,16 +259,17 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        float intolerance = kLinearizationIntolerance * shader.fMatrixScale;
-        float cubicConstant = GrWangsFormula::cubic_constant(intolerance);
-        float strokeRadius = shader.fStroke.getWidth() * .5;
-        float radialIntolerance = 1 / (strokeRadius * intolerance);
+        float cubicConstant = GrWangsFormula::cubic_constant(shader.fParametricIntolerance);
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
             numSegmentsInJoin,  // uNumSegmentsInJoin
             cubicConstant * cubicConstant,  // uCubicConstantPow2 in path space.
-            .5f / acosf(std::max(1 - radialIntolerance, -1.f)),  // uNumRadialSegmentsPerRadian
+            shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
+        float strokeRadius = shader.fStroke.getWidth() * .5;
+        float intolerance = GrTessellationPathRenderer::kLinearizationIntolerance *
+                            shader.fMatrixScale;
+        float radialIntolerance = 1 / (strokeRadius * intolerance);
         pdman.set2f(fTessArgs2Uniform,
                     radialIntolerance * radialIntolerance,  // uRadialTolerancePow2.
                     strokeRadius);  // uStrokeRadius.
