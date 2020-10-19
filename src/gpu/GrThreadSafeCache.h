@@ -93,6 +93,14 @@ public:
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> findOrAddWithData(
                             const GrUniqueKey&, const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
 
+    //---
+    std::tuple<const void*, sk_sp<SkData>> findVertsWithData(
+                            const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
+
+    std::tuple<const void*, sk_sp<SkData>> addVertsWithData(
+                            const GrUniqueKey&, const void*)  SK_EXCLUDES(fSpinLock);
+    //---
+
     void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
     // To allow gpu-created resources to have priority, we pre-emptively place a lazy proxy
@@ -110,21 +118,86 @@ public:
                                                                             SkBackingFit);
 private:
     struct Entry {
-        Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
+        Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView1(view) {
+            SkDEBUGCODE(fTag = kView;)
+        }
 
-        // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey                  fKey;
-        GrSurfaceProxyView           fView;
+        Entry(const GrUniqueKey& key, const void* verts) : fKey(key), fVerts(verts) {
+            SkDEBUGCODE(fTag = kVerts;)
+        }
+
+        ~Entry() {
+
+        }
+
+        bool uniquelyHeld() const {
+            if (fView1.proxy()->unique()) {
+                return true;
+            }
+
+            return false;
+        }
+
+        const GrUniqueKey& key() const { return fKey; }
+
+        sk_sp<SkData> refCustomData() const { return fKey.refCustomData(); }
+
+        GrSurfaceProxyView view() {
+            SkASSERT(fTag == kView);
+            return fView1;
+        }
+
+        const void* verts() {
+            SkASSERT(fTag == kVerts);
+            return fVerts;
+        }
+
+        void set(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
+            SkASSERT(fTag == kEmpty);
+            fKey = key;
+            fView1 = view;
+            fTag = kView;
+        }
+
+        void set(const GrUniqueKey& key, const void* verts) {
+            SkASSERT(fTag == kEmpty);
+            fKey = key;
+            fVerts = verts;
+            fTag = kVerts;
+        }
+
+        void reset() {
+            fKey.reset();
+            fView1.reset();
+            fTag = kEmpty;
+        }
+
         GrStdSteadyClock::time_point fLastAccess;
-
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
         // for SkTDynamicHash
         static const GrUniqueKey& GetKey(const Entry& e) { return e.fKey; }
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+
+    private:
+        // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
+        GrUniqueKey             fKey;
+        union {
+            GrSurfaceProxyView  fView1;
+            const void*         fVerts;
+        };
+
+#ifdef SK_DEBUG
+        enum {
+            kEmpty,
+            kView,
+            kVerts,
+        } fTag { kEmpty };
+#endif
     };
 
     Entry* getEntry(const GrUniqueKey&, const GrSurfaceProxyView&) SK_REQUIRES(fSpinLock);
+    Entry* getEntry(const GrUniqueKey&, const void* verts) SK_REQUIRES(fSpinLock);
     void recycleEntry(Entry*)  SK_REQUIRES(fSpinLock);
 
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalFind(
@@ -132,11 +205,16 @@ private:
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalAdd(
                             const GrUniqueKey&, const GrSurfaceProxyView&)  SK_REQUIRES(fSpinLock);
 
+    std::tuple<const void*, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
+                                                       const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
+    std::tuple<const void*, sk_sp<SkData>> internalAddVerts(
+                            const GrUniqueKey&, const void* verts)  SK_REQUIRES(fSpinLock);
+
     mutable SkSpinlock fSpinLock;
 
-    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedProxyViewMap  SK_GUARDED_BY(fSpinLock);
+    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedEntryMap  SK_GUARDED_BY(fSpinLock);
     // The head of this list is the MRU
-    SkTInternalLList<Entry>            fUniquelyKeyedProxyViewList  SK_GUARDED_BY(fSpinLock);
+    SkTInternalLList<Entry>            fUniquelyKeyedEntryList  SK_GUARDED_BY(fSpinLock);
 
     // TODO: empirically determine this from the skps
     static const int kInitialArenaSize = 64 * sizeof(Entry);
