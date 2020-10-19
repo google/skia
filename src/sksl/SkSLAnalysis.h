@@ -40,6 +40,16 @@ struct Analysis {
     using CallCountMap = SkTHashMap<const FunctionDeclaration*, int>;
     static CallCountMap GetCallCounts(const Program& program);
 
+    struct VariableUsage {
+        int readCount(const Variable*) const;
+        int writeCount(const Variable*) const;
+        bool dead(const Variable*) const;
+
+        struct ReferenceCounts { int fRead = 0; int fWrite = 0; };
+        SkTHashMap<const Variable*, ReferenceCounts> fCounts;
+    };
+    static VariableUsage GetVariableUsage(const Program& program);
+
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
                              ErrorReporter* errors = nullptr);

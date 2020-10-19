@@ -195,6 +195,33 @@ public:
     using INHERITED = ProgramVisitor;
 };
 
+class ReferenceCountVisitor : public ProgramVisitor {
+public:
+    bool visitExpression(const Expression& e) override {
+        if (e.is<VariableReference>()) {
+            const VariableReference& ref = e.as<VariableReference>();
+            Analysis::VariableUsage::ReferenceCounts& counts = fUsage.fCounts[ref.variable()];
+            switch (ref.refKind()) {
+                case VariableRefKind::kRead:
+                    counts.fRead++;
+                    break;
+                case VariableRefKind::kWrite:
+                    counts.fWrite++;
+                    break;
+                case VariableRefKind::kReadWrite:
+                case VariableRefKind::kPointer:
+                    counts.fRead++;
+                    counts.fWrite++;
+                    break;
+            }
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    Analysis::VariableUsage fUsage;
+    using INHERITED = ProgramVisitor;
+};
+
 class VariableWriteVisitor : public ProgramVisitor {
 public:
     VariableWriteVisitor(const Variable* var)
@@ -345,6 +372,44 @@ Analysis::CallCountMap Analysis::GetCallCounts(const Program& program) {
     CallCountVisitor visitor;
     visitor.visit(program);
     return std::move(visitor.fCounts);
+}
+
+Analysis::VariableUsage Analysis::GetVariableUsage(const Program& program) {
+    ReferenceCountVisitor visitor;
+    visitor.visit(program);
+    return std::move(visitor.fUsage);
+}
+
+int Analysis::VariableUsage::readCount(const Variable* v) const {
+    if (auto counts = fCounts.find(v)) {
+        return counts->fRead;
+    }
+    return 0;
+}
+
+int Analysis::VariableUsage::writeCount(const Variable* v) const {
+    int count = v->initialValue() ? 1 : 0;
+    if (auto counts = fCounts.find(v)) {
+        return counts->fWrite + count;
+    }
+    return count;
+}
+
+bool Analysis::VariableUsage::dead(const Variable* v) const {
+    const Modifiers& modifiers = v->modifiers();
+    int readCount = 0,
+        writeCount = v->initialValue() ? 1 : 0;
+    if (auto counts = fCounts.find(v)) {
+        readCount = counts->fRead;
+        writeCount += counts->fWrite;
+    }
+    if ((v->storage() != Variable::Storage::kLocal && readCount) ||
+        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
+                             Modifiers::kVarying_Flag))) {
+        return false;
+    }
+    return !writeCount ||
+           (!readCount && !(modifiers.fFlags & (Modifiers::kPLS_Flag | Modifiers::kPLSOut_Flag)));
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
