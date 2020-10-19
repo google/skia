@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00856f08_70b2860c",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T14:02:45Z",
+      "side": 1,
+      "message": "I still have some questions about this, after trying to re-read and understand this code better. Do we handle the case where the set of possible overloads spans more than two symbol tables? We only merge things from two calls to GetFunctions, right?\n\nOr is the idea that it\u0027s merged as it goes up the stack?\n\nRelated - With this change, is it ever possible for a builtin table to have an unresolved function node? Previously, the set of overloads for builtin intrinsics functions would create one, but now it won\u0027t? Or am I missing some subtlety?",
+      "revId": "d894485d2aed1916666a53faf28ef04d093de08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
