@@ -55,23 +55,22 @@ static float pow4(float x) {
 }
 
 GrStrokePatchBuilder::GrStrokePatchBuilder(GrMeshDrawOp::Target* target,
-                                           SkTArray<PatchChunk>* patchChunkArray, float matrixScale,
-                                           const SkStrokeRec& stroke, int totalCombinedVerbCnt)
+                                           SkTArray<PatchChunk>* patchChunkArray,
+                                           const SkStrokeRec& stroke,
+                                           float parametricIntolerance,
+                                           float numRadialSegmentsPerRadian,
+                                           int totalCombinedVerbCnt)
         : fTarget(target)
         , fPatchChunkArray(patchChunkArray)
-        , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-        , fLinearizationIntolerance(matrixScale *
-                                    GrTessellationPathRenderer::kLinearizationIntolerance)
-        , fStroke(stroke) {
+        // Subtract 2 because the tessellation shader chops every cubic at two locations, and each
+        // chop has the potential to introduce an extra segment.
+        , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments() - 2)
+        , fStroke(stroke)
+        , fParametricIntolerance(parametricIntolerance)
+        , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian) {
     // We don't support hairline strokes. For now, the client can transform the path into device
     // space and then use a stroke width of 1.
     SkASSERT(fStroke.getWidth() > 0);
-
-    // This is the number of radial segments we need to add to a triangle strip for each radian
-    // of rotation, given the current stroke radius. Any fewer radial segments and our error
-    // would fall outside the linearization tolerance.
-    fNumRadialSegmentsPerRadian = 1 / std::acos(
-            std::max(1 - 1 / (fLinearizationIntolerance * fStroke.getWidth() * .5f), -1.f));
 
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate
@@ -225,7 +224,7 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     //
     // An informal survey of skottie animations and gms revealed that even with a bare minimum of 64
     // tessellation segments, 99.9%+ of quadratics take this early out.
-    float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fLinearizationIntolerance, p);
+    float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, asCubic);
@@ -311,7 +310,7 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     //
     // An informal survey of skottie animations revealed that with a bare minimum of 64 tessellation
     // segments, 95% of cubics take this early out.
-    float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fLinearizationIntolerance, p);
+    float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, p);
