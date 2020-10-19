@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <vector>
 #include "src/sksl/SkSLASTFile.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -49,6 +50,7 @@ class ExternalValue;
 class IRGenerator;
 class IRIntrinsicMap;
 struct PipelineStageArgs;
+class ProgramUsage;
 
 struct LoadedModule {
     std::shared_ptr<SymbolTable>                 fSymbols;
@@ -114,6 +116,8 @@ public:
         bool fUpdated = false;
         // true if we need to completely regenerate the CFG
         bool fNeedsRescan = false;
+        // Metadata about function and variable usage within the program
+        ProgramUsage* fUsage = nullptr;
     };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
@@ -250,7 +254,7 @@ private:
     /**
      * Optimizes a function based on control flow analysis. Returns true if changes were made.
      */
-    bool scanCFG(FunctionDefinition& f);
+    bool scanCFG(FunctionDefinition& f, ProgramUsage* usage);
 
     /**
      * Optimize every function in the program.

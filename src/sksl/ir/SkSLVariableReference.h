@@ -39,8 +39,6 @@ public:
 
     VariableReference(int offset, const Variable* variable, RefKind refKind = RefKind::kRead);
 
-    ~VariableReference() override;
-
     VariableReference(const VariableReference&) = delete;
     VariableReference& operator=(const VariableReference&) = delete;
 
