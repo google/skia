@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <vector>
 #include "src/sksl/SkSLASTFile.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -228,6 +229,7 @@ private:
                             BasicBlock& b,
                             std::vector<BasicBlock::Node>::iterator* iter,
                             std::unordered_set<const Variable*>* undefinedVariables,
+                            const Analysis::VariableUsage& varUsage,
                             bool* outUpdated,
                             bool* outNeedsRescan);
 
@@ -239,13 +241,14 @@ private:
                            BasicBlock& b,
                            std::vector<BasicBlock::Node>::iterator* iter,
                            std::unordered_set<const Variable*>* undefinedVariables,
+                           const Analysis::VariableUsage& varUsage,
                            bool* outUpdated,
                            bool* outNeedsRescan);
 
     /**
      * Optimizes a function based on control flow analysis. Returns true if changes were made.
      */
-    bool scanCFG(FunctionDefinition& f);
+    bool scanCFG(FunctionDefinition& f, const Analysis::VariableUsage& varUsage);
 
     /**
      * Optimize every function in the program.

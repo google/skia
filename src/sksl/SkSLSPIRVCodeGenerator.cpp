@@ -2762,8 +2762,9 @@ void SPIRVCodeGenerator::writePrecisionModifier(Precision precision, SpvId id) {
     }
 }
 
-bool is_dead(const Variable& var) {
-    if (var.readCount() || var.writeCount()) {
+bool is_dead(const Variable& var, const Analysis::VariableUsage& varUsage) {
+    Analysis::VariableUsage::ReferenceCounts counts = varUsage.getCounts(&var);
+    if (counts.fRead || counts.fWrite) {
         return false;
     }
     // not entirely sure what the rules are for when it's safe to elide interface variables, but it
@@ -2797,7 +2798,7 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
         return;
     }
-    if (is_dead(var)) {
+    if (is_dead(var, fVarUsage)) {
         return;
     }
     const Type& type = var.type();
@@ -3159,6 +3160,7 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
 }
 
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
+    fVarUsage = Analysis::GetVariableUsage(program);
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
     std::set<SpvId> interfaceVars;
@@ -3208,7 +3210,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             if (((modifiers.fFlags & Modifiers::kIn_Flag) ||
                 (modifiers.fFlags & Modifiers::kOut_Flag)) &&
                 modifiers.fLayout.fBuiltin == -1 &&
-                !is_dead(intf.variable())) {
+                !is_dead(intf.variable(), fVarUsage)) {
                 interfaceVars.insert(id);
             }
         }
@@ -3239,7 +3241,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         const Variable* var = entry.first;
         if (var->storage() == Variable::Storage::kGlobal &&
             ((var->modifiers().fFlags & Modifiers::kIn_Flag) ||
-             (var->modifiers().fFlags & Modifiers::kOut_Flag)) && !is_dead(*var)) {
+             (var->modifiers().fFlags & Modifiers::kOut_Flag)) && !is_dead(*var, fVarUsage)) {
             interfaceVars.insert(entry.second);
         }
     }

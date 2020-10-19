@@ -582,22 +582,24 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
 /**
  * Returns true if assigning to this lvalue has no effect.
  */
-static bool is_dead(const Expression& lvalue) {
+static bool is_dead(const Expression& lvalue, const Analysis::VariableUsage& varUsage) {
     switch (lvalue.kind()) {
         case Expression::Kind::kVariableReference:
-            return lvalue.as<VariableReference>().variable()->dead();
+            return varUsage.dead(lvalue.as<VariableReference>().variable());
         case Expression::Kind::kSwizzle:
-            return is_dead(*lvalue.as<Swizzle>().base());
+            return is_dead(*lvalue.as<Swizzle>().base(), varUsage);
         case Expression::Kind::kFieldAccess:
-            return is_dead(*lvalue.as<FieldAccess>().base());
+            return is_dead(*lvalue.as<FieldAccess>().base(), varUsage);
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = lvalue.as<IndexExpression>();
-            return is_dead(*idx.base()) &&
+            return is_dead(*idx.base(), varUsage) &&
                    !idx.index()->hasProperty(Expression::Property::kSideEffects);
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = lvalue.as<TernaryExpression>();
-            return !t.test()->hasSideEffects() && is_dead(*t.ifTrue()) && is_dead(*t.ifFalse());
+            return !t.test()->hasSideEffects() &&
+                   is_dead(*t.ifTrue(), varUsage) &&
+                   is_dead(*t.ifFalse(), varUsage);
         }
         case Expression::Kind::kExternalValue:
             return false;
@@ -613,11 +615,11 @@ static bool is_dead(const Expression& lvalue) {
  * Returns true if this is an assignment which can be collapsed down to just the right hand side due
  * to a dead target and lack of side effects on the left hand side.
  */
-static bool dead_assignment(const BinaryExpression& b) {
+static bool dead_assignment(const BinaryExpression& b, const Analysis::VariableUsage& varUsage) {
     if (!Compiler::IsAssignment(b.getOperator())) {
         return false;
     }
-    return is_dead(b.left());
+    return is_dead(b.left(), varUsage);
 }
 
 void Compiler::computeDataFlow(CFG* cfg) {
@@ -856,6 +858,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   BasicBlock& b,
                                   std::vector<BasicBlock::Node>::iterator* iter,
                                   std::unordered_set<const Variable*>* undefinedVariables,
+                                  const Analysis::VariableUsage& varUsage,
                                   bool* outUpdated,
                                   bool* outNeedsRescan) {
     Expression* expr = (*iter)->expression()->get();
@@ -905,7 +908,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         }
         case Expression::Kind::kBinary: {
             BinaryExpression* bin = &expr->as<BinaryExpression>();
-            if (dead_assignment(*bin)) {
+            if (dead_assignment(*bin, varUsage)) {
                 delete_left(&b, iter, outUpdated, outNeedsRescan);
                 break;
             }
@@ -1279,13 +1282,14 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  BasicBlock& b,
                                  std::vector<BasicBlock::Node>::iterator* iter,
                                  std::unordered_set<const Variable*>* undefinedVariables,
+                                 const Analysis::VariableUsage& varUsage,
                                  bool* outUpdated,
                                  bool* outNeedsRescan) {
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->kind()) {
         case Statement::Kind::kVarDeclaration: {
             const auto& varDecl = stmt->as<VarDeclaration>();
-            if (varDecl.var().dead() &&
+            if (varUsage.dead(&varDecl.var()) &&
                 (!varDecl.value() ||
                  !varDecl.value()->hasSideEffects())) {
                 if (varDecl.value()) {
@@ -1411,7 +1415,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
     }
 }
 
-bool Compiler::scanCFG(FunctionDefinition& f) {
+bool Compiler::scanCFG(FunctionDefinition& f, const Analysis::VariableUsage& varUsage) {
     bool madeChanges = false;
 
     CFG cfg = CFGGenerator().getCFG(f);
@@ -1474,11 +1478,11 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
                 if (iter->isExpression()) {
-                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
-                                             &needsRescan);
+                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, varUsage,
+                                             &updated, &needsRescan);
                 } else {
-                    this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
-                                            &needsRescan);
+                    this->simplifyStatement(definitions, b, &iter, &undefinedVariables, varUsage,
+                                            &updated, &needsRescan);
                 }
                 if (needsRescan) {
                     break;
@@ -1579,11 +1583,12 @@ bool Compiler::optimize(Program& program) {
 
     while (fErrorCount == 0) {
         bool madeChanges = false;
+        Analysis::VariableUsage varUsage = Analysis::GetVariableUsage(program);
 
         // Scan and optimize based on the control-flow graph for each function.
         for (const auto& element : program.elements()) {
             if (element->is<FunctionDefinition>()) {
-                madeChanges |= this->scanCFG(element->as<FunctionDefinition>());
+                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), varUsage);
             }
         }
 
@@ -1622,7 +1627,7 @@ bool Compiler::optimize(Program& program) {
                                        const auto& global = element->as<GlobalVarDeclaration>();
                                        const auto& varDecl =
                                                          global.declaration()->as<VarDeclaration>();
-                                       bool dead = varDecl.var().dead();
+                                       bool dead = varUsage.dead(&varDecl.var());
                                        madeChanges |= dead;
                                        return dead;
                                    }),
