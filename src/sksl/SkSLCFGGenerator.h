@@ -16,6 +16,8 @@
 
 namespace SkSL {
 
+class ProgramUsage;
+
 // index of a block within CFG.fBlocks
 typedef size_t BlockId;
 
@@ -40,24 +42,25 @@ struct BasicBlock {
             return fExpression;
         }
 
-        void setExpression(std::unique_ptr<Expression> expr) {
-            SkASSERT(!this->isStatement());
-            *fExpression = std::move(expr);
-        }
+        // See comment below on setStatement. Assumption is that 'expr' is a strict subset of the
+        // existing expression.
+        void setExpression(std::unique_ptr<Expression> expr, ProgramUsage* usage);
 
         bool isStatement() const {
             return fStatement != nullptr;
         }
 
-        std::unique_ptr<Statement>* statement() const {
+        const std::unique_ptr<Statement>* statement() const {
             SkASSERT(!this->isExpression());
             return fStatement;
         }
 
-        void setStatement(std::unique_ptr<Statement> stmt) {
-            SkASSERT(!this->isExpression());
-            *fStatement = std::move(stmt);
-        }
+        // Replaces the pointed-to statement with 'stmt'. The assumption is that 'stmt' is a strict
+        // subset of the existing statement, or a Nop. For example: just the True or False of an if,
+        // or a single Case from a Switch. To maintain usage's bookkeeping, we remove references in
+        // our pointed-to statment. By the time this is called, there is no path from our statement
+        // to 'stmt', because it's been moved to the argument.
+        void setStatement(std::unique_ptr<Statement> stmt, ProgramUsage* usage);
 
 #ifdef SK_DEBUG
         String description() const {
