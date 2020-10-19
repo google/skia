@@ -62,33 +62,18 @@ public:
 
 DEF_TEST(ImageGenerator, reporter) {
     MyImageGenerator ig;
-    SkYUVASizeInfo sizeInfo;
-    sizeInfo.fSizes[0] = SkISize::Make(200, 200);
-    sizeInfo.fSizes[1] = SkISize::Make(100, 100);
-    sizeInfo.fSizes[2] = SkISize::Make( 50,  50);
-    sizeInfo.fSizes[3] = SkISize::Make( 25,  25);
-    sizeInfo.fWidthBytes[0] = 0;
-    sizeInfo.fWidthBytes[1] = 0;
-    sizeInfo.fWidthBytes[2] = 0;
-    sizeInfo.fWidthBytes[3] = 0;
-    void* planes[4] = { nullptr };
-    SkYUVAIndex yuvaIndices[4];
-    SkYUVColorSpace colorSpace;
+    SkYUVAPixmapInfo yuvaPixmapInfo;
 
     // Check that the YUV decoding API does not cause any crashes
-    ig.queryYUVA8(&sizeInfo, yuvaIndices, nullptr);
-    ig.queryYUVA8(&sizeInfo, yuvaIndices, &colorSpace);
-    sizeInfo.fWidthBytes[0] = 250;
-    sizeInfo.fWidthBytes[1] = 250;
-    sizeInfo.fWidthBytes[2] = 250;
-    sizeInfo.fWidthBytes[3] = 250;
-    yuvaIndices[0] = { 0, SkColorChannel::kR };
-    yuvaIndices[1] = { 1, SkColorChannel::kR };
-    yuvaIndices[2] = { 2, SkColorChannel::kR };
-    yuvaIndices[3] = { 3, SkColorChannel::kR };
-    int dummy;
-    planes[0] = planes[1] = planes[2] = planes[3] = &dummy;
-    ig.getYUVA8Planes(sizeInfo, yuvaIndices, planes);
+    ig.queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &yuvaPixmapInfo);
+    SkYUVAInfo yuvaInfo({250, 250},
+                        SkYUVAInfo::PlanarConfig::kY_UV_420,
+                        kJPEG_Full_SkYUVColorSpace);
+    yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo,
+                                      SkYUVAPixmapInfo::DataType::kUnorm8,
+                                      /*rowBytes[]*/ nullptr);
+    SkYUVAPixmaps yuvaPixmaps = SkYUVAPixmaps::Allocate(yuvaPixmapInfo);
+    ig.getYUVAPlanes(yuvaPixmaps);
 
     // Suppressed due to https://code.google.com/p/skia/issues/detail?id=4339
     if (false) {

@@ -70,10 +70,7 @@ private:
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
 #if SK_SUPPORT_GPU
     sk_sp<SkCachedData> getPlanes(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
-                                  SkYUVASizeInfo* yuvaSizeInfo,
-                                  SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                                  SkYUVColorSpace* yuvColorSpace,
-                                  SkPixmap planes[SkYUVASizeInfo::kMaxCount]) const;
+                                  SkYUVAPixmaps* pixmaps) const;
     GrSurfaceProxyView textureProxyViewFromPlanes(GrRecordingContext*, SkBudgeted) const;
 #endif
 

@@ -42,34 +42,6 @@ bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return this->onGetYUVAPlanes(yuvaPixmaps);
 }
 
-bool SkImageGenerator::queryYUVA8(SkYUVASizeInfo* sizeInfo,
-                                  SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                                  SkYUVColorSpace* colorSpace) const {
-    SkASSERT(sizeInfo);
-
-    return this->onQueryYUVA8(sizeInfo, yuvaIndices, colorSpace);
-}
-
-bool SkImageGenerator::getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
-                                      const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                                      void* planes[SkYUVASizeInfo::kMaxCount]) {
-
-    for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
-        SkASSERT(sizeInfo.fSizes[i].fWidth >= 0);
-        SkASSERT(sizeInfo.fSizes[i].fHeight >= 0);
-        SkASSERT(sizeInfo.fWidthBytes[i] >= (size_t) sizeInfo.fSizes[i].fWidth);
-    }
-
-    int numPlanes = 0;
-    SkASSERT(SkYUVAIndex::AreValidIndices(yuvaIndices, &numPlanes));
-    SkASSERT(planes);
-    for (int i = 0; i < numPlanes; ++i) {
-        SkASSERT(planes[i]);
-    }
-
-    return this->onGetYUVA8Planes(sizeInfo, yuvaIndices, planes);
-}
-
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrSurfaceProxyView.h"
 

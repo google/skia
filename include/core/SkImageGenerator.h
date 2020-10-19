@@ -113,39 +113,6 @@ public:
      */
     bool getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps);
 
-    /**
-     *  Deprecated. Use queryYUVAInfo instead for more structured YUVA plane specification.
-     *
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
-     *
-     *  @param sizeInfo    Output parameter indicating the sizes and required
-     *                     allocation widths of the Y, U, V, and A planes.
-     *  @param yuvaIndices How the YUVA planes are organized/used
-     *  @param colorSpace  Output parameter.
-     */
-    bool queryYUVA8(SkYUVASizeInfo* sizeInfo,
-                    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                    SkYUVColorSpace* colorSpace) const;
-
-    /**
-     *  Deprecated. Use getYUVAPlanes instead for more structured YUVA plane retrieval.
-     *
-     *  Returns true on success and false on failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUVA8().
-     *
-     *  @param sizeInfo    Needs to exactly match the values returned by the
-     *                     query, except the WidthBytes may be larger than the
-     *                     recommendation (but not smaller).
-     *  @param yuvaIndices Needs to exactly match the values returned by the query.
-     *  @param planes      Memory for the Y, U, V, and A planes. Note that, depending on the
-     *                     settings in yuvaIndices, anywhere from 1..4 planes could be returned.
-     */
-    bool getYUVA8Planes(const SkYUVASizeInfo& sizeInfo,
-                        const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                        void* planes[]);
-
 #if SK_SUPPORT_GPU
     /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
@@ -212,10 +179,6 @@ protected:
     virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
                                  SkYUVAPixmapInfo*) const { return false; }
     virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }
-    virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                              SkYUVColorSpace*) const { return false; }
-    virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],
-                                  void*[4] /*planes*/) { return false; }
 #if SK_SUPPORT_GPU
     // returns nullptr
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
