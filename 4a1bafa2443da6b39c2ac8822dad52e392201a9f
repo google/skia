@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08ef4ccc_54144e99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:33:46Z",
+      "side": 1,
+      "message": "I like this CL and really want to +1 it as soon as we get NodeArray sorted out a bit!",
+      "revId": "4a1bafa2443da6b39c2ac8822dad52e392201a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dec53c99_669a7e4d",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:33:46Z",
+      "side": 1,
+      "message": "Random suggestion, your call: fSilences?\n\nWe\u0027re not ignoring these nodes necessarily, we\u0027re silencing errors on them.",
+      "range": {
+        "startLine": 112,
+        "startChar": 42,
+        "endLine": 112,
+        "endChar": 50
+      },
+      "revId": "4a1bafa2443da6b39c2ac8822dad52e392201a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88bb3135_e0375e2b",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-19T22:33:46Z",
+      "side": 1,
+      "message": "Hopefully a const_cast isn\u0027t necessary now that we have a whole ConstCaseArray type at our disposal.",
+      "range": {
+        "startLine": 53,
+        "startChar": 30,
+        "endLine": 53,
+        "endChar": 58
+      },
+      "revId": "4a1bafa2443da6b39c2ac8822dad52e392201a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
