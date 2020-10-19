@@ -52,6 +52,24 @@
       "parentUuid": "75b3535d_5574135d",
       "revId": "b2312ff291abdeb752cb8a3e8fbe37768dedbb3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96697246_96d2b07d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-19T17:06:05Z",
+      "side": 1,
+      "message": "Ah hmm, it is indeed failing, looks like because `returnCount !\u003d f-\u003efReturnCount` is failing in ByteCode::run().  I\u0027m unclear whether that\u0027s a good way to fail or accidental.",
+      "parentUuid": "bead7094_a96e0da3",
+      "revId": "b2312ff291abdeb752cb8a3e8fbe37768dedbb3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
