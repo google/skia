@@ -227,7 +227,6 @@ private:
     void simplifyExpression(DefinitionMap& definitions,
                             BasicBlock& b,
                             std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unordered_set<const Variable*>* undefinedVariables,
                             bool* outUpdated,
                             bool* outNeedsRescan);
 
@@ -235,10 +234,8 @@ private:
      * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
      * possible.
      */
-    void simplifyStatement(DefinitionMap& definitions,
-                           BasicBlock& b,
+    void simplifyStatement(BasicBlock& b,
                            std::vector<BasicBlock::Node>::iterator* iter,
-                           std::unordered_set<const Variable*>* undefinedVariables,
                            bool* outUpdated,
                            bool* outNeedsRescan);
 

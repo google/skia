@@ -855,7 +855,6 @@ static void clear_write(Expression& expr) {
 void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   BasicBlock& b,
                                   std::vector<BasicBlock::Node>::iterator* iter,
-                                  std::unordered_set<const Variable*>* undefinedVariables,
                                   bool* outUpdated,
                                   bool* outNeedsRescan) {
     Expression* expr = (*iter)->expression()->get();
@@ -880,9 +879,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             const Variable* var = ref.variable();
             if (ref.refKind() != VariableReference::RefKind::kWrite &&
                 ref.refKind() != VariableReference::RefKind::kPointer &&
-                var->storage() == Variable::Storage::kLocal && !definitions[var] &&
-                (*undefinedVariables).find(var) == (*undefinedVariables).end()) {
-                (*undefinedVariables).insert(var);
+                var->storage() == Variable::Storage::kLocal && !definitions[var]) {
                 this->error(expr->fOffset,
                             "'" + var->name() + "' has not been assigned");
             }
@@ -1275,10 +1272,8 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->fSymbols);
 }
 
-void Compiler::simplifyStatement(DefinitionMap& definitions,
-                                 BasicBlock& b,
+void Compiler::simplifyStatement(BasicBlock& b,
                                  std::vector<BasicBlock::Node>::iterator* iter,
-                                 std::unordered_set<const Variable*>* undefinedVariables,
                                  bool* outUpdated,
                                  bool* outNeedsRescan) {
     Statement* stmt = (*iter)->statement()->get();
@@ -1443,7 +1438,6 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     }
 
     // check for dead code & undefined variables, perform constant propagation
-    std::unordered_set<const Variable*> undefinedVariables;
     bool updated;
     bool needsRescan = false;
     do {
@@ -1474,11 +1468,9 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
                 if (iter->isExpression()) {
-                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
-                                             &needsRescan);
+                    this->simplifyExpression(definitions, b, &iter, &updated, &needsRescan);
                 } else {
-                    this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
-                                            &needsRescan);
+                    this->simplifyStatement(b, &iter, &updated, &needsRescan);
                 }
                 if (needsRescan) {
                     break;
@@ -1491,6 +1483,9 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
             }
         }
         madeChanges |= updated;
+        if (fErrorCount) {
+            return madeChanges;
+        }
     } while (updated);
     SkASSERT(!needsRescan);
 
