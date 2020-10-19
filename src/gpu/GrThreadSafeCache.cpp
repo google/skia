@@ -25,22 +25,22 @@ GrThreadSafeCache::~GrThreadSafeCache() {
 int GrThreadSafeCache::numEntries() const {
     SkAutoSpinlock lock{fSpinLock};
 
-    return fUniquelyKeyedProxyViewMap.count();
+    return fUniquelyKeyedEntryMap.count();
 }
 
 size_t GrThreadSafeCache::approxBytesUsedForHash() const {
     SkAutoSpinlock lock{fSpinLock};
 
-    return fUniquelyKeyedProxyViewMap.approxBytesUsed();
+    return fUniquelyKeyedEntryMap.approxBytesUsed();
 }
 #endif
 
 void GrThreadSafeCache::dropAllRefs() {
     SkAutoSpinlock lock{fSpinLock};
 
-    fUniquelyKeyedProxyViewMap.reset();
-    while (auto tmp = fUniquelyKeyedProxyViewList.head()) {
-        fUniquelyKeyedProxyViewList.remove(tmp);
+    fUniquelyKeyedEntryMap.reset();
+    while (auto tmp = fUniquelyKeyedEntryList.head()) {
+        fUniquelyKeyedEntryList.remove(tmp);
         this->recycleEntry(tmp);
     }
     // TODO: should we empty out the fFreeEntryList and reset fEntryAllocator?
@@ -52,7 +52,7 @@ void GrThreadSafeCache::dropUniqueRefs(GrResourceCache* resourceCache) {
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
-    Entry* cur = fUniquelyKeyedProxyViewList.tail();
+    Entry* cur = fUniquelyKeyedEntryList.tail();
     Entry* prev = cur ? cur->fPrev : nullptr;
 
     while (cur) {
@@ -60,9 +60,9 @@ void GrThreadSafeCache::dropUniqueRefs(GrResourceCache* resourceCache) {
             return;
         }
 
-        if (cur->fView.proxy()->unique()) {
-            fUniquelyKeyedProxyViewMap.remove(cur->fKey);
-            fUniquelyKeyedProxyViewList.remove(cur);
+        if (cur->uniquelyHeld()) {
+            fUniquelyKeyedEntryMap.remove(cur->key());
+            fUniquelyKeyedEntryList.remove(cur);
             this->recycleEntry(cur);
         }
 
@@ -75,7 +75,7 @@ void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point pur
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
-    Entry* cur = fUniquelyKeyedProxyViewList.tail();
+    Entry* cur = fUniquelyKeyedEntryList.tail();
     Entry* prev = cur ? cur->fPrev : nullptr;
 
     while (cur) {
@@ -84,9 +84,9 @@ void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point pur
             return;
         }
 
-        if (cur->fView.proxy()->unique()) {
-            fUniquelyKeyedProxyViewMap.remove(cur->fKey);
-            fUniquelyKeyedProxyViewList.remove(cur);
+        if (cur->uniquelyHeld()) {
+            fUniquelyKeyedEntryMap.remove(cur->key());
+            fUniquelyKeyedEntryList.remove(cur);
             this->recycleEntry(cur);
         }
 
@@ -97,14 +97,14 @@ void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point pur
 
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalFind(
                                                        const GrUniqueKey& key) {
-    Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (tmp) {
-        SkASSERT(fUniquelyKeyedProxyViewList.isInList(tmp));
+        SkASSERT(fUniquelyKeyedEntryList.isInList(tmp));
         // make the sought out entry the MRU
         tmp->fLastAccess = GrStdSteadyClock::now();
-        fUniquelyKeyedProxyViewList.remove(tmp);
-        fUniquelyKeyedProxyViewList.addToHead(tmp);
-        return { tmp->fView, tmp->fKey.refCustomData() };
+        fUniquelyKeyedEntryList.remove(tmp);
+        fUniquelyKeyedEntryList.addToHead(tmp);
+        return { tmp->view(), tmp->refCustomData() };
     }
 
     return {};
@@ -134,24 +134,43 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
         fFreeEntryList = entry->fNext;
         entry->fNext = nullptr;
 
-        entry->fKey = key;
-        entry->fView = view;
+        entry->set(key, view);
     } else {
         entry = fEntryAllocator.make<Entry>(key, view);
     }
 
     // make 'entry' the MRU
     entry->fLastAccess = GrStdSteadyClock::now();
-    fUniquelyKeyedProxyViewList.addToHead(entry);
-    fUniquelyKeyedProxyViewMap.add(entry);
+    fUniquelyKeyedEntryList.addToHead(entry);
+    fUniquelyKeyedEntryMap.add(entry);
+    return entry;
+}
+
+GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
+                                                      sk_sp<SkData> verts) {
+    Entry* entry;
+
+    if (fFreeEntryList) {
+        entry = fFreeEntryList;
+        fFreeEntryList = entry->fNext;
+        entry->fNext = nullptr;
+
+        entry->set(key, std::move(verts));
+    } else {
+        entry = fEntryAllocator.make<Entry>(key, std::move(verts));
+    }
+
+    // make 'entry' the MRU
+    entry->fLastAccess = GrStdSteadyClock::now();
+    fUniquelyKeyedEntryList.addToHead(entry);
+    fUniquelyKeyedEntryMap.add(entry);
     return entry;
 }
 
 void GrThreadSafeCache::recycleEntry(Entry* dead) {
     SkASSERT(!dead->fPrev && !dead->fNext && !dead->fList);
 
-    dead->fKey.reset();
-    dead->fView.reset();
+    dead->reset();
 
     dead->fNext = fFreeEntryList;
     fFreeEntryList = dead;
@@ -160,14 +179,14 @@ void GrThreadSafeCache::recycleEntry(Entry* dead) {
 std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalAdd(
                                                                 const GrUniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
-    Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (!tmp) {
         tmp = this->getEntry(key, view);
 
-        SkASSERT(fUniquelyKeyedProxyViewMap.find(key));
+        SkASSERT(fUniquelyKeyedEntryMap.find(key));
     }
 
-    return { tmp->fView, tmp->fKey.refCustomData() };
+    return { tmp->view(), tmp->refCustomData() };
 }
 
 GrSurfaceProxyView GrThreadSafeCache::add(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
@@ -213,13 +232,57 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::findOrAddWithDa
     return this->internalAdd(key, v);
 }
 
+//--
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
+                                                       const GrUniqueKey& key) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (tmp) {
+        SkASSERT(fUniquelyKeyedEntryList.isInList(tmp));
+        // make the sought out entry the MRU
+        tmp->fLastAccess = GrStdSteadyClock::now();
+        fUniquelyKeyedEntryList.remove(tmp);
+        fUniquelyKeyedEntryList.addToHead(tmp);
+        return { tmp->verts(), tmp->refCustomData() };
+    }
+
+    return {};
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::findVertsWithData(const GrUniqueKey& key) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalFindVerts(key);
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(const GrUniqueKey& key,
+                                                                             sk_sp<SkData> verts) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (!tmp) {
+        tmp = this->getEntry(key, std::move(verts));
+
+        SkASSERT(fUniquelyKeyedEntryMap.find(key));
+    }
+
+    return { tmp->verts(), tmp->refCustomData() };
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
+                                                                const GrUniqueKey& key,
+                                                                sk_sp<SkData> verts) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalAddVerts(key, std::move(verts));
+}
+
+//--
+
 void GrThreadSafeCache::remove(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
-    Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (tmp) {
-        fUniquelyKeyedProxyViewMap.remove(key);
-        fUniquelyKeyedProxyViewList.remove(tmp);
+        fUniquelyKeyedEntryMap.remove(key);
+        fUniquelyKeyedEntryList.remove(tmp);
         this->recycleEntry(tmp);
     }
 }
