@@ -822,8 +822,10 @@ public:
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
-                fEnclosingFunction = &funcDef;
-                this->visitStatement(&funcDef.body());
+                if (!funcDef.isBuiltin()) {
+                    fEnclosingFunction = &funcDef;
+                    this->visitStatement(&funcDef.body());
+                }
                 break;
             }
             default:
