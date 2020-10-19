@@ -16,6 +16,24 @@
       "message": "ok, new version, this time the test is testing that early return does in fact work in the interpreter.\n\nI think it\u0027s working because we do branch-if-all-false over early returns in this interpreter?",
       "revId": "cb7e2f72b3ac4810a2c4181b1059593dc787971e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e5b0732_6f051528",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-19T17:43:00Z",
+      "side": 1,
+      "message": "Yes, that would be my read. I imagine that if you ran the interpreter over more than one lane (with divergent results), it would actually return early, giving incorrect results on the lanes that shouldn\u0027t have returned yet.",
+      "parentUuid": "aa39f0ff_c950f403",
+      "revId": "cb7e2f72b3ac4810a2c4181b1059593dc787971e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
