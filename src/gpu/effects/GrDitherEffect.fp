@@ -10,7 +10,7 @@ in fragmentProcessor inputFP;
 // Larger values increase the strength of the dithering effect.
 in uniform half range;
 
-void main() {
+half4 main() {
     half4 color = sample(inputFP);
     half value;
     @if (sk_Caps.integerSupport)
@@ -43,7 +43,7 @@ void main() {
     }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
-    sk_OutColor = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
+    return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
 }
 
 @optimizationFlags {

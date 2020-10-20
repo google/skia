@@ -252,7 +252,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 // premultiply alpha
                 fragBuilder->codeAppendf("color.rgb *= color.a;");
             }
-            fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
+            fragBuilder->codeAppendf("return color;");
         }
 
     private:
