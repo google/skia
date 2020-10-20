@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5e59bc1_316367dc",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "Just curious why you need these two declarations?",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "027a295b_7745e56a",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "I think this is inherited by default: https://www.w3.org/TR/SVG11/text.html#FontFamilyProperty",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b76596e_a28c63b6",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "Inherited by default too",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56c7e693_ae1cb8b6",
+        "filename": "modules/svg/src/SkSVGAttribute.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "Where do these defaults come from?",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6afc66db_88940758",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "Doesn\u0027t this skip to the end of the content? I don\u0027t quite recall how this parser works w.r.t. fCurPos",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01ab7337_5fcfcb17",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "could make this static const",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edad88aa_98be3022",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "could make this static const",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35ada1ad_4748e3d1",
+        "filename": "modules/svg/src/SkSVGDOM.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "Do you know if the XML parser takes care of the handling of \u0027xml:space\u0027 for us? https://www.w3.org/TR/SVG11/text.html#WhiteSpace",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84707d94_a9fd8dc2",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T13:55:40Z",
+      "side": 1,
+      "message": "I think font size should resolved as a vertical length here?",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
