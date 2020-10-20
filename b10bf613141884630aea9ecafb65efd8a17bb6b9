@@ -94,6 +94,30 @@
       },
       "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1418c570_ccd775ac",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-20T14:56:14Z",
+      "side": 1,
+      "message": "Ah, sorry - I was looking at InlineCandidate, which doesn\u0027t show up until later in execution.",
+      "parentUuid": "cd38cdf2_b0497932",
+      "range": {
+        "startLine": 609,
+        "startChar": 59,
+        "endLine": 609,
+        "endChar": 77
+      },
+      "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
