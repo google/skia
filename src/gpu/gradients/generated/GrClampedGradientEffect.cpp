@@ -36,33 +36,33 @@ public:
                                                               kHalf4_GrSLType, "leftBorderColor");
         rightBorderColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "rightBorderColor");
-        SkString _sample1102 = this->invokeChild(1, args);
+        SkString _sample1103 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
+half4 outColor;
 if (!%s && t.y < 0.0) {
-    %s = half4(0.0);
+    outColor = half4(0.0);
 } else if (t.x < 0.0) {
-    %s = %s;
+    outColor = %s;
 } else if (t.x > 1.0) {
-    %s = %s;
+    outColor = %s;
 } else {)SkSL",
-                _sample1102.c_str(),
+                _sample1103.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
-                args.fOutputColor, args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(leftBorderColorVar), args.fOutputColor,
+                args.fUniformHandler->getUniformCStr(leftBorderColorVar),
                 args.fUniformHandler->getUniformCStr(rightBorderColorVar));
-        SkString _coords1871("float2(half2(t.x, 0.0))");
-        SkString _sample1871 = this->invokeChild(0, args, _coords1871.c_str());
+        SkString _coords1881("float2(half2(t.x, 0.0))");
+        SkString _sample1881 = this->invokeChild(0, args, _coords1881.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
-    %s = %s;
+    outColor = %s;
 }
 @if (%s) {
-    %s.xyz *= %s.w;
+    outColor.xyz *= outColor.w;
 }
+return outColor;
 )SkSL",
-                args.fOutputColor, _sample1871.c_str(), (_outer.makePremul ? "true" : "false"),
-                args.fOutputColor, args.fOutputColor);
+                _sample1881.c_str(), (_outer.makePremul ? "true" : "false"));
     }
 
 private:
@@ -103,7 +103,7 @@ bool GrClampedGradientEffect::onIsEqual(const GrFragmentProcessor& other) const 
     if (colorsAreOpaque != that.colorsAreOpaque) return false;
     return true;
 }
-bool GrClampedGradientEffect::usesExplicitReturn() const { return false; }
+bool GrClampedGradientEffect::usesExplicitReturn() const { return true; }
 GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& src)
         : INHERITED(kGrClampedGradientEffect_ClassID, src.optimizationFlags())
         , leftBorderColor(src.leftBorderColor)

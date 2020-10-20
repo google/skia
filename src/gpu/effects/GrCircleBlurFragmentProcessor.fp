@@ -295,13 +295,13 @@ uniform half4 circleData;
     }
 }
 
-void main() {
+half4 main() {
     // We just want to compute "(length(vec) - circleData.z + 0.5) * circleData.w" but need to
     // rearrange to avoid passing large values to length() that would overflow.
     half2 vec = half2((sk_FragCoord.xy - circleData.xy) * circleData.w);
     half dist = length(vec) + (0.5 - circleData.z) * circleData.w;
     half4 inputColor = sample(inputFP);
-    sk_OutColor = inputColor * sample(blurProfile, half2(dist, 0.5)).a;
+    return inputColor * sample(blurProfile, half2(dist, 0.5)).a;
 }
 
 @test(testData) {

@@ -28,7 +28,7 @@ public:
         (void)range;
         rangeVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "range");
-        SkString _sample302 = this->invokeChild(0, args);
+        SkString _sample303 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = %s;
 half value;
@@ -43,10 +43,9 @@ half value;
     bits.xz = abs(bits.xz - bits.yw);
     value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
 }
-%s = half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
+return half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
 )SkSL",
-                _sample302.c_str(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(rangeVar));
+                _sample303.c_str(), args.fUniformHandler->getUniformCStr(rangeVar));
     }
 
 private:
@@ -68,7 +67,7 @@ bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (range != that.range) return false;
     return true;
 }
-bool GrDitherEffect::usesExplicitReturn() const { return false; }
+bool GrDitherEffect::usesExplicitReturn() const { return true; }
 GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
         : INHERITED(kGrDitherEffect_ClassID, src.optimizationFlags()), range(src.range) {
     this->cloneAndRegisterAllChildProcessors(src);

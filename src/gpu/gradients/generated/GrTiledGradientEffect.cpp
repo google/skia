@@ -30,11 +30,11 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque;
         (void)colorsAreOpaque;
-        SkString _sample453 = this->invokeChild(1, args);
+        SkString _sample454 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
 if (!%s && t.y < 0.0) {
-    %s = half4(0.0);
+    return half4(0.0);
 } else {
     @if (%s) {
         half t_1 = t.x - 1.0;
@@ -45,22 +45,28 @@ if (!%s && t.y < 0.0) {
         t.x = abs(tiled_t);
     } else {
         t.x = fract(t.x);
-    })SkSL",
-                _sample453.c_str(),
+    }
+    @if (!%s) {)SkSL",
+                _sample454.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
-                args.fOutputColor, (_outer.mirror ? "true" : "false"));
-        SkString _coords1451("float2(half2(t.x, 0.0))");
-        SkString _sample1451 = this->invokeChild(0, args, _coords1451.c_str());
+                (_outer.mirror ? "true" : "false"), (_outer.makePremul ? "true" : "false"));
+        SkString _coords1470("float2(half2(t.x, 0.0))");
+        SkString _sample1470 = this->invokeChild(0, args, _coords1470.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
-    %s = %s;
-}
-@if (%s) {
-    %s.xyz *= %s.w;
+        return %s;
+    } else {)SkSL",
+                _sample1470.c_str());
+        SkString _coords1541("float2(half2(t.x, 0.0))");
+        SkString _sample1541 = this->invokeChild(0, args, _coords1541.c_str());
+        fragBuilder->codeAppendf(
+                R"SkSL(
+        half4 outColor = %s;
+        return outColor * half4(outColor.www, 1.0);
+    }
 }
 )SkSL",
-                args.fOutputColor, _sample1451.c_str(), (_outer.makePremul ? "true" : "false"),
-                args.fOutputColor, args.fOutputColor);
+                _sample1541.c_str());
     }
 
 private:
@@ -83,7 +89,7 @@ bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (colorsAreOpaque != that.colorsAreOpaque) return false;
     return true;
 }
-bool GrTiledGradientEffect::usesExplicitReturn() const { return false; }
+bool GrTiledGradientEffect::usesExplicitReturn() const { return true; }
 GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags())
         , mirror(src.mirror)

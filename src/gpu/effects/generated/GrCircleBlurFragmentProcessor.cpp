@@ -307,18 +307,18 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _sample13763 = this->invokeChild(0, args);
+        SkString _sample13764 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13763.c_str());
-        SkString _coords13811("float2(half2(dist, 0.5))");
-        SkString _sample13811 = this->invokeChild(1, args, _coords13811.c_str());
+                _sample13764.c_str());
+        SkString _coords13805("float2(half2(dist, 0.5))");
+        SkString _sample13805 = this->invokeChild(1, args, _coords13805.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
-%s = inputColor * %s.w;
+return inputColor * %s.w;
 )SkSL",
-                args.fOutputColor, _sample13811.c_str());
+                _sample13805.c_str());
     }
 
 private:
@@ -352,7 +352,7 @@ bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) 
     if (textureRadius != that.textureRadius) return false;
     return true;
 }
-bool GrCircleBlurFragmentProcessor::usesExplicitReturn() const { return false; }
+bool GrCircleBlurFragmentProcessor::usesExplicitReturn() const { return true; }
 GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         const GrCircleBlurFragmentProcessor& src)
         : INHERITED(kGrCircleBlurFragmentProcessor_ClassID, src.optimizationFlags())

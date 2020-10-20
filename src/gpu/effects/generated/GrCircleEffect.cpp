@@ -49,18 +49,17 @@ half d;
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar),
                 args.fUniformHandler->getUniformCStr(circleVar));
-        SkString _sample2509 = this->invokeChild(0, args);
+        SkString _sample2510 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
 @if (%d == 1 || %d == 3) {
-    %s = inputColor * clamp(d, 0.0, 1.0);
+    return inputColor * clamp(d, 0.0, 1.0);
 } else {
-    %s = d > 0.5 ? inputColor : half4(0.0);
+    return d > 0.5 ? inputColor : half4(0.0);
 }
 )SkSL",
-                _sample2509.c_str(), (int)_outer.edgeType, (int)_outer.edgeType, args.fOutputColor,
-                args.fOutputColor);
+                _sample2510.c_str(), (int)_outer.edgeType, (int)_outer.edgeType);
     }
 
 private:
@@ -111,7 +110,7 @@ bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (radius != that.radius) return false;
     return true;
 }
-bool GrCircleEffect::usesExplicitReturn() const { return false; }
+bool GrCircleEffect::usesExplicitReturn() const { return true; }
 GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
         : INHERITED(kGrCircleEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)
