@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57c77961_0527cb02",
+        "filename": "src/sksl/ir/SkSLFunctionDefinition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-20T13:38:05Z",
+      "side": 1,
+      "message": "Per recent discussion, want to just replace this with:\n  /*builtin\u003d*/false\n\n... and get rid of setBuiltin entirely?",
+      "range": {
+        "startLine": 69,
+        "startChar": 52,
+        "endLine": 69,
+        "endChar": 69
+      },
+      "revId": "fcc9e59c408dcd1264bca709343fd3fed315abd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
