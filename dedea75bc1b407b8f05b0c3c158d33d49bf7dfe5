@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef4f6d2d_7a987b9e",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "operator-\u003e is missing",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae8e3d61_efebd293",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "Implementing copy-constructor with copy-assignment is going to bite us at some point; rule of three/five/zero says we should have one. https://en.cppreference.com/w/cpp/language/rule_of_three\n\nI think it means fContents has to be a pointer and not a reference but that doesn\u0027t affect anything tangibly.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 39
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4a028d9_9501080e",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "You can\u0027t construct a SkTArray\u0026 with an int.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2b897ee_34d74997",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "Can this just be\n\n    std::forward\u003cArgs\u003e(args)...\n\n?\nThe inner `emplace_back` should be newing them. We\u0027re just forwarding the args. If we have to do new here, then `push_back` was the right choice after all.",
+      "range": {
+        "startLine": 114,
+        "startChar": 55,
+        "endLine": 114,
+        "endChar": 89
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "007f964c_9cd028ed",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "nit, optional: it was a bit confusing at first that front() and back() were implemented so differently. Why not fContents.front()-\u003etemplate as\u003cT\u003e() for consistency?",
+      "range": {
+        "startLine": 147,
+        "startChar": 24,
+        "endLine": 147,
+        "endChar": 36
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89a2978f_6655ed77",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "Definitely not in a Const wrapper",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 206,
+        "endChar": 0
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "354100d4_420e93ce",
+        "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "emplace_back is meant to invoke the object\u0027s constructor for you; this is kind of a weird use of the API. (This misuse of emplace is very common, though, enough so that Google discourages emplace_back unless you actually need it: https://abseil.io/tips/112 ).",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 51
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5266a1b0_f963a9ac",
+        "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T17:25:09Z",
+      "side": 1,
+      "message": "Please add coverage for\n\nconst_iterator\npush_back\ncopy construction",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
