@@ -45,10 +45,10 @@ func main() {
 	defer td.EndRun(ctx)
 
 	// Absolute paths work more consistently than relative paths.
-	gitAbsPath := getAbsoluteOfRequiredFlag(ctx, *gitExePath, "git_exe_path")
-	outAbsPath := getAbsoluteOfRequiredFlag(ctx, *outPath, "out_path")
-	skiaAbsPath := getAbsoluteOfRequiredFlag(ctx, *skiaPath, "skia_path")
-	workAbsPath := getAbsoluteOfRequiredFlag(ctx, *workPath, "work_path")
+	gitAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *gitExePath, "git_exe_path")
+	outAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *outPath, "out_path")
+	skiaAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *skiaPath, "skia_path")
+	workAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *workPath, "work_path")
 
 	if !git_common.IsFromCIPD(gitAbsPath) {
 		fatalOrSleep(ctx, skerr.Fmt("Git %s must be from CIPD", gitAbsPath))
@@ -90,17 +90,6 @@ func fatalOrSleep(ctx context.Context, err error) {
 		time.Sleep(30 * time.Minute)
 	}
 	td.Fatal(ctx, err)
-}
-
-func getAbsoluteOfRequiredFlag(ctx context.Context, nonEmptyPath, flag string) string {
-	if nonEmptyPath == "" {
-		td.Fatalf(ctx, "--%s must be specified", flag)
-	}
-	absPath, err := filepath.Abs(nonEmptyPath)
-	if err != nil {
-		fatalOrSleep(ctx, skerr.Wrap(err))
-	}
-	return absPath
 }
 
 const (

@@ -42,9 +42,9 @@ func main() {
 	ctx := td.StartRun(projectID, taskID, taskName, outputSteps, local)
 	defer td.EndRun(ctx)
 
-	outAbsPath := getAbsoluteOfRequiredFlag(ctx, *outPath, "out_path")
-	skiaAbsPath := getAbsoluteOfRequiredFlag(ctx, *skiaPath, "skia_path")
-	workAbsPath := getAbsoluteOfRequiredFlag(ctx, *workPath, "work_path")
+	outAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *outPath, "out_path")
+	skiaAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *skiaPath, "skia_path")
+	workAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *workPath, "work_path")
 
 	if err := os_steps.MkdirAll(ctx, workAbsPath); err != nil {
 		td.Fatal(ctx, err)
@@ -81,17 +81,6 @@ func setupDocker(ctx context.Context, isLocal bool) (*docker.Docker, error) {
 	}
 
 	return docker.New(ctx, ts)
-}
-
-func getAbsoluteOfRequiredFlag(ctx context.Context, nonEmptyPath, flag string) string {
-	if nonEmptyPath == "" {
-		td.Fatalf(ctx, "--%s must be specified", flag)
-	}
-	absPath, err := filepath.Abs(nonEmptyPath)
-	if err != nil {
-		td.Fatalf(ctx, "error with path %s - %s", nonEmptyPath, err)
-	}
-	return absPath
 }
 
 func extractOutput(ctx context.Context, workDir, outAbsPath string) error {
