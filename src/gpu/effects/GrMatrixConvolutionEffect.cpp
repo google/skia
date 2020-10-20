@@ -338,85 +338,6 @@ bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) cons
            fConvolveAlpha == s.convolveAlpha();
 }
 
-static void fill_in_1D_gaussian_kernel_with_stride(float* kernel, int size, int stride,
-                                                   float twoSigmaSqrd) {
-    SkASSERT(!SkScalarNearlyZero(twoSigmaSqrd, SK_ScalarNearlyZero));
-
-    const float sigmaDenom = 1.0f / twoSigmaSqrd;
-    const int radius = size / 2;
-
-    float sum = 0.0f;
-    for (int i = 0; i < size; ++i) {
-        float term = static_cast<float>(i - radius);
-        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-        // is dropped here, since we renormalize the kernel below.
-        kernel[i * stride] = sk_float_exp(-term * term * sigmaDenom);
-        sum += kernel[i * stride];
-    }
-    // Normalize the kernel
-    float scale = 1.0f / sum;
-    for (int i = 0; i < size; ++i) {
-        kernel[i * stride] *= scale;
-    }
-}
-
-static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
-                                       SkScalar sigmaX, SkScalar sigmaY) {
-    const float twoSigmaSqrdX = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaX));
-    const float twoSigmaSqrdY = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaY));
-
-    // TODO: in all of these degenerate cases we're uploading (and using) a whole lot of zeros.
-    if (SkScalarNearlyZero(twoSigmaSqrdX, SK_ScalarNearlyZero) ||
-        SkScalarNearlyZero(twoSigmaSqrdY, SK_ScalarNearlyZero)) {
-        // In this case the 2D Gaussian degenerates to a 1D Gaussian (in X or Y) or a point
-        SkASSERT(3 == width || 3 == height);
-        std::fill_n(kernel, width*height, 0);
-
-        if (SkScalarNearlyZero(twoSigmaSqrdX, SK_ScalarNearlyZero) &&
-            SkScalarNearlyZero(twoSigmaSqrdY, SK_ScalarNearlyZero)) {
-            // A point
-            SkASSERT(3 == width && 3 == height);
-            kernel[4] = 1.0f;
-        } else if (SkScalarNearlyZero(twoSigmaSqrdX, SK_ScalarNearlyZero)) {
-            // A 1D Gaussian in Y
-            SkASSERT(3 == width);
-            // Down the middle column of the kernel with a stride of width
-            fill_in_1D_gaussian_kernel_with_stride(&kernel[1], height, width, twoSigmaSqrdY);
-        } else {
-            // A 1D Gaussian in X
-            SkASSERT(SkScalarNearlyZero(twoSigmaSqrdY, SK_ScalarNearlyZero));
-            SkASSERT(3 == height);
-            // Down the middle row of the kernel with a stride of 1
-            fill_in_1D_gaussian_kernel_with_stride(&kernel[width], width, 1, twoSigmaSqrdX);
-        }
-        return;
-    }
-
-    const float sigmaXDenom = 1.0f / twoSigmaSqrdX;
-    const float sigmaYDenom = 1.0f / twoSigmaSqrdY;
-    const int xRadius = width / 2;
-    const int yRadius = height / 2;
-
-    float sum = 0.0f;
-    for (int x = 0; x < width; x++) {
-        float xTerm = static_cast<float>(x - xRadius);
-        xTerm = xTerm * xTerm * sigmaXDenom;
-        for (int y = 0; y < height; y++) {
-            float yTerm = static_cast<float>(y - yRadius);
-            float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
-            // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
-            // is dropped here, since we renormalize the kernel below.
-            kernel[y * width + x] = xyTerm;
-            sum += xyTerm;
-        }
-    }
-    // Normalize the kernel
-    float scale = 1.0f / sum;
-    for (int i = 0; i < width * height; ++i) {
-        kernel[i] *= scale;
-    }
-}
-
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::Make(GrRecordingContext* context,
                                                                      GrSurfaceProxyView srcView,
                                                                      const SkIRect& srcBounds,
@@ -438,26 +359,6 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::Make(GrRecording
     return std::unique_ptr<GrFragmentProcessor>(
             new GrMatrixConvolutionEffect(std::move(child), kernelWrapper, std::move(kernelFP),
                                           gain, bias, kernelOffset, convolveAlpha));
-}
-
-std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
-        GrRecordingContext* context,
-        GrSurfaceProxyView srcView,
-        const SkIRect& srcBounds,
-        const SkISize& kernelSize,
-        SkScalar gain,
-        SkScalar bias,
-        const SkIPoint& kernelOffset,
-        GrSamplerState::WrapMode wm,
-        bool convolveAlpha,
-        SkScalar sigmaX,
-        SkScalar sigmaY,
-        const GrCaps& caps) {
-    SkAutoSTMalloc<32, float> kernel(kernelSize.area());
-    fill_in_2D_gaussian_kernel(kernel.get(), kernelSize.width(), kernelSize.height(),
-                               sigmaX, sigmaY);
-    return Make(context, std::move(srcView), srcBounds, kernelSize, kernel.get(),
-                gain, bias, kernelOffset, wm, convolveAlpha, caps);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
