@@ -26,18 +26,17 @@ public:
         (void)_outer;
         auto clampToPremul = _outer.clampToPremul;
         (void)clampToPremul;
-        SkString _sample464 = this->invokeChild(0, args);
+        SkString _sample465 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
     half alpha = clamp(inputColor.w, 0.0, 1.0);
-    %s = half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
+    return half4(clamp(inputColor.xyz, 0.0, alpha), alpha);
 } else {
-    %s = clamp(inputColor, 0.0, 1.0);
+    return clamp(inputColor, 0.0, 1.0);
 }
 )SkSL",
-                _sample464.c_str(), (_outer.clampToPremul ? "true" : "false"), args.fOutputColor,
-                args.fOutputColor);
+                _sample465.c_str(), (_outer.clampToPremul ? "true" : "false"));
     }
 
 private:
@@ -57,7 +56,7 @@ bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const
     if (clampToPremul != that.clampToPremul) return false;
     return true;
 }
-bool GrClampFragmentProcessor::usesExplicitReturn() const { return false; }
+bool GrClampFragmentProcessor::usesExplicitReturn() const { return true; }
 GrClampFragmentProcessor::GrClampFragmentProcessor(const GrClampFragmentProcessor& src)
         : INHERITED(kGrClampFragmentProcessor_ClassID, src.optimizationFlags())
         , clampToPremul(src.clampToPremul) {
