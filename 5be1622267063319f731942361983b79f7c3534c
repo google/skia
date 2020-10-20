@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fa80163_f404d77d",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "When it\u0027s effectively a non-blur, there\u0027s no reason to prepare a mask and we can just draw directly.",
+      "range": {
+        "startLine": 593,
+        "startChar": 8,
+        "endLine": 594,
+        "endChar": 20
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f19ff39a_81a06835",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Without this, epsilon sigmas would get reported as clipped out. With non-normal blur modes and 0-sigma, we still want to prepare a mask so this reports clipped-out status properly. Previously, you could see popping in and out on the AnimBlur sample.",
+      "range": {
+        "startLine": 714,
+        "startChar": 8,
+        "endLine": 715,
+        "endChar": 47
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1efaaa67_a70e5189",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Had been in GrMatrixConvolution, and I removed the 1D fallback path and replaced with asserts that the sigmas/radii are fully 2D.  We could consider exposing a Compute2DKernel function, but no one uses it at the moment.",
+      "range": {
+        "startLine": 26,
+        "startChar": 12,
+        "endLine": 26,
+        "endChar": 38
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56d4b74c_39bb5b13",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Just the inlined GrMatrixConvolutionEffect::MakeGaussian.",
+      "range": {
+        "startLine": 125,
+        "startChar": 5,
+        "endLine": 129,
+        "endChar": 78
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7072ca82_a5c188da",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Just moved from SkBlurMF.cpp",
+      "range": {
+        "startLine": 591,
+        "startChar": 5,
+        "endLine": 591,
+        "endChar": 30
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0099e522_07b80abb",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Just moved from SkBlurMF.cpp",
+      "range": {
+        "startLine": 672,
+        "startChar": 4,
+        "endLine": 672,
+        "endChar": 23
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bfa99b9_b0d88a13",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "Moved from GrGaussianConvolutionEffect and removed the version from GrMatrixConvolutionEffect",
+      "range": {
+        "startLine": 703,
+        "startChar": 5,
+        "endLine": 703,
+        "endChar": 28
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f284891_c48dbbd9",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 1,
+      "message": "As discussed in chat, this was needed so that SK_SUPPORT_GPU was properly defined.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 33
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

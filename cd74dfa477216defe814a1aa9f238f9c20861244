@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ad9a01d_0326878e",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "This has to go away because of the change in canFilterMaskGPU(), so that we do prepare masks for 0-sigma non-normal blurs. 0-sigma normal blurs are caught earlier in directFilterMaskGPU.",
+      "range": {
+        "startLine": 865,
+        "startChar": 4,
+        "endLine": 865,
+        "endChar": 31
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4db6819a_9215547a",
+        "filename": "src/core/SkBlurPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "These functions and declarations are just moved to SkGpuBlurUtils without any change other than some renaming.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 78
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ebfc506_ed4a87ff",
+        "filename": "src/core/SkBlurPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "This is moved to SkMaskFilter_Base.h and is still needed so that SkMaskFilter\u0027s register flattenables call can hook in to the CPP-file hidden SkBlurMaskFilterImpl class.",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 53
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a316a132_f14431c2",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "This was what had been breaking the BlurSmallSigma GM.",
+      "range": {
+        "startLine": 379,
+        "startChar": 7,
+        "endLine": 379,
+        "endChar": 23
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d30ead95_8be8f769",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "Moved to SkGpuBlurUtils.cpp",
+      "range": {
+        "startLine": 107,
+        "startChar": 5,
+        "endLine": 107,
+        "endChar": 29
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51e0a74f_1bec211b",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "Not needed, stride functionality isn\u0027t necessary anymore since GaussianBlur() avoids 2D kernels that degenerate to 1D now.",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 50
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "828d5870_d5e4c5ad",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-20T20:46:51Z",
+      "side": 0,
+      "message": "Moved to SkGpuBlurUtils.cpp",
+      "range": {
+        "startLine": 363,
+        "startChar": 12,
+        "endLine": 363,
+        "endChar": 38
+      },
+      "revId": "cd74dfa477216defe814a1aa9f238f9c20861244",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
