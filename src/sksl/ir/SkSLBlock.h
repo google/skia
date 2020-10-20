@@ -60,9 +60,9 @@ public:
         for (const std::unique_ptr<Statement>& stmt : this->children()) {
             cloned.push_back(stmt->clone());
         }
-        const BlockData& data = this->blockData();
-        return std::make_unique<Block>(fOffset, std::move(cloned), data.fSymbolTable,
-                                       data.fIsScope);
+        return std::make_unique<Block>(fOffset, std::move(cloned),
+                                       SymbolTable::WrapIfBuiltin(this->symbolTable()),
+                                       this->isScope());
     }
 
     String description() const override {
