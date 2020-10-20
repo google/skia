@@ -40,7 +40,7 @@ if (skia_use_system_zlib) {
         defines += [ "ARMV8_OS_FUCHSIA" ]
       } else if (is_win) {
         defines += [ "ARMV8_OS_WINDOWS" ]
-      } else if (is_ios) {
+      } else if (is_ios || is_mac) {
         # iOS@ARM is a special case where we always have NEON but don't check
         # for crypto extensions.
         defines += [ "ARM_OS_IOS" ]
