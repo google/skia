@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44a93997_b4149f8e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 28
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T22:02:54Z",
+      "side": 1,
+      "message": "At PS28, I believe this is ready for actual review.",
+      "revId": "ce43c5348de726df02ba5f8e7cd5e0f5befe06a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
