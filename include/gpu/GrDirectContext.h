@@ -8,7 +8,7 @@
 #ifndef GrDirectContext_DEFINED
 #define GrDirectContext_DEFINED
 
-#include "include/private/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 
 #include "include/gpu/GrBackendSurface.h"
 
@@ -43,7 +43,7 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
-class SK_API GrDirectContext : public GrContext {
+class SK_API GrDirectContext : public GrRecordingContext {
 public:
 #ifdef SK_GL
     /**
@@ -756,7 +756,7 @@ private:
 
     friend class GrDirectContextPriv;
 
-    using INHERITED = GrContext;
+    using INHERITED = GrRecordingContext;
 };
 
 
