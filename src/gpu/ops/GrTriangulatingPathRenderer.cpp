@@ -403,6 +403,17 @@ private:
                                                              renderPassXferBarriers);
     }
 
+    void onPrePrepareDraws(GrRecordingContext* rContext,
+                           const GrSurfaceProxyView* writeView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrXferBarrierFlags renderPassXferBarriers) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+        INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
+                                     renderPassXferBarriers);
+    }
+
     void onPrepareDraws(Target* target) override {
         if (fAntiAlias) {
             this->createAAMesh(target);
