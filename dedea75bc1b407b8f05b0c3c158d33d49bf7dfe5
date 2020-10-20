@@ -306,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e471a707_5b48d3fe",
+        "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T18:01:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "42fc15a6_9df032db",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 51
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5266a1b0_f963a9ac",
