@@ -28,10 +28,7 @@ func main() {
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
 
-	skiaCheckoutAbsPath, err := filepath.Abs(*skiaCheckoutRoot)
-	if err != nil {
-		td.Fatal(ctx, skerr.Wrap(err))
-	}
+	skiaCheckoutAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *skiaCheckoutRoot, "skia_checkout_root")
 	binPath := filepath.Join(skiaCheckoutAbsPath, "bin")
 
 	// Fetch GN before running gn_to_bp.py
