@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03038be3_be66dc50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-20T15:45:05Z",
+      "side": 1,
+      "message": "Canary failures are unrelated. Let\u0027s go!",
+      "revId": "e1bfaee27786c4de8443a25790e47b900f9f2bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
