@@ -41,11 +41,16 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     if (stepsX < 0 || stepsY < 0) {
-        // Don't trigger MIP generation. We don't currently have a way to trigger bicubic for
-        // downscaling draws.
-        rescaleQuality = std::min(rescaleQuality, kLow_SkFilterQuality);
+        // Don't trigger MIP generation.
+        if (rescaleQuality == kMedium_SkFilterQuality) {
+            rescaleQuality = kLow_SkFilterQuality;
+        }
     }
-    paint.setFilterQuality(rescaleQuality);
+
+    // High will be handled using SkImage::makeShader
+    if (kHigh_SkFilterQuality != rescaleQuality) {
+        paint.setFilterQuality(rescaleQuality);
+    }
     sk_sp<SkSurface> tempSurf;
     sk_sp<SkImage> srcImage;
     int srcX = srcRect.fLeft;
@@ -105,9 +110,23 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
             callback(context, nullptr);
             return;
         }
-        next->getCanvas()->drawImageRect(
-                std::move(srcImage), SkIRect::MakeXYWH(srcX, srcY, srcW, srcH),
-                SkRect::MakeWH((float)nextW, (float)nextH), &paint, constraint);
+        if (kHigh_SkFilterQuality == rescaleQuality) {
+            auto shader = srcImage->makeShader(SkTileMode::kDecal, SkTileMode::kDecal,
+                                               { 1.0f / 3.0f, 1.0f / 3.0f });   // Mitchell
+            paint.setShader(std::move(shader));
+            auto* canvas = next->getCanvas();
+
+            SkRect srcRect = SkRect::MakeXYWH(srcX, srcY, srcW, srcH),
+                   dstRect = SkRect::MakeWH((float)nextW, (float)nextH);
+            auto matrix = SkMatrix::MakeRectToRect(srcRect, dstRect, SkMatrix::kFill_ScaleToFit);
+            canvas->setMatrix(matrix);
+            canvas->drawRect(srcRect, paint);
+            paint.setShader(nullptr);
+        } else {
+            next->getCanvas()->drawImageRect(
+                    std::move(srcImage), SkIRect::MakeXYWH(srcX, srcY, srcW, srcH),
+                    SkRect::MakeWH((float)nextW, (float)nextH), &paint, constraint);
+        }
         tempSurf = std::move(next);
         srcImage = tempSurf->makeImageSnapshot();
         srcX = srcY = 0;
