@@ -13,9 +13,6 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-constexpr static float kLinearizationIntolerance =
-        GrTessellationPathRenderer::kLinearizationIntolerance;
-
 class GrStrokeTessellateShader::Impl : public GrGLSLGeometryProcessor {
 public:
     const char* getTessArgs1UniformName(const GrGLSLUniformHandler& uniformHandler) const {
@@ -41,7 +38,7 @@ private:
         // uNumSegmentsInJoin, uCubicConstantPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
         fTessArgs1Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
                                                    kFloat4_GrSLType, "tessArgs1", nullptr);
-        // uRadialTolerancePow2, uStrokeRadius.
+        // uJoinTolerancePow2, uStrokeRadius.
         fTessArgs2Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag |
                                                             kTessEvaluation_GrShaderFlag,
                                                    kFloat2_GrSLType,
@@ -262,18 +259,17 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        float intolerance = kLinearizationIntolerance * shader.fMatrixScale;
-        float cubicConstant = GrWangsFormula::cubic_constant(intolerance);
-        float strokeRadius = shader.fStroke.getWidth() * .5;
-        float radialIntolerance = 1 / (strokeRadius * intolerance);
+        float cubicConstant = GrWangsFormula::cubic_constant(shader.fParametricIntolerance);
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
             numSegmentsInJoin,  // uNumSegmentsInJoin
             cubicConstant * cubicConstant,  // uCubicConstantPow2 in path space.
-            .5f / acosf(std::max(1 - radialIntolerance, -1.f)),  // uNumRadialSegmentsPerRadian
+            shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
+        float strokeRadius = shader.fStroke.getWidth() * .5;
+        float joinTolerance = 1 / (strokeRadius * shader.fParametricIntolerance);
         pdman.set2f(fTessArgs2Uniform,
-                    radialIntolerance * radialIntolerance,  // uRadialTolerancePow2.
+                    joinTolerance * joinTolerance,  // uJoinTolerancePow2.
                     strokeRadius);  // uStrokeRadius.
         const SkMatrix& m = shader.viewMatrix();
         if (!m.isIdentity()) {
@@ -314,7 +310,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
 
     const char* tessArgs2Name = impl->getTessArgs2UniformName(uniformHandler);
     code.appendf("uniform vec2 %s;\n", tessArgs2Name);
-    code.appendf("#define uRadialTolerancePow2 %s.x\n", tessArgs2Name);
+    code.appendf("#define uJoinTolerancePow2 %s.x\n", tessArgs2Name);
 
     code.append(R"(
     in vec4 vsPts01[];
@@ -424,7 +420,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
                 innerStrokeRadiusMultiplier = (x >= uMiterLimitInvPow2) ? inversesqrt(x) : sqrt(x);
             }
             vec2 strokeOutsetClamp = vec2(-1, 1);
-            if (length_pow2(tan1norm - tan0norm) > uRadialTolerancePow2) {
+            if (length_pow2(tan1norm - tan0norm) > uJoinTolerancePow2) {
                 // Clamp the join to the exterior side of its junction. We only do this if the join
                 // angle is large enough to guarantee there won't be cracks on the interior side of
                 // the junction.

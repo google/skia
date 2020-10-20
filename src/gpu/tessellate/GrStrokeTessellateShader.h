@@ -16,27 +16,13 @@
 
 class GrGLSLUniformHandler;
 
-// Tessellates a batch of stroke patches directly to the canvas.
-//
-// Current limitations: (These restrictions will hopefully all be lifted in the future.)
-//
-//     * A given curve must not have inflection points. Chop curves at inflection points on CPU
-//       before sending them down.
-//
-//     * A given curve must not rotate more than 180 degrees. Chop curves that rotate more than 180
-//       degrees at midtangent before sending them down.
-//
-//     * It is illegal for P1 and P2 to both be coincident with P0 or P3. If this is the case, send
-//       the curve [P0, P0, P3, P3] instead.
-//
-//     * Perspective is not supported.
-//
-// Tessellated stroking works by creating stroke-width, orthogonal edges at set locations along the
-// curve and then connecting them with a quad strip. These orthogonal edges come from two different
-// sets: "parametric edges" and "radial edges". Parametric edges are spaced evenly in the parametric
-// sense, and radial edges divide the curve's _rotation_ into even steps. The tessellation shader
-// evaluates both sets of edges and sorts them into a single quad strip. With this combined set of
-// edges we can stroke any curve, regardless of curvature.
+// Tessellates a batch of stroke patches directly to the canvas. Tessellated stroking works by
+// creating stroke-width, orthogonal edges at set locations along the curve and then connecting them
+// with a quad strip. These orthogonal edges come from two different sets: "parametric edges" and
+// "radial edges". Parametric edges are spaced evenly in the parametric sense, and radial edges
+// divide the curve's _rotation_ into even steps. The tessellation shader evaluates both sets of
+// edges and sorts them into a single quad strip. With this combined set of edges we can stroke any
+// curve, regardless of curvature.
 class GrStrokeTessellateShader : public GrPathShader {
 public:
     // The vertex array bound for this shader should contain a vector of Patch structs. A Patch is
@@ -56,19 +42,23 @@ public:
         std::array<SkPoint, 4> fPts;
     };
 
-    // 'matrixScale' is used to set up an appropriate number of tessellation triangles. It should be
-    // equal to viewMatrix.getMaxScale(). (This works because perspective isn't supported.)
+    // 'parametricIntolerance' controls the number of parametric segments we add for each curve.
+    // We add enough parametric segments so that the center of each one falls within
+    // 1/parametricIntolerance local path units from the true curve.
     //
-    // 'miterLimit' contains the stroke's miter limit, or may be zero if no patches being drawn will
-    // be miter joins.
+    // 'numRadialSegmentsPerRadian' controls the number of radial segments we add for each curve.
+    // We add this number of radial segments for each radian of rotation, in order to guarantee
+    // smoothness.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(const SkStrokeRec& stroke, float matrixScale,
-                             const SkMatrix& viewMatrix, SkPMColor4f color)
+    GrStrokeTessellateShader(const SkStrokeRec& stroke, float parametricIntolerance,
+                             float numRadialSegmentsPerRadian, const SkMatrix& viewMatrix,
+                             SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            GrPrimitiveType::kPatches, 1)
             , fStroke(stroke)
-            , fMatrixScale(matrixScale)
+            , fParametricIntolerance(parametricIntolerance)
+            , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
             , fColor(color) {
         SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
         constexpr static Attribute kInputPointAttribs[] = {
@@ -96,7 +86,8 @@ private:
                                          const GrShaderCaps&) const override;
 
     const SkStrokeRec fStroke;
-    const float fMatrixScale;
+    const float fParametricIntolerance;
+    const float fNumRadialSegmentsPerRadian;
     const SkPMColor4f fColor;
 
     class Impl;

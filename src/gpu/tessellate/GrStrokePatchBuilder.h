@@ -43,9 +43,16 @@ public:
     // push to as addPath is called. The caller is responsible to bind and draw each chunk that gets
     // pushed to the array. (See GrStrokeTessellateShader.)
     //
-    // All points are multiplied by 'matrixScale' before being written to the GPU buffer.
-    GrStrokePatchBuilder(GrMeshDrawOp::Target*, SkTArray<PatchChunk>*, float matrixScale,
-                         const SkStrokeRec&, int totalCombinedVerbCnt);
+    // 'parametricIntolerance' controls the number of parametric segments we need to account for on
+    // each curve. The tessellator will add enough parametric segments so that the center of each
+    // one falls within 1/parametricIntolerance local path units from the true curve.
+    //
+    // 'numRadialSegmentsPerRadian' controls the number of radial segments we need to account for on
+    // each curve. The tessellator will add this number of radial segments for each radian of
+    // rotation, in order to guarantee smoothness.
+    GrStrokePatchBuilder(GrMeshDrawOp::Target*, SkTArray<PatchChunk>*, const SkStrokeRec&,
+                         float parametricIntolerance, float numRadialSegmentsPerRadian,
+                         int totalCombinedVerbCnt);
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
     // vertices.
@@ -97,12 +104,10 @@ private:
     SkTArray<PatchChunk>* const fPatchChunkArray;
 
     const int fMaxTessellationSegments;
-    // GrTessellationPathRenderer::kIntolerance adjusted for the matrix scale.
-    const float fLinearizationIntolerance;
-
-    // Variables related to the stroke parameters.
     const SkStrokeRec fStroke;
-    float fNumRadialSegmentsPerRadian;
+    const float fParametricIntolerance;
+    const float fNumRadialSegmentsPerRadian;
+
     // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
     // and 360 degrees respectively. These are used for "quick accepts" that allow us to send almost

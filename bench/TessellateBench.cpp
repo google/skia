@@ -283,8 +283,12 @@ class StrokePatchBuilderBench : public Benchmark {
         }
         for (int i = 0; i < loops; ++i) {
             fPatchChunks.reset();
-            GrStrokePatchBuilder builder(&fTarget, &fPatchChunks, 1, fStrokeRec,
-                                         fPath.countVerbs());
+            // TODO: Combine GrStrokePatchBuilder with GrStrokeTessellateOp.
+            float parametricIntolerance = GrTessellationPathRenderer::kLinearizationIntolerance;
+            float numRadialSegmentsPerRadian = .5f /
+                    acosf(1 - 2/(parametricIntolerance * fStrokeRec.getWidth()));
+            GrStrokePatchBuilder builder(&fTarget, &fPatchChunks, fStrokeRec, parametricIntolerance,
+                                         numRadialSegmentsPerRadian, fPath.countVerbs());
             builder.addPath(fPath);
         }
     }
