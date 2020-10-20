@@ -258,6 +258,32 @@ private:
         builder.finish();
     }
 
+    // Triangulate the provided 'shape' in the shape's coordinate space. 'tol' should already
+    // have been mapped back from device space.
+    static int Triangulate(GrEagerVertexAllocator* allocator,
+                           const SkMatrix& viewMatrix,
+                           const GrStyledShape& shape,
+                           const SkIRect& devClipBounds,
+                           SkScalar tol,
+                           int* numCountedCurves) {
+        SkRect clipBounds = SkRect::Make(devClipBounds);
+
+        SkMatrix vmi;
+        if (!viewMatrix.invert(&vmi)) {
+            return 0;
+        }
+        vmi.mapRect(&clipBounds);
+
+        SkASSERT(!shape.style().applies());
+        SkPath path;
+        shape.asPath(&path);
+
+        return GrTriangulator::PathToTriangles(path, tol, clipBounds,
+                                               allocator,
+                                               GrTriangulator::Mode::kNormal,
+                                               numCountedCurves);
+    }
+
     void createNonAAMesh(Target* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
@@ -274,22 +300,16 @@ private:
             return;
         }
 
-        SkRect clipBounds = SkRect::Make(fDevClipBounds);
-
-        SkMatrix vmi;
-        if (!fViewMatrix.invert(&vmi)) {
-            return;
-        }
-        vmi.mapRect(&clipBounds);
-        int numCountedCurves;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int vertexCount = GrTriangulator::PathToTriangles(this->getPath(), tol, clipBounds,
-                                                          &allocator, GrTriangulator::Mode::kNormal,
-                                                          &numCountedCurves);
+
+        int numCountedCurves;
+        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                      &numCountedCurves);
         if (vertexCount == 0) {
             return;
         }
+
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
         TessInfo info;
         info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
