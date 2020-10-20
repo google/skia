@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3e01d7e_90899cea",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T12:25:41Z",
+      "side": 1,
+      "message": "Ah, I see what you mean. In this case, I think we are safe because we don\u0027t have node being called in descendent scripts, but you make a good point of how that could be an issue.",
+      "parentUuid": "dc8679cc_a1ce408b",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 322
+      },
+      "revId": "f47e69dc1d33ccd2d36af269c7e6cc68bdc6b86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca143a33_a3c0053f",
