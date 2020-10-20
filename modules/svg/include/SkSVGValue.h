@@ -22,6 +22,10 @@ public:
         kColor,
         kDashArray,
         kFillRule,
+        kFontFamily,
+        kFontSize,
+        kFontStyle,
+        kFontWeight,
         kLength,
         kLineCap,
         kLineJoin,
@@ -93,5 +97,10 @@ using SkSVGSpreadMethodValue = SkSVGWrapperValue<SkSVGSpreadMethod ,
 using SkSVGStopColorValue    = SkSVGWrapperValue<SkSVGStopColor    , SkSVGValue::Type::kStopColor >;
 using SkSVGVisibilityValue   = SkSVGWrapperValue<SkSVGVisibility   , SkSVGValue::Type::kVisibility>;
 using SkSVGDashArrayValue    = SkSVGWrapperValue<SkSVGDashArray    , SkSVGValue::Type::kDashArray >;
+
+using SkSVGFontFamilyValue   = SkSVGWrapperValue<SkSVGFontFamily   , SkSVGValue::Type::kFontFamily>;
+using SkSVGFontSizeValue     = SkSVGWrapperValue<SkSVGFontSize     , SkSVGValue::Type::kFontSize  >;
+using SkSVGFontStyleValue    = SkSVGWrapperValue<SkSVGFontStyle    , SkSVGValue::Type::kFontStyle >;
+using SkSVGFontWeightValue   = SkSVGWrapperValue<SkSVGFontWeight   , SkSVGValue::Type::kFontWeight>;
 
 #endif // SkSVGValue_DEFINED
