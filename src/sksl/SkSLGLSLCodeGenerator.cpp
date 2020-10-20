@@ -1495,8 +1495,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                 this->writeVarDeclaration(decl, true);
                 this->writeLine();
             } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
-                       fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
-                       decl.var().writeCount()) {
+                       fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                 if (fProgram.fSettings.fFragColorIsInOut) {
                     this->write("inout ");
                 } else {
