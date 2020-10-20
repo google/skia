@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c98e6ba_83b1046f",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Copied from the other types, but apparently not needed.  Removed.",
+      "parentUuid": "c5e59bc1_316367dc",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "027a295b_7745e56a",
@@ -35,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5151e5c4_226222bc",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Oh, I was thinking of the initial value for these, but I think it does make more sense to inherit-initialize them (they get overwritten by the parser anyway, so not super important).\n\nDone.",
+      "parentUuid": "027a295b_7745e56a",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b76596e_a28c63b6",
@@ -48,6 +84,24 @@
       "writtenOn": "2020-10-20T13:55:40Z",
       "side": 1,
       "message": "Inherited by default too",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbd322ea_ec503e24",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b76596e_a28c63b6",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -71,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97cb8150_f0e48971",
+        "filename": "modules/svg/src/SkSVGAttribute.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "\"Initial\" field from the spec.  Family and size are not specified explicitly, so I just picked some defaults.",
+      "parentUuid": "56c7e693_ae1cb8b6",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6afc66db_88940758",
         "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
         "patchSetId": 7
@@ -82,6 +154,24 @@
       "writtenOn": "2020-10-20T13:55:40Z",
       "side": 1,
       "message": "Doesn\u0027t this skip to the end of the content? I don\u0027t quite recall how this parser works w.r.t. fCurPos",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1b14054_8bd4a6bf",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Skips to the end of the attribute value string (we create a parser for each attribute value, and they\u0027re expected to consume the whole string).\n\nThe idea here is that in the general case we treat the whole string as a family name, for lack of better heuristics.",
+      "parentUuid": "6afc66db_88940758",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -103,6 +193,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae10ff45_bb21c124",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "totally meant to do that 😊\n\ndone",
+      "parentUuid": "01ab7337_5fcfcb17",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edad88aa_98be3022",
@@ -116,6 +224,24 @@
       "writtenOn": "2020-10-20T13:55:40Z",
       "side": 1,
       "message": "could make this static const",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f52502d_409d34a2",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edad88aa_98be3022",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -139,6 +265,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ac45d789_081f5d49",
+        "filename": "modules/svg/src/SkSVGDOM.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Not sure, I suspect it doesn\u0027t (at least with the current setup).  We may need to handle here.",
+      "parentUuid": "35ada1ad_4748e3d1",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "84707d94_a9fd8dc2",
         "filename": "modules/svg/src/SkSVGText.cpp",
         "patchSetId": 7
@@ -150,6 +294,24 @@
       "writtenOn": "2020-10-20T13:55:40Z",
       "side": 1,
       "message": "I think font size should resolved as a vertical length here?",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0339db07_49559579",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T14:44:16Z",
+      "side": 1,
+      "message": "Oh, good catch, I think you\u0027re right.  Done.",
+      "parentUuid": "84707d94_a9fd8dc2",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
