@@ -141,6 +141,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a9d31e3_6766632d",
+        "filename": "modules/svg/src/SkSVGAttribute.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T16:01:40Z",
+      "side": 1,
+      "message": "Oh I see, I was misreading the spec.",
+      "parentUuid": "97cb8150_f0e48971",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6afc66db_88940758",
@@ -172,6 +190,24 @@
       "side": 1,
       "message": "Skips to the end of the attribute value string (we create a parser for each attribute value, and they\u0027re expected to consume the whole string).\n\nThe idea here is that in the general case we treat the whole string as a family name, for lack of better heuristics.",
       "parentUuid": "6afc66db_88940758",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbeb6ab5_58414927",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T16:01:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a1b14054_8bd4a6bf",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -277,6 +313,24 @@
       "side": 1,
       "message": "Not sure, I suspect it doesn\u0027t (at least with the current setup).  We may need to handle here.",
       "parentUuid": "35ada1ad_4748e3d1",
+      "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "863e18fb_15eb9035",
+        "filename": "modules/svg/src/SkSVGDOM.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-20T16:01:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ac45d789_081f5d49",
       "revId": "38ffd109283c440b027a1fc9bdb4e051f603e8bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
