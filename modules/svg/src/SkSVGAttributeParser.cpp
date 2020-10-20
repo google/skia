@@ -33,6 +33,17 @@ inline bool is_sep(char c) {
 
 }  // namespace
 
+template <typename T, typename TArray>
+bool SkSVGAttributeParser::parseEnumMap(const TArray& arr, T* result) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(arr); ++i) {
+        if (this->parseExpectedStringToken(std::get<0>(arr[i]))) {
+            *result = std::get<1>(arr[i]);
+            return true;
+        }
+    }
+    return false;
+}
+
 SkSVGAttributeParser::SkSVGAttributeParser(const char attributeString[])
     : fCurPos(attributeString) {}
 
@@ -709,4 +720,47 @@ bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
     }
 
     return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/text.html#FontFamilyProperty
+bool SkSVGAttributeParser::parseFontFamily(SkSVGFontFamily* family) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("inherit")) {
+        *family = SkSVGFontFamily();
+        parsedValue = true;
+    } else {
+        *family = SkSVGFontFamily(fCurPos);
+        fCurPos += family->family().size();
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+bool SkSVGAttributeParser::parseFontSize(SkSVGFontSize* size) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("inherit")) {
+        *size = SkSVGFontSize();
+        parsedValue = true;
+    } else {
+        SkSVGLength length;
+        if (this->parseLength(&length)) {
+            *size = SkSVGFontSize(length);
+            parsedValue = true;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+bool SkSVGAttributeParser::parseFontStyle(SkSVGFontStyle* style) {
+    std::tuple<const char*, SkSVGFontStyle::Type> gStyleMap[] = {
+
+    };
+
+    return true;
+}
+
+bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
+    return true;
 }

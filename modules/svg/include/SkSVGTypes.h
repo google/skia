@@ -308,4 +308,125 @@ private:
     SkSVGColorType fColor;
 };
 
+class SkSVGFontFamily {
+public:
+    enum class Type {
+        kFamily,
+        kInherit,
+    };
+
+    SkSVGFontFamily() : fType(Type::kInherit) {}
+    explicit SkSVGFontFamily(const char family[])
+        : fType(Type::kFamily)
+        , fFamily(family) {}
+
+    SkSVGFontFamily(const SkSVGFontFamily&)            = default;
+    SkSVGFontFamily& operator=(const SkSVGFontFamily&) = default;
+
+    bool operator==(const SkSVGFontFamily& other) const {
+        return fType == other.fType && fFamily == other.fFamily;
+    }
+    bool operator!=(const SkSVGFontFamily& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+    const SkString& family() const { return fFamily; }
+
+private:
+    Type fType;
+
+    SkString fFamily;
+};
+
+class SkSVGFontStyle {
+public:
+    enum class Type {
+        kNormal,
+        kItalic,
+        kOblique,
+        kInherit,
+    };
+
+    SkSVGFontStyle() : fType(Type::kNormal) {}
+    explicit SkSVGFontStyle(Type t) : fType(t) {}
+
+    SkSVGFontStyle(const SkSVGFontStyle&)            = default;
+    SkSVGFontStyle& operator=(const SkSVGFontStyle&) = default;
+
+    bool operator==(const SkSVGFontStyle& other) const {
+        return fType == other.fType;
+    }
+    bool operator!=(const SkSVGFontStyle& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
+class SkSVGFontSize {
+public:
+    enum class Type {
+        kLength,
+        kInherit,
+    };
+
+    SkSVGFontSize() : fType(Type::kInherit), fLength(0) {}
+    explicit SkSVGFontSize(const SkSVGLength& l)
+        : fType(Type::kLength)
+        , fLength(l) {}
+
+    SkSVGFontSize(const SkSVGFontSize&)            = default;
+    SkSVGFontSize& operator=(const SkSVGFontSize&) = default;
+
+    bool operator==(const SkSVGFontSize& other) const {
+        return fType == other.fType && fLength == other.fLength;
+    }
+    bool operator!=(const SkSVGFontSize& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+    const SkSVGLength& size() const { return fLength; }
+
+private:
+    Type  fType;
+    SkSVGLength fLength;
+};
+
+class SkSVGFontWeight {
+public:
+    enum class Type {
+        k100,
+        k200,
+        k300,
+        k400,
+        k500,
+        k600,
+        k700,
+        k800,
+        k900,
+        kNormal,
+        kBold,
+        kBolder,
+        kLighter,
+        kInherit,
+    };
+
+    SkSVGFontWeight() : fType(Type::kNormal) {}
+    explicit SkSVGFontWeight(Type t) : fType(t) {}
+
+    SkSVGFontWeight(const SkSVGFontWeight&)            = default;
+    SkSVGFontWeight& operator=(const SkSVGFontWeight&) = default;
+
+    bool operator==(const SkSVGFontWeight& other) const {
+        return fType == other.fType;
+    }
+    bool operator!=(const SkSVGFontWeight& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 #endif // SkSVGTypes_DEFINED
