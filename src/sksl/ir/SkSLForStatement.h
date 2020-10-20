@@ -70,13 +70,13 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ForStatement(
-                                       fOffset,
-                                       this->initializer() ? this->initializer()->clone() : nullptr,
-                                       this->test() ? this->test()->clone() : nullptr,
-                                       this->next() ? this->next()->clone() : nullptr,
-                                       this->statement()->clone(),
-                                       this->symbols()));
+        return std::make_unique<ForStatement>(
+                fOffset,
+                this->initializer() ? this->initializer()->clone() : nullptr,
+                this->test() ? this->test()->clone() : nullptr,
+                this->next() ? this->next()->clone() : nullptr,
+                this->statement()->clone(),
+                SymbolTable::WrapIfBuiltin(this->symbols()));
     }
 
     String description() const override {
