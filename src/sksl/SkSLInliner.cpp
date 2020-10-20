@@ -831,6 +831,8 @@ public:
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
+                // Don't attempt to mutate any builtin functions. (If we stop cloning builtins into
+                // the program, this check can become an assertion.)
                 if (!funcDef.isBuiltin()) {
                     fEnclosingFunction = &funcDef;
                     this->visitStatement(&funcDef.body());
