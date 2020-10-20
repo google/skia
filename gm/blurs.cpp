@@ -18,7 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkBlurImageFilter.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -134,7 +134,16 @@ DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {
 DEF_SIMPLE_GM(BlurBigSigma, canvas, 1024, 1024) {
     SkPaint layerPaint, p;
 
-    p.setImageFilter(SkBlurImageFilter::Make(500, 500, nullptr));
+    p.setImageFilter(SkImageFilters::Blur(500, 500, nullptr));
 
     canvas->drawRect(SkRect::MakeWH(700, 800), p);
+}
+
+DEF_SIMPLE_GM(BlurSmallSigma, canvas, 256, 256) {
+    // Normal sigma on x-axis, a small but non-zero sigma on y-axis that should
+    // be treated as identity.
+
+    SkPaint paint;
+    paint.setImageFilter(SkImageFilters::Blur(16.f, 1e-5f, nullptr));
+    canvas->drawRect(SkRect::MakeLTRB(64, 64, 192, 192), paint);
 }
