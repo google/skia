@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9418a9d0_cba05800",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-10-20T13:10:56Z",
+      "side": 1,
+      "message": "lgtm % tryjob failures.  I think you just need to \"go build ./...\"",
+      "revId": "97dc1d74e2f5c17eab267fafbd122a3bef3597e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
