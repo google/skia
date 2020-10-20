@@ -228,6 +228,17 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     } else if (builtin && name == "inverse") {
         SkASSERT(arguments.size() == 1);
         this->writeInverseHack(*arguments[0]);
+    } else if (builtin && name == "frexp") {
+        // Our Metal codegen assumes that out params are pointers, but Metal's built-in frexp
+        // actually takes a reference for the exponent, not a pointer. We add in a helper function
+        // here to translate.
+        SkASSERT(arguments.size() == 2);
+        auto [iter, newlyCreated] = fHelpers.insert("frexp");
+        if (newlyCreated) {
+            fExtraFunctions.printf(
+                    "float frexp(float arg, thread int* exp) { return frexp(arg, *exp); }\n");
+        }
+        this->write("frexp");
     } else if (builtin && name == "dFdx") {
         this->write("dfdx");
     } else if (builtin && name == "dFdy") {
