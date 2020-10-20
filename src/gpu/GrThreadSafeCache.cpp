@@ -60,8 +60,8 @@ void GrThreadSafeCache::dropUniqueRefs(GrResourceCache* resourceCache) {
             return;
         }
 
-        if (cur->fView.proxy()->unique()) {
-            fUniquelyKeyedEntryMap.remove(cur->fKey);
+        if (cur->uniquelyHeld()) {
+            fUniquelyKeyedEntryMap.remove(cur->key());
             fUniquelyKeyedEntryList.remove(cur);
             this->recycleEntry(cur);
         }
@@ -84,8 +84,8 @@ void GrThreadSafeCache::dropUniqueRefsOlderThan(GrStdSteadyClock::time_point pur
             return;
         }
 
-        if (cur->fView.proxy()->unique()) {
-            fUniquelyKeyedEntryMap.remove(cur->fKey);
+        if (cur->uniquelyHeld()) {
+            fUniquelyKeyedEntryMap.remove(cur->key());
             fUniquelyKeyedEntryList.remove(cur);
             this->recycleEntry(cur);
         }
@@ -104,7 +104,7 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalFind(
         tmp->fLastAccess = GrStdSteadyClock::now();
         fUniquelyKeyedEntryList.remove(tmp);
         fUniquelyKeyedEntryList.addToHead(tmp);
-        return { tmp->fView, tmp->fKey.refCustomData() };
+        return { tmp->view(), tmp->refCustomData() };
     }
 
     return {};
@@ -134,8 +134,7 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
         fFreeEntryList = entry->fNext;
         entry->fNext = nullptr;
 
-        entry->fKey = key;
-        entry->fView = view;
+        entry->set(key, view);
     } else {
         entry = fEntryAllocator.make<Entry>(key, view);
     }
@@ -150,8 +149,7 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
 void GrThreadSafeCache::recycleEntry(Entry* dead) {
     SkASSERT(!dead->fPrev && !dead->fNext && !dead->fList);
 
-    dead->fKey.reset();
-    dead->fView.reset();
+    dead->makeEmpty();
 
     dead->fNext = fFreeEntryList;
     fFreeEntryList = dead;
@@ -167,7 +165,7 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalAdd(
         SkASSERT(fUniquelyKeyedEntryMap.find(key));
     }
 
-    return { tmp->fView, tmp->fKey.refCustomData() };
+    return { tmp->view(), tmp->refCustomData() };
 }
 
 GrSurfaceProxyView GrThreadSafeCache::add(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
