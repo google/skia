@@ -13,7 +13,8 @@
     "OpenCL",
     "SKQP",
     "TSAN",
-    "Valgrind"
+    "Valgrind",
+    "WasmGMTests"
   ],
   "service_account_canary": "skia-canary@skia-swarming-bots.iam.gserviceaccount.com",
   "service_account_compile": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com",

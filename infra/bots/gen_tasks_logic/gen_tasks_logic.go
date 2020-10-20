@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"go.skia.org/infra/go/cipd"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
@@ -118,6 +119,8 @@ var (
 	CIPD_PKG_LUCI_AUTH = specs.CIPD_PKGS_KITCHEN[1]
 	CIPD_PKGS_KITCHEN  = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
 	CIPD_PKG_CPYTHON   = specs.CIPD_PKGS_PYTHON[0]
+
+	CIPD_PKGS_GOLDCTL = []*specs.CipdPackage{cipd.MustGetPackage("skia/tools/goldctl/${platform}")}
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -1719,8 +1722,9 @@ func (b *jobBuilder) presubmit() {
 	})
 }
 
-// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM)
-// using WebGL if necessary.
+// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM).
+// We can use the same build for both CPU and GPU tests since the latter requires the code for the
+// former anyway.
 func (b *jobBuilder) compileWasmGMTests(compileName string) {
 	b.addTask(compileName, func(b *taskBuilder) {
 		b.attempts(1)
@@ -1745,6 +1749,52 @@ func (b *jobBuilder) compileWasmGMTests(compileName string) {
 			"--out_path", "./wasm_out",
 			"--skia_path", "./skia",
 			"--work_path", "./cache/docker/wasm_gm",
+			"--alsologtostderr",
+		)
+	})
+}
+
+// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM).
+// We can use the same build for both CPU and GPU tests since the latter requires the code for the
+// former anyway.
+func (b *jobBuilder) runWasmGMTests() {
+	compileTaskName := b.compile()
+
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.attempts(1)
+		b.usesNode()
+		b.swarmDimensions()
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.cipd(CIPD_PKGS_GOLDCTL...)
+		b.dep(b.buildTaskDrivers())
+		b.dep(compileTaskName)
+		b.timeout(60 * time.Minute)
+		b.isolate("wasm_gm_tests.isolate")
+		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
+		b.cmd(
+			"./run_wasm_gm_tests",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--test_harness_path", "./tools/run-wasm-gm-tests",
+			"--built_path", "./wasm_out",
+			"--node_bin_path", "./node/node/bin",
+			"--work_path", "./wasm_gm/work",
+			"--gold_ctl_path", "./cipd_bin_packages/goldctl",
+			"--git_commit", specs.PLACEHOLDER_REVISION,
+			"--changelist_id", specs.PLACEHOLDER_ISSUE,
+			"--patchset_order", specs.PLACEHOLDER_PATCHSET,
+			"--tryjob_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
+			// TODO(kjlubick, nifong) Make these not hard coded if we change the configs we test on.
+			"--webgl_version", "2", // 0 means CPU ; this flag controls cpu_or_gpu and extra_config
+			"--gold_key", "browser:Chrome",
+			"--gold_key", "alpha_type:Premul",
+			"--gold_key", "arch:wasm",
+			"--gold_key", "color_depth:8888",
+			"--gold_key", "configuration:Release",
+			"--gold_key", "cpu_or_gpu_value:QuadroP400",
+			"--gold_key", "model:Golo",
+			"--gold_key", "os:Ubuntu18",
 			"--alsologtostderr",
 		)
 	})

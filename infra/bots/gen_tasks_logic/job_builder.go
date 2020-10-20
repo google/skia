@@ -174,6 +174,10 @@ func (b *jobBuilder) genTasksForJob() {
 
 	// Test bots.
 	if b.role("Test") {
+		if b.extraConfig("WasmGMTests") {
+			b.runWasmGMTests()
+			return
+		}
 		b.dm()
 		return
 	}
