@@ -70,7 +70,7 @@ struct InterfaceBlock : public ProgramElement {
         }
         return std::make_unique<InterfaceBlock>(fOffset, &this->variable(), this->typeName(),
                                                 this->instanceName(), std::move(sizesClone),
-                                                this->typeOwner());
+                                                SymbolTable::WrapIfBuiltin(this->typeOwner()));
     }
 
     String description() const override {

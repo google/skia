@@ -45,7 +45,8 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<Enum>(fOffset, this->typeName(), this->symbols(),
+        return std::make_unique<Enum>(fOffset, this->typeName(),
+                                      SymbolTable::WrapIfBuiltin(this->symbols()),
                                       this->isSharedWithCpp(), /*isBuiltin=*/false);
     }
 
