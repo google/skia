@@ -54,11 +54,9 @@ public:
             sortedSymbols.push_back(symbol);
         });
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
-                  [](const Symbol* a, const Symbol* b) { return a->name() < b->name(); });
-        for (const auto& s : sortedSymbols) {
-            const Expression& initialValue = *s->as<Variable>().initialValue();
-            result += separator + "    " + s->name() + " = " +
-                      to_string(initialValue.as<IntLiteral>().value());
+                  [](const Symbol* a, const Symbol* b) { return EnumValue(a) < EnumValue(b); });
+        for (const Symbol* s : sortedSymbols) {
+            result += separator + "    " + s->name() + " = " + to_string(EnumValue(s));
             separator = ",\n";
         }
         result += "\n};";
@@ -70,6 +68,10 @@ public:
     }
 
 private:
+    static int EnumValue(const Symbol* symbol) {
+        return symbol->as<Variable>().initialValue()->as<IntLiteral>().value();
+    }
+
     using INHERITED = ProgramElement;
 };
 

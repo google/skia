@@ -22,7 +22,7 @@
 
 class GrTwoPointConicalGradientLayout : public GrFragmentProcessor {
 public:
-    enum class Type { kFocal = 2, kRadial = 0, kStrip = 1 };
+    enum class Type { kRadial = 0, kStrip = 1, kFocal = 2 };
 
     static std::unique_ptr<GrFragmentProcessor> Make(const SkTwoPointConicalGradient& gradient,
                                                      const GrFPArgs& args);
