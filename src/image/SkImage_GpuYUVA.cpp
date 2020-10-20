@@ -274,7 +274,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                        imageColorSpace);
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* ctx,
                                              SkYUVColorSpace colorSpace,
                                              const GrBackendTexture yuvaTextures[],
                                              const SkYUVAIndex yuvaIndices[4],
