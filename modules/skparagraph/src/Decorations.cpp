@@ -94,13 +94,16 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
 
 void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRect& rect,
                                 SkScalar baseline, SkScalar halo) {
-    // Create a special textblob for decorations
+    // Create a special text blob for decorations
     SkTextBlobBuilder builder;
     context.run->copyTo(builder,
                       SkToU32(context.pos),
                       context.size);
-    auto blob = builder.make();
-
+    sk_sp<SkTextBlob> blob = builder.make();
+    if (!blob) {
+        // There is no text really
+        return;
+    }
     // Since we do not shift down the text by {baseline}
     // (it now happens on drawTextBlob but we do not draw text here)
     // we have to shift up the bounds to compensate
