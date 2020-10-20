@@ -72,11 +72,11 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 	// Absolute paths work more consistently than relative paths.
-	nodeBinAbsPath := getAbsoluteOfRequiredFlag(ctx, *nodeBinPath, "node_bin_path")
-	benchmarkAbsPath := getAbsoluteOfRequiredFlag(ctx, *benchmarkPath, "benchmark_path")
-	canvaskitBinAbsPath := getAbsoluteOfRequiredFlag(ctx, *canvaskitBinPath, "canvaskit_bin_path")
-	lottiesAbsPath := getAbsoluteOfRequiredFlag(ctx, *lottiesPath, "lotties_path")
-	outputAbsPath := getAbsoluteOfRequiredFlag(ctx, *outputPath, "output_path")
+	nodeBinAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *nodeBinPath, "node_bin_path")
+	benchmarkAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *benchmarkPath, "benchmark_path")
+	canvaskitBinAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *canvaskitBinPath, "canvaskit_bin_path")
+	lottiesAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *lottiesPath, "lotties_path")
+	outputAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *outputPath, "output_path")
 
 	if err := setup(ctx, benchmarkAbsPath, nodeBinAbsPath); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
@@ -92,17 +92,6 @@ func main() {
 	if err := processSkottieFramesData(ctx, outputWithoutResults, benchmarkAbsPath, outputFile); err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
-}
-
-func getAbsoluteOfRequiredFlag(ctx context.Context, nonEmptyPath, flag string) string {
-	if nonEmptyPath == "" {
-		td.Fatalf(ctx, "--%s must be specified", flag)
-	}
-	absPath, err := filepath.Abs(nonEmptyPath)
-	if err != nil {
-		td.Fatal(ctx, skerr.Wrap(err))
-	}
-	return absPath
 }
 
 const perfKeyCpuOrGPU = "cpu_or_gpu"
