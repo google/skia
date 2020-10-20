@@ -304,7 +304,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 v.setInitialValue(symbols->takeOwnershipOfIRNode(
                         std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value)));
             }
-            return std::unique_ptr<ProgramElement>(new Enum(-1, typeName, std::move(symbols)));
+            return std::make_unique<Enum>(/*offset=*/-1, typeName, std::move(symbols),
+                                          /*isSharedWithCpp=*/true, /*isBuiltin=*/true);
         }
         case Rehydrator::kFunctionDefinition_Command: {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(

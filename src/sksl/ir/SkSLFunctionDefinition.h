@@ -40,10 +40,6 @@ struct FunctionDefinition : public ProgramElement {
         return this->functionDefinitionData().fBuiltin;
     }
 
-    void setBuiltin(bool builtin) {
-        this->functionDefinitionData().fBuiltin = builtin;
-    }
-
     std::unique_ptr<Statement>& body() {
         return this->fStatementChildren[0];
     }
@@ -66,7 +62,7 @@ struct FunctionDefinition : public ProgramElement {
 
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fOffset, &this->declaration(),
-                                                    this->isBuiltin(), this->body()->clone(),
+                                                    /*builtin=*/false, this->body()->clone(),
                                                     this->referencedIntrinsics());
     }
 

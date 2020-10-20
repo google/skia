@@ -1232,8 +1232,9 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
     fSymbolTable->fParent = nullptr;
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
-            new Enum(e.fOffset, e.getString(), fSymbolTable, fIsBuiltinCode)));
+    fProgramElements->push_back(std::make_unique<Enum>(e.fOffset, e.getString(), fSymbolTable,
+                                                       /*isSharedWithCpp=*/fIsBuiltinCode,
+                                                       /*isBuiltin=*/fIsBuiltinCode));
     fSymbolTable = oldTable;
 }
 
@@ -2021,10 +2022,7 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
             this->copyIntrinsicIfNeeded(*f);
         }
 
-        // Unmark the function as a built-in when cloning it, so that it is eligible for alteration.
-        std::unique_ptr<ProgramElement> clonedIntrinsicFn = original.clone();
-        clonedIntrinsicFn->as<FunctionDefinition>().setBuiltin(false);
-        fProgramElements->push_back(std::move(clonedIntrinsicFn));
+        fProgramElements->push_back(original.clone());
     }
 }
 

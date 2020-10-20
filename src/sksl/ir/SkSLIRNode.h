@@ -81,6 +81,7 @@ protected:
     struct EnumData {
         StringFragment fTypeName;
         std::shared_ptr<SymbolTable> fSymbols;
+        bool fIsSharedWithCpp;
         bool fIsBuiltin;
     };
 
