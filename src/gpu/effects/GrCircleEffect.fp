@@ -51,7 +51,7 @@ uniform float4 circle;
     }
 }
 
-void main() {
+half4 main() {
     // TODO: Right now the distance to circle calculation is performed in a space normalized to the
     // radius and then denormalized. This is to mitigate overflow on devices that don't have full
     // float.
@@ -65,9 +65,9 @@ void main() {
     half4 inputColor = sample(inputFP);
     @if (edgeType == GrClipEdgeType::kFillAA ||
          edgeType == GrClipEdgeType::kInverseFillAA) {
-        sk_OutColor = inputColor * saturate(d);
+        return inputColor * saturate(d);
     } else {
-        sk_OutColor = d > 0.5 ? inputColor : half4(0);
+        return d > 0.5 ? inputColor : half4(0);
     }
 }
 

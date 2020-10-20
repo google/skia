@@ -15,13 +15,13 @@ layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient
 in bool colorsAreOpaque;
 
-void main() {
+half4 main() {
     half4 t = sample(gradLayout);
 
     if (!gradLayout.preservesOpaqueInput && t.y < 0) {
         // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
         // preserves opacity is false)
-        sk_OutColor = half4(0);
+        return half4(0);
     } else {
         @if (mirror) {
             half t_1 = t.x - 1;
@@ -39,11 +39,12 @@ void main() {
         }
 
         // Always sample from (x, 0), discarding y, since the layout FP can use y as a side-channel.
-        sk_OutColor = sample(colorizer, t.x0);
-    }
-
-    @if (makePremul) {
-        sk_OutColor.xyz *= sk_OutColor.w;
+        @if (!makePremul) {
+            return sample(colorizer, t.x0);
+        } else {
+            half4 outColor = sample(colorizer, t.x0);
+            return outColor * outColor.aaa1;
+        }
     }
 }
 
