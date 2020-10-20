@@ -274,6 +274,34 @@ void commitToPaint<SkSVGAttribute::kColor>(const SkSVGPresentationAttributes&,
     // Not part of the SkPaint state; applied via 'currentColor' color value
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kFontFamily>(const SkSVGPresentationAttributes&,
+                                                const SkSVGRenderContext&,
+                                                SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
+template <>
+void commitToPaint<SkSVGAttribute::kFontSize>(const SkSVGPresentationAttributes&,
+                                              const SkSVGRenderContext&,
+                                              SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
+template <>
+void commitToPaint<SkSVGAttribute::kFontStyle>(const SkSVGPresentationAttributes&,
+                                               const SkSVGRenderContext&,
+                                               SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
+template <>
+void commitToPaint<SkSVGAttribute::kFontWeight>(const SkSVGPresentationAttributes&,
+                                                const SkSVGRenderContext&,
+                                                SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
 }  // namespace
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -351,6 +379,10 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
     ApplyLazyInheritedAttribute(FillRule);
+    ApplyLazyInheritedAttribute(FontFamily);
+    ApplyLazyInheritedAttribute(FontSize);
+    ApplyLazyInheritedAttribute(FontStyle);
+    ApplyLazyInheritedAttribute(FontWeight);
     ApplyLazyInheritedAttribute(ClipRule);
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeDashOffset);

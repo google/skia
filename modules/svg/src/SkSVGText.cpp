@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGText.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
@@ -18,47 +19,6 @@ SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
 void SkSVGText::setX(const SkSVGLength& x) { fX = x; }
 
 void SkSVGText::setY(const SkSVGLength& y) { fY = y; }
-
-void SkSVGText::setFontFamily(const SkSVGStringType& font_family) {
-  if (fFontFamily != font_family) {
-    fFontFamily = font_family;
-
-    this->loadFont();
-  }
-}
-
-void SkSVGText::loadFont() {
-  SkFontStyle style;
-  if (fFontWeight.equals("bold")) {
-    if (fFontStyle.equals("italic")) {
-      style = SkFontStyle::BoldItalic();
-    } else {
-      style = SkFontStyle::Bold();
-    }
-  } else if (fFontStyle.equals("italic")) {
-    style = SkFontStyle::Italic();
-  }
-
-  fTypeface = SkTypeface::MakeFromName(fFontFamily.c_str(), style);
-}
-
-void SkSVGText::setFontSize(const SkSVGLength& size) { fFontSize = size; }
-
-void SkSVGText::setFontStyle(const SkSVGStringType& font_style) {
-  if (fFontStyle != font_style) {
-    fFontStyle = font_style;
-
-    this->loadFont();
-  }
-}
-
-void SkSVGText::setFontWeight(const SkSVGStringType& font_weight) {
-  if (fFontWeight != font_weight) {
-    fFontWeight = font_weight;
-
-    this->loadFont();
-  }
-}
 
 void SkSVGText::setText(const SkSVGStringType& text) { fText = text; }
 
@@ -72,11 +32,79 @@ void SkSVGText::setTextAnchor(const SkSVGStringType& text_anchor) {
   }
 }
 
-void SkSVGText::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint, SkPathFillType) const {
-  SkFont font(fTypeface, fFontSize.value());
-  SkTextUtils::DrawString(canvas, fText.c_str(), fX.value(), fY.value(),
-                          font, paint, fTextAlign);
+SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
+    auto weight = [](const SkSVGFontWeight& w) {
+        switch (w.type()) {
+            case SkSVGFontWeight::Type::k100:     return SkFontStyle::kThin_Weight;
+            case SkSVGFontWeight::Type::k200:     return SkFontStyle::kExtraLight_Weight;
+            case SkSVGFontWeight::Type::k300:     return SkFontStyle::kLight_Weight;
+            case SkSVGFontWeight::Type::k400:     return SkFontStyle::kNormal_Weight;
+            case SkSVGFontWeight::Type::k500:     return SkFontStyle::kMedium_Weight;
+            case SkSVGFontWeight::Type::k600:     return SkFontStyle::kSemiBold_Weight;
+            case SkSVGFontWeight::Type::k700:     return SkFontStyle::kBold_Weight;
+            case SkSVGFontWeight::Type::k800:     return SkFontStyle::kExtraBold_Weight;
+            case SkSVGFontWeight::Type::k900:     return SkFontStyle::kBlack_Weight;
+            case SkSVGFontWeight::Type::kNormal:  return SkFontStyle::kNormal_Weight;
+            case SkSVGFontWeight::Type::kBold:    return SkFontStyle::kBold_Weight;
+            case SkSVGFontWeight::Type::kBolder:  return SkFontStyle::kExtraBold_Weight;
+            case SkSVGFontWeight::Type::kLighter: return SkFontStyle::kLight_Weight;
+            case SkSVGFontWeight::Type::kInherit: {
+                SkASSERT(false);
+                return SkFontStyle::kNormal_Weight;
+            }
+        }
+        SkUNREACHABLE;
+    };
+
+    auto slant = [](const SkSVGFontStyle& s) {
+        switch (s.type()) {
+            case SkSVGFontStyle::Type::kNormal:  return SkFontStyle::kUpright_Slant;
+            case SkSVGFontStyle::Type::kItalic:  return SkFontStyle::kItalic_Slant;
+            case SkSVGFontStyle::Type::kOblique: return SkFontStyle::kOblique_Slant;
+            case SkSVGFontStyle::Type::kInherit: {
+                SkASSERT(false);
+                return SkFontStyle::kUpright_Slant;
+            }
+        }
+        SkUNREACHABLE;
+    };
+
+    const auto& family = ctx.presentationContext().fInherited.fFontFamily->family();
+    const SkFontStyle style(weight(*ctx.presentationContext().fInherited.fFontWeight),
+                            SkFontStyle::kNormal_Width,
+                            slant(*ctx.presentationContext().fInherited.fFontStyle));
+
+    const auto size =
+            ctx.lengthContext().resolve(ctx.presentationContext().fInherited.fFontSize->size(),
+                                        SkSVGLengthContext::LengthType::kVertical);
+
+    // TODO: allow clients to pass an external fontmgr.
+    SkFont font(SkTypeface::MakeFromName(family.c_str(), style), size);
+    font.setHinting(SkFontHinting::kNone);
+    font.setSubpixel(true);
+    font.setLinearMetrics(true);
+    font.setBaselineSnap(false);
+    font.setEdging(SkFont::Edging::kAntiAlias);
+
+    return font;
+}
+
+void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
+    const auto font = this->resolveFont(ctx);
+
+    if (const SkPaint* fillPaint = ctx.fillPaint()) {
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
+                                *fillPaint, fTextAlign);
+    }
+
+    if (const SkPaint* strokePaint = ctx.strokePaint()) {
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
+                                *strokePaint, fTextAlign);
+    }
+}
+
+void SkSVGText::appendChild(sk_sp<SkSVGNode>) {
+    // TODO
 }
 
 SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
@@ -106,25 +134,6 @@ void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         this->setTextAnchor(*text_anchor);
       }
       break;
-    case SkSVGAttribute::kFontFamily:
-      if (const auto* font_family = v.as<SkSVGStringValue>()) {
-        this->setFontFamily(*font_family);
-      }
-      break;
-    case SkSVGAttribute::kFontWeight:
-      if (const auto* font_weight = v.as<SkSVGStringValue>()) {
-        this->setFontWeight(*font_weight);
-      }
-      break;
-    case SkSVGAttribute::kFontSize:
-      if (const auto* font_size = v.as<SkSVGLengthValue>()) {
-        this->setFontSize(*font_size);
-      }
-      break;
-    case SkSVGAttribute::kFontStyle:
-      if (const auto* font_style = v.as<SkSVGStringValue>()) {
-        this->setFontStyle(*font_style);
-      }
       break;
     default:
       this->INHERITED::onSetAttribute(attr, v);
