@@ -134,9 +134,9 @@ private:
 
     mutable SkSpinlock fSpinLock;
 
-    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedProxyViewMap  SK_GUARDED_BY(fSpinLock);
+    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedEntryMap  SK_GUARDED_BY(fSpinLock);
     // The head of this list is the MRU
-    SkTInternalLList<Entry>            fUniquelyKeyedProxyViewList  SK_GUARDED_BY(fSpinLock);
+    SkTInternalLList<Entry>            fUniquelyKeyedEntryList  SK_GUARDED_BY(fSpinLock);
 
     // TODO: empirically determine this from the skps
     static const int kInitialArenaSize = 64 * sizeof(Entry);
