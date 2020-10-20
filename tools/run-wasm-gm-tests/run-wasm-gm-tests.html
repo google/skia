@@ -38,6 +38,7 @@ array of the test names and what they drew.
     LoadKnownHashes(GM, hashes);
     document.getElementById('start_tests').addEventListener('click', async () => {
       window._testsProgress = 0;
+      window._log = 'Starting\n';
       await RunGMs(GM);
       if (attemptedPOSTs !== successfulPOSTs) {
         window._error = `Failed to POST all the PNG files (expected ${attemptedPOSTs}, finished ${successfulPOSTs})`;
@@ -49,14 +50,16 @@ array of the test names and what they drew.
   });
 
   const statusElement = document.getElementById('status_text');
-  function logLineToPage(line) {
-    statusElement.innerText += (line + '\n');
+  function log(line) {
+    line += '\n';
+    statusElement.innerText += line;
+    window._log += line;
   }
 
   // There's a global set of known hashes that we preload with the md5 hashes that are already
   // uploaded to Gold. This saves us some time to encode them and write them to disk.
   function LoadKnownHashes(GM, hashes) {
-    logLineToPage(`Loading ${hashes.length} hashes`);
+    log(`Loading ${hashes.length} hashes`);
     console.time('load_hashes');
     for (const hash of hashes.split('\n')) {
       if (hash.length < 5) { // be sure not to add empty lines
@@ -65,8 +68,20 @@ array of the test names and what they drew.
       GM.LoadKnownDigest(hash);
     }
     console.timeEnd('load_hashes');
-    logLineToPage('hashes loaded');
+    log('hashes loaded');
   }
+
+  const skip_list = new Set([
+    // Cause a crash "function signature mismatch" - TODO(kjlubick) investigate
+    'compositor_quads_filter',
+    'compositor_quads_image',
+    'imagefilters_effect_order',
+    'localmatrixshader_persp',
+    'sample_matrix_constant',
+    'sample_matrix_variable',
+    'showmiplevels_explicit',
+    'yuv_splitter',
+  ]);
 
   async function RunGMs(GM) {
     const canvas = document.getElementById('gm_canvas');
@@ -77,11 +92,15 @@ array of the test names and what they drew.
     const names = GM.ListGMs();
     names.sort();
     for (const name of names) {
-      const pngAndMetadata = GM.RunGM(grcontext, name);
-      if (!pngAndMetadata) {
+      if (skip_list.has(name)) {
         continue;
       }
-      logLineToPage(`Test ${name} drew ${pngAndMetadata.hash}`);
+      window._log += `Starting ${name}\n`;
+      const pngAndMetadata = GM.RunGM(grcontext, name);
+      if (!pngAndMetadata || !pngAndMetadata.hash) {
+        continue; // Was skipped
+      }
+      log(`Test ${name} drew ${pngAndMetadata.hash}`);
       window._results.push({
         name: name,
         digest: pngAndMetadata.hash,

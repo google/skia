@@ -24,8 +24,7 @@ const opts = [
   {
     name: 'known_hashes',
     typeLabel: '{underline file}',
-    description: '(required) A directory containing any assets needed by lottie' +
-      ' files or tests (e.g. images/fonts).'
+    description: '(required) The hashes that should not be written to disk.'
   },
   {
     name: 'output',
@@ -243,6 +242,10 @@ async function driveBrowser() {
     fs.writeFileSync(jsonFile, JSON.stringify(goldResults));
   } catch(e) {
     console.log('Timed out while loading, drawing, or writing to disk.', e);
+    if (page) {
+      const log = await page.evaluate('window._log');
+      console.error(log);
+    }
     await browser.close();
     await new Promise((resolve) => server.close(resolve));
     process.exit(1);
