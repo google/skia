@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd94697a_01ef2f94",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef4f6d2d_7a987b9e",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae8e3d61_efebd293",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-20T17:25:09Z",
       "side": 1,
       "message": "Implementing copy-constructor with copy-assignment is going to bite us at some point; rule of three/five/zero says we should have one. https://en.cppreference.com/w/cpp/language/rule_of_three\n\nI think it means fContents has to be a pointer and not a reference but that doesn\u0027t affect anything tangibly.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 39
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eb423bc_4730d894",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae8e3d61_efebd293",
       "range": {
         "startLine": 83,
         "startChar": 0,
@@ -93,6 +141,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b947a1c_a2fc1b8e",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "The base array contains std::unique_ptrs, so we\u0027re emplacing the unique_ptr, not the object.",
+      "parentUuid": "f2b897ee_34d74997",
+      "range": {
+        "startLine": 114,
+        "startChar": 55,
+        "endLine": 114,
+        "endChar": 89
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "007f964c_9cd028ed",
@@ -116,6 +188,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0d9710d_92101770",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "007f964c_9cd028ed",
+      "range": {
+        "startLine": 147,
+        "startChar": 24,
+        "endLine": 147,
+        "endChar": 36
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89a2978f_6655ed77",
@@ -129,6 +225,30 @@
       "writtenOn": "2020-10-20T17:25:09Z",
       "side": 1,
       "message": "Definitely not in a Const wrapper",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 206,
+        "endChar": 0
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "873f5796_9e63c60c",
+        "filename": "src/sksl/ir/SkSLNodeArrayWrapper.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Whoops.",
+      "parentUuid": "89a2978f_6655ed77",
       "range": {
         "startLine": 203,
         "startChar": 0,
@@ -164,6 +284,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "42fc15a6_9df032db",
+        "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Base is an array of std::unique_ptrs, so I am invoking the std::unique_ptr constructor here with a pointer argument... I\u0027m not sure what\u0027s weird about this?",
+      "parentUuid": "354100d4_420e93ce",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 51
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5266a1b0_f963a9ac",
         "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
         "patchSetId": 1
@@ -175,6 +319,30 @@
       "writtenOn": "2020-10-20T17:25:09Z",
       "side": 1,
       "message": "Please add coverage for\n\nconst_iterator\npush_back\ncopy construction",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "dedea75bc1b407b8f05b0c3c158d33d49bf7dfe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d68c6e75_8a693742",
+        "filename": "tests/SkSLNodeArrayWrapperTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-20T18:00:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5266a1b0_f963a9ac",
       "range": {
         "startLine": 44,
         "startChar": 0,
