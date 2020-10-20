@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc8679cc_a1ce408b",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-10-20T12:21:47Z",
+      "side": 1,
+      "message": "I guess what I meant is that, if this is in PATH, we\u0027re already safe, but if it isn\u0027t, or if there\u0027s another version in PATH, it\u0027s possible that we could end up using two different versions, depending on whether we provided the absolute path or just depended on PATH (eg. in descendant scripts).  Whereas if we don\u0027t provide any absolute path, we\u0027ll always get the same version.",
+      "parentUuid": "fb3e2e41_ba1f39c5",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 322
+      },
+      "revId": "f47e69dc1d33ccd2d36af269c7e6cc68bdc6b86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca143a33_a3c0053f",
