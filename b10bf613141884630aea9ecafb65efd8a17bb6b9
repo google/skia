@@ -46,6 +46,30 @@
       },
       "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b261f57_aea9bf15",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-20T14:36:06Z",
+      "side": 1,
+      "message": "I was trying to grok why we need to pass the newly created SymbolTable to the actual Block. My reasoning was that if the newly created Block didn\u0027t need a symbol table before, presumably it still doesn\u0027t? (We need a symbol table here to put things in, but being able to reach it via the Block was never a concern).\n\nSomeone needs to keep the SymbolTable alive, of course, so my first reaction was that passing it to the Block did that. But the InlinedCall\u0027s symbol table has been upgraded to a shared_ptr from a naked pointer (so has the symbol table stack), so those will also be keeping this table alive, right? (But without sufficient lifetime, hence the need for it to be ref\u0027d by the Block?).",
+      "parentUuid": "b637c2dd_0ef048a2",
+      "range": {
+        "startLine": 609,
+        "startChar": 59,
+        "endLine": 609,
+        "endChar": 77
+      },
+      "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
