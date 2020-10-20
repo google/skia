@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc004fcf_4c7e34f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-20T13:39:33Z",
+      "side": 1,
+      "message": "Yeah, I think this documents the issues properly. lgtm.",
+      "revId": "307a272622c5e78b0b19484280c0c0476c758050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
