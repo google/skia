@@ -22,6 +22,30 @@
       },
       "revId": "fcc9e59c408dcd1264bca709343fd3fed315abd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00660afe_ddcddc21",
+        "filename": "src/sksl/ir/SkSLFunctionDefinition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T14:06:26Z",
+      "side": 1,
+      "message": "Done at followup CL http://review.skia.org/328381",
+      "parentUuid": "57c77961_0527cb02",
+      "range": {
+        "startLine": 69,
+        "startChar": 52,
+        "endLine": 69,
+        "endChar": 69
+      },
+      "revId": "fcc9e59c408dcd1264bca709343fd3fed315abd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
