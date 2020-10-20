@@ -45,6 +45,24 @@ struct TessInfo {
     int       fCount;
 };
 
+static sk_sp<SkData> create_data(int vertexCount, int numCountedCurves, SkScalar tol) {
+    TessInfo info;
+    info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
+    info.fCount = vertexCount;
+    return SkData::MakeWithCopy(&info, sizeof(info));
+}
+
+bool cache_match(const SkData* data, SkScalar tol, int* actualCount) {
+    SkASSERT(data);
+
+    const TessInfo* info = static_cast<const TessInfo*>(data->data());
+    if (info->fTolerance == 0 || info->fTolerance < 3.0f * tol) {
+        *actualCount = info->fCount;
+        return true;
+    }
+    return false;
+}
+
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
 class UniqueKeyInvalidator : public SkIDChangeListener {
 public:
@@ -56,20 +74,6 @@ private:
 
     void changed() override { SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(fMsg); }
 };
-
-bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
-    if (!vertexBuffer) {
-        return false;
-    }
-    const SkData* data = vertexBuffer->getUniqueKey().getCustomData();
-    SkASSERT(data);
-    const TessInfo* info = static_cast<const TessInfo*>(data->data());
-    if (info->fTolerance == 0 || info->fTolerance < 3.0f * tol) {
-        *actualCount = info->fCount;
-        return true;
-    }
-    return false;
-}
 
 class StaticVertexAllocator : public GrEagerVertexAllocator {
 public:
@@ -265,13 +269,18 @@ private:
         GrUniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
 
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
+                                                        fViewMatrix, fShape.bounds());
+
         sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
-        int actualCount;
-        SkScalar tol = GrPathUtils::kDefaultTolerance;
-        tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
-        if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
-            return;
+        if (cachedVertexBuffer) {
+            int actualCount;
+
+            if (cache_match(cachedVertexBuffer->getUniqueKey().getCustomData(), tol,
+                            &actualCount)) {
+                this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
+                return;
+            }
         }
 
         SkRect clipBounds = SkRect::Make(fDevClipBounds);
@@ -291,12 +300,11 @@ private:
             return;
         }
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
-        TessInfo info;
-        info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
-        info.fCount = vertexCount;
+
+        key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
+
         fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
-        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 
         this->createMesh(target, std::move(vb), 0, vertexCount);
