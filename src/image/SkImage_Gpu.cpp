@@ -414,9 +414,9 @@ static SkColorChannel get_single_channel(const GrBackendTexture& tex) {
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-        GrContext* ctx, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
-        GrSurfaceOrigin imageOrigin, const GrBackendTexture& backendTexture,
-        sk_sp<SkColorSpace> imageColorSpace) {
+        GrRecordingContext* ctx, SkYUVColorSpace yuvColorSpace,
+        const GrBackendTexture yuvTextures[3], GrSurfaceOrigin imageOrigin,
+        const GrBackendTexture& backendTexture, sk_sp<SkColorSpace> imageColorSpace) {
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, get_single_channel(yuvTextures[0])},
             SkYUVAIndex{1, get_single_channel(yuvTextures[1])},
@@ -428,7 +428,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
 }
 
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
-        GrContext* ctx,
+        GrRecordingContext* ctx,
         SkYUVColorSpace yuvColorSpace,
         const GrBackendTexture nv12Textures[2],
         GrSurfaceOrigin imageOrigin,
@@ -447,7 +447,8 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
             std::move(imageColorSpace), textureReleaseProc, releaseContext);
 }
 
-static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
+static sk_sp<SkImage> create_image_from_producer(GrRecordingContext* context,
+                                                 GrTextureProducer* producer,
                                                  uint32_t id, GrMipmapped mipMapped) {
     auto view = producer->view(mipMapped);
     if (!view) {
@@ -713,13 +714,11 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
+bool SkImage::MakeBackendTextureFromSkImage(GrDirectContext* direct,
                                             sk_sp<SkImage> image,
                                             GrBackendTexture* backendTexture,
                                             BackendTextureReleaseProc* releaseProc) {
-    // TODO: Elevate direct context requirement to public API.
-    auto direct = GrAsDirectContext(ctx);
-    if (!image || !direct || !backendTexture || !releaseProc) {
+    if (!image || !backendTexture || !releaseProc) {
         return false;
     }
 

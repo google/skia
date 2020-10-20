@@ -11,7 +11,7 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrRenderTargetContext.h"
 
-class GrContext;
+class GrRecordingContext;
 class GrTexture;
 
 struct SkRect;

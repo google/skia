@@ -53,7 +53,7 @@ public:
         // Just draw the re-inflated per-tile SKP directly into this tile w/o going through a DDL
         // first. This is used for determining the overhead of using DDLs (i.e., it replaces
         // a 'createDDL' and 'draw' pair.
-        void drawSKPDirectly(GrContext*);
+        void drawSKPDirectly(GrRecordingContext*);
 
         // Replay the recorded DDL into the tile surface - filling in 'fBackendTexture'.
         void draw(GrDirectContext*);
@@ -72,7 +72,7 @@ public:
         static void DeleteBackendTexture(GrDirectContext*, TileData*);
 
     private:
-        sk_sp<SkSurface> makeWrappedTileDest(GrContext* context);
+        sk_sp<SkSurface> makeWrappedTileDest(GrRecordingContext* context);
 
         sk_sp<PromiseImageCallbackContext> refCallbackContext() { return fCallbackContext; }
 
@@ -124,7 +124,7 @@ public:
 
     // This draws all the per-tile SKPs directly into all of the tiles w/o converting them to
     // DDLs first - all on a single thread.
-    void drawAllTilesDirectly(GrContext*);
+    void drawAllTilesDirectly(GrDirectContext*);
 
     void dropCallbackContexts();
     void resetAllTiles();
