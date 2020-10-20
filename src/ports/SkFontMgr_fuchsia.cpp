@@ -46,7 +46,7 @@ sk_sp<SkData> MakeSkDataFromBuffer(const fuchsia::mem::Buffer& data,
                                    std::function<void()> release_proc) {
     uint64_t size = data.size;
     uintptr_t buffer = 0;
-    zx_status_t status = zx::vmar::root_self()->map(0, data.vmo, 0, size, ZX_VM_PERM_READ, &buffer);
+    zx_status_t status = zx::vmar::root_self()->map(ZX_VM_PERM_READ, 0, data.vmo, 0, size, &buffer);
     if (status != ZX_OK) return nullptr;
     auto context = new ReleaseSkDataContext(size, release_proc);
     return SkData::MakeWithProc(reinterpret_cast<void*>(buffer), size, ReleaseSkData, context);
