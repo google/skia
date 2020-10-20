@@ -112,9 +112,43 @@ private:
     struct Entry {
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
-        // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey                  fKey;
-        GrSurfaceProxyView           fView;
+        bool uniquelyHeld() const {
+            if (fTag == kView && fView.proxy()->unique()) {
+                return true;
+            }
+
+            return false;
+        }
+
+        const GrUniqueKey& key() const {
+            SkASSERT(fTag != kEmpty);
+            return fKey;
+        }
+
+        sk_sp<SkData> refCustomData() const {
+            SkASSERT(fTag != kEmpty);
+            return fKey.refCustomData();
+        }
+
+        GrSurfaceProxyView view() {
+            SkASSERT(fTag == kView);
+            return fView;
+        }
+
+        void set(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
+            SkASSERT(fTag == kEmpty);
+            fKey = key;
+            fView = view;
+            fTag = kView;
+        }
+
+        void makeEmpty() {
+            fKey.reset();
+            fView.reset();
+            fTag = kEmpty;
+        }
+
+        // The thread-safe cache gets to manipulate the llist and last-access members
         GrStdSteadyClock::time_point fLastAccess;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
@@ -122,6 +156,16 @@ private:
         // for SkTDynamicHash
         static const GrUniqueKey& GetKey(const Entry& e) { return e.fKey; }
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+
+    private:
+        // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
+        GrUniqueKey                  fKey;
+        GrSurfaceProxyView           fView;
+
+        enum {
+            kEmpty,
+            kView,
+        } fTag { kEmpty };
     };
 
     Entry* getEntry(const GrUniqueKey&, const GrSurfaceProxyView&) SK_REQUIRES(fSpinLock);
