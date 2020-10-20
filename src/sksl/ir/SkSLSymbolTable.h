@@ -34,6 +34,16 @@ public:
     , fBuiltin(builtin)
     , fErrorReporter(parent->fErrorReporter) {}
 
+    static std::shared_ptr<SymbolTable> WrapIfBuiltin(std::shared_ptr<SymbolTable> symbolTable) {
+        if (!symbolTable) {
+            return nullptr;
+        }
+        if (!symbolTable->isBuiltin()) {
+            return symbolTable;
+        }
+        return std::make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
+    }
+
     const Symbol* operator[](StringFragment name);
 
     void addAlias(StringFragment name, const Symbol* symbol);
