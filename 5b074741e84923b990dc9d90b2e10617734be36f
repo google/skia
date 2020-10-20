@@ -73,6 +73,24 @@
       "message": "Not sure why this assert and the one below are firing for some tests (all props should be resolved at this stage).  Will investigate next.",
       "revId": "5b074741e84923b990dc9d90b2e10617734be36f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10ac68c3_a9d7dbcd",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-20T13:14:44Z",
+      "side": 1,
+      "message": "Fixed in PS 7.",
+      "parentUuid": "81510281_993e4a4f",
+      "revId": "5b074741e84923b990dc9d90b2e10617734be36f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
