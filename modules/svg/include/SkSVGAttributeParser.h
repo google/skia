@@ -32,6 +32,11 @@ public:
     bool parseVisibility(SkSVGVisibility*);
     bool parseDashArray(SkSVGDashArray*);
 
+    bool parseFontFamily(SkSVGFontFamily*);
+    bool parseFontSize(SkSVGFontSize*);
+    bool parseFontStyle(SkSVGFontStyle*);
+    bool parseFontWeight(SkSVGFontWeight*);
+
 private:
     // Stack-only
     void* operator new(size_t) = delete;
@@ -66,6 +71,9 @@ private:
     // is handled by the passed functor.
     template <typename Func, typename T>
     bool parseParenthesized(const char* prefix, Func, T* result);
+
+    template <typename T, typename TArray>
+    bool parseEnumMap(const TArray& arr, T* result);
 
     // The current position in the input string.
     const char* fCurPos;
