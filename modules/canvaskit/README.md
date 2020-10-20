@@ -2,9 +2,14 @@
 
 To compile CanvasKit, you will first need to [install `emscripten`][1].  This
 will set the environment `EMSDK` (among others) which is required for
-compilation.
+compilation. Which version should you use?  [`/infra/wasm-common/docker/emsdk-base/Dockerfile`][2]
+shows the version we build and test with. We try to keep this up-to-date.
 
 [1]: https://emscripten.org/docs/getting_started/downloads.html
+[2]: https://github.com/google/skia/blob/master/infra/wasm-common/docker/emsdk-base/Dockerfile
+
+This document also assumes you have followed the instructions to download Skia and its deps
+<https://skia.org/user/download>.
 
 ## MacOS specific notes
 Make sure you have Python3 installed, otherwise the downloading emscripten toolchain
