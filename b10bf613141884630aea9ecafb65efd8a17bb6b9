@@ -142,6 +142,30 @@
       },
       "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78e5c831_5d33cebc",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T15:07:10Z",
+      "side": 1,
+      "message": "Doh!\n\nThe pooling system starts failing once those changes are removed.",
+      "parentUuid": "02e9bb4f_77ea433a",
+      "range": {
+        "startLine": 609,
+        "startChar": 59,
+        "endLine": 609,
+        "endChar": 77
+      },
+      "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
