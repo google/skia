@@ -8,6 +8,7 @@
 #ifndef SkSurfaceProps_DEFINED
 #define SkSurfaceProps_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
 /**
@@ -60,6 +61,7 @@ public:
     SkSurfaceProps();
 #endif
     SkSurfaceProps(uint32_t flags, SkPixelGeometry);
+    SkSurfaceProps(uint32_t flags, SkPixelGeometry, SkScalar textContrast, SkScalar textGamma);
 
 #ifdef SK_LEGACY_SURFACE_PROPS
     enum InitType {
@@ -73,13 +75,16 @@ public:
 
     uint32_t flags() const { return fFlags; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
+    SkScalar textContrast() const { return fTextContrast; }
+    SkScalar textGamma() const { return fTextGamma; }
 
     bool isUseDeviceIndependentFonts() const {
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
     }
 
     bool operator==(const SkSurfaceProps& that) const {
-        return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry;
+        return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry &&
+               fTextContrast == that.fTextContrast && fTextGamma == that.fTextGamma;
     }
 
     bool operator!=(const SkSurfaceProps& that) const {
@@ -92,6 +97,9 @@ private:
 
     uint32_t        fFlags;
     SkPixelGeometry fPixelGeometry;
+
+    SkScalar fTextContrast;
+    SkScalar fTextGamma;
 };
 
 #endif
