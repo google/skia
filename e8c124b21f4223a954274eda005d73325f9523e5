@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c211c78f_902e71c6",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63bea197_10c7ca5e",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21247f9b_ddb8d6ea",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "Ubernit: slightly longer name? Not sure what ta stands for.",
+      "range": {
+        "startLine": 71,
+        "startChar": 10,
+        "endLine": 71,
+        "endChar": 12
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e8ed0b3_3ad6a594",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21247f9b_ddb8d6ea",
       "range": {
         "startLine": 71,
         "startChar": 10,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "224dd632_d69eca1a",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f158f70a_c68f7cf8",
+      "range": {
+        "startLine": 11,
+        "startChar": 22,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad47af60_1b8e5bec",
@@ -100,6 +172,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "Would it be simpler to use \"defaultOption\" for these as in the example on https://www.npmjs.com/package/command-line-args?",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e42ba1b_29fca2c3",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "No, that does not work like you would expect.",
+      "parentUuid": "ad47af60_1b8e5bec",
       "range": {
         "startLine": 77,
         "startChar": 0,
@@ -133,6 +229,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb5e391d_0074313e",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62b697a3_2344e309",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 49
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c4ee416_3bd69c0c",
@@ -146,6 +266,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "Suggestion: save a reference to the returned server so we can shut it down gracefully without forcing the process to exit with process.exit(0), e.g.\n\n  const httpServer \u003d app.listen(options.port, () \u003d\u003e console.log(\u0027- Local web server started.\u0027));\n\nSee e.g. https://github.com/google/skia-buildbot/blob/f4a9df6457e98c595999a5e7ef293258be6ba32a/puppeteer-tests/util.ts#L202",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 75
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02cd4d27_13bba8be",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c4ee416_3bd69c0c",
       "range": {
         "startLine": 147,
         "startChar": 0,
@@ -179,6 +323,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a31edddd_3ff202e1",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78157d2f_b415f5f8",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 1
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "777672c6_1300bc25",
@@ -192,6 +360,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "Nit: Please move these closer to where they\u0027re first used, e.g. before line 180.",
+      "range": {
+        "startLine": 159,
+        "startChar": 2,
+        "endLine": 161,
+        "endChar": 36
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9801e7e_c910b203",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "777672c6_1300bc25",
       "range": {
         "startLine": 159,
         "startChar": 2,
@@ -225,6 +417,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "474ad0ec_91b28b33",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35d6936c_93dac8d6",
+      "range": {
+        "startLine": 162,
+        "startChar": 2,
+        "endLine": 162,
+        "endChar": 5
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4458a5c_85c7354c",
@@ -238,6 +454,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "Nit: const",
+      "range": {
+        "startLine": 206,
+        "startChar": 4,
+        "endLine": 206,
+        "endChar": 7
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ef5e0b1_a80f2167",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4458a5c_85c7354c",
       "range": {
         "startLine": 206,
         "startChar": 4,
@@ -265,6 +505,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9284dc5_830c0434",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf3991f1_23359925",
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb1a2471_31418364",
@@ -288,6 +546,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "516ffeaa_43d28041",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb1a2471_31418364",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 26
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "421187f6_964d242d",
@@ -301,6 +583,30 @@
       "writtenOn": "2020-10-19T20:10:39Z",
       "side": 1,
       "message": "If you take my suggestion above:\n\n  await new Promise((resolve) \u003d\u003e httpServer.close(resolve));\n\nSee e.g. https://github.com/google/skia-buildbot/blob/f4a9df6457e98c595999a5e7ef293258be6ba32a/puppeteer-tests/util.ts#L212",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 0
+      },
+      "revId": "e8c124b21f4223a954274eda005d73325f9523e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c47cbdfa_8d1d0caa",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T11:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "421187f6_964d242d",
       "range": {
         "startLine": 254,
         "startChar": 0,
