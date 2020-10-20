@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb3e2e41_ba1f39c5",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T12:18:04Z",
+      "side": 1,
+      "message": "I\u0027ve been bit before by mysteriously using the wrong version of node. This helps me be more sure.",
+      "parentUuid": "4eb01ac6_2fffd0ec",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 31,
+        "endChar": 322
+      },
+      "revId": "f47e69dc1d33ccd2d36af269c7e6cc68bdc6b86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca143a33_a3c0053f",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3e2d1d9_3a15b885",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T12:18:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca143a33_a3c0053f",
+      "range": {
+        "startLine": 119,
+        "startChar": 21,
+        "endLine": 119,
+        "endChar": 36
+      },
+      "revId": "f47e69dc1d33ccd2d36af269c7e6cc68bdc6b86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab9804e0_2d19bb61",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-10-20T11:21:22Z",
       "side": 1,
       "message": "Nit: maybe instead:\n\nif os.IsNotExist(err) {\n   ...\n} else {\n   // handle err\n}",
+      "range": {
+        "startLine": 242,
+        "startChar": 6,
+        "endLine": 242,
+        "endChar": 17
+      },
+      "revId": "f47e69dc1d33ccd2d36af269c7e6cc68bdc6b86e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50ecb73e_09eef77c",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-20T12:18:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab9804e0_2d19bb61",
       "range": {
         "startLine": 242,
         "startChar": 6,
