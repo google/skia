@@ -190,6 +190,30 @@
       },
       "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2089e97_b7bf0319",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T16:25:33Z",
+      "side": 1,
+      "message": "Removed this assert entirely and brought the inliner back to its present state. It\u0027s still an issue, but I\u0027ll tackle it in a separate CL since it\u0027s going to be nontrivial.",
+      "parentUuid": "f851d2a1_8d318c41",
+      "range": {
+        "startLine": 609,
+        "startChar": 59,
+        "endLine": 609,
+        "endChar": 77
+      },
+      "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
