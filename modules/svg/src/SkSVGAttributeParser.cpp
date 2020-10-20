@@ -33,6 +33,17 @@ inline bool is_sep(char c) {
 
 }  // namespace
 
+template <typename T, typename TArray>
+bool SkSVGAttributeParser::parseEnumMap(const TArray& arr, T* result) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(arr); ++i) {
+        if (this->parseExpectedStringToken(std::get<0>(arr[i]))) {
+            *result = std::get<1>(arr[i]);
+            return true;
+        }
+    }
+    return false;
+}
+
 SkSVGAttributeParser::SkSVGAttributeParser(const char attributeString[])
     : fCurPos(attributeString) {}
 
@@ -706,6 +717,93 @@ bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
         if (parsedValue) {
             *dashArray = SkSVGDashArray(std::move(dashes));
         }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/text.html#FontFamilyProperty
+bool SkSVGAttributeParser::parseFontFamily(SkSVGFontFamily* family) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("inherit")) {
+        *family = SkSVGFontFamily();
+        parsedValue = true;
+    } else {
+        // The spec allows specifying a comma-separated list for explicit fallback order.
+        // For now, we only use the first entry and rely on the font manager to handle fallback.
+        const auto* comma = strchr(fCurPos, ',');
+        auto family_name = comma ? SkString(fCurPos, comma - fCurPos)
+                                 : SkString(fCurPos);
+        *family = SkSVGFontFamily(family_name.c_str());
+        fCurPos += strlen(fCurPos);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/text.html#FontSizeProperty
+bool SkSVGAttributeParser::parseFontSize(SkSVGFontSize* size) {
+    bool parsedValue = false;
+    if (this->parseExpectedStringToken("inherit")) {
+        *size = SkSVGFontSize();
+        parsedValue = true;
+    } else {
+        SkSVGLength length;
+        if (this->parseLength(&length)) {
+            *size = SkSVGFontSize(length);
+            parsedValue = true;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/text.html#FontStyleProperty
+bool SkSVGAttributeParser::parseFontStyle(SkSVGFontStyle* style) {
+    static constexpr std::tuple<const char*, SkSVGFontStyle::Type> gStyleMap[] = {
+        { "normal" , SkSVGFontStyle::Type::kNormal  },
+        { "italic" , SkSVGFontStyle::Type::kItalic  },
+        { "oblique", SkSVGFontStyle::Type::kOblique },
+        { "inherit", SkSVGFontStyle::Type::kInherit },
+    };
+
+    bool parsedValue = false;
+    SkSVGFontStyle::Type type;
+
+    if (this->parseEnumMap(gStyleMap, &type)) {
+        *style = SkSVGFontStyle(type);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/text.html#FontWeightProperty
+bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
+    static constexpr std::tuple<const char*, SkSVGFontWeight::Type> gWeightMap[] = {
+        { "normal" , SkSVGFontWeight::Type::kNormal  },
+        { "bold"   , SkSVGFontWeight::Type::kBold    },
+        { "bolder" , SkSVGFontWeight::Type::kBolder  },
+        { "lighter", SkSVGFontWeight::Type::kLighter },
+        { "100"    , SkSVGFontWeight::Type::k100     },
+        { "200"    , SkSVGFontWeight::Type::k200     },
+        { "300"    , SkSVGFontWeight::Type::k300     },
+        { "400"    , SkSVGFontWeight::Type::k400     },
+        { "500"    , SkSVGFontWeight::Type::k500     },
+        { "600"    , SkSVGFontWeight::Type::k600     },
+        { "700"    , SkSVGFontWeight::Type::k700     },
+        { "800"    , SkSVGFontWeight::Type::k800     },
+        { "900"    , SkSVGFontWeight::Type::k900     },
+        { "inherit", SkSVGFontWeight::Type::kInherit },
+    };
+
+    bool parsedValue = false;
+    SkSVGFontWeight::Type type;
+
+    if (this->parseEnumMap(gWeightMap, &type)) {
+        *weight = SkSVGFontWeight(type);
+        parsedValue = true;
     }
 
     return parsedValue && this->parseEOSToken();

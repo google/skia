@@ -169,6 +169,26 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setFillRule(*fillRule);
         }
         break;
+    case SkSVGAttribute::kFontFamily:
+        if (const SkSVGFontFamilyValue* family = v.as<SkSVGFontFamilyValue>()) {
+            this->setFontFamily(*family);
+        }
+        break;
+    case SkSVGAttribute::kFontSize:
+        if (const SkSVGFontSizeValue* size = v.as<SkSVGFontSizeValue>()) {
+            this->setFontSize(*size);
+        }
+        break;
+    case SkSVGAttribute::kFontStyle:
+        if (const SkSVGFontStyleValue* style = v.as<SkSVGFontStyleValue>()) {
+            this->setFontStyle(*style);
+        }
+        break;
+    case SkSVGAttribute::kFontWeight:
+        if (const SkSVGFontWeightValue* style = v.as<SkSVGFontWeightValue>()) {
+            this->setFontWeight(*style);
+        }
+        break;
     case SkSVGAttribute::kOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setOpacity(*opacity);

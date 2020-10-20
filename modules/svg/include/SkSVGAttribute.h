@@ -89,6 +89,11 @@ struct SkSVGPresentationAttributes {
 
     SkTLazy<SkSVGColorType>  fColor;
 
+    SkTLazy<SkSVGFontFamily> fFontFamily;
+    SkTLazy<SkSVGFontStyle>  fFontStyle;
+    SkTLazy<SkSVGFontSize>   fFontSize;
+    SkTLazy<SkSVGFontWeight> fFontWeight;
+
     // TODO(tdenniston): add SkSVGStopColor
 
     // uninherited

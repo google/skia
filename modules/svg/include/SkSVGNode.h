@@ -38,6 +38,29 @@ enum class SkSVGTag {
     kUse
 };
 
+#define SVG_PRES_ATTR(attr_name, attr_type, attr_inherited)             \
+    const attr_type* get##attr_name() const {                           \
+        return fPresentationAttributes.f##attr_name.getMaybeNull();     \
+    }                                                                   \
+    void set##attr_name(const attr_type& v) {                           \
+        if (!attr_inherited || v.type() != attr_type::Type::kInherit) { \
+            fPresentationAttributes.f##attr_name.set(v);                \
+        } else {                                                        \
+            /* kInherited values are semantically equivalent to         \
+               the absence of a local presentation attribute.*/         \
+            fPresentationAttributes.f##attr_name.reset();               \
+        }                                                               \
+    }                                                                   \
+    void set##attr_name(attr_type&& v) {                                \
+        if (!attr_inherited || v.type() != attr_type::Type::kInherit) { \
+            fPresentationAttributes.f##attr_name.set(std::move(v));     \
+        } else {                                                        \
+            /* kInherited values are semantically equivalent to         \
+               the absence of a local presentation attribute.*/         \
+            fPresentationAttributes.f##attr_name.reset();               \
+        }                                                               \
+    }
+
 class SkSVGNode : public SkRefCnt {
 public:
     ~SkSVGNode() override;
@@ -69,6 +92,11 @@ public:
     void setStrokeMiterLimit(const SkSVGNumberType&);
     void setStrokeWidth(const SkSVGLength&);
     void setVisibility(const SkSVGVisibility&);
+
+    SVG_PRES_ATTR(FontFamily, SkSVGFontFamily, true)
+    SVG_PRES_ATTR(FontStyle , SkSVGFontStyle , true)
+    SVG_PRES_ATTR(FontSize  , SkSVGFontSize  , true)
+    SVG_PRES_ATTR(FontWeight, SkSVGFontWeight, true)
 
 protected:
     SkSVGNode(SkSVGTag);

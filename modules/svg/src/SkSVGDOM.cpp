@@ -248,6 +248,54 @@ bool SetDashArrayAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetFontFamilyAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                            const char* stringValue) {
+    SkSVGFontFamily family;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFontFamily(&family)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFontFamilyValue(family));
+    return true;
+}
+
+bool SetFontSizeAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                          const char* stringValue) {
+    SkSVGFontSize size;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFontSize(&size)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFontSizeValue(size));
+    return true;
+}
+
+bool SetFontStyleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                           const char* stringValue) {
+    SkSVGFontStyle style;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFontStyle(&style)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFontStyleValue(style));
+    return true;
+}
+
+bool SetFontWeightAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                            const char* stringValue) {
+    SkSVGFontWeight weight;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFontWeight(&weight)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFontWeightValue(weight));
+    return true;
+}
+
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -335,10 +383,10 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"             , { SkSVGAttribute::kFill             , SetPaintAttribute        }},
     { "fill-opacity"     , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
     { "fill-rule"        , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
-    { "font-family"      , { SkSVGAttribute::kFontFamily       , SetStringAttribute       }},
-    { "font-size"        , { SkSVGAttribute::kFontSize         , SetLengthAttribute       }},
-    { "font-style"       , { SkSVGAttribute::kFontStyle        , SetStringAttribute       }},
-    { "font-weight"      , { SkSVGAttribute::kFontWeight       , SetStringAttribute       }},
+    { "font-family"      , { SkSVGAttribute::kFontFamily       , SetFontFamilyAttribute   }},
+    { "font-size"        , { SkSVGAttribute::kFontSize         , SetFontSizeAttribute     }},
+    { "font-style"       , { SkSVGAttribute::kFontStyle        , SetFontStyleAttribute    }},
+    { "font-weight"      , { SkSVGAttribute::kFontWeight       , SetFontWeightAttribute   }},
     // focal point x & y
     { "fx"               , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"               , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
@@ -404,8 +452,8 @@ struct ConstructionContext {
     ConstructionContext(const ConstructionContext& other, const sk_sp<SkSVGNode>& newParent)
         : fParent(newParent.get()), fIDMapper(other.fIDMapper) {}
 
-    const SkSVGNode* fParent;
-    SkSVGIDMapper*   fIDMapper;
+    SkSVGNode*     fParent;
+    SkSVGIDMapper* fIDMapper;
 };
 
 bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
@@ -452,7 +500,10 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
 
     if (elemType == SkDOM::kText_Type) {
         SkASSERT(dom.countChildren(xmlNode) == 0);
-        // TODO: text handling
+        // TODO: add type conversion helper to SkSVGNode
+        if (ctx.fParent->tag() == SkSVGTag::kText) {
+            static_cast<SkSVGText*>(ctx.fParent)->setText(SkString(dom.getName(xmlNode)));
+        }
         return nullptr;
     }
 
