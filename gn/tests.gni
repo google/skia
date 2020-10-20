@@ -268,6 +268,7 @@ tests_sources = [
   "$_tests/SkSLInterpreterTest.cpp",
   "$_tests/SkSLMemoryLayoutTest.cpp",
   "$_tests/SkSLMetalTest.cpp",
+  "$_tests/SkSLNodeArrayWrapperTest.cpp",
   "$_tests/SkSLSPIRVTest.cpp",
   "$_tests/SkScalerCacheTest.cpp",
   "$_tests/SkShaperJSONWriterTest.cpp",
