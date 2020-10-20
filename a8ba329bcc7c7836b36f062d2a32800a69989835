@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "238dd1ae_9bb83d51",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-20T16:17:48Z",
+      "side": 1,
+      "message": "should be \n\n    Bug: skia:10822\n\nto get picked up by the automated tooling (it doesn\u0027t seem to look for \u0027bugs:\u0027). I\u0027m not sure if the case of \u0027Skia\u0027 matters or not (though the project name seems to be lower case in the system).",
+      "revId": "a8ba329bcc7c7836b36f062d2a32800a69989835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
