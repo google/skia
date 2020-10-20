@@ -70,6 +70,30 @@
       },
       "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd38cdf2_b0497932",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-20T14:52:20Z",
+      "side": 1,
+      "message": "Besides the Block, InlinedCall doesn\u0027t have a symbol table in it... what do you mean?\n\n    struct InlinedCall {\n        std::unique_ptr\u003cBlock\u003e fInlinedBody;\n        std::unique_ptr\u003cExpression\u003e fReplacementExpr;\n    };\n\nAt any rate, I think these changes actually aren\u0027t necessary now that I\u0027m double checking it. I think the change in SkSLBlock.h from this CL already makes it so that this case never happens. I added an assert to the top of `inlineCall` and dm passes without it firing:\n\n    SkASSERT(!symbolTableForCall-\u003eisBuiltin());\n\nI think I\u0027ll just make that change and back out the rest of the inliner changes. We shouldn\u0027t reach this point; calling code shouldn\u0027t ask the inliner to mutate a builtin object.",
+      "parentUuid": "1b261f57_aea9bf15",
+      "range": {
+        "startLine": 609,
+        "startChar": 59,
+        "endLine": 609,
+        "endChar": 77
+      },
+      "revId": "b10bf613141884630aea9ecafb65efd8a17bb6b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
