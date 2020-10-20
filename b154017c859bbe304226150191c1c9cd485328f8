@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4358d777_5213bc67",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-20T17:10:26Z",
+      "side": 1,
+      "message": "Are these not the defaults?  What is host_cpu?",
+      "revId": "b154017c859bbe304226150191c1c9cd485328f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "106625f8_1e280495",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-20T17:10:26Z",
+      "side": 1,
+      "message": "Might want to double check this one.  I imagine all the Apple Silicon chips will have the extensions this is looking for?  Might make more sense to shunt it down the ARMV8_OS_LINUX path, however odd that may seem?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 32
+      },
+      "revId": "b154017c859bbe304226150191c1c9cd485328f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
