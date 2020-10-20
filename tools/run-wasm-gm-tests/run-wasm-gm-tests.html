@@ -1,0 +1,118 @@
+<!-- This runs the GMs and unit tests which have been compiled to WASM. When this completes,
+either window._error will be set or window._testsDone will be true and window._results will be an
+array of the test names and what they drew.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CanvasKit SKP Perf</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/static/wasm_gm_tests.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    #status_text {
+      min-width: 900px;
+      min-height: 500px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <button id=start_tests>Start Tests</button>
+  <br>
+  <pre id=status_text></pre>
+
+  <canvas id=gm_canvas></canvas>
+</main>
+<script type="text/javascript" charset="utf-8">
+  const loadTestsPromise = InitWasmGMTests({
+    locateFile: (file) => '/static/'+file,
+  });
+
+  const loadKnownHashesPromise = fetch('/static/hashes.txt').then((resp) => resp.text());
+
+  let attemptedPOSTs = 0;
+  let successfulPOSTs = 0;
+  Promise.all([loadTestsPromise, loadKnownHashesPromise]).then(([GM, hashes]) => {
+    LoadKnownHashes(GM, hashes);
+    document.getElementById('start_tests').addEventListener('click', async () => {
+      window._testsProgress = 0;
+      await RunGMs(GM);
+      if (attemptedPOSTs !== successfulPOSTs) {
+        window._error = `Failed to POST all the PNG files (expected ${attemptedPOSTs}, finished ${successfulPOSTs})`;
+      } else {
+        window._testsDone = true;
+      }
+    });
+    window._testsReady = true;
+  });
+
+  const statusElement = document.getElementById('status_text');
+  function logLineToPage(line) {
+    statusElement.innerText += (line + '\n');
+  }
+
+  // There's a global set of known hashes that we preload with the md5 hashes that are already
+  // uploaded to Gold. This saves us some time to encode them and write them to disk.
+  function LoadKnownHashes(GM, hashes) {
+    logLineToPage(`Loading ${hashes.length} hashes`);
+    console.time('load_hashes');
+    for (const hash of hashes.split('\n')) {
+      if (hash.length < 5) { // be sure not to add empty lines
+        continue;
+      }
+      GM.LoadKnownDigest(hash);
+    }
+    console.timeEnd('load_hashes');
+    logLineToPage('hashes loaded');
+  }
+
+  async function RunGMs(GM) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    const grcontext = GM.MakeGrContext(ctx);
+    window._results = [];
+
+    const names = GM.ListGMs();
+    names.sort();
+    for (const name of names) {
+      const pngAndMetadata = GM.RunGM(grcontext, name);
+      if (!pngAndMetadata) {
+        continue;
+      }
+      logLineToPage(`Test ${name} drew ${pngAndMetadata.hash}`);
+      window._results.push({
+        name: name,
+        digest: pngAndMetadata.hash,
+      });
+      if (pngAndMetadata.png) {
+        await postPNG(pngAndMetadata.hash, pngAndMetadata.png);
+      }
+      window._testsProgress++;
+    }
+    grcontext.delete();
+  }
+
+  async function postPNG(hash, data) {
+    attemptedPOSTs += 1;
+    await fetch('/write_png', {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Content-type': 'image/png',
+        'X-MD5-Hash': hash, // this will be used server side to create the name of the png.
+      }
+    }).then((resp) => {
+      if (resp.ok) {
+        successfulPOSTs += 1;
+      } else {
+        console.error('not ok response', resp);
+      }
+    }).catch((e) => {
+      console.error('Could not post PNG', e);
+    });
+  }
+</script>
+</body>
+</html>
