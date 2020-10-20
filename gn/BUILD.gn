@@ -254,6 +254,12 @@ config("default") {
     #     /System/Library/Frameworks/foo.framework/foo are out of sync.
     #     Falling back to library file for linking.
     ldflags += [ "-Wl,-w" ]
+
+    if (current_cpu == "arm64") {
+       asmflags += ["-target", "arm64-apple-macos11"]
+       cflags += ["-target", "arm64-apple-macos11"]
+       ldflags += ["-target", "arm64-apple-macos11"]
+    }
   }
 
   if (sanitize != "" && sanitize != "MSVC") {
