@@ -95,7 +95,7 @@ if (skia_use_system_libjpeg_turbo) {
         "../externals/libjpeg-turbo/simd/arm/common/jidctint-neon.c",
         "../externals/libjpeg-turbo/simd/arm/common/jidctred-neon.c",
       ]
-    } else if (current_cpu == "arm64" && !is_ios && !is_win) {
+    } else if (current_cpu == "arm64" && !is_mac && !is_ios && !is_win) {
       sources += [
         "../externals/libjpeg-turbo/simd/arm/arm64/jsimd.c",
         "../externals/libjpeg-turbo/simd/arm/arm64/jsimd_neon.S",
