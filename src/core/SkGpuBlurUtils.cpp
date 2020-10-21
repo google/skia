@@ -13,7 +13,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
@@ -24,9 +23,40 @@
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
-static int sigma_radius(float sigma) {
-    SkASSERT(sigma >= 0);
-    return static_cast<int>(ceilf(sigma * 3.0f));
+static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
+                                       SkScalar sigmaX, SkScalar sigmaY) {
+    const float twoSigmaSqrdX = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaX));
+    const float twoSigmaSqrdY = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaY));
+
+    // SkGpuBlurUtils::GaussianBlur() should have detected the cases where a 2D blur
+    // degenerates to a 1D on X or Y, or to the identity.
+    SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaX) &&
+             !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaY));
+    SkASSERT(!SkScalarNearlyZero(twoSigmaSqrdX) && !SkScalarNearlyZero(twoSigmaSqrdY));
+
+    const float sigmaXDenom = 1.0f / twoSigmaSqrdX;
+    const float sigmaYDenom = 1.0f / twoSigmaSqrdY;
+    const int xRadius = width / 2;
+    const int yRadius = height / 2;
+
+    float sum = 0.0f;
+    for (int x = 0; x < width; x++) {
+        float xTerm = static_cast<float>(x - xRadius);
+        xTerm = xTerm * xTerm * sigmaXDenom;
+        for (int y = 0; y < height; y++) {
+            float yTerm = static_cast<float>(y - yRadius);
+            float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
+            // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+            // is dropped here, since we renormalize the kernel below.
+            kernel[y * width + x] = xyTerm;
+            sum += xyTerm;
+        }
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < width * height; ++i) {
+        kernel[i] *= scale;
+    }
 }
 
 /**
@@ -43,9 +73,15 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  int radius,
                                  float sigma,
                                  SkTileMode mode) {
+    SkASSERT(radius && !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma));
     GrPaint paint;
     auto wm = SkTileModeToWrapMode(mode);
     auto srcRect = rtcRect.makeOffset(rtcToSrcOffset);
+
+    // NOTE: This could just be GrMatrixConvolutionEffect with one of the dimensions set to 1
+    // and the appropriate kernel already computed, but there's value in keeping the shader simpler.
+    // TODO(michaelludwig): Is this true? If not, is the shader key simplicity worth it two have
+    // two convolution effects?
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(srcView), srcAlphaType, direction, radius, sigma, wm, srcSubset, &srcRect,
             *renderTargetContext->caps()));
@@ -67,6 +103,9 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
                                                                    SkTileMode mode,
                                                                    sk_sp<SkColorSpace> finalCS,
                                                                    SkBackingFit dstFit) {
+    SkASSERT(radiusX && radiusY);
+    SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaX) &&
+             !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaY));
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), 1,
             GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
@@ -74,14 +113,21 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
         return nullptr;
     }
 
-    SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
+    SkISize size = SkISize::Make(SkGpuBlurUtils::KernelWidth(radiusX),
+                                 SkGpuBlurUtils::KernelWidth(radiusY));
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
     auto wm = SkTileModeToWrapMode(mode);
-    auto conv = GrMatrixConvolutionEffect::MakeGaussian(context, std::move(srcView), srcBounds,
-                                                        size, 1.0, 0.0, kernelOffset, wm, true,
-                                                        sigmaX, sigmaY,
-                                                        *renderTargetContext->caps());
+
+    // GaussianBlur() should have downsampled the request until we can handle the 2D blur with
+    // just a uniform array.
+    SkASSERT(size.area() <= GrMatrixConvolutionEffect::kMaxUniformSize);
+    float kernel[GrMatrixConvolutionEffect::kMaxUniformSize];
+    fill_in_2D_gaussian_kernel(kernel, size.width(), size.height(), sigmaX, sigmaY);
+    auto conv = GrMatrixConvolutionEffect::Make(context, std::move(srcView), srcBounds,
+                                                size, kernel, 1.0f, 0.0f, kernelOffset, wm, true,
+                                                *renderTargetContext->caps());
+
     paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -106,6 +152,8 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                                                                 SkTileMode mode,
                                                                 sk_sp<SkColorSpace> finalCS,
                                                                 SkBackingFit fit) {
+    using namespace SkGpuBlurUtils;
+    SkASSERT(radius > 0 && !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma));
     // Logically we're creating an infinite blur of 'srcBounds' of 'srcView' with 'mode' tiling
     // and then capturing the 'dstBounds' portion in a new RTC where the top left of 'dstBounds' is
     // at {0, 0} in the new RTC.
@@ -290,16 +338,16 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
                                                                 int radiusY,
                                                                 SkTileMode mode,
                                                                 SkBackingFit fit) {
-    SkASSERT(sigmaX || sigmaY);
+    SkASSERT(radiusX || radiusY);
     std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
-    if (sigmaX > 0.0f) {
-        SkBackingFit xFit = sigmaY > 0 ? SkBackingFit::kApprox : fit;
+    if (radiusX > 0) {
+        SkBackingFit xFit = radiusY > 0 ? SkBackingFit::kApprox : fit;
         // Expand the dstBounds vertically to produce necessary content for the y-pass. Then we will
         // clip these in a tile-mode dependent way to ensure the tile-mode gets implemented
         // correctly. However, if we're not going to do a y-pass then we must use the original
         // dstBounds without clipping to produce the correct output size.
         SkIRect xPassDstBounds = dstBounds;
-        if (sigmaY) {
+        if (radiusY) {
             xPassDstBounds.outset(0, radiusY);
             if (mode == SkTileMode::kRepeat || mode == SkTileMode::kMirror) {
                 int srcH = srcBounds.height();
@@ -376,7 +424,7 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
         srcBounds = SkIRect::MakeSize(xPassDstBounds.size());
     }
 
-    if (sigmaY == 0.0f) {
+    if (!radiusY) {
         return dstRenderTargetContext;
     }
 
@@ -409,12 +457,12 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         return nullptr;
     }
 
+    int radiusX = SigmaRadius(sigmaX);
+    int radiusY = SigmaRadius(sigmaY);
     // Attempt to reduce the srcBounds in order to detect that we can set the sigmas to zero or
     // to reduce the amount of work to rescale the source if sigmas are large. TODO: Could consider
     // how to minimize the required source bounds for repeat/mirror modes.
     if (mode == SkTileMode::kClamp || mode == SkTileMode::kDecal) {
-        int radiusX = sigma_radius(sigmaX);
-        int radiusY = sigma_radius(sigmaY);
         SkIRect reach = dstBounds.makeOutset(radiusX, radiusY);
         SkIRect intersection;
         if (!intersection.intersect(reach, srcBounds)) {
@@ -443,17 +491,20 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         // column/row yields that same color. So no blurring is necessary.
         if (srcBounds.width() == 1) {
             sigmaX = 0.f;
+            radiusX = 0;
         }
         if (srcBounds.height() == 1) {
             sigmaY = 0.f;
+            radiusY = 0;
         }
     }
 
     // If we determined that there is no blurring necessary in either direction then just do a
     // a draw that applies the tile mode.
-    if (!sigmaX && !sigmaY) {
+    if (!radiusX && !radiusY) {
         auto result = GrRenderTargetContext::Make(context, srcColorType, std::move(colorSpace), fit,
-                                                  dstBounds.size());
+                                                  dstBounds.size(), 1, GrMipmapped::kNo,
+                                                  srcView.proxy()->isProtected(), srcView.origin());
         GrSamplerState sampler(SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest);
         auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
                                               sampler, SkRect::Make(srcBounds),
@@ -466,19 +517,20 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     }
 
     if (sigmaX <= MAX_BLUR_SIGMA && sigmaY <= MAX_BLUR_SIGMA) {
-        int radiusX = sigma_radius(sigmaX);
-        int radiusY = sigma_radius(sigmaY);
         SkASSERT(radiusX <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
         SkASSERT(radiusY <= GrGaussianConvolutionFragmentProcessor::kMaxKernelRadius);
         // For really small blurs (certainly no wider than 5x5 on desktop GPUs) it is faster to just
         // launch a single non separable kernel vs two launches.
         const int kernelSize = (2 * radiusX + 1) * (2 * radiusY + 1);
-        if (sigmaX > 0 && sigmaY > 0 && kernelSize <= GrMatrixConvolutionEffect::kMaxUniformSize) {
+        if (radiusX > 0 && radiusY > 0 &&
+            kernelSize <= GrMatrixConvolutionEffect::kMaxUniformSize) {
             // Apply the proxy offset to src bounds and offset directly
             return convolve_gaussian_2d(context, std::move(srcView), srcColorType, srcBounds,
                                         dstBounds, radiusX, radiusY, sigmaX, sigmaY, mode,
                                         std::move(colorSpace), fit);
         }
+        // This will automatically degenerate into a single pass of X or Y if only one of the
+        // radii are non-zero.
         return two_pass_gaussian(context, std::move(srcView), srcColorType, srcAlphaType,
                                  std::move(colorSpace), srcBounds, dstBounds, sigmaX, sigmaY,
                                  radiusX, radiusY, mode, fit);
@@ -535,6 +587,149 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     return reexpand(context, std::move(rtc), scaledDstBounds, dstBounds.size(),
                     std::move(colorSpace), fit);
 }
+
+bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
+                               SkScalar sigma, SkScalar xformedSigma,
+                               SkRRect* rrectToDraw,
+                               SkISize* widthHeight,
+                               SkScalar rectXs[kBlurRRectMaxDivisions],
+                               SkScalar rectYs[kBlurRRectMaxDivisions],
+                               SkScalar texXs[kBlurRRectMaxDivisions],
+                               SkScalar texYs[kBlurRRectMaxDivisions]) {
+    unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
+    SkScalar srcBlurRadius = 3.0f * sigma;
+
+    const SkRect& devOrig = devRRect.getBounds();
+    const SkVector& devRadiiUL = devRRect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& devRadiiUR = devRRect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& devRadiiLR = devRRect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& devRadiiLL = devRRect.radii(SkRRect::kLowerLeft_Corner);
+
+    const int devLeft  = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUL.fX, devRadiiLL.fX));
+    const int devTop   = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUL.fY, devRadiiUR.fY));
+    const int devRight = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUR.fX, devRadiiLR.fX));
+    const int devBot   = SkScalarCeilToInt(std::max<SkScalar>(devRadiiLL.fY, devRadiiLR.fY));
+
+    // This is a conservative check for nine-patchability
+    if (devOrig.fLeft + devLeft + devBlurRadius >= devOrig.fRight  - devRight - devBlurRadius ||
+        devOrig.fTop  + devTop  + devBlurRadius >= devOrig.fBottom - devBot   - devBlurRadius) {
+        return false;
+    }
+
+    const SkVector& srcRadiiUL = srcRRect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& srcRadiiUR = srcRRect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& srcRadiiLR = srcRRect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& srcRadiiLL = srcRRect.radii(SkRRect::kLowerLeft_Corner);
+
+    const SkScalar srcLeft  = std::max<SkScalar>(srcRadiiUL.fX, srcRadiiLL.fX);
+    const SkScalar srcTop   = std::max<SkScalar>(srcRadiiUL.fY, srcRadiiUR.fY);
+    const SkScalar srcRight = std::max<SkScalar>(srcRadiiUR.fX, srcRadiiLR.fX);
+    const SkScalar srcBot   = std::max<SkScalar>(srcRadiiLL.fY, srcRadiiLR.fY);
+
+    int newRRWidth = 2*devBlurRadius + devLeft + devRight + 1;
+    int newRRHeight = 2*devBlurRadius + devTop + devBot + 1;
+    widthHeight->fWidth = newRRWidth + 2 * devBlurRadius;
+    widthHeight->fHeight = newRRHeight + 2 * devBlurRadius;
+
+    const SkRect srcProxyRect = srcRRect.getBounds().makeOutset(srcBlurRadius, srcBlurRadius);
+
+    rectXs[0] = srcProxyRect.fLeft;
+    rectXs[1] = srcProxyRect.fLeft + 2*srcBlurRadius + srcLeft;
+    rectXs[2] = srcProxyRect.fRight - 2*srcBlurRadius - srcRight;
+    rectXs[3] = srcProxyRect.fRight;
+
+    rectYs[0] = srcProxyRect.fTop;
+    rectYs[1] = srcProxyRect.fTop + 2*srcBlurRadius + srcTop;
+    rectYs[2] = srcProxyRect.fBottom - 2*srcBlurRadius - srcBot;
+    rectYs[3] = srcProxyRect.fBottom;
+
+    texXs[0] = 0.0f;
+    texXs[1] = 2.0f*devBlurRadius + devLeft;
+    texXs[2] = 2.0f*devBlurRadius + devLeft + 1;
+    texXs[3] = SkIntToScalar(widthHeight->fWidth);
+
+    texYs[0] = 0.0f;
+    texYs[1] = 2.0f*devBlurRadius + devTop;
+    texYs[2] = 2.0f*devBlurRadius + devTop + 1;
+    texYs[3] = SkIntToScalar(widthHeight->fHeight);
+
+    const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(newRRWidth),
+                                            SkIntToScalar(newRRHeight));
+    SkVector newRadii[4];
+    newRadii[0] = { SkScalarCeilToScalar(devRadiiUL.fX), SkScalarCeilToScalar(devRadiiUL.fY) };
+    newRadii[1] = { SkScalarCeilToScalar(devRadiiUR.fX), SkScalarCeilToScalar(devRadiiUR.fY) };
+    newRadii[2] = { SkScalarCeilToScalar(devRadiiLR.fX), SkScalarCeilToScalar(devRadiiLR.fY) };
+    newRadii[3] = { SkScalarCeilToScalar(devRadiiLL.fX), SkScalarCeilToScalar(devRadiiLL.fY) };
+
+    rrectToDraw->setRectRadii(newRect, newRadii);
+    return true;
+}
+
+// TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
+// TODO: maybe cache this on the cpu side?
+int CreateIntegralTable(float sixSigma, SkBitmap* table) {
+    // The texture we're producing represents the integral of a normal distribution over a
+    // six-sigma range centered at zero. We want enough resolution so that the linear
+    // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
+    // conservatively choose to have 2 texels for each dst pixel.
+    int minWidth = 2 * sk_float_ceil2int(sixSigma);
+    // Bin by powers of 2 with a minimum so we get good profile reuse.
+    int width = std::max(SkNextPow2(minWidth), 32);
+
+    if (!table) {
+        return width;
+    }
+
+    if (!table->tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
+        return 0;
+    }
+    *table->getAddr8(0, 0) = 255;
+    const float invWidth = 1.f / width;
+    for (int i = 1; i < width - 1; ++i) {
+        float x = (i + 0.5f) * invWidth;
+        x = (-6 * x + 3) * SK_ScalarRoot2Over2;
+        float integral = 0.5f * (std::erf(x) + 1.f);
+        *table->getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
+    }
+
+    *table->getAddr8(width - 1, 0) = 0;
+    table->setImmutable();
+    return table->width();
+}
+
+
+void Compute1DGaussianKernel(float* kernel, float sigma, int radius) {
+    SkASSERT(radius == SigmaRadius(sigma));
+    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma)) {
+        // Calling SigmaRadius() produces 1, just computing ceil(sigma)*3 produces 3
+        SkASSERT(KernelWidth(radius) == 1);
+        std::fill_n(kernel, 1, 0.f);
+        kernel[0] = 1.f;
+        return;
+    }
+
+    // If this fails, kEffectivelyZeroSigma isn't big enough to prevent precision issues
+    SkASSERT(!SkScalarNearlyZero(2.f * sigma * sigma));
+
+    const float sigmaDenom = 1.0f / (2.f * sigma * sigma);
+    int size = KernelWidth(radius);
+    float sum = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        float term = static_cast<float>(i - radius);
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        kernel[i] = sk_float_exp(-term * term * sigmaDenom);
+        sum += kernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < size; ++i) {
+        kernel[i] *= scale;
+    }
+}
+
 }  // namespace SkGpuBlurUtils
 
 #endif

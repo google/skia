@@ -11,6 +11,7 @@
 #include "GrCircleBlurFragmentProcessor.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -267,6 +268,10 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
         GrRecordingContext* context,
         const SkRect& circle,
         float sigma) {
+    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma)) {
+        return inputFP;
+    }
+
     float solidRadius;
     float textureRadius;
     std::unique_ptr<GrFragmentProcessor> profile =
@@ -307,18 +312,18 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _sample13764 = this->invokeChild(0, args);
+        SkString _sample13905 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13764.c_str());
-        SkString _coords13805("float2(half2(dist, 0.5))");
-        SkString _sample13805 = this->invokeChild(1, args, _coords13805.c_str());
+                _sample13905.c_str());
+        SkString _coords13946("float2(half2(dist, 0.5))");
+        SkString _sample13946 = this->invokeChild(1, args, _coords13946.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 return inputColor * %s.w;
 )SkSL",
-                _sample13805.c_str());
+                _sample13946.c_str());
     }
 
 private:

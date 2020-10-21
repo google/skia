@@ -11,7 +11,6 @@
 #include "include/core/SkRRect.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkBlurPriv.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkPathPriv.h"

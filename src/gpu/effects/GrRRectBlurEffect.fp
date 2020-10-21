@@ -37,7 +37,6 @@ uniform half blurRadius;
     #include "include/gpu/GrDirectContext.h"
     #include "include/gpu/GrRecordingContext.h"
     #include "src/core/SkAutoMalloc.h"
-    #include "src/core/SkBlurPriv.h"
     #include "src/core/SkGpuBlurUtils.h"
     #include "src/core/SkRRectPriv.h"
     #include "src/gpu/GrBitmapTextureMaker.h"
@@ -56,6 +55,7 @@ uniform half blurRadius;
     static void make_blurred_rrect_key(GrUniqueKey* key,
                                        const SkRRect& rrectToDraw,
                                        float xformedSigma) {
+        SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
 
         GrUniqueKey::Builder builder(key, kDomain, 9, "RoundRect Blur Mask");
@@ -80,6 +80,7 @@ uniform half blurRadius;
                             const SkRRect& rrectToDraw,
                             const SkISize& dimensions,
                             float xformedSigma) {
+        SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
         std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::MakeWithFallback(
                 dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
                 GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
@@ -119,12 +120,6 @@ uniform half blurRadius;
         trampoline->fProxy = view.asTextureProxyRef();
 
         return true;
-    }
-
-    // TODO: merge w/ copy in SkGpuBlurUtils.cpp
-    static int sigma_radius(float sigma) {
-        SkASSERT(sigma >= 0);
-        return static_cast<int>(ceilf(sigma * 3.0f));
     }
 
     // Evaluate the vertical blur at the specified 'y' value given the location of the top of the
@@ -177,7 +172,8 @@ uniform half blurRadius;
                                                  const SkRRect& rrectToDraw,
                                                  const SkISize& dimensions,
                                                  float xformedSigma) {
-        int radius = sigma_radius(xformedSigma);
+        SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
+        int radius = SkGpuBlurUtils::SigmaRadius(xformedSigma);
         int kernelSize = 2*radius + 1;
 
         SkASSERT(kernelSize %2);
@@ -192,10 +188,10 @@ uniform half blurRadius;
 
         std::unique_ptr<float[]> kernel(new float[kernelSize]);
 
-        SkFillIn1DGaussianKernel(kernel.get(), xformedSigma, radius);
+        SkGpuBlurUtils::Compute1DGaussianKernel(kernel.get(), xformedSigma, radius);
 
         SkBitmap integral;
-        if (!SkCreateIntegralTable(6*xformedSigma, &integral)) {
+        if (!SkGpuBlurUtils::CreateIntegralTable(6*xformedSigma, &integral)) {
             return {};
         }
 
@@ -251,6 +247,7 @@ uniform half blurRadius;
             const SkRRect& rrectToDraw,
             const SkISize& dimensions,
             float xformedSigma) {
+        SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
         GrUniqueKey key;
         make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
 
@@ -332,18 +329,22 @@ uniform half blurRadius;
             return nullptr;
         }
 
+        if (SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma)) {
+            return inputFP;
+        }
+
         // Make sure we can successfully ninepatch this rrect -- the blur sigma has to be
         // sufficiently small relative to both the size of the corner radius and the
         // width (and height) of the rrect.
         SkRRect rrectToDraw;
         SkISize dimensions;
-        SkScalar ignored[kSkBlurRRectMaxDivisions];
+        SkScalar ignored[SkGpuBlurUtils::kBlurRRectMaxDivisions];
 
-        bool ninePatchable = SkComputeBlurredRRectParams(srcRRect, devRRect,
-                                                         sigma, xformedSigma,
-                                                         &rrectToDraw, &dimensions,
-                                                         ignored, ignored,
-                                                         ignored, ignored);
+        bool ninePatchable = SkGpuBlurUtils::ComputeBlurredRRectParams(srcRRect, devRRect,
+                                                                       sigma, xformedSigma,
+                                                                       &rrectToDraw, &dimensions,
+                                                                       ignored, ignored,
+                                                                       ignored, ignored);
         if (!ninePatchable) {
             return nullptr;
         }
