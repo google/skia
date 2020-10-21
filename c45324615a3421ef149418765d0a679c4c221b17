@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14011647_97d3ecfa",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T15:46:49Z",
+      "side": 1,
+      "message": "We know the cast to int should be safe (based on pool construction), but how about\n\n  SkToInt(node - fNodes)",
+      "revId": "c45324615a3421ef149418765d0a679c4c221b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51166573_17af196d",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T15:46:49Z",
+      "side": 1,
+      "message": "nit: Want to replace these with %p, and remove the cast on the argument?",
+      "range": {
+        "startLine": 141,
+        "startChar": 22,
+        "endLine": 141,
+        "endChar": 31
+      },
+      "revId": "c45324615a3421ef149418765d0a679c4c221b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
