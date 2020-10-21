@@ -34,4 +34,16 @@ WasmGMTests.onRuntimeInitialized = function() {
     return handle;
   };
 
+  WasmGMTests.LoadResource = function(name, buffer) {
+    // The WASM memory will take ownership of this pointer.
+    var bytePtr = copyArrayBuffer(buffer);
+    WasmGMTests._LoadResource(name, bytePtr, buffer.byteLength);
+  }
+
+  function copyArrayBuffer(buffer) {
+    var ptr = WasmGMTests._malloc(buffer.byteLength);
+    WasmGMTests.HEAPU8.set(new Uint8Array(buffer), ptr);
+    return ptr;
+  }
+
 }
