@@ -24,27 +24,29 @@ layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient
 in bool colorsAreOpaque;
 
-void main() {
+half4 main() {
     half4 t = sample(gradLayout);
+    half4 outColor;
+
     // If t.x is below 0, use the left border color without invoking the child processor. If any t.x
     // is above 1, use the right border color. Otherwise, t is in the [0, 1] range assumed by the
     // colorizer FP, so delegate to the child processor.
     if (!gradLayout.preservesOpaqueInput && t.y < 0) {
         // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
         // preserves opacity is false)
-        sk_OutColor = half4(0);
+        outColor = half4(0);
     } else if (t.x < 0) {
-        sk_OutColor = leftBorderColor;
+        outColor = leftBorderColor;
     } else if (t.x > 1.0) {
-        sk_OutColor = rightBorderColor;
+        outColor = rightBorderColor;
     } else {
         // Always sample from (x, 0), discarding y, since the layout FP can use y as a side-channel.
-        sk_OutColor = sample(colorizer, t.x0);
+        outColor = sample(colorizer, t.x0);
     }
-
     @if (makePremul) {
-        sk_OutColor.xyz *= sk_OutColor.w;
+        outColor.rgb *= outColor.a;
     }
+    return outColor;
 }
 
 //////////////////////////////////////////////////////////////////////////////
