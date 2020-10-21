@@ -16,6 +16,57 @@
       "message": "The vast majority of the diffs are background and aspect ratio changes only, but there\u0027s a handful of real progressions I noticed.\n\nI really hope we have a \"same-as-prev-version\" triage option to handle these in bulk.",
       "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c43320a_5cce0f00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-21T19:58:40Z",
+      "side": 1,
+      "message": "Two nits, up to you if you want to address them or not. Otherwise LGTM, looking forward to seeing the changes.",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e50c9daf_69ed5513",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-21T19:58:40Z",
+      "side": 1,
+      "message": "nit: ParsePreserveAspectRatio -\u003e parsePreserveAspectRatio",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e418e2c_a62c24f6",
+        "filename": "modules/svg/src/SkSVGSVG.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-21T19:58:40Z",
+      "side": 1,
+      "message": "nit: this function is mostly snake_case, surrounding code is camelCase",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
