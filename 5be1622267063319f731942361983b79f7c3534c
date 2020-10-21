@@ -72,6 +72,29 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "91489ef4_ec2b5b46",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-21T13:31:59Z",
+      "side": 1,
+      "message": "Seems doubtful. I bet they had different feature sets before GrTextureEffect WRT domains/tiling. We can always specialized GrMCE for 1D kernels. Also, we\u0027d get the fallback to kernel in texture behavior and could experiment with wider max kernels to see if that\u0027s a win.",
+      "range": {
+        "startLine": 83,
+        "startChar": 28,
+        "endLine": 84,
+        "endChar": 31
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "56d4b74c_39bb5b13",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -180,6 +203,52 @@
         "startChar": 0,
         "endLine": 11,
         "endChar": 33
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09691888_dcde9f4e",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-21T13:31:59Z",
+      "side": 1,
+      "message": "Having the various callers use kEffectivelyZeroSigma means they must ensure that they\u0027re consistent about \u003c\u003d vs \u003c (and \u003e vs \u003e\u003d in some asserts). Would it be better to hide the value in a function that does the comparisons, IsSigmaEffectivelyZero()?",
+      "range": {
+        "startLine": 84,
+        "startChar": 11,
+        "endLine": 84,
+        "endChar": 42
+      },
+      "revId": "5be1622267063319f731942361983b79f7c3534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16e5ca53_7628f6e3",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-21T13:31:59Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 84,
+        "startChar": 19,
+        "endLine": 84,
+        "endChar": 21
       },
       "revId": "5be1622267063319f731942361983b79f7c3534c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
