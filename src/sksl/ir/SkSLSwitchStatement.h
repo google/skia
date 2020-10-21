@@ -35,8 +35,9 @@ struct SwitchStatement : public Statement {
         for (const auto& s : fCases) {
             cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
         }
-        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
-                                                              std::move(cloned), fSymbols));
+        return std::make_unique<SwitchStatement>(fOffset, fIsStatic, fValue->clone(),
+                                                 std::move(cloned),
+                                                 SymbolTable::WrapIfBuiltin(fSymbols));
     }
 
     String description() const override {
