@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ec1aa11_dcf3b307",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-21T12:22:00Z",
+      "side": 1,
+      "message": "Nice!",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b70cf699_ce9d5296",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-21T12:22:00Z",
+      "side": 1,
+      "message": "What do you think about using a statement-expression:\n\n```\nstatic pthread_key_t get_pthread_key() {\n    static pthread_key_t sKey \u003d ({\n       pthread_key_t tmpKey;\n       SkAssertResult(0 \u003d\u003d pthread_key_create(\u0026tmpKey, /*destructor\u003d*/nullptr));\n       tmpKey;\n    });\n    return sKey;\n}\n```",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
