@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0a31cae_40c9e530",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-21T19:23:02Z",
+      "side": 1,
+      "message": "I know this is the pattern we\u0027ve been using with other types, but looking at it I wonder if we could just use a straight enum instead.  Something to try later.",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 331,
+        "endChar": 0
+      },
+      "revId": "b3f2946adb59b3c42332972e8c9c7c306f2ea637",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
