@@ -821,3 +821,41 @@ bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
 
     return parsedValue && this->parseEOSToken();
 }
+
+// https://www.w3.org/TR/SVG11/coords.html#PreserveAspectRatioAttribute
+bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* par) {
+    static constexpr std::tuple<const char*, SkSVGPreserveAspectRatio::Align> gAlignMap[] = {
+        { "none"    , SkSVGPreserveAspectRatio::kNone     },
+        { "xMinYMin", SkSVGPreserveAspectRatio::kXMinYMin },
+        { "xMidYMin", SkSVGPreserveAspectRatio::kXMidYMin },
+        { "xMaxYMin", SkSVGPreserveAspectRatio::kXMaxYMin },
+        { "xMinYMid", SkSVGPreserveAspectRatio::kXMinYMid },
+        { "xMidYMid", SkSVGPreserveAspectRatio::kXMidYMid },
+        { "xMaxYMid", SkSVGPreserveAspectRatio::kXMaxYMid },
+        { "xMinYMax", SkSVGPreserveAspectRatio::kXMinYMax },
+        { "xMidYMax", SkSVGPreserveAspectRatio::kXMidYMax },
+        { "xMaxYMax", SkSVGPreserveAspectRatio::kXMaxYMax },
+    };
+
+    static constexpr std::tuple<const char*, SkSVGPreserveAspectRatio::Scale> gScaleMap[] = {
+        { "meet" , SkSVGPreserveAspectRatio::kMeet  },
+        { "slice", SkSVGPreserveAspectRatio::kSlice },
+    };
+
+    bool parsedValue = false;
+
+    // ignoring optional 'defer'
+    this->parseExpectedStringToken("defer");
+    this->parseWSToken();
+
+    if (this->parseEnumMap(gAlignMap, &par->fAlign)) {
+        parsedValue = true;
+
+        // optional scaling selector
+        this->parseWSToken();
+        this->parseEnumMap(gScaleMap, &par->fScale);
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
