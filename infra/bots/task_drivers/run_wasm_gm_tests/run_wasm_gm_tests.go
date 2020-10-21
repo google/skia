@@ -38,9 +38,11 @@ func main() {
 		workPath        = flag.String("work_path", "", "The directory to use to store temporary files (e.g. pngs and JSON)")
 
 		// Provided for tryjobs
-		changelistID  = flag.String("changelist_id", "", "The id the Gerrit CL. Omit for primary branch.")
-		tryjobID      = flag.String("tryjob_id", "", "The id of the Buildbucket job for tryjobs. Omit for primary branch.")
-		patchsetOrder = flag.Int("patchset_order", 0, "Represents if this is the nth patchset")
+		changelistID = flag.String("changelist_id", "", "The id the Gerrit CL. Omit for primary branch.")
+		tryjobID     = flag.String("tryjob_id", "", "The id of the Buildbucket job for tryjobs. Omit for primary branch.")
+		// Because we pass in patchset_order via a placeholder, it can be empty string. As such, we
+		// cannot use flag.Int, because that errors on "" being passed in.
+		patchsetOrder = flag.String("patchset_order", "0", "Represents if this is the nth patchset")
 
 		// Debugging flags.
 		local              = flag.Bool("local", false, "True if running locally (as opposed to on the bots)")
@@ -67,6 +69,15 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	patchset := 0
+	if *patchsetOrder != "" {
+		p, err := strconv.Atoi(*patchsetOrder)
+		if err != nil {
+			td.Fatalf(ctx, "Invalid patchset_order %q", *patchsetOrder)
+		}
+		patchset = p
+	}
+
 	keys := *goldKeys
 	switch *webGLVersion {
 	case 0:
@@ -81,7 +92,7 @@ func main() {
 
 	// initialize goldctl
 	if err := setupGoldctl(ctx, *local, *gitCommit, *changelistID, *tryjobID, goldctlAbsPath, goldctlWorkPath,
-		*serviceAccountPath, keys, *patchsetOrder); err != nil {
+		*serviceAccountPath, keys, patchset); err != nil {
 		td.Fatal(ctx, err)
 	}
 
