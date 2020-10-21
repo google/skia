@@ -243,4 +243,7 @@ inline const SkMaskFilterBase* as_MFB(const sk_sp<SkMaskFilter>& mf) {
     return static_cast<SkMaskFilterBase*>(mf.get());
 }
 
+// For RegisterFlattenables access to the blur mask filter implementation
+extern void sk_register_blur_maskfilter_createproc();
+
 #endif
