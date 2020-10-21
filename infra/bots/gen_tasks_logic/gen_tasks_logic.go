@@ -1779,6 +1779,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--test_harness_path", "./tools/run-wasm-gm-tests",
 			"--built_path", "./wasm_out",
 			"--node_bin_path", "./node/node/bin",
+			"--resource_path", "./resources",
 			"--work_path", "./wasm_gm/work",
 			"--gold_ctl_path", "./cipd_bin_packages/goldctl",
 			"--git_commit", specs.PLACEHOLDER_REVISION,
