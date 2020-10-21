@@ -11,7 +11,6 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkVertices.h"
 #include "src/core/SkBlurMask.h"
-#include "src/core/SkBlurPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMathPriv.h"
@@ -116,117 +115,6 @@ private:
 };
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
-
-bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                 SkScalar sigma, SkScalar xformedSigma,
-                                 SkRRect* rrectToDraw,
-                                 SkISize* widthHeight,
-                                 SkScalar rectXs[kSkBlurRRectMaxDivisions],
-                                 SkScalar rectYs[kSkBlurRRectMaxDivisions],
-                                 SkScalar texXs[kSkBlurRRectMaxDivisions],
-                                 SkScalar texYs[kSkBlurRRectMaxDivisions]) {
-    unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
-    SkScalar srcBlurRadius = 3.0f * sigma;
-
-    const SkRect& devOrig = devRRect.getBounds();
-    const SkVector& devRadiiUL = devRRect.radii(SkRRect::kUpperLeft_Corner);
-    const SkVector& devRadiiUR = devRRect.radii(SkRRect::kUpperRight_Corner);
-    const SkVector& devRadiiLR = devRRect.radii(SkRRect::kLowerRight_Corner);
-    const SkVector& devRadiiLL = devRRect.radii(SkRRect::kLowerLeft_Corner);
-
-    const int devLeft  = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUL.fX, devRadiiLL.fX));
-    const int devTop   = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUL.fY, devRadiiUR.fY));
-    const int devRight = SkScalarCeilToInt(std::max<SkScalar>(devRadiiUR.fX, devRadiiLR.fX));
-    const int devBot   = SkScalarCeilToInt(std::max<SkScalar>(devRadiiLL.fY, devRadiiLR.fY));
-
-    // This is a conservative check for nine-patchability
-    if (devOrig.fLeft + devLeft + devBlurRadius >= devOrig.fRight  - devRight - devBlurRadius ||
-        devOrig.fTop  + devTop  + devBlurRadius >= devOrig.fBottom - devBot   - devBlurRadius) {
-        return false;
-    }
-
-    const SkVector& srcRadiiUL = srcRRect.radii(SkRRect::kUpperLeft_Corner);
-    const SkVector& srcRadiiUR = srcRRect.radii(SkRRect::kUpperRight_Corner);
-    const SkVector& srcRadiiLR = srcRRect.radii(SkRRect::kLowerRight_Corner);
-    const SkVector& srcRadiiLL = srcRRect.radii(SkRRect::kLowerLeft_Corner);
-
-    const SkScalar srcLeft  = std::max<SkScalar>(srcRadiiUL.fX, srcRadiiLL.fX);
-    const SkScalar srcTop   = std::max<SkScalar>(srcRadiiUL.fY, srcRadiiUR.fY);
-    const SkScalar srcRight = std::max<SkScalar>(srcRadiiUR.fX, srcRadiiLR.fX);
-    const SkScalar srcBot   = std::max<SkScalar>(srcRadiiLL.fY, srcRadiiLR.fY);
-
-    int newRRWidth = 2*devBlurRadius + devLeft + devRight + 1;
-    int newRRHeight = 2*devBlurRadius + devTop + devBot + 1;
-    widthHeight->fWidth = newRRWidth + 2 * devBlurRadius;
-    widthHeight->fHeight = newRRHeight + 2 * devBlurRadius;
-
-    const SkRect srcProxyRect = srcRRect.getBounds().makeOutset(srcBlurRadius, srcBlurRadius);
-
-    rectXs[0] = srcProxyRect.fLeft;
-    rectXs[1] = srcProxyRect.fLeft + 2*srcBlurRadius + srcLeft;
-    rectXs[2] = srcProxyRect.fRight - 2*srcBlurRadius - srcRight;
-    rectXs[3] = srcProxyRect.fRight;
-
-    rectYs[0] = srcProxyRect.fTop;
-    rectYs[1] = srcProxyRect.fTop + 2*srcBlurRadius + srcTop;
-    rectYs[2] = srcProxyRect.fBottom - 2*srcBlurRadius - srcBot;
-    rectYs[3] = srcProxyRect.fBottom;
-
-    texXs[0] = 0.0f;
-    texXs[1] = 2.0f*devBlurRadius + devLeft;
-    texXs[2] = 2.0f*devBlurRadius + devLeft + 1;
-    texXs[3] = SkIntToScalar(widthHeight->fWidth);
-
-    texYs[0] = 0.0f;
-    texYs[1] = 2.0f*devBlurRadius + devTop;
-    texYs[2] = 2.0f*devBlurRadius + devTop + 1;
-    texYs[3] = SkIntToScalar(widthHeight->fHeight);
-
-    const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
-                                            SkIntToScalar(devBlurRadius),
-                                            SkIntToScalar(newRRWidth),
-                                            SkIntToScalar(newRRHeight));
-    SkVector newRadii[4];
-    newRadii[0] = { SkScalarCeilToScalar(devRadiiUL.fX), SkScalarCeilToScalar(devRadiiUL.fY) };
-    newRadii[1] = { SkScalarCeilToScalar(devRadiiUR.fX), SkScalarCeilToScalar(devRadiiUR.fY) };
-    newRadii[2] = { SkScalarCeilToScalar(devRadiiLR.fX), SkScalarCeilToScalar(devRadiiLR.fY) };
-    newRadii[3] = { SkScalarCeilToScalar(devRadiiLL.fX), SkScalarCeilToScalar(devRadiiLL.fY) };
-
-    rrectToDraw->setRectRadii(newRect, newRadii);
-    return true;
-}
-
-// TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
-// TODO: maybe cache this on the cpu side?
-int SkCreateIntegralTable(float sixSigma, SkBitmap* table) {
-    // The texture we're producing represents the integral of a normal distribution over a
-    // six-sigma range centered at zero. We want enough resolution so that the linear
-    // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
-    // conservatively choose to have 2 texels for each dst pixel.
-    int minWidth = 2 * sk_float_ceil2int(sixSigma);
-    // Bin by powers of 2 with a minimum so we get good profile reuse.
-    int width = std::max(SkNextPow2(minWidth), 32);
-
-    if (!table) {
-        return width;
-    }
-
-    if (!table->tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
-        return 0;
-    }
-    *table->getAddr8(0, 0) = 255;
-    const float invWidth = 1.f / width;
-    for (int i = 1; i < width - 1; ++i) {
-        float x = (i + 0.5f) * invWidth;
-        x = (-6 * x + 3) * SK_ScalarRoot2Over2;
-        float integral = 0.5f * (std::erf(x) + 1.f);
-        *table->getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
-    }
-
-    *table->getAddr8(width - 1, 0) = 0;
-    table->setImmutable();
-    return table->width();
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -701,8 +589,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
     }
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
-    if (xformedSigma <= 0) {
-        return false;
+    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma)) {
+        renderTargetContext->drawShape(clip, std::move(paint), GrAA::kYes, viewMatrix, shape);
+        return true;
     }
 
     SkRRect srcRRect;
@@ -821,9 +710,9 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrStyledShape& shape,
                                             const SkMatrix& ctm,
                                             SkIRect* maskRect) const {
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
-    if (xformedSigma <= 0) {
-        maskRect->setEmpty();
-        return false;
+    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma)) {
+        *maskRect = devSpaceShapeBounds;
+        return maskRect->intersect(clipBounds);
     }
 
     if (maskRect) {
@@ -862,7 +751,6 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
-    SkASSERT(xformedSigma > 0);
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.

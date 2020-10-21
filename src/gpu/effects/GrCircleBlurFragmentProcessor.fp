@@ -39,6 +39,7 @@ uniform half4 circleData;
 
 @cpp {
     #include "include/gpu/GrRecordingContext.h"
+    #include "src/core/SkGpuBlurUtils.h"
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrProxyProvider.h"
     #include "src/gpu/GrRecordingContextPriv.h"
@@ -283,6 +284,10 @@ uniform half4 circleData;
     std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
             std::unique_ptr<GrFragmentProcessor> inputFP, GrRecordingContext* context,
             const SkRect& circle, float sigma) {
+        if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma)) {
+            return inputFP;
+        }
+
         float solidRadius;
         float textureRadius;
         std::unique_ptr<GrFragmentProcessor> profile = create_profile_effect(context, circle, sigma,

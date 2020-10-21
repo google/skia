@@ -11,7 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkBlurMask.h"
-#include "src/core/SkBlurPriv.h"
+#include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -54,9 +54,10 @@ layout(key) in bool isFast;
 @class {
 static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* rContext,
                                                            float sixSigma) {
+    SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(sixSigma / 6.f));
     auto threadSafeCache = rContext->priv().threadSafeCache();
 
-    int width = SkCreateIntegralTable(sixSigma, nullptr);
+    int width = SkGpuBlurUtils::CreateIntegralTable(sixSigma, nullptr);
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -75,7 +76,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
     }
 
     SkBitmap bitmap;
-    if (!SkCreateIntegralTable(sixSigma, &bitmap)) {
+    if (!SkGpuBlurUtils::CreateIntegralTable(sixSigma, &bitmap)) {
         return {};
     }
 
@@ -102,6 +103,11 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
                                                       float transformedSigma) {
          SkASSERT(viewMatrix.preservesRightAngles());
          SkASSERT(srcRect.isSorted());
+
+         if (SkGpuBlurUtils::IsEffectivelyZeroSigma(transformedSigma)) {
+             // No need to blur the rect
+             return inputFP;
+         }
 
          SkMatrix invM;
          SkRect rect;

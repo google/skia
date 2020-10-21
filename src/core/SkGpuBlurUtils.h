@@ -8,6 +8,8 @@
 #ifndef SkGpuBlurUtils_DEFINED
 #define SkGpuBlurUtils_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrRenderTargetContext.h"
 
@@ -17,6 +19,7 @@ class GrTexture;
 struct SkRect;
 
 namespace SkGpuBlurUtils {
+
 /**
  * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
  * as a renderTargetContext in case the caller wishes to draw into the result.
@@ -49,6 +52,40 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     float sigmaY,
                                                     SkTileMode mode,
                                                     SkBackingFit fit = SkBackingFit::kApprox);
+
+static const int kBlurRRectMaxDivisions = 6;
+
+// This method computes all the parameters for drawing a partially occluded nine-patched
+// blurred rrect mask:
+//   rrectToDraw - the integerized rrect to draw in the mask
+//   widthHeight - how large to make the mask (rrectToDraw will be centered in this coord sys)
+//   rectXs, rectYs - the x & y coordinates of the covering geometry lattice
+//   texXs, texYs - the texture coordinate at each point in rectXs & rectYs
+// It returns true if 'devRRect' is nine-patchable
+bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
+                                SkScalar sigma, SkScalar xformedSigma,
+                                SkRRect* rrectToDraw,
+                                SkISize* widthHeight,
+                                SkScalar rectXs[kBlurRRectMaxDivisions],
+                                SkScalar rectYs[kBlurRRectMaxDivisions],
+                                SkScalar texXs[kBlurRRectMaxDivisions],
+                                SkScalar texYs[kBlurRRectMaxDivisions]);
+
+int CreateIntegralTable(float sixSigma, SkBitmap* table);
+
+void Compute1DGaussianKernel(float* kernel, float sigma, int radius);
+
+// Any sigmas smaller than this are effectively an identity blur so can skip convolution at a higher
+// level. The value was chosen because it corresponds roughly to a radius of 1/10px, and is slightly
+// greater than sqrt(1/2*sigma^2) for SK_ScalarNearlyZero.
+inline bool IsEffectivelyZeroSigma(float sigma) { return sigma <= 0.03f; }
+
+inline int SigmaRadius(float sigma) {
+    return IsEffectivelyZeroSigma(sigma) ? 0 : static_cast<int>(ceilf(sigma * 3.0f));
+}
+
+inline int KernelWidth(int radius) { return 2 * radius + 1; }
+
 }  // namespace SkGpuBlurUtils
 
 #endif
