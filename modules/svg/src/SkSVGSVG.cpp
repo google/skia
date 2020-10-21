@@ -12,6 +12,52 @@
 
 SkSVGSVG::SkSVGSVG() : INHERITED(SkSVGTag::kSvg) { }
 
+static SkMatrix viewbox_matrix(const SkRect& view_box, const SkRect& view_port,
+                               const SkSVGPreserveAspectRatio& par) {
+    SkASSERT(!view_box.isEmpty());
+    SkASSERT(!view_port.isEmpty());
+
+    auto compute_scale = [&]() -> SkV2 {
+        const auto sx = view_port.width()  / view_box.width(),
+                   sy = view_port.height() / view_box.height();
+
+        if (par.fAlign == SkSVGPreserveAspectRatio::kNone) {
+            // none -> anisotropic scaling, regardless of fScale
+            return {sx,sy};
+        }
+
+        // isotropic scaling
+        const auto s = par.fScale == SkSVGPreserveAspectRatio::kMeet
+                            ? std::min(sx, sy)
+                            : std::max(sx, sy);
+        return {s,s};
+    };
+
+    auto compute_trans = [&](const SkV2& scale) -> SkV2 {
+        const auto tx = -view_box.x() * scale.x,
+                   ty = -view_box.y() * scale.y,
+                   dx = view_port.width()  - view_box.width() * scale.x,
+                   dy = view_port.height() - view_box.height()* scale.y;
+
+        static constexpr float gCoeffs[] = {
+            0,    // Min
+            0.5f, // Mid
+            1     // Max
+        };
+
+        SkASSERT((par.fAlign>>0 & 0x03)< SK_ARRAY_COUNT(gCoeffs));
+        SkASSERT((par.fAlign>>2 & 0x03)< SK_ARRAY_COUNT(gCoeffs));
+
+        return {tx + dx * gCoeffs[par.fAlign>>0 & 0x03],
+                ty + dy * gCoeffs[par.fAlign>>2 & 0x03]};
+    };
+
+    const auto s = compute_scale(),
+               t = compute_trans(s);
+
+    return SkMatrix::Translate(t.x, t.y) * SkMatrix::Scale(s.x, s.y);
+}
+
 bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     auto viewPortRect  = ctx->lengthContext().resolveRect(fX, fY, fWidth, fHeight);
     auto contentMatrix = SkMatrix::Translate(viewPortRect.x(), viewPortRect.y());
@@ -28,8 +74,7 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
         // A viewBox overrides the intrinsic viewport.
         viewPort = SkSize::Make(viewBox.width(), viewBox.height());
 
-        contentMatrix.preConcat(
-            SkMatrix::MakeRectToRect(viewBox, viewPortRect, SkMatrix::kFill_ScaleToFit));
+        contentMatrix.preConcat(viewbox_matrix(viewBox, viewPortRect, fPreserveAspectRatio));
     }
 
     if (!contentMatrix.isIdentity()) {
@@ -42,22 +87,6 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     }
 
     return this->INHERITED::onPrepareToRender(ctx);
-}
-
-void SkSVGSVG::setX(const SkSVGLength& x) {
-    fX = x;
-}
-
-void SkSVGSVG::setY(const SkSVGLength& y) {
-    fY = y;
-}
-
-void SkSVGSVG::setWidth(const SkSVGLength& w) {
-    fWidth = w;
-}
-
-void SkSVGSVG::setHeight(const SkSVGLength& h) {
-    fHeight = h;
 }
 
 void SkSVGSVG::setViewBox(const SkSVGViewBoxType& vb) {
@@ -89,6 +118,11 @@ void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kViewBox:
         if (const auto* vb = v.as<SkSVGViewBoxValue>()) {
             this->setViewBox(*vb);
+        }
+        break;
+    case SkSVGAttribute::kPreserveAspectRatio:
+        if (const auto* par = v.as<SkSVGPreserveAspectRatioValue>()) {
+            this->setPreserveAspectRatio(*par);
         }
         break;
     default:

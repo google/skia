@@ -33,6 +33,7 @@ public:
         kPaint,
         kPath,
         kPoints,
+        kPreserveAspectRatio,
         kSpreadMethod,
         kStopColor,
         kString,
@@ -102,5 +103,8 @@ using SkSVGFontFamilyValue   = SkSVGWrapperValue<SkSVGFontFamily   , SkSVGValue:
 using SkSVGFontSizeValue     = SkSVGWrapperValue<SkSVGFontSize     , SkSVGValue::Type::kFontSize  >;
 using SkSVGFontStyleValue    = SkSVGWrapperValue<SkSVGFontStyle    , SkSVGValue::Type::kFontStyle >;
 using SkSVGFontWeightValue   = SkSVGWrapperValue<SkSVGFontWeight   , SkSVGValue::Type::kFontWeight>;
+
+using SkSVGPreserveAspectRatioValue = SkSVGWrapperValue<SkSVGPreserveAspectRatio,
+                                                        SkSVGValue::Type::kPreserveAspectRatio>;
 
 #endif // SkSVGValue_DEFINED
