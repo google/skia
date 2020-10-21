@@ -99,6 +99,10 @@ array of the test names and what they drew.
     log('hashes loaded');
   }
 
+  const skip_list = new Set([
+    // gm names can be added here to skip, if failing.
+  ]);
+
   async function RunGMs(GM) {
     const canvas = document.getElementById('gm_canvas');
     const ctx = GM.GetWebGLContext(canvas, 2);
@@ -108,6 +112,9 @@ array of the test names and what they drew.
     const names = GM.ListGMs();
     names.sort();
     for (const name of names) {
+      if (skip_list.has(name)) {
+        continue;
+      }
       window._log += `Starting ${name}\n`;
       const pngAndMetadata = GM.RunGM(grcontext, name);
       if (!pngAndMetadata || !pngAndMetadata.hash) {
