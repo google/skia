@@ -249,6 +249,24 @@
       "parentUuid": "b002a7ed_59aa5348",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8ad7a76_3ba7eb0b",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:11:44Z",
+      "side": 1,
+      "message": "Granted, in cases where thread-safety is an issue.",
+      "parentUuid": "650abea0_9af8f79c",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
