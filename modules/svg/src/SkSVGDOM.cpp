@@ -200,6 +200,18 @@ bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetGradientUnitsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                               const char* stringValue) {
+    SkSVGGradientUnits gradientUnits;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseGradientUnits(&gradientUnits)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGGradientUnitsValue(gradientUnits));
+    return true;
+}
+
 bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
     SkSVGPointsType points;
@@ -390,6 +402,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     // focal point x & y
     { "fx"               , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"               , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
+    { "gradientUnits"    , { SkSVGAttribute::kGradientUnits    , SetGradientUnitsAttribute}},
     { "gradientTransform", { SkSVGAttribute::kGradientTransform, SetTransformAttribute    }},
     { "height"           , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"           , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},

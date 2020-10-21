@@ -94,3 +94,8 @@ SkPath SkSVGRect::onAsPath(const SkSVGRenderContext& ctx) const {
 
     return path;
 }
+
+SkSize SkSVGRect::onComputeBounds(const SkSVGLengthContext& lctx) const {
+    const SkRect rect = lctx.resolveRect(fX, fY, fWidth, fHeight);
+    return SkSize::Make(rect.width(), rect.height());
+}

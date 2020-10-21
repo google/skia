@@ -49,6 +49,15 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
+    const SkSVGPaint* fillPaint = fPresentationAttributes.fFill.getMaybeNull();
+    if (fillPaint && fillPaint->type() == SkSVGPaint::Type::kIRI) {
+        const auto node = ctx->findNodeById(fillPaint->iri());
+        if (node && node->onNeedsObjectBounds()) {
+            const SkSize bounds = this->onComputeBounds(ctx->lengthContext());
+            ctx->writableLengthContext()->setViewPort(bounds);  // TODO: don't abuse viewport
+        }
+    }
+
     ctx->applyPresentationAttributes(fPresentationAttributes,
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
 

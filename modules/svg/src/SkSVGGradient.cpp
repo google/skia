@@ -23,6 +23,10 @@ void SkSVGGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
 
+void SkSVGGradient::setGradientUnits(const SkSVGGradientUnits& gradientUnits) {
+    fGradientUnits = gradientUnits;
+}
+
 void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kGradientTransform:
@@ -40,6 +44,11 @@ void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setSpreadMethod(*spread);
         }
         break;
+    case SkSVGAttribute::kGradientUnits:
+        if (const auto* gradientUnits = v.as<SkSVGGradientUnitsValue>()) {
+            this->setGradientUnits(*gradientUnits);
+        }
+    break;
     default:
         this->INHERITED::onSetAttribute(attr, v);
     }
@@ -59,8 +68,17 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
 
         const auto& stop = static_cast<const SkSVGStop&>(*child);
         colors->push_back(this->resolveStopColor(ctx, stop));
-        pos->push_back(SkTPin(ltx.resolve(stop.offset(), SkSVGLengthContext::LengthType::kOther),
-                              0.f, 1.f));
+
+        if (stop.offset().unit() == SkSVGLength::Unit::kPercentage) {
+            SkDebugf("stop.offset() = %f, type = pct\n", stop.offset().value());
+            pos->push_back(SkTPin(
+                    ltx.resolve(stop.offset(), SkSVGLengthContext::LengthType::kOther), 0.f, 1.f));
+        } else {
+            SkDebugf("stop.offset() = %f, type = %d\n", stop.offset().value(),
+                     stop.offset().unit());
+            pos->push_back(ctx.lengthContext().resolve(stop.offset(),
+                                                       SkSVGLengthContext::LengthType::kOther));
+        }
     }
 
     SkASSERT(colors->count() == pos->count());
@@ -120,4 +138,8 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
     paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.count(), tileMode,
                                         fGradientTransform));
     return true;
+}
+
+bool SkSVGGradient::onNeedsObjectBounds() const {
+    return fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox;
 }
