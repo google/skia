@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "489863a7_1c214cab",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T14:38:06Z",
+      "side": 1,
+      "message": "This early return is okay (despite not being in a static-if), because this .fp is never the top-level (it\u0027s always wrapped by the overall gradient effect), right?",
+      "revId": "b9c2e284de1a4ae7d28d44f4156f5999524c4c26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
