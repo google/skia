@@ -69,10 +69,9 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
-	// build and run fuzzers
-	if err := buildAndRunCIFuzz(ctx, workDir, skiaAbsPath, *fuzzDuration); err != nil {
-		fatalOrSleep(ctx, skerr.Wrap(err))
-	}
+	// build and run fuzzers. If it fails (errors), hold that until we cleanup and copy the output.
+	// That way, developers can have access to the crashes.
+	runErr := buildAndRunCIFuzz(ctx, workDir, skiaAbsPath, *fuzzDuration)
 
 	if err := extractOutput(ctx, workDir, outAbsPath); err != nil {
 		fatalOrSleep(ctx, skerr.Wrap(err))
@@ -81,6 +80,10 @@ func main() {
 	// Clean up compiled fuzzers, etc
 	if err := os_steps.RemoveAll(ctx, workDir); err != nil {
 		fatalOrSleep(ctx, skerr.Wrap(err))
+	}
+
+	if runErr != nil {
+		fatalOrSleep(ctx, skerr.Wrap(runErr))
 	}
 }
 
