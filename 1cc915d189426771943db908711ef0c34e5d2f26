@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36cf9459_3772d389",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-21T20:57:17Z",
+      "side": 1,
+      "message": "doh, done",
+      "parentUuid": "e50c9daf_69ed5513",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e418e2c_a62c24f6",
@@ -65,6 +83,24 @@
       "writtenOn": "2020-10-21T19:58:40Z",
       "side": 1,
       "message": "nit: this function is mostly snake_case, surrounding code is camelCase",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07fab801_9c538294",
+        "filename": "modules/svg/src/SkSVGSVG.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-21T20:57:17Z",
+      "side": 1,
+      "message": "snake_case seems to be the \"modern\" style for static functions, but I don\u0027t feel strongly either way.  updated",
+      "parentUuid": "4e418e2c_a62c24f6",
       "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
