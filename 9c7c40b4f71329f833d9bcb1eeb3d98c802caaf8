@@ -195,6 +195,24 @@
       "parentUuid": "8d28d9b5_3aad4e52",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a078ca3e_3d39d345",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T14:52:21Z",
+      "side": 1,
+      "message": "Since you feel strongly about it, done. I\u0027m not sure I agree with your broader opinion that the `struct` is inherently weirder--it\u0027s just an older idiom, one that predates lambdas, but there\u0027s nothing necessarily worse about it. Any non-trivial codebase that predates C++11 is likely to contain this idiom somewhere unless someone took the time to rewrite them all (and since the result is ~equivalent, why would they).",
+      "parentUuid": "688aa1d5_084d02b7",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
