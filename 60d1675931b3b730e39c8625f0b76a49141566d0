@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba2faeb8_8c327b28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-21T18:13:44Z",
+      "side": 1,
+      "message": "gm_bindings.cpp lgtm with a couple comments",
+      "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef19a748_fa993844",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-21T18:13:44Z",
+      "side": 1,
+      "message": "ubernit: \"LoadResource\" reads to me like the caller is loading the resource, not like it\u0027s telling the function to load it. I might consider calling it \"SetResource\", but I\u0027m also fine with it as is.\n\nstd::map usage lgtm",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 24
+      },
+      "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9f42f5e_f2e5d8e8",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-21T18:13:44Z",
+      "side": 1,
+      "message": "Do we want to SkASSERT(!gResources.contains(name)) before trying to emplace?\n\nOr SkAssertResult(gResources.emplace(name, std::move(data)).second)?\n\n(In order to make sure we don\u0027t double insert a key.)\n\nOr if we want to just define the behavior as overriding the key when there\u0027s a duplicate, we could always do:\n\ngResources[name] \u003d std::move(data);",
+      "range": {
+        "startLine": 97,
+        "startChar": 13,
+        "endLine": 97,
+        "endChar": 20
+      },
+      "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
