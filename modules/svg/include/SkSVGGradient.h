@@ -23,6 +23,7 @@ public:
     void setHref(const SkSVGStringType&);
     void setGradientTransform(const SkSVGTransformType&);
     void setSpreadMethod(const SkSVGSpreadMethod&);
+    void setGradientUnits(const SkSVGGradientUnits&);
 
 protected:
     explicit SkSVGGradient(SkSVGTag t) : INHERITED(t) {}
@@ -44,6 +45,7 @@ private:
     SkSVGStringType    fHref;
     SkSVGTransformType fGradientTransform = SkSVGTransformType(SkMatrix::I());
     SkSVGSpreadMethod  fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
+    SkSVGGradientUnits fGradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kUserSpaceOnUse);
 
     using INHERITED = SkSVGHiddenContainer;
 };

@@ -308,6 +308,27 @@ private:
     SkSVGColorType fColor;
 };
 
+class SkSVGGradientUnits {
+public:
+    enum class Type {
+        kUserSpaceOnUse,
+        kObjectBoundingBox,
+    };
+
+    SkSVGGradientUnits() : fType(Type::kUserSpaceOnUse) {}
+    explicit SkSVGGradientUnits(Type t) : fType(t) {}
+
+    bool operator==(const SkSVGGradientUnits& other) const {
+        return fType == other.fType;
+    }
+    bool operator!=(const SkSVGGradientUnits& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 class SkSVGFontFamily {
 public:
     enum class Type {
