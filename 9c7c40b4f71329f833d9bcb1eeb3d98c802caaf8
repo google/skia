@@ -51,6 +51,24 @@
       "parentUuid": "b70cf699_ce9d5296",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5faf3421_7cd4f9ed",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T13:47:39Z",
+      "side": 1,
+      "message": "Yeah, if anything I\u0027d use an immediately-invoked lambda (which is already used in a few other spots in Skia).",
+      "parentUuid": "7c6e70fd_483ba7e5",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
