@@ -267,6 +267,24 @@
       "parentUuid": "650abea0_9af8f79c",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcdd4bb1_d24e2032",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-21T15:17:35Z",
+      "side": 1,
+      "message": "If thread safety weren\u0027t an issue we wouldn\u0027t be doing any of this.\n\nIt\u0027s okay not to know things, but it\u0027s not productive to retroactively argue that ignorance is just as strong a position as being informed.  The long term effect of that sort of face-saving is accumulated mediocrity.  You have to be wrong to learn, and you have to learn to do good work.",
+      "parentUuid": "b8ad7a76_3ba7eb0b",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
