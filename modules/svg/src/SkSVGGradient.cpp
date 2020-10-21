@@ -23,6 +23,10 @@ void SkSVGGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
 
+void SkSVGGradient::setGradientUnits(const SkSVGGradientUnits& gradientUnits) {
+    fGradientUnits = gradientUnits;
+}
+
 void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kGradientTransform:
@@ -38,6 +42,11 @@ void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kSpreadMethod:
         if (const auto* spread = v.as<SkSVGSpreadMethodValue>()) {
             this->setSpreadMethod(*spread);
+        }
+        break;
+    case SkSVGAttribute::kGradientUnits:
+        if (const auto* gradientUnits = v.as<SkSVGGradientUnitsValue>()) {
+            this->setGradientUnits(*gradientUnits);
         }
         break;
     default:

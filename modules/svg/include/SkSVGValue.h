@@ -26,6 +26,7 @@ public:
         kFontSize,
         kFontStyle,
         kFontWeight,
+        kGradientUnits,
         kLength,
         kLineCap,
         kLineJoin,
@@ -95,6 +96,8 @@ using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue:
 using SkSVGSpreadMethodValue = SkSVGWrapperValue<SkSVGSpreadMethod ,
                                                  SkSVGValue::Type::kSpreadMethod>;
 using SkSVGStopColorValue    = SkSVGWrapperValue<SkSVGStopColor    , SkSVGValue::Type::kStopColor >;
+using SkSVGGradientUnitsValue= SkSVGWrapperValue<SkSVGGradientUnits,
+                                                 SkSVGValue::Type::kGradientUnits>;
 using SkSVGVisibilityValue   = SkSVGWrapperValue<SkSVGVisibility   , SkSVGValue::Type::kVisibility>;
 using SkSVGDashArrayValue    = SkSVGWrapperValue<SkSVGDashArray    , SkSVGValue::Type::kDashArray >;
 
