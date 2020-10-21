@@ -141,6 +141,24 @@
       "parentUuid": "2af69e7e_48a9c38d",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "509421c5_57002638",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-21T14:35:29Z",
+      "side": 1,
+      "message": "(FWIW, now that I\u0027ve learned that the immediate-lambda pattern is zero-cost, it\u0027s the clear winner for being standard C++).",
+      "parentUuid": "8d864357_4144fda2",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
