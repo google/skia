@@ -22,6 +22,30 @@
       },
       "revId": "4ed770bc5b0fd465b63e8500f8a4fb7eab3af8e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64068f80_c82118ac",
+        "filename": "infra/bots/task_drivers/run_wasm_gm_tests/run_wasm_gm_tests.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-21T11:31:22Z",
+      "side": 1,
+      "message": "Internally in Gold, I use patchset_order to represent the nth patchset. This is distinct from the patchset_id, which is the associated git hash. This distinction is important because GitHub only knows about IDs and Gerrit tends to think about order (although ID is there if you pry).\n\n0 is a sentinel value for \"on the primary branch, not a tryjob\"",
+      "parentUuid": "788f0fa9_f0d9f475",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 94
+      },
+      "revId": "4ed770bc5b0fd465b63e8500f8a4fb7eab3af8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
