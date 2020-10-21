@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d9533fa_2c8408e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-21T19:28:22Z",
+      "side": 1,
+      "message": "The vast majority of the diffs are background and aspect ratio changes only, but there\u0027s a handful of real progressions I noticed.\n\nI really hope we have a \"same-as-prev-version\" triage option to handle these in bulk.",
+      "revId": "1cc915d189426771943db908711ef0c34e5d2f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
