@@ -87,6 +87,24 @@
       "parentUuid": "5faf3421_7cd4f9ed",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50b4f4d4_ea73e8d1",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-21T14:19:02Z",
+      "side": 1,
+      "message": "Please try to become comfortable with this idiom.  It\u0027s the most common standard compliant pattern for this situation.",
+      "parentUuid": "4255d50e_9531d0ee",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
