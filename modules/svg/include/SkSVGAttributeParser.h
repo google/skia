@@ -31,6 +31,7 @@ public:
     bool parseStopColor(SkSVGStopColor*);
     bool parseVisibility(SkSVGVisibility*);
     bool parseDashArray(SkSVGDashArray*);
+    bool ParsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);
