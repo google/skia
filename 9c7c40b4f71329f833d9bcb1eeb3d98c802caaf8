@@ -285,6 +285,24 @@
       "parentUuid": "b8ad7a76_3ba7eb0b",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a52da951_92c1661a",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:19:43Z",
+      "side": 1,
+      "message": "Yes, in THIS case, thread safety is the whole point. Understood and acknowledged.\n\nI\u0027ve written `struct RunOnce` like things probably a hundred times in my career, and most of them had no threading-related concerns, and the code wasn\u0027t and isn\u0027t mediocre. \n\nWatch your tone. http://go/nojerks",
+      "parentUuid": "fcdd4bb1_d24e2032",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
