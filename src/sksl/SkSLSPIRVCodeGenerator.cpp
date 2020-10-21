@@ -475,7 +475,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
     const Type& type = this->getActualType(rawType);
-    String key = type.name() + to_string((int) layout.fStd);
+    String key = type.name();
+    if (type.typeKind() == Type::TypeKind::kStruct || type.typeKind() == Type::TypeKind::kArray) {
+        key += to_string((int)layout.fStd);
+    }
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
@@ -1892,6 +1895,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
                 fRTHeightStructId = this->writeInterfaceBlock(intf, false);
                 fRTHeightFieldIndex = 0;
+                fRTHeightStorageClass = SpvStorageClassUniform;
             }
             SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
 
@@ -1899,7 +1903,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
             SpvId heightPtr = this->nextId();
             this->writeOpCode(SpvOpAccessChain, 5, out);
-            this->writeWord(this->getPointerType(*fContext.fFloat_Type, SpvStorageClassUniform),
+            this->writeWord(this->getPointerType(*fContext.fFloat_Type, fRTHeightStorageClass),
                             out);
             this->writeWord(heightPtr, out);
             this->writeWord(fRTHeightStructId, out);
@@ -2706,17 +2710,19 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                 fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.variable().type();
+    Modifiers intfModifiers = intf.variable().modifiers();
+    SpvStorageClass_ storageClass = get_storage_class(intfModifiers);
     if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         SkASSERT(fRTHeightStructId == (SpvId) -1);
         SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
         std::vector<Type::Field> fields = type->fields();
         fRTHeightStructId = result;
         fRTHeightFieldIndex = fields.size();
+        fRTHeightStorageClass = storageClass;
         fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
         type = new Type(type->fOffset, type->name(), fields);
     }
     SpvId typeId;
-    Modifiers intfModifiers = intf.variable().modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const auto& e : fProgram.elements()) {
             if (e->is<ModifiersDeclaration>()) {
@@ -2736,7 +2742,6 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     } else if (intfModifiers.fLayout.fBuiltin == -1) {
         this->writeInstruction(SpvOpDecorate, typeId, SpvDecorationBlock, fDecorationBuffer);
     }
-    SpvStorageClass_ storageClass = get_storage_class(intfModifiers);
     SpvId ptrType = this->nextId();
     this->writeInstruction(SpvOpTypePointer, ptrType, storageClass, typeId, fConstantBuffer);
     this->writeInstruction(SpvOpVariable, ptrType, result, storageClass, fConstantBuffer);
