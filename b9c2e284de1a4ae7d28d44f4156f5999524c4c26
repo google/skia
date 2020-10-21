@@ -16,6 +16,24 @@
       "message": "This early return is okay (despite not being in a static-if), because this .fp is never the top-level (it\u0027s always wrapped by the overall gradient effect), right?",
       "revId": "b9c2e284de1a4ae7d28d44f4156f5999524c4c26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea1903a8_60c831c8",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T14:40:10Z",
+      "side": 1,
+      "message": "This return isn\u0027t actually early; it\u0027s the last statement in that side of the if, and the if is the last statement in the function. All the returns in this function are at end-of-control-flow. (That\u0027s why I reordered the makePremul check.)",
+      "parentUuid": "489863a7_1c214cab",
+      "revId": "b9c2e284de1a4ae7d28d44f4156f5999524c4c26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
