@@ -16,6 +16,24 @@
       "message": "Some issues turned up by gold -- looking into it",
       "revId": "e8fb75d8e5d45a974d78b16b3a8b446565879b2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5608c1c5_386afe57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-21T19:09:30Z",
+      "side": 1,
+      "message": "Should be good now -- I missed that the attribute list must be sorted.",
+      "parentUuid": "9510df10_673f4216",
+      "revId": "e8fb75d8e5d45a974d78b16b3a8b446565879b2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
