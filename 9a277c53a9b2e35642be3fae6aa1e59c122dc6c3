@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b2ddd03_2b479924",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-21T13:39:03Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly about blocking this on the mali, though",
+      "revId": "9a277c53a9b2e35642be3fae6aa1e59c122dc6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce89c6df_1a229568",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-21T13:39:03Z",
+      "side": 1,
+      "message": "The mali400 has some precision issues in the gold diffs potentially. Would they be improved if we made this a float2 as well? Although only on the Y-axis and the new GM has large rrects in all 4 directions...\n\nWe\u0027ve centered the coord here, but haven\u0027t normalized it, so it could still get pretty large, right?",
+      "range": {
+        "startLine": 393,
+        "startChar": 4,
+        "endLine": 393,
+        "endChar": 31
+      },
+      "revId": "9a277c53a9b2e35642be3fae6aa1e59c122dc6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
