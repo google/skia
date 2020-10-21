@@ -491,7 +491,11 @@ static void setup_conservative_raster_info(
 }
 
 static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
-                                VkDynamicState* dynamicStates) {
+                                VkDynamicState* dynamicStates,
+                                const GrXferProcessor::BlendInfo& blendInfo) {
+    bool hasBlendCoeff = GrBlendCoeffRefsConstant(blendInfo.fSrcBlend) ||
+                         GrBlendCoeffRefsConstant(blendInfo.fDstBlend);
+
     memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicInfo->pNext = VK_NULL_HANDLE;
@@ -499,7 +503,7 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
     dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
     dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
     dynamicStates[2] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
-    dynamicInfo->dynamicStateCount = 3;
+    dynamicInfo->dynamicStateCount = hasBlendCoeff ? 3 : 2;
     dynamicInfo->pDynamicStates = dynamicStates;
 }
 
@@ -567,7 +571,8 @@ GrVkPipeline* GrVkPipeline::Create(
 
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;
-    setup_dynamic_state(&dynamicInfo, dynamicStates);
+    setup_dynamic_state(&dynamicInfo, dynamicStates,
+                        programInfo.pipeline().getXferProcessor().getBlendInfo());
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo;
     memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
