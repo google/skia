@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "010f68b1_2d4bec9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T18:51:26Z",
+      "side": 1,
+      "message": "Assuming there\u0027s no issue with this. I actually added several more tweaks so that symbol tables are slightly better... The effort to get the next level of functionality (showing the hash table as being indexed by keys) looks Herculean.",
+      "revId": "65a4e25de8269bdcc056cfa3f71decad6764bb92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
