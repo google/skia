@@ -32,7 +32,6 @@
 namespace SkSL {
 
 class Context;
-class Pool;
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -166,29 +165,15 @@ struct Program {
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
-            std::unique_ptr<Pool> pool,
             Inputs inputs)
     : fKind(kind)
     , fSource(std::move(source))
     , fSettings(settings)
     , fContext(context)
     , fSymbols(symbols)
-    , fPool(std::move(pool))
     , fInputs(inputs)
     , fElements(std::move(elements))
     , fModifiers(std::move(modifiers)) {}
-
-    ~Program() {
-        // Some or all of the program elements are in the pool. To free them safely, we must attach
-        // the pool before destroying any program elements. (Otherwise, we may accidentally call
-        // delete on a pooled node.)
-        fPool->attachToThread();
-        fElements.clear();
-        fContext.reset();
-        fSymbols.reset();
-        fModifiers.reset();
-        fPool->detachFromThread();
-    }
 
     const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
 
@@ -199,7 +184,6 @@ struct Program {
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;
-    std::unique_ptr<Pool> fPool;
     Inputs fInputs;
 
 private:
