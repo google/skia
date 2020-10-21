@@ -13,6 +13,9 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 
+GrThreadSafeCache::VertexData::~VertexData () {
+}
+
 GrThreadSafeCache::GrThreadSafeCache()
     : fFreeEntryList(nullptr) {
 }
@@ -146,6 +149,27 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
     return entry;
 }
 
+GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
+                                                      sk_sp<VertexData> vertData) {
+    Entry* entry;
+
+    if (fFreeEntryList) {
+        entry = fFreeEntryList;
+        fFreeEntryList = entry->fNext;
+        entry->fNext = nullptr;
+
+        entry->set(key, std::move(vertData));
+    } else {
+        entry = fEntryAllocator.make<Entry>(key, std::move(vertData));
+    }
+
+    // make 'entry' the MRU
+    entry->fLastAccess = GrStdSteadyClock::now();
+    fUniquelyKeyedEntryList.addToHead(entry);
+    fUniquelyKeyedEntryMap.add(entry);
+    return entry;
+}
+
 void GrThreadSafeCache::recycleEntry(Entry* dead) {
     SkASSERT(!dead->fPrev && !dead->fNext && !dead->fList);
 
@@ -210,6 +234,58 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::findOrAddWithDa
 
     return this->internalAdd(key, v);
 }
+
+//--
+sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(const void* vertices,
+                                                                       int vertexCount,
+                                                                       size_t vertexSize) {
+    return sk_make_sp<VertexData>(vertices, vertexCount, vertexSize);
+}
+
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
+                                                                         const GrUniqueKey& key) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (tmp) {
+        SkASSERT(fUniquelyKeyedEntryList.isInList(tmp));
+        // make the sought out entry the MRU
+        tmp->fLastAccess = GrStdSteadyClock::now();
+        fUniquelyKeyedEntryList.remove(tmp);
+        fUniquelyKeyedEntryList.addToHead(tmp);
+        return { tmp->vertexData(), tmp->refCustomData() };
+    }
+
+    return {};
+}
+
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::findVertsWithData(
+                                                                          const GrUniqueKey& key) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalFindVerts(key);
+}
+
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(
+                                                                    const GrUniqueKey& key,
+                                                                    sk_sp<VertexData> vertData) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (!tmp) {
+        tmp = this->getEntry(key, std::move(vertData));
+
+        SkASSERT(fUniquelyKeyedEntryMap.find(key));
+    }
+
+    return { tmp->vertexData(), tmp->refCustomData() };
+}
+
+std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
+                                                                    const GrUniqueKey& key,
+                                                                    sk_sp<VertexData> vertData) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalAddVerts(key, std::move(vertData));
+}
+
+//--
 
 void GrThreadSafeCache::remove(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
