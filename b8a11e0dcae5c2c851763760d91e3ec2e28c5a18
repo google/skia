@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c8ccf28_ca1911fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-21T17:52:06Z",
+      "side": 1,
+      "message": "Before: https://screenshot.googleplex.com/7mmF3x53WramgxD.png\nAfter : https://screenshot.googleplex.com/9BHdKQrdVsxQGA2.png",
+      "revId": "b8a11e0dcae5c2c851763760d91e3ec2e28c5a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
