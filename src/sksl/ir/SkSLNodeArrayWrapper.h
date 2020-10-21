@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SKSL_NODEARRAYWRAPPER
+#define SKSL_NODEARRAYWRAPPER
+
 #include "include/private/SkTArray.h"
 
 namespace SkSL {
@@ -205,7 +208,7 @@ public:
         friend class ConstNodeArrayWrapper;
     };
 
-    ConstNodeArrayWrapper(SkTArray<std::unique_ptr<Base>>* contents)
+    ConstNodeArrayWrapper(const SkTArray<std::unique_ptr<Base>>* contents)
         : fContents(contents) {}
 
     ConstNodeArrayWrapper(const ConstNodeArrayWrapper& other)
@@ -252,3 +255,5 @@ private:
 };
 
 } // namespace SkSL
+
+#endif
