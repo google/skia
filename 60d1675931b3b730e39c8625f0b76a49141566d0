@@ -62,6 +62,52 @@
       },
       "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9fd6c3e_bbd5af1b",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.html",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2020-10-21T18:54:25Z",
+      "side": 1,
+      "message": "It might be simpler to return the return value of Promise.all() here, so that loadResourceListing (defined on line 41) resolves when all the static resources are finished loading. Then lines 35-37 and 52 could be deleted, and \"loadResources\" on line 61 could be replaced with \"loadResourceListing\".",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 11
+      },
+      "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fab92205_7bf7c962",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2020-10-21T18:54:25Z",
+      "side": 1,
+      "message": "Nit: recursivelyListFiles.\n\nSuggestion: return a list of all the visited files instead of using a callback. I think it might be simpler, considering that\u0027s what ends up happening on lines 139-142.",
+      "range": {
+        "startLine": 126,
+        "startChar": 6,
+        "endLine": 126,
+        "endChar": 15
+      },
+      "revId": "60d1675931b3b730e39c8625f0b76a49141566d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
