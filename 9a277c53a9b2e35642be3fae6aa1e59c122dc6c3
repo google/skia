@@ -39,6 +39,30 @@
       },
       "revId": "9a277c53a9b2e35642be3fae6aa1e59c122dc6c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce3f58a8_0abab7f9",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-21T14:04:21Z",
+      "side": 1,
+      "message": "Maybe it could avoid precision issues with other rrect configurations on other GPUs, but it wont help Mali 400. It doesn\u0027t distinguish between mediump and highp, so changing SkSL vars from half to float wont change the results.\n\nSee the note about it here: https://developer.arm.com/solutions/graphics-and-gaming/developer-guides/learn-the-basics/understanding-numerical-precision/shader-precision\n\nThere is some special handling of interpolated varyings passed directly to a texture sampling function where they don\u0027t lose precision, but if you do any math on them then you drop down to 16bit.",
+      "parentUuid": "ce89c6df_1a229568",
+      "range": {
+        "startLine": 393,
+        "startChar": 4,
+        "endLine": 393,
+        "endChar": 31
+      },
+      "revId": "9a277c53a9b2e35642be3fae6aa1e59c122dc6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
