@@ -23,6 +23,10 @@ void SkSVGGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
 
+void SkSVGGradient::setGradientUnits(const SkSVGGradientUnits& gradientUnits) {
+    fGradientUnits = gradientUnits;
+}
+
 void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kGradientTransform:
@@ -40,6 +44,11 @@ void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setSpreadMethod(*spread);
         }
         break;
+    case SkSVGAttribute::kGradientUnits:
+        if (const auto* gradientUnits = v.as<SkSVGGradientUnitsValue>()) {
+            this->setGradientUnits(*gradientUnits);
+        }
+    break;
     default:
         this->INHERITED::onSetAttribute(attr, v);
     }
@@ -97,6 +106,17 @@ SkColor SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
     return SkColorSetA(color, SkScalarRoundToInt(stop.stopOpacity() * 255));
 }
 
+SkSVGLength SkSVGGradient::convertLengthForGradientUnits(const SkSVGLength& length) const {
+    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox &&
+        length.unit() != SkSVGLength::Unit::kPercentage) {
+        // Convert length to a percentage so that it will be relative to the object bounds.
+        SkASSERT(length.unit() == SkSVGLength::Unit::kNumber);
+        return SkSVGLength(length.value() * 100.0f, SkSVGLength::Unit::kPercentage);
+    } else {
+        return length;
+    }
+}
+
 bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
     StopColorArray colors;
     StopPositionArray pos;
@@ -120,4 +140,8 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
     paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.count(), tileMode,
                                         fGradientTransform));
     return true;
+}
+
+bool SkSVGGradient::onNeedsObjectBounds() const {
+    return fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox;
 }

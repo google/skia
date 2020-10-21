@@ -13,23 +13,23 @@
 SkSVGRadialGradient::SkSVGRadialGradient() : INHERITED(SkSVGTag::kRadialGradient) {}
 
 void SkSVGRadialGradient::setCx(const SkSVGLength& cx) {
-    fCx = cx;
+    fCx = convertLengthForGradientUnits(cx);
 }
 
 void SkSVGRadialGradient::setCy(const SkSVGLength& cy) {
-    fCy = cy;
+    fCy = convertLengthForGradientUnits(cy);
 }
 
 void SkSVGRadialGradient::setR(const SkSVGLength& r) {
-    fR = r;
+    fR = convertLengthForGradientUnits(r);
 }
 
 void SkSVGRadialGradient::setFx(const SkSVGLength& fx) {
-    fFx.set(fx);
+    fFx.set(convertLengthForGradientUnits(fx));
 }
 
 void SkSVGRadialGradient::setFy(const SkSVGLength& fy) {
-    fFy.set(fy);
+    fFy.set(convertLengthForGradientUnits(fy));
 }
 
 void SkSVGRadialGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {

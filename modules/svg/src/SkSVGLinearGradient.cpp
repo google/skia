@@ -13,19 +13,19 @@
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 
 void SkSVGLinearGradient::setX1(const SkSVGLength& x1) {
-    fX1 = x1;
+    fX1 = convertLengthForGradientUnits(x1);
 }
 
 void SkSVGLinearGradient::setY1(const SkSVGLength& y1) {
-    fY1 = y1;
+    fY1 = convertLengthForGradientUnits(y1);
 }
 
 void SkSVGLinearGradient::setX2(const SkSVGLength& x2) {
-    fX2 = x2;
+    fX2 = convertLengthForGradientUnits(x2);
 }
 
 void SkSVGLinearGradient::setY2(const SkSVGLength& y2) {
-    fY2 = y2;
+    fY2 = convertLengthForGradientUnits(y2);
 }
 
 void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
