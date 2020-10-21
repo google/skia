@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e6621fc_a4d9132f",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:59:15Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "14011647_97d3ecfa",
+      "revId": "c45324615a3421ef149418765d0a679c4c221b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51166573_17af196d",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-10-21T15:46:49Z",
       "side": 1,
       "message": "nit: Want to replace these with %p, and remove the cast on the argument?",
+      "range": {
+        "startLine": 141,
+        "startChar": 22,
+        "endLine": 141,
+        "endChar": 31
+      },
+      "revId": "c45324615a3421ef149418765d0a679c4c221b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5edb0e91_9ff4a384",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:59:15Z",
+      "side": 1,
+      "message": "I started with %p but the formatting was awful. There\u0027s no way to get uppercase or leading zeros. See https://stackoverflow.com/questions/1255099/whats-the-proper-use-of-printf-to-display-pointers-padded-with-0s",
+      "parentUuid": "51166573_17af196d",
       "range": {
         "startLine": 141,
         "startChar": 22,
