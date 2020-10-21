@@ -1,6 +1,69 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "667d1a2b_237ce00a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:40:28Z",
+      "side": 1,
+      "message": "I\u0027d suggest splitting OptimizationContext into a separate CL just for clarity, since AFAICS that\u0027s not related to SwitchStatement.",
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "493884b1_23aa3a71",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:40:28Z",
+      "side": 1,
+      "message": "Just curious: why not const anymore?",
+      "range": {
+        "startLine": 620,
+        "startChar": 17,
+        "endLine": 620,
+        "endChar": 18
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "896e6201_c111f275",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:40:28Z",
+      "side": 1,
+      "message": "Was this change meant to be a part of the SwitchStatement CL? Seems like a separate thing.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 0
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9497958d_5cb579e8",
@@ -62,6 +125,30 @@
       "side": 1,
       "message": "http://review.skia.org/328900",
       "parentUuid": "49204ae0_3be00192",
+      "range": {
+        "startLine": 72,
+        "startChar": 81,
+        "endLine": 72,
+        "endChar": 96
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0b9e4cc_0def3fc6",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T15:40:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb5cb7bd_5639e67d",
       "range": {
         "startLine": 72,
         "startChar": 81,
