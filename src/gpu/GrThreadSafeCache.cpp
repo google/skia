@@ -146,6 +146,27 @@ GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
     return entry;
 }
 
+GrThreadSafeCache::Entry* GrThreadSafeCache::getEntry(const GrUniqueKey& key,
+                                                      sk_sp<SkData> verts) {
+    Entry* entry;
+
+    if (fFreeEntryList) {
+        entry = fFreeEntryList;
+        fFreeEntryList = entry->fNext;
+        entry->fNext = nullptr;
+
+        entry->set(key, std::move(verts));
+    } else {
+        entry = fEntryAllocator.make<Entry>(key, std::move(verts));
+    }
+
+    // make 'entry' the MRU
+    entry->fLastAccess = GrStdSteadyClock::now();
+    fUniquelyKeyedEntryList.addToHead(entry);
+    fUniquelyKeyedEntryMap.add(entry);
+    return entry;
+}
+
 void GrThreadSafeCache::recycleEntry(Entry* dead) {
     SkASSERT(!dead->fPrev && !dead->fNext && !dead->fList);
 
@@ -210,6 +231,50 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::findOrAddWithDa
 
     return this->internalAdd(key, v);
 }
+
+//--
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
+                                                       const GrUniqueKey& key) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (tmp) {
+        SkASSERT(fUniquelyKeyedEntryList.isInList(tmp));
+        // make the sought out entry the MRU
+        tmp->fLastAccess = GrStdSteadyClock::now();
+        fUniquelyKeyedEntryList.remove(tmp);
+        fUniquelyKeyedEntryList.addToHead(tmp);
+        return { tmp->verts(), tmp->refCustomData() };
+    }
+
+    return {};
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::findVertsWithData(const GrUniqueKey& key) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalFindVerts(key);
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(const GrUniqueKey& key,
+                                                                             sk_sp<SkData> verts) {
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    if (!tmp) {
+        tmp = this->getEntry(key, std::move(verts));
+
+        SkASSERT(fUniquelyKeyedEntryMap.find(key));
+    }
+
+    return { tmp->verts(), tmp->refCustomData() };
+}
+
+std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
+                                                                const GrUniqueKey& key,
+                                                                sk_sp<SkData> verts) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return this->internalAddVerts(key, std::move(verts));
+}
+
+//--
 
 void GrThreadSafeCache::remove(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};

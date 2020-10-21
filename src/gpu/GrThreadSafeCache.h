@@ -93,6 +93,14 @@ public:
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> findOrAddWithData(
                             const GrUniqueKey&, const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
 
+    //---
+    std::tuple<sk_sp<SkData>, sk_sp<SkData>> findVertsWithData(
+                            const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
+
+    std::tuple<sk_sp<SkData>, sk_sp<SkData>> addVertsWithData(
+                            const GrUniqueKey&, sk_sp<SkData> verts)  SK_EXCLUDES(fSpinLock);
+    //---
+
     void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
     // To allow gpu-created resources to have priority, we pre-emptively place a lazy proxy
@@ -112,14 +120,26 @@ private:
     struct Entry {
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view)
                 : fKey(key)
-                , fView(view)
+                , fView1(view)
                 , fTag(Entry::kView) {
+        }
+
+        Entry(const GrUniqueKey& key, sk_sp<SkData> verts)
+                : fKey(key)
+                , fVerts(std::move(verts))
+                , fTag(Entry::kVerts) {
+        }
+
+        ~Entry() {
+
         }
 
         bool uniquelyHeld() const {
             SkASSERT(fTag != kEmpty);
 
-            if (fTag == kView && fView.proxy()->unique()) {
+            if (fTag == kView && fView1.proxy()->unique()) {
+                return true;
+            } else if (fTag == kVerts && fVerts->unique()) {
                 return true;
             }
 
@@ -138,27 +158,38 @@ private:
 
         GrSurfaceProxyView view() {
             SkASSERT(fTag == kView);
-            return fView;
+            return fView1;
+        }
+
+        sk_sp<SkData> verts() {
+            SkASSERT(fTag == kVerts);
+            return fVerts;
         }
 
         void set(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
             SkASSERT(fTag == kEmpty);
             fKey = key;
-            fView = view;
+            fView1 = view;
             fTag = kView;
+        }
+
+        void set(const GrUniqueKey& key, sk_sp<SkData> verts) {
+            SkASSERT(fTag == kEmpty);
+            fKey = key;
+            fVerts = verts;
+            fTag = kVerts;
         }
 
         void makeEmpty() {
             SkASSERT(fTag != kEmpty);
 
             fKey.reset();
-            fView.reset();
+            fView1.reset();
             fTag = kEmpty;
         }
 
         // The thread-safe cache gets to manipulate the llist and last-access members
         GrStdSteadyClock::time_point fLastAccess;
-
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
         // for SkTDynamicHash
@@ -170,22 +201,32 @@ private:
 
     private:
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey                  fKey;
-        GrSurfaceProxyView           fView;
+        GrUniqueKey             fKey;
+        union {
+            GrSurfaceProxyView  fView1;
+            sk_sp<SkData>       fVerts;
+        };
 
         enum {
             kEmpty,
             kView,
+            kVerts,
         } fTag { kEmpty };
     };
 
     Entry* getEntry(const GrUniqueKey&, const GrSurfaceProxyView&) SK_REQUIRES(fSpinLock);
+    Entry* getEntry(const GrUniqueKey&, sk_sp<SkData> verts) SK_REQUIRES(fSpinLock);
     void recycleEntry(Entry*)  SK_REQUIRES(fSpinLock);
 
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalFind(
                                                        const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalAdd(
                             const GrUniqueKey&, const GrSurfaceProxyView&)  SK_REQUIRES(fSpinLock);
+
+    std::tuple<sk_sp<SkData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
+                                                       const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
+    std::tuple<sk_sp<SkData>, sk_sp<SkData>> internalAddVerts(
+                            const GrUniqueKey&, sk_sp<SkData>)  SK_REQUIRES(fSpinLock);
 
     mutable SkSpinlock fSpinLock;
 
