@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9497958d_5cb579e8",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-21T14:27:54Z",
+      "side": 1,
+      "message": "Whoops, I missed one. Not your bug but this needs to be\n\n  SymbolTable::WrapIfBuiltin(this-\u003esymbols())\n\nSorry!",
+      "range": {
+        "startLine": 72,
+        "startChar": 81,
+        "endLine": 72,
+        "endChar": 96
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
