@@ -5,7 +5,7 @@ array of the test names and what they drew.
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CanvasKit SKP Perf</title>
+  <title>WASM Runner of GMs and Unit Tests</title>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,12 +32,30 @@ array of the test names and what they drew.
 
   const loadKnownHashesPromise = fetch('/static/hashes.txt').then((resp) => resp.text());
 
+  const resourceNames = [];
+  const loadResourceListing = fetch('/static/resource_listing.json').then((resp) => resp.json())
+    .then((json) => {
+    console.debug('should fetch resources', json);
+    const loadingPromises = [];
+    for (const resource of json) {
+      resourceNames.push(resource);
+      const url = `/static/resources/${resource}`;
+      loadingPromises.push(fetch(url).then((resp) => resp.arrayBuffer()));
+    }
+    return Promise.all(loadingPromises).catch((e) => {
+      console.error(e);
+      window._error = `Failed getting resources: ${JSON.stringify(e)}`;
+    });
+  });
+
   let attemptedPOSTs = 0;
   let successfulPOSTs = 0;
-  Promise.all([loadTestsPromise, loadKnownHashesPromise]).then(([GM, hashes]) => {
+  Promise.all([loadTestsPromise, loadKnownHashesPromise, loadResourceListing]).then(([GM, hashes, resourceBuffers]) => {
+    LoadResources(GM, resourceNames, resourceBuffers);
     LoadKnownHashes(GM, hashes);
     document.getElementById('start_tests').addEventListener('click', async () => {
       window._testsProgress = 0;
+      window._log = 'Starting\n';
       await RunGMs(GM);
       if (attemptedPOSTs !== successfulPOSTs) {
         window._error = `Failed to POST all the PNG files (expected ${attemptedPOSTs}, finished ${successfulPOSTs})`;
@@ -49,14 +67,27 @@ array of the test names and what they drew.
   });
 
   const statusElement = document.getElementById('status_text');
-  function logLineToPage(line) {
-    statusElement.innerText += (line + '\n');
+  function log(line) {
+    line += '\n';
+    statusElement.innerText += line;
+    window._log += line;
+  }
+
+  function LoadResources(GM, resourceNames, resourceBuffers) {
+    for (let i = 0; i < resourceNames.length; i++) {
+      const name = resourceNames[i];
+      const buffer = resourceBuffers[i];
+      if (name.includes('mandril')) {
+        console.log(name, new Uint8Array(buffer).slice(0, 20));
+      }
+      GM.LoadResource(name, buffer);
+    }
   }
 
   // There's a global set of known hashes that we preload with the md5 hashes that are already
   // uploaded to Gold. This saves us some time to encode them and write them to disk.
   function LoadKnownHashes(GM, hashes) {
-    logLineToPage(`Loading ${hashes.length} hashes`);
+    log(`Loading ${hashes.length} hashes`);
     console.time('load_hashes');
     for (const hash of hashes.split('\n')) {
       if (hash.length < 5) { // be sure not to add empty lines
@@ -65,7 +96,7 @@ array of the test names and what they drew.
       GM.LoadKnownDigest(hash);
     }
     console.timeEnd('load_hashes');
-    logLineToPage('hashes loaded');
+    log('hashes loaded');
   }
 
   async function RunGMs(GM) {
@@ -77,11 +108,13 @@ array of the test names and what they drew.
     const names = GM.ListGMs();
     names.sort();
     for (const name of names) {
+      window._log += `Starting ${name}\n`;
       const pngAndMetadata = GM.RunGM(grcontext, name);
-      if (!pngAndMetadata) {
-        continue;
+      if (!pngAndMetadata || !pngAndMetadata.hash) {
+        console.debug('No output for ', name);
+        continue; // Was skipped
       }
-      logLineToPage(`Test ${name} drew ${pngAndMetadata.hash}`);
+      log(`Test ${name} drew ${pngAndMetadata.hash}`);
       window._results.push({
         name: name,
         digest: pngAndMetadata.hash,

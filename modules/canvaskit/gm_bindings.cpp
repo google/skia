@@ -14,6 +14,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
@@ -22,6 +23,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/core/SkMD5.h"
 #include "tools/HashAndEncode.h"
+#include "tools/ResourceFactory.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include "modules/canvaskit/WasmCommon.h"
@@ -76,6 +78,27 @@ static std::set<std::string> gKnownDigests;
 
 static void LoadKnownDigest(std::string md5) {
   gKnownDigests.insert(md5);
+}
+
+static std::map<std::string, sk_sp<SkData>> gResources;
+
+static sk_sp<SkData> getResource(const char* name) {
+  auto it = gResources.find(name);
+  if (it == gResources.end()) {
+    SkDebugf("Resource %s not found\n", name);
+    return nullptr;
+  }
+  return it->second;
+}
+
+static void LoadResource(std::string name, uintptr_t /* byte* */ bPtr, size_t len) {
+  const uint8_t* bytes = reinterpret_cast<const uint8_t*>(bPtr);
+  auto data = SkData::MakeFromMalloc(bytes, len);
+  gResources[name] = std::move(data);
+
+  if (!gResourceFactory) {
+    gResourceFactory = getResource;
+  }
 }
 
 /**
@@ -177,6 +200,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
 EMSCRIPTEN_BINDINGS(GMs) {
     function("ListGMs", &ListGMs);
     function("LoadKnownDigest", &LoadKnownDigest);
+    function("_LoadResource", &LoadResource);
     function("MakeGrContext", &MakeGrContext);
     function("RunGM", &RunGM);
 

@@ -24,13 +24,17 @@ const opts = [
   {
     name: 'known_hashes',
     typeLabel: '{underline file}',
-    description: '(required) A directory containing any assets needed by lottie' +
-      ' files or tests (e.g. images/fonts).'
+    description: '(required) The hashes that should not be written to disk.'
   },
   {
     name: 'output',
     typeLabel: '{underline file}',
     description: '(required) The directory to write the output JSON and images to.',
+  },
+  {
+    name: 'resources',
+    typeLabel: '{underline file}',
+    description: '(required) The directory that test images are stored in.',
   },
   {
     name: 'use_gpu',
@@ -62,7 +66,7 @@ const opts = [
 
 const usage = [
   {
-    header: 'Measruing correctness of Skia WASM code',
+    header: 'Measuring correctness of Skia WASM code',
     content: 'Command line application to capture images drawn from tests',
   },
   {
@@ -110,6 +114,32 @@ if (!options.known_hashes) {
   process.exit(1);
 }
 
+if (!options.resources) {
+  console.error('You must supply resources directory');
+  console.log(commandLineUsage(usage));
+  process.exit(1);
+}
+
+const resourceBaseDir = path.resolve(options.resources)
+// This executes recursively and synchronously.
+const recursivelyListFiles = (dir) => {
+  const absolutePaths = [];
+  const files = fs.readdirSync(dir);
+  files.forEach((file) => {
+    const filepath = path.join(dir, file);
+    const stats = fs.statSync(filepath);
+    if (stats.isDirectory()) {
+      absolutePaths.push(...recursivelyListFiles(filepath));
+    } else if (stats.isFile()) {
+      absolutePaths.push(path.relative(resourceBaseDir, filepath));
+    }
+  });
+  return absolutePaths;
+};
+
+const resourceListing = recursivelyListFiles(options.resources);
+console.log('Saw resources', resourceListing);
+
 const driverHTML = fs.readFileSync('run-wasm-gm-tests.html', 'utf8');
 const testJS = fs.readFileSync(options.js_file, 'utf8');
 const testWASM = fs.readFileSync(options.wasm_file, 'binary');
@@ -120,11 +150,15 @@ const knownHashes = fs.readFileSync(options.known_hashes, 'utf8');
 const app = express();
 app.get('/', (req, res) => res.send(driverHTML));
 
+app.use('/static/resources/', express.static(resourceBaseDir));
+console.log('resources served from', resourceBaseDir);
+
 // This allows the server to receive POST requests of up to 10MB for image/png and read the body
 // as raw bytes, housed in a buffer.
 app.use(bodyParser.raw({ type: 'image/png', limit: '10mb' }));
 
 app.get('/static/hashes.txt', (req, res) => res.send(knownHashes));
+app.get('/static/resource_listing.json', (req, res) => res.send(JSON.stringify(resourceListing)));
 app.get('/static/wasm_gm_tests.js', (req, res) => res.send(testJS));
 app.get('/static/wasm_gm_tests.wasm', function(req, res) {
   // Set the MIME type so it can be streamed efficiently.
@@ -195,10 +229,11 @@ async function driveBrowser() {
       waitUntil: 'networkidle0'
     });
 
-    // Page is mostly loaded, wait for benchmark page to report itself ready.
-    console.log('Waiting 15s for benchmark to be ready');
+    // Page is mostly loaded, wait for test harness page to report itself ready. Some resources
+    // may still be loading.
+    console.log('Waiting 30s for test harness to be ready');
     await page.waitForFunction(`(window._testsReady === true) || window._error`, {
-      timeout: 15000,
+      timeout: 30000,
     });
 
     const err = await page.evaluate('window._error');
@@ -210,6 +245,7 @@ async function driveBrowser() {
     // There is a button with id #start_tests to click (this also makes manual debugging easier).
     await page.click('#start_tests');
 
+    // Rather than wait a long time for things to finish, we send progress updates every 50 tests.
     const batchSize = 50;
     let batch = batchSize;
     while (true) {
@@ -243,6 +279,10 @@ async function driveBrowser() {
     fs.writeFileSync(jsonFile, JSON.stringify(goldResults));
   } catch(e) {
     console.log('Timed out while loading, drawing, or writing to disk.', e);
+    if (page) {
+      const log = await page.evaluate('window._log');
+      console.error(log);
+    }
     await browser.close();
     await new Promise((resolve) => server.close(resolve));
     process.exit(1);
