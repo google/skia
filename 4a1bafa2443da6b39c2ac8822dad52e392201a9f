@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68e2277e_c1ed6625",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-21T13:42:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dec53c99_669a7e4d",
+      "range": {
+        "startLine": 112,
+        "startChar": 42,
+        "endLine": 112,
+        "endChar": 50
+      },
+      "revId": "4a1bafa2443da6b39c2ac8822dad52e392201a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88bb3135_e0375e2b",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-10-19T22:33:46Z",
       "side": 1,
       "message": "Hopefully a const_cast isn\u0027t necessary now that we have a whole ConstCaseArray type at our disposal.",
+      "range": {
+        "startLine": 53,
+        "startChar": 30,
+        "endLine": 53,
+        "endChar": 58
+      },
+      "revId": "4a1bafa2443da6b39c2ac8822dad52e392201a9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30e6c8bc_5f386e4c",
+        "filename": "src/sksl/ir/SkSLSwitchStatement.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-21T13:42:09Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "88bb3135_e0375e2b",
       "range": {
         "startLine": 53,
         "startChar": 30,

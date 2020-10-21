@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f20edc7_45064eb7",
+        "filename": "src/sksl/ir/SkSLNodeArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-21T13:42:09Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "490d26f1_1a894f1a",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 54
+      },
+      "revId": "716a257c0fc959347e17c6a6f7261fd2fd57e773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e9654ac_0119e8d5",
