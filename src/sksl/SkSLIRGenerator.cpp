@@ -2944,7 +2944,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
     }
 
-    this->pushSymbolTable();
+    AutoSymbolTable table(this);
 
     if (kind == Program::kGeometry_Kind && !fIsBuiltinCode) {
         // Declare sk_InvocationID programmatically. With invocations support, it's an 'in' builtin.
@@ -3058,12 +3058,9 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         FindIllegalExpressions{this}.visitProgramElement(*pe);
     }
 
-    IRBundle result = {std::move(elements), this->releaseModifiers(), fSymbolTable, fInputs};
-
-    this->popSymbolTable();
     fSettings = nullptr;
 
-    return result;
+    return IRBundle{std::move(elements), this->releaseModifiers(), fSymbolTable, fInputs};
 }
 
 }  // namespace SkSL
