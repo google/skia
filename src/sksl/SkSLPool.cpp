@@ -13,22 +13,6 @@
 
 namespace SkSL {
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
-
-// iOS did not support for C++11 `thread_local` variables until iOS 9.
-// Pooling is not supported here; we allocate all nodes directly.
-struct PoolData {};
-
-Pool::~Pool() {}
-void Pool* Pool::CreatePoolOnThread(int nodesInPool) { return new Pool; }
-void Pool::detachFromThread() {}
-void Pool::attachToThread() {}
-void* Pool::AllocIRNode() { return ::operator new(sizeof(IRNode)); }
-void Pool::FreeIRNode(void* node) { ::operator delete(node); }
-
-#else  // !defined(SK_BUILD_FOR_IOS)...
-
 namespace { struct IRNodeData {
     union {
         uint8_t fBuffer[sizeof(IRNode)];
@@ -49,14 +33,51 @@ struct PoolData {
     // Accessors.
     ptrdiff_t nodeCount() { return fNodesEnd - fNodes; }
 
-    ptrdiff_t nodeIndex(IRNodeData* node) {
+    int nodeIndex(IRNodeData* node) {
         SkASSERT(node >= fNodes);
         SkASSERT(node < fNodesEnd);
-        return node - fNodes;
+        return SkToInt(node - fNodes);
     }
 };
 
+#if defined(SK_BUILD_FOR_IOS) && \
+        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+
+#include <pthread.h>
+
+static pthread_key_t get_pthread_key() {
+    static pthread_key_t sKey = []{
+        pthread_key_t key;
+        int result = pthread_key_create(&key, /*destructor=*/nullptr);
+        if (result != 0) {
+            SK_ABORT("pthread_key_create failure: %d", result);
+        }
+        return key;
+    }();
+    return sKey;
+}
+
+static PoolData* get_thread_local_pool_data() {
+    return static_cast<PoolData*>(pthread_getspecific(get_pthread_key()));
+}
+
+static void set_thread_local_pool_data(PoolData* poolData) {
+    pthread_setspecific(get_pthread_key(), poolData);
+}
+
+#else
+
 static thread_local PoolData* sPoolData = nullptr;
+
+static PoolData* get_thread_local_pool_data() {
+    return sPoolData;
+}
+
+static void set_thread_local_pool_data(PoolData* poolData) {
+    sPoolData = poolData;
+}
+
+#endif
 
 static PoolData* create_pool_data(int nodesInPool) {
     // Create a PoolData structure with extra space at the end for additional IRNode data.
@@ -77,9 +98,9 @@ static PoolData* create_pool_data(int nodesInPool) {
 
 
 Pool::~Pool() {
-    if (sPoolData == fData) {
+    if (get_thread_local_pool_data() == fData) {
         SkDEBUGFAIL("SkSL pool is being destroyed while it is still attached to the thread");
-        sPoolData = nullptr;
+        set_thread_local_pool_data(nullptr);
     }
 
     // In debug mode, report any leaked nodes.
@@ -117,27 +138,28 @@ std::unique_ptr<Pool> Pool::CreatePoolOnThread(int nodesInPool) {
 }
 
 void Pool::detachFromThread() {
-    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)sPoolData);
-    SkASSERT(sPoolData != nullptr);
-    sPoolData = nullptr;
+    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)get_thread_local_pool_data());
+    SkASSERT(get_thread_local_pool_data() != nullptr);
+    set_thread_local_pool_data(nullptr);
 }
 
 void Pool::attachToThread() {
     VLOG("ATTACH Pool:0x%016llX\n", (uint64_t)fData);
-    SkASSERT(sPoolData == nullptr);
-    sPoolData = fData;
+    SkASSERT(get_thread_local_pool_data() == nullptr);
+    set_thread_local_pool_data(fData);
 }
 
 void* Pool::AllocIRNode() {
     // Is a pool attached?
-    if (sPoolData) {
+    PoolData* poolData = get_thread_local_pool_data();
+    if (poolData) {
         // Does the pool contain a free node?
-        IRNodeData* node = sPoolData->fFreeListHead;
+        IRNodeData* node = poolData->fFreeListHead;
         if (node) {
             // Yes. Take a node from the freelist.
-            sPoolData->fFreeListHead = node->fFreeListNext;
+            poolData->fFreeListHead = node->fFreeListNext;
             VLOG("ALLOC  Pool:0x%016llX Index:%04d         0x%016llX\n",
-                 (uint64_t)sPoolData, (int)(node - &sPoolData->fNodes[0]), (uint64_t)node);
+                 (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
             return node->fBuffer;
         }
     }
@@ -145,31 +167,30 @@ void* Pool::AllocIRNode() {
     // The pool is detached or full; allocate nodes using malloc.
     void* ptr = ::operator new(sizeof(IRNode));
     VLOG("ALLOC  Pool:0x%016llX Index:____ malloc  0x%016llX\n",
-         (uint64_t)sPoolData, (uint64_t)ptr);
+         (uint64_t)poolData, (uint64_t)ptr);
     return ptr;
 }
 
 void Pool::FreeIRNode(void* node_v) {
     // Is a pool attached?
-    if (sPoolData) {
+    PoolData* poolData = get_thread_local_pool_data();
+    if (poolData) {
         // Did this node come from our pool?
         auto* node = static_cast<IRNodeData*>(node_v);
-        if (node >= &sPoolData->fNodes[0] && node < sPoolData->fNodesEnd) {
+        if (node >= &poolData->fNodes[0] && node < poolData->fNodesEnd) {
             // Yes. Push it back onto the freelist.
             VLOG("FREE   Pool:0x%016llX Index:%04d         0x%016llX\n",
-                 (uint64_t)sPoolData, (int)(node - &sPoolData->fNodes[0]), (uint64_t)node);
-            node->fFreeListNext = sPoolData->fFreeListHead;
-            sPoolData->fFreeListHead = node;
+                 (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
+            node->fFreeListNext = poolData->fFreeListHead;
+            poolData->fFreeListHead = node;
             return;
         }
     }
 
     // No pool is attached or the node was malloced; it must be freed.
     VLOG("FREE   Pool:0x%016llX Index:____ free    0x%016llX\n",
-         (uint64_t)sPoolData, (uint64_t)node_v);
+         (uint64_t)poolData, (uint64_t)node_v);
     ::operator delete(node_v);
 }
-
-#endif  // !defined(SK_BUILD_FOR_IOS)...
 
 }  // namespace SkSL
