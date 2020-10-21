@@ -20,10 +20,13 @@ public:
 
     static sk_sp<SkSVGSVG> Make() { return sk_sp<SkSVGSVG>(new SkSVGSVG()); }
 
-    void setX(const SkSVGLength&);
-    void setY(const SkSVGLength&);
-    void setWidth(const SkSVGLength&);
-    void setHeight(const SkSVGLength&);
+    SVG_ATTR(X                  , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Y                  , SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(Width              , SkSVGLength, SkSVGLength(100, SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(Height             , SkSVGLength, SkSVGLength(100, SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(PreserveAspectRatio, SkSVGPreserveAspectRatio, SkSVGPreserveAspectRatio())
+
+    // TODO: SVG_ATTR is not smart enough to handle SkTLazy<T>
     void setViewBox(const SkSVGViewBoxType&);
 
     SkSize intrinsicSize(const SkSVGLengthContext&) const;
@@ -35,11 +38,6 @@ protected:
 
 private:
     SkSVGSVG();
-
-    SkSVGLength fX      = SkSVGLength(0);
-    SkSVGLength fY      = SkSVGLength(0);
-    SkSVGLength fWidth  = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
-    SkSVGLength fHeight = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
 
     SkTLazy<SkSVGViewBoxType> fViewBox;
 

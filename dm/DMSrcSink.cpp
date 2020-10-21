@@ -1326,6 +1326,7 @@ Result SVGSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
 
     SkAutoCanvasRestore acr(canvas, true);
     canvas->scale(fScale, fScale);
+    canvas->drawColor(SK_ColorWHITE);
     fDom->render(canvas);
 
     return Result::Ok();

@@ -128,4 +128,14 @@ private:
     using INHERITED = SkRefCnt;
 };
 
+#undef SVG_PRES_ATTR // presentation attributes are only defined for the base class
+
+#define SVG_ATTR(attr_name, attr_type, attr_default)                      \
+    private:                                                              \
+        attr_type f##attr_name = attr_default;                            \
+    public:                                                               \
+        const attr_type& get##attr_name() const { return f##attr_name; }  \
+        void set##attr_name(const attr_type& a) { f##attr_name = a; }     \
+        void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); }
+
 #endif // SkSVGNode_DEFINED
