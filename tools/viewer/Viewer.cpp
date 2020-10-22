@@ -421,6 +421,13 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
+    fCommands.addCommand('V', "VSync", "Toggle delayed acquire on/off (Metal only)", [this]() {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        params.fDelayDrawableAcquisition = !params.fDelayDrawableAcquisition;
+        fWindow->setRequestedDisplayParams(params);
+        this->updateTitle();
+        fWindow->inval();
+    });
     fCommands.addCommand('r', "Redraw", "Toggle redraw", [this]() {
         fRefresh = !fRefresh;
         fWindow->inval();
