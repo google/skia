@@ -17,7 +17,7 @@
 
 namespace {
 
-SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::LengthType t) {
+SkScalar length_size_for_type(const SkRect& viewport, SkSVGLengthContext::LengthType t) {
     switch (t) {
     case SkSVGLengthContext::LengthType::kHorizontal:
         return viewport.width();
@@ -25,6 +25,20 @@ SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::Length
         return viewport.height();
     case SkSVGLengthContext::LengthType::kOther:
         return SkScalarSqrt(viewport.width() * viewport.height());
+    }
+
+    SkASSERT(false);  // Not reached.
+    return 0;
+}
+
+SkScalar length_translation_for_type(const SkRect& viewport, SkSVGLengthContext::LengthType t) {
+    switch (t) {
+    case SkSVGLengthContext::LengthType::kHorizontal:
+        return viewport.left();
+    case SkSVGLengthContext::LengthType::kVertical:
+        return viewport.top();
+    case SkSVGLengthContext::LengthType::kOther:
+        return 0;
     }
 
     SkASSERT(false);  // Not reached.
@@ -41,23 +55,24 @@ constexpr SkScalar kCMMultiplier = kMMMultiplier * 10;
 }  // namespace
 
 SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
+    const SkScalar offset = length_translation_for_type(fViewport, t);
     switch (l.unit()) {
     case SkSVGLength::Unit::kNumber:
         // Fall through.
     case SkSVGLength::Unit::kPX:
-        return l.value();
+        return offset + l.value();
     case SkSVGLength::Unit::kPercentage:
-        return l.value() * length_size_for_type(fViewport, t) / 100;
+        return offset + l.value() * length_size_for_type(fViewport, t) / 100;
     case SkSVGLength::Unit::kCM:
-        return l.value() * fDPI * kCMMultiplier;
+        return offset + l.value() * fDPI * kCMMultiplier;
     case SkSVGLength::Unit::kMM:
-        return l.value() * fDPI * kMMMultiplier;
+        return offset + l.value() * fDPI * kMMMultiplier;
     case SkSVGLength::Unit::kIN:
-        return l.value() * fDPI * kINMultiplier;
+        return offset + l.value() * fDPI * kINMultiplier;
     case SkSVGLength::Unit::kPT:
-        return l.value() * fDPI * kPTMultiplier;
+        return offset + l.value() * fDPI * kPTMultiplier;
     case SkSVGLength::Unit::kPC:
-        return l.value() * fDPI * kPCMultiplier;
+        return offset + l.value() * fDPI * kPCMultiplier;
     default:
         SkDebugf("unsupported unit type: <%d>\n", l.unit());
         return 0;
@@ -316,8 +331,8 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 
     // Commit initial values to the paint cache.
     SkCanvas fakeCanvas(0, 0);
-    SkSVGRenderContext fake(&fakeCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
-                             *this, nullptr);
+    SkSVGRenderContext fake(&fakeCanvas, SkSVGIDMapper(),
+                            SkSVGLengthContext(SkRect::MakeXYWH(0, 0, 0, 0)), *this, nullptr);
 
     commitToPaint<SkSVGAttribute::kFill>(fInherited, fake, this);
     commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, fake, this);

@@ -66,8 +66,7 @@ static SkMatrix ViewboxMatrix(const SkRect& view_box, const SkRect& view_port,
 
 bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     auto viewPortRect  = ctx->lengthContext().resolveRect(fX, fY, fWidth, fHeight);
-    auto contentMatrix = SkMatrix::Translate(viewPortRect.x(), viewPortRect.y());
-    auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
+    auto contentMatrix = SkMatrix::I();
 
     if (fViewBox.isValid()) {
         const SkRect& viewBox = *fViewBox;
@@ -77,10 +76,10 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
             return false;
         }
 
-        // A viewBox overrides the intrinsic viewport.
-        viewPort = SkSize::Make(viewBox.width(), viewBox.height());
-
         contentMatrix.preConcat(ViewboxMatrix(viewBox, viewPortRect, fPreserveAspectRatio));
+
+        // A viewBox overrides the intrinsic viewport.
+        viewPortRect = viewBox;
     }
 
     if (!contentMatrix.isIdentity()) {
@@ -88,8 +87,8 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
         ctx->canvas()->concat(contentMatrix);
     }
 
-    if (viewPort != ctx->lengthContext().viewPort()) {
-        ctx->writableLengthContext()->setViewPort(viewPort);
+    if (viewPortRect != ctx->lengthContext().viewPort()) {
+        ctx->writableLengthContext()->setViewPort(viewPortRect);
     }
 
     return this->INHERITED::onPrepareToRender(ctx);

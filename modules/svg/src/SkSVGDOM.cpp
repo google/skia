@@ -591,7 +591,8 @@ sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& svgStream) {
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
-        SkSVGLengthContext       lctx(fContainerSize);
+        SkSVGLengthContext lctx(
+                SkRect::MakeXYWH(0, 0, fContainerSize.width(), fContainerSize.height()));
         SkSVGPresentationContext pctx;
         fRoot->render(SkSVGRenderContext(canvas, fIDMapper, lctx, pctx, nullptr));
     }
@@ -603,7 +604,7 @@ SkSize SkSVGDOM::intrinsicSize() const {
     }
 
     // Intrinsic sizes are never relative, so the viewport size is irrelevant.
-    const SkSVGLengthContext lctx(SkSize::Make(0, 0));
+    const SkSVGLengthContext lctx(SkRect::MakeXYWH(0, 0, 0, 0));
     return static_cast<const SkSVGSVG*>(fRoot.get())->intrinsicSize(lctx);
 }
 

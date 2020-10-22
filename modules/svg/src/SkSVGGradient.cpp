@@ -59,7 +59,7 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
                                       StopPositionArray* pos,
                                       StopColorArray* colors) const {
     // Used to resolve percentage offsets.
-    const SkSVGLengthContext ltx(SkSize::Make(1, 1));
+    const SkSVGLengthContext ltx(SkRect::MakeXYWH(0, 0, 1, 1));
 
     for (const auto& child : fChildren) {
         if (child->tag() != SkSVGTag::kStop) {

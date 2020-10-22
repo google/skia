@@ -22,7 +22,7 @@ class SkSVGLength;
 
 class SkSVGLengthContext {
 public:
-    SkSVGLengthContext(const SkSize& viewport, SkScalar dpi = 90)
+    SkSVGLengthContext(const SkRect& viewport, SkScalar dpi = 90)
         : fViewport(viewport), fDPI(dpi) {}
 
     enum class LengthType {
@@ -31,15 +31,15 @@ public:
         kOther,
     };
 
-    const SkSize& viewPort() const { return fViewport; }
-    void setViewPort(const SkSize& viewport) { fViewport = viewport; }
+    const SkRect& viewPort() const { return fViewport; }
+    void setViewPort(const SkRect& viewport) { fViewport = viewport; }
 
     SkScalar resolve(const SkSVGLength&, LengthType) const;
     SkRect   resolveRect(const SkSVGLength& x, const SkSVGLength& y,
                          const SkSVGLength& w, const SkSVGLength& h) const;
 
 private:
-    SkSize   fViewport;
+    SkRect   fViewport;
     SkScalar fDPI;
 };
 
