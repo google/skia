@@ -16,6 +16,23 @@
       "message": "It\u0027s finally ready! barring any rebaselines for chrome.",
       "revId": "1bb3ec159c7fea8b9d7d9b263c538f6c96aa36dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "679f928d_89a53092",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T17:40:40Z",
+      "side": 1,
+      "message": "Is it possible to optimize recursively?",
+      "revId": "1bb3ec159c7fea8b9d7d9b263c538f6c96aa36dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
