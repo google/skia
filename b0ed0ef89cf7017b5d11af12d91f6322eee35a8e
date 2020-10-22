@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6ef3a32_069520d1",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-22T15:26:13Z",
+      "side": 1,
+      "message": "Does not work because the constructor is private.\n\nThe typical Google approach would be WrapUnique(new Pool). I tried to bring this to Skia but this did not pass code review.",
+      "parentUuid": "0cea8bab_35c2bf9f",
+      "revId": "b0ed0ef89cf7017b5d11af12d91f6322eee35a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3a92812e_ccdb616a",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-10-22T15:22:47Z",
       "side": 1,
       "message": "This seems unnecessary, given the declaration of fData has \u0027\u003d nullptr\u0027 ? Though to make it clear that this version has no pool, it\u0027s probably fine.",
+      "revId": "b0ed0ef89cf7017b5d11af12d91f6322eee35a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7462085_80f375d7",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-22T15:26:13Z",
+      "side": 1,
+      "message": "Squelches a warning that fData is unused.",
+      "parentUuid": "3a92812e_ccdb616a",
       "revId": "b0ed0ef89cf7017b5d11af12d91f6322eee35a8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
