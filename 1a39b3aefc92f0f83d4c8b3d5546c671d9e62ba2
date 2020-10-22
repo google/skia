@@ -16,6 +16,86 @@
       "message": "These three CLs are all to support objectBoundingBox coords for gradients.",
       "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a620b8b0_0e577c4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T19:37:13Z",
+      "side": 1,
+      "message": "LGTM with some nits.",
+      "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "971e4114_a5e70d9d",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T19:37:13Z",
+      "side": 1,
+      "message": "Let\u0027s name this more explicitly: objectBoundingBox()\n\nFrom past experience, things get hairy fast when we start dealing with \"visual\" bounds or other bounds types :)",
+      "range": {
+        "startLine": 76,
+        "startChar": 11,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4eea4a60_6f9c96c0",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T19:37:13Z",
+      "side": 1,
+      "message": "Do we ever pass anything other than nullptr to this constructor flavor?  I think we can omit the param and just initialize to nullptr.",
+      "range": {
+        "startLine": 62,
+        "startChar": 62,
+        "endLine": 62,
+        "endChar": 71
+      },
+      "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c770da22_0811a19a",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T19:37:13Z",
+      "side": 1,
+      "message": "Looks like we\u0027re only changing the node immediately after context initialization.  How about a specialized constructor instead of a setter?",
+      "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
