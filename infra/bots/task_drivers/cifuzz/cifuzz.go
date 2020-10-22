@@ -69,10 +69,9 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
-	// build and run fuzzers
-	if err := buildAndRunCIFuzz(ctx, workDir, skiaAbsPath, *fuzzDuration); err != nil {
-		fatalOrSleep(ctx, skerr.Wrap(err))
-	}
+	// build and run fuzzers. If it fails (errors), hold that until we cleanup and copy the output.
+	// That way, developers can have access to the crashes.
+	runErr := buildAndRunCIFuzz(ctx, workDir, skiaAbsPath, *fuzzDuration)
 
 	if err := extractOutput(ctx, workDir, outAbsPath); err != nil {
 		fatalOrSleep(ctx, skerr.Wrap(err))
@@ -81,6 +80,10 @@ func main() {
 	// Clean up compiled fuzzers, etc
 	if err := os_steps.RemoveAll(ctx, workDir); err != nil {
 		fatalOrSleep(ctx, skerr.Wrap(err))
+	}
+
+	if runErr != nil {
+		fatalOrSleep(ctx, skerr.Wrap(runErr))
 	}
 }
 
@@ -130,7 +133,7 @@ func setupCIFuzzRepoAndDocker(ctx context.Context, workdir, gitAbsPath string) e
 }
 
 func prepareSkiaCheckout(ctx context.Context, skiaAbsPath, workDir, gitAbsPath string) error {
-	ctx = td.StartStep(ctx, td.Props("prepare skia checkout for build"))
+	ctx = td.StartStep(ctx, td.Props("prepare skia checkout for build").Infra())
 	defer td.EndStep(ctx)
 
 	swiftshaderDir := filepath.Join(skiaAbsPath, "third_party", "externals", "swiftshader")
@@ -147,14 +150,6 @@ func prepareSkiaCheckout(ctx context.Context, skiaAbsPath, workDir, gitAbsPath s
 
 	return nil
 }
-
-//// docker run --name build_fuzzers --rm --env MANUAL_SRC_PATH=/mnt/pd0/s/w/ir/skia --env OSS_FUZZ_PROJECT_NAME=skia \
-//--env GITHUB_WORKSPACE=/mnt/pd0/s/w/ir/cifuzz_work/cifuzz --env GITHUB_REPOSITORY=skia \
-//--env GITHUB_EVENT_NAME=push --env DRY_RUN=false --env CI=true --env SANITIZER=address \
-//--env GITHUB_SHA=does_nothing --volume /var/run/docker.sock:/var/run/docker.sock \
-//--mount "type=bind,source=/mnt/pd0/s/w/ir/skia,destination=/mnt/pd0/s/w/ir/skia" \
-//--mount "type=bind,source=/mnt/pd0/s/w/ir/cifuzz_work/cifuzz,destination=/mnt/pd0/s/w/ir/cifuzz_work/cifuzz" \
-//local_build_fuzzers
 
 func buildAndRunCIFuzz(ctx context.Context, workDir, skiaAbsPath string, duration time.Duration) error {
 	ctx = td.StartStep(ctx, td.Props("build skia fuzzers and run them"))
@@ -181,24 +176,42 @@ func buildAndRunCIFuzz(ctx context.Context, workDir, skiaAbsPath string, duratio
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
-	if _, err := exec.RunCwd(ctx, workDir, dockerExe, "run",
+	args := []string{"run",
 		"--name", "run_fuzzers", "--rm",
 		"--env", "OSS_FUZZ_PROJECT_NAME=skia",
-		"--env", "GITHUB_WORKSPACE="+workDir,
+		"--env", "GITHUB_WORKSPACE=" + workDir,
 		"--env", "GITHUB_REPOSITORY=skia", // TODO(metzman) make this not required
 		"--env", "GITHUB_EVENT_NAME=push", // TODO(metzman) make this not required
 		"--env", "DRY_RUN=false",
 		"--env", "CI=true",
 		"--env", "CIFUZZ=true",
-		"--env", "FUZZ_TIME="+fmt.Sprintf("%d", duration/time.Second), // This is split up between all affected fuzzers.
+		"--env", "FUZZ_TIME=" + fmt.Sprintf("%d", duration/time.Second), // This is split up between all affected fuzzers.
 		"--env", "SANITIZER=address",
 		"--env", "GITHUB_SHA=does_nothing",
 		"--volume", "/var/run/docker.sock:/var/run/docker.sock",
 		"--mount", fmt.Sprintf("type=bind,source=%s,destination=%s", workDir, workDir),
 		runFuzzersDockerImage,
-	); err != nil {
-		return td.FailStep(ctx, skerr.Wrap(err))
 	}
+
+	cmd := exec.Command{
+		Name:    dockerExe,
+		Args:    args,
+		Dir:     workDir,
+		Timeout: duration + 10*time.Minute, // Give a little padding in case fuzzing takes some extra time.
+	}
+	if _, err := exec.RunCommand(ctx, &cmd); err != nil {
+		if !exec.IsTimeout(err) {
+			return td.FailStep(ctx, skerr.Wrap(err))
+		} else {
+			sklog.Warningf("Fuzzing timed out: %s", err)
+		}
+	}
+	return nil
+}
+
+func extractOutput(ctx context.Context, workDir, outAbsPath string) error {
+	ctx = td.StartStep(ctx, td.Props("copy output directory").Infra())
+	defer td.EndStep(ctx)
 
 	cifuzzOutDir := filepath.Join(workDir, "out")
 
@@ -212,19 +225,10 @@ func buildAndRunCIFuzz(ctx context.Context, workDir, skiaAbsPath string, duratio
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
-	return nil
-}
-
-func extractOutput(ctx context.Context, workDir, outAbsPath string) error {
-	ctx = td.StartStep(ctx, td.Props("copy output directory"))
-	defer td.EndStep(ctx)
-
 	// Make these directories for cifuzz exist so docker does not create it w/ root permissions.
 	if err := os_steps.MkdirAll(ctx, outAbsPath); err != nil {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
-
-	cifuzzOutDir := filepath.Join(workDir, "out")
 
 	files, err := os_steps.ReadDir(ctx, cifuzzOutDir)
 	if err != nil {
