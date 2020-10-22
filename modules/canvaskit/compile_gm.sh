@@ -145,12 +145,26 @@ if [[ `uname` != "Linux" ]]; then
   STRICTNESS=""
 fi
 
+GMS_TO_BUILD="gm/*.cpp"
+TESTS_TO_BUILD="tests/*.cpp"
+# When developing locally, it can be faster to focus only on the gms you care about (since they
+# all have to be recompiled/relinked) every time. To do so, mark the following as true
+if true; then #FIXME
+   GMS_TO_BUILD="gm/bleed.cpp gm/gm.cpp"
+   TESTS_TO_BUILD="tests/AAClipTest.cpp tests/AdvancedBlendTest.cpp tests/Test.cpp"
+fi
+
 # These gms do not compile or link with the WASM code. Thus, we omit them.
 GLOBIGNORE="gm/cgms.cpp:"\
 "gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/xform.cpp:"\
-"gm/video_decoder.cpp"
+"gm/video_decoder.cpp:"\
+"tests/AbseilTest.cpp:"\
+"tests/CodecTest.cpp:"\
+"tests/ColorSpaceTest.cpp:"\
+"tests/EncodeTest.cpp:"\
+"tests/FontMgrFontConfigTest.cpp"
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
@@ -166,7 +180,8 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/gm.js \
     tools/Resources.cpp \
     $BASE_DIR/gm_bindings.cpp \
-    gm/*.cpp \
+    $GMS_TO_BUILD \
+    $TESTS_TO_BUILD \
     $GM_LIB \
     $BUILD_DIR/libskshaper.a \
     $SHAPER_LIB \

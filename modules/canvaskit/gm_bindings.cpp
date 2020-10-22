@@ -18,13 +18,15 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkMD5.h"
+#include "tests/Test.h"
+#include "tools/flags/CommandLineFlags.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ResourceFactory.h"
-#include "tools/flags/CommandLineFlags.h"
 
 #include "modules/canvaskit/WasmCommon.h"
 
@@ -197,12 +199,96 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     return result;
 }
 
+static JSArray ListTests() {
+    SkDebugf("Listing Tests\n");
+    JSArray tests = emscripten::val::array();
+    for (auto test : skiatest::TestRegistry::Range()) {
+        SkDebugf("test %s\n", test.name);
+        tests.call<void>("push", std::string(test.name));
+    }
+    return tests;
+}
+
+static skiatest::Test getTestWithName(std::string name, bool* ok) {
+    for (auto test : skiatest::TestRegistry::Range()) {
+        if (name == test.name) {
+          *ok = true;
+          return test;
+        }
+    }
+    *ok = false;
+    return skiatest::Test(nullptr, false, nullptr);
+}
+
+// Based on DM.cpp:run_test
+struct WasmReporter : public skiatest::Reporter {
+    WasmReporter(std::string name, JSObject result): fName(name), fResult(result){}
+
+    void reportFailed(const skiatest::Failure& failure) override {
+        SkDebugf("Test %s failed: %s\n", fName.c_str(), failure.toString().c_str());
+        fResult.set("result", "failed");
+        fResult.set("msg", failure.toString().c_str());
+    }
+    std::string fName;
+    JSObject fResult;
+};
+
+/**
+ * Runs the given Test and returns a JS object. If the Test was located, the object will have the
+ * following properties:
+ *   "result" : One of "passed", "failed", "skipped".
+ *   "msg": May be non-empty on failure
+ */
+static JSObject RunTest(std::string name) { /*sk_sp<GrDirectContext> ctx, */
+    JSObject result = emscripten::val::object();
+    bool ok = false;
+    auto test = getTestWithName(name, &ok);
+    if (!ok) {
+        SkDebugf("Could not find test with name %s\n", name.c_str());
+        return result;
+    }
+    GrContextOptions grOpts;
+    if (test.needsGpu) {
+        result.set("result", "passed"); // default to passing - the reporter will mark failed.
+        WasmReporter reporter(name, result);
+        test.run(&reporter, grOpts);
+        return result;
+    }
+
+    result.set("result", "passed"); // default to passing - the reporter will mark failed.
+    WasmReporter reporter(name, result);
+    test.run(&reporter, grOpts);
+    return result;
+}
+
+namespace skiatest {
+bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType) {return true;}
+bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType) {return false;}
+bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType) {return false;}
+bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType) {return false;}
+bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType) {return false;}
+bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType) {return true;}
+bool IsRenderingGLOrMetalContextType(sk_gpu_test::GrContextFactory::ContextType) {return true;}
+bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType) {return true;}
+void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
+                            Reporter* reporter, const GrContextOptions& options) {
+
+    // Call this with an arbitrary context type, since we hard-code the responses from WebGL.
+    if (contextTypeFilter && !(*contextTypeFilter)(sk_gpu_test::GrContextFactory::ContextType::kGL_ContextType)) {
+        return;
+    }
+    SkDebugf("TODO(kjlubick) run gpu test\n");
+}
+} // namespace skiatest
+
 EMSCRIPTEN_BINDINGS(GMs) {
     function("ListGMs", &ListGMs);
+    function("ListTests", &ListTests);
     function("LoadKnownDigest", &LoadKnownDigest);
     function("_LoadResource", &LoadResource);
     function("MakeGrContext", &MakeGrContext);
     function("RunGM", &RunGM);
+    function("RunTest", &RunTest);
 
     class_<GrDirectContext>("GrDirectContext")
         .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>");
