@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1939b6a_b8986e8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-22T19:56:27Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "667d1a2b_237ce00a",
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "493884b1_23aa3a71",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f78b16c9_929a878c",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-22T19:56:27Z",
+      "side": 1,
+      "message": "We need the SwitchCases themselves to be non-const. We were previously iterating over a vector of std::unique_ptr\u003cSwitchCase\u003e, so the const applied to the std::unique_ptr and not the SwitchCase and was fine. But ss.cases() is a collection of SwitchCases directly, rather than std::unique_ptrs, so we can\u0027t use const anymore.",
+      "parentUuid": "493884b1_23aa3a71",
+      "range": {
+        "startLine": 620,
+        "startChar": 17,
+        "endLine": 620,
+        "endChar": 18
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "896e6201_c111f275",
@@ -54,6 +96,30 @@
       "writtenOn": "2020-10-21T15:40:28Z",
       "side": 1,
       "message": "Was this change meant to be a part of the SwitchStatement CL? Seems like a separate thing.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 0
+      },
+      "revId": "518cb6ae88947cd8a8585461ecc9d6869e46770e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75fd25b_717f02be",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-22T19:56:27Z",
+      "side": 1,
+      "message": "Well, it was necessary to get the error reporting right with the other changes I was making, but you\u0027re right that I can land it separately.",
+      "parentUuid": "896e6201_c111f275",
       "range": {
         "startLine": 110,
         "startChar": 0,
