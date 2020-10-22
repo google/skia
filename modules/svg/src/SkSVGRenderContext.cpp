@@ -317,7 +317,7 @@ SkSVGPresentationContext::SkSVGPresentationContext()
     // Commit initial values to the paint cache.
     SkCanvas fakeCanvas(0, 0);
     SkSVGRenderContext fake(&fakeCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
-                             *this);
+                             *this, nullptr);
 
     commitToPaint<SkSVGAttribute::kFill>(fInherited, fake, this);
     commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, fake, this);
@@ -332,24 +332,35 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
                                        const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
-                                       const SkSVGPresentationContext& pctx)
+                                       const SkSVGPresentationContext& pctx,
+                                       const SkSVGNode* node)
     : fIDMapper(mapper)
     , fLengthContext(lctx)
     , fPresentationContext(pctx)
     , fCanvas(canvas)
-    , fCanvasSaveCount(canvas->getSaveCount()) {}
+    , fCanvasSaveCount(canvas->getSaveCount())
+    , fNode(node) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
     : SkSVGRenderContext(other.fCanvas,
                          other.fIDMapper,
                          *other.fLengthContext,
-                         *other.fPresentationContext) {}
+                         *other.fPresentationContext,
+                         other.fNode) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
     : SkSVGRenderContext(canvas,
                          other.fIDMapper,
                          *other.fLengthContext,
-                         *other.fPresentationContext) {}
+                         *other.fPresentationContext,
+                         other.fNode) {}
+
+SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const SkSVGNode* node)
+    : SkSVGRenderContext(other.fCanvas,
+                         other.fIDMapper,
+                         *other.fLengthContext,
+                         *other.fPresentationContext,
+                         node) {}
 
 SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);

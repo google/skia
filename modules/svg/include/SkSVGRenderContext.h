@@ -59,9 +59,10 @@ struct SkSVGPresentationContext {
 class SkSVGRenderContext {
 public:
     SkSVGRenderContext(SkCanvas*, const SkSVGIDMapper&, const SkSVGLengthContext&,
-                       const SkSVGPresentationContext&);
+                       const SkSVGPresentationContext&, const SkSVGNode*);
     SkSVGRenderContext(const SkSVGRenderContext&);
     SkSVGRenderContext(const SkSVGRenderContext&, SkCanvas*);
+    SkSVGRenderContext(const SkSVGRenderContext&, const SkSVGNode*);
     ~SkSVGRenderContext();
 
     const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
@@ -119,6 +120,9 @@ public:
     // The local computed clip path (not inherited).
     const SkPath* clipPath() const { return fClipPath.getMaybeNull(); }
 
+    // The node being rendered (may be null).
+    const SkSVGNode* node() const { return fNode; }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
@@ -139,6 +143,8 @@ private:
 
     // clipPath, if present for the current context (not inherited).
     SkTLazy<SkPath>                               fClipPath;
+
+    const SkSVGNode* fNode;
 };
 
 #endif // SkSVGRenderContext_DEFINED

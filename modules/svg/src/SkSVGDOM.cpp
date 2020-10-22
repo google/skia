@@ -593,7 +593,7 @@ void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;
-        fRoot->render(SkSVGRenderContext(canvas, fIDMapper, lctx, pctx));
+        fRoot->render(SkSVGRenderContext(canvas, fIDMapper, lctx, pctx, nullptr));
     }
 }
 
