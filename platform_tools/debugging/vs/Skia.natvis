@@ -119,6 +119,25 @@
     </Expand>
   </Type>
 
+  <!-- SkTHashMap -->
+  <Type Name="SkTHashMap&lt;*,*,*&gt;">
+    <DisplayString>{{size = {fTable.fCount}}}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="iSlot" InitialValue="0"/>
+        <Size>fTable.fCount</Size>
+        <Loop>
+          <If Condition="fTable.fSlots.fArray._Mypair._Myval2[iSlot].hash != 0">
+            <Item Name="{fTable.fSlots.fArray._Mypair._Myval2[iSlot].val.key}">
+              fTable.fSlots.fArray._Mypair._Myval2[iSlot].val.val
+            </Item>
+          </If>
+          <Exec>iSlot++</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
   <!-- SkImageInfo -->
   <Type Name="SkImageInfo">
     <DisplayString>[{fDimensions.fWidth} x {fDimensions.fHeight}] {fColorInfo.fColorType,en} {fColorInfo.fAlphaType,en} {fColorInfo.fColorSpace,na}</DisplayString>
