@@ -33,6 +33,8 @@ protected:
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 
+    SkRect onComputeBounds(const SkSVGLengthContext& lctx) const override;
+
 private:
     SkSVGRect();
 
