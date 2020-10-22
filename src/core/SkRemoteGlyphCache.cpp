@@ -323,6 +323,8 @@ private:
         static uint32_t Hash(SkGlyphID packedID) {
             return SkChecksum::CheapMix(packedID);
         }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;

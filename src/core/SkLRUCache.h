@@ -95,6 +95,8 @@ private:
         static uint32_t Hash(const K& k) {
             return HashK()(k);
         }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     void remove(const K& key) {

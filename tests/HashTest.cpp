@@ -215,6 +215,7 @@ DEF_TEST(HashFindOrNull, r) {
     struct HashTraits {
         static int GetKey(const Entry* e) { return e->key; }
         static uint32_t Hash(int key) { return key; }
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     SkTHashTable<Entry*, int, HashTraits> table;

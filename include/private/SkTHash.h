@@ -20,6 +20,8 @@
 // Traits must have:
 //   - static K GetKey(T)
 //   - static uint32_t Hash(K)
+//   - static constexpr int kLinearSearchThreshold (when the count is smaller than this, `find`
+//                                                  performs a linear search instead of hashing)
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
 template <typename T, typename K, typename Traits = T>
@@ -84,20 +86,30 @@ public:
 
     // If there is an entry in the table with this key, return a pointer to it.  If not, null.
     T* find(const K& key) const {
-        uint32_t hash = Hash(key);
-        int index = hash & (fCapacity-1);
-        for (int n = 0; n < fCapacity; n++) {
-            Slot& s = fSlots[index];
-            if (s.empty()) {
+        if (Traits::kLinearSearchThreshold > 0 && fCount <= Traits::kLinearSearchThreshold) {
+            for (int n = 0; n < fCapacity; n++) {
+                Slot& s = fSlots[n];
+                if (!s.empty() && key == Traits::GetKey(s.val)) {
+                    return &s.val;
+                }
                 return nullptr;
             }
-            if (hash == s.hash && key == Traits::GetKey(s.val)) {
-                return &s.val;
+        } else {
+            uint32_t hash = Hash(key);
+            int index = hash & (fCapacity-1);
+            for (int n = 0; n < fCapacity; n++) {
+                Slot& s = fSlots[index];
+                if (s.empty()) {
+                    return nullptr;
+                }
+                if (hash == s.hash && key == Traits::GetKey(s.val)) {
+                    return &s.val;
+                }
+                index = this->next(index);
             }
-            index = this->next(index);
+            SkASSERT(fCapacity == 0);
+            return nullptr;
         }
-        SkASSERT(fCapacity == 0);
-        return nullptr;
     }
 
     // If there is an entry in the table with this key, return it.  If not, null.
@@ -254,7 +266,7 @@ private:
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
-template <typename K, typename V, typename HashK = SkGoodHash>
+template <typename K, typename V, typename HashK = SkGoodHash, int LinearSearchThreshold = 0>
 class SkTHashMap {
 public:
     // Clear the map.
@@ -315,13 +327,14 @@ private:
         V val;
         static const K& GetKey(const Pair& p) { return p.key; }
         static auto Hash(const K& key) { return HashK()(key); }
+        static constexpr int kLinearSearchThreshold = LinearSearchThreshold;
     };
 
     SkTHashTable<Pair, K> fTable;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
-template <typename T, typename HashT = SkGoodHash>
+template <typename T, typename HashT = SkGoodHash, int LinearSearchThreshold = 0>
 class SkTHashSet {
 public:
     // Clear the set.
@@ -362,6 +375,7 @@ private:
     struct Traits {
         static const T& GetKey(const T& item) { return item; }
         static auto Hash(const T& item) { return HashT()(item); }
+        static constexpr int kLinearSearchThreshold = LinearSearchThreshold;
     };
     SkTHashTable<T, T, Traits> fTable;
 };
