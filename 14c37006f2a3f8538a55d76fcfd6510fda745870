@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "671722d7_ada92af8",
+        "filename": "tools/run-wasm-gm-tests/run-wasm-gm-tests.html",
+        "patchSetId": 8
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-22T16:42:45Z",
+      "side": 1,
+      "message": "How does this get the names?",
+      "range": {
+        "startLine": 112,
+        "startChar": 21,
+        "endLine": 112,
+        "endChar": 28
+      },
+      "revId": "14c37006f2a3f8538a55d76fcfd6510fda745870",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
