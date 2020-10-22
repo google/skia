@@ -558,6 +558,8 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
     sources = [
       "src/core/SkMalloc.cpp",
       "src/core/SkMath.cpp",
+      "src/core/SkSemaphore.cpp",
+      "src/core/SkThreadID.cpp",
       "src/ports/SkMemory_malloc.cpp",
       "src/sksl/SkSLMain.cpp",
     ]

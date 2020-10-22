@@ -6,11 +6,12 @@
  */
 
 #include "src/sksl/SkSLCPPUniformCTypes.h"
+
+#include "include/private/SkMutex.h"
 #include "src/sksl/SkSLHCodeGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
 
 #include <map>
-#include <mutex>
 #include <vector>
 
 #if defined(SKSL_STANDALONE) || GR_TEST_UTILS
@@ -145,8 +146,8 @@ UniformCTypeMapper::UniformCTypeMapper(
     , fSaveStateTemplate(saveStateFormat) {}
 
 const UniformCTypeMapper* UniformCTypeMapper::arrayMapper(int count) const {
-    static std::mutex mutex;
-    std::lock_guard<std::mutex> guard(mutex);
+    static SkMutex& mutex = *(new SkMutex);
+    SkAutoMutexExclusive guard(mutex);
     using Key = std::pair<const UniformCTypeMapper*, int>;
     static std::map<Key, UniformCTypeMapper> registered;
     Key key(this, count);
