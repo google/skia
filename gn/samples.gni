@@ -91,6 +91,7 @@ samples_sources = [
   "$_samplecode/SampleThinAA.cpp",
   "$_samplecode/SampleTiming.cpp",
   "$_samplecode/SampleUnpremul.cpp",
+  "$_samplecode/SampleVariableWidthStroker.cpp",
   "$_samplecode/SampleVertices.cpp",
   "$_samplecode/SampleWritePixels.cpp",
   "$_samplecode/SampleXfer.cpp",
