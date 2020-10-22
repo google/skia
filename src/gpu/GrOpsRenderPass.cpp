@@ -239,10 +239,23 @@ void GrOpsRenderPass::draw(int vertexCount, int baseVertex) {
     this->onDraw(vertexCount, baseVertex);
 }
 
+#include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrCpuBuffer.h"
+
 void GrOpsRenderPass::drawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                   uint16_t maxIndexValue, int baseVertex) {
     if (!this->prepareToDraw()) {
         return;
+    }
+    if (this->gpu()->getContext()->backend() == GrBackendApi::kOpenGL) {
+        SkASSERT(fActiveIndexBuffer);
+        if (fActiveIndexBuffer->isCpuBuffer()) {
+            auto indices = reinterpret_cast<const uint16_t*>(
+                    static_cast<const GrCpuBuffer*>(fActiveIndexBuffer.get())->data());
+            for (int i = baseIndex; i < baseIndex + indexCount; ++i) {
+                SkASSERT(indices[i] >= minIndexValue && indices[i] <= maxIndexValue);
+            }
+        }
     }
     SkASSERT(fHasIndexBuffer);
     SkASSERT(DynamicStateStatus::kConfigured != fInstanceBufferStatus);

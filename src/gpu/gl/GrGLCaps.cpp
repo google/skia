@@ -433,6 +433,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fPreferClientSideDynamicBuffers = true;
         }
     } // No client side arrays in WebGL https://www.khronos.org/registry/webgl/specs/1.0/#6.2
+    fPreferClientSideDynamicBuffers = true;
 
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
