@@ -16,6 +16,23 @@
       "message": "I think there are still some issues with unit conversion, e.g. the radius for radial gradients doesn\u0027t appear to be clamping properly when the units are relative to the bounding box (evident in the top section of pservers-grad-02-b), but this gets us headed in hopefully the right direction.",
       "revId": "6ccbfddbd2f23ec70f56660c40d032c7b08027af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a830227d_78b645bd",
+        "filename": "modules/svg/src/SkSVGLinearGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-22T19:07:24Z",
+      "side": 1,
+      "message": "I wonder if we can avoid all the LenghtContext complications/changes if we resolve against a [0..1] length context and then post-scale to OBB?\n\nIIRC in blink we do something along these lines:\n\n  auto lctx \u003d fGradientUnits.type() \u003d\u003d SkSVGGradientUnits::Type::kObjectBoundingBox\n      ? SkSVGLength({1,1}) : ctx.lengthContext();\n\n  auto x1 \u003d lctx.resolve(fX1);\n  ...\n\n  if (fGradientUnits.type() \u003d\u003d SkSVGGradientUnits::Type::kObjectBoundingBox) {\n      // remap from unit space to object bounding box\n      x1 \u003d OBB.x() + OBB.width() * x1;\n      ...\n  }\n\nThen we don\u0027t need the length context to know about an offset/origin. WDYT?",
+      "revId": "6ccbfddbd2f23ec70f56660c40d032c7b08027af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
