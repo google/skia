@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34e0ae88_24216da6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-22T18:37:33Z",
+      "side": 1,
+      "message": "This was better back where it was (down by the do block). Variables should be declared close to their use.",
+      "range": {
+        "startLine": 1407,
+        "startChar": 4,
+        "endLine": 1407,
+        "endChar": 44
+      },
+      "revId": "6be649be0ad2fdd283f2134677d72ee415c38dcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
