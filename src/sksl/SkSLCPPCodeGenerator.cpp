@@ -380,7 +380,7 @@ void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
 }
 
 void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    if (s.fIsStatic) {
+    if (s.isStatic()) {
         this->write("@");
     }
     INHERITED::writeSwitchStatement(s);

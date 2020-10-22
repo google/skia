@@ -1205,9 +1205,9 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // We have to be careful to not move any of the pointers until after we're sure we're going to
     // succeed, so before we make any changes at all, we check the switch-cases to decide on a plan
     // of action. First, find the switch-case we are interested in.
-    auto iter = switchStatement->fCases.begin();
-    for (; iter != switchStatement->fCases.end(); ++iter) {
-        if (iter->get() == caseToCapture) {
+    auto iter = switchStatement->cases().begin();
+    for (; iter != switchStatement->cases().end(); ++iter) {
+        if (&*iter == caseToCapture) {
             break;
         }
     }
@@ -1217,8 +1217,8 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // statements that we can use for simplification.
     auto startIter = iter;
     Statement* unconditionalBreakStmt = nullptr;
-    for (; iter != switchStatement->fCases.end(); ++iter) {
-        for (std::unique_ptr<Statement>& stmt : (*iter)->fStatements) {
+    for (; iter != switchStatement->cases().end(); ++iter) {
+        for (std::unique_ptr<Statement>& stmt : iter->statements()) {
             if (contains_conditional_break(*stmt)) {
                 // We can't reduce switch-cases to a block when they have conditional breaks.
                 return nullptr;
@@ -1243,7 +1243,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
 
     // We can move over most of the statements as-is.
     while (startIter != iter) {
-        for (std::unique_ptr<Statement>& stmt : (*startIter)->fStatements) {
+        for (std::unique_ptr<Statement>& stmt : startIter->statements()) {
             caseStmts.push_back(std::move(stmt));
         }
         ++startIter;
@@ -1252,7 +1252,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // If we found an unconditional break at the end, we need to move what we can while avoiding
     // that break.
     if (unconditionalBreakStmt != nullptr) {
-        for (std::unique_ptr<Statement>& stmt : (*startIter)->fStatements) {
+        for (std::unique_ptr<Statement>& stmt : startIter->statements()) {
             if (stmt.get() == unconditionalBreakStmt) {
                 move_all_but_break(stmt, &caseStmts);
                 unconditionalBreakStmt = nullptr;
@@ -1266,7 +1266,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     SkASSERT(unconditionalBreakStmt == nullptr);  // Verify that we fixed the unconditional break.
 
     // Return our newly-synthesized block.
-    return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->fSymbols);
+    return std::make_unique<Block>(/*offset=*/-1, std::move(caseStmts), switchStatement->symbols());
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
@@ -1334,28 +1334,30 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         case Statement::Kind::kSwitch: {
             SwitchStatement& s = stmt->as<SwitchStatement>();
             int64_t switchValue;
-            if (fIRGenerator->getConstantInt(*s.fValue, &switchValue)) {
+            if (fIRGenerator->getConstantInt(*s.value(), &switchValue)) {
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
-                for (const std::unique_ptr<SwitchCase>& c : s.fCases) {
-                    if (!c->fValue) {
-                        defaultCase = c.get();
+                for (SwitchCase& c : s.cases()) {
+                    if (!c.value()) {
+                        defaultCase = &c;
                         continue;
                     }
                     int64_t caseValue;
-                    SkAssertResult(fIRGenerator->getConstantInt(*c->fValue, &caseValue));
+                    SkAssertResult(fIRGenerator->getConstantInt(*c.value(), &caseValue));
                     if (caseValue == switchValue) {
-                        std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
+                        std::unique_ptr<Statement> newBlock = block_for_case(&s, &c);
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
                             found = true;
                             break;
                         } else {
-                            if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
+                            if (s.isStatic() && !(fFlags & kPermitInvalidStaticTests_Flag) &&
+                                optimizationContext->fSilences.find(&s) ==
+                                optimizationContext->fSilences.end()) {
                                 this->error(s.fOffset,
                                             "static switch contains non-static conditional break");
-                                s.fIsStatic = false;
+                                optimizationContext->fSilences.insert(&s);
                             }
                             return; // can't simplify
                         }
@@ -1368,10 +1370,12 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
                         } else {
-                            if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
+                            if (s.isStatic() && !(fFlags & kPermitInvalidStaticTests_Flag) &&
+                                optimizationContext->fSilences.find(&s) ==
+                                optimizationContext->fSilences.end()) {
                                 this->error(s.fOffset,
                                             "static switch contains non-static conditional break");
-                                s.fIsStatic = false;
+                                optimizationContext->fSilences.insert(&s);
                             }
                             return; // can't simplify
                         }
@@ -1498,8 +1502,10 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                         ++iter;
                         break;
                     case Statement::Kind::kSwitch:
-                        if (s.as<SwitchStatement>().fIsStatic &&
-                            !(fFlags & kPermitInvalidStaticTests_Flag)) {
+                        if (s.as<SwitchStatement>().isStatic() &&
+                            !(fFlags & kPermitInvalidStaticTests_Flag) &&
+                            optimizationContext.fSilences.find(&s) ==
+                            optimizationContext.fSilences.end()) {
                             this->error(s.fOffset, "static switch has non-static test");
                         }
                         ++iter;

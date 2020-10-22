@@ -164,7 +164,7 @@ void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& s) {
 }
 
 void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
-    if (s.fIsStatic) {
+    if (s.isStatic()) {
         this->write("@");
     }
     INHERITED::writeSwitchStatement(s);

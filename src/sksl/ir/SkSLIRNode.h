@@ -206,6 +206,11 @@ protected:
         const Type* fType;
     };
 
+    struct SwitchStatementData {
+        bool fIsStatic;
+        std::shared_ptr<SymbolTable> fSymbols;
+    };
+
     struct SwizzleData {
         const Type* fType;
         std::vector<int> fComponents;
@@ -284,6 +289,7 @@ protected:
             kSection,
             kSetting,
             kString,
+            kSwitchStatement,
             kSwizzle,
             kSymbol,
             kSymbolAlias,
@@ -318,6 +324,7 @@ protected:
             SectionData fSection;
             SettingData fSetting;
             String fString;
+            SwitchStatementData fSwitchStatement;
             SwizzleData fSwizzle;
             SymbolData fSymbol;
             SymbolAliasData fSymbolAlias;
@@ -432,6 +439,11 @@ protected:
         NodeData(const String& data)
             : fKind(Kind::kString) {
             *(new(&fContents) String) = data;
+        }
+
+        NodeData(const SwitchStatementData& data)
+            : fKind(Kind::kSwitchStatement) {
+            *(new(&fContents) SwitchStatementData) = data;
         }
 
         NodeData(const SwizzleData& data)
@@ -554,6 +566,9 @@ protected:
                 case Kind::kString:
                     *(new(&fContents) String) = other.fContents.fString;
                     break;
+                case Kind::kSwitchStatement:
+                    *(new(&fContents) SwitchStatementData) = other.fContents.fSwitchStatement;
+                    break;
                 case Kind::kSwizzle:
                     *(new(&fContents) SwizzleData) = other.fContents.fSwizzle;
                     break;
@@ -655,6 +670,9 @@ protected:
                 case Kind::kString:
                     fContents.fString.~String();
                     break;
+                case Kind::kSwitchStatement:
+                    fContents.fSwitchStatement.~SwitchStatementData();
+                    break;
                 case Kind::kSwizzle:
                     fContents.fSwizzle.~SwizzleData();
                     break;
@@ -727,6 +745,8 @@ protected:
     IRNode(int offset, int kind, const SettingData& data);
 
     IRNode(int offset, int kind, const String& data);
+
+    IRNode(int offset, int kind, const SwitchStatementData& data);
 
     IRNode(int offset, int kind, const SwizzleData& data);
 
@@ -905,6 +925,16 @@ protected:
     const String& stringData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kString);
         return fData.fContents.fString;
+    }
+
+    SwitchStatementData& switchStatementData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kSwitchStatement);
+        return fData.fContents.fSwitchStatement;
+    }
+
+    const SwitchStatementData& switchStatementData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSwitchStatement);
+        return fData.fContents.fSwitchStatement;
     }
 
     SwizzleData& swizzleData() {
