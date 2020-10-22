@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "805abf49_1ab5ff4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-22T15:27:46Z",
+      "side": 1,
+      "message": "Ack. (Missed the private constructor... sigh. C++ implementing what should be language features in the library makes Brian sad).",
+      "revId": "b0ed0ef89cf7017b5d11af12d91f6322eee35a8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cea8bab_35c2bf9f",
