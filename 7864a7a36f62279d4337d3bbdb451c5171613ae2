@@ -16,6 +16,29 @@
       "message": "Hey Chris, could you please take a quick look at this for sanity? Mostly the build changes/etc, I\u0027m certainly not expecting a review of 1200 LoC although feel free to make any comments. If/when we go to use this logic more seriously I expect we\u0027d reimplement it more carefully than this toy anyway.",
       "revId": "7864a7a36f62279d4337d3bbdb451c5171613ae2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fed1559_8f57cae1",
+        "filename": "samplecode/SampleVariableWidthStroker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-22T22:31:55Z",
+      "side": 1,
+      "message": "I really love the idea of making the additional weights a bezier curve themselves. What would you think about making these weights always the same degree as the curve? Then it\u0027s really simple to have a parallel array of weights, and to interpolate them alongside the x/y values when we chop and evaluate the curve.",
+      "range": {
+        "startLine": 51,
+        "startChar": 6,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "7864a7a36f62279d4337d3bbdb451c5171613ae2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
