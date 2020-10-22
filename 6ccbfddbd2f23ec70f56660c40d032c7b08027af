@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bef2540_60eaf7ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-22T18:37:18Z",
+      "side": 1,
+      "message": "I think there are still some issues with unit conversion, e.g. the radius for radial gradients doesn\u0027t appear to be clamping properly when the units are relative to the bounding box (evident in the top section of pservers-grad-02-b), but this gets us headed in hopefully the right direction.",
+      "revId": "6ccbfddbd2f23ec70f56660c40d032c7b08027af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
