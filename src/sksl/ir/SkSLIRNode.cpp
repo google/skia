@@ -137,6 +137,11 @@ IRNode::IRNode(int offset, int kind, const Type* data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const TypeData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const TypeReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -168,5 +173,9 @@ IRNode::IRNode(int offset, int kind, const VariableReferenceData& data)
 , fData(data) {}
 
 IRNode::~IRNode() {}
+
+String TypeField::description() const {
+    return fType->displayName() + " " + fName + ";";
+}
 
 } // namespace SkSL

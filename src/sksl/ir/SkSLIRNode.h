@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/spirv.h"
 
 #include <algorithm>
 #include <atomic>
@@ -33,11 +34,41 @@ class Type;
 class Variable;
 class VariableReference;
 enum class FieldAccessOwnerKind : int8_t;
+enum class TypeNumberKind : int8_t;
 enum class VariableRefKind : int8_t;
 enum class VariableStorage : int8_t;
 
 using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
 using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
+
+enum class TypeKind : int8_t {
+    kArray,
+    kEnum,
+    kGeneric,
+    kNullable,
+    kMatrix,
+    kOther,
+    kOtherStruct,
+    kSampler,
+    kSeparateSampler,
+    kScalar,
+    kStruct,
+    kTexture,
+    kVector
+};
+
+struct TypeField {
+    TypeField(Modifiers modifiers, StringFragment name, const Type* type)
+    : fModifiers(modifiers)
+    , fName(name)
+    , fType(std::move(type)) {}
+
+    String description() const;
+
+    Modifiers fModifiers;
+    StringFragment fName;
+    const Type* fType;
+};
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -226,6 +257,191 @@ protected:
         const Symbol* fOrigSymbol;
     };
 
+    struct TypeData {
+        struct DimensionsData {
+            const Type* fComponentType;
+            int fColumns;
+            int fRows;
+        };
+
+        struct NumberData {
+            TypeNumberKind fNumberKind;
+            int fPriority;
+            bool fHighPrecision;
+            std::vector<const Type*> fCoercibleTypes;
+        };
+
+        struct TextureData {
+            const Type* fTextureType;
+            SpvDim_ fDimensions;
+            bool fIsDepth;
+            bool fIsArrayed;
+            bool fIsMultisampled;
+            bool fIsSampled;
+        };
+
+        TypeData()
+            : fTypeKind(TypeKind::kOther)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kEmpty)) {}
+
+        TypeData(StringFragment name, String nameString, TypeKind kind)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kEmpty)) {}
+
+        TypeData(StringFragment name, String nameString, TypeKind kind,
+                 std::vector<const Type*> coercibleTypes)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kCoercibleTypes)) {
+            *(new(&fExtra) std::vector<const Type*>) = std::move(coercibleTypes);
+        }
+
+        TypeData(StringFragment name, String nameString, TypeKind kind, DimensionsData data)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kDimensionsData)) {
+            *(new(&fExtra) DimensionsData) = std::move(data);
+        }
+
+        TypeData(StringFragment name, String nameString, TypeKind kind,
+                 std::vector<TypeField> fields)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kFields)) {
+            *(new(&fExtra) std::vector<TypeField>) = std::move(fields);
+        }
+
+        TypeData(StringFragment name, String nameString, TypeKind kind, NumberData data)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kNumberData)) {
+            *(new(&fExtra) NumberData) = std::move(data);
+        }
+
+        TypeData(StringFragment name, String nameString, TypeKind kind, TextureData data)
+            : fName(name)
+            , fNameString(std::move(nameString))
+            , fTypeKind(kind)
+            SkDEBUGCODE(, fExtraKind(ExtraKind::kTextureData)) {
+            *(new(&fExtra) TextureData) = std::move(data);
+        }
+
+        TypeData(const TypeData& other) {
+            *this = other;
+        }
+
+        ~TypeData() {
+            this->cleanup();
+        }
+
+        TypeData& operator=(const TypeData& other) {
+            this->cleanup();
+            fName = other.fName;
+            fNameString = other.fNameString;
+            fTypeKind = other.fTypeKind;
+            SkDEBUGCODE(fExtraKind = other.fExtraKind);
+            switch (fTypeKind) {
+                case TypeKind::kArray:
+                case TypeKind::kMatrix:
+                case TypeKind::kNullable:
+                case TypeKind::kVector:
+                    SkASSERT(other.fExtraKind == ExtraKind::kDimensionsData);
+                    *(new(&fExtra) DimensionsData) = other.fExtra.fDimensionsData;
+                    break;
+                case TypeKind::kGeneric:
+                    SkASSERT(other.fExtraKind == ExtraKind::kCoercibleTypes);
+                    *(new(&fExtra) std::vector<const Type*>) = other.fExtra.fCoercibleTypes;
+                    break;
+                case TypeKind::kEnum:
+                case TypeKind::kOther:
+                case TypeKind::kSeparateSampler:
+                    SkASSERT(other.fExtraKind == ExtraKind::kEmpty);
+                    break;
+                case TypeKind::kSampler:
+                case TypeKind::kTexture:
+                    SkASSERT(other.fExtraKind == ExtraKind::kTextureData);
+                    *(new(&fExtra) TextureData) = other.fExtra.fTextureData;
+                    break;
+                case TypeKind::kScalar:
+                    SkASSERT(other.fExtraKind == ExtraKind::kNumberData);
+                    *(new(&fExtra) NumberData) = other.fExtra.fNumberData;
+                    break;
+                case TypeKind::kOtherStruct:
+                case TypeKind::kStruct:
+                    SkASSERT(other.fExtraKind == ExtraKind::kFields);
+                    *(new(&fExtra) std::vector<TypeField>) = other.fExtra.fFields;
+                    break;
+            }
+            return *this;
+        }
+
+        void cleanup() {
+            switch (fTypeKind) {
+                case TypeKind::kArray:
+                case TypeKind::kMatrix:
+                case TypeKind::kNullable:
+                case TypeKind::kVector:
+                    SkASSERT(fExtraKind == ExtraKind::kDimensionsData);
+                    fExtra.fDimensionsData.~DimensionsData();
+                    break;
+                case TypeKind::kGeneric:
+                    SkASSERT(fExtraKind == ExtraKind::kCoercibleTypes);
+                    fExtra.fCoercibleTypes.~vector();
+                    break;
+                case TypeKind::kEnum:
+                case TypeKind::kOther:
+                case TypeKind::kSeparateSampler:
+                    SkASSERT(fExtraKind == ExtraKind::kEmpty);
+                    break;
+                case TypeKind::kSampler:
+                case TypeKind::kTexture:
+                    SkASSERT(fExtraKind == ExtraKind::kTextureData);
+                    fExtra.fTextureData.~TextureData();
+                    break;
+                case TypeKind::kScalar:
+                    SkASSERT(fExtraKind == ExtraKind::kNumberData);
+                    fExtra.fNumberData.~NumberData();
+                    break;
+                case TypeKind::kOtherStruct:
+                case TypeKind::kStruct:
+                    SkASSERT(fExtraKind == ExtraKind::kFields);
+                    fExtra.fFields.~vector();
+                    break;
+            }
+        }
+
+        StringFragment fName;
+        String fNameString;
+        union Extra {
+            NumberData fNumberData;
+            std::vector<const Type*> fCoercibleTypes;
+            TextureData fTextureData;
+            DimensionsData fDimensionsData;
+            std::vector<TypeField> fFields;
+
+            Extra() {}
+
+            ~Extra() {}
+        } fExtra;
+        TypeKind fTypeKind;
+        SkDEBUGCODE(
+            enum class ExtraKind {
+                kCoercibleTypes,
+                kDimensionsData,
+                kEmpty,
+                kFields,
+                kNumberData,
+                kTextureData,
+            } fExtraKind = ExtraKind::kEmpty;
+        )
+    };
+
     struct TypeReferenceData {
         const Type* fType;
         const Type* fValue;
@@ -294,13 +510,14 @@ protected:
             kSymbol,
             kSymbolAlias,
             kType,
+            kTypePointer,
             kTypeReference,
             kTypeToken,
             kUnresolvedFunction,
             kVarDeclaration,
             kVariable,
             kVariableReference,
-        } fKind = Kind::kType;
+        } fKind = Kind::kTypePointer;
         // it doesn't really matter what kind we default to, as long as it's a POD type
 
         union Contents {
@@ -328,7 +545,8 @@ protected:
             SwizzleData fSwizzle;
             SymbolData fSymbol;
             SymbolAliasData fSymbolAlias;
-            const Type* fType;
+            TypeData fType;
+            const Type* fTypePointer;
             TypeReferenceData fTypeReference;
             TypeTokenData fTypeToken;
             UnresolvedFunctionData fUnresolvedFunction;
@@ -461,8 +679,13 @@ protected:
             *(new(&fContents) SymbolAliasData) = data;
         }
 
-        NodeData(const Type* data)
+        NodeData(const TypeData& data)
             : fKind(Kind::kType) {
+            *(new(&fContents) TypeData) = data;
+        }
+
+        NodeData(const Type* data)
+            : fKind(Kind::kTypePointer) {
             *(new(&fContents) const Type*) = data;
         }
 
@@ -579,7 +802,10 @@ protected:
                     *(new(&fContents) SymbolAliasData) = other.fContents.fSymbolAlias;
                     break;
                 case Kind::kType:
-                    *(new(&fContents) const Type*) = other.fContents.fType;
+                    *(new(&fContents) TypeData) = other.fContents.fType;
+                    break;
+                case Kind::kTypePointer:
+                    *(new(&fContents) const Type*) = other.fContents.fTypePointer;
                     break;
                 case Kind::kTypeReference:
                     *(new(&fContents) TypeReferenceData) = other.fContents.fTypeReference;
@@ -683,6 +909,9 @@ protected:
                     fContents.fSymbolAlias.~SymbolAliasData();
                     break;
                 case Kind::kType:
+                    fContents.fType.~TypeData();
+                    break;
+                case Kind::kTypePointer:
                     break;
                 case Kind::kTypeReference:
                     fContents.fTypeReference.~TypeReferenceData();
@@ -753,6 +982,8 @@ protected:
     IRNode(int offset, int kind, const SymbolData& data);
 
     IRNode(int offset, int kind, const SymbolAliasData& data);
+
+    IRNode(int offset, int kind, const TypeData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -962,9 +1193,19 @@ protected:
         return fData.fContents.fSymbolAlias;
     }
 
-    const Type* typeData() const {
+    TypeData& typeData() {
         SkASSERT(fData.fKind == NodeData::Kind::kType);
         return fData.fContents.fType;
+    }
+
+    const TypeData& typeData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kType);
+        return fData.fContents.fType;
+    }
+
+    const Type* typePointerData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kTypePointer);
+        return fData.fContents.fTypePointer;
     }
 
     const TypeReferenceData& typeReferenceData() const {
