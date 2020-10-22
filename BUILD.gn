@@ -1941,6 +1941,7 @@ if (skia_enable_tools) {
       "modules/skparagraph:samples",
       "modules/skshaper",
       "modules/svg",
+      "//third_party/imgui",
     ]
   }
   test_lib("hash_and_encode") {
