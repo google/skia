@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33266e20_dd08688e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-22T18:51:39Z",
+      "side": 1,
+      "message": "PS 15 should fix the problematic layout test errors that I saw. Chrome now uses the kInitFromPrevious_SaveLayerFlag in conjunction with preserving LCD text when there\u0027s alpha on layers with text. In this case, in the layout tests, the reconstructed transforms would get slightly off and think it needed to apply some linear filtering. It only appeared to happen when run as a layout test, running content_shell or chrome directly did not have the same reconstruction issue. Regardless, this change is for the best.",
+      "revId": "2c253622d661387075054a17e31f20e835d382c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
