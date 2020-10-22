@@ -20,6 +20,7 @@ SkSVGNode::~SkSVGNode() { }
 
 void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
     SkSVGRenderContext localContext(ctx);
+    localContext.setNode(this);
 
     if (this->onPrepareToRender(&localContext)) {
         this->onRender(localContext);
@@ -46,6 +47,10 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
     }
 
     return path;
+}
+
+SkRect SkSVGNode::computeBounds(const SkSVGLengthContext& lctx) const {
+    return this->onComputeBounds(lctx);
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {

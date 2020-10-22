@@ -15,6 +15,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPaint;
 class SkPath;
+class SkSVGLengthContext;
 class SkSVGRenderContext;
 class SkSVGValue;
 
@@ -72,6 +73,7 @@ public:
     void render(const SkSVGRenderContext&) const;
     bool asPaint(const SkSVGRenderContext&, SkPaint*) const;
     SkPath asPath(const SkSVGRenderContext&) const;
+    SkRect computeBounds(const SkSVGLengthContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
     bool setAttribute(const char* attributeName, const char* attributeValue);
@@ -118,6 +120,8 @@ protected:
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
 
     virtual bool hasChildren() const { return false; }
+
+    virtual SkRect onComputeBounds(const SkSVGLengthContext&) const { return SkRect::MakeEmpty(); }
 
 private:
     SkSVGTag                    fTag;
