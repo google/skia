@@ -127,14 +127,17 @@ Pool::~Pool() {
     free(fData);
 }
 
-std::unique_ptr<Pool> Pool::CreatePoolOnThread(int nodesInPool) {
+std::unique_ptr<Pool> Pool::Create() {
+    constexpr int kNodesInPool = 2000;
+
     auto pool = std::unique_ptr<Pool>(new Pool);
-    pool->fData = create_pool_data(nodesInPool);
+    pool->fData = create_pool_data(kNodesInPool);
     pool->fData->fFreeListHead = &pool->fData->fNodes[0];
     VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fData);
-    pool->attachToThread();
     return pool;
 }
+
+void Pool::Recycle(std::unique_ptr<Pool> pool) {}
 
 void Pool::detachFromThread() {
     VLOG("DETACH Pool:0x%016llX\n", (uint64_t)get_thread_local_pool_data());

@@ -19,20 +19,25 @@ class Pool {
 public:
     ~Pool();
 
-    // Creates a pool to store newly-created IRNodes during program creation and attaches it to the
-    // current thread. When your program is complete, call pool->detachFromThread() to transfer
-    // ownership of those nodes. Before destroying any of the program's nodes, reattach the pool via
-    // pool->attachToThread(). It is an error to call CreatePoolOnThread if a pool is already
-    // attached to the current thread.
-    static std::unique_ptr<Pool> CreatePoolOnThread(int nodesInPool);
+    // Creates a pool to store IRNodes during program creation. Call attachToThread() to start using
+    // the pool for IRNode allocations. When your program is complete, call pool->detachFromThread()
+    // to take ownership of the pool and its nodes. Before destroying any of the program's nodes,
+    // make sure to reattach the pool by calling pool->attachToThread() again.
+    static std::unique_ptr<Pool> Create();
 
-    // Once a pool has been created and the ephemeral work has completed, detach it from its thread.
+    // Gives up ownership of a pool; conceptually, this deletes it. In practice, on some platforms,
+    // it is expensive to free and reallocate pools, so this gives us an opportunity to reuse the
+    // allocation for future CreatePoolOnThread calls. (Then again, on other platforms, minimizing
+    // memory pressure is important and allocations are cheap; we may opt to immediately delete it.)
+    static void Recycle(std::unique_ptr<Pool> pool);
+
+    // Attaches a pool to the current thread.
+    // It is an error to call this while a pool is already attached.
+    void attachToThread();
+
+    // Once you are done creating or destroying IRNodes in the pool, detach it from the thread.
     // It is an error to call this while no pool is attached.
     void detachFromThread();
-
-    // Reattaches a pool to the current thread. It is an error to call this while a pool is already
-    // attached.
-    void attachToThread();
 
     // Retrieves a node from the thread pool. If the pool is exhausted, this will allocate a node.
     static void* AllocIRNode();

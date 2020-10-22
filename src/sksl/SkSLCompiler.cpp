@@ -1554,7 +1554,8 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
-    std::unique_ptr<Pool> pool = Pool::CreatePoolOnThread(2000);
+    std::unique_ptr<Pool> pool = Pool::Create();
+    pool->attachToThread();
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalValues);
