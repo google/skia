@@ -705,9 +705,8 @@ static bool is_constant(const Expression& expr, T value) {
  */
 static void delete_left(BasicBlock* b,
                         std::vector<BasicBlock::Node>::iterator* iter,
-                        bool* outUpdated,
-                        bool* outNeedsRescan) {
-    *outUpdated = true;
+                        Compiler::OptimizationContext* optimizationContext) {
+    optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
     Expression& left = bin.left();
@@ -721,16 +720,16 @@ static void delete_left(BasicBlock* b,
     }
     *target = std::move(rightPointer);
     if (!result) {
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     if (*iter == b->fNodes.begin()) {
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     --(*iter);
     if (!(*iter)->isExpression() || (*iter)->expression() != &rightPointer) {
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     *iter = b->fNodes.erase(*iter);
@@ -743,9 +742,8 @@ static void delete_left(BasicBlock* b,
  */
 static void delete_right(BasicBlock* b,
                          std::vector<BasicBlock::Node>::iterator* iter,
-                         bool* outUpdated,
-                         bool* outNeedsRescan) {
-    *outUpdated = true;
+                         Compiler::OptimizationContext* optimizationContext) {
+    optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
     std::unique_ptr<Expression>& leftPointer = bin.leftPointer();
@@ -753,17 +751,17 @@ static void delete_right(BasicBlock* b,
     SkASSERT(!right.hasSideEffects());
     if (!b->tryRemoveExpressionBefore(iter, &right)) {
         *target = std::move(leftPointer);
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     *target = std::move(leftPointer);
     if (*iter == b->fNodes.begin()) {
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     --(*iter);
     if ((!(*iter)->isExpression() || (*iter)->expression() != &leftPointer)) {
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
         return;
     }
     *iter = b->fNodes.erase(*iter);
@@ -788,20 +786,19 @@ static void vectorize(BasicBlock* b,
                       std::vector<BasicBlock::Node>::iterator* iter,
                       const Type& type,
                       std::unique_ptr<Expression>* otherExpression,
-                      bool* outUpdated,
-                      bool* outNeedsRescan) {
+                      Compiler::OptimizationContext* optimizationContext) {
     SkASSERT((*(*iter)->expression())->kind() == Expression::Kind::kBinary);
     SkASSERT(type.typeKind() == Type::TypeKind::kVector);
     SkASSERT((*otherExpression)->type().typeKind() == Type::TypeKind::kScalar);
-    *outUpdated = true;
+    optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
         *target = construct(&type, std::move(*otherExpression));
-        *outNeedsRescan = true;
+        optimizationContext->fNeedsRescan = true;
     } else {
         *target = construct(&type, std::move(*otherExpression));
         if (!b->tryInsertExpression(iter, target)) {
-            *outNeedsRescan = true;
+            optimizationContext->fNeedsRescan = true;
         }
     }
 }
@@ -812,10 +809,9 @@ static void vectorize(BasicBlock* b,
  */
 static void vectorize_left(BasicBlock* b,
                            std::vector<BasicBlock::Node>::iterator* iter,
-                           bool* outUpdated,
-                           bool* outNeedsRescan) {
+                           Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.right().type(), &bin.leftPointer(), outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.right().type(), &bin.leftPointer(), optimizationContext);
 }
 
 /**
@@ -824,10 +820,9 @@ static void vectorize_left(BasicBlock* b,
  */
 static void vectorize_right(BasicBlock* b,
                             std::vector<BasicBlock::Node>::iterator* iter,
-                            bool* outUpdated,
-                            bool* outNeedsRescan) {
+                            Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.left().type(), &bin.rightPointer(), outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.left().type(), &bin.rightPointer(), optimizationContext);
 }
 
 // Mark that an expression which we were writing to is no longer being written to
@@ -855,19 +850,18 @@ static void clear_write(Expression& expr) {
 void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   BasicBlock& b,
                                   std::vector<BasicBlock::Node>::iterator* iter,
-                                  std::unordered_set<const Variable*>* undefinedVariables,
-                                  bool* outUpdated,
-                                  bool* outNeedsRescan) {
+                                  OptimizationContext* optimizationContext) {
     Expression* expr = (*iter)->expression()->get();
     SkASSERT(expr);
     if ((*iter)->fConstantPropagation) {
-        std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
+        std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator,
+                                                                        definitions);
         if (optimized) {
-            *outUpdated = true;
+            optimizationContext->fUpdated = true;
             optimized = fIRGenerator->coerce(std::move(optimized), expr->type());
             SkASSERT(optimized);
             if (!try_replace_expression(&b, iter, &optimized)) {
-                *outNeedsRescan = true;
+                optimizationContext->fNeedsRescan = true;
                 return;
             }
             SkASSERT((*iter)->isExpression());
@@ -881,8 +875,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             if (ref.refKind() != VariableReference::RefKind::kWrite &&
                 ref.refKind() != VariableReference::RefKind::kPointer &&
                 var->storage() == Variable::Storage::kLocal && !definitions[var] &&
-                (*undefinedVariables).find(var) == (*undefinedVariables).end()) {
-                (*undefinedVariables).insert(var);
+                optimizationContext->fSilences.find(var) == optimizationContext->fSilences.end()) {
+                optimizationContext->fSilences.insert(var);
                 this->error(expr->fOffset,
                             "'" + var->name() + "' has not been assigned");
             }
@@ -898,15 +892,15 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 } else {
                     (*iter)->setExpression(std::move(t->ifFalse()));
                 }
-                *outUpdated = true;
-                *outNeedsRescan = true;
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
             }
             break;
         }
         case Expression::Kind::kBinary: {
             BinaryExpression* bin = &expr->as<BinaryExpression>();
             if (dead_assignment(*bin)) {
-                delete_left(&b, iter, outUpdated, outNeedsRescan);
+                delete_left(&b, iter, optimizationContext);
                 break;
             }
             Expression& left = bin->left();
@@ -926,12 +920,12 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(1) * x -> float4(x)
-                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_right(&b, iter, optimizationContext);
                         } else {
                             // 1 * x -> x
                             // 1 * float4(x) -> float4(x)
                             // float4(1) * float4(x) -> float4(x)
-                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                            delete_left(&b, iter, optimizationContext);
                         }
                     }
                     else if (is_constant(left, 0)) {
@@ -939,13 +933,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             rightType.typeKind() == Type::TypeKind::kVector &&
                             !right.hasSideEffects()) {
                             // 0 * float4(x) -> float4(0)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // 0 * x -> 0
                             // float4(0) * x -> float4(0)
                             // float4(0) * float4(x) -> float4(0)
                             if (!right.hasSideEffects()) {
-                                delete_right(&b, iter, outUpdated, outNeedsRescan);
+                                delete_right(&b, iter, optimizationContext);
                             }
                         }
                     }
@@ -953,12 +947,12 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x * float4(1) -> float4(x)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // x * 1 -> x
                             // float4(x) * 1 -> float4(x)
                             // float4(x) * float4(1) -> float4(x)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            delete_right(&b, iter, optimizationContext);
                         }
                     }
                     else if (is_constant(right, 0)) {
@@ -966,13 +960,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             rightType.typeKind() == Type::TypeKind::kScalar &&
                             !left.hasSideEffects()) {
                             // float4(x) * 0 -> float4(0)
-                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_right(&b, iter, optimizationContext);
                         } else {
                             // x * 0 -> 0
                             // x * float4(0) -> float4(0)
                             // float4(x) * float4(0) -> float4(0)
                             if (!left.hasSideEffects()) {
-                                delete_left(&b, iter, outUpdated, outNeedsRescan);
+                                delete_left(&b, iter, optimizationContext);
                             }
                         }
                     }
@@ -982,23 +976,23 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(0) + x -> float4(x)
-                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_right(&b, iter, optimizationContext);
                         } else {
                             // 0 + x -> x
                             // 0 + float4(x) -> float4(x)
                             // float4(0) + float4(x) -> float4(x)
-                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                            delete_left(&b, iter, optimizationContext);
                         }
                     } else if (is_constant(right, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x + float4(0) -> float4(x)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // x + 0 -> x
                             // float4(x) + 0 -> float4(x)
                             // float4(x) + float4(0) -> float4(x)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            delete_right(&b, iter, optimizationContext);
                         }
                     }
                     break;
@@ -1007,12 +1001,12 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x - float4(0) -> float4(x)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // x - 0 -> x
                             // float4(x) - 0 -> float4(x)
                             // float4(x) - float4(0) -> float4(x)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            delete_right(&b, iter, optimizationContext);
                         }
                     }
                     break;
@@ -1021,25 +1015,25 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x / float4(1) -> float4(x)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // x / 1 -> x
                             // float4(x) / 1 -> float4(x)
                             // float4(x) / float4(1) -> float4(x)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            delete_right(&b, iter, optimizationContext);
                         }
                     } else if (is_constant(left, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector &&
                             !right.hasSideEffects()) {
                             // 0 / float4(x) -> float4(0)
-                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                            vectorize_left(&b, iter, optimizationContext);
                         } else {
                             // 0 / x -> 0
                             // float4(0) / x -> float4(0)
                             // float4(0) / float4(x) -> float4(0)
                             if (!right.hasSideEffects()) {
-                                delete_right(&b, iter, outUpdated, outNeedsRescan);
+                                delete_right(&b, iter, optimizationContext);
                             }
                         }
                     }
@@ -1047,25 +1041,25 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 case Token::Kind::TK_PLUSEQ:
                     if (is_constant(right, 0)) {
                         clear_write(left);
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_MINUSEQ:
                     if (is_constant(right, 0)) {
                         clear_write(left);
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_STAREQ:
                     if (is_constant(right, 1)) {
                         clear_write(left);
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 case Token::Kind::TK_SLASHEQ:
                     if (is_constant(right, 1)) {
                         clear_write(left);
-                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        delete_right(&b, iter, optimizationContext);
                     }
                     break;
                 default:
@@ -1085,9 +1079,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                 }
                 if (identity) {
-                    *outUpdated = true;
+                    optimizationContext->fUpdated = true;
                     if (!try_replace_expression(&b, iter, &s.base())) {
-                        *outNeedsRescan = true;
+                        optimizationContext->fNeedsRescan = true;
                         return;
                     }
                     SkASSERT((*iter)->isExpression());
@@ -1101,11 +1095,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 for (int c : s.components()) {
                     final.push_back(base.components()[c]);
                 }
-                *outUpdated = true;
+                optimizationContext->fUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
                                                                     std::move(final)));
                 if (!try_replace_expression(&b, iter, &replacement)) {
-                    *outNeedsRescan = true;
+                    optimizationContext->fNeedsRescan = true;
                     return;
                 }
                 SkASSERT((*iter)->isExpression());
@@ -1278,9 +1272,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
 void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  BasicBlock& b,
                                  std::vector<BasicBlock::Node>::iterator* iter,
-                                 std::unordered_set<const Variable*>* undefinedVariables,
-                                 bool* outUpdated,
-                                 bool* outNeedsRescan) {
+                                 OptimizationContext* optimizationContext) {
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->kind()) {
         case Statement::Kind::kVarDeclaration: {
@@ -1291,11 +1283,11 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 if (varDecl.value()) {
                     SkASSERT((*iter)->statement()->get() == stmt);
                     if (!b.tryRemoveExpressionBefore(iter, varDecl.value().get())) {
-                        *outNeedsRescan = true;
+                        optimizationContext->fNeedsRescan = true;
                     }
                 }
                 (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
-                *outUpdated = true;
+                optimizationContext->fUpdated = true;
             }
             break;
         }
@@ -1313,15 +1305,15 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
                     }
                 }
-                *outUpdated = true;
-                *outNeedsRescan = true;
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
                 break;
             }
             if (i.ifFalse() && i.ifFalse()->isEmpty()) {
                 // else block doesn't do anything, remove it
                 i.ifFalse().reset();
-                *outUpdated = true;
-                *outNeedsRescan = true;
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
             }
             if (!i.ifFalse() && i.ifTrue()->isEmpty()) {
                 // if block doesn't do anything, no else block
@@ -1334,8 +1326,8 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                     // statement
                     (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
                 }
-                *outUpdated = true;
-                *outNeedsRescan = true;
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
             }
             break;
         }
@@ -1387,8 +1379,8 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
                     }
                 }
-                *outUpdated = true;
-                *outNeedsRescan = true;
+                optimizationContext->fUpdated = true;
+                optimizationContext->fNeedsRescan = true;
             }
             break;
         }
@@ -1398,11 +1390,11 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
             if (!e.expression()->hasSideEffects()) {
                 // Expression statement with no side effects, kill it
                 if (!b.tryRemoveExpressionBefore(iter, e.expression().get())) {
-                    *outNeedsRescan = true;
+                    optimizationContext->fNeedsRescan = true;
                 }
                 SkASSERT((*iter)->statement()->get() == stmt);
                 (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
-                *outUpdated = true;
+                optimizationContext->fUpdated = true;
             }
             break;
         }
@@ -1443,17 +1435,15 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     }
 
     // check for dead code & undefined variables, perform constant propagation
-    std::unordered_set<const Variable*> undefinedVariables;
-    bool updated;
-    bool needsRescan = false;
+    OptimizationContext optimizationContext;
     do {
-        if (needsRescan) {
+        if (optimizationContext.fNeedsRescan) {
             cfg = CFGGenerator().getCFG(f);
             this->computeDataFlow(&cfg);
-            needsRescan = false;
+            optimizationContext.fNeedsRescan = false;
         }
 
-        updated = false;
+        optimizationContext.fUpdated = false;
         bool first = true;
         for (BasicBlock& b : cfg.fBlocks) {
             if (!first && !b.fIsReachable) {
@@ -1472,31 +1462,31 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
             first = false;
             DefinitionMap definitions = b.fBefore;
 
-            for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
+            for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() &&
+                !optimizationContext.fNeedsRescan; ++iter) {
                 if (iter->isExpression()) {
-                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
-                                             &needsRescan);
+                    this->simplifyExpression(definitions, b, &iter, &optimizationContext);
                 } else {
-                    this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
-                                            &needsRescan);
+                    this->simplifyStatement(definitions, b, &iter, &optimizationContext);
                 }
-                if (needsRescan) {
+                if (optimizationContext.fNeedsRescan) {
                     break;
                 }
                 this->addDefinitions(*iter, &definitions);
             }
 
-            if (needsRescan) {
+            if (optimizationContext.fNeedsRescan) {
                 break;
             }
         }
-        madeChanges |= updated;
-    } while (updated);
-    SkASSERT(!needsRescan);
+        madeChanges |= optimizationContext.fUpdated;
+    } while (optimizationContext.fUpdated);
+    SkASSERT(!optimizationContext.fNeedsRescan);
 
     // verify static ifs & switches, clean up dead variable decls
     for (BasicBlock& b : cfg.fBlocks) {
-        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan;) {
+        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() &&
+             !optimizationContext.fNeedsRescan;) {
             if (iter->isStatement()) {
                 const Statement& s = **iter->statement();
                 switch (s.kind()) {

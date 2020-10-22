@@ -107,6 +107,15 @@ public:
         String fCoords;
     };
 
+    struct OptimizationContext {
+        // nodes we have already reported errors for and should not error on again
+        std::unordered_set<const IRNode*> fSilences;
+        // true if we have updated the CFG during this pass
+        bool fUpdated = false;
+        // true if we need to completely regenerate the CFG
+        bool fNeedsRescan = false;
+    };
+
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     /**
      * Represents the arguments to GrGLSLShaderBuilder::emitFunction.
@@ -227,9 +236,7 @@ private:
     void simplifyExpression(DefinitionMap& definitions,
                             BasicBlock& b,
                             std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unordered_set<const Variable*>* undefinedVariables,
-                            bool* outUpdated,
-                            bool* outNeedsRescan);
+                            OptimizationContext* context);
 
     /**
      * Simplifies the statement pointed to by iter (in both the IR and CFG structures), if
@@ -238,9 +245,7 @@ private:
     void simplifyStatement(DefinitionMap& definitions,
                            BasicBlock& b,
                            std::vector<BasicBlock::Node>::iterator* iter,
-                           std::unordered_set<const Variable*>* undefinedVariables,
-                           bool* outUpdated,
-                           bool* outNeedsRescan);
+                           OptimizationContext* context);
 
     /**
      * Optimizes a function based on control flow analysis. Returns true if changes were made.
