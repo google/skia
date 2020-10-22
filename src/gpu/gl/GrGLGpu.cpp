@@ -2532,10 +2532,13 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
 
 #ifdef SK_DEBUG
     if (!this->caps()->npotTextureTileSupport()) {
-        if (samplerState.isRepeated()) {
+        if (samplerState.isRepeatedX()) {
             const int w = texture->width();
+            SkASSERT(SkIsPow2(w));
+        }
+        if (samplerState.isRepeatedY()) {
             const int h = texture->height();
-            SkASSERT(SkIsPow2(w) && SkIsPow2(h));
+            SkASSERT(SkIsPow2(h));
         }
     }
 #endif
