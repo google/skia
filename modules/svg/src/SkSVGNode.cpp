@@ -19,7 +19,7 @@ SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) { }
 SkSVGNode::~SkSVGNode() { }
 
 void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
-    SkSVGRenderContext localContext(ctx);
+    SkSVGRenderContext localContext(ctx, this);
 
     if (this->onPrepareToRender(&localContext)) {
         this->onRender(localContext);
@@ -46,6 +46,10 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
     }
 
     return path;
+}
+
+SkRect SkSVGNode::objectBoundingBox(const SkSVGLengthContext& lctx) const {
+    return this->onObjectBoundingBox(lctx);
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
