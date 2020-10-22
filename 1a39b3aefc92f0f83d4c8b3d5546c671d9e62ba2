@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aca20b2_99d09c12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-22T18:33:50Z",
+      "side": 1,
+      "message": "These three CLs are all to support objectBoundingBox coords for gradients.",
+      "revId": "1a39b3aefc92f0f83d4c8b3d5546c671d9e62ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
