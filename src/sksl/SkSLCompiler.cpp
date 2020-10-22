@@ -1552,33 +1552,24 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
 
-    // Enable node pooling while converting and optimizing the program for a performance boost.
-    // The Program will take ownership of the pool.
-    std::unique_ptr<Pool> pool = Pool::CreatePoolOnThread(2000);
     IRGenerator::IRBundle ir =
             fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
                                          textPtr->c_str(), textPtr->size(), externalValues);
-    auto program = std::make_unique<Program>(kind,
-                                             std::move(textPtr),
-                                             settings,
-                                             fContext,
-                                             std::move(ir.fElements),
-                                             std::move(ir.fModifiers),
-                                             std::move(ir.fSymbolTable),
-                                             std::move(pool),
-                                             ir.fInputs);
-    bool success = false;
+    auto result = std::make_unique<Program>(kind,
+                                            std::move(textPtr),
+                                            settings,
+                                            fContext,
+                                            std::move(ir.fElements),
+                                            std::move(ir.fModifiers),
+                                            std::move(ir.fSymbolTable),
+                                            ir.fInputs);
     if (fErrorCount) {
-        // Do not return programs that failed to compile.
-    } else if (settings.fOptimize && !this->optimize(*program)) {
-        // Do not return programs that failed to optimize.
-    } else {
-        // We have a successful program!
-        success = true;
+        return nullptr;
     }
-
-    program->fPool->detachFromThread();
-    return success ? std::move(program) : nullptr;
+    if (settings.fOptimize && !this->optimize(*result)) {
+        return nullptr;
+    }
+    return result;
 }
 
 bool Compiler::optimize(Program& program) {
