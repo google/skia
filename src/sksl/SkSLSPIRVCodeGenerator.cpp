@@ -3048,16 +3048,17 @@ void SPIRVCodeGenerator::writeDoStatement(const DoStatement& d, OutputStream& ou
 }
 
 void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputStream& out) {
-    SpvId value = this->writeExpression(*s.fValue, out);
+    SpvId value = this->writeExpression(*s.value(), out);
     std::vector<SpvId> labels;
     SpvId end = this->nextId();
     SpvId defaultLabel = end;
     fBreakTarget.push(end);
     int size = 3;
-    for (const auto& c : s.fCases) {
+    auto cases = s.cases();
+    for (const SwitchCase& c : cases) {
         SpvId label = this->nextId();
         labels.push_back(label);
-        if (c->fValue) {
+        if (c.value()) {
             size += 2;
         } else {
             defaultLabel = label;
@@ -3068,16 +3069,16 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeOpCode(SpvOpSwitch, size, out);
     this->writeWord(value, out);
     this->writeWord(defaultLabel, out);
-    for (size_t i = 0; i < s.fCases.size(); ++i) {
-        if (!s.fCases[i]->fValue) {
+    for (int i = 0; i < cases.count(); ++i) {
+        if (!cases[i].value()) {
             continue;
         }
-        this->writeWord(s.fCases[i]->fValue->as<IntLiteral>().value(), out);
+        this->writeWord(cases[i].value()->as<IntLiteral>().value(), out);
         this->writeWord(labels[i], out);
     }
-    for (size_t i = 0; i < s.fCases.size(); ++i) {
+    for (int i = 0; i < cases.count(); ++i) {
         this->writeLabel(labels[i], out);
-        for (const auto& stmt : s.fCases[i]->fStatements) {
+        for (const auto& stmt : cases[i].statements()) {
             this->writeStatement(*stmt, out);
         }
         if (fCurrentBlock) {
