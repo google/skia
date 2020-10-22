@@ -33,6 +33,24 @@
       "message": "Is it possible to optimize recursively?",
       "revId": "1bb3ec159c7fea8b9d7d9b263c538f6c96aa36dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79d64702_0257d0c8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-22T20:16:17Z",
+      "side": 1,
+      "message": "Right now SkImageFilters::ColorFilter proactively combines color filter nodes, so we shouldn\u0027t need to recurse here. I can add an assert that that is the case.",
+      "parentUuid": "679f928d_89a53092",
+      "revId": "1bb3ec159c7fea8b9d7d9b263c538f6c96aa36dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
