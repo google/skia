@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLPool.h"
 
+#include "include/private/SkMutex.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
 #define VLOG(...) // printf(__VA_ARGS__)
@@ -79,6 +80,12 @@ static void set_thread_local_pool_data(PoolData* poolData) {
 
 #endif
 
+static Pool* sRecycledPool; // GUARDED_BY recycled_pool_mutex
+static SkMutex& recycled_pool_mutex() {
+    static SkMutex* mutex = new SkMutex;
+    return *mutex;
+}
+
 static PoolData* create_pool_data(int nodesInPool) {
     // Create a PoolData structure with extra space at the end for additional IRNode data.
     int numExtraIRNodes = nodesInPool - 1;
@@ -102,50 +109,54 @@ Pool::~Pool() {
         set_thread_local_pool_data(nullptr);
     }
 
-    // In debug mode, report any leaked nodes.
-#ifdef SK_DEBUG
-    ptrdiff_t nodeCount = fData->nodeCount();
-    std::vector<bool> freed(nodeCount);
-    for (IRNodeData* node = fData->fFreeListHead; node; node = node->fFreeListNext) {
-        ptrdiff_t nodeIndex = fData->nodeIndex(node);
-        freed[nodeIndex] = true;
-    }
-    bool foundLeaks = false;
-    for (int index = 0; index < nodeCount; ++index) {
-        if (!freed[index]) {
-            IRNode* leak = reinterpret_cast<IRNode*>(fData->fNodes[index].fBuffer);
-            SkDebugf("Node %d leaked: %s\n", index, leak->description().c_str());
-            foundLeaks = true;
-        }
-    }
-    if (foundLeaks) {
-        SkDEBUGFAIL("leaking SkSL pool nodes; if they are later freed, this will likely be fatal");
-    }
-#endif
+    this->checkForLeaks();
 
     VLOG("DELETE Pool:0x%016llX\n", (uint64_t)fData);
     free(fData);
 }
 
-std::unique_ptr<Pool> Pool::CreatePoolOnThread(int nodesInPool) {
-    auto pool = std::unique_ptr<Pool>(new Pool);
-    pool->fData = create_pool_data(nodesInPool);
-    pool->fData->fFreeListHead = &pool->fData->fNodes[0];
-    VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fData);
-    pool->attachToThread();
+std::unique_ptr<Pool> Pool::Create() {
+    constexpr int kNodesInPool = 2000;
+
+    SkAutoMutexExclusive lock(recycled_pool_mutex());
+    std::unique_ptr<Pool> pool;
+    if (sRecycledPool) {
+        pool = std::unique_ptr<Pool>(sRecycledPool);
+        sRecycledPool = nullptr;
+        VLOG("REUSE  Pool:0x%016llX\n", (uint64_t)pool->fData);
+    } else {
+        pool = std::unique_ptr<Pool>(new Pool);
+        pool->fData = create_pool_data(kNodesInPool);
+        pool->fData->fFreeListHead = &pool->fData->fNodes[0];
+        VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fData);
+    }
     return pool;
 }
 
-void Pool::detachFromThread() {
-    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)get_thread_local_pool_data());
-    SkASSERT(get_thread_local_pool_data() != nullptr);
-    set_thread_local_pool_data(nullptr);
+void Pool::Recycle(std::unique_ptr<Pool> pool) {
+    if (pool) {
+        pool->checkForLeaks();
+    }
+
+    SkAutoMutexExclusive lock(recycled_pool_mutex());
+    if (sRecycledPool) {
+        delete sRecycledPool;
+    }
+
+    VLOG("STASH  Pool:0x%016llX\n", pool ? (uint64_t)pool->fData : 0ull);
+    sRecycledPool = pool.release();
 }
 
 void Pool::attachToThread() {
     VLOG("ATTACH Pool:0x%016llX\n", (uint64_t)fData);
     SkASSERT(get_thread_local_pool_data() == nullptr);
     set_thread_local_pool_data(fData);
+}
+
+void Pool::detachFromThread() {
+    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)get_thread_local_pool_data());
+    SkASSERT(get_thread_local_pool_data() != nullptr);
+    set_thread_local_pool_data(nullptr);
 }
 
 void* Pool::AllocIRNode() {
@@ -190,6 +201,28 @@ void Pool::FreeIRNode(void* node_v) {
     VLOG("FREE   Pool:0x%016llX Index:____ free    0x%016llX\n",
          (uint64_t)poolData, (uint64_t)node_v);
     ::operator delete(node_v);
+}
+
+void Pool::checkForLeaks() {
+#ifdef SK_DEBUG
+    ptrdiff_t nodeCount = fData->nodeCount();
+    std::vector<bool> freed(nodeCount);
+    for (IRNodeData* node = fData->fFreeListHead; node; node = node->fFreeListNext) {
+        ptrdiff_t nodeIndex = fData->nodeIndex(node);
+        freed[nodeIndex] = true;
+    }
+    bool foundLeaks = false;
+    for (int index = 0; index < nodeCount; ++index) {
+        if (!freed[index]) {
+            IRNode* leak = reinterpret_cast<IRNode*>(fData->fNodes[index].fBuffer);
+            SkDebugf("Node %d leaked: %s\n", index, leak->description().c_str());
+            foundLeaks = true;
+        }
+    }
+    if (foundLeaks) {
+        SkDEBUGFAIL("leaking SkSL pool nodes; if they are later freed, this will likely be fatal");
+    }
+#endif
 }
 
 }  // namespace SkSL
