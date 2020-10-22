@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8c251b3_a4e78c5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-22T16:07:10Z",
+      "side": 1,
+      "message": "the nexus 7 has passed the spot it was asserting before so just landing without waiting for the bot to finish.",
+      "revId": "e88902e800d275b18d53b0376acc98a97d607fe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
