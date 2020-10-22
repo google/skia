@@ -41,6 +41,8 @@ private:
         static uint32_t Hash(SkPackedGlyphID key) {
             return SkChecksum::Mix(key.hash());
         }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
     SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
     SkAutoDescriptor fFontScalerKey;
@@ -82,6 +84,7 @@ private:
             return *strike->fFontScalerKey.getDesc();
         }
         static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;

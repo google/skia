@@ -20,7 +20,8 @@ class Expression;
 class IRGenerator;
 class Variable;
 
-using DefinitionMap = SkTHashMap<const Variable*, std::unique_ptr<Expression>*>;
+using DefinitionMap = SkTHashMap<const Variable*, std::unique_ptr<Expression>*,
+                                 SkGoodHash, /*LinearSearchThreshold=*/16>;
 
 /**
  * Abstract supertype of all expressions.

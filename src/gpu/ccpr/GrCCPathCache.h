@@ -135,6 +135,7 @@ private:
         inline static uint32_t Hash(const Key& key) {
             return GrResourceKeyHash(key.data(), key.dataSizeInBytes());
         }
+        static constexpr int kLinearSearchThreshold = 0;
 
         HashNode() = default;
         HashNode(GrCCPathCache*, sk_sp<Key>, const MaskTransform&, const GrStyledShape&);

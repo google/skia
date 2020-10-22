@@ -304,6 +304,8 @@ private:
         static uint32_t Hash(SkPackedGlyphID packedID) {
             return packedID.hash();
         }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     // Same thing as MaskSummary, but for paths.
@@ -323,6 +325,8 @@ private:
         static uint32_t Hash(SkGlyphID packedID) {
             return SkChecksum::CheapMix(packedID);
         }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
 
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;

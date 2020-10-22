@@ -15,6 +15,7 @@
 // Traits requires:
 //   static const Key& GetKey(const T&) { ... }
 //   static uint32_t Hash(const Key&) { ... }
+//   static constexpr int kLinearSearchThreshold
 // We'll look on T for these by default, or you can pass a custom Traits type.
 template <typename T,
           typename Key,
@@ -51,6 +52,7 @@ private:
     struct AdaptedTraits {
         static const Key& GetKey(T* entry) { return Traits::GetKey(*entry); }
         static uint32_t Hash(const Key& key) { return Traits::Hash(key); }
+        static constexpr int kLinearSearchThreshold = 0;
     };
     SkTHashTable<T*, Key, AdaptedTraits> fTable;
 };

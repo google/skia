@@ -288,6 +288,8 @@ private:
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
 
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
+
+        static constexpr int kLinearSearchThreshold = 0;
     };
     typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
 

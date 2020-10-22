@@ -205,18 +205,18 @@ DEF_TEST(HashSetCopyCounter, r) {
     REPORTER_ASSERT(r, globalCounter == 5);
 }
 
+struct Entry {
+    int key = 0;
+    int val = 0;
+};
+
+struct HashTraits {
+    static int GetKey(const Entry* e) { return e->key; }
+    static uint32_t Hash(int key) { return key; }
+    static constexpr int kLinearSearchThreshold = 0;
+};
 
 DEF_TEST(HashFindOrNull, r) {
-    struct Entry {
-        int key = 0;
-        int val = 0;
-    };
-
-    struct HashTraits {
-        static int GetKey(const Entry* e) { return e->key; }
-        static uint32_t Hash(int key) { return key; }
-    };
-
     SkTHashTable<Entry*, int, HashTraits> table;
 
     REPORTER_ASSERT(r, nullptr == table.findOrNull(7));

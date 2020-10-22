@@ -217,6 +217,7 @@ private:
         static uint32_t Hash(const SkDescriptor& descriptor) {
             return descriptor.getChecksum();
         }
+        static constexpr int kLinearSearchThreshold = 0;
     };
     SkTHashTable<sk_sp<Strike>, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
 

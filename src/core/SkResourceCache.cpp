@@ -69,6 +69,7 @@ namespace {
         static const SkResourceCache::Key& GetKey(const SkResourceCache::Rec* rec) {
             return rec->getKey();
         }
+        static constexpr int kLinearSearchThreshold = 0;
     };
 }  // namespace
 
