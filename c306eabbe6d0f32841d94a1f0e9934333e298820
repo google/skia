@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "273af1e5_1ab2a027",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-23T15:48:09Z",
+      "side": 1,
+      "message": "This is the nicest CL I\u0027ve seen in quite a while! What a relief to get to delete this. Congrats.",
+      "revId": "c306eabbe6d0f32841d94a1f0e9934333e298820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
