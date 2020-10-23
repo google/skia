@@ -63,6 +63,30 @@
       },
       "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e0a06af_929b9855",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-23T16:32:25Z",
+      "side": 1,
+      "message": "Oh what\u0027s a group mean? I thought the first word was the name for the toggle that is displayed and the second thing just the full description. But I never actually looked and just assumed.\n\nIf the \"VSync\" name is never actually visible in the app, then we could group these together if we want. Maybe \"Windowing\", \"Swapchain\", \"Main Framebuffer\", others. I don\u0027t really care what we call the group",
+      "parentUuid": "b6d2d1e1_7c94a5b3",
+      "range": {
+        "startLine": 424,
+        "startChar": 31,
+        "endLine": 424,
+        "endChar": 36
+      },
+      "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
