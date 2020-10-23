@@ -8,14 +8,21 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkSurfaceCharacterization.h"
+#include "include/private/SkMalloc.h"
+#include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/gpu/ProxyUtils.h"
 
 #include <thread>
 
@@ -40,17 +47,31 @@ static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rConte
                                        SkBudgeted::kYes);
 }
 
-static void create_key(GrUniqueKey* key, int wh, int id) {
-    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey::Builder builder(key, kDomain, 1);
+static void create_view_key(GrUniqueKey* key, int wh, int id) {
+    static const GrUniqueKey::Domain kViewDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kViewDomain, 1);
     builder[0] = wh;
     builder.finish();
 
     if (id != kNoID) {
         key->setCustomData(SkData::MakeWithCopy(&id, sizeof(id)));
     }
-};
+}
 
+static void create_vert_key(GrUniqueKey* key, int wh, int id) {
+    static const GrUniqueKey::Domain kVertDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kVertDomain, 1);
+    builder[0] = wh;
+    builder.finish();
+
+    if (id != kNoID) {
+        key->setCustomData(SkData::MakeWithCopy(&id, sizeof(id)));
+    }
+}
+
+// When testing views we create a bitmap that covers the entire screen and has an inset blue rect
+// atop a field of white.
+// When testing verts we clear the background to white and simply draw an inset blur rect.
 static SkBitmap create_bitmap(int wh) {
     SkBitmap bitmap;
 
@@ -89,10 +110,12 @@ public:
         SkAssertResult(fDst->characterize(&characterization));
 
         fRecorder1 = std::make_unique<SkDeferredDisplayListRecorder>(characterization);
-        this->ddlCanvas1()->clear(SkColors::kGreen);
+        this->ddlCanvas1()->clear(SkColors::kWhite);
 
         fRecorder2 = std::make_unique<SkDeferredDisplayListRecorder>(characterization);
-        this->ddlCanvas2()->clear(SkColors::kRed);
+        this->ddlCanvas2()->clear(SkColors::kWhite);
+
+        fDst->getCanvas()->clear(SkColors::kWhite);
     }
 
     ~TestHelper() {
@@ -131,13 +154,19 @@ public:
     GrThreadSafeCache* threadSafeCache() { return fDContext->priv().threadSafeCache(); }
     const GrThreadSafeCache* threadSafeCache() const { return fDContext->priv().threadSafeCache(); }
 
+    typedef void (TestHelper::*addAccessFP)(SkCanvas*, int wh, int id,
+                                            bool failLookUp, bool failFillingIn);
+    typedef bool (TestHelper::*checkFP)(SkCanvas*, int wh,
+                                        int expectedHits, int expectedMisses,
+                                        int expectedNumRefs, int expectedID);
+
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
-    void accessCachedView(SkCanvas* canvas,
-                          int wh,
-                          int id = kNoID,
-                          bool failLookup = false,
-                          bool failFillingIn = false) {
-        GrRecordingContext* rContext = canvas->recordingContext();
+    void addViewAccess(SkCanvas* canvas,
+                       int wh,
+                       int id = kNoID,
+                       bool failLookup = false,
+                       bool failFillingIn = false) {
+        auto rContext = canvas->recordingContext();
 
         auto view = AccessCachedView(rContext, this->threadSafeCache(),
                                      wh, failLookup, failFillingIn, id, &fStats);
@@ -163,40 +192,41 @@ public:
 
     // Besides checking that the number of refs and cache hits and misses are as expected, this
     // method also validates that the unique key doesn't appear in any of the other caches.
-    bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs, int expectedID) {
-        if (fStats.fCacheHits != hits || fStats.fCacheMisses != misses) {
+    bool checkView(SkCanvas* canvas, int wh,
+                   int expectedHits, int expectedMisses, int expectedNumRefs, int expectedID) {
+        if (fStats.fCacheHits != expectedHits || fStats.fCacheMisses != expectedMisses) {
             SkDebugf("Hits E: %d A: %d --- Misses E: %d A: %d\n",
-                     hits, fStats.fCacheHits, misses, fStats.fCacheMisses);
+                     expectedHits, fStats.fCacheHits, expectedMisses, fStats.fCacheMisses);
             return false;
         }
 
         GrUniqueKey key;
-        create_key(&key, wh, kNoID);
+        create_view_key(&key, wh, kNoID);
 
         auto threadSafeCache = this->threadSafeCache();
 
-        auto [view, data] = threadSafeCache->findWithData(key);
+        auto [view, xtraData] = threadSafeCache->findWithData(key);
         if (!view.proxy()) {
             return false;
         }
 
         if (expectedID < 0) {
-            if (data) {
+            if (xtraData) {
                 return false;
             }
         } else {
-            if (!data) {
+            if (!xtraData) {
                 return false;
             }
 
-            const int* cachedID = static_cast<const int*>(data->data());
+            const int* cachedID = static_cast<const int*>(xtraData->data());
             if (*cachedID != expectedID) {
                 return false;
             }
         }
 
-        if (!view.proxy()->refCntGreaterThan(numRefs+1) ||  // +1 for 'view's ref
-            view.proxy()->refCntGreaterThan(numRefs+2)) {
+        if (!view.proxy()->refCntGreaterThan(expectedNumRefs+1) ||  // +1 for 'view's ref
+            view.proxy()->refCntGreaterThan(expectedNumRefs+2)) {
             return false;
         }
 
@@ -225,6 +255,64 @@ public:
             if (surf) {
                 // the textures backing the views in this cache should never be discoverable in the
                 // resource cache
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Add a draw on 'canvas' that will introduce a ref on a 'wh' vertex data
+    void addVertAccess(SkCanvas* canvas,
+                       int wh,
+                       int id = kNoID,
+                       bool failLookup = false,
+                       bool failFillingIn = false);
+
+    bool checkVert(SkCanvas* canvas, int wh,
+                   int expectedHits, int expectedMisses, int expectedNumRefs, int expectedID) {
+        if (fStats.fCacheHits != expectedHits || fStats.fCacheMisses != expectedMisses) {
+            SkDebugf("Hits E: %d A: %d --- Misses E: %d A: %d\n",
+                     expectedHits, fStats.fCacheHits, expectedMisses, fStats.fCacheMisses);
+            return false;
+        }
+
+        GrUniqueKey key;
+        create_vert_key(&key, wh, kNoID);
+
+        auto threadSafeCache = this->threadSafeCache();
+
+        auto [vertData, xtraData] = threadSafeCache->findVertsWithData(key);
+        if (!vertData) {
+            return false;
+        }
+
+        if (expectedID < 0) {
+            if (xtraData) {
+                return false;
+            }
+        } else {
+            if (!xtraData) {
+                return false;
+            }
+
+            const int* cachedID = static_cast<const int*>(xtraData->data());
+            if (*cachedID != expectedID) {
+                return false;
+            }
+        }
+
+        if (!vertData->refCntGreaterThan(expectedNumRefs+1) ||  // +1 for 'vertData's ref
+            vertData->refCntGreaterThan(expectedNumRefs+2)) {
+            return false;
+        }
+
+        {
+            auto resourceProvider = fDContext->priv().resourceProvider();
+            sk_sp<GrGpuBuffer> buffer = resourceProvider->findByUniqueKey<GrGpuBuffer>(key);
+            if (buffer) {
+                // the buffer holding the vertex data in this cache should never be discoverable
+                // in the resource cache
                 return false;
             }
         }
@@ -301,6 +389,198 @@ private:
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder2;
 };
 
+class GrThreadSafeVertexTestOp : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext, TestHelper::Stats* stats,
+                                          int wh, int id, bool failLookup, bool failFillingIn) {
+        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
+
+        return pool->allocate<GrThreadSafeVertexTestOp>(rContext, stats, wh, id,
+                                                        failLookup, failFillingIn);
+    }
+
+private:
+    friend class GrOpMemoryPool; // for ctor
+
+    GrThreadSafeVertexTestOp(GrRecordingContext* rContext, TestHelper::Stats* stats, int wh, int id,
+                             bool failLookup, bool failFillingIn)
+            : INHERITED(ClassID())
+            , fStats(stats)
+            , fWH(wh)
+            , fID(id)
+            , fFailFillingIn(failFillingIn) {
+        this->setBounds(SkRect::MakeIWH(fWH, fWH), HasAABloat::kNo, IsHairline::kNo);
+
+        // Normally we wouldn't add a ref to the vertex data at this point. However, it is
+        // needed in this unit test to get the ref counts on the uniquely keyed resources
+        // to be as expected.
+        this->findOrCreateVertices(rContext, failLookup, fFailFillingIn);
+    }
+
+    const char* name() const override { return "GrThreadSafeVertexTestOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
+                                      bool hasMixedSampledCoverage, GrClampType) override {
+        return GrProcessorSet::EmptySetAnalysis();
+    }
+
+    GrProgramInfo* createProgramInfo(const GrCaps* caps,
+                                     SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* writeView,
+                                     GrAppliedClip&& appliedClip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrXferBarrierFlags renderPassXferBarriers) const {
+        using namespace GrDefaultGeoProcFactory;
+
+        Color color({ 0.0f, 0.0f, 1.0f, 1.0f });
+
+        auto gp = MakeForDeviceSpace(arena, color,
+                                     Coverage::kSolid_Type,
+                                     LocalCoords::kUnused_Type,
+                                     SkMatrix::I());
+
+        return sk_gpu_test::CreateProgramInfo(caps, arena, writeView,
+                                              std::move(appliedClip), dstProxyView,
+                                              gp, SkBlendMode::kSrcOver,
+                                              GrPrimitiveType::kTriangleStrip,
+                                              renderPassXferBarriers);
+    }
+
+    GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) const {
+        return this->createProgramInfo(&flushState->caps(),
+                                       flushState->allocator(),
+                                       flushState->writeView(),
+                                       flushState->detachAppliedClip(),
+                                       flushState->dstProxyView(),
+                                       flushState->renderPassBarriers());
+    }
+
+    void findOrCreateVertices(GrRecordingContext* rContext, bool failLookup, bool failFillingIn) {
+
+        if (!fVertexData) {
+            auto threadSafeViewCache = rContext->priv().threadSafeCache();
+
+            if (rContext->asDirectContext()) {
+                // The vertex variant doesn't have a correlate to lazyProxies but increment this
+                // here to make the unit tests happy.
+                ++fStats->fNumLazyCreations;
+            }
+
+            GrUniqueKey key;
+            create_vert_key(&key, fWH, fID);
+
+            // We can "fail the lookup" to simulate a threaded race condition
+            auto [cachedVerts, data] = threadSafeViewCache->findVertsWithData(key);
+            if (cachedVerts && !failLookup) {
+                fVertexData = cachedVerts;
+                ++fStats->fCacheHits;
+                return;
+            }
+
+            ++fStats->fCacheMisses;
+            if (!rContext->asDirectContext()) {
+                ++fStats->fNumSWCreations;
+            }
+
+            constexpr size_t kVertSize = sizeof(SkPoint);
+            SkPoint* verts = static_cast<SkPoint*>(sk_malloc_throw(4 * kVertSize));
+
+            verts[0].set(10.0f, 10.0f);
+            verts[1].set(fWH-10.0f, 10.0f);
+            verts[2].set(10.0f, fWH-10.0f);
+            verts[3].set(fWH-10.0f, fWH-10.0f);
+
+            fVertexData = GrThreadSafeCache::MakeVertexData(verts, 4, kVertSize);
+
+            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData);
+            if (tmpV != fVertexData) {
+                // Someone beat us to creating the vertex data. Use that version.
+                fVertexData = tmpV;
+            }
+        }
+
+        if (auto dContext = rContext->asDirectContext(); dContext && !fVertexData->gpuBuffer()) {
+            auto rp = dContext->priv().resourceProvider();
+
+            if (!failFillingIn) {
+                ++fStats->fNumHWCreations;
+
+                sk_sp<GrGpuBuffer> tmp = rp->createBuffer(fVertexData->size(),
+                                                          GrGpuBufferType::kVertex,
+                                                          kStatic_GrAccessPattern,
+                                                          fVertexData->vertices());
+                fVertexData->setGpuBuffer(std::move(tmp));
+            }
+        }
+    }
+
+    void onPrePrepare(GrRecordingContext* rContext,
+                      const GrSurfaceProxyView* writeView,
+                      GrAppliedClip* clip,
+                      const GrXferProcessor::DstProxyView& dstProxyView,
+                      GrXferBarrierFlags renderPassXferBarriers) override {
+        SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
+
+        // This is equivalent to a GrOpFlushState::detachAppliedClip
+        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
+
+        fProgramInfo = this->createProgramInfo(rContext->priv().caps(), arena, writeView,
+                                               std::move(appliedClip), dstProxyView,
+                                               renderPassXferBarriers);
+
+        rContext->priv().recordProgramInfo(fProgramInfo);
+
+        // This is now a noop (bc it is always called in the ctor) but is where we would normally
+        // create the vertices.
+        this->findOrCreateVertices(rContext, false, fFailFillingIn);
+    }
+
+    void onPrepare(GrOpFlushState* flushState) override {
+        auto dContext = flushState->gpu()->getContext();
+
+        // This call site is not a noop bc this op could've been created on with DDL context
+        // and, therefore, could be lacking a gpu-side buffer
+        this->findOrCreateVertices(dContext, false, fFailFillingIn);
+    }
+
+    void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        if (!fVertexData || !fVertexData->gpuBuffer()) {
+            return;
+        }
+
+        if (!fProgramInfo) {
+            fProgramInfo = this->createProgramInfo(flushState);
+        }
+
+        flushState->bindPipeline(*fProgramInfo, SkRect::MakeIWH(fWH, fWH));
+        flushState->bindBuffers(nullptr, nullptr, fVertexData->refGpuBuffer());
+        flushState->draw(4, 0);
+    }
+
+    TestHelper::Stats* fStats;
+    int                fWH;
+    int                fID;
+    bool               fFailFillingIn;
+
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
+    GrProgramInfo*     fProgramInfo = nullptr;
+
+    using INHERITED = GrDrawOp;
+};
+
+void TestHelper::addVertAccess(SkCanvas* canvas,
+                               int wh, int id,
+                               bool failLookup, bool failFillingIn) {
+    auto rContext = canvas->recordingContext();
+    auto rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+
+    rtc->priv().testingOnly_addDrawOp(GrThreadSafeVertexTestOp::Make(rContext,
+                                                                     &fStats, wh, id,
+                                                                     failLookup, failFillingIn));
+}
+
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                int wh,
                                                Stats* stats) {
@@ -349,7 +629,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(GrRecordingContext* rContext,
                                                 bool failLookup, bool failFillingIn, int id,
                                                 Stats* stats) {
     GrUniqueKey key;
-    create_key(&key, wh, id);
+    create_view_key(&key, wh, id);
 
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
@@ -410,17 +690,20 @@ GrSurfaceProxyView TestHelper::AccessCachedView(GrRecordingContext* rContext,
     }
 }
 
-// Case 1: ensure two DDL recorders share the view
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+// Case 1: ensure two DDL recorders share the view/vertexData
+static void test_1(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+    TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, 1, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, 2, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
@@ -431,21 +714,33 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1, reporter, ctxInfo) {
     helper.checkImage(reporter, helper.snap2());
 }
 
-// Case 2: ensure that, if the direct context version wins, it is reused by the DDL recorders
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1View, reporter, ctxInfo) {
+    test_1(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1Verts, reporter, ctxInfo) {
+    test_1(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
+// Case 2: ensure that, if the direct context version wins, its result is reused by the
+//         DDL recorders
+static void test_2(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 3);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, /*id*/ 1));
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, 1, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, 2, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
+
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, 3, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -457,17 +752,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2, reporter, ctxInfo) {
     helper.checkImage(reporter, helper.snap2());
 }
 
-// Case 3: ensure that, if the cpu-version wins, it is reused by the direct context
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2View, reporter, ctxInfo) {
+    test_2(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2Verts, reporter, ctxInfo) {
+    test_2(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH, 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
+// Case 3: ensure that, if the cpu-version wins, its result is reused by the direct context
+static void test_3(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
+
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, 1, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, 2, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -478,18 +784,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3, reporter, ctxInfo) {
     helper.checkImage(reporter, helper.snap1());
 }
 
-// Case 4: ensure that, if two DDL recorders get in a race, they still end up sharing a single view
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3View, reporter, ctxInfo) {
+    test_3(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3Verts, reporter, ctxInfo) {
+    test_3(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
+// Case 4: ensure that, if two DDL recorders get in a race, they still end up sharing a single
+//         view/vertexData
+static void test_4(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
+
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, 1, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
     static const bool kFailLookup = true;
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 2, kFailLookup);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, 2, kFailLookup, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
@@ -500,14 +818,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4, reporter, ctxInfo) {
     helper.checkImage(reporter, helper.snap2());
 }
 
-// Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
-// rendering takes precedence.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4View, reporter, ctxInfo) {
+    test_4(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4Verts, reporter, ctxInfo) {
+    test_4(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
+// Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
+//           rendering takes precedence.
+static void test_4_5(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                     TestHelper::addAccessFP addAccess,
+                     TestHelper::checkFP check) {
+
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, 1, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -515,9 +844,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
     static const bool kFailLookup = true;
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 2, kFailLookup);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, 2, kFailLookup, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -528,17 +857,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5, reporter, ctxInfo) {
     helper.checkImage(reporter, helper.snap1());
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5View, reporter, ctxInfo) {
+    test_4_5(ctxInfo.directContext(), reporter,
+             &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5Verts, reporter, ctxInfo) {
+    test_4_5(ctxInfo.directContext(), reporter,
+             &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 4.75: check that, if a live rendering fails to generate the content needed to instantiate
 //            its lazy proxy, life goes on
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+static void test_4_75(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                      TestHelper::addAccessFP addAccess,
+                      TestHelper::checkFP check) {
 
     TestHelper helper(dContext);
 
     static const bool kFailFillingIn = true;
-    helper.accessCachedView(helper.liveCanvas(), kImageWH, kNoID, false, kFailFillingIn);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, kFailFillingIn);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -548,8 +888,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75, reporter, ctxInfo) {
     dContext->flush();
     dContext->submit(true);
 
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 0, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -557,78 +897,113 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75View, reporter, ctxInfo) {
+    test_4_75(ctxInfo.directContext(), reporter,
+              &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75Verts, reporter, ctxInfo) {
+    test_4_75(ctxInfo.directContext(), reporter,
+              &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 5: ensure that expanding the map works (esp. wrt custom data)
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+static void test_5(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
+
+    TestHelper helper(dContext);
 
     auto threadSafeCache = helper.threadSafeCache();
 
     int size = 16;
-    helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
+    (helper.*addAccess)(helper.ddlCanvas1(), size, /*id*/ size, false, false);
 
     size_t initialSize = threadSafeCache->approxBytesUsedForHash();
 
     while (initialSize == threadSafeCache->approxBytesUsedForHash()) {
         size *= 2;
-        helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
+        (helper.*addAccess)(helper.ddlCanvas1(), size, /*id*/ size, false, false);
     }
 
     for (int i = 16; i <= size; i *= 2) {
-        REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(),
-                                                   /*wh*/ i,
-                                                   /*hits*/ 0,
-                                                   /*misses*/ threadSafeCache->numEntries(),
-                                                   /*refs*/ 1,
-                                                   /*id*/ i));
+        REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(),
+                                                  /*wh*/ i,
+                                                  /*hits*/ 0,
+                                                  /*misses*/ threadSafeCache->numEntries(),
+                                                  /*refs*/ 1,
+                                                  /*id*/ i));
     }
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5View, reporter, ctxInfo) {
+    test_5(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5Verts, reporter, ctxInfo) {
+    test_5(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 6: Check on dropping refs. In particular, that the cache has its own ref to keep
-// the backing resource alive and locked.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+//         the backing resource alive and locked.
+static void test_6(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
     ddl1 = nullptr;
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     ddl2 = nullptr;
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
 
     // The cache still has its ref
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6View, reporter, ctxInfo) {
+    test_6(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6Verts, reporter, ctxInfo) {
+    test_6(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
 
 // Case 7: Check that invoking dropAllRefs and dropUniqueRefs directly works as expected; i.e.,
-// dropAllRefs removes everything while dropUniqueRefs is more measured.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+//         dropAllRefs removes everything while dropUniqueRefs is more measured.
+static void test_7(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
@@ -639,8 +1014,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7, reporter, ctxInfo) {
 
     helper.threadSafeCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(nullptr, 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     helper.threadSafeCache()->dropAllRefs();
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
@@ -648,31 +1023,42 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7, reporter, ctxInfo) {
     ddl2 = nullptr;
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7View, reporter, ctxInfo) {
+    test_7(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7Verts, reporter, ctxInfo) {
+    test_7(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 8: This checks that GrContext::abandonContext works as expected wrt the thread
 //         safe cache. This simulates the case where we have one DDL that has finished
 //         recording but one still recording when the abandonContext fires.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+static void test_8(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
-    ctxInfo.directContext()->abandonContext(); // This should exercise dropAllRefs
+    dContext->abandonContext(); // This should exercise dropAllRefs
 
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
 
@@ -680,33 +1066,44 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8, reporter, ctxInfo) {
 
     ddl1 = nullptr;
     ddl2 = nullptr;
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8View, reporter, ctxInfo) {
+    test_8(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8Verts, reporter, ctxInfo) {
+    test_8(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
 
 // Case 9: This checks that GrContext::releaseResourcesAndAbandonContext works as expected wrt
 //         the thread safe cache. This simulates the case where we have one DDL that has finished
 //         recording but one still recording when the releaseResourcesAndAbandonContext fires.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9, reporter, ctxInfo) {
-    TestHelper helper(ctxInfo.directContext());
+static void test_9(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                   TestHelper::addAccessFP addAccess,
+                   TestHelper::checkFP check) {
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
-    ctxInfo.directContext()->releaseResourcesAndAbandonContext(); // This should hit dropAllRefs
+    dContext->releaseResourcesAndAbandonContext(); // This should hit dropAllRefs
 
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
 
@@ -716,11 +1113,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9, reporter, ctxInfo) {
     ddl2 = nullptr;
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9View, reporter, ctxInfo) {
+    test_9(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9Verts, reporter, ctxInfo) {
+    test_9(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 10: This checks that the GrContext::purgeUnlockedResources(size_t) variant works as
 //          expected wrt the thread safe cache. It, in particular, tests out the MRU behavior
 //          of the shared cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check) {
 
     if (GrBackendApi::kOpenGL != dContext->backend()) {
         // The lower-level backends have too much going on for the following simple purging
@@ -730,23 +1136,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10, reporter, ctxInfo) {
 
     TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
-    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), 2*kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
-    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), 2*kImageWH,
+                                              /*hits*/ 2, /*misses*/ 2, /*refs*/ 2, kNoID));
 
     dContext->flush();
     dContext->submit(true);
@@ -758,10 +1164,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10, reporter, ctxInfo) {
     ddl2 = nullptr;
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     // Regardless of which image is MRU, this should force the other out
     size_t desiredBytes = helper.gpuSize(2*kImageWH) + helper.gpuSize(kImageWH)/2;
@@ -777,34 +1183,46 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
 }
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10View, reporter, ctxInfo) {
+    test_10(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+// To enable test_10 with verts would require a bit more work, namely:
+//    have a different # of verts based on size
+//    also pass in a gpuSize function to 'test_10'
+//DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10Verts, reporter, ctxInfo) {
+//    test_10(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+//}
 
 // Case 11: This checks that scratch-only variant of GrContext::purgeUnlockedResources works as
 //          expected wrt the thread safe cache. In particular, that when 'scratchResourcesOnly'
 //          is true, the call has no effect on the cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+static void test_11(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check) {
 
     TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
-    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), 2*kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
     dContext->submit(true);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     // This shouldn't remove anything from the cache
     dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
@@ -816,34 +1234,43 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11View, reporter, ctxInfo) {
+    test_11(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11Verts, reporter, ctxInfo) {
+    test_11(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 12: Test out purges caused by resetting the cache budget to 0. Note that, due to
 //          the how the cache operates (i.e., not directly driven by ref/unrefs) there
 //          needs to be an explicit kick to purge the cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+static void test_12(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check) {
 
     TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
-    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.liveCanvas(), 2*kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
     dContext->submit(true);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
+                                              /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 1, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     dContext->setResourceCacheLimit(0);
 
@@ -857,25 +1284,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 }
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12View, reporter, ctxInfo) {
+    test_12(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12Verts, reporter, ctxInfo) {
+    test_12(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
 // Case 13: Test out the 'msNotUsed' parameter to GrContext::performDeferredCleanup.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
+static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check) {
 
     TestHelper helper(dContext);
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
-
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     auto firstTime = GrStdSteadyClock::now();
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
-    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    (helper.*addAccess)(helper.ddlCanvas2(), 2*kImageWH, kNoID, false, false);
+
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
 
     ddl1 = nullptr;
@@ -889,6 +1325,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13, reporter, ctxInfo) {
     dContext->performDeferredCleanup(msecs);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), 2*kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13View, reporter, ctxInfo) {
+    test_13(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13Verts, reporter, ctxInfo) {
+    test_13(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
