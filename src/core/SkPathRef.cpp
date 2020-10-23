@@ -326,21 +326,6 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
-unsigned SkPathRef::computeSegmentMask() const {
-    const uint8_t* verbs = fVerbs.begin();
-    unsigned mask = 0;
-    for (int i = 0; i < fVerbs.count(); ++i) {
-        switch (verbs[i]) {
-            case SkPath::kLine_Verb:  mask |= SkPath::kLine_SegmentMask; break;
-            case SkPath::kQuad_Verb:  mask |= SkPath::kQuad_SegmentMask; break;
-            case SkPath::kConic_Verb: mask |= SkPath::kConic_SegmentMask; break;
-            case SkPath::kCubic_Verb: mask |= SkPath::kCubic_SegmentMask; break;
-            default: break;
-        }
-    }
-    return mask;
-}
-
 void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const {
     const SkScalar* inValues = &ending.getPoints()->fX;
     SkScalar* outValues = &out->getWritablePoints()->fX;
