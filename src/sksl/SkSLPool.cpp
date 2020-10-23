@@ -116,7 +116,7 @@ Pool::~Pool() {
 }
 
 std::unique_ptr<Pool> Pool::Create() {
-    constexpr int kNodesInPool = 2000;
+    constexpr int kNodesInPool = 512;
 
     SkAutoMutexExclusive lock(recycled_pool_mutex());
     std::unique_ptr<Pool> pool;
