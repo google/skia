@@ -192,6 +192,16 @@ GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
     return new GrMtlOpsRenderPass(this, renderTarget, origin, colorInfo, stencilInfo);
 }
 
+GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
+    if (!fCurrentCmdBuffer) {
+        // Create a new command buffer for the next submit
+        fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    }
+
+    SkASSERT(fCurrentCmdBuffer);
+    return fCurrentCmdBuffer.get();
+}
+
 void GrMtlGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->addGrBuffer(std::move(buffer));
@@ -204,8 +214,7 @@ void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
-    SkASSERT(fCurrentCmdBuffer);
-    if (!fCurrentCmdBuffer->hasWork()) {
+    if (!fCurrentCmdBuffer || !fCurrentCmdBuffer->hasWork()) {
         if (sync == SyncQueue::kForce_SyncQueue) {
             // wait for the last command buffer we've submitted to finish
             OutstandingCommandBuffer* back =
@@ -217,10 +226,13 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
         }
         // We need to manually call the finishedCallbacks since we don't add this
         // to the OutstandingCommandBuffer list
-        fCurrentCmdBuffer->callFinishedCallbacks();
+        if (fCurrentCmdBuffer) {
+            fCurrentCmdBuffer->callFinishedCallbacks();
+        }
         return true;
     }
 
+    SkASSERT(fCurrentCmdBuffer);
     GrFence fence = this->insertFence();
     new (fOutstandingCommandBuffers.push_back()) OutstandingCommandBuffer(
             fCurrentCmdBuffer, fence);
@@ -229,15 +241,16 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
         return false;
     }
 
-    // Create a new command buffer for the next submit
-    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    // We don't create a new command buffer here because we may end up using it
+    // in the next frame, and that confuses the GPU debugger. Instead we
+    // create when we next need one.
+    fCurrentCmdBuffer = nullptr;
 
-    // This should be done after we have a new command buffer in case the freeing of any
-    // resources held by a finished command buffer causes us to send a new command to the gpu
-    // (like changing the resource state).
+    // If the freeing of any resources held by a finished command buffer causes us to send
+    // a new command to the gpu (like changing the resource state) we'll create the new
+    // command buffer in commandBuffer(), above.
     this->checkForFinishedCommandBuffers();
 
-    SkASSERT(fCurrentCmdBuffer);
     return true;
 }
 
@@ -278,7 +291,7 @@ void GrMtlGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
     if (back) {
         back->fCommandBuffer->addFinishedCallback(finishedCallback);
     }
-    fCurrentCmdBuffer->addFinishedCallback(std::move(finishedCallback));
+    commandBuffer()->addFinishedCallback(std::move(finishedCallback));
 }
 
 bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
