@@ -1,0 +1,3 @@
+float foo(float v) { return v; }
+void bar() { float y = 0, z = foo(y); }
+void main() { bar(); }
