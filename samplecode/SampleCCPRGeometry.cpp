@@ -67,7 +67,6 @@ class CCPRGeometryView : public Sample {
 
     PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
     SkCubicType fCubicType;
-    SkMatrix fCubicKLM;
 
     SkPoint fPoints[4] = {
             {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
@@ -154,27 +153,6 @@ private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new Impl; }
 };
 
-static void draw_klm_line(int w, int h, SkCanvas* canvas, const SkScalar line[3], SkColor color) {
-    SkPoint p1, p2;
-    if (SkScalarAbs(line[1]) > SkScalarAbs(line[0])) {
-        // Draw from vertical edge to vertical edge.
-        p1 = {0, -line[2] / line[1]};
-        p2 = {(SkScalar)w, (-line[2] - w * line[0]) / line[1]};
-    } else {
-        // Draw from horizontal edge to horizontal edge.
-        p1 = {-line[2] / line[0], 0};
-        p2 = {(-line[2] - h * line[1]) / line[0], (SkScalar)h};
-    }
-
-    SkPaint linePaint;
-    linePaint.setColor(color);
-    linePaint.setAlpha(128);
-    linePaint.setStyle(SkPaint::kStroke_Style);
-    linePaint.setStrokeWidth(0);
-    linePaint.setAntiAlias(true);
-    canvas->drawLine(p1, p2, linePaint);
-}
-
 void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
@@ -248,12 +226,6 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     if (PrimitiveType::kCubics == fPrimitiveType) {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
-        if (!fDoStroke) {
-            int w = this->width(), h = this->height();
-            draw_klm_line(w, h, canvas, &fCubicKLM[0], SK_ColorYELLOW);
-            draw_klm_line(w, h, canvas, &fCubicKLM[3], SK_ColorBLUE);
-            draw_klm_line(w, h, canvas, &fCubicKLM[6], SK_ColorRED);
-        }
     } else {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, fPoints, pointsPaint);
         canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
@@ -274,8 +246,6 @@ void CCPRGeometryView::updateGpuData() {
     fPath.moveTo(fPoints[0]);
 
     if (PrimitiveType::kCubics == fPrimitiveType) {
-        double t[2], s[2];
-        fCubicType = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
         GrCCFillGeometry geometry;
         geometry.beginContour(fPoints[0]);
         geometry.cubicTo(fPoints, kDebugBloat / 2, kDebugBloat / 2);
