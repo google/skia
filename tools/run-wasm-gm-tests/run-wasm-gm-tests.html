@@ -57,6 +57,8 @@ array of the test names and what they drew.
     document.getElementById('start_tests').addEventListener('click', async () => {
       window._testsProgress = 0;
       window._log = 'Starting\n';
+      window._failed = [];
+      RunTests(GM);
       await RunGMs(GM);
       if (attemptedPOSTs !== successfulPOSTs) {
         window._error = `Failed to POST all the PNG files (expected ${attemptedPOSTs}, finished ${successfulPOSTs})`;
@@ -116,13 +118,13 @@ array of the test names and what they drew.
       if (skip_list.has(name)) {
         continue;
       }
-      window._log += `Starting ${name}\n`;
+      log(`Starting GM ${name}`);
       const pngAndMetadata = GM.RunGM(grcontext, name);
       if (!pngAndMetadata || !pngAndMetadata.hash) {
         console.debug('No output for ', name);
         continue; // Was skipped
       }
-      log(`Test ${name} drew ${pngAndMetadata.hash}`);
+      log(`    drew ${pngAndMetadata.hash}`);
       window._results.push({
         name: name,
         digest: pngAndMetadata.hash,
@@ -153,6 +155,29 @@ array of the test names and what they drew.
     }).catch((e) => {
       console.error('Could not post PNG', e);
     });
+  }
+
+  function RunTests(GM) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    // This sets up the GL context for all tests.
+    const grcontext = GM.MakeGrContext(ctx);
+    if (!grcontext) {
+      window._err = 'Could not make GrContext for tests';
+      return;
+    }
+
+    const names = GM.ListTests();
+    names.sort();
+    for (const name of names) {
+      log(`Running test ${name}`);
+      const result = GM.RunTest(name);
+      log('    ' + result.result, result.msg || '');
+      if (result.result !== 'passed' && result.result !== 'skipped') {
+        window._failed.push(name);
+      }
+    }
+    grcontext.delete();
   }
 </script>
 </body>
