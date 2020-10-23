@@ -193,7 +193,6 @@ func runTests(ctx context.Context, builtPath, nodeBinPath, resourcePath, testHar
 	ctx = td.StartStep(ctx, td.Props("run GMs and unit tests"))
 	defer td.EndStep(ctx)
 
-	// TODO(kjlubick) the test harness does not actually run unit tests yet.
 	err := td.Do(ctx, td.Props("Run GMs and Unit Tests"), func(ctx context.Context) error {
 		args := []string{filepath.Join(nodeBinPath, "node"),
 			"run-wasm-gm-tests",
