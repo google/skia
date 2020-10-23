@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3eaf7011_64028f62",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-23T19:59:44Z",
+      "side": 1,
+      "message": "Other than the monstrosity that is GrThreadSafeVertexTestOp, most of this CL is just the boilerplate splitting of each test case into \u0027View\u0027 and \u0027Verts\u0027 versions and passing in the correct member function pointers.",
+      "revId": "7a213a333272689da8c4163f238bbf7d2e013b31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
