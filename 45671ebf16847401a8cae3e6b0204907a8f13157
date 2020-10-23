@@ -16,6 +16,41 @@
       "message": "This fixes many of the currently bad GMs. Looks like a few will need followup (e.g. coloremoji_blendmodes)",
       "revId": "45671ebf16847401a8cae3e6b0204907a8f13157",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f766028_3e196cc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-23T14:52:15Z",
+      "side": 1,
+      "message": "I think the portable color font stuff depends on the dom/svg stuff being built and being able to get at resources/fonts/svg (tools/fonts/TestSVGTypeface). I think the resources are available here so probably the svg thing? All this protable color font stuff is behind the SK_XML macro being defined... so maybe something happened with that?",
+      "parentUuid": "97fcb7c6_e9b7115b",
+      "revId": "45671ebf16847401a8cae3e6b0204907a8f13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bc31123_a873dc03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-23T14:52:15Z",
+      "side": 1,
+      "message": "As much as it pains me to see this, there is another labor which much first be done removing the default fontmgr (after completion of the display globals removal quest).",
+      "revId": "45671ebf16847401a8cae3e6b0204907a8f13157",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
