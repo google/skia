@@ -16,6 +16,23 @@
       "message": "Adlai, see if this works for you.",
       "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e1def9a_d6ea1e1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-23T19:01:17Z",
+      "side": 1,
+      "message": "On my machine (Xcode 12.1 on Catalina,) this option doesn\u0027t seem to make much difference for me. I always use the redraw option in Viewer fwiw. With or without this option, I have a good number of frame captures that never really execute they kind of just stall. What was your experience with it Jim?",
+      "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
