@@ -39,6 +39,30 @@
       },
       "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d2d1e1_7c94a5b3",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-23T15:26:37Z",
+      "side": 1,
+      "message": "It\u0027s vsync/swapchain-related so I thought it could go in the same group. I could change the group to Swapchain instead.",
+      "parentUuid": "cb32f123_7d43413c",
+      "range": {
+        "startLine": 424,
+        "startChar": 31,
+        "endLine": 424,
+        "endChar": 36
+      },
+      "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
