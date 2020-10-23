@@ -48,10 +48,7 @@ public:
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
-    GrMtlCommandBuffer* commandBuffer() {
-        SkASSERT(fCurrentCmdBuffer);
-        return fCurrentCmdBuffer.get();
-     }
+    GrMtlCommandBuffer* commandBuffer();
 
     enum SyncQueue {
         kForce_SyncQueue,
