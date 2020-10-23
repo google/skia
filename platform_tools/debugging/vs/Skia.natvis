@@ -129,7 +129,7 @@
         <Loop>
           <If Condition="fTable.fSlots.fArray._Mypair._Myval2[iSlot].hash != 0">
             <Item Name="{fTable.fSlots.fArray._Mypair._Myval2[iSlot].val.key}">
-              fTable.fSlots.fArray._Mypair._Myval2[iSlot].val.val
+              fTable.fSlots.fArray._Mypair._Myval2[iSlot].val
             </Item>
           </If>
           <Exec>iSlot++</Exec>
