@@ -303,6 +303,24 @@
       "parentUuid": "fcdd4bb1_d24e2032",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf815481_9e504e72",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-23T15:45:26Z",
+      "side": 1,
+      "message": "I am a jerk, and sorry I was a jerk to you here; I let narcissism of small differences go critical.  I\u0027ll try to not bother you about small stuff like this.",
+      "parentUuid": "a52da951_92c1661a",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
