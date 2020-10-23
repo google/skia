@@ -67,7 +67,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH(return new SkSLBench("tiny", "void main() { sk_FragColor = half4(1); }"); )
 DEF_BENCH(return new SkSLBench("large", R"(
 uniform half urange_Stage1;
 uniform half4 uleftBorderColor_Stage1_c0_c0;
@@ -415,6 +414,47 @@ DEF_BENCH(return new SkSLBench("medium", R"(
         }
     }
 )"); )
+
+DEF_BENCH(return new SkSLBench("small", R"(
+    uniform float3x3 umatrix_Stage1_c0_c0;
+    uniform sampler2D uTextureSampler_0_Stage1;
+    noperspective in float2 vTransformedCoords_0_Stage0;
+    out half4 sk_FragColor;
+    half4 TextureEffect_Stage1_c0_c0_c0(half4 _input)
+    {
+        half4 _output;
+        return sample(uTextureSampler_0_Stage1, vTransformedCoords_0_Stage0);
+    }
+    half4 MatrixEffect_Stage1_c0_c0(half4 _input)
+    {
+        half4 _output;
+        return TextureEffect_Stage1_c0_c0_c0(_input);
+    }
+    inline half4 Blend_Stage1_c0(half4 _input)
+    {
+        half4 _output;
+        // Blend mode: Modulate (Compose-One behavior)
+        return blend_modulate(MatrixEffect_Stage1_c0_c0(half4(1)), _input);
+    }
+    void main()
+    {
+        half4 outputColor_Stage0;
+        half4 outputCoverage_Stage0;
+        {
+            // Stage 0, QuadPerEdgeAAGeometryProcessor
+            outputColor_Stage0 = half4(1);
+            outputCoverage_Stage0 = half4(1);
+        }
+        half4 output_Stage1;
+        output_Stage1 = Blend_Stage1_c0(outputColor_Stage0);
+        {
+            // Xfer Processor: Porter Duff
+            sk_FragColor = output_Stage1 * outputCoverage_Stage0;
+        }
+    }
+)"); )
+
+DEF_BENCH(return new SkSLBench("tiny", "void main() { sk_FragColor = half4(1); }"); )
 
 #if defined(SK_BUILD_FOR_UNIX)
 
