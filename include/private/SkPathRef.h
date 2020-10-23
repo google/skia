@@ -379,9 +379,6 @@ private:
 
     void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints);
 
-    // Doesn't read fSegmentMask, but (re)computes it from the verbs array
-    unsigned computeSegmentMask() const;
-
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
         return bounds->setBoundsCheck(ref.points(), ref.countPoints());
