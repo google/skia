@@ -20,5 +20,6 @@ component("gm_wasm") {
   deps = [
     "../..:hash_and_encode",
     "../..:tool_utils",
+    "../../modules/svg:svg",
   ]
 }

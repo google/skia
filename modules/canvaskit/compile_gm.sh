@@ -57,8 +57,6 @@ GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_em
 
 
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
-#SHAPER_LIB="$BUILD_DIR/libharfbuzz.a $BUILD_DIR/libicu.a"
-SHAPER_LIB=""
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -118,9 +116,9 @@ echo "Compiling bitcode"
   ${GN_SHAPER} \
   ${GN_GPU} \
   ${GN_FONT} \
-  skia_use_expat=false \
+  skia_use_expat=true \
   skia_enable_ccpr=false \
-  \
+  skia_enable_svg=true \
   skia_enable_skshaper=true \
   skia_enable_nvpr=false \
   skia_enable_skparagraph=true \
@@ -145,12 +143,20 @@ if [[ `uname` != "Linux" ]]; then
   STRICTNESS=""
 fi
 
+GMS_TO_BUILD="gm/*.cpp"
+# When developing locally, it can be faster to focus only on the gms or tests you care about
+# (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
+if false; then
+   GMS_TO_BUILD="gm/coloremoji_blendmodes.cpp gm/gm.cpp"
+fi
+
 # These gms do not compile or link with the WASM code. Thus, we omit them.
 GLOBIGNORE="gm/cgms.cpp:"\
 "gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/xform.cpp:"\
 "gm/video_decoder.cpp"
+
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
@@ -166,10 +172,10 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/gm.js \
     tools/Resources.cpp \
     $BASE_DIR/gm_bindings.cpp \
-    gm/*.cpp \
+    $GMS_TO_BUILD \
     $GM_LIB \
     $BUILD_DIR/libskshaper.a \
-    $SHAPER_LIB \
+    $BUILD_DIR/libsvg.a \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
     -s LLD_REPORT_UNDEFINED \

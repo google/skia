@@ -51,6 +51,7 @@ array of the test names and what they drew.
   let attemptedPOSTs = 0;
   let successfulPOSTs = 0;
   Promise.all([loadTestsPromise, loadKnownHashesPromise, loadResourceListing]).then(([GM, hashes, resourceBuffers]) => {
+    GM.Init();
     LoadResources(GM, resourceNames, resourceBuffers);
     LoadKnownHashes(GM, hashes);
     document.getElementById('start_tests').addEventListener('click', async () => {
