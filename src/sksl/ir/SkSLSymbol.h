@@ -45,6 +45,9 @@ public:
     Symbol(int offset, const SymbolAliasData& data)
     : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
 
+    Symbol(int offset, const TypeData& data)
+    : INHERITED(offset, (int) Kind::kType, data) {}
+
     Symbol(int offset, const UnresolvedFunctionData& data)
     : INHERITED(offset, (int) Kind::kUnresolvedFunction, data) {}
 

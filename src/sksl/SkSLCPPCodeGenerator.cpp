@@ -761,7 +761,8 @@ void CPPCodeGenerator::writePrivateVarValues() {
 static bool is_accessible(const Variable& var) {
     const Type& type = var.type().nonnullable();
     return Type::TypeKind::kSampler != type.typeKind() &&
-           Type::TypeKind::kOther != type.typeKind();
+           Type::TypeKind::kOther != type.typeKind() &&
+           Type::TypeKind::kOtherStruct != type.typeKind();
 }
 
 void CPPCodeGenerator::newExtraEmitCodeBlock() {

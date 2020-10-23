@@ -43,8 +43,9 @@ CoercionCost Type::coercionCost(const Type& other) const {
             return CoercionCost::Narrowing(this->priority() - other.priority());
         }
     }
-    for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
-        if (*fCoercibleTypes[i] == other) {
+    const std::vector<const Type*>& coercibleTypes = this->coercibleTypes();
+    for (size_t i = 0; i < coercibleTypes.size(); i++) {
+        if (*coercibleTypes[i] == other) {
             return CoercionCost::Normal((int) i + 1);
         }
     }
