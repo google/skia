@@ -16,6 +16,24 @@
       "message": "This is the nicest CL I\u0027ve seen in quite a while! What a relief to get to delete this. Congrats.",
       "revId": "c306eabbe6d0f32841d94a1f0e9934333e298820",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "924f2685_d7a13abc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-23T16:04:00Z",
+      "side": 1,
+      "message": "I\u0027ve been debating if we should land this now or wait until after a some future chrome/m88 branch. This SK_LEGACY_SURFACE_PROPS define landed just after the chrome/m87 branch so hasn\u0027t been in a branch yet. While we\u0027ve fixed up all the first party dependencies I\u0027m not sure how much this affects any other users. It might be nice for them to notice the breakage but able to apply SK_LEGACY_SURFACE_PROPS to keep working and have a way to transition. That being said, it seems most users don\u0027t update every branch so if they skip one with this sort of change it won\u0027t help anyway.\n\nI may just put a note in the release notes about how this has been removed and if it is needed locally the user can revert this change and define SK_LEGACY_SURFACE_PROPS for transitioning.",
+      "parentUuid": "273af1e5_1ab2a027",
+      "revId": "c306eabbe6d0f32841d94a1f0e9934333e298820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
