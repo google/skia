@@ -9,6 +9,12 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Removed SkSurfaceProps::kLegacyFontHost_InitType, SkFontLCDConfig, and related code.
+    The default pixel geometry for SkSurfaceProps is now kUnknown instead of kRGB_H.
+    The removal was guarded by the SK_LEGACY_SURFACE_PROPS build flag which was later removed.
+    https://review.skia.org/322490
+    https://review.skia.org/329364
+
   * Legacy 8-bit YUV interface removed from SkImageGenerator. Use more flexible SkYUVAPixmaps-
     based interface instead.
     https://review.skia.org/327917

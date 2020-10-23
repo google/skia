@@ -515,14 +515,9 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
 
 SkCanvas::SkCanvas()
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-#ifdef SK_LEGACY_SURFACE_PROPS
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
-#else
     , fProps()
-#endif
 {
     inc_canvas();
-
     this->init(nullptr);
 }
 
@@ -537,11 +532,7 @@ SkCanvas::SkCanvas(int width, int height, const SkSurfaceProps* props)
 
 SkCanvas::SkCanvas(const SkIRect& bounds)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-#ifdef SK_LEGACY_SURFACE_PROPS
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
-#else
     , fProps()
-#endif
 {
     inc_canvas();
 
@@ -571,11 +562,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 SkCanvas::SkCanvas(const SkBitmap& bitmap, std::unique_ptr<SkRasterHandleAllocator> alloc,
                    SkRasterHandleAllocator::Handle hndl)
     : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
-#ifdef SK_LEGACY_SURFACE_PROPS
-    , fProps(SkSurfaceProps::kLegacyFontHost_InitType)
-#else
     , fProps()
-#endif
     , fAllocator(std::move(alloc))
 {
     inc_canvas();
