@@ -16,6 +16,23 @@
       "message": "Sigh. OK, I think this is finally correct. I went down a path of trying to enforce correctness via the Nodes (with a special non-const expression() and statement(), etc...). In the end, the subtleties of what we\u0027re replacing, and how we\u0027re doing it, often mean that we don\u0027t want to treat it as a \"replace\" operation at all (see the comments on setStatement). So I opted for a heavily commented implementation of setStatement and setExpression, and then comments that try to clearly explain what\u0027s happening in the other places where we\u0027re editing the IR without going through those functions.",
       "revId": "945c66e09183c4751873cd58b6646c42ba280203",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e918a7f7_d848c436",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T19:59:46Z",
+      "side": 1,
+      "message": "... and I\u0027m open to suggestions for better names, and for other spots that should be audited, commented, etc...",
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
