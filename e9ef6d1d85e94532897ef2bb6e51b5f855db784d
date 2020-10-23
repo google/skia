@@ -45,6 +45,30 @@
       },
       "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f08198d2_6ea0aa42",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3209,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-23T21:12:28Z",
+      "side": 1,
+      "message": "We can not es2/es3 (I think). But really it\u0027s mostly that we currently don\u0027t store the raw base format. So if we wanted to be more open we just need to go through our \"format table\" in the caps and add a base internal format to everything. It\u0027s not hard, just tedious and I\u0027m not sure if we actually get a win or not. Like are we often ever copying between different formats here that have the same base?",
+      "parentUuid": "e0ea52d7_372cf6b4",
+      "range": {
+        "startLine": 3208,
+        "startChar": 8,
+        "endLine": 3209,
+        "endChar": 66
+      },
+      "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
