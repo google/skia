@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2989ab45_116dada7",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "This is way way bigger than all the other xxxxxData types... it feels weird to me to jam it all in the middle of the IRNode class. Just to keep this code focused, is there somewhere else that TypeData can live, instead of the middle of IRNode.h?\n\nWe could put it in Type.h, or into a dedicated TypeData.h header...?",
+      "range": {
+        "startLine": 260,
+        "startChar": 4,
+        "endLine": 260,
+        "endChar": 19
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edcb443b_5b22aa59",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Why is there `name` and also `nameString`? \n\nI\u0027m getting the impression it\u0027s to avoid copying a string if we have a StringFragment we can use instead, but I\u0027m not sure this is actually a good optimization for the general case.\n\nsizeof(std::string) \u003d\u003d 32.\nsizeof(std::string) + sizeof(StringFragment) \u003d\u003d 48.\nstd::strings have a built-in no-malloc capacity of 15 before they actually go to allocate any storage. (This seems to be true in both gcc and clang.)\n\nHow many types will exceed 15 chars?\nI think we might be better off optimizing for a smaller IRNode and a simpler type.",
+      "range": {
+        "startLine": 287,
+        "startChar": 17,
+        "endLine": 287,
+        "endChar": 56
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a9993b4_477da33c",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "How is this used? Every other IRNode is copied via clone, not via direct assignment.",
+      "range": {
+        "startLine": 343,
+        "startChar": 18,
+        "endLine": 343,
+        "endChar": 27
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d10e42d1_0597839c",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Should we have a `SkDEBUGCODE(fExtraKind \u003d ExtraKind::kNone;)` or something at the end, just to be extra clear? Otherwise we\u0027re leaving fExtra and fExtraKind out of sync.",
+      "range": {
+        "startLine": 416,
+        "startChar": 12,
+        "endLine": 416,
+        "endChar": 13
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2ebf296_3e2e76d3",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "nit: Are these here because the compiler insisted on them, I guess?",
+      "range": {
+        "startLine": 428,
+        "startChar": 0,
+        "endLine": 430,
+        "endChar": 23
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cdfc7bb_764991bb",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Not sure what this is without a label. Please add a label.\n\n    /*something\u003d*/{}",
+      "range": {
+        "startLine": 102,
+        "startChar": 78,
+        "endLine": 102,
+        "endChar": 80
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "121296b3_5e885288",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be `case TypeKind::kScalar` and then `default: SkUNREACHABLE;` ?\n\nUnless we no longer want to assert here...?\n(Same for rows() below)\n\nI\u0027d be worried about making the code more permissive while simultaneously refactoring how it works, unless we have a good reason to change it.",
+      "range": {
+        "startLine": 294,
+        "startChar": 12,
+        "endLine": 294,
+        "endChar": 20
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d815476_3d4256bb",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Rather than assert on the extra kind anywhere `fExtra.xxxxxx` is accessed, should we make accessor functions in TypeData which do the assert for you? i.e.:\n\n  const std::vector\u003cField\u003e\u0026 fields() const {\n          return this-\u003etypeData().fields();\n  }\n\nwhere `fields` is\n  {\n          SkASSERT(this-\u003etypeData().fExtraKind \u003d\u003d IRNode::TypeData::ExtraKind::kFields);\n          return fExtra.fFields;\n  }\n\nSame for below as well.",
+      "range": {
+        "startLine": 316,
+        "startChar": 32,
+        "endLine": 316,
+        "endChar": 46
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cada8dc_4c7d7303",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:39:52Z",
+      "side": 1,
+      "message": "Previously we\u0027d assert before giving back an empty array. Why the change in design?\n\nAt any rate, it should probably be `static const std::vector\u003cconst Type*\u003e kEmpty`;",
+      "range": {
+        "startLine": 331,
+        "startChar": 12,
+        "endLine": 333,
+        "endChar": 29
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
