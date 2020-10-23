@@ -16,6 +16,24 @@
       "message": "It seems like we should either make the new behavior the default (or only behavior,) or leave it alone and try MTKView? It does seem strictly better to wait to create the command buffer.",
       "revId": "3b44e6d6cacd4ce363ec830af4761e0f68f050a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f26bd74b_74b30a2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-23T20:09:58Z",
+      "side": 1,
+      "message": "I\u0027m sorry, I\u0027m not sure which new behavior you\u0027re talking about. Unless I missed something there\u0027s no toggle here, it would always wait to create the command buffer until it\u0027s needed.",
+      "parentUuid": "fe6683a7_0b84492a",
+      "revId": "3b44e6d6cacd4ce363ec830af4761e0f68f050a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
