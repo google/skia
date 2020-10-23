@@ -16,6 +16,29 @@
       "message": "Ping",
       "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb32f123_7d43413c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-23T15:23:05Z",
+      "side": 1,
+      "message": "is the right name?",
+      "range": {
+        "startLine": 424,
+        "startChar": 31,
+        "endLine": 424,
+        "endChar": 36
+      },
+      "revId": "9e0c9d34bbe7a09ed809aba025dec8cb7d86fb40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
