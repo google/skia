@@ -321,6 +321,24 @@
       "parentUuid": "a52da951_92c1661a",
       "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74839662_6ade1cb9",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T15:56:38Z",
+      "side": 1,
+      "message": "Thanks for following up here. Apology accepted. I don\u0027t mind hearing your opinion; you\u0027re a smart guy and generally have good ideas. I respect that. I just want to make sure that in our future dialog, we stress test *ideas*, not *individuals*. If you didn\u0027t actually read my earlier go link, and just saw the title, please take a quick look--despite the jarring name I think it\u0027s an important pillar of Googleyness and it\u0027s a good reminder for *everyone* about how to function effectively on a team, myself included. (Especially in these WFH times where we can\u0027t build rapport/team cohesion in person.)",
+      "parentUuid": "cf815481_9e504e72",
+      "revId": "9c7c40b4f71329f833d9bcb1eeb3d98c802caaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
