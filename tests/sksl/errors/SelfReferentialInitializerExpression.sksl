@@ -1,0 +1,2 @@
+float foo(float v) { return v; }
+void main() { float x = foo(x); }
