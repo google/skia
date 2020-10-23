@@ -21,12 +21,13 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "modules/canvaskit/WasmCommon.h"
+#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkMD5.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ResourceFactory.h"
 #include "tools/flags/CommandLineFlags.h"
-
-#include "modules/canvaskit/WasmCommon.h"
+#include "tools/fonts/TestFontMgr.h"
 
 using namespace emscripten;
 
@@ -197,7 +198,13 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     return result;
 }
 
+void Init() {
+    // Use the portable fonts.
+    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+}
+
 EMSCRIPTEN_BINDINGS(GMs) {
+    function("Init", &Init);
     function("ListGMs", &ListGMs);
     function("LoadKnownDigest", &LoadKnownDigest);
     function("_LoadResource", &LoadResource);
