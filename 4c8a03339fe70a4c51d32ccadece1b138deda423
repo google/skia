@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c322c037_94fc509c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-23T18:01:16Z",
+      "side": 1,
+      "message": "I\u0027ll follow this up with the unit test CL.",
+      "revId": "4c8a03339fe70a4c51d32ccadece1b138deda423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
