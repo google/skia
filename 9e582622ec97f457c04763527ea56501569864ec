@@ -73,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3ec4a6a3_ca36483a",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T20:51:54Z",
+      "side": 1,
+      "message": "If we\u0027ve got strings that are always null terminated, we can just use a char* and that\u0027s even smaller than StringFragment.",
+      "parentUuid": "41a3588d_4c447d87",
+      "range": {
+        "startLine": 287,
+        "startChar": 17,
+        "endLine": 287,
+        "endChar": 56
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a9993b4_477da33c",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
