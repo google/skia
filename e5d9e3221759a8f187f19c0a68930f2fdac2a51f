@@ -33,6 +33,24 @@
       "message": "On my machine (Xcode 12.1 on Catalina,) this option doesn\u0027t seem to make much difference for me. I always use the redraw option in Viewer fwiw. With or without this option, I have a good number of frame captures that never really execute they kind of just stall. What was your experience with it Jim?",
       "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecc87196_9f977ab8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-23T19:21:12Z",
+      "side": 1,
+      "message": "I\u0027m using Xcode 11, maybe that\u0027s the difference.\n\nWithout this CL I can get a capture, but it doesn\u0027t include the main command buffer -- only the one for the present, and the one for the stats window if there is one.",
+      "parentUuid": "1e1def9a_d6ea1e1b",
+      "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
