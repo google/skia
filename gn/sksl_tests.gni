@@ -45,6 +45,7 @@ sksl_fp_tests = [
   "$_tests/sksl/fp/GrKeyIn.fp",
   "$_tests/sksl/fp/GrLayoutWhen.fp",
   "$_tests/sksl/fp/GrMainCoords.fp",
+  "$_tests/sksl/fp/GrNestedCall.fp",
   "$_tests/sksl/fp/GrNestedChildProcessors.fp",
   "$_tests/sksl/fp/GrNonInlinedInUniform.fp",
   "$_tests/sksl/fp/GrNullableChildProcessor.fp",
