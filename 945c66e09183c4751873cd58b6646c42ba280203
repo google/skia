@@ -33,6 +33,190 @@
       "message": "... and I\u0027m open to suggestions for better names, and for other spots that should be audited, commented, etc...",
       "revId": "945c66e09183c4751873cd58b6646c42ba280203",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8287c268_c0a6fb6e",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "Honestly I\u0027m on the fence whether a dedicated enum is actually more readable that just having ProgramUsageVisitor take a +1/-1 delta param, but it\u0027s fine either way.",
+      "range": {
+        "startLine": 186,
+        "startChar": 21,
+        "endLine": 186,
+        "endChar": 38
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cdf4a36_e0304180",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "There\u0027s one way that you might be able to use to enforce it--not sure if it would work, but I can\u0027t think of any reason why not. Have the caller pass in the unique_ptr to the sub-statement but NOT extract it out from the node\u0027s statement. The ProgramVisitor is going to walk the statement tree, so have it detect that statement pointer as part of that walk. If it sees that statement pointer, skip over it; don\u0027t descend into that portion of the tree. If it doesn\u0027t detect it at all, then you need to do a usage-\u003eadd() on the new replacement statement (or assert if we explicitly don\u0027t want to support this).\n\nThis has the side benefit of not needing to support nulls in the program tree when walking it, since we don\u0027t ask the calling code to move it.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 69
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48b2cdda_45707308",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "This comment took me a long time to parse because there\u0027s a lot going on. Here\u0027s my take. Did I get it?\n\n`stmt` is a sub-statement that was extracted from the original Statement referenced by this Node, or a Nop. (Or a null? Not sure, but we\u0027ve got new null checks.)\n\nBy the time you call `setStatement`, `stmt` is no longer actually a part of the existing statement held by the Node--the caller has decided to move it out, so that node will hold a null.\n\nIt\u0027s assumed that `usage` starts with all of the references in the Node\u0027s statement accounted for. However, the caller has stolen away the portion of that statement that they want to keep, but has not updated the usage bookkeeping to match. So we update the usage bookkeeping here, by walking the Node\u0027s statement in its current form and subtracting out references. This works because we\u0027ve already moved out the sub-statement that we want to keep (or we want to keep none of it, and we\u0027re replacing with a Nop or a null). Then we replace the Node\u0027s statement with the newly supplied statement.",
+      "range": {
+        "startLine": 58,
+        "startChar": 58,
+        "endLine": 59,
+        "endChar": 43
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "118229cf_86d008d7",
+        "filename": "src/sksl/SkSLCFGGenerator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "this Node\u0027s",
+      "range": {
+        "startLine": 61,
+        "startChar": 87,
+        "endLine": 61,
+        "endChar": 90
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8be2d3b6_7a1127f1",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "Please move inside the `if` block and change to `madeChanges \u003d true`.",
+      "range": {
+        "startLine": 1631,
+        "startChar": 39,
+        "endLine": 1631,
+        "endChar": 59
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9a4298a_418a58c0",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "This separates the comment block from the code that it is describing. Please move this above the big comment block.",
+      "range": {
+        "startLine": 1190,
+        "startChar": 0,
+        "endLine": 1192,
+        "endChar": 55
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a589b86_a3adcb8d",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "Don\u0027t we usually use references for mandatory params? I\u0027m not too picky about this at all; I\u0027ll go for whatever if it makes the code easier to read overall, but if it\u0027s a wash, should these be const refs?\n\n(go/skiastyle - \"Mandatory constant object parameters are passed to functions as const references. Optional constant object parameters are passed to functions as const pointers.\")",
+      "range": {
+        "startLine": 45,
+        "startChar": 37,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3152d570_5611403d",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-23T21:40:23Z",
+      "side": 1,
+      "message": "We call this `is_dead` elsewhere... should we do `isDead` for consistency?",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 13
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
