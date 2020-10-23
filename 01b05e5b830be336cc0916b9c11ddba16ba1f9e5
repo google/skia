@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ee9f794_9c3d8b83",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T20:45:20Z",
+      "side": 0,
+      "message": "SkASSERT(...fExtraKind \u003d\u003d TextureData) ?",
+      "range": {
+        "startLine": 331,
+        "startChar": 8,
+        "endLine": 331,
+        "endChar": 31
+      },
+      "revId": "01b05e5b830be336cc0916b9c11ddba16ba1f9e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

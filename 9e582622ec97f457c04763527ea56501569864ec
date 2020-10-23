@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "41a3588d_4c447d87",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T20:45:20Z",
+      "side": 1,
+      "message": "I was going to ask about this too. I\u0027m not even sure we need the std::string? It seems like we generally construct a bunch of Types with string literals, which can be StringFragments safely. For others, if we don\u0027t already put the new type\u0027s name in the symbol table, we could start doing that, and then we just always use the StringFragment version here.",
+      "parentUuid": "edcb443b_5b22aa59",
+      "range": {
+        "startLine": 287,
+        "startChar": 17,
+        "endLine": 287,
+        "endChar": 56
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a9993b4_477da33c",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
@@ -141,6 +165,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0fb45e90_79b4778d",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T20:45:20Z",
+      "side": 1,
+      "message": "No longer true",
+      "range": {
+        "startLine": 286,
+        "startChar": 11,
+        "endLine": 286,
+        "endChar": 60
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "121296b3_5e885288",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 2
@@ -175,6 +222,30 @@
       "writtenOn": "2020-10-23T20:39:52Z",
       "side": 1,
       "message": "Rather than assert on the extra kind anywhere `fExtra.xxxxxx` is accessed, should we make accessor functions in TypeData which do the assert for you? i.e.:\n\n  const std::vector\u003cField\u003e\u0026 fields() const {\n          return this-\u003etypeData().fields();\n  }\n\nwhere `fields` is\n  {\n          SkASSERT(this-\u003etypeData().fExtraKind \u003d\u003d IRNode::TypeData::ExtraKind::kFields);\n          return fExtra.fFields;\n  }\n\nSame for below as well.",
+      "range": {
+        "startLine": 316,
+        "startChar": 32,
+        "endLine": 316,
+        "endChar": 46
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3ee529d_fec6d72d",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T20:45:20Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "5d815476_3d4256bb",
       "range": {
         "startLine": 316,
         "startChar": 32,
