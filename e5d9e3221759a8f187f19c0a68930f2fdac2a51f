@@ -51,6 +51,24 @@
       "parentUuid": "1e1def9a_d6ea1e1b",
       "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dae29b3_09dc9e9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-23T19:36:34Z",
+      "side": 1,
+      "message": "Actually, I\u0027m somewhat wrong -- I have seen stalls occasionally, depending on the capture. That\u0027s probably due to the synchronization issue, as you said previously. Switching to MTKView might help that.",
+      "parentUuid": "ecc87196_9f977ab8",
+      "revId": "e5d9e3221759a8f187f19c0a68930f2fdac2a51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
