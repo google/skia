@@ -76,12 +76,33 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        surface = SkSurface::MakeFromCAMetalLayer(fContext.get(), (__bridge GrMTLHandle)fMetalLayer,
-                                                  kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                  kBGRA_8888_SkColorType,
-                                                  fDisplayParams.fColorSpace,
-                                                  &fDisplayParams.fSurfaceProps,
-                                                  &fDrawableHandle);
+        if (fDisplayParams.fDelayDrawableAcquisition) {
+            surface = SkSurface::MakeFromCAMetalLayer(fContext.get(),
+                                                      (__bridge GrMTLHandle)fMetalLayer,
+                                                      kTopLeft_GrSurfaceOrigin, fSampleCount,
+                                                      kBGRA_8888_SkColorType,
+                                                      fDisplayParams.fColorSpace,
+                                                      &fDisplayParams.fSurfaceProps,
+                                                      &fDrawableHandle);
+        } else {
+            id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
+
+            GrMtlTextureInfo fbInfo;
+            fbInfo.fTexture.retain(currentDrawable.texture);
+
+            GrBackendRenderTarget backendRT(fWidth,
+                                            fHeight,
+                                            fSampleCount,
+                                            fbInfo);
+
+            surface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             kBGRA_8888_SkColorType,
+                                                             fDisplayParams.fColorSpace,
+                                                             &fDisplayParams.fSurfaceProps);
+
+            fDrawableHandle = CFRetain((GrMTLHandle) currentDrawable);
+        }
     }
 
     return surface;
