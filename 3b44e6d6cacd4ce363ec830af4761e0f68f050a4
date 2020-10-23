@@ -34,6 +34,24 @@
       "parentUuid": "fe6683a7_0b84492a",
       "revId": "3b44e6d6cacd4ce363ec830af4761e0f68f050a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f385b220_2293d616",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-23T20:15:46Z",
+      "side": 1,
+      "message": "Oh I was confusing this with the previous CL. LGTM",
+      "parentUuid": "f26bd74b_74b30a2e",
+      "revId": "3b44e6d6cacd4ce363ec830af4761e0f68f050a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
