@@ -197,6 +197,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/NumberConversions.sksl",
   "$_tests/sksl/shared/Offset.sksl",
   "$_tests/sksl/shared/Operators.sksl",
+  "$_tests/sksl/shared/Ossfuzz26167.sksl",
   "$_tests/sksl/shared/OutParams.sksl",
   "$_tests/sksl/shared/OutParamsTricky.sksl",
   "$_tests/sksl/shared/RectangleTexture.sksl",

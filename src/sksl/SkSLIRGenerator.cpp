@@ -368,7 +368,11 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
     this->checkModifiers(decls.fOffset, modifiers, permitted);
 
     StatementArray varDecls;
+    bool firstDecl = true;
     for (; declarationsIter != decls.end(); ++declarationsIter) {
+        AutoDisableInline disableInline(this, /*canInline=*/firstDecl);
+        firstDecl = false;
+
         const ASTNode& varDecl = *declarationsIter;
         if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
             (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
