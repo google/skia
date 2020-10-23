@@ -17,6 +17,7 @@ sksl_fp_error_tests = [
   "$_tests/sksl/errors/GrNoFragmentProcessorLocals.fp",
   "$_tests/sksl/errors/GrNoFragmentProcessorParams.fp",
   "$_tests/sksl/errors/GrNoFragmentProcessorReturn.fp",
+  "$_tests/sksl/errors/GrRecursion.fp",
 ]
 
 sksl_fp_tests = [
