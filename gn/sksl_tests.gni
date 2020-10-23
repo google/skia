@@ -107,6 +107,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/ReturnFromVoid.sksl",
   "$_tests/sksl/errors/ReturnMissingValue.sksl",
   "$_tests/sksl/errors/ReturnTypeMismatch.sksl",
+  "$_tests/sksl/errors/SelfReferentialInitializerExpression.sksl",
   "$_tests/sksl/errors/SpuriousFloat.sksl",
   "$_tests/sksl/errors/StaticIfTest.sksl",
   "$_tests/sksl/errors/StaticSwitchConditionalBreak.sksl",
