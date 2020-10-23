@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "005c5f21_639aa2ca",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T21:00:46Z",
+      "side": 1,
+      "message": "Yeah. I think the one case where they might not be is new struct or enum types defined in the SkSL source, where the StringFragment name will point into the source buffer. But that\u0027s a rare case compared to everything else, so for these, we might be better off forcing a copy of those into the symbol table, too - and then we can shave another 8 bytes.",
+      "parentUuid": "3ec4a6a3_ca36483a",
+      "range": {
+        "startLine": 287,
+        "startChar": 17,
+        "endLine": 287,
+        "endChar": 56
+      },
+      "revId": "9e582622ec97f457c04763527ea56501569864ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a9993b4_477da33c",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
