@@ -3191,12 +3191,24 @@ bool GrGLCaps::canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuf
                                   const GrTextureType* dstTypeIfTexture,
                                   GrGLFormat srcFormat, bool srcHasMSAARenderBuffer,
                                   const GrTextureType* srcTypeIfTexture) const {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (GR_IS_GR_GL_ES(fStandard) &&
-        (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8)) {
-        return false;
+    if (GR_IS_GR_GL_ES(fStandard)) {
+        // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+        // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
+        // many drivers would allow it to work, but ANGLE does not.
+        if (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8) {
+            return false;
+        }
+
+        // Table 3.9 of the ES2 spec and 3.16 of ES3 spec  indicates the supported internal base
+        // formats with CopyTexSubImage. Each base format can be copied to itself or formats with
+        // less channels. For now we just require their internal formats match but we can extend
+        // this to support other copies to different base formats if needed. On ES3 we currently
+        // store internal formats as sized, so we will lose copies to different formats but have the
+        // same base format.
+        if (this->getTexImageOrStorageInternalFormat(dstFormat) !=
+            this->getTexImageOrStorageInternalFormat(srcFormat)) {
+            return false;
+        }
     }
 
     // CopyTexSubImage is invalid or doesn't copy what we want when we have msaa render buffers.
