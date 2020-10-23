@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4f5c70c_ee4d7860",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-23T13:57:46Z",
+      "side": 1,
+      "message": "I think this fix is okay. However, while we have a reproducible use-after-free that\u0027s masked by the pooling system, let\u0027s take advantage of that to add ASAN-poisoning to the pool, so we can verify it\u0027s working? ie: Put in free-block poisoning, which should cause the failure. Then put this fix in, which should (again) prevent it?",
+      "revId": "302f122bf31ad13e2b583722e757c91620a68247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
