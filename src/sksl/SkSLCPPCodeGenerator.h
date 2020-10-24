@@ -80,6 +80,8 @@ private:
 
     void writeCodeAppend(const String& code);
 
+    String assembleCodeAndFormatArgPrintf(const String& code);
+
     bool writeEmitCode(std::vector<const Variable*>& uniforms);
 
     void writeSetData(std::vector<const Variable*>& uniforms);
