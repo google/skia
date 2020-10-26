@@ -42,12 +42,11 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
     // the names will mismatch.  I think the correct solution is to have all GPs which need the
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
-    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
     GLUniformInfo& uni = fUniforms.push_back(GrGLProgramDataManager::GLUniformInfo{
         {
             GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::Uniform,
@@ -68,9 +67,8 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
         const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 
-    SkString mangleName;
-    char prefix = 'u';
-    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+    constexpr char prefix = 'u';
+    SkString mangleName = fProgramBuilder->nameVariable(prefix, name, true);
 
     GrTextureType type = backendFormat.textureType();
 

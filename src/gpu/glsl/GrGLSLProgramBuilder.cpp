@@ -288,19 +288,20 @@ void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
 }
 #endif
 
-void GrGLSLProgramBuilder::nameVariable(SkString* out, char prefix, const char* name, bool mangle) {
+SkString GrGLSLProgramBuilder::nameVariable(char prefix, const char* name, bool mangle) {
+    SkString out;
     if ('\0' == prefix) {
-        *out = name;
+        out = name;
     } else {
-        out->printf("%c%s", prefix, name);
+        out.printf("%c%s", prefix, name);
     }
     if (mangle) {
-        if (out->endsWith('_')) {
-            // Names containing "__" are reserved.
-            out->append("x");
-        }
-        out->appendf("_Stage%d%s", fStageIndex, fFS.getMangleString().c_str());
+        // Names containing "__" are reserved; add "x" if needed to avoid consecutive underscores.
+        const char *underscoreSplitter = out.endsWith('_') ? "x" : "";
+
+        out.appendf("%s_Stage%d%s", underscoreSplitter, fStageIndex, fFS.getMangleString().c_str());
     }
+    return out;
 }
 
 void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName) {
@@ -311,7 +312,7 @@ void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName
     if (output->size()) {
         outName = output->c_str();
     } else {
-        this->nameVariable(&outName, '\0', baseName);
+        outName = this->nameVariable(/*prefix=*/'\0', baseName);
     }
     fFS.codeAppendf("half4 %s;", outName.c_str());
     *output = outName;

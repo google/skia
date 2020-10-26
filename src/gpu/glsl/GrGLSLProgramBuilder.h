@@ -87,8 +87,9 @@ public:
 
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also will mangle the name to be stage-specific unless
-    // explicitly asked not to.
-    void nameVariable(SkString* out, char prefix, const char* name, bool mangle = true);
+    // explicitly asked not to. `nameVariable` can also be used to generate names for functions or
+    // other types of symbols where unique names are important.
+    SkString nameVariable(char prefix, const char* name, bool mangle = true);
 
     virtual GrGLSLUniformHandler* uniformHandler() = 0;
     virtual const GrGLSLUniformHandler* uniformHandler() const = 0;
