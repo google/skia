@@ -110,6 +110,30 @@
       },
       "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "229e1f15_255c6643",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3209,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-26T13:44:23Z",
+      "side": 1,
+      "message": "My guess is Chrome is importing an external texture into Skia and providing the wrong format information.",
+      "parentUuid": "69772304_e385787b",
+      "range": {
+        "startLine": 3208,
+        "startChar": 8,
+        "endLine": 3209,
+        "endChar": 66
+      },
+      "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
