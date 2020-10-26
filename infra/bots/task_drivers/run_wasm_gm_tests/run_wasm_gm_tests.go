@@ -193,7 +193,6 @@ func runTests(ctx context.Context, builtPath, nodeBinPath, resourcePath, testHar
 	ctx = td.StartStep(ctx, td.Props("run GMs and unit tests"))
 	defer td.EndStep(ctx)
 
-	// TODO(kjlubick) the test harness does not actually run unit tests yet.
 	err := td.Do(ctx, td.Props("Run GMs and Unit Tests"), func(ctx context.Context) error {
 		args := []string{filepath.Join(nodeBinPath, "node"),
 			"run-wasm-gm-tests",
@@ -203,7 +202,7 @@ func runTests(ctx context.Context, builtPath, nodeBinPath, resourcePath, testHar
 			"--use_gpu", // TODO(kjlubick) use webglVersion and account for CPU
 			"--output", workPath,
 			"--resources", resourcePath,
-			"--timeout", "120", // 120 seconds per batch of 50 tests.
+			"--timeout", "180", // 180 seconds per batch of 50 tests.
 		}
 
 		_, err := exec.RunCwd(ctx, testHarnessPath, args...)
