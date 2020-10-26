@@ -24,15 +24,6 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
-                                      GrAttachment*,
-                                      GrSurfaceOrigin,
-                                      const SkIRect&,
-                                      const GrOpsRenderPass::LoadAndStoreInfo&,
-                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                      const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                      GrXferBarrierFlags renderPassXferBarriers) override;
-
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) const override {}
@@ -136,6 +127,15 @@ private:
         SkASSERT(finishedProc);
         finishedProc(finishedContext);
     }
+
+    GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
+                                        GrAttachment*,
+                                        GrSurfaceOrigin,
+                                        const SkIRect&,
+                                        const GrOpsRenderPass::LoadAndStoreInfo&,
+                                        const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                        GrXferBarrierFlags renderPassXferBarriers) override;
 
     bool onSubmitToGpu(bool syncCpu) override {
         return true;

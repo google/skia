@@ -96,15 +96,6 @@ public:
         return nullptr;
     }
 
-    GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
-                                      GrAttachment*,
-                                      GrSurfaceOrigin,
-                                      const SkIRect&,
-                                      const GrOpsRenderPass::LoadAndStoreInfo&,
-                                      const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                      const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                      GrXferBarrierFlags renderPassXferBarriers) override;
-
     void addResourceBarriers(sk_sp<GrManagedResource> resource,
                              int numBarriers,
                              D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
@@ -212,6 +203,15 @@ private:
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
     void addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback);
+
+    GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
+                                        GrAttachment*,
+                                        GrSurfaceOrigin,
+                                        const SkIRect&,
+                                        const GrOpsRenderPass::LoadAndStoreInfo&,
+                                        const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                        GrXferBarrierFlags renderPassXferBarriers) override;
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             GrSurfaceProxy* proxies[],
