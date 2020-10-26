@@ -48,7 +48,7 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const char* body,
                                        SkString* outName,
                                        bool forceInline) {
-    fProgramBuilder->nameVariable(outName, '\0', name);
+    *outName = fProgramBuilder->nameVariable(/*prefix=*/'\0', name);
     this->functions().appendf("%s%s %s(",
                               forceInline ? "inline " : "",
                               GrGLSLTypeString(returnType),
