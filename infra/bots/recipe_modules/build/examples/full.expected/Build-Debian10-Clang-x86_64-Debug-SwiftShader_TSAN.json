@@ -48,7 +48,8 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader cmake"
   },
@@ -65,7 +66,8 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader ninja"
   },

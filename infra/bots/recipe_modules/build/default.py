@@ -35,7 +35,12 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
   env = {
       'CC': cc,
       'CXX': cxx,
-      'PATH': '%%(PATH)s:%s' % cmake_bin
+      'PATH': '%%(PATH)s:%s' % cmake_bin,
+      # We arrange our MSAN/TSAN prebuilts a little differently than
+      # SwiftShader's CMakeLists.txt expects, so we'll just keep our custom
+      # setup (everything mentioning libcxx below) and point SwiftShader's
+      # CMakeLists.txt at a harmless non-existent path.
+      'SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH': '/totally/phony/path',
   }
 
   # Extra flags for MSAN/TSAN, if necessary.
