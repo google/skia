@@ -67,7 +67,6 @@ protected:
             g->codeAppendf("%s *= half(sk_in[0].sk_Position.w);", wind.c_str());
         }
 
-        SkString emitVertexFn;
         SkSTArray<3, GrShaderVar> emitArgs;
         const char* corner = emitArgs.emplace_back("corner", kFloat2_GrSLType).c_str();
         const char* bloatdir = emitArgs.emplace_back("bloatdir", kFloat2_GrSLType).c_str();
@@ -79,14 +78,17 @@ protected:
         if (Subpass::kCorners == proc.fSubpass) {
             cornerCoverage = emitArgs.emplace_back("corner_coverage", kHalf2_GrSLType).c_str();
         }
-        g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
+        SkString emitVertexFn = g->getMangledFunctionName("emitVertex");
+        g->emitFunction(kVoid_GrSLType, emitVertexFn.c_str(),
+                        emitArgs.count(), emitArgs.begin(), [&] {
             SkString fnBody;
-            fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
+            fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir,
+                           corner);
             const char* coverage = inputCoverage;
             if (!coverage) {
                 if (!fShader->calculatesOwnEdgeCoverage()) {
-                    // Flat edge opposite the curve. Coverages need full precision since distance
-                    // to the opposite edge can be large.
+                    // Flat edge opposite the curve. Coverages need full precision since
+                    // distance to the opposite edge can be large.
                     fnBody.appendf("float coverage = dot(float3(vertexpos, 1), %s);",
                                    fEdgeDistanceEquation.c_str());
                 } else {
@@ -103,7 +105,7 @@ protected:
                                   "vertexpos", coverage, cornerCoverage, wind.c_str());
             g->emitVertex(&fnBody, "vertexpos");
             return fnBody;
-        }().c_str(), &emitVertexFn);
+        }().c_str());
 
         float bloat = kAABloatRadius;
 #ifdef SK_DEBUG

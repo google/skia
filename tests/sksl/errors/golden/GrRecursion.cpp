@@ -24,7 +24,8 @@ public:
         const String factorial_impl = String::printf(R"SkSL(return x <= 1 ? 1 : x * %s(x - 1);
 )SkSL"
 , factorial_name.c_str());
-        fragBuilder->emitFunction(kInt_GrSLType, "factorial", 1, factorial_args, factorial_impl.c_str(), &factorial_name);
+        factorial_name = fragBuilder->getMangledFunctionName("factorial");
+fragBuilder->emitFunction(kInt_GrSLType, factorial_name.c_str(), 1, factorial_args, factorial_impl.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(int _0_factorial;
 {

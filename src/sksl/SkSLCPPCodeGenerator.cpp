@@ -641,13 +641,14 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
             funcImpl = "\nR\"SkSL(" + buffer.str() + ")SkSL\"";
         }
 
-        String emit = "fragBuilder->emitFunction(";
+        String emit = decl.name() + "_name = fragBuilder->getMangledFunctionName(\"";
+        emit += decl.name() + "\");\n";
+        emit += "fragBuilder->emitFunction(";
         emit += glsltype_string(fContext, decl.returnType());
-        emit += ", \"" + decl.name() + "\"";
+        emit += ", " + decl.name() + "_name.c_str()";
         emit += ", " + to_string((int64_t) decl.parameters().size());
         emit += ", " + decl.name() + "_args";
-        emit += "," + funcImpl;
-        emit += ", &" + decl.name() + "_name);";
+        emit += "," + funcImpl + ");";
         this->addExtraEmitCodeLine(emit.c_str());
     }
 }

@@ -24,13 +24,15 @@ public:
         const String func1_impl = String::printf(R"SkSL(return %s();
 )SkSL"
 , func2_name.c_str());
-        fragBuilder->emitFunction(kHalf4_GrSLType, "func1", 0, func1_args, func1_impl.c_str(), &func1_name);
+        func1_name = fragBuilder->getMangledFunctionName("func1");
+fragBuilder->emitFunction(kHalf4_GrSLType, func1_name.c_str(), 0, func1_args, func1_impl.c_str());
         SkString func2_name;
         const GrShaderVar func2_args[] = { };
         const String func2_impl = String::printf(R"SkSL(return %s();
 )SkSL"
 , func3_name.c_str());
-        fragBuilder->emitFunction(kHalf4_GrSLType, "func2", 0, func2_args, func2_impl.c_str(), &func2_name);
+        func2_name = fragBuilder->getMangledFunctionName("func2");
+fragBuilder->emitFunction(kHalf4_GrSLType, func2_name.c_str(), 0, func2_args, func2_impl.c_str());
         SkString func3_name;
         const GrShaderVar func3_args[] = { };
         fragBuilder->codeAppendf(
