@@ -197,12 +197,12 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
         this->codeAppendf("return %s;\n", args.fOutputColor);
     }
 
-    SkString result;
-    this->emitFunction(kHalf4_GrSLType, args.fFp.name(), paramCount, params,
-                       this->code().c_str(), &result, args.fForceInline);
+    SkString funcName = this->getMangledFunctionName(args.fFp.name());
+    this->emitFunction(kHalf4_GrSLType, funcName.c_str(), paramCount, params,
+                       this->code().c_str(), args.fForceInline);
     this->deleteStage();
     this->onAfterChildProcEmitCode();
-    return result;
+    return funcName;
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {

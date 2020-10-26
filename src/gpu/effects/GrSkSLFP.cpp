@@ -95,16 +95,15 @@ public:
             }
         }
         for (const auto& f : fArgs.fFunctions) {
-            fFunctionNames.emplace_back();
+            fFunctionNames.push_back(fragBuilder->getMangledFunctionName(f.fName.c_str()));
             auto fmtArgIter = f.fFormatArgs.cbegin();
             SkSL::String body = this->expandFormatArgs(f.fBody, args, fmtArgIter);
             SkASSERT(fmtArgIter == f.fFormatArgs.cend());
             fragBuilder->emitFunction(f.fReturnType,
-                                      f.fName.c_str(),
+                                      fFunctionNames.back().c_str(),
                                       f.fParameters.size(),
                                       f.fParameters.data(),
-                                      body.c_str(),
-                                      &fFunctionNames.back());
+                                      body.c_str());
         }
         fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         auto fmtArgIter = fArgs.fFormatArgs.cbegin();
