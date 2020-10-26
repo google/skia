@@ -230,12 +230,11 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     // the names will mismatch.  I think the correct solution is to have all GPs which need the
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
-    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
