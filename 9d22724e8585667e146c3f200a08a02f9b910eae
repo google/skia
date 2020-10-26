@@ -83,6 +83,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8d85e66_57f4cb1e",
+        "filename": "src/gpu/GrMemoryPool.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-26T18:46:18Z",
+      "side": 1,
+      "message": "Sounds good",
+      "parentUuid": "61ba2477_fe708887",
+      "range": {
+        "startLine": 117,
+        "startChar": 6,
+        "endLine": 117,
+        "endChar": 21
+      },
+      "revId": "9d22724e8585667e146c3f200a08a02f9b910eae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9a7315d_d2b74ffc",
@@ -355,6 +379,30 @@
       "side": 1,
       "message": "I like this here, because it is only used in GrSimpleMeshDrawOpHelper::FactoryHelper, and is a bit dangerous to use without having the helper call the GrProcessorSet dtor. This placement will cause an error if called outside this file, forcing people to consider the use. Ultimately, I think the the FactoryHelper stuff can be cleaned up, and this ::Make can be removed.",
       "parentUuid": "6dfbc40e_cb0ba37a",
+      "range": {
+        "startLine": 193,
+        "startChar": 20,
+        "endLine": 193,
+        "endChar": 40
+      },
+      "revId": "9d22724e8585667e146c3f200a08a02f9b910eae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "438a9a31_f25bf09a",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-26T18:46:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9eb14ae0_2a6b0ee0",
       "range": {
         "startLine": 193,
         "startChar": 20,
