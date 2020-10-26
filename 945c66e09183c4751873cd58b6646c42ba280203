@@ -131,6 +131,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0125c267_a33ce8a8",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-26T14:43:33Z",
+      "side": 1,
+      "message": "That\u0027s definitely true, you could do a consistency check in SkDEBUGCODE as well. I almost suggested that, actually, but then I had my idea above and suggested it because it\u0027s a guarantee instead of an assertion. At any rate, I would be fine with doing any/all of these in separate follow-up CLs; it\u0027s fine to submit what we have now.",
+      "parentUuid": "e9a03125_07dd9bbf",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 69
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "48b2cdda_45707308",
         "filename": "src/sksl/SkSLCFGGenerator.h",
         "patchSetId": 9
