@@ -3191,12 +3191,43 @@ bool GrGLCaps::canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuf
                                   const GrTextureType* dstTypeIfTexture,
                                   GrGLFormat srcFormat, bool srcHasMSAARenderBuffer,
                                   const GrTextureType* srcTypeIfTexture) const {
-    // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
-    // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
-    // many drivers would allow it to work, but ANGLE does not.
-    if (GR_IS_GR_GL_ES(fStandard) &&
-        (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8)) {
+    // The types of the formats must match
+    if (this->getFormatDefaultExternalType(dstFormat) !=
+        this->getFormatDefaultExternalType(srcFormat)) {
         return false;
+    }
+
+    if (GR_IS_GR_GL_ES(fStandard)) {
+        // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+        // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it.
+        // Perhaps many drivers would allow it to work, but ANGLE does not.
+        if (dstFormat == GrGLFormat::kBGRA8 || srcFormat == GrGLFormat::kBGRA8) {
+            return false;
+        }
+
+        // Table 3.9 of the ES2 spec and 3.16 of ES3 spec indicates the supported internal base
+        // formats with CopyTexSubImage. Each base format can be copied to itself or formats with
+        // less channels.
+        uint32_t dstChannels = GrGLFormatChannels(dstFormat);
+        uint32_t srcChannels = GrGLFormatChannels(srcFormat);
+        if (!dstChannels || !srcChannels) {
+            // The formats don't represent color channels (i.e. may be depth stencil)
+            return false;
+        }
+        // The dst channels have to be a subset of the srcChannels, unless the dst is going to
+        // gray.
+        if ((dstChannels & srcChannels) != srcChannels) {
+            if (dstChannels == kGray_SkColorChannelFlag) {
+                // We can't copy Alpha into a Luminance channel
+                if (srcChannels == kAlpha_8_SkColorType) {
+                    return false;
+                }
+            } else {
+                // Currently we don't support any LA formats
+                SkASSERT((dstChannels & kGray_SkColorChannelFlag) == 0);
+                return false;
+            }
+        }
     }
 
     // CopyTexSubImage is invalid or doesn't copy what we want when we have msaa render buffers.
