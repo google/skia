@@ -153,6 +153,8 @@ public:
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> findVertsWithData(
                             const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
+    bool (*PFPickOne)(SkData* incumbent, SkData* challenger);
+
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> addVertsWithData(
                             const GrUniqueKey&, sk_sp<VertexData>)  SK_EXCLUDES(fSpinLock);
 
