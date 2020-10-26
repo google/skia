@@ -153,8 +153,11 @@ public:
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> findVertsWithData(
                             const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
+    typedef bool (*NewerIsBetter)(SkData* incumbent, SkData* challenger);
+
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> addVertsWithData(
-                            const GrUniqueKey&, sk_sp<VertexData>)  SK_EXCLUDES(fSpinLock);
+                            const GrUniqueKey&, sk_sp<VertexData>,
+                            NewerIsBetter)  SK_EXCLUDES(fSpinLock);
 
     void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -239,7 +242,7 @@ private:
         }
 
         void set(const GrUniqueKey& key, sk_sp<VertexData> vertData) {
-            SkASSERT(fTag == kEmpty);
+            SkASSERT(fTag == kEmpty || fTag == kVertData);
             fKey = key;
             fVertData = vertData;
             fTag = kVertData;

@@ -494,7 +494,7 @@ private:
 
             fVertexData = GrThreadSafeCache::MakeVertexData(verts, 4, kVertSize);
 
-            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData);
+            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData, newer_is_better);
             if (tmpV != fVertexData) {
                 // Someone beat us to creating the vertex data. Use that version.
                 fVertexData = tmpV;
