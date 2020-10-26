@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55e0e636_8e276d43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-26T14:43:41Z",
+      "side": 1,
+      "message": "Okay this has been updated to actually look at the channels involved so we aren\u0027t as restrictive as my original patch. Obviously this doesn\u0027t fix the case where Skia and Angle think the format is different.",
+      "revId": "9ce301f82cdee1aa5622b877a65700b24b9e4e3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
