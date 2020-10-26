@@ -223,6 +223,7 @@ async function driveBrowser() {
     process.exit(1);
   }
   console.log("Loading " + targetURL);
+  let failed = [];
   try {
     await page.goto(targetURL, {
       timeout: 60000,
@@ -238,7 +239,9 @@ async function driveBrowser() {
 
     const err = await page.evaluate('window._error');
     if (err) {
-      console.log(`ERROR: ${err}`);
+      const log = await page.evaluate('window._log');
+      console.info(log);
+      console.error(`ERROR: ${err}`);
       process.exit(1);
     }
 
@@ -261,7 +264,9 @@ async function driveBrowser() {
         };
       });
       if (progress.err) {
-        console.log(`ERROR: ${progress.err}`);
+        const log = await page.evaluate('window._log');
+        console.info(log);
+        console.error(`ERROR: ${progress.err}`);
         process.exit(1);
       }
       if (progress.done) {
@@ -273,7 +278,11 @@ async function driveBrowser() {
     }
 
     const goldResults = await page.evaluate('window._results');
-    console.debug(goldResults);
+    failed = await(page.evaluate('window._failed'));
+
+    const log = await page.evaluate('window._log');
+    console.info(log);
+
 
     const jsonFile = path.join(options.output, 'gold_results.json');
     fs.writeFileSync(jsonFile, JSON.stringify(goldResults));
@@ -290,6 +299,13 @@ async function driveBrowser() {
 
   await browser.close();
   await new Promise((resolve) => server.close(resolve));
+
+  if (failed.length > 0) {
+    console.error('Failed tests', failed);
+    process.exit(1);
+  } else {
+    process.exit(0);
+  }
 }
 
 driveBrowser();
