@@ -22,6 +22,30 @@
       },
       "revId": "af5d73a0259ce5b27c5d289e9bc55ffba1249934",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b4dde5f_a2d77bed",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-26T15:53:05Z",
+      "side": 1,
+      "message": "I think you\u0027re right; I suspect we don\u0027t use modulo in any of our FP files so this has just been a latent bug.",
+      "parentUuid": "e1dc2316_378a49cd",
+      "range": {
+        "startLine": 878,
+        "startChar": 0,
+        "endLine": 880,
+        "endChar": 13
+      },
+      "revId": "af5d73a0259ce5b27c5d289e9bc55ffba1249934",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
