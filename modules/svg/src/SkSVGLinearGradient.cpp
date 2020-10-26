@@ -59,11 +59,26 @@ sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   const SkColor* colors, const SkScalar* pos,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
-    const auto& lctx = ctx.lengthContext();
-    const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);
-    const auto y1 = lctx.resolve(fY1, SkSVGLengthContext::LengthType::kVertical);
-    const auto x2 = lctx.resolve(fX2, SkSVGLengthContext::LengthType::kHorizontal);
-    const auto y2 = lctx.resolve(fY2, SkSVGLengthContext::LengthType::kVertical);
+    const SkSVGLengthContext lctx = lengthContextForGradientUnits(ctx);
+    auto x1 = lctx.resolve(convertLengthForGradientUnits(fX1),
+                           SkSVGLengthContext::LengthType::kHorizontal);
+    auto y1 = lctx.resolve(convertLengthForGradientUnits(fY1),
+                           SkSVGLengthContext::LengthType::kVertical);
+    auto x2 = lctx.resolve(convertLengthForGradientUnits(fX2),
+                           SkSVGLengthContext::LengthType::kHorizontal);
+    auto y2 = lctx.resolve(convertLengthForGradientUnits(fY2),
+                           SkSVGLengthContext::LengthType::kVertical);
+
+    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox) {
+        SkASSERT(ctx.node());
+        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx.lengthContext());
+        if (!objBounds.isEmpty()) {
+            x1 = objBounds.fLeft + objBounds.width() * x1;
+            y1 = objBounds.fTop + objBounds.height() * y1;
+            x2 = objBounds.fLeft + objBounds.width() * x2;
+            y2 = objBounds.fTop + objBounds.height() * y2;
+        }
+    }
 
     const SkPoint pts[2] = { {x1, y1}, {x2, y2}};
 

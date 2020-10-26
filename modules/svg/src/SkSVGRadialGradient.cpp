@@ -65,21 +65,62 @@ void SkSVGRadialGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& 
 }
 
 sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
-                                                  const SkColor* colors, const SkScalar* pos,
-                                                  int count, SkTileMode tm,
+                                                  const SkColor* colors,
+                                                  const SkScalar* pos,
+                                                  int count,
+                                                  SkTileMode tm,
                                                   const SkMatrix& m) const {
-    const auto&  lctx = ctx.lengthContext();
-    const auto      r = lctx.resolve(fR , SkSVGLengthContext::LengthType::kOther);
-    const auto center = SkPoint::Make(
-            lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal),
-            lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical));
-    const auto  focal = SkPoint::Make(
-        fFx.isValid() ? lctx.resolve(*fFx, SkSVGLengthContext::LengthType::kHorizontal)
-                      : center.x(),
-        fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
-                      : center.y());
+    const SkSVGLengthContext lctx = lengthContextForGradientUnits(ctx);
+    auto r =
+            lctx.resolve(convertLengthForGradientUnits(fR), SkSVGLengthContext::LengthType::kOther);
+    auto center = SkPoint::Make(lctx.resolve(convertLengthForGradientUnits(fCx),
+                                                   SkSVGLengthContext::LengthType::kHorizontal),
+                                      lctx.resolve(convertLengthForGradientUnits(fCy),
+                                                   SkSVGLengthContext::LengthType::kVertical));
+    auto focal =
+            SkPoint::Make(fFx.isValid() ? lctx.resolve(convertLengthForGradientUnits(*fFx),
+                                                       SkSVGLengthContext::LengthType::kHorizontal)
+                                        : center.x(),
+                          fFy.isValid() ? lctx.resolve(convertLengthForGradientUnits(*fFy),
+                                                       SkSVGLengthContext::LengthType::kVertical)
+                                        : center.y());
 
-    return center == focal
-        ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)
-        : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, pos, count, tm, 0, &m);
+
+    // TODO: Handle r == 0 which has a specific meaning according to the spec
+    SkASSERT(r != 0);
+
+    SkMatrix localMatrix;
+    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox) {
+        SkASSERT(ctx.node());
+        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx.lengthContext());
+        if (!objBounds.isEmpty()) {
+            const SkScalar f = SkScalarSqrt(objBounds.width() * objBounds.height()) / 100;
+            r *= f;
+
+            center.fX = objBounds.fLeft + objBounds.width() * center.fX;
+            center.fY = objBounds.fTop + objBounds.height() * center.fY;
+            if (fFx.isValid()) {
+                focal.fX = objBounds.fLeft + objBounds.width() * focal.fX;
+            } else {
+                focal.fX = center.fX;
+            }
+            if (fFy.isValid()) {
+                focal.fY = objBounds.fTop + objBounds.height() * focal.fY;
+            } else {
+                focal.fY = center.fY;
+            }
+
+            localMatrix.preTranslate(center.fX, center.fY);
+            localMatrix.preScale(objBounds.width() / r, objBounds.height() / r);
+        }
+    } else {
+        localMatrix.preTranslate(center.fX, center.fY);
+    }
+
+    localMatrix.preConcat(m);
+
+    return center == focal ? SkGradientShader::MakeRadial({0, 0}, r, colors, pos, count, tm, 0,
+                                                          &localMatrix)
+                           : SkGradientShader::MakeTwoPointConical(focal, 0, {0, 0}, r, colors, pos,
+                                                                   count, tm, 0, &localMatrix);
 }
