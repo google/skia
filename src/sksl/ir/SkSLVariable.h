@@ -38,39 +38,35 @@ public:
 
     Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
              bool builtin, Storage storage, const Expression* initialValue = nullptr)
-    : INHERITED(offset, VariableData{name, type, initialValue, modifiers, storage, builtin}) {}
-
-    const Type& type() const override {
-        return *this->variableData().fType;
-    }
+    : INHERITED(offset, kSymbolKind, name, type)
+    , fInitialValue(initialValue)
+    , fModifiersHandle(modifiers)
+    , fStorage(storage)
+    , fBuiltin(builtin) {}
 
     const Modifiers& modifiers() const {
-        return *this->variableData().fModifiersHandle;
+        return *fModifiersHandle;
     }
 
     const ModifiersPool::Handle& modifiersHandle() const {
-        return this->variableData().fModifiersHandle;
+        return fModifiersHandle;
     }
 
     bool isBuiltin() const {
-        return this->variableData().fBuiltin;
+        return fBuiltin;
     }
 
     Storage storage() const {
-        return (Storage) this->variableData().fStorage;
+        return (Storage) fStorage;
     }
 
     const Expression* initialValue() const {
-        return this->variableData().fInitialValue;
+        return fInitialValue;
     }
 
     void setInitialValue(const Expression* initialValue) {
         SkASSERT(!this->initialValue());
-        this->variableData().fInitialValue = initialValue;
-    }
-
-    StringFragment name() const override {
-        return this->variableData().fName;
+        fInitialValue = initialValue;
     }
 
     String description() const override {
@@ -78,6 +74,11 @@ public:
     }
 
 private:
+    const Expression* fInitialValue = nullptr;
+    ModifiersPool::Handle fModifiersHandle;
+    VariableStorage fStorage;
+    bool fBuiltin;
+
     using INHERITED = Symbol;
 
     friend class VariableReference;

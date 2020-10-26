@@ -22,17 +22,7 @@ IRNode::IRNode(int offset, int kind, const BoolLiteralData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const EnumData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const ExternalValueData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const FieldData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
@@ -57,16 +47,6 @@ IRNode::IRNode(int offset, int kind, const FunctionCallData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const FunctionDeclarationData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const FunctionDefinitionData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const FunctionReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -82,22 +62,12 @@ IRNode::IRNode(int offset, int kind, const InlineMarkerData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const InterfaceBlockData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
 
 IRNode::IRNode(int offset, int kind, const ModifiersDeclarationData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const SectionData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
@@ -137,6 +107,11 @@ IRNode::IRNode(int offset, int kind, const Type* data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const TypeData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const TypeReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -157,16 +132,15 @@ IRNode::IRNode(int offset, int kind, const VarDeclarationData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const VariableData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const VariableReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
 
 IRNode::~IRNode() {}
+
+String TypeField::description() const {
+    return fType->displayName() + " " + fName + ";";
+}
 
 } // namespace SkSL

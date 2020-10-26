@@ -15,22 +15,26 @@ namespace SkSL {
 /**
  * A section declaration (e.g. @body { body code here })..
  */
-struct Section : public ProgramElement {
+class Section : public ProgramElement {
+public:
     static constexpr Kind kProgramElementKind = Kind::kSection;
 
     Section(int offset, String name, String arg, String text)
-    : INHERITED(offset, SectionData{std::move(name), std::move(arg), std::move(text)}) {}
+    : INHERITED(offset, kProgramElementKind)
+    , fName(std::move(name))
+    , fArgument(std::move(arg))
+    , fText(std::move(text)) {}
 
     const String& name() const {
-        return this->sectionData().fName;
+        return fName;
     }
 
     const String& argument() const {
-        return this->sectionData().fArgument;
+        return fArgument;
     }
 
     const String& text() const {
-        return this->sectionData().fText;
+        return fText;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
@@ -46,6 +50,11 @@ struct Section : public ProgramElement {
         result += " { " + this->text() + " }";
         return result;
     }
+
+private:
+    String fName;
+    String fArgument;
+    String fText;
 
     using INHERITED = ProgramElement;
 };

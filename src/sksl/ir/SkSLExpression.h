@@ -114,7 +114,7 @@ public:
     }
 
     virtual const Type& type() const {
-        return *this->typeData();
+        return *this->typePointerData();
     }
 
     /**
