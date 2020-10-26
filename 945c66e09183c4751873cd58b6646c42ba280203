@@ -153,6 +153,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87c050e6_c73e834c",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-26T15:24:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0125c267_a33ce8a8",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 69
+      },
+      "revId": "945c66e09183c4751873cd58b6646c42ba280203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "48b2cdda_45707308",
