@@ -594,6 +594,38 @@ static const char* glsltype_string(const Context& context, const Type& type) {
     return nullptr;
 }
 
+void CPPCodeGenerator::writeFunctionPrototype(const FunctionDefinition& f) {
+    const FunctionDeclaration& decl = f.declaration();
+    if (decl.isBuiltin() || decl.name() == "main") {
+        return;
+    }
+
+    String funcName = decl.name();
+    this->addExtraEmitCodeLine(
+            String::printf("SkString %s_name = fragBuilder->getMangledFunctionName(\"%s\");",
+                           funcName.c_str(),
+                           funcName.c_str()));
+
+    String args = String::printf("const GrShaderVar %s_args[] = { ", funcName.c_str());
+    const char* separator = "";
+    for (const Variable* param : decl.parameters()) {
+        String paramName = param->name();
+        args.appendf("%sGrShaderVar(\"%s\", %s)", separator, paramName.c_str(),
+                                                  glsltype_string(fContext, param->type()));
+        separator = ", ";
+    }
+    args += " };";
+
+    this->addExtraEmitCodeLine(args.c_str());
+
+    this->addExtraEmitCodeLine(
+            String::printf("fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), %zu, %s_args);",
+                           glsltype_string(fContext, decl.returnType()),
+                           funcName.c_str(),
+                           decl.parameters().size(),
+                           funcName.c_str()));
+}
+
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     const FunctionDeclaration& decl = f.declaration();
     if (decl.isBuiltin()) {
@@ -615,40 +647,30 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        this->addExtraEmitCodeLine("SkString " + decl.name() + "_name = "
-                                   "fragBuilder->getMangledFunctionName(\"" + decl.name() + "\");");
-        String args = "const GrShaderVar " + decl.name() + "_args[] = { ";
-        const char* separator = "";
-        for (const Variable* param : decl.parameters()) {
-            args += String(separator) + "GrShaderVar(\"" + param->name() + "\", " +
-                    glsltype_string(fContext, param->type()) + ")";
-            separator = ", ";
-        }
-        args += "};";
-        this->addExtraEmitCodeLine(args.c_str());
         for (const std::unique_ptr<Statement>& s : f.body()->as<Block>().children()) {
             this->writeStatement(*s);
             this->writeLine();
         }
 
         fOut = oldOut;
+        String funcName = decl.name();
 
         String funcImpl;
         if (!fFormatArgs.empty()) {
-            this->addExtraEmitCodeLine("const String " + decl.name() + "_impl = String::printf(" +
+            this->addExtraEmitCodeLine("const String " + funcName + "_impl = String::printf(" +
                                        assembleCodeAndFormatArgPrintf(buffer.str()).c_str() + ");");
-            funcImpl = " " + decl.name() + "_impl.c_str()";
+            funcImpl = String::printf(" %s_impl.c_str()", funcName.c_str());
         } else {
             funcImpl = "\nR\"SkSL(" + buffer.str() + ")SkSL\"";
         }
 
-        String emit = "fragBuilder->emitFunction(";
-        emit += glsltype_string(fContext, decl.returnType());
-        emit += ", " + decl.name() + "_name.c_str()";
-        emit += ", " + to_string((int64_t) decl.parameters().size());
-        emit += ", " + decl.name() + "_args";
-        emit += "," + funcImpl + ");";
-        this->addExtraEmitCodeLine(emit.c_str());
+        this->addExtraEmitCodeLine(
+                String::printf("fragBuilder->emitFunction(%s, %s_name.c_str(), %zu, %s_args,%s);",
+                               glsltype_string(fContext, decl.returnType()),
+                               funcName.c_str(),
+                               decl.parameters().size(),
+                               funcName.c_str(),
+                               funcImpl.c_str()));
     }
 }
 
@@ -1001,6 +1023,13 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     fOut = &skslBuffer;
 
     this->newExtraEmitCodeBlock();
+
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<FunctionDefinition>()) {
+            this->writeFunctionPrototype(p->as<FunctionDefinition>());
+        }
+    }
+
     bool result = INHERITED::generateCode();
     this->flushEmittedCode();
 

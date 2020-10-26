@@ -20,19 +20,22 @@ public:
         const GrNestedCall& _outer = args.fFp.cast<GrNestedCall>();
         (void) _outer;
         SkString func1_name = fragBuilder->getMangledFunctionName("func1");
-        const GrShaderVar func1_args[] = { };
+        const GrShaderVar func1_args[] = {  };
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func1_name.c_str(), 0, func1_args);
+        SkString func2_name = fragBuilder->getMangledFunctionName("func2");
+        const GrShaderVar func2_args[] = {  };
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func2_name.c_str(), 0, func2_args);
+        SkString func3_name = fragBuilder->getMangledFunctionName("func3");
+        const GrShaderVar func3_args[] = {  };
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func3_name.c_str(), 0, func3_args);
         const String func1_impl = String::printf(R"SkSL(return %s();
 )SkSL"
 , func2_name.c_str());
         fragBuilder->emitFunction(kHalf4_GrSLType, func1_name.c_str(), 0, func1_args, func1_impl.c_str());
-        SkString func2_name = fragBuilder->getMangledFunctionName("func2");
-        const GrShaderVar func2_args[] = { };
         const String func2_impl = String::printf(R"SkSL(return %s();
 )SkSL"
 , func3_name.c_str());
         fragBuilder->emitFunction(kHalf4_GrSLType, func2_name.c_str(), 0, func2_args, func2_impl.c_str());
-        SkString func3_name = fragBuilder->getMangledFunctionName("func3");
-        const GrShaderVar func3_args[] = { };
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s();
 )SkSL"

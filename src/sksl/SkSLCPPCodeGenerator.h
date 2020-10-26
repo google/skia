@@ -59,6 +59,8 @@ private:
 
     void writeFunction(const FunctionDefinition& f) override;
 
+    void writeFunctionPrototype(const FunctionDefinition& f);
+
     void writeSetting(const Setting& s) override;
 
     void writeProgramElement(const ProgramElement& p) override;
