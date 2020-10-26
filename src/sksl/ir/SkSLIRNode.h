@@ -25,7 +25,7 @@ namespace SkSL {
 class Expression;
 class ExternalValue;
 class FunctionDeclaration;
-struct FunctionDefinition;
+class FunctionDefinition;
 class Statement;
 class Symbol;
 class SymbolTable;
@@ -67,8 +67,6 @@ public:
 
     // Override operator new and delete to allow us to control allocation behavior.
     static void* operator new(const size_t size) {
-        // TODO: once all IRNodes hold their data in fData, everything should come out of the pool,
-        // and this check should become an assertion.
         if (size == sizeof(IRNode)) {
             return Pool::AllocIRNode();
         }
@@ -93,23 +91,9 @@ protected:
         bool fValue;
     };
 
-    struct EnumData {
-        StringFragment fTypeName;
-        std::shared_ptr<SymbolTable> fSymbols;
-        bool fIsSharedWithCpp;
-        bool fIsBuiltin;
-    };
-
     struct ExternalValueData {
         const Type* fType;
         const ExternalValue* fValue;
-    };
-
-    struct FieldData {
-        StringFragment fName;
-        const Type* fType;
-        const Variable* fOwner;
-        int fFieldIndex;
     };
 
     struct FieldAccessData {
@@ -132,40 +116,6 @@ protected:
         const FunctionDeclaration* fFunction;
     };
 
-    struct FunctionDeclarationData {
-        StringFragment fName;
-        mutable const FunctionDefinition* fDefinition;
-        ModifiersPool::Handle fModifiersHandle;
-        // FIXME after killing fExpressionChildren / fStatementChildren in favor of just fChildren,
-        // the parameters should move into that vector
-        std::vector<const Variable*> fParameters;
-        const Type* fReturnType;
-        bool fBuiltin;
-
-        FunctionDeclarationData& operator=(const FunctionDeclarationData& other) {
-            fName = other.fName;
-            fDefinition = other.fDefinition;
-            fModifiersHandle = other.fModifiersHandle;
-            fParameters = other.fParameters;
-            fReturnType = other.fReturnType;
-            fBuiltin = other.fBuiltin;
-            return *this;
-        }
-    };
-
-    struct FunctionDefinitionData {
-        const FunctionDeclaration* fDeclaration;
-        bool fBuiltin;
-        // We track intrinsic functions we reference so that we can ensure that all of them end up
-        // copied into the final output.
-        std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
-        // This pointer may be null, and even when non-null is not guaranteed to remain valid for
-        // the entire lifespan of this object. The parse tree's lifespan is normally controlled by
-        // IRGenerator, so the IRGenerator being destroyed or being used to compile another file
-        // will invalidate this pointer.
-        const ASTNode* fSource;
-    };
-
     struct FunctionReferenceData {
         const Type* fType;
         std::vector<const FunctionDeclaration*> fFunctions;
@@ -173,13 +123,6 @@ protected:
 
     struct IfStatementData {
         bool fIsStatic;
-    };
-
-    struct InterfaceBlockData {
-        const Variable* fVariable;
-        String fTypeName;
-        String fInstanceName;
-        std::shared_ptr<SymbolTable> fTypeOwner;
     };
 
     struct IntLiteralData {
@@ -193,12 +136,6 @@ protected:
 
     struct ModifiersDeclarationData {
         ModifiersPool::Handle fModifiersHandle;
-    };
-
-    struct SectionData {
-        String fName;
-        String fArgument;
-        String fText;
     };
 
     struct SettingData {
@@ -247,15 +184,6 @@ protected:
         const Variable* fVar;
     };
 
-    struct VariableData {
-        StringFragment fName;
-        const Type* fType;
-        const Expression* fInitialValue = nullptr;
-        ModifiersPool::Handle fModifiersHandle;
-        VariableStorage fStorage;
-        bool fBuiltin;
-    };
-
     struct VariableReferenceData {
         const Variable* fVariable;
         VariableRefKind fRefKind;
@@ -265,22 +193,16 @@ protected:
         enum class Kind {
             kBlock,
             kBoolLiteral,
-            kEnum,
             kExternalValue,
-            kField,
             kFieldAccess,
             kFloatLiteral,
             kForStatement,
             kFunctionCall,
-            kFunctionDeclaration,
-            kFunctionDefinition,
             kFunctionReference,
             kIfStatement,
             kInlineMarker,
-            kInterfaceBlock,
             kIntLiteral,
             kModifiersDeclaration,
-            kSection,
             kSetting,
             kString,
             kSwitchStatement,
@@ -292,7 +214,6 @@ protected:
             kTypeToken,
             kUnresolvedFunction,
             kVarDeclaration,
-            kVariable,
             kVariableReference,
         } fKind = Kind::kType;
         // it doesn't really matter what kind we default to, as long as it's a POD type
@@ -300,22 +221,16 @@ protected:
         union Contents {
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
-            EnumData fEnum;
             ExternalValueData fExternalValue;
-            FieldData fField;
             FieldAccessData fFieldAccess;
             FloatLiteralData fFloatLiteral;
             ForStatementData fForStatement;
             FunctionCallData fFunctionCall;
-            FunctionDeclarationData fFunctionDeclaration;
-            FunctionDefinitionData fFunctionDefinition;
             FunctionReferenceData fFunctionReference;
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
-            InterfaceBlockData fInterfaceBlock;
             IntLiteralData fIntLiteral;
             ModifiersDeclarationData fModifiersDeclaration;
-            SectionData fSection;
             SettingData fSetting;
             String fString;
             SwitchStatementData fSwitchStatement;
@@ -327,7 +242,6 @@ protected:
             TypeTokenData fTypeToken;
             UnresolvedFunctionData fUnresolvedFunction;
             VarDeclarationData fVarDeclaration;
-            VariableData fVariable;
             VariableReferenceData fVariableReference;
 
             Contents() {}
@@ -345,19 +259,9 @@ protected:
             *(new(&fContents) BoolLiteralData) = data;
         }
 
-        NodeData(const EnumData& data)
-            : fKind(Kind::kEnum) {
-            *(new(&fContents) EnumData) = data;
-        }
-
         NodeData(const ExternalValueData& data)
             : fKind(Kind::kExternalValue) {
             *(new(&fContents) ExternalValueData) = data;
-        }
-
-        NodeData(const FieldData& data)
-            : fKind(Kind::kField) {
-            *(new(&fContents) FieldData) = data;
         }
 
         NodeData(const FieldAccessData& data)
@@ -380,16 +284,6 @@ protected:
             *(new(&fContents) FunctionCallData) = data;
         }
 
-        NodeData(const FunctionDeclarationData& data)
-            : fKind(Kind::kFunctionDeclaration) {
-            *(new(&fContents) FunctionDeclarationData) = data;
-        }
-
-        NodeData(const FunctionDefinitionData& data)
-            : fKind(Kind::kFunctionDefinition) {
-            *(new(&fContents) FunctionDefinitionData) = data;
-        }
-
         NodeData(const FunctionReferenceData& data)
             : fKind(Kind::kFunctionReference) {
             *(new(&fContents) FunctionReferenceData) = data;
@@ -405,11 +299,6 @@ protected:
             *(new(&fContents) InlineMarkerData) = data;
         }
 
-        NodeData(InterfaceBlockData data)
-            : fKind(Kind::kInterfaceBlock) {
-            *(new(&fContents) InterfaceBlockData) = data;
-        }
-
         NodeData(IntLiteralData data)
             : fKind(Kind::kIntLiteral) {
             *(new(&fContents) IntLiteralData) = data;
@@ -418,11 +307,6 @@ protected:
         NodeData(ModifiersDeclarationData data)
             : fKind(Kind::kModifiersDeclaration) {
             *(new(&fContents) ModifiersDeclarationData) = data;
-        }
-
-        NodeData(const SectionData& data)
-            : fKind(Kind::kSection) {
-            *(new(&fContents) SectionData) = data;
         }
 
         NodeData(const SettingData& data)
@@ -480,11 +364,6 @@ protected:
             *(new(&fContents) VarDeclarationData) = data;
         }
 
-        NodeData(const VariableData& data)
-            : fKind(Kind::kVariable) {
-            *(new(&fContents) VariableData) = data;
-        }
-
         NodeData(const VariableReferenceData& data)
             : fKind(Kind::kVariableReference) {
             *(new(&fContents) VariableReferenceData) = data;
@@ -504,14 +383,8 @@ protected:
                 case Kind::kBoolLiteral:
                     *(new(&fContents) BoolLiteralData) = other.fContents.fBoolLiteral;
                     break;
-                case Kind::kEnum:
-                    *(new(&fContents) EnumData) = other.fContents.fEnum;
-                    break;
                 case Kind::kExternalValue:
                     *(new(&fContents) ExternalValueData) = other.fContents.fExternalValue;
-                    break;
-                case Kind::kField:
-                    *(new(&fContents) FieldData) = other.fContents.fField;
                     break;
                 case Kind::kFieldAccess:
                     *(new(&fContents) FieldAccessData) = other.fContents.fFieldAccess;
@@ -525,13 +398,6 @@ protected:
                 case Kind::kFunctionCall:
                     *(new(&fContents) FunctionCallData) = other.fContents.fFunctionCall;
                     break;
-                case Kind::kFunctionDeclaration:
-                    *(new(&fContents) FunctionDeclarationData) =
-                                                               other.fContents.fFunctionDeclaration;
-                    break;
-                case Kind::kFunctionDefinition:
-                    *(new(&fContents) FunctionDefinitionData) = other.fContents.fFunctionDefinition;
-                    break;
                 case Kind::kFunctionReference:
                     *(new(&fContents) FunctionReferenceData) = other.fContents.fFunctionReference;
                     break;
@@ -541,18 +407,12 @@ protected:
                 case Kind::kInlineMarker:
                     *(new(&fContents) InlineMarkerData) = other.fContents.fInlineMarker;
                     break;
-                case Kind::kInterfaceBlock:
-                    *(new(&fContents) InterfaceBlockData) = other.fContents.fInterfaceBlock;
-                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
                 case Kind::kModifiersDeclaration:
                     *(new(&fContents) ModifiersDeclarationData) =
                                                               other.fContents.fModifiersDeclaration;
-                    break;
-                case Kind::kSection:
-                    *(new(&fContents) SectionData) = other.fContents.fSection;
                     break;
                 case Kind::kSetting:
                     *(new(&fContents) SettingData) = other.fContents.fSetting;
@@ -587,9 +447,6 @@ protected:
                 case Kind::kVarDeclaration:
                     *(new(&fContents) VarDeclarationData) = other.fContents.fVarDeclaration;
                     break;
-                case Kind::kVariable:
-                    *(new(&fContents) VariableData) = other.fContents.fVariable;
-                    break;
                 case Kind::kVariableReference:
                     *(new(&fContents) VariableReferenceData) = other.fContents.fVariableReference;
                     break;
@@ -610,14 +467,8 @@ protected:
                 case Kind::kBoolLiteral:
                     fContents.fBoolLiteral.~BoolLiteralData();
                     break;
-                case Kind::kEnum:
-                    fContents.fEnum.~EnumData();
-                    break;
                 case Kind::kExternalValue:
                     fContents.fExternalValue.~ExternalValueData();
-                    break;
-                case Kind::kField:
-                    fContents.fField.~FieldData();
                     break;
                 case Kind::kFieldAccess:
                     fContents.fFieldAccess.~FieldAccessData();
@@ -631,12 +482,6 @@ protected:
                 case Kind::kFunctionCall:
                     fContents.fFunctionCall.~FunctionCallData();
                     break;
-                case Kind::kFunctionDeclaration:
-                    fContents.fFunctionDeclaration.~FunctionDeclarationData();
-                    break;
-                case Kind::kFunctionDefinition:
-                    fContents.fFunctionDefinition.~FunctionDefinitionData();
-                    break;
                 case Kind::kFunctionReference:
                     fContents.fFunctionReference.~FunctionReferenceData();
                     break;
@@ -646,17 +491,11 @@ protected:
                 case Kind::kInlineMarker:
                     fContents.fInlineMarker.~InlineMarkerData();
                     break;
-                case Kind::kInterfaceBlock:
-                    fContents.fInterfaceBlock.~InterfaceBlockData();
-                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
                 case Kind::kModifiersDeclaration:
                     fContents.fModifiersDeclaration.~ModifiersDeclarationData();
-                    break;
-                case Kind::kSection:
-                    fContents.fSection.~SectionData();
                     break;
                 case Kind::kSetting:
                     fContents.fSetting.~SettingData();
@@ -690,9 +529,6 @@ protected:
                 case Kind::kVarDeclaration:
                     fContents.fVarDeclaration.~VarDeclarationData();
                     break;
-                case Kind::kVariable:
-                    fContents.fVariable.~VariableData();
-                    break;
                 case Kind::kVariableReference:
                     fContents.fVariableReference.~VariableReferenceData();
                     break;
@@ -704,11 +540,7 @@ protected:
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
 
-    IRNode(int offset, int kind, const EnumData& data);
-
     IRNode(int offset, int kind, const ExternalValueData& data);
-
-    IRNode(int offset, int kind, const FieldData& data);
 
     IRNode(int offset, int kind, const FieldAccessData& data);
 
@@ -718,23 +550,15 @@ protected:
 
     IRNode(int offset, int kind, const FunctionCallData& data);
 
-    IRNode(int offset, int kind, const FunctionDeclarationData& data);
-
-    IRNode(int offset, int kind, const FunctionDefinitionData& data);
-
     IRNode(int offset, int kind, const FunctionReferenceData& data);
 
     IRNode(int offset, int kind, const IfStatementData& data);
 
     IRNode(int offset, int kind, const InlineMarkerData& data);
 
-    IRNode(int offset, int kind, const InterfaceBlockData& data);
-
     IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const ModifiersDeclarationData& data);
-
-    IRNode(int offset, int kind, const SectionData& data);
 
     IRNode(int offset, int kind, const SettingData& data);
 
@@ -757,8 +581,6 @@ protected:
     IRNode(int offset, int kind, const UnresolvedFunctionData& data);
 
     IRNode(int offset, int kind, const VarDeclarationData& data);
-
-    IRNode(int offset, int kind, const VariableData& data);
 
     IRNode(int offset, int kind, const VariableReferenceData& data);
 
@@ -816,19 +638,9 @@ protected:
         return fData.fContents.fBoolLiteral;
     }
 
-    const EnumData& enumData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kEnum);
-        return fData.fContents.fEnum;
-    }
-
     const ExternalValueData& externalValueData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kExternalValue);
         return fData.fContents.fExternalValue;
-    }
-
-    const FieldData& fieldData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kField);
-        return fData.fContents.fField;
     }
 
     const FieldAccessData& fieldAccessData() const {
@@ -851,26 +663,6 @@ protected:
         return fData.fContents.fFunctionCall;
     }
 
-    FunctionDeclarationData& functionDeclarationData() {
-        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDeclaration);
-        return fData.fContents.fFunctionDeclaration;
-    }
-
-    const FunctionDeclarationData& functionDeclarationData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDeclaration);
-        return fData.fContents.fFunctionDeclaration;
-    }
-
-    FunctionDefinitionData& functionDefinitionData() {
-        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDefinition);
-        return fData.fContents.fFunctionDefinition;
-    }
-
-    const FunctionDefinitionData& functionDefinitionData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDefinition);
-        return fData.fContents.fFunctionDefinition;
-    }
-
     const FunctionReferenceData& functionReferenceData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFunctionReference);
         return fData.fContents.fFunctionReference;
@@ -886,16 +678,6 @@ protected:
         return fData.fContents.fInlineMarker;
     }
 
-    InterfaceBlockData& interfaceBlockData() {
-        SkASSERT(fData.fKind == NodeData::Kind::kInterfaceBlock);
-        return fData.fContents.fInterfaceBlock;
-    }
-
-    const InterfaceBlockData& interfaceBlockData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kInterfaceBlock);
-        return fData.fContents.fInterfaceBlock;
-    }
-
     const IntLiteralData& intLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
         return fData.fContents.fIntLiteral;
@@ -904,11 +686,6 @@ protected:
     const ModifiersDeclarationData& modifiersDeclarationData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kModifiersDeclaration);
         return fData.fContents.fModifiersDeclaration;
-    }
-
-    const SectionData& sectionData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kSection);
-        return fData.fContents.fSection;
     }
 
     const SettingData& settingData() const {
@@ -984,16 +761,6 @@ protected:
     const VarDeclarationData& varDeclarationData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kVarDeclaration);
         return fData.fContents.fVarDeclaration;
-    }
-
-    VariableData& variableData() {
-        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
-        return fData.fContents.fVariable;
-    }
-
-    const VariableData& variableData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
-        return fData.fContents.fVariable;
     }
 
     VariableReferenceData& variableReferenceData() {

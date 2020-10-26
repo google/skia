@@ -18,7 +18,7 @@
 
 namespace SkSL {
 
-struct FunctionDefinition;
+class FunctionDefinition;
 
 /**
  * A function declaration (not a definition -- does not contain a body).
@@ -30,35 +30,35 @@ public:
     FunctionDeclaration(int offset, ModifiersPool::Handle modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type* returnType,
                         bool builtin)
-    : INHERITED(offset, FunctionDeclarationData{name, /*fDefiniition=*/nullptr, modifiers,
-                                                std::move(parameters), returnType, builtin}) {}
+    : INHERITED(offset, kSymbolKind, name, /*type=*/nullptr)
+    , fDefinition(nullptr)
+    , fModifiersHandle(modifiers)
+    , fParameters(std::move(parameters))
+    , fReturnType(returnType)
+    , fBuiltin(builtin) {}
 
     const Modifiers& modifiers() const {
-        return *this->functionDeclarationData().fModifiersHandle;
-    }
-
-    StringFragment name() const override {
-        return this->functionDeclarationData().fName;
+        return *fModifiersHandle;
     }
 
     const FunctionDefinition* definition() const {
-        return this->functionDeclarationData().fDefinition;
+        return fDefinition;
     }
 
     void setDefinition(const FunctionDefinition* definition) const {
-        this->functionDeclarationData().fDefinition = definition;
+        fDefinition = definition;
     }
 
     const std::vector<const Variable*>& parameters() const {
-        return this->functionDeclarationData().fParameters;
+        return fParameters;
     }
 
     const Type& returnType() const {
-        return *this->functionDeclarationData().fReturnType;
+        return *fReturnType;
     }
 
     bool isBuiltin() const {
-        return this->functionDeclarationData().fBuiltin;
+        return fBuiltin;
     }
 
     String description() const override {
@@ -146,6 +146,12 @@ public:
     }
 
 private:
+    mutable const FunctionDefinition* fDefinition;
+    ModifiersPool::Handle fModifiersHandle;
+    std::vector<const Variable*> fParameters;
+    const Type* fReturnType;
+    bool fBuiltin;
+
     using INHERITED = Symbol;
 };
 
