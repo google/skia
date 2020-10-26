@@ -230,12 +230,11 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     // the names will mismatch.  I think the correct solution is to have all GPs which need the
     // uniform view matrix, they should upload the view matrix in their setData along with regular
     // uniforms.
-    SkString resolvedName;
     char prefix = 'u';
     if ('u' == name[0] || !strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX))) {
         prefix = '\0';
     }
-    fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
+    SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
@@ -262,9 +261,8 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
         const char* name, const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 
-    SkString mangleName;
     const char prefix = 'u';
-    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+    SkString mangleName = fProgramBuilder->nameVariable(prefix, name, /*mangle=*/true);
 
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
@@ -299,9 +297,8 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addInputSampler(const Gr
     SkASSERT(name && strlen(name));
     SkASSERT(fInputUniform.fVariable.getType() == kVoid_GrSLType);
 
-    SkString mangleName;
     const char prefix = 'u';
-    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+    SkString mangleName = fProgramBuilder->nameVariable(prefix, name, /*mangle=*/true);
 
     SkString layoutQualifier;
     layoutQualifier.appendf("input_attachment_index=%d, set=%d, binding=%d",
