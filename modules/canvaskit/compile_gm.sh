@@ -147,7 +147,7 @@ GMS_TO_BUILD="gm/*.cpp"
 # When developing locally, it can be faster to focus only on the gms or tests you care about
 # (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
 if false; then
-   GMS_TO_BUILD="gm/coloremoji_blendmodes.cpp gm/gm.cpp"
+   GMS_TO_BUILD="gm/beziereffects.cpp gm/gm.cpp"
 fi
 
 # These gms do not compile or link with the WASM code. Thus, we omit them.
@@ -165,6 +165,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     -I. \
     -DSK_DISABLE_AAA \
     -DSK_FORCE_8_BYTE_ALIGNMENT \
+    -DGR_OP_ALLOCATE_USE_NEW \
     $WASM_GPU \
     -std=c++17 \
     --bind \
