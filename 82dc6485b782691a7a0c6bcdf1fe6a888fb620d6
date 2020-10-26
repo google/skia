@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6d42abc_80740d97",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-10-26T23:57:07Z",
+      "side": 1,
+      "message": "Thanks Jorge!\n\nI think it might be good to eventually be consistent with the Android Animator APIs. So instead of a \"looping\" attribute, we should have a \"repeatCount\" attribute with a value of Animation.INFINITE etc.",
+      "revId": "82dc6485b782691a7a0c6bcdf1fe6a888fb620d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5653b6c7_af40030f",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 10974
+      },
+      "writtenOn": "2020-10-26T23:57:07Z",
+      "side": 1,
+      "message": "Would be great if we could expose this with a public getter/setter so we could alter it programmatically instead of only through the XML.",
+      "revId": "82dc6485b782691a7a0c6bcdf1fe6a888fb620d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
