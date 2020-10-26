@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": false,
       "key": {
         "uuid": "50d6de75_c20a64d3",
         "filename": "/PATCHSET_LEVEL",
@@ -14,8 +15,25 @@
       "side": 1,
       "message": "you sure you want this?  Its the single biggest security risk in Skia.",
       "revId": "02cef797351897bbe0c1c5072b219324449aa99d",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": false
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08620174_b4e4ce46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6065
+      },
+      "writtenOn": "2020-10-26T20:46:48Z",
+      "side": 1,
+      "message": "Hi sorry I dropped this on the floor. We do have control of the SKP\u0027s that are being deserialized (they are captured from flutter apps that are written by google) so im not particularly concerned about malicious SKP\u0027s at least for my use case. If there is documentation on the nature of these security vulnerabilities and what the attack vectors are like I\u0027d love to see it, that way I can run it by our security team if needed.",
+      "parentUuid": "50d6de75_c20a64d3",
+      "revId": "02cef797351897bbe0c1c5072b219324449aa99d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
