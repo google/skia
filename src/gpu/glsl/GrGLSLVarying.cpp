@@ -47,14 +47,14 @@ void GrGLSLVaryingHandler::addVarying(const char* name, GrGLSLVarying* varying,
     SkASSERT(kVoid_GrSLType != varying->fType);
     v.fType = varying->fType;
     v.fIsFlat = use_flat_interpolation(interpolation, *fProgramBuilder->shaderCaps());
-    fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
+    v.fVsOut = fProgramBuilder->nameVariable('v', name);
     v.fVisibility = kNone_GrShaderFlags;
     if (varying->isInVertexShader()) {
         varying->fVsOut = v.fVsOut.c_str();
         v.fVisibility |= kVertex_GrShaderFlag;
     }
     if (willUseGeoShader) {
-        fProgramBuilder->nameVariable(&v.fGsOut, 'g', name);
+        v.fGsOut = fProgramBuilder->nameVariable('g', name);
         varying->fGsIn = v.fVsOut.c_str();
         varying->fGsOut = v.fGsOut.c_str();
         v.fVisibility |= kGeometry_GrShaderFlag;
