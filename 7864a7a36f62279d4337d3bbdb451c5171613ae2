@@ -39,6 +39,30 @@
       },
       "revId": "7864a7a36f62279d4337d3bbdb451c5171613ae2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30d7f05d_d399f3a5",
+        "filename": "samplecode/SampleVariableWidthStroker.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-26T13:00:08Z",
+      "side": 1,
+      "message": "We can definitely make that restriction, since it doesn\u0027t seem like it would lose much in terms of expressibility (except you couldn\u0027t have a distance func of higher degree than 3... but that might be sufficient in practice).\n\nEven with that restriction though I think there\u0027s still some added complexity needed to handle the new error characteristics. E.g. suppose you had a cubic segment with collinear control points, but the distance function was something like [0.01, 1.0, 1.0, 0.01] (which should create a \"hump\" in the middle). They share the same degrees now but even still the error no longer depends just on the curvature of the input geometry. The technique in this toy code uses an error bounding method to measure that (and to know when enough geometry has been created).\n\nWe might be able to come up with something clever to address that though -- lots to think about here!",
+      "parentUuid": "1fed1559_8f57cae1",
+      "range": {
+        "startLine": 51,
+        "startChar": 6,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "7864a7a36f62279d4337d3bbdb451c5171613ae2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
