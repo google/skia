@@ -615,7 +615,8 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        this->addExtraEmitCodeLine("SkString " + decl.name() + "_name;");
+        this->addExtraEmitCodeLine("SkString " + decl.name() + "_name = "
+                                   "fragBuilder->getMangledFunctionName(\"" + decl.name() + "\");");
         String args = "const GrShaderVar " + decl.name() + "_args[] = { ";
         const char* separator = "";
         for (const Variable* param : decl.parameters()) {
@@ -643,11 +644,10 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
         String emit = "fragBuilder->emitFunction(";
         emit += glsltype_string(fContext, decl.returnType());
-        emit += ", \"" + decl.name() + "\"";
+        emit += ", " + decl.name() + "_name.c_str()";
         emit += ", " + to_string((int64_t) decl.parameters().size());
         emit += ", " + decl.name() + "_args";
-        emit += "," + funcImpl;
-        emit += ", &" + decl.name() + "_name);";
+        emit += "," + funcImpl + ");";
         this->addExtraEmitCodeLine(emit.c_str());
     }
 }

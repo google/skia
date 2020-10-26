@@ -19,12 +19,12 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrRecursion& _outer = args.fFp.cast<GrRecursion>();
         (void) _outer;
-        SkString factorial_name;
+        SkString factorial_name = fragBuilder->getMangledFunctionName("factorial");
         const GrShaderVar factorial_args[] = { GrShaderVar("x", kInt_GrSLType)};
         const String factorial_impl = String::printf(R"SkSL(return x <= 1 ? 1 : x * %s(x - 1);
 )SkSL"
 , factorial_name.c_str());
-        fragBuilder->emitFunction(kInt_GrSLType, "factorial", 1, factorial_args, factorial_impl.c_str(), &factorial_name);
+        fragBuilder->emitFunction(kInt_GrSLType, factorial_name.c_str(), 1, factorial_args, factorial_impl.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(int _0_factorial;
 {
