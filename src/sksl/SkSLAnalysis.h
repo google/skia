@@ -18,7 +18,7 @@ namespace SkSL {
 class ErrorReporter;
 class Expression;
 class FunctionDeclaration;
-struct FunctionDefinition;
+class FunctionDefinition;
 struct Program;
 class ProgramElement;
 class ProgramUsage;

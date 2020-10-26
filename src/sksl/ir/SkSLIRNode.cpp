@@ -57,16 +57,6 @@ IRNode::IRNode(int offset, int kind, const FunctionCallData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const FunctionDeclarationData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const FunctionDefinitionData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const FunctionReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -82,22 +72,12 @@ IRNode::IRNode(int offset, int kind, const InlineMarkerData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const InterfaceBlockData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
 
 IRNode::IRNode(int offset, int kind, const ModifiersDeclarationData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const SectionData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
@@ -153,11 +133,6 @@ IRNode::IRNode(int offset, int kind, const UnresolvedFunctionData& data)
 , fData(data) {}
 
 IRNode::IRNode(int offset, int kind, const VarDeclarationData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
-IRNode::IRNode(int offset, int kind, const VariableData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
