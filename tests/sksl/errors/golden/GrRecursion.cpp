@@ -21,9 +21,10 @@ public:
         (void) _outer;
         SkString factorial_name;
         const GrShaderVar factorial_args[] = { GrShaderVar("x", kInt_GrSLType)};
-        fragBuilder->emitFunction(kInt_GrSLType, "factorial", 1, factorial_args,
-R"SkSL(return x <= 1 ? 1 : x * %s(x - 1);
-)SkSL", &factorial_name);
+        const String factorial_impl = String::printf(R"SkSL(return x <= 1 ? 1 : x * %s(x - 1);
+)SkSL"
+, factorial_name.c_str());
+        fragBuilder->emitFunction(kInt_GrSLType, "factorial", 1, factorial_args, factorial_impl.c_str(), &factorial_name);
         fragBuilder->codeAppendf(
 R"SkSL(int _0_factorial;
 {
@@ -33,7 +34,7 @@ R"SkSL(int _0_factorial;
 %s = half4(half(_0_factorial));
 
 )SkSL"
-, factorial_name.c_str(), factorial_name.c_str());
+, factorial_name.c_str(), args.fOutputColor);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

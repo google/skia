@@ -21,20 +21,22 @@ public:
         (void) _outer;
         SkString func1_name;
         const GrShaderVar func1_args[] = { };
-        fragBuilder->emitFunction(kHalf4_GrSLType, "func1", 0, func1_args,
-R"SkSL(return %s();
-)SkSL", &func1_name);
+        const String func1_impl = String::printf(R"SkSL(return %s();
+)SkSL"
+, func2_name.c_str());
+        fragBuilder->emitFunction(kHalf4_GrSLType, "func1", 0, func1_args, func1_impl.c_str(), &func1_name);
         SkString func2_name;
         const GrShaderVar func2_args[] = { };
-        fragBuilder->emitFunction(kHalf4_GrSLType, "func2", 0, func2_args,
-R"SkSL(return %s();
-)SkSL", &func2_name);
+        const String func2_impl = String::printf(R"SkSL(return %s();
+)SkSL"
+, func3_name.c_str());
+        fragBuilder->emitFunction(kHalf4_GrSLType, "func2", 0, func2_args, func2_impl.c_str(), &func2_name);
         SkString func3_name;
         const GrShaderVar func3_args[] = { };
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s();
 )SkSL"
-, func2_name.c_str(), func3_name.c_str());
+, args.fOutputColor, func1_name.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

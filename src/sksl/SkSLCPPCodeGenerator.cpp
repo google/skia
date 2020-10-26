@@ -631,12 +631,22 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
 
         fOut = oldOut;
+
+        String funcImpl;
+        if (!fFormatArgs.empty()) {
+            this->addExtraEmitCodeLine("const String " + decl.name() + "_impl = String::printf(" +
+                                       assembleCodeAndFormatArgPrintf(buffer.str()).c_str() + ");");
+            funcImpl = " " + decl.name() + "_impl.c_str()";
+        } else {
+            funcImpl = "\nR\"SkSL(" + buffer.str() + ")SkSL\"";
+        }
+
         String emit = "fragBuilder->emitFunction(";
         emit += glsltype_string(fContext, decl.returnType());
         emit += ", \"" + decl.name() + "\"";
         emit += ", " + to_string((int64_t) decl.parameters().size());
         emit += ", " + decl.name() + "_args";
-        emit += ",\nR\"SkSL(" + buffer.str() + ")SkSL\"";
+        emit += "," + funcImpl;
         emit += ", &" + decl.name() + "_name);";
         this->addExtraEmitCodeLine(emit.c_str());
     }
@@ -857,34 +867,41 @@ void CPPCodeGenerator::flushEmittedCode() {
     fExtraEmitCodeBlocks.clear();
 }
 
-void CPPCodeGenerator::writeCodeAppend(const String& code) {
-    if (!code.empty()) {
-        // Count % format specifiers.
-        size_t argCount = 0;
-        for (size_t index = 0; index < code.size(); ++index) {
-            if ('%' == code[index]) {
-                if (index == code.size() - 1) {
-                    break;
-                }
-                if (code[index + 1] != '%') {
-                    ++argCount;
-                }
+String CPPCodeGenerator::assembleCodeAndFormatArgPrintf(const String& code) {
+    // Count % format specifiers.
+    size_t argCount = 0;
+    for (size_t index = 0; index < code.size(); ++index) {
+        if ('%' == code[index]) {
+            if (index == code.size() - 1) {
+                break;
+            }
+            if (code[index + 1] != '%') {
+                ++argCount;
             }
         }
+    }
 
-        // Emit the code string.
-        this->writef("        fragBuilder->codeAppendf(\n"
-                     "R\"SkSL(%s)SkSL\"\n", code.c_str());
-        for (size_t i = 0; i < argCount; ++i) {
-            this->writef(", %s", fFormatArgs[i].c_str());
-        }
+    // Assemble the printf arguments.
+    String result = String::printf("R\"SkSL(%s)SkSL\"\n", code.c_str());
+    for (size_t i = 0; i < argCount; ++i) {
+        result += ", ";
+        result += fFormatArgs[i].c_str();
+    }
+
+    // argCount is equal to the number of fFormatArgs that were consumed, so they should be
+    // removed from the list.
+    if (argCount > 0) {
+        fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argCount);
+    }
+
+    return result;
+}
+
+void CPPCodeGenerator::writeCodeAppend(const String& code) {
+    if (!code.empty()) {
+        this->write("        fragBuilder->codeAppendf(\n");
+        this->write(assembleCodeAndFormatArgPrintf(code));
         this->write(");\n");
-
-        // argCount is equal to the number of fFormatArgs that were consumed, so they should be
-        // removed from the list.
-        if (argCount > 0) {
-            fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argCount);
-        }
     }
 }
 
