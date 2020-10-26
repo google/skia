@@ -40,6 +40,7 @@
       "-DSWIFTSHADER_TSAN=ON",
       "-DCMAKE_C_FLAGS=-fsanitize=thread -stdlib=libc++ -L[START_DIR]/clang_linux/tsan/lib -lc++abi -I[START_DIR]/clang_linux/tsan/include -I[START_DIR]/clang_linux/tsan/include/c++/v1",
       "-DCMAKE_CXX_FLAGS=-fsanitize=thread -stdlib=libc++ -L[START_DIR]/clang_linux/tsan/lib -lc++abi -I[START_DIR]/clang_linux/tsan/include -I[START_DIR]/clang_linux/tsan/include/c++/v1",
+      "-DSWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH=/totally/phony/path",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",
       "-GNinja"
     ],
