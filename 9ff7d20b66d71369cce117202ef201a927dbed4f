@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "918bc8d7_4493fe22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-26T18:38:15Z",
+      "side": 1,
+      "message": "I don\u0027t see anything wrong, holding off on +1 to make sure Brian has a chance to read through",
+      "revId": "9ff7d20b66d71369cce117202ef201a927dbed4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcdf25f6_7946e394",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-26T18:38:15Z",
+      "side": 1,
+      "message": "Looks like this TODO is obsolete",
+      "range": {
+        "startLine": 70,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 53
+      },
+      "revId": "9ff7d20b66d71369cce117202ef201a927dbed4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
