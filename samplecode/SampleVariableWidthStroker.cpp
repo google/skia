@@ -104,6 +104,15 @@ public:
         Split(*this, t, left, right);
     }
 
+    /** Splits this curve into the subinterval [tmin,tmax]. */
+    void split(float tmin, float tmax, ScalarBezCurve* result) const {
+        // TODO: I believe there's a more efficient algorithm for this
+        const float tRel = tmin / tmax;
+        ScalarBezCurve ll, rl, rr;
+        this->split(tmax, &rl, &rr);
+        rl.split(tRel, &ll, result);
+    }
+
     /** Splits the curve at t into two halves (of the same degree) */
     static void Split(const ScalarBezCurve& curve,
                       float t,
@@ -354,14 +363,25 @@ private:
         std::array<SkPoint, 4> fPoints;
     };
 
+    struct OffsetSegments {
+        std::vector<PathSegment> fInner;
+        std::vector<PathSegment> fOuter;
+    };
+
     /** Initialize stroker state */
     void initForPath(const SkPath& path, const SkPaint& paint);
 
     /** Strokes a line segment */
-    void strokeLine(const PathSegment& line, bool needsMove);
+    OffsetSegments strokeLine(const PathSegment& line,
+                              const ScalarBezCurve& varWidth,
+                              const ScalarBezCurve& varWidthInner,
+                              bool needsMove);
 
     /** Strokes a quadratic segment */
-    void strokeQuad(const PathSegment& quad, bool needsMove);
+    OffsetSegments strokeQuad(const PathSegment& quad,
+                              const ScalarBezCurve& varWidth,
+                              const ScalarBezCurve& varWidthInner,
+                              bool needsMove);
 
     /**
      * Strokes the given segment using the given distance function.
@@ -377,7 +397,11 @@ private:
     void endcap(CapLocation loc);
 
     /** Adds a join between the two segments */
-    void join(const PathSegment& prev, const PathSegment& curr);
+    void join(const SkPoint& common,
+              float innerRadius,
+              float outerRadius,
+              const OffsetSegments& prev,
+              const OffsetSegments& curr);
 
     /** Appends path in reverse to result */
     static void appendPathReversed(const SkPath& path, SkPath* result);
@@ -425,28 +449,54 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
                                       const SkPaint& paint,
                                       const ScalarBezCurve& varWidth,
                                       const ScalarBezCurve& varWidthInner) {
+    const auto appendStrokes = [this](const OffsetSegments& strokes, bool needsMove) {
+        if (needsMove) {
+            fOuter.moveTo(strokes.fOuter.front().fPoints[0]);
+            fInner.moveTo(strokes.fInner.front().fPoints[0]);
+        }
+
+        for (const PathSegment& seg : strokes.fOuter) {
+            fOuter.quadTo(seg.fPoints[1], seg.fPoints[2]);
+        }
+
+        for (const PathSegment& seg : strokes.fInner) {
+            fInner.quadTo(seg.fPoints[1], seg.fPoints[2]);
+        }
+    };
+
     initForPath(path, paint);
     fVarWidth = varWidth;
     fVarWidthInner = varWidthInner;
+
+    // TODO: this assumes one contour: one move + some number of segs.
+    const int numSegs = path.countVerbs() - 1;
 
     // Trace the inner and outer paths simultaneously. Inner will therefore be
     // recorded in reverse from how we trace the outline.
     SkPath::Iter it(path, false);
     PathSegment segment, prevSegment;
-    bool firstSegment = true;
+    OffsetSegments offsetSegs, prevOffsetSegs;
+    bool firstSegment = true, prevWasFirst = false;
+
+    const float dtDist = 1.0f / numSegs;
+    float tDist = 0;
     while ((segment.fVerb = it.next(&segment.fPoints[0])) != SkPath::kDone_Verb) {
-        // Join to the previous segment
-        if (!firstSegment) {
-            join(prevSegment, segment);
-        }
+        // Subset the distance function for the current interval.
+        // TODO: Currently each path segment gets an even portion of the distance function,
+        //       but we could investigate using arc-length proportions instead.
+        const float tmin = tDist, tmax = tDist + dtDist;
+        ScalarBezCurve partVarWidth, partVarWidthInner;
+        fVarWidth.split(tmin, tmax, &partVarWidth);
+        fVarWidthInner.split(tmin, tmax, &partVarWidthInner);
+        partVarWidthInner = ScalarBezCurve::Mul(partVarWidthInner, -1);
 
         // Stroke the current segment
         switch (segment.fVerb) {
             case SkPath::kLine_Verb:
-                strokeLine(segment, firstSegment);
+                offsetSegs = strokeLine(segment, partVarWidth, partVarWidthInner, firstSegment);
                 break;
             case SkPath::kQuad_Verb:
-                strokeQuad(segment, firstSegment);
+                offsetSegs = strokeQuad(segment, partVarWidth, partVarWidthInner, firstSegment);
                 break;
             case SkPath::kMove_Verb:
                 // Don't care about multiple contours currently
@@ -457,9 +507,26 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
                 break;
         }
 
+        // Join to the previous segment
+        if (!firstSegment) {
+            // Append prev inner and outer strokes
+            appendStrokes(prevOffsetSegs, prevWasFirst);
+
+            // Append the join
+            const float innerRadius = varWidthInner.eval(tmin);
+            const float outerRadius = varWidth.eval(tmin);
+            join(segment.fPoints[0], innerRadius, outerRadius, prevOffsetSegs, offsetSegs);
+        }
+
         std::swap(segment, prevSegment);
+        std::swap(offsetSegs, prevOffsetSegs);
+        prevWasFirst = firstSegment;
         firstSegment = false;
+        tDist += dtDist;
     }
+
+    // Finish appending final offset segments
+    appendStrokes(prevOffsetSegs, prevWasFirst);
 
     // Open contour => endcap at the end
     const bool isClosed = path.isLastContourClosed();
@@ -477,44 +544,26 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
     return fOuter;
 }
 
-void SkVarWidthStroker::strokeLine(const PathSegment& line, bool needsMove) {
+SkVarWidthStroker::OffsetSegments SkVarWidthStroker::strokeLine(const PathSegment& line,
+                                                                const ScalarBezCurve& varWidth,
+                                                                const ScalarBezCurve& varWidthInner,
+                                                                bool needsMove) {
     viz::outerErr.reset(nullptr);
 
-    std::vector<PathSegment> outer = strokeSegment(line, fVarWidth);
-    std::vector<PathSegment> inner = strokeSegment(line, ScalarBezCurve::Mul(fVarWidthInner, -1));
-
-    if (needsMove) {
-        fOuter.moveTo(outer.front().fPoints[0]);
-        fInner.moveTo(inner.front().fPoints[0]);
-    }
-
-    for (const PathSegment& seg : outer) {
-        fOuter.quadTo(seg.fPoints[1], seg.fPoints[2]);
-    }
-
-    for (const PathSegment& seg : inner) {
-        fInner.quadTo(seg.fPoints[1], seg.fPoints[2]);
-    }
+    std::vector<PathSegment> outer = strokeSegment(line, varWidth);
+    std::vector<PathSegment> inner = strokeSegment(line, varWidthInner);
+    return {inner, outer};
 }
 
-void SkVarWidthStroker::strokeQuad(const PathSegment& quad, bool needsMove) {
+SkVarWidthStroker::OffsetSegments SkVarWidthStroker::strokeQuad(const PathSegment& quad,
+                                                                const ScalarBezCurve& varWidth,
+                                                                const ScalarBezCurve& varWidthInner,
+                                                                bool needsMove) {
     viz::outerErr.reset(nullptr);
 
-    std::vector<PathSegment> outer = strokeSegment(quad, fVarWidth);
-    std::vector<PathSegment> inner = strokeSegment(quad, ScalarBezCurve::Mul(fVarWidthInner, -1));
-
-    if (needsMove) {
-        fOuter.moveTo(outer.front().fPoints[0]);
-        fInner.moveTo(inner.front().fPoints[0]);
-    }
-
-    for (const PathSegment& seg : outer) {
-        fOuter.quadTo(seg.fPoints[1], seg.fPoints[2]);
-    }
-
-    for (const PathSegment& seg : inner) {
-        fInner.quadTo(seg.fPoints[1], seg.fPoints[2]);
-    }
+    std::vector<PathSegment> outer = strokeSegment(quad, varWidth);
+    std::vector<PathSegment> inner = strokeSegment(quad, varWidthInner);
+    return {inner, outer};
 }
 
 std::vector<SkVarWidthStroker::PathSegment> SkVarWidthStroker::strokeSegment(
@@ -614,6 +663,7 @@ std::vector<SkVarWidthStroker::PathSegment> SkVarWidthStroker::strokeSegment(
             stack.push(Item(left, distFncL, distFncSqdL));
         } else {
             // Approximation is good enough.
+            quadApprox.fVerb = SkPath::kQuad_Verb;
             result.push_back(quadApprox);
         }
     }
@@ -645,31 +695,47 @@ void SkVarWidthStroker::endcap(CapLocation loc) {
     }
 }
 
-void SkVarWidthStroker::join(const PathSegment& prev, const PathSegment& curr) {
-    const auto miterJoin = [this](const PathSegment& prev, const PathSegment& curr) {
+void SkVarWidthStroker::join(const SkPoint& common,
+                             float innerRadius,
+                             float outerRadius,
+                             const OffsetSegments& prev,
+                             const OffsetSegments& curr) {
+    const auto miterJoin = [this](const SkPoint& common,
+                                  float innerRadius,
+                                  float outerRadius,
+                                  const OffsetSegments& prev,
+                                  const OffsetSegments& curr) {
         // Common path endpoint of the two segments is the midpoint of the miter line.
-        const SkPoint miterMidpt = curr.fPoints[0];
+        const SkPoint miterMidpt = common;
 
-        SkPoint before = unitNormal(prev, 1, nullptr);
-        SkPoint after = unitNormal(curr, 0, nullptr);
+        SkASSERT(!prev.fOuter.empty());
+        SkASSERT(!curr.fOuter.empty());
+        SkPoint outerBefore = unitNormal(prev.fOuter.back(), 1, nullptr);
+        SkPoint outerAfter = unitNormal(curr.fOuter.front(), 0, nullptr);
 
-        // Check who's inside and who's outside.
-        SkPath *outer = &fOuter, *inner = &fInner;
-        if (!isClockwise(before, after)) {
-            std::swap(inner, outer);
-            before = rotate180(before);
-            after = rotate180(after);
-        }
-
-        const float cosTheta = before.dot(after);
+        const float cosTheta = outerBefore.dot(outerAfter);
         if (SkScalarNearlyZero(1 - cosTheta)) {
             // Nearly identical normals: don't bother.
             return;
         }
 
+        SkASSERT(!prev.fInner.empty());
+        SkASSERT(!curr.fInner.empty());
+        SkPoint innerBefore = rotate180(unitNormal(prev.fInner.back(), 1, nullptr));
+        SkPoint innerAfter = rotate180(unitNormal(curr.fInner.front(), 0, nullptr));
+
+        // Check who's inside and who's outside.
+        SkPath *outer = &fOuter, *inner = &fInner;
+        if (!isClockwise(outerBefore, outerAfter)) {
+            std::swap(inner, outer);
+            std::swap(innerBefore, outerBefore);
+            std::swap(innerAfter, outerAfter);
+            std::swap(innerRadius, outerRadius);
+        }
+
         // Before and after have the same origin and magnitude, so before+after is the diagonal of
         // their rhombus. Origin of this vector is the midpoint of the miter line.
-        SkPoint miterVec = before + after;
+        SkPoint outerMiterVec = outerBefore + outerAfter;
 
         // Note the relationship (draw a right triangle with the miter line as its hypoteneuse):
         //     sin(theta/2) = strokeWidth / miterLength
@@ -678,29 +744,30 @@ void SkVarWidthStroker::join(const PathSegment& prev, const PathSegment& curr) {
         // miterVec's origin is the midpoint of the miter line, so we use strokeWidth/2.
         // Sqrt is just an application of half-angle identities.
         const float sinHalfTheta = sqrtf(0.5 * (1 + cosTheta));
-        const float halfMiterLength = fRadius / sinHalfTheta;
-        miterVec.setLength(halfMiterLength);  // TODO: miter length limit
+        const float halfMiterLength = outerRadius / sinHalfTheta;
+        outerMiterVec.setLength(halfMiterLength);  // TODO: miter length limit
 
         // Outer: connect to the miter point, and then to t=0 (on outside stroke) of next segment.
-        const SkPoint dest = setLength(after, fRadius);
-        outer->lineTo(miterMidpt + miterVec);
-        outer->lineTo(miterMidpt + dest);
+        const SkPoint outerDest = setLength(outerAfter, outerRadius);
+        outer->lineTo(miterMidpt + outerMiterVec);
+        outer->lineTo(miterMidpt + outerDest);
 
         // Connect to the miter midpoint (common path endpoint of the two segments),
         // and then to t=0 (on inside) of the next segment. This adds an interior "loop" of
         // geometry that handles edge cases where segment lengths are shorter than the
         // stroke width.
+        const SkPoint innerDest = setLength(innerAfter, innerRadius);
         inner->lineTo(miterMidpt);
-        inner->lineTo(miterMidpt - dest);
+        inner->lineTo(miterMidpt + innerDest);
     };
 
     switch (fJoin) {
         case SkPaint::kMiter_Join:
-            miterJoin(prev, curr);
+            miterJoin(common, innerRadius, outerRadius, prev, curr);
             break;
         default:
             SkDebugf("Unhandled join %d\n", fJoin);
-            miterJoin(prev, curr);
+            miterJoin(common, innerRadius, outerRadius, prev, curr);
             break;
     }
 }
@@ -960,6 +1027,8 @@ private:
         fPathPts[0] = {300, 400};
         fPathPts[1] = {500, 400};
         fPathPts[2] = {700, 400};
+        fPathPts[3] = {900, 400};
+        fPathPts[4] = {1100, 400};
 
         fWidth = 175;
 
@@ -970,6 +1039,7 @@ private:
     void makePath(SkPath* path) {
         path->moveTo(fPathPts[0]);
         path->quadTo(fPathPts[1], fPathPts[2]);
+        path->quadTo(fPathPts[3], fPathPts[4]);
     }
 
     static ScalarBezCurve makeDistFnc(const std::vector<DistFncMenuItem>& fncs, float strokeWidth) {
@@ -1190,7 +1260,7 @@ private:
     float fWidth = 175;
     SkPaint fPtsPaint, fStrokePaint, fNewFillPaint, fHiddenPaint, fSkeletonPaint,
             fStrokePointsPaint;
-    static constexpr int kNPts = 3;
+    static constexpr int kNPts = 5;
     std::array<SkPoint, kNPts> fPathPts;
     SkSize fWinSize;
     const std::vector<DistFncMenuItem> fDefaultsDistFncs = {
