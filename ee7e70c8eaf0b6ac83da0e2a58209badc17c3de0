@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b923dd6e_1adb8472",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-26T15:52:00Z",
+      "side": 1,
+      "message": "I think everything is set. PTAL",
+      "revId": "ee7e70c8eaf0b6ac83da0e2a58209badc17c3de0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
