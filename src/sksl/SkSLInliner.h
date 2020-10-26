@@ -20,7 +20,7 @@ class Block;
 class Context;
 class Expression;
 class FunctionCall;
-struct FunctionDefinition;
+class FunctionDefinition;
 struct InlineCandidate;
 struct InlineCandidateList;
 class ModifiersPool;
