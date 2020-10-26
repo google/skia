@@ -36,20 +36,11 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    Symbol(int offset, const FieldData& data)
-    : INHERITED(offset, (int) Kind::kField, data) {}
-
-    Symbol(int offset, const FunctionDeclarationData& data)
-    : INHERITED(offset, (int) Kind::kFunctionDeclaration, data) {}
-
     Symbol(int offset, const SymbolAliasData& data)
     : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
 
     Symbol(int offset, const UnresolvedFunctionData& data)
     : INHERITED(offset, (int) Kind::kUnresolvedFunction, data) {}
-
-    Symbol(int offset, const VariableData& data)
-    : INHERITED(offset, (int) Kind::kVariable, data) {}
 
     Symbol& operator=(const Symbol&) = default;
 

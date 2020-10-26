@@ -26,22 +26,26 @@ public:
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isSharedWithCpp, bool isBuiltin = true)
-    : INHERITED(offset, EnumData{typeName, std::move(symbols), isSharedWithCpp, isBuiltin}) {}
+    : INHERITED(offset, kProgramElementKind)
+    , fTypeName(typeName)
+    , fSymbols(std::move(symbols))
+    , fIsSharedWithCpp(isSharedWithCpp)
+    , fIsBuiltin(isBuiltin) {}
 
     StringFragment typeName() const {
-        return this->enumData().fTypeName;
+        return fTypeName;
     }
 
     std::shared_ptr<SymbolTable> symbols() const {
-        return this->enumData().fSymbols;
+        return fSymbols;
     }
 
     bool isBuiltin() const {
-        return this->enumData().fIsBuiltin;
+        return fIsBuiltin;
     }
 
     bool isSharedWithCpp() const {
-        return this->enumData().fIsSharedWithCpp;
+        return fIsSharedWithCpp;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
@@ -76,6 +80,11 @@ private:
     static int EnumValue(const Symbol* symbol) {
         return symbol->as<Variable>().initialValue()->as<IntLiteral>().value();
     }
+
+    StringFragment fTypeName;
+    std::shared_ptr<SymbolTable> fSymbols;
+    bool fIsSharedWithCpp;
+    bool fIsBuiltin;
 
     using INHERITED = ProgramElement;
 };
