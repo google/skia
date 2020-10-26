@@ -16,11 +16,13 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/GrTriangulator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -40,24 +42,35 @@
  */
 namespace {
 
+// The TessInfo struct contains ancillary data not specifically required for the triangle
+// data (which is stored in a GrThreadSafeCache::VertexData object).
+// The 'fNumVertices' field is a temporary exception. It is still needed to support the
+// AA triangulated path case - which doesn't use the GrThreadSafeCache nor the VertexData object).
+// When there is an associated VertexData, its numVertices should always match the TessInfo's
+// value.
 struct TessInfo {
+    int       fNumVertices;
+    int       fNumCountedCurves;
     SkScalar  fTolerance;
-    int       fCount;
 };
 
-static sk_sp<SkData> create_data(int vertexCount, int numCountedCurves, SkScalar tol) {
-    TessInfo info;
-    info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
-    info.fCount = vertexCount;
+static sk_sp<SkData> create_data(int numVertices, int numCountedCurves, SkScalar tol) {
+    TessInfo info { numVertices, numCountedCurves, tol };
     return SkData::MakeWithCopy(&info, sizeof(info));
 }
 
-bool cache_match(const SkData* data, SkScalar tol, int* actualCount) {
+bool cache_match(const SkData* data, SkScalar tol,
+                 int* actualNumVertices, int* actualNumCountedCurves) {
     SkASSERT(data);
 
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
-    if (info->fTolerance == 0 || info->fTolerance < 3.0f * tol) {
-        *actualCount = info->fCount;
+    if (info->fNumCountedCurves == 0 || info->fTolerance < 3.0f * tol) {
+        if (actualNumVertices) {
+            *actualNumVertices = info->fNumVertices;
+        }
+        if (actualNumCountedCurves) {
+            *actualNumCountedCurves = info->fNumCountedCurves;
+        }
         return true;
     }
     return false;
@@ -127,6 +140,7 @@ private:
 };
 
 }  // namespace
+
 
 GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
   : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
@@ -298,11 +312,11 @@ private:
 
         sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
         if (cachedVertexBuffer) {
-            int actualCount;
+            int actualVertexCount;
 
             if (cache_match(cachedVertexBuffer->getUniqueKey().getCustomData(), tol,
-                            &actualCount)) {
-                this->createMesh(target, std::move(cachedVertexBuffer), 0, actualCount);
+                            &actualVertexCount, nullptr)) {
+                fMesh = CreateMesh(target, std::move(cachedVertexBuffer), 0, actualVertexCount);
                 return;
             }
         }
@@ -325,7 +339,7 @@ private:
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
         rp->assignUniqueKeyToResource(key, vb.get());
 
-        this->createMesh(target, std::move(vb), 0, vertexCount);
+        fMesh = CreateMesh(target, std::move(vb), 0, vertexCount);
     }
 
     void createAAMesh(Target* target) {
@@ -347,7 +361,7 @@ private:
         if (vertexCount == 0) {
             return;
         }
-        this->createMesh(target, std::move(vertexBuffer), firstVertex, vertexCount);
+        fMesh = CreateMesh(target, std::move(vertexBuffer), firstVertex, vertexCount);
     }
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }
@@ -422,9 +436,11 @@ private:
         }
     }
 
-    void createMesh(Target* target, sk_sp<const GrBuffer> vb, int firstVertex, int count) {
-        fMesh = target->allocMesh();
-        fMesh->set(std::move(vb), count, firstVertex);
+    static GrSimpleMesh* CreateMesh(Target* target, sk_sp<const GrBuffer> vb,
+                                    int firstVertex, int count) {
+        auto mesh = target->allocMesh();
+        mesh->set(std::move(vb), count, firstVertex);
+        return mesh;
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
