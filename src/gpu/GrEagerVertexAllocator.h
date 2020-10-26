@@ -36,7 +36,8 @@ public:
 class GrEagerDynamicVertexAllocator : public GrEagerVertexAllocator {
 public:
     GrEagerDynamicVertexAllocator(GrMeshDrawOp::Target* target,
-                                   sk_sp<const GrBuffer>* vertexBuffer, int* baseVertex)
+                                  sk_sp<const GrBuffer>* vertexBuffer,
+                                  int* baseVertex)
             : fTarget(target)
             , fVertexBuffer(vertexBuffer)
             , fBaseVertex(baseVertex) {

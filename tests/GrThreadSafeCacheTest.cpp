@@ -9,6 +9,7 @@
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/private/SkMalloc.h"
+#include "include/utils/SkRandom.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -1334,4 +1335,40 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13View, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13Verts, reporter, ctxInfo) {
     test_13(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
+}
+
+// Case 14: Test out mixing & matching view & vertex data w/ recycling of the cache entries to
+//          wring out the anonymous union code. This is mainly for the MSAN bot's consumption.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14, reporter, ctxInfo) {
+    constexpr int kBestPrimeNumber = 73; // palindromic in binary
+    SkRandom rand(kBestPrimeNumber);
+
+    TestHelper helper(ctxInfo.directContext());
+
+    for (int i = 0; i < 2; ++i) {
+        SkCanvas* ddlCanvas = (!i) ? helper.ddlCanvas1() : helper.ddlCanvas2();
+
+        for (int j = 0; j < 10; ++j) {
+            int numResources = 10*i + j + 1;
+            int wh = numResources;
+
+            if (rand.nextBool()) {
+                helper.addViewAccess(ddlCanvas, wh, kNoID, false, false);
+                REPORTER_ASSERT(reporter, helper.checkView(ddlCanvas, wh,
+                                                           /*hits*/ 0, /*misses*/ numResources,
+                                                           /*refs*/ 1, kNoID));
+            } else {
+                helper.addVertAccess(ddlCanvas, wh, kNoID, false, false);
+                REPORTER_ASSERT(reporter, helper.checkVert(ddlCanvas, wh,
+                                                           /*hits*/ 0, /*misses*/ numResources,
+                                                           /*refs*/ 1, kNoID));
+            }
+        }
+
+        if (!i) {
+            // Drop all the accumulated resources from the thread-safe cache
+            helper.snap1();
+            ctxInfo.directContext()->purgeUnlockedResources(/* scratchResourcesOnly */ false);
+        }
+    }
 }

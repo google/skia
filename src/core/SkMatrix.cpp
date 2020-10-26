@@ -1459,10 +1459,10 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     if (!(typeMask & SkMatrix::kAffine_Mask)) {
         if (kMin_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
              results[0] = std::min(SkScalarAbs(m[SkMatrix::kMScaleX]),
-                                      SkScalarAbs(m[SkMatrix::kMScaleY]));
+                                   SkScalarAbs(m[SkMatrix::kMScaleY]));
         } else if (kMax_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
              results[0] = std::max(SkScalarAbs(m[SkMatrix::kMScaleX]),
-                                      SkScalarAbs(m[SkMatrix::kMScaleY]));
+                                   SkScalarAbs(m[SkMatrix::kMScaleY]));
         } else {
             results[0] = SkScalarAbs(m[SkMatrix::kMScaleX]);
             results[1] = SkScalarAbs(m[SkMatrix::kMScaleY]);
