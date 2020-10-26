@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1dc2316_378a49cd",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-26T15:50:38Z",
+      "side": 1,
+      "message": "Unrelated to this CL, but is this logic correct? My read is that if code is \"x %% y\", we\u0027ll still set argCount to 1 (we avoid counting the first \u0027%\u0027, but we don\u0027t double-advance index, so we\u0027ll count the second one?)",
+      "range": {
+        "startLine": 878,
+        "startChar": 0,
+        "endLine": 880,
+        "endChar": 13
+      },
+      "revId": "af5d73a0259ce5b27c5d289e9bc55ffba1249934",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
