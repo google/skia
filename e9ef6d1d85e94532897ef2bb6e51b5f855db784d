@@ -24,6 +24,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d15103be_53816ce7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5652
+      },
+      "writtenOn": "2020-10-26T13:31:17Z",
+      "side": 1,
+      "message": "CCing the ANGLE folks in case they would have an idea how ANGLE could have an RG8 framebuffer internally while Skia thinks it\u0027s RGBA8.",
+      "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0ea52d7_372cf6b4",
@@ -61,6 +78,30 @@
       "side": 1,
       "message": "We can not es2/es3 (I think). But really it\u0027s mostly that we currently don\u0027t store the raw base format. So if we wanted to be more open we just need to go through our \"format table\" in the caps and add a base internal format to everything. It\u0027s not hard, just tedious and I\u0027m not sure if we actually get a win or not. Like are we often ever copying between different formats here that have the same base?",
       "parentUuid": "e0ea52d7_372cf6b4",
+      "range": {
+        "startLine": 3208,
+        "startChar": 8,
+        "endLine": 3209,
+        "endChar": 66
+      },
+      "revId": "e9ef6d1d85e94532897ef2bb6e51b5f855db784d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69772304_e385787b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3209,
+      "author": {
+        "id": 5652
+      },
+      "writtenOn": "2020-10-26T13:31:17Z",
+      "side": 1,
+      "message": "Just tested this. Unfortunately, this doesn\u0027t seem to work. I doubled checked a few things and:\n1) If I remove this if statement (line 3208) and just return false unconditionally, the test passes\n2) If I change this if statement to \"dstFormat !\u003d srcFormat\", it still fails, suggesting that they are indeed equal inside this function, but become different by the time they get to ANGLE\n3) If I change this if statement to \"(dstFormat \u003d\u003d GrGLFormat::kRGBA8 || srcFormat \u003d\u003d GrGLFormat::kRGBA8)\", the test passes, suggesting that the srcFormat of the framebuffer that is effectively RG8 in ANGLE is thought to be RGBA8 in Skia, for some reason.\n\nI printed the formats and they are always the same for src and dst, and are either kRGBA8 or kR8, which is odd, because ANGLE has a framebuffer of format RG8, which skia appears to be unaware of at this point.",
+      "parentUuid": "f08198d2_6ea0aa42",
       "range": {
         "startLine": 3208,
         "startChar": 8,
