@@ -20,6 +20,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkDrawProcs.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
@@ -614,41 +615,38 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
     SkASSERT(halfWidth > 0);
 
-    SkVector v = points[1] - points[0];
+    SkVector parallel = points[1] - points[0];
 
-    SkScalar length = SkPoint::Normalize(&v);
-    if (!length) {
-        v.fX = 1.0f;
-        v.fY = 0.0f;
+    if (!SkPoint::Normalize(&parallel)) {
+        parallel.fX = 1.0f;
+        parallel.fY = 0.0f;
     }
+    parallel *= halfWidth;
+
+    SkVector ortho = { parallel.fY, -parallel.fX };
+    if (SkPaint::kButt_Cap == origPaint.getStrokeCap()) {
+        // No extra extension for butt caps
+        parallel = {0.f, 0.f};
+    }
+    // Order is TL, TR, BR, BL where arbitrarily "down" is p0 to p1 and "right" is positive
+    SkPoint corners[4] = { points[0] - ortho - parallel,
+                           points[0] + ortho - parallel,
+                           points[1] + ortho + parallel,
+                           points[1] - ortho + parallel };
 
     SkPaint newPaint(origPaint);
     newPaint.setStyle(SkPaint::kFill_Style);
 
-    SkScalar xtraLength = 0.0f;
-    if (SkPaint::kButt_Cap != origPaint.getStrokeCap()) {
-        xtraLength = halfWidth;
-    }
-
-    SkPoint mid = points[0] + points[1];
-    mid.scale(0.5f);
-
-    SkRect rect = SkRect::MakeLTRB(mid.fX-halfWidth, mid.fY - 0.5f*length - xtraLength,
-                                   mid.fX+halfWidth, mid.fY + 0.5f*length + xtraLength);
-    SkMatrix local;
-    local.setSinCos(v.fX, -v.fY, mid.fX, mid.fY);
-
-    SkPreConcatMatrixProvider matrixProvider(this->asMatrixProvider(), local);
-
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->recordingContext(), fRenderTargetContext->colorInfo(), newPaint,
-                          matrixProvider, &grPaint)) {
+                          this->asMatrixProvider(), &grPaint)) {
         return;
     }
 
-    fRenderTargetContext->fillRectWithLocalMatrix(this->clip(), std::move(grPaint),
-                                                  GrAA(newPaint.isAntiAlias()),
-                                                  matrixProvider.localToDevice(), rect, local);
+    GrAA aa = newPaint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
+    GrQuadAAFlags edgeAA = newPaint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    fRenderTargetContext->fillQuadWithEdgeAA(this->clip(), std::move(grPaint), aa, edgeAA,
+                                             this->localToDevice(), corners, nullptr);
 }
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
@@ -659,16 +657,21 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     }
 #endif
     ASSERT_SINGLE_OWNER
-    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect()) {
+    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !paint.getMaskFilter() &&
+        SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0.f &&
+        SkPaint::kRound_Cap != paint.getStrokeCap()) {
         SkPoint points[2];
-        if (SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0 &&
-            !paint.getMaskFilter() && SkPaint::kRound_Cap != paint.getStrokeCap() &&
-            this->localToDevice().preservesRightAngles() && origSrcPath.isLine(points)) {
-            // Path-based stroking looks better for thin rects
-            SkScalar strokeWidth = this->localToDevice().getMaxScale() * paint.getStrokeWidth();
-            if (strokeWidth >= 1.0f) {
-                // Round capping support is currently disabled b.c. it would require a RRect
-                // GrDrawOp that takes a localMatrix.
+        if (origSrcPath.isLine(points)) {
+            // The stroked line is an oriented rectangle, which looks the same or better
+            // (if perspective) compared to path rendering. The exception is subpixel/hairline lines
+            // that are non-AA or MSAA, in which case the default path renderer achieves higher
+            // quality.
+            // FIXME(michaelludwig): If the fill rect op could take an external coverage, or
+            // checks for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
+            SkScalar coverage;
+            if ((paint.isAntiAlias() && fRenderTargetContext->numSamples() == 1) ||
+                !SkDrawTreatAAStrokeAsHairline(paint.getStrokeWidth(), this->localToDevice(),
+                                               &coverage)) {
                 this->drawStrokedLine(points, paint);
                 return;
             }
