@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "498ab5b2_7eed5876",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-27T20:49:48Z",
+      "side": 1,
+      "message": "The main motivation for this change is fast_acos and fast_angle_between_vectors. Without these approximations the non-tessellation fallback for stroking would not be fast enough.",
+      "revId": "0bef5a35fa834494bab30c91024b29e6b407fd65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a14af007_c38e14de",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-27T20:49:48Z",
+      "side": 1,
+      "message": "Is this the correct way to cite a formula from the internet?",
+      "range": {
+        "startLine": 130,
+        "startChar": 3,
+        "endLine": 130,
+        "endChar": 44
+      },
+      "revId": "0bef5a35fa834494bab30c91024b29e6b407fd65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "446e8f14_92180dcf",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-27T20:49:48Z",
+      "side": 1,
+      "message": "Would these be better as static const?",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 10
+      },
+      "revId": "0bef5a35fa834494bab30c91024b29e6b407fd65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
