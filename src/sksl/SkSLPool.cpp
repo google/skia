@@ -14,12 +14,9 @@
 
 namespace SkSL {
 
-static constexpr int kSmallNodeSize = 120;
-static constexpr int kNodesInPool = 512;
-
 namespace { struct IRNodeData {
     union {
-        uint8_t fBuffer[kSmallNodeSize];
+        uint8_t fBuffer[sizeof(IRNode)];
         IRNodeData* fFreeListNext;
     };
 }; }
@@ -119,6 +116,8 @@ Pool::~Pool() {
 }
 
 std::unique_ptr<Pool> Pool::Create() {
+    constexpr int kNodesInPool = 512;
+
     SkAutoMutexExclusive lock(recycled_pool_mutex());
     std::unique_ptr<Pool> pool;
     if (sRecycledPool) {
@@ -160,26 +159,23 @@ void Pool::detachFromThread() {
     set_thread_local_pool_data(nullptr);
 }
 
-void* Pool::AllocIRNode(size_t size) {
-    // Can the requested size fit in a pool node?
-    if (size <= kSmallNodeSize) {
-        // Is a pool attached?
-        PoolData* poolData = get_thread_local_pool_data();
-        if (poolData) {
-            // Does the pool contain a free node?
-            IRNodeData* node = poolData->fFreeListHead;
-            if (node) {
-                // Yes. Take a node from the freelist.
-                poolData->fFreeListHead = node->fFreeListNext;
-                VLOG("ALLOC  Pool:0x%016llX Index:%04d         0x%016llX\n",
-                     (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
-                return node->fBuffer;
-            }
+void* Pool::AllocIRNode() {
+    // Is a pool attached?
+    PoolData* poolData = get_thread_local_pool_data();
+    if (poolData) {
+        // Does the pool contain a free node?
+        IRNodeData* node = poolData->fFreeListHead;
+        if (node) {
+            // Yes. Take a node from the freelist.
+            poolData->fFreeListHead = node->fFreeListNext;
+            VLOG("ALLOC  Pool:0x%016llX Index:%04d         0x%016llX\n",
+                 (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
+            return node->fBuffer;
         }
     }
 
-    // The pool can't be used for this allocation. Allocate nodes using the system allocator.
-    void* ptr = ::operator new(size);
+    // The pool is detached or full; allocate nodes using malloc.
+    void* ptr = ::operator new(sizeof(IRNode));
     VLOG("ALLOC  Pool:0x%016llX Index:____ malloc  0x%016llX\n",
          (uint64_t)poolData, (uint64_t)ptr);
     return ptr;
@@ -201,7 +197,7 @@ void Pool::FreeIRNode(void* node_v) {
         }
     }
 
-    // We couldn't associate this node with our pool. Free it using the system allocator.
+    // No pool is attached or the node was malloced; it must be freed.
     VLOG("FREE   Pool:0x%016llX Index:____ free    0x%016llX\n",
          (uint64_t)poolData, (uint64_t)node_v);
     ::operator delete(node_v);
