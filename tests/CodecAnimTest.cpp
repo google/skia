@@ -148,7 +148,7 @@ DEF_TEST(Codec_frames, r) {
         { "images/mandrill.wbmp", 1, {}, {}, {}, 0, {} },
         { "images/randPixels.bmp", 1, {}, {}, {}, 0, {} },
         { "images/yellow_rose.webp", 1, {}, {}, {}, 0, {} },
-        { "images/webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
+        { "images/stoplight.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
             { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
             { kKeep, kKeep, kKeep } },
         { "images/blendBG.webp", 7,
@@ -456,16 +456,42 @@ DEF_TEST(AndroidCodec_animated, r) {
     }
 }
 
+DEF_TEST(EncodedOriginToMatrixTest, r) {
+    // SkAnimCodecPlayer relies on the fact that these matrices are invertible.
+    for (auto origin : { kTopLeft_SkEncodedOrigin     ,
+                         kTopRight_SkEncodedOrigin    ,
+                         kBottomRight_SkEncodedOrigin ,
+                         kBottomLeft_SkEncodedOrigin  ,
+                         kLeftTop_SkEncodedOrigin     ,
+                         kRightTop_SkEncodedOrigin    ,
+                         kRightBottom_SkEncodedOrigin ,
+                         kLeftBottom_SkEncodedOrigin  }) {
+        // Arbitrary output dimensions.
+        auto matrix = SkEncodedOriginToMatrix(origin, 100, 80);
+        REPORTER_ASSERT(r, matrix.invert(nullptr));
+    }
+}
+
 DEF_TEST(AnimCodecPlayer, r) {
     static constexpr struct {
         const char* fFile;
         uint32_t    fDuration;
         SkISize     fSize;
     } gTests[] = {
-        { "images/alphabetAnim.gif", 1300, {100, 100} },
-        { "images/randPixels.gif"  ,    0, {  8,   8} },
-        { "images/randPixels.jpg"  ,    0, {  8,   8} },
-        { "images/randPixels.png"  ,    0, {  8,   8} },
+        { "images/alphabetAnim.gif"  , 1300, {100, 100} },
+        { "images/randPixels.gif"    ,    0, {  8,   8} },
+        { "images/randPixels.jpg"    ,    0, {  8,   8} },
+        { "images/randPixels.png"    ,    0, {  8,   8} },
+        { "images/stoplight.webp"    , 2500, { 11,  29} },
+        { "images/stoplight_h.webp"  , 2500, { 29,  11} },
+        { "images/orientation/1.webp",    0, {100,  80} },
+        { "images/orientation/2.webp",    0, {100,  80} },
+        { "images/orientation/3.webp",    0, {100,  80} },
+        { "images/orientation/4.webp",    0, {100,  80} },
+        { "images/orientation/5.webp",    0, {100,  80} },
+        { "images/orientation/6.webp",    0, {100,  80} },
+        { "images/orientation/7.webp",    0, {100,  80} },
+        { "images/orientation/8.webp",    0, {100,  80} },
     };
 
     for (const auto& test : gTests) {
@@ -473,18 +499,18 @@ DEF_TEST(AnimCodecPlayer, r) {
         REPORTER_ASSERT(r, codec);
 
         auto player = std::make_unique<SkAnimCodecPlayer>(std::move(codec));
-        if (player->duration() != test.fDuration) {
-            printf("*** %d vs %d\n", player->duration(), test.fDuration);
-        }
         REPORTER_ASSERT(r, player->duration() == test.fDuration);
+        REPORTER_ASSERT(r, player->dimensions() == test.fSize);
 
         auto f0 = player->getFrame();
         REPORTER_ASSERT(r, f0);
-        REPORTER_ASSERT(r, f0->bounds().size() == test.fSize);
+        REPORTER_ASSERT(r, f0->bounds().size() == test.fSize,
+                        "Mismatched size for initial frame of %s", test.fFile);
 
         player->seek(500);
         auto f1 = player->getFrame();
         REPORTER_ASSERT(r, f1);
-        REPORTER_ASSERT(r, f1->bounds().size() == test.fSize);
+        REPORTER_ASSERT(r, f1->bounds().size() == test.fSize,
+                        "Mismatched size for frame at 500 ms of %s", test.fFile);
     }
 }

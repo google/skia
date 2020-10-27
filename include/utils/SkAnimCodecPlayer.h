@@ -27,13 +27,13 @@ public:
     /**
      *  Return the size of the image(s) that will be returned by getFrame().
      */
-    SkISize dimensions();
+    SkISize dimensions() const;
 
     /**
      *  Returns the total duration of the animation in milliseconds. Returns 0 for a single-frame
      *  image.
      */
-    uint32_t duration() { return fTotalDuration; }
+    uint32_t duration() const { return fTotalDuration; }
 
     /**
      *  Finds the closest frame associated with the time code (in milliseconds) and sets that
