@@ -33,6 +33,70 @@
       "message": "@Florin, I had a question actually, if this was the right thing to do here. I can remove this object bounds implementation for a later CL if it needs more careful thought. Ditto on SkSVGUse",
       "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfdb5f48_082671ed",
+        "filename": "modules/svg/src/SkSVGContainer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T18:06:08Z",
+      "side": 1,
+      "message": "Scratching my head a bit, but I think this is correct: we want the bounds in the pre-transform space (same coordinate system as the other positional properties - x, y, etc).",
+      "parentUuid": "555669f4_a7a2619f",
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4770770b_e28a52c7",
+        "filename": "modules/svg/src/SkSVGLinearGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T18:06:08Z",
+      "side": 1,
+      "message": "(all instances)\n\nDo we still need to convert the lengths?  I think both percentages and regular units will resolve fine against {1,1}.  Other units are uncommon and likely broken either way (IIRC in Blink too).",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 60
+      },
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76ae49b1_a3db6fd9",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T18:06:08Z",
+      "side": 1,
+      "message": "I really like using the gradient transform for this (which is also what Blink does: https://source.chromium.org/chromium/chromium/src/+/master:third_party/blink/renderer/core/layout/svg/layout_svg_resource_gradient.cc;drc\u003d86c8f94eec64d6692a96b59abc9c86802f096234;l\u003d80).\n\nBut I\u0027m a bit confused about the other adjustments: if we\u0027re stretching the gradient space to remap [0..1,0..1] -\u003e [obb.L..obb.R,obb.B..obb.T], then I don\u0027t think we need to adjust the other points - the gradient transform will take care of it, right?\n\nEssentially I would think the local matrix adjustment is the only thing we need to do under this conditional?",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 37
+      },
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
