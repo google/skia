@@ -618,12 +618,12 @@ void CPPCodeGenerator::writeFunctionPrototype(const FunctionDefinition& f) {
 
     this->addExtraEmitCodeLine(args.c_str());
 
-    this->addExtraEmitCodeLine(
-            String::printf("fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), %zu, %s_args);",
-                           glsltype_string(fContext, decl.returnType()),
-                           funcName.c_str(),
-                           decl.parameters().size(),
-                           funcName.c_str()));
+    this->addExtraEmitCodeLine(String::printf(
+            "fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), {%s_args, %zu});",
+            glsltype_string(fContext, decl.returnType()),
+            funcName.c_str(),
+            funcName.c_str(),
+            decl.parameters().size()));
 }
 
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
@@ -664,13 +664,13 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
             funcImpl = "\nR\"SkSL(" + buffer.str() + ")SkSL\"";
         }
 
-        this->addExtraEmitCodeLine(
-                String::printf("fragBuilder->emitFunction(%s, %s_name.c_str(), %zu, %s_args,%s);",
-                               glsltype_string(fContext, decl.returnType()),
-                               funcName.c_str(),
-                               decl.parameters().size(),
-                               funcName.c_str(),
-                               funcImpl.c_str()));
+        this->addExtraEmitCodeLine(String::printf(
+                "fragBuilder->emitFunction(%s, %s_name.c_str(), {%s_args, %zu},%s);",
+                glsltype_string(fContext, decl.returnType()),
+                funcName.c_str(),
+                funcName.c_str(),
+                decl.parameters().size(),
+                funcImpl.c_str()));
     }
 }
 

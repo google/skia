@@ -9,6 +9,7 @@
 #define SkSpan_DEFINED
 
 #include <cstddef>
+#include "include/private/SkTLogic.h"
 #include "include/private/SkTo.h"
 
 template <typename T>

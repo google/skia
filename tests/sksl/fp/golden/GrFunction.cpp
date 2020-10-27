@@ -22,8 +22,8 @@ public:
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
         SkString flip_name = fragBuilder->getMangledFunctionName("flip");
         const GrShaderVar flip_args[] = { GrShaderVar("c", kHalf4_GrSLType) };
-        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, flip_name.c_str(), 1, flip_args);
-        fragBuilder->emitFunction(kHalf4_GrSLType, flip_name.c_str(), 1, flip_args,
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, flip_name.c_str(), {flip_args, 1});
+        fragBuilder->emitFunction(kHalf4_GrSLType, flip_name.c_str(), {flip_args, 1},
 R"SkSL(int x = 42;
 ++x;
 ++x;
