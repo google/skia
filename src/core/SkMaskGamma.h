@@ -36,9 +36,13 @@ public:
         SkScalar r = luminance.toLuma(gamma, SkIntToScalar(SkColorGetR(c)) / 255);
         SkScalar g = luminance.toLuma(gamma, SkIntToScalar(SkColorGetG(c)) / 255);
         SkScalar b = luminance.toLuma(gamma, SkIntToScalar(SkColorGetB(c)) / 255);
+#if SK_USE_DWRITE_COMPATIBLE_CONTRAST
+        SkScalar luma = r * 0.25f + g * 0.5f + b * 0.25f;
+#else
         SkScalar luma = r * SK_LUM_COEFF_R +
                         g * SK_LUM_COEFF_G +
                         b * SK_LUM_COEFF_B;
+#endif
         SkASSERT(luma <= SK_Scalar1);
         return SkScalarRoundToInt(luminance.fromLuma(gamma, luma) * 255);
     }
