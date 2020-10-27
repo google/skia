@@ -84,3 +84,15 @@ SkPath SkSVGUse::onAsPath(const SkSVGRenderContext& ctx) const {
 
     return ref->asPath(ctx);
 }
+
+SkRect SkSVGUse::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    const auto ref = ctx.findNodeById(fHref);
+    if (!ref) {
+        return SkRect::MakeEmpty();
+    }
+
+    const SkRect bounds = ref->objectBoundingBox(ctx);
+    const SkScalar x = ctx.lengthContext().resolve(fX, SkSVGLengthContext::LengthType::kHorizontal);
+    const SkScalar y = ctx.lengthContext().resolve(fY, SkSVGLengthContext::LengthType::kVertical);
+    return SkRect::MakeXYWH(x, y, bounds.width(), bounds.height());
+}

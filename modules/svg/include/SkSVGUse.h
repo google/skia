@@ -33,6 +33,7 @@ protected:
     bool onPrepareToRender(SkSVGRenderContext*) const override;
     void onRender(const SkSVGRenderContext&) const override;
     SkPath onAsPath(const SkSVGRenderContext&) const override;
+    SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
 
 private:
     SkSVGUse();

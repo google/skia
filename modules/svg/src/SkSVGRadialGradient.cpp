@@ -68,7 +68,11 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   const SkColor* colors, const SkScalar* pos,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& m) const {
-    const auto&  lctx = ctx.lengthContext();
+    const SkSVGLengthContext lctx =
+            fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox
+                    ? SkSVGLengthContext({1, 1})
+                    : ctx.lengthContext();
+
     const auto      r = lctx.resolve(fR , SkSVGLengthContext::LengthType::kOther);
     const auto center = SkPoint::Make(
             lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal),
@@ -78,6 +82,9 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
                       : center.x(),
         fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
                       : center.y());
+
+    // TODO: Handle r == 0 which has a specific meaning according to the spec
+    SkASSERT(r != 0);
 
     return center == focal
         ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)

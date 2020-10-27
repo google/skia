@@ -41,3 +41,7 @@ void SkSVGTransformableNode::mapToParent(SkPath* path) const {
     // transforms the path to parent node coordinates.
     path->transform(fTransform);
 }
+
+void SkSVGTransformableNode::mapToParent(SkRect* rect) const {
+    *rect = fTransform.mapRect(*rect);
+}

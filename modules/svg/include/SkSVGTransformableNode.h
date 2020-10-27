@@ -26,6 +26,8 @@ protected:
 
     void mapToParent(SkPath*) const;
 
+    void mapToParent(SkRect*) const;
+
 private:
     // FIXME: should be sparse
     SkSVGTransformType fTransform;
