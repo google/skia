@@ -51,6 +51,24 @@
       "parentUuid": "2857cd8b_7af8abf0",
       "revId": "c72985633671fb5ac7a74c92cdc3f622d993e783",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "298f0fd6_fbfbcf3f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-27T18:43:03Z",
+      "side": 1,
+      "message": "I should be more clear. I will re-enable the flag so that Ganesh uses new/delete instead of memory pools.",
+      "parentUuid": "efcb85ee_1f86eafd",
+      "revId": "c72985633671fb5ac7a74c92cdc3f622d993e783",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
