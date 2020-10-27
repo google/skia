@@ -118,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef7aede2_a1919e38",
+        "filename": "modules/svg/src/SkSVGLinearGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T19:04:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ebd8ec8_2e1e657e",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 60
+      },
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76ae49b1_a3db6fd9",
@@ -203,6 +227,30 @@
       "side": 1,
       "message": "I think the issue is you\u0027re starting off with userSpaceOnUse center/etc coordinates (0.5 * width, etc).  If you convert to objectBoundingBox equivalents (just 0.5 etc) then you don\u0027t need to readjust the control points, just the matrix: https://fiddle.skia.org/c/28e5129cc7f2a3ad0bd4af807a0e843d",
       "parentUuid": "d4b6531d_5150540d",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 37
+      },
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9310cdb8_e17cbd81",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T19:04:29Z",
+      "side": 1,
+      "message": "All right I think it\u0027s much better now, though we\u0027ll see what gold turns up.",
+      "parentUuid": "20a222f6_abc42ff2",
       "range": {
         "startLine": 106,
         "startChar": 0,
