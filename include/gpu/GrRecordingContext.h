@@ -138,7 +138,8 @@ protected:
     // during abandon or destruction of the context.
     void destroyDrawingManager();
 
-    Arenas arenas() { return fArenas.get(); }
+    GrMemoryPool* opMemoryPool() { return fArenas.get().opMemoryPool(); }
+    SkArenaAlloc* recordTimeAllocator() { return fArenas.get().recordTimeAllocator(); }
     // This entry point should only be used for DDL creation where we want the ops' lifetime to
     // match that of the DDL.
     OwnedArenas&& detachArenas();

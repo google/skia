@@ -70,7 +70,7 @@ private:
     bool hasColors() const { return fHasColors; }
     int quadCount() const { return fQuadCount; }
 
-    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
 
     struct Geometry {
         SkPMColor4f fColor;
@@ -253,8 +253,7 @@ void DrawAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     flushState->drawMesh(*fMesh);
 }
 
-GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
-                                                     const GrCaps& caps) {
+GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     DrawAtlasOp* that = t->cast<DrawAtlasOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {

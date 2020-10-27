@@ -41,9 +41,8 @@ public:
     // from GrRecordingContext
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
-    GrMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
-    SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
-    GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
+    GrMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+    SkArenaAlloc* recordTimeAllocator() { return fContext->recordTimeAllocator(); }
 
     GrRecordingContext::OwnedArenas&& detachArenas() { return fContext->detachArenas(); }
 

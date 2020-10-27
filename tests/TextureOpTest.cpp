@@ -75,7 +75,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
 
     GrDirectContext* dContext = ctxInfo.directContext();
     const GrCaps* caps = dContext->priv().caps();
-    GrRecordingContext::Arenas arenas = dContext->priv().arenas();
     auto auditTrail = dContext->priv().auditTrail();
 
     if (!caps->dynamicStateArrayGeometryProcessorTextureSupport()) {
@@ -103,10 +102,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
     GrOp::Owner opB = create_op(dContext, kOpBRect, proxyViewB, false);
 
     GrAppliedClip noClip = GrAppliedClip::Disabled();
-    OpsTaskTestingAccess::OpChain chain1(std::move(opA), GrProcessorSet::EmptySetAnalysis(),
+    OpsTaskTestingAccess::OpChain chain1(std::move(opA), dContext->priv().recordTimeAllocator(),
+                                         GrProcessorSet::EmptySetAnalysis(),
                                          &noClip, nullptr);
     chain1.appendOp(std::move(opB), GrProcessorSet::EmptySetAnalysis(), nullptr, &noClip, *caps,
-                    &arenas, dContext->priv().auditTrail());
+                    dContext->priv().auditTrail());
     check_chain(&chain1, kOpARect, kOpBRect, 2);
 
     // opC & opD can also chain together but can't merge (bc, again, they have different
@@ -115,15 +115,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
     GrOp::Owner opC = create_op(dContext, kOpCRect, proxyViewC, true);
     GrOp::Owner opD = create_op(dContext, kOpDRect, proxyViewA, true);
 
-    OpsTaskTestingAccess::OpChain chain2(std::move(opC), GrProcessorSet::EmptySetAnalysis(),
+    OpsTaskTestingAccess::OpChain chain2(std::move(opC), dContext->priv().recordTimeAllocator(),
+                                         GrProcessorSet::EmptySetAnalysis(),
                                          &noClip, nullptr);
     chain2.appendOp(std::move(opD), GrProcessorSet::EmptySetAnalysis(), nullptr, &noClip, *caps,
-                    &arenas, auditTrail);
+                    auditTrail);
     check_chain(&chain2, kOpCRect, kOpDRect, 2);
 
     // opA and opD, now in separate chains, can merge when the two chains are combined while
     // opB and opC can still only chain.
-    chain1.prependChain(&chain2, *caps, &arenas, auditTrail);
+    chain1.prependChain(&chain2, *caps, auditTrail);
 
     // We should end up with the chain
     //   opC - opD/opA - opB
