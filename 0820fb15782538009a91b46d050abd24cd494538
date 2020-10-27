@@ -39,6 +39,30 @@
       },
       "revId": "0820fb15782538009a91b46d050abd24cd494538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9cf6c34_18b391c5",
+        "filename": "modules/svg/src/SkSVGGradient.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T19:15:49Z",
+      "side": 1,
+      "message": "That makes two of us! The spec says \"the user coordinate system...is established using the bounding box of the element to which the gradient is applied...and then applying the transform specified by attribute ‘gradientTransform’.\" so I *think* this should be right.",
+      "parentUuid": "107dfc5e_8f377c91",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 46
+      },
+      "revId": "0820fb15782538009a91b46d050abd24cd494538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
