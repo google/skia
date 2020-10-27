@@ -152,7 +152,7 @@ void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
     }
 }
 
-void GrOpsTask::OpChain::deleteOps(GrOpMemoryPool* pool) {
+void GrOpsTask::OpChain::deleteOps() {
     while (!fList.empty()) {
         // Since the value goes out of scope immediately, the GrOp::Owner deletes the op.
         fList.popHead();
@@ -371,7 +371,7 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas ar
 
 void GrOpsTask::deleteOps() {
     for (auto& chain : fOpChains) {
-        chain.deleteOps(fArenas.opMemoryPool());
+        chain.deleteOps();
     }
     fOpChains.reset();
 }

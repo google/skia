@@ -355,7 +355,7 @@ bool GrDrawingManager::flush(
     // When we move to partial flushes this assert will no longer be valid.
     // In DDL mode this check is somewhat superfluous since the memory for most of the ops/opsTasks
     // will be stored in the DDL's GrOpMemoryPools.
-    GrOpMemoryPool* opMemoryPool = fContext->priv().opMemoryPool();
+    GrMemoryPool* opMemoryPool = fContext->priv().opMemoryPool();
     opMemoryPool->isEmpty();
 #endif
 
