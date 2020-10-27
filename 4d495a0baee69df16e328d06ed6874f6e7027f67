@@ -192,6 +192,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "abc8b281_3fdc6a04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-10-27T11:12:03Z",
+      "side": 1,
+      "message": "Thanks, this is very interesting. Are you planning to activate that in Chrome at some point? I\u0027d be happy if we can get closer to what DWrite does for contrast as users have been requesting that for a long time. At the same time, it would be important to have this covers by Skia gold bots and not be behind a compile time flag. Can we move to this value by default on Windows?",
+      "parentUuid": "23c147a3_cd73a135",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
