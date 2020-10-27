@@ -16,6 +16,29 @@
       "message": "This has broken Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN:\n\n  https://logs.chromium.org/logs/skia/4f7fdcc568ae5b11/+/steps/dm/0/stdout\n\nstart unit test  GrMemoryPool\n    #0 0x10d163803 in SkChopCubicAt(SkPoint const*, SkPoint*, float const*, int) (dm:x86_64+0x101b57803)\n    #1 0x10bef9c5b in testChopCubic(skiatest::Reporter*) (dm:x86_64+0x1008edc5b)\n    #2 0x10bef7a23 in test_Geometry(skiatest::Reporter*, GrContextOptions const\u0026) (dm:x86_64+0x1008eba23)\n    #3 0x10b64240e in skiatest::Test::run(skiatest::Reporter*, GrContextOptions const\u0026) const (dm:x86_64+0x10003640e)\n    #4 0x10b612e97 in run_test(skiatest::Test, GrContextOptions const\u0026) (dm:x86_64+0x100006e97)\n    #5 0x10b64d80c in main::$_3::operator()() const (dm:x86_64+0x10004180c)\n    #6 0x10d59fa3a in SkTaskGroup::add(std::__1::function\u003cvoid ()\u003e)::$_0::operator()() const (dm:x86_64+0x101f93a3a)\n    #7 0x10d13ebe2 in SkThreadPool\u003cSkTArray\u003cstd::__1::function\u003cvoid ()\u003e, false\u003e \u003e::do_work() (dm:x86_64+0x101b32be2)\n    #8 0x10d13cf75 in SkThreadPool\u003cSkTArray\u003cstd::__1::function\u003cvoid ()\u003e, false\u003e \u003e::borrow() (dm:x86_64+0x101b30f75)\n    #9 0x10d59a32b in SkTaskGroup::wait() (dm:x86_64+0x101f8e32b)\n    #10 0x10b60e97e in main (dm:x86_64+0x10000297e)\n    #11 0x7fff69de0014 in start (libdyld.dylib:x86_64+0x1014)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../../../../../skia/src/core/SkGeometry.cpp:559:44 in \n",
       "revId": "81b270a659c21a858c940fb3b7da33dbe020bb38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6385835b_4749e56d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-27T12:30:04Z",
+      "side": 1,
+      "message": "We also failed to keep this up to date with SkTPin().",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 483,
+        "endChar": 1
+      },
+      "revId": "81b270a659c21a858c940fb3b7da33dbe020bb38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
