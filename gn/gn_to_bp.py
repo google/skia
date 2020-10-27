@@ -169,6 +169,7 @@ cc_defaults {
 cc_defaults {
     name: "skia_deps",
     shared_libs: [
+        "libcutils",
         "libdng_sdk",
         "libexpat",
         "libft2",
@@ -188,7 +189,6 @@ cc_defaults {
     target: {
       android: {
         shared_libs: [
-            "libcutils",
             "libEGL",
             "libGLESv2",
             "libheif",
@@ -197,11 +197,6 @@ cc_defaults {
         ],
         export_shared_lib_headers: [
             "libvulkan",
-        ],
-      },
-      host: {
-        static_libs: [
-          "libcutils",
         ],
       },
       darwin: {
