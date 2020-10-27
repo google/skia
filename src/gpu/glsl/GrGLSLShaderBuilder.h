@@ -9,6 +9,7 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "include/private/SkTDArray.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrTBlockList.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -129,15 +130,13 @@ public:
     /** Emits a prototype for a helper function outside of main() in the fragment shader. */
     void emitFunctionPrototype(GrSLType returnType,
                                const char* mangledName,
-                               int argCnt,
-                               const GrShaderVar* args,
+                               SkSpan<const GrShaderVar> args,
                                bool forceInline = false);
 
     /** Emits a helper function outside of main() in the fragment shader. */
     void emitFunction(GrSLType returnType,
                       const char* mangledName,
-                      int argCnt,
-                      const GrShaderVar* args,
+                      SkSpan<const GrShaderVar> args,
                       const char* body,
                       bool forceInline = false);
 
@@ -174,8 +173,7 @@ protected:
 
     void appendFunctionDecl(GrSLType returnType,
                             const char* mangledName,
-                            int argCnt,
-                            const GrShaderVar* args,
+                            SkSpan<const GrShaderVar> args,
                             bool forceInline);
 
     /**

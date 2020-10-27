@@ -47,13 +47,12 @@ SkString GrGLSLShaderBuilder::getMangledFunctionName(const char* baseName) {
 
 void GrGLSLShaderBuilder::appendFunctionDecl(GrSLType returnType,
                                              const char* mangledName,
-                                             int argCnt,
-                                             const GrShaderVar* args,
+                                             SkSpan<const GrShaderVar> args,
                                              bool forceInline) {
     this->functions().appendf("%s%s %s(", forceInline ? "inline " : "",
                                           GrGLSLTypeString(returnType),
                                           mangledName);
-    for (int i = 0; i < argCnt; ++i) {
+    for (size_t i = 0; i < args.size(); ++i) {
         if (i > 0) {
             this->functions().append(", ");
         }
@@ -65,11 +64,10 @@ void GrGLSLShaderBuilder::appendFunctionDecl(GrSLType returnType,
 
 void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const char* mangledName,
-                                       int argCnt,
-                                       const GrShaderVar* args,
+                                       SkSpan<const GrShaderVar> args,
                                        const char* body,
                                        bool forceInline) {
-    this->appendFunctionDecl(returnType, mangledName, argCnt, args, forceInline);
+    this->appendFunctionDecl(returnType, mangledName, args, forceInline);
     this->functions().appendf(" {\n"
                               "%s"
                               "}\n\n", body);
@@ -77,10 +75,9 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
 
 void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
                                                 const char* mangledName,
-                                                int argCnt,
-                                                const GrShaderVar* args,
+                                                SkSpan<const GrShaderVar> args,
                                                 bool forceInline) {
-    this->appendFunctionDecl(returnType, mangledName, argCnt, args, forceInline);
+    this->appendFunctionDecl(returnType, mangledName, args, forceInline);
     this->functions().append(";\n");
 }
 
@@ -189,7 +186,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return s * x;");
         SkString funcName = this->getMangledFunctionName(name);
-        this->emitFunction(kHalf_GrSLType, funcName.c_str(), SK_ARRAY_COUNT(gTFArgs), gTFArgs,
+        this->emitFunction(kHalf_GrSLType, funcName.c_str(), {gTFArgs, SK_ARRAY_COUNT(gTFArgs)},
                            body.c_str());
         return funcName;
     };
@@ -215,7 +212,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.append("return color;");
         gamutXformFuncName = this->getMangledFunctionName("gamut_xform");
         this->emitFunction(kHalf4_GrSLType, gamutXformFuncName.c_str(),
-                           SK_ARRAY_COUNT(gGamutXformArgs), gGamutXformArgs, body.c_str());
+                           {gGamutXformArgs, SK_ARRAY_COUNT(gGamutXformArgs)}, body.c_str());
     }
 
     // Now define a wrapper function that applies all the intermediate steps
@@ -251,7 +248,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.append("return half4(color);");
         SkString colorXformFuncName = this->getMangledFunctionName("color_xform");
         this->emitFunction(kHalf4_GrSLType, colorXformFuncName.c_str(),
-                           SK_ARRAY_COUNT(gColorXformArgs), gColorXformArgs, body.c_str());
+                           {gColorXformArgs, SK_ARRAY_COUNT(gColorXformArgs)}, body.c_str());
         out->appendf("%s(%s)", colorXformFuncName.c_str(), srcColor);
     }
 }
