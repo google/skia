@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d8903f4_e9380ed0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T19:10:35Z",
+      "side": 1,
+      "message": "Another exploratory feature for the toy sample, although I know this methodology can\u0027t generalize to a GPU version. Happy to address any comments you may have (code style etc comments also welcome).",
+      "revId": "da66d2af3397718741b822c1d6766d14640a01d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
