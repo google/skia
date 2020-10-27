@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "36d97702_555fe6b6",
         "filename": "/COMMIT_MSG",
@@ -20,10 +21,10 @@
         "endChar": 15
       },
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "4bd941c1_d9d125d8",
         "filename": "/COMMIT_MSG",
@@ -44,10 +45,10 @@
         "endChar": 15
       },
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": false
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "e6bc5a34_e2f0a821",
         "filename": "/PATCHSET_LEVEL",
@@ -61,10 +62,10 @@
       "side": 1,
       "message": "Note that all of this GAMMA stuff is a hack and so exposing it at all is less than ideal. When it was originally added the idea was that eventually the blitters would correctly blend the masks and we wouldn\u0027t need to be aware of this. The idea that the text would be in a different destination color space from everything else is an unfortunate one, mostly kept alive by it being set too low for the optical sizing effect (black on white text with a lower gamma looks much heavier at small pixel sizes due to over covered pixels) and it is hoped that variable fonts and automatic optical sizing will reduce the need for that.\n\nNote that comments like https://bugs.chromium.org/p/chromium/issues/detail?id\u003d534732#c42 aren\u0027t about this, the difference there is the difference between using the v35 vs v40 (or newer) hinting engine. On the other hand we should probably investigate https://fontgammatest.netlify.app/ independently since it isn\u0027t immediately obvious what\u0027s happening there.",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": false
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "054cd521_3cd3b8af",
         "filename": "/PATCHSET_LEVEL",
@@ -78,10 +79,10 @@
       "side": 1,
       "message": "Another reason this isn\u0027t in the public API is because it isn\u0027t clear what the right hack is in the end. For example there\u0027s yet another thing that macOS does (described at https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/ports/SkTypeface_mac_ct.cpp;l\u003d1063;drc\u003d72aa50fa724be49fb2c59872b20bce365ab44c12;bpv\u003d1;bpt\u003d0 ) where it doesn\u0027t actually use a consistent gamma across the range.\n\nAlso, the current mask gamma isn\u0027t taking the color space into account at all. It may be a good idea to try out creating the tables from the skcms_TransferFunction on the color space in use.",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": false
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "966cecb2_7a02a2cf",
         "filename": "/PATCHSET_LEVEL",
@@ -96,10 +97,10 @@
       "message": "I\u0027m obviously targeting Windows, and haven\u0027t really looked at what other platforms are doing.  \n\nWould it maybe make sense to #ifdef the new parameters so they only apply on Windows?  And maybe rename them to DWriteGamma/Contrast, or something, so that it\u0027s clear we\u0027re trying to simulate DWrite, and they should be populated with the corresponding DWrite settings?",
       "parentUuid": "054cd521_3cd3b8af",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "f82304be_266055ce",
         "filename": "/PATCHSET_LEVEL",
@@ -114,10 +115,10 @@
       "message": "A few thoughts:\n\n1. On Windows, the font gamma \u0026 contrast settings are a per-monitor property... just like the LCDtext orientation property.  Since *that* value is passed in, it seemed to make sense to pass in the other per-monitor properties, hence putting it in SkSurfaceProps and exposing it publicly.\n\n\n2. The API we\u0027re calling to retrieve the DWrite mask (IDWriteGlyphRunAnalysis::CreateAlphaTexture) doesn\u0027t bake the contrast/gamma into the mask, so some sort of post-processing is obviously necessary.\n\nSo the basic approach taken by SK_FONT_HOST_USE_SYSTEM_SETTINGS seemed to be the right one, except it\u0027s inherently limited to the \"default\" monitor, and it also doesn\u0027t work under Chrome\u0027s sandbox.\n\n\n3. The actual *math* used to apply the gamma/contrast is certainly different than what DWrite uses internally.  (I can investigate that more deeply, if you like.)  But the end result is a lot closer to what Windows does than no adjustments at all.\n\n\n4. Re: https://fontgammatest.netlify.app/\n-- It\u0027s using a font with two custom glyphs.\n-- One glyph is just a black square; no issues there.\n-- The other glyph is a series of barcode-like bars.\n-- The pattern is (wide bar, wide gap, narrow bar, narrow gap) repeated 16 times.  At a glance, the \"wide\" bars/gaps appear to be exactly twice as wide as the \"narrow\" ones.\n-- At 16px, you\u0027d expect each repetition of the pattern to occupy one pixel (subject to sub-pixel positioning).  Each pixel would be be exactly 50% covered by the bars.\n-- The *text* of the site says it expects \"linear 50% gray\" (which might make sense, mathematically), but the actual color being tested against #BCBCBC.  I\u0027m not sure of the rationale for this.",
       "parentUuid": "e6bc5a34_e2f0a821",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "22984c11_7eed8ede",
         "filename": "/PATCHSET_LEVEL",
@@ -132,10 +133,10 @@
       "message": "3. The math used to apply the gamma / contrast is Skia is a terrible hack I wish we could be rid of. It does the best it can with what it has, which isn\u0027t much.\n\n4. I\u0027m aware of what the font does and what they\u0027re testing (#BCBCBC is close to 50% gray in srgb). However, a lot more is actually needed to separate out how the different renderers (Skia, FreeType, DirectWrite, CoreText) actually handle the tiny bits of coverage in that font to begin with, then with how the various back-ends (software, gpu) actually render through those coverage masks and also how users (in this case Chromium) have Skia configured. We would need particular tests at each level to know where things are different. It had previously been hoped that this would get fixed with the color space work, but it didn\u0027t really because the world is too dependent on blending non-linear things with linear blending.",
       "parentUuid": "f82304be_266055ce",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "fb6f0cbd_30946d39",
         "filename": "/PATCHSET_LEVEL",
@@ -150,10 +151,10 @@
       "message": "3. I\u0027ll dig a little deeper into what DWrite does internally when it applies its gamma/contrast settings.  \n\nThe best approach here might be a Windows/DWrite-specific mask-fixup that doesn\u0027t make use of the existing gamma/contrast hacks.",
       "parentUuid": "22984c11_7eed8ede",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "3dd68625_6ee25781",
         "filename": "/PATCHSET_LEVEL",
@@ -168,10 +169,28 @@
       "message": "Not really, that would be far more invasive and hacky than just putting something on the SkSurface. The right place for all of this is to be applied in the blitter at the blend stage, but no one wants to do that because of gpu limitations and it\u0027s slow on the cpu. We already have more or less the best hack that can be done to the mask itself.",
       "parentUuid": "fb6f0cbd_30946d39",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "23c147a3_cd73a135",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-27T00:45:58Z",
+      "side": 1,
+      "message": "OK... I dug into the math that DWrite uses.  Gamma-correction is more or less the same (as you\u0027d expect), but they do something very different for contrast.  In particular, the contrast boost for low alpha values is much greater than what Skia does.\n\nSo, for the purpose of discussion, I\u0027ve made some relatively minor tweaks to mimic what DWrite does: see SK_USE_DWRITE_COMPATIBLE_CONTRAST changes in patchset 8.",
+      "parentUuid": "3dd68625_6ee25781",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
       "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -185,10 +204,10 @@
       "side": 1,
       "message": "We need to remove this file and move the globals in it into Chromium. This has been a long term issue. Skia should not be getting new globals, especially here.",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "990db9d5_be311b5b",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -203,10 +222,10 @@
       "message": "I agree, and I rather expected this feedback.  I guess I\u0027m hoping to appeal to pragmatism:  I don\u0027t think this change makes the job of switching Chromium to use the other APIs any harder, and I don\u0027t think that work should necessarily be a prerequisite for this.\n\n(Also, I just talked w/my manager, and he indicated some willingness for me to take on the task of updating Chrome to use the other APIs as followup, maybe.)",
       "parentUuid": "b8ccc899_d8034f36",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "9c82fc70_5c63e48b",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -221,10 +240,10 @@
       "message": "The fact that on Windows the gamma and contrast are a per-monitor property is a very strong argument that not only should this global not go in a library it shouldn\u0027t be a single global (which is also an argument for why these existing globals which could vary on a per-monitor basis shouldn\u0027t be here as well).\n\nI\u0027m well aware that this makes the change in Chromium more difficult; while I\u0027ve started on it twice I still haven\u0027t been able to get these globals out of Skia. All of these values need to come from the Display (ui/display/display.h) in Chromium (just like the color space) and be plumbed down to SkSurface creation. (Most of the issue with the existing globals, however, is moving all the existing surface geometry detection code which is all over the place around while keeping things working. Hopefully this proposal doesn\u0027t have that limitation and you can just pass the information down with the color space.)\n\nNow, I don\u0027t really like the idea of the SkSurface having a different color space for text vs everything else, but I\u0027ll leave the prospect of adding another color space to SkSurface up to the owners of SkSurface. However, if these globals are added they will always be wrong and will be here for a very long time and Chromium will be unlikely to ever set the correctly. If you really want globals for pragmatic reasons that could better be done pragmatically in Chromium directly and let Chromium handle the technical debt of that (though I would much rather see this plumbed from Display on down).",
       "parentUuid": "990db9d5_be311b5b",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "9b76e51b_574388dc",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -239,10 +258,10 @@
       "message": "I totally agree on the per-monitor vs. globals comment... the two are obviously incompatible.  Per-monitor was a longer-term goal (and requires quite a bit more work on the Chromium side).\n\nFWIW, I going to take a stab at removing the use of the globals from Chromium, since that appears to be our primary sticking point.  \n\nI\u0027m not sure what that\u0027ll look like, yet... the first pass might be to literally move the globals into Chromium.  I think the UI process will be easy (plumbing from CachedFontRenderParams, which is basically an already existing global), but the renderer and GPU processes are more interesting.\n\nI\u0027m assuming that Chromium is the only client of these deprecated APIs?",
       "parentUuid": "9c82fc70_5c63e48b",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "681425c2_baed57b7",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -257,10 +276,10 @@
       "message": "Chromium is the only user of these deprecated APIs, and I wouldn\u0027t expect that you should go and try to remove them, just not add to them. CachedFontRenderParams seems to be Windows only (and does the wrong things, subpixel_rendering there should be a boolean about whether or not to request it, the actual subpixel geometry should be on the Display). That\u0027s actually how blink works (because there is someone working on text in blink), gfx is always behind and a bit backwards (since there isn\u0027t).",
       "parentUuid": "9b76e51b_574388dc",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "2e4928e1_f8763319",
         "filename": "src/core/SkFontLCDConfig.cpp",
@@ -275,8 +294,25 @@
       "message": "\"Chromium is the only user of these deprecated APIs, and I wouldn\u0027t expect that you should go and try to remove them, just not add to them.\"\n\nI think it\u0027s the same work, unfortunately.  At least if we\u0027re agreed that adding them to SkSurfaceProps makes sense (at least on Windows, where these are per-monitor properties), we\u0027d have to get the new parameters to all the constructors that are currently using `kLegacyFontHost_InitType`... and you may as well pass in the correct pixel geometry while you\u0027re at it.\n\nBut as mentioned, I might end up having to globally cache the values on the Chromium side, for now (pending a larger Chromium change that actually handles the per-monitor stuff).",
       "parentUuid": "681425c2_baed57b7",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
-      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
-      "unresolved": true
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c793773_6f85cac0",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-27T00:45:58Z",
+      "side": 1,
+      "message": "Done.  Globals removed from this CL.  Yay!",
+      "parentUuid": "2e4928e1_f8763319",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
