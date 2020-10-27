@@ -89,6 +89,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "77be9a42_9afca046",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T16:43:48Z",
+      "side": 1,
+      "message": "This one has two earlier versions: https://skia-review.googlesource.com/c/skia/+/329536/3/modules/skottie/src/effects/BlackAndWhiteEffect.cpp\n\n1) is my initial hack/reverse engineer effort which does a full HSL conversion upfront using abs\n\n2) the fist version of the current approach, with flow control\n\n#1 is the slowest, and #2 is ~20% slower than current.  Flow control definitely seems to work!",
+      "parentUuid": "2cb7a47e_cb55d15d",
+      "revId": "f5ae004b9b5ce012fb597f0f6f593cd6a85d77b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d72c4c6d_44b0008c",
