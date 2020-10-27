@@ -39,3 +39,15 @@ SkPath SkSVGContainer::onAsPath(const SkSVGRenderContext& ctx) const {
     this->mapToParent(&path);
     return path;
 }
+
+SkRect SkSVGContainer::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    SkRect bounds = SkRect::MakeEmpty();
+
+    for (int i = 0; i < fChildren.count(); ++i) {
+        const SkRect childBounds = fChildren[i]->objectBoundingBox(ctx);
+        bounds.join(childBounds);
+    }
+
+    this->mapToParent(&bounds);
+    return bounds;
+}

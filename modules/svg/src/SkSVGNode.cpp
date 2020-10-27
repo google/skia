@@ -48,8 +48,8 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
     return path;
 }
 
-SkRect SkSVGNode::objectBoundingBox(const SkSVGLengthContext& lctx) const {
-    return this->onObjectBoundingBox(lctx);
+SkRect SkSVGNode::objectBoundingBox(const SkSVGRenderContext& ctx) const {
+    return this->onObjectBoundingBox(ctx);
 }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
