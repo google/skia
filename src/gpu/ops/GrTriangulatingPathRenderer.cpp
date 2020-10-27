@@ -7,19 +7,23 @@
 
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkGeometry.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrThreadSafeCache.h"
@@ -74,6 +78,17 @@ bool cache_match(const SkData* data, SkScalar tol,
         return true;
     }
     return false;
+}
+
+bool newer_is_better(SkData* incumbent, SkData* challenger) {
+    const TessInfo* i = static_cast<const TessInfo*>(incumbent->data());
+    const TessInfo* c = static_cast<const TessInfo*>(challenger->data());
+
+    if (i->fNumCountedCurves == 0 || i->fTolerance <= c->fTolerance) {
+        return false;  // prefer the incumbent
+    }
+
+    return true;
 }
 
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
@@ -136,6 +151,50 @@ private:
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
+    size_t fLockStride = 0;
+};
+
+class CpuVertexAllocator : public GrEagerVertexAllocator {
+public:
+    CpuVertexAllocator() = default;
+
+#ifdef SK_DEBUG
+    ~CpuVertexAllocator() override {
+        SkASSERT(!fLockStride && !fVertices && !fVertData);
+    }
+#endif
+
+    void* lock(size_t stride, int eagerCount) override {
+        SkASSERT(!fLockStride && !fVertices && !fVertData);
+        SkASSERT(stride && eagerCount);
+
+        fVertices = sk_malloc_throw(eagerCount * stride);
+        fLockStride = stride;
+
+        return fVertices;
+    }
+
+    void unlock(int actualCount) override {
+        SkASSERT(fLockStride && fVertices && !fVertData);
+
+        fVertices = sk_realloc_throw(fVertices, actualCount * fLockStride);
+
+        fVertData = GrThreadSafeCache::MakeVertexData(fVertices, actualCount, fLockStride);
+
+        fVertices = nullptr;
+        fLockStride = 0;
+    }
+
+    sk_sp<GrThreadSafeCache::VertexData> detachVertices() {
+        SkASSERT(!fLockStride && !fVertices && fVertData);
+
+        return std::move(fVertData);
+    }
+
+private:
+    sk_sp<GrThreadSafeCache::VertexData> fVertData;
+
+    void*  fVertices = nullptr;
     size_t fLockStride = 0;
 };
 
@@ -303,6 +362,7 @@ private:
     void createNonAAMesh(Target* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
+        auto threadSafeCache = rp->priv().gpu()->getContext()->priv().threadSafeCache(); // tedious
 
         GrUniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
@@ -310,6 +370,16 @@ private:
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
                                                         fViewMatrix, fShape.bounds());
 
+        if (!fVertexData) {
+            auto [cachedVerts, data] = threadSafeCache->findVertsWithData(key);
+            if (cachedVerts) {
+                if (cache_match(data.get(), tol, nullptr, &fCachedNumCountedCurves)) {
+                    fVertexData = cachedVerts;
+                }
+            }
+        }
+
+#if 0
         sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
         if (cachedVertexBuffer) {
             int actualVertexCount;
@@ -319,6 +389,36 @@ private:
                 fMesh = CreateMesh(target, std::move(cachedVertexBuffer), 0, actualVertexCount);
                 return;
             }
+        }
+#endif
+
+        if (fVertexData) {
+            if (!fVertexData->gpuBuffer()) {
+                sk_sp<GrGpuBuffer> buffer = rp->createBuffer(fVertexData->size(),
+                                                             GrGpuBufferType::kVertex,
+                                                             kStatic_GrAccessPattern,
+                                                             fVertexData->vertices1());
+                if (!buffer) {
+                    return;
+                }
+
+                // Since we have a direct context we need not worry about any threading issues
+                // in this call.
+                fVertexData->setGpuBuffer(buffer);
+
+#if 0
+                key.setCustomData(create_data(fVertexData->numVertices(),
+                                              fCachedNumCountedCurves, tol));
+
+                fShape.addGenIDChangeListener(
+                        sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
+                rp->assignUniqueKeyToResource(key, buffer.get());
+#endif
+            }
+
+            fMesh = CreateMesh(target, std::move(fVertexData->refGpuBuffer()),
+                               0, fVertexData->numVertices());
+            return;
         }
 
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
@@ -333,13 +433,18 @@ private:
 
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
 
+        fVertexData = GrThreadSafeCache::MakeVertexData(std::move(vb), vertexCount, fLockStride);
+
         key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
 
+#if 0
         fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
         rp->assignUniqueKeyToResource(key, vb.get());
+#endif
 
-        fMesh = CreateMesh(target, std::move(vb), 0, vertexCount);
+        fMesh = CreateMesh(target, std::move(fVertexData->refGpuBuffer()),
+                           0, fVertexData->numVertices());
     }
 
     void createAAMesh(Target* target) {
@@ -426,6 +531,54 @@ private:
 
         INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
                                      renderPassXferBarriers);
+
+        if (fAntiAlias) {
+            // TODO: pull the triangulation work forward to the recording thread for the AA case
+            // too.
+            return;
+        }
+
+        auto threadSafeViewCache = rContext->priv().threadSafeCache();
+
+        GrUniqueKey key;
+        CreateKey(&key, fShape, fDevClipBounds);
+
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
+                                                        fViewMatrix, fShape.bounds());
+
+        auto [cachedVerts, data] = threadSafeViewCache->findVertsWithData(key);
+        if (cachedVerts) {
+            if (cache_match(data.get(), tol, nullptr, &fCachedNumCountedCurves)) {
+                fVertexData = cachedVerts;
+                return;
+            }
+        }
+
+        CpuVertexAllocator allocator;
+
+        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                      &fCachedNumCountedCurves);
+        if (vertexCount == 0) {
+            return;
+        }
+
+        fVertexData = allocator.detachVertices();
+
+        key.setCustomData(create_data(vertexCount, fCachedNumCountedCurves, tol));
+
+        // If some other thread created and cached its own triangulation, the 'newer_is_better'
+        // predicate will replace its version in the cache if 'fVertexData' is a more accurate
+        // triangulation. This will leave some other recording threads using a poorer version
+        // but will result in a version with greater applicability being in the cache.
+        auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData,
+                                                                  newer_is_better);
+        if (tmpV != fVertexData) {
+            // Someone beat us to creating the triangulation (and it is better than ours) so
+            // just go ahead and use it.
+            SkASSERT(cache_match(tmpD.get(), tol, nullptr, &fCachedNumCountedCurves));
+            fVertexData = tmpV;
+            return;
+        }
     }
 
     void onPrepareDraws(Target* target) override {
@@ -473,6 +626,10 @@ private:
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
+
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
+
+    int            fCachedNumCountedCurves = 0;
 
     using INHERITED = GrMeshDrawOp;
 };
