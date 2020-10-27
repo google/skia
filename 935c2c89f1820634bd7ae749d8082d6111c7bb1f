@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e065bcb8_68ed143f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-27T18:43:05Z",
+      "side": 1,
+      "message": "I think our tests and out wasm packager are the ones that use this.",
+      "revId": "935c2c89f1820634bd7ae749d8082d6111c7bb1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
