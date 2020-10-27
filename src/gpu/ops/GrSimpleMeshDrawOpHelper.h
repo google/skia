@@ -199,7 +199,7 @@ GrOp::Owner GrOp::MakeWithProcessorSet(
     GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
     return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...)};
 #else
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    GrMemoryPool* pool = context->priv().opMemoryPool();
     char* bytes = (char*)pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
     char* setMem = bytes + sizeof(Op);
     GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};

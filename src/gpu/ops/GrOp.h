@@ -73,9 +73,9 @@ public:
     #else
         struct DeleteFromPool {
             DeleteFromPool() : fPool{nullptr} {}
-            DeleteFromPool(GrOpMemoryPool* pool) : fPool{pool} {}
+            DeleteFromPool(GrMemoryPool* pool) : fPool{pool} {}
             void operator() (GrOp* op);
-            GrOpMemoryPool* fPool;
+            GrMemoryPool* fPool;
         };
         using Owner =  std::unique_ptr<GrOp, DeleteFromPool>;
     #endif
@@ -101,7 +101,7 @@ public:
         template<typename Op, typename... Args>
         static Owner MakeWithExtraMemory(
                 GrRecordingContext* context, size_t extraSize, Args&&... args) {
-            GrOpMemoryPool* pool = context->priv().opMemoryPool();
+            GrMemoryPool* pool = context->priv().opMemoryPool();
             void* mem = pool->allocate(sizeof(Op) + extraSize);
             GrOp* op = new (mem) Op(std::forward<Args>(args)...);
             return Owner{op, pool};
