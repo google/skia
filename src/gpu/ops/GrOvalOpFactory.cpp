@@ -399,7 +399,7 @@ private:
             };
             SkString fnName = fragBuilder->getMangledFunctionName("coverage_from_dash_edge");
             fragBuilder->emitFunction(kFloat_GrSLType, fnName.c_str(),
-                                      SK_ARRAY_COUNT(fnArgs), fnArgs, R"(
+                                      {fnArgs, SK_ARRAY_COUNT(fnArgs)}, R"(
                     float linearDist;
                     angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);
                     linearDist = diameter * sin(angleToEdge / 2);

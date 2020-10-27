@@ -80,7 +80,7 @@ protected:
             cornerCoverage = emitArgs.emplace_back("corner_coverage", kHalf2_GrSLType).c_str();
         }
         g->emitFunction(kVoid_GrSLType, emitVertexFn.c_str(),
-                        emitArgs.count(), emitArgs.begin(), [&] {
+                        {&emitArgs.front(), emitArgs.size()}, [&] {
             SkString fnBody;
             fnBody.appendf("float2 vertexpos = fma(%s, float2(bloat), %s);", bloatdir, corner);
             const char* coverage = inputCoverage;
