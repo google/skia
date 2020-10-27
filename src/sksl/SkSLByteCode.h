@@ -22,6 +22,7 @@ class FunctionDeclaration;
 enum class ByteCodeInstruction : uint8_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
 
+    kAbs,   // N
     kAddF,  // N
     kAddI,  // N
     kAndB,  // N

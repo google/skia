@@ -49,6 +49,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
     auto inst = READ_INST();
     printf("%02x ", (int)inst);
     switch (inst) {
+        DISASSEMBLE_COUNT(kAbs , "abs")
         DISASSEMBLE_COUNT(kAddF, "addf")
         DISASSEMBLE_COUNT(kAddI, "addi")
         DISASSEMBLE_COUNT(kAndB, "andb")
@@ -413,6 +414,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 #endif
         ByteCodeInstruction inst = READ_INST();
         switch (inst) {
+
+            VECTOR_UNARY_FN(kAbs, skvx::abs, fFloat)
 
             VECTOR_BINARY_OP(kAddF, fFloat, +)
             VECTOR_BINARY_OP(kAddI, fSigned, +)

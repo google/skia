@@ -551,6 +551,7 @@ static skvm::Color program_fn(skvm::Builder* p,
                 ternary([](skvm::F32 x, skvm::F32 y, skvm::F32 t) { return skvm::lerp(x, y, t); });
                 break;
 
+            case Inst::kAbs:   unary(skvm::abs);         break;
             case Inst::kATan:  unary(skvm::approx_atan); break;
             case Inst::kCeil:  unary(skvm::ceil);        break;
             case Inst::kFloor: unary(skvm::floor);       break;

@@ -47,6 +47,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     // they're available to "generic" interpreter programs (eg particles).
     // You can probably copy the declarations from sksl_gpu.inc.
     , fIntrinsics {
+        { "abs",       ByteCodeInstruction::kAbs },
         { "atan",      ByteCodeInstruction::kATan },
         { "ceil",      ByteCodeInstruction::kCeil },
         { "clamp",     SpecialIntrinsic::kClamp },
@@ -278,6 +279,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VEC_UNARY(kConvertStoF)
         VEC_UNARY(kConvertUtoF)
 
+        VEC_UNARY(kAbs)
         VEC_UNARY(kATan)
         VEC_UNARY(kCeil)
         VEC_UNARY(kCos)
