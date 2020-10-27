@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1093db8_6418c09b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T15:32:26Z",
+      "side": 1,
+      "message": "The abs change is incidental - I added it for an earlier version of the shader, but it seems nice to keep around.  We can always add it later if you prefer.\n\nTest preview: https://imgur.com/a/RBf26M9",
+      "revId": "f5ae004b9b5ce012fb597f0f6f593cd6a85d77b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d72c4c6d_44b0008c",
+        "filename": "modules/skottie/src/effects/BlackAndWhiteEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T15:32:26Z",
+      "side": 1,
+      "message": "We can shave one min() by reusing this below, but it doesn\u0027t seem to make much perf difference in practice.",
+      "range": {
+        "startLine": 43,
+        "startChar": 25,
+        "endLine": 43,
+        "endChar": 38
+      },
+      "revId": "f5ae004b9b5ce012fb597f0f6f593cd6a85d77b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
