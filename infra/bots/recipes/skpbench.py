@@ -170,6 +170,8 @@ TEST_BUILDERS = [
    'Android_Skpbench_Mskp'),
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
+  ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
+   'Android_ReduceOpsTaskSplitting_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'
    'Android_AllPathsVolatile_Skpbench'),
   ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'

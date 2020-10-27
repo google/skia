@@ -201,6 +201,7 @@
   "Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_CCPR_Skpbench",
+  "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_ReduceOpsTaskSplitting_Skpbench",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Mskp_Skpbench",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Skpbench",
   "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
