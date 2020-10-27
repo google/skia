@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "115dd0bb_c6f20bc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-27T14:33:01Z",
+      "side": 1,
+      "message": "This is a followup to your comment in CL/323778.",
+      "revId": "2e5d0955e90e0ab8e390d99b04db752c6f21f5f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
