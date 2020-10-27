@@ -119,20 +119,3 @@ void GrMemoryPool::validate() const {
     SkASSERT(allocCount > 0 || this->isEmpty());
 }
 #endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
-    static_assert(sizeof(GrOpMemoryPool) < GrMemoryPool::kMinAllocationSize);
-
-    preallocSize = SkTPin(preallocSize, GrMemoryPool::kMinAllocationSize,
-                          (size_t) GrBlockAllocator::kMaxAllocationSize);
-    minAllocSize = SkTPin(minAllocSize, GrMemoryPool::kMinAllocationSize,
-                          (size_t) GrBlockAllocator::kMaxAllocationSize);
-    void* mem = operator new(preallocSize);
-    return std::unique_ptr<GrOpMemoryPool>(new (mem) GrOpMemoryPool(preallocSize, minAllocSize));
-}
-
-void GrOpMemoryPool::release(void* bytes) {
-    fPool.release(bytes);
-}

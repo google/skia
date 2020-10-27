@@ -13,7 +13,7 @@
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendRenderTarget;
-class GrOpMemoryPool;
+class GrMemoryPool;
 class GrOnFlushCallbackObject;
 class GrRenderTargetProxy;
 class GrSemaphore;
@@ -51,7 +51,7 @@ public:
     // from GrRecordingContext
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
-    GrOpMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
+    GrMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
     SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
