@@ -174,13 +174,11 @@ void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkChopQuadAt(src, dst, 0.5f);
 }
 
-float SkMeasureAngleInsideVectors(SkVector a, SkVector b) {
-    if (a.isZero() || b.isZero()) {
-        return 0;  // If these vectors came from tangents on a curve then the curve is a flat line.
-    }
-    float ax=a.x(), ay=a.y(), bx=b.x(), by=b.y();
-    float cosTheta = (ax*bx + ay*by) / SkScalarSqrt((ax*ax + ay*ay) * (bx*bx + by*by));
-    return SkScalarACos(SkTPin(cosTheta, -1.f, 1.f));
+float SkMeasureAngleBetweenVectors(SkVector a, SkVector b) {
+    float cosTheta = sk_ieee_float_divide(a.dot(b), sqrtf(a.dot(a) * b.dot(b)));
+    // Pin cosTheta such that if it is NaN (e.g., if a or b was 0), then we return acos(1) = 0.
+    cosTheta = std::max(std::min(1.f, cosTheta), -1.f);
+    return acosf(cosTheta);
 }
 
 SkVector SkFindBisector(SkVector a, SkVector b) {
@@ -573,17 +571,17 @@ float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
     SkVector b = pts[2] - pts[1];
     SkVector c = pts[3] - pts[2];
     if (a.isZero()) {
-        return SkMeasureAngleInsideVectors(b, c);
+        return SkMeasureAngleBetweenVectors(b, c);
     }
     if (b.isZero()) {
-        return SkMeasureAngleInsideVectors(a, c);
+        return SkMeasureAngleBetweenVectors(a, c);
     }
     if (c.isZero()) {
-        return SkMeasureAngleInsideVectors(a, b);
+        return SkMeasureAngleBetweenVectors(a, b);
     }
     // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
     // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
-    return 2*SK_ScalarPI - SkMeasureAngleInsideVectors(a,-b) - SkMeasureAngleInsideVectors(b,-c);
+    return 2*SK_ScalarPI - SkMeasureAngleBetweenVectors(a,-b) - SkMeasureAngleBetweenVectors(b,-c);
 }
 
 static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
