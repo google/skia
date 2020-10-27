@@ -210,6 +210,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b841f7f2_754e09e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-27T17:51:20Z",
+      "side": 1,
+      "message": "@drott:  This is a big feedback item for us as well, and that\u0027s the overall goal of this change, though this is clearly just a first step.\n\nUsing by default (on Windows) would be the ultimate goal (at least in Chromium), but it\u0027d probably take a few checkins to stage it.  It would affect all the screenshots, and doesn\u0027t lend itself easily to a runtime switch. 😞  (Any suggestions to simplify this process would be appreciated.)\n\nI wouldn\u0027t expect other platforms to use this.  Most of the change is OK (though obviously different from what Skia does now), but the \u0027computeLuminance\u0027 part of the change is particularly sketchy and doesn\u0027t make sense unless you want to mimic DWrite as closely as possible.",
+      "parentUuid": "abc8b281_3fdc6a04",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
