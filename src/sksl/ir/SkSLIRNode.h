@@ -67,7 +67,10 @@ public:
 
     // Override operator new and delete to allow us to control allocation behavior.
     static void* operator new(const size_t size) {
-        return Pool::AllocIRNode(size);
+        if (size == sizeof(IRNode)) {
+            return Pool::AllocIRNode();
+        }
+        return ::operator new(size);
     }
 
     static void operator delete(void* ptr) {
