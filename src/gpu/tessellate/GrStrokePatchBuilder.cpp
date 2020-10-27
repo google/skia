@@ -13,16 +13,12 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrVectorXform.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
 using Patch = GrStrokeTessellateShader::Patch;
-
-static SkPoint lerp(const SkPoint& a, const SkPoint& b, float T) {
-    SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
-    return (b - a) * T + a;
-}
 
 static float num_combined_segments(float numParametricSegments, float numRadialSegments) {
     // The first and last edges are shared by both the parametric and radial sets of edges, so the
@@ -216,7 +212,8 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     }
 
     // Convert to a cubic.
-    SkPoint asCubic[4] = {p[0], lerp(p[0], p[1], 2/3.f), lerp(p[1], p[2], 1/3.f), p[2]};
+    SkPoint asCubic[4];
+    GrPathUtils::convertQuadToCubic(p, asCubic);
 
     // Ensure our hardware supports enough tessellation segments to render the curve. This early out
     // assumes a worst-case quadratic rotation of 180 degrees and a worst-case number of segments in
