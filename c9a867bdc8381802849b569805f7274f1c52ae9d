@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75f44da7_1df5321f",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-27T13:36:54Z",
+      "side": 1,
+      "message": "PS1 and 2 just always called drawStrokedLine, without the additional check for subpixel rects + non-AA.\n\nWhen there\u0027s coverage AA involved, the fill rect op already has done all the math needed to easily outset to 2px total (or 1px + .5 outset on either side for coverage ramp). This works under all matrix conditions, so it\u0027s an improvement on before and produces the same visual quality as path rendering under non-perspective, and IMO looked better under perspective.\n\nUnfortunately, the fill rect op\u0027s stance on non-AA (and MSAA) is to do no transformation of vertices at all. When the rect is skinnier than one pixel, it ends up missing pixel centers and creating a very spotted line. Some path renderers run in to this same problem (NVPR). The default path renderer, however, uses the line primitive type and folds the subpixel coverage into the geometry processor. This lets the non-AA and MSAA lines appear much nicer.\n\nThe fill rect op could do the same operations on non-AA/MSAA rects to outset to 1px if needed, and it would then always have this same high quality. But that adds overhead to check for skinny quads and requires that per-vertex coverage always be enabled in the GP in the event that a quad within a batch needed to modulate its coverage because it was subpixel. I don\u0027t want to do that until I can make the vertex struct smaller via instanced rendering or similar.",
+      "range": {
+        "startLine": 664,
+        "startChar": 7,
+        "endLine": 678,
+        "endChar": 9
+      },
+      "revId": "c9a867bdc8381802849b569805f7274f1c52ae9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
