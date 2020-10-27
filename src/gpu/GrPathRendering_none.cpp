@@ -46,11 +46,11 @@ void GrGLPathRendering::onDrawPath(const GrStencilSettings&, const GrPath*) {}
 
 void GrGLPathRendering::onStencilPath(const StencilPathArgs&, const GrPath*) {}
 
-std::unique_ptr<GrOp> GrStencilPathOp::Make(GrRecordingContext*,
-                                            const SkMatrix&,
-                                            bool,
-                                            bool,
-                                            const GrScissorState&,
-                                            sk_sp<const GrPath>) { return nullptr; }
+GrOp::Owner GrStencilPathOp::Make(GrRecordingContext*,
+                                  const SkMatrix&,
+                                  bool,
+                                  bool,
+                                  const GrScissorState&,
+                                  sk_sp<const GrPath>) { return nullptr; }
 
 void GrPath::ComputeKey(const GrStyledShape&, GrUniqueKey*, bool*) {}
