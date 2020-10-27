@@ -265,7 +265,8 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(
                                                                     const GrUniqueKey& key,
-                                                                    sk_sp<VertexData> vertData) {
+                                                                    sk_sp<VertexData> vertData,
+                                                                    IsNewerBetter isNewerBetter) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (!tmp) {
         tmp = this->getEntry(key, std::move(vertData));
@@ -273,15 +274,20 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
         SkASSERT(fUniquelyKeyedEntryMap.find(key));
     }
 
+    if (isNewerBetter(tmp->getCustomData(), key.getCustomData())) {
+        tmp->set(key, std::move(vertData));
+    }
+
     return { tmp->vertexData(), tmp->refCustomData() };
 }
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
                                                                     const GrUniqueKey& key,
-                                                                    sk_sp<VertexData> vertData) {
+                                                                    sk_sp<VertexData> vertData,
+                                                                    IsNewerBetter isNewerBetter) {
     SkAutoSpinlock lock{fSpinLock};
 
-    return this->internalAddVerts(key, std::move(vertData));
+    return this->internalAddVerts(key, std::move(vertData), isNewerBetter);
 }
 
 void GrThreadSafeCache::remove(const GrUniqueKey& key) {
