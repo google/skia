@@ -1096,6 +1096,22 @@ void TessellationHelper::outset(const skvx::Vec<4, float>& edgeDistances,
     outset.asGrQuads(deviceOutset, fDeviceType, localOutset, fLocalType);
 }
 
+void TessellationHelper::getEdgeEquations(skvx::Vec<4, float>* a,
+                                          skvx::Vec<4, float>* b,
+                                          skvx::Vec<4, float>* c) {
+    SkASSERT(a && b && c);
+    SkASSERT(fVerticesValid);
+    const EdgeEquations& eq = this->getEdgeEquations();
+    *a = eq.fA;
+    *b = eq.fB;
+    *c = eq.fC;
+}
+
+skvx::Vec<4, float> TessellationHelper::getEdgeLengths() {
+    SkASSERT(fVerticesValid);
+    return 1.f / fEdgeVectors.fInvLengths;
+}
+
 const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
         const skvx::Vec<4, float>& edgeDistances) {
     // Much of the code assumes that we start from positive distances and apply it unmodified to
