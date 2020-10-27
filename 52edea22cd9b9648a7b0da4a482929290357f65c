@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cc73852_ff1bccb6",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-27T20:26:21Z",
+      "side": 1,
+      "message": "The full type for tail might be helpful here?\n\nOr perhaps, break the line inside combineIfPossible() instead and leave fList.tail()?  As is it kind of looks like we\u0027re going to use tail again further down.",
+      "range": {
+        "startLine": 269,
+        "startChar": 7,
+        "endLine": 270,
+        "endChar": 93
+      },
+      "revId": "52edea22cd9b9648a7b0da4a482929290357f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
