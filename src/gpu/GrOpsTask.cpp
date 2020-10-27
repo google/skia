@@ -188,7 +188,8 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
             bool canForwardMerge =
                     (a == chainA.tail()) || can_reorder(a->bounds(), forwardMergeBounds);
             if (canForwardMerge || canBackwardMerge) {
-                auto result = a->combineIfPossible(chainB.head(), arenas, caps);
+                auto result = a->combineIfPossible(
+                        chainB.head(), arenas->recordTimeAllocator(), caps);
                 SkASSERT(result != GrOp::CombineResult::kCannotCombine);
                 merged = (result == GrOp::CombineResult::kMerged);
                 GrOP_INFO("\t\t: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
@@ -265,7 +266,8 @@ bool GrOpsTask::OpChain::tryConcat(
 
     SkDEBUGCODE(bool first = true;)
     do {
-        switch (fList.tail()->combineIfPossible(list->head(), arenas, caps)) {
+        switch (fList.tail()->combineIfPossible(list->head(), arenas->recordTimeAllocator(), caps))
+        {
             case GrOp::CombineResult::kCannotCombine:
                 // If an op supports chaining then it is required that chaining is transitive and
                 // that if any two ops in two different chains can merge then the two chains

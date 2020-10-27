@@ -33,7 +33,7 @@ private:
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
-    CombineResult onCombineIfPossible(GrOp*, GrRecordingContext::Arenas*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags) override;
     void onPrepare(GrOpFlushState* state) override;
