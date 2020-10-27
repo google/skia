@@ -191,8 +191,7 @@ GrProcessorSet::Analysis GrCCDrawPathsOp::SingleDraw::finalize(
     return analysis;
 }
 
-GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, GrRecordingContext::Arenas*,
-                                                         const GrCaps&) {
+GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps&) {
     GrCCDrawPathsOp* that = op->cast<GrCCDrawPathsOp>();
     SkASSERT(fOwningPerOpsTaskPaths);
     SkASSERT(fNumDraws);

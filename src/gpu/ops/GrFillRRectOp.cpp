@@ -43,7 +43,7 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) final;
-    CombineResult onCombineIfPossible(GrOp*, GrRecordingContext::Arenas*, const GrCaps&) final;
+    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
 
     void visitProxies(const VisitProxyFunc& fn) const override {
         if (fProgramInfo) {
@@ -278,9 +278,7 @@ GrProcessorSet::Analysis FillRRectOp::finalize(
     return analysis;
 }
 
-GrDrawOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op,
-                                                         GrRecordingContext::Arenas*,
-                                                         const GrCaps& caps) {
+GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps& caps) {
     const auto& that = *op->cast<FillRRectOp>();
     if (!fHelper.isCompatible(that.fHelper, caps, this->bounds(), that.bounds())) {
         return CombineResult::kCannotCombine;
