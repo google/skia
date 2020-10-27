@@ -20,7 +20,8 @@ public:
         const GrRecursion& _outer = args.fFp.cast<GrRecursion>();
         (void) _outer;
         SkString factorial_name = fragBuilder->getMangledFunctionName("factorial");
-        const GrShaderVar factorial_args[] = { GrShaderVar("x", kInt_GrSLType)};
+        const GrShaderVar factorial_args[] = { GrShaderVar("x", kInt_GrSLType) };
+        fragBuilder->emitFunctionPrototype(kInt_GrSLType, factorial_name.c_str(), 1, factorial_args);
         const String factorial_impl = String::printf(R"SkSL(return x <= 1 ? 1 : x * %s(x - 1);
 )SkSL"
 , factorial_name.c_str());

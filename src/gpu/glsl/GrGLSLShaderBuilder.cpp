@@ -45,12 +45,11 @@ SkString GrGLSLShaderBuilder::getMangledFunctionName(const char* baseName) {
     return fProgramBuilder->nameVariable(/*prefix=*/'\0', baseName);
 }
 
-void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
-                                       const char* mangledName,
-                                       int argCnt,
-                                       const GrShaderVar* args,
-                                       const char* body,
-                                       bool forceInline) {
+void GrGLSLShaderBuilder::appendFunctionDecl(GrSLType returnType,
+                                             const char* mangledName,
+                                             int argCnt,
+                                             const GrShaderVar* args,
+                                             bool forceInline) {
     this->functions().appendf("%s%s %s(", forceInline ? "inline " : "",
                                           GrGLSLTypeString(returnType),
                                           mangledName);
@@ -60,9 +59,29 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
         }
         args[i].appendDecl(fProgramBuilder->shaderCaps(), &this->functions());
     }
-    this->functions().appendf(") {\n"
+
+    this->functions().append(")");
+}
+
+void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
+                                       const char* mangledName,
+                                       int argCnt,
+                                       const GrShaderVar* args,
+                                       const char* body,
+                                       bool forceInline) {
+    this->appendFunctionDecl(returnType, mangledName, argCnt, args, forceInline);
+    this->functions().appendf(" {\n"
                               "%s"
                               "}\n\n", body);
+}
+
+void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
+                                                const char* mangledName,
+                                                int argCnt,
+                                                const GrShaderVar* args,
+                                                bool forceInline) {
+    this->appendFunctionDecl(returnType, mangledName, argCnt, args, forceInline);
+    this->functions().append(";\n");
 }
 
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
