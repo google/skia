@@ -923,11 +923,10 @@ std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticEleme
         GrFPArgs args(context, matrixProvider, kNone_SkFilterQuality, &kCoverageColorInfo);
         shaderFP = as_SB(fShader)->asFragmentProcessor(args);
         if (shaderFP != nullptr) {
-            shaderFP = GrFragmentProcessor::SwizzleOutput(std::move(shaderFP), GrSwizzle::AAAA());
+            shaderFP = GrFragmentProcessor::MulInputByChildAlpha(std::move(shaderFP));
         }
     }
 
     // Compose the clip and shader FPs.
     return GrFragmentProcessor::Compose(std::move(clipFP), std::move(shaderFP));
 }
-

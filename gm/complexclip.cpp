@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
@@ -437,5 +438,66 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
         canvas->restore();
 
         canvas->translate(grid.width(), 0.f);
+    }
+}
+
+DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
+    auto image = GetResourceAsImage("images/yellow_rose.png");
+    canvas->clear(SK_ColorGRAY);
+
+    SkRect rect = SkRect::MakeWH(256, 256);
+    SkMatrix local = SkMatrix::MakeRectToRect(SkRect::MakeWH(image->width(), image->height()),
+                                              SkRect::MakeWH(64, 64), SkMatrix::kFill_ScaleToFit);
+    auto shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &local);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    paint.setAntiAlias(true);
+
+    // TL: A rectangle
+    {
+        canvas->save();
+        canvas->translate(0, 0);
+        canvas->clipShader(shader, SkClipOp::kDifference);
+        canvas->drawRect(rect, paint);
+        canvas->restore();
+    }
+    // TR: A round rectangle
+    {
+        canvas->save();
+        canvas->translate(256, 0);
+        canvas->clipShader(shader, SkClipOp::kDifference);
+        canvas->drawRRect(SkRRect::MakeRectXY(rect, 64.f, 64.f), paint);
+        canvas->restore();
+    }
+    // BL: A path
+    {
+        canvas->save();
+        canvas->translate(0, 256);
+        canvas->clipShader(shader, SkClipOp::kDifference);
+
+        SkPath path;
+        path.moveTo(0.f, 128.f);
+        path.lineTo(128.f, 256.f);
+        path.lineTo(256.f, 128.f);
+        path.lineTo(128.f, 0.f);
+
+        SkScalar d = 64.f * SK_ScalarSqrt2;
+        path.moveTo(128.f - d, 128.f - d);
+        path.lineTo(128.f - d, 128.f + d);
+        path.lineTo(128.f + d, 128.f + d);
+        path.lineTo(128.f + d, 128.f - d);
+        canvas->drawPath(path, paint);
+        canvas->restore();
+    }
+    // BR: Text
+    {
+        canvas->save();
+        canvas->translate(256, 256);
+        canvas->clipShader(shader, SkClipOp::kDifference);
+        for (int y = 0; y < 4; ++y) {
+            canvas->drawString("Hello", 32.f, y * 64.f, SkFont(nullptr, 64.f), paint);
+        }
+        canvas->restore();
     }
 }
