@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0aa20cf_fd403da5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-27T13:32:10Z",
+      "side": 1,
+      "message": "Yeah I think we\u0027ll have need to think a bit about what the connection between UMA metrics and our GPU stats is. Currently we mostly use the gpu stats as a dump at the end of drawing. The when to dump being controlled outside of Skia itself (i.e. our tools).\n\nThe UMA metrics we need some trigger to decide when to send them, in this case a submit. In other cases it might be every time we do an allocation. Also certain metrics will be \"reset\" between reporting them which is not our current gpu stats model.\n\nSo all I\u0027m really saying here is yeah we should think about how these two things overlap, but their current uses cases have enough differences that it is not trivial to think what should be shared.\n\nThis may or may not help in merging some of the stats together, but I was wondering if it at all makes sense for GrDirectContext to have a beginFrame() and/or endFrame() call on it. These calls would have no actual functional use in terms of rendering, but really just act as informative signals to Ganesh (which we could use for reporting stats amongst maybe other things). It would never be required for a client to call these.",
+      "parentUuid": "1b3c217b_3f331b14",
+      "revId": "0010a16a60618b56c716e8ee338c96f8db5e7319",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad4d14cf_ff1f09fa",
