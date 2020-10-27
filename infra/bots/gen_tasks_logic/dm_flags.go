@@ -483,6 +483,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
 		}
+		if b.extraConfig("ReduceOpsTaskSplitting") {
+			configs = filter(configs, "gl", "vk", "mtl")
+			args = append(args, "--reduceOpsTaskSplitting", "true")
+		}
 	}
 
 	// Sharding.
