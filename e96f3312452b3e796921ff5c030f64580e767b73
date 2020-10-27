@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91a610f8_d790e73c",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-27T00:41:47Z",
+      "side": 1,
+      "message": "needed for skstd::data",
+      "range": {
+        "startLine": 12,
+        "startChar": 9,
+        "endLine": 12,
+        "endChar": 37
+      },
+      "revId": "e96f3312452b3e796921ff5c030f64580e767b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
