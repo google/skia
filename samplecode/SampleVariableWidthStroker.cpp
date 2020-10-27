@@ -9,6 +9,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathMeasure.h"
 #include "include/utils/SkParsePath.h"
 #include "samplecode/Sample.h"
 
@@ -317,6 +318,74 @@ private:
     std::vector<float> fWeights;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+/** Helper class that measures per-verb path lengths. */
+class PathVerbMeasure {
+public:
+    explicit PathVerbMeasure(const SkPath& path) : fPath(path), fIter(path, false) { nextVerb(); }
+
+    SkScalar totalLength() const;
+
+    SkScalar currentVerbLength() { return fMeas.getLength(); }
+
+    void nextVerb();
+
+private:
+    const SkPath& fPath;
+    SkPoint fFirstPointInContour;
+    SkPoint fPreviousPoint;
+    SkPath fCurrVerb;
+    SkPath::Iter fIter;
+    SkPathMeasure fMeas;
+};
+
+SkScalar PathVerbMeasure::totalLength() const {
+    SkPathMeasure meas(fPath, false);
+    return meas.getLength();
+}
+
+void PathVerbMeasure::nextVerb() {
+    SkPoint pts[4];
+    SkPath::Verb verb = fIter.next(pts);
+
+    while (verb == SkPath::kMove_Verb || verb == SkPath::kClose_Verb) {
+        if (verb == SkPath::kMove_Verb) {
+            fFirstPointInContour = pts[0];
+            fPreviousPoint = fFirstPointInContour;
+        }
+        verb = fIter.next(pts);
+    }
+
+    fCurrVerb.rewind();
+    fCurrVerb.moveTo(fPreviousPoint);
+    switch (verb) {
+        case SkPath::kLine_Verb:
+            fCurrVerb.lineTo(pts[1]);
+            break;
+        case SkPath::kQuad_Verb:
+            fCurrVerb.quadTo(pts[1], pts[2]);
+            break;
+        case SkPath::kCubic_Verb:
+            fCurrVerb.cubicTo(pts[1], pts[2], pts[3]);
+            break;
+        case SkPath::kConic_Verb:
+            fCurrVerb.conicTo(pts[1], pts[2], fIter.conicWeight());
+            break;
+        case SkPath::kDone_Verb:
+            break;
+        case SkPath::kClose_Verb:
+        case SkPath::kMove_Verb:
+            SkASSERT(false);
+            break;
+    }
+
+    fCurrVerb.getLastPt(&fPreviousPoint);
+    fMeas.setPath(&fCurrVerb, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 // Several debug-only visualization helpers
 namespace viz {
 std::unique_ptr<ScalarBezCurve> outerErr;
@@ -339,6 +408,14 @@ SkPath outerFirstApprox;
  */
 class SkVarWidthStroker {
 public:
+    /** Metric to use for interpolation of distance function across path segments. */
+    enum class LengthMetric {
+        /** Each path segment gets an equal interval of t in [0,1] */
+        kNumSegments,
+        /** Each path segment gets t interval equal to its percent of the total path length */
+        kPathLength,
+    };
+
     /**
      * Strokes the path with a fixed-width distance function. This produces a traditional stroked
      * path.
@@ -354,7 +431,8 @@ public:
     SkPath getFillPath(const SkPath& path,
                        const SkPaint& paint,
                        const ScalarBezCurve& varWidth,
-                       const ScalarBezCurve& varWidthInner);
+                       const ScalarBezCurve& varWidthInner,
+                       LengthMetric lengthMetric = LengthMetric::kNumSegments);
 
 private:
     /** Helper struct referring to a single segment of an SkPath */
@@ -448,7 +526,8 @@ void SkVarWidthStroker::initForPath(const SkPath& path, const SkPaint& paint) {
 SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
                                       const SkPaint& paint,
                                       const ScalarBezCurve& varWidth,
-                                      const ScalarBezCurve& varWidthInner) {
+                                      const ScalarBezCurve& varWidthInner,
+                                      LengthMetric lengthMetric) {
     const auto appendStrokes = [this](const OffsetSegments& strokes, bool needsMove) {
         if (needsMove) {
             fOuter.moveTo(strokes.fOuter.front().fPoints[0]);
@@ -468,8 +547,11 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
     fVarWidth = varWidth;
     fVarWidthInner = varWidthInner;
 
-    // TODO: this assumes one contour: one move + some number of segs.
-    const int numSegs = path.countVerbs() - 1;
+    // TODO: this assumes one contour:
+    PathVerbMeasure meas(path);
+    const float totalPathLength = lengthMetric == LengthMetric::kPathLength
+                                          ? meas.totalLength()
+                                          : (path.countVerbs() - 1);
 
     // Trace the inner and outer paths simultaneously. Inner will therefore be
     // recorded in reverse from how we trace the outline.
@@ -478,13 +560,15 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
     OffsetSegments offsetSegs, prevOffsetSegs;
     bool firstSegment = true, prevWasFirst = false;
 
-    const float dtDist = 1.0f / numSegs;
-    float tDist = 0;
+    float lenTraveled = 0;
     while ((segment.fVerb = it.next(&segment.fPoints[0])) != SkPath::kDone_Verb) {
+        const float verbLength = lengthMetric == LengthMetric::kPathLength
+                                         ? (meas.currentVerbLength() / totalPathLength)
+                                         : (1.0f / totalPathLength);
+        const float tmin = lenTraveled;
+        const float tmax = lenTraveled + verbLength;
+
         // Subset the distance function for the current interval.
-        // TODO: Currently each path segment gets an even portion of the distance function,
-        //       but we could investigate using arc-length proportions instead.
-        const float tmin = tDist, tmax = tDist + dtDist;
         ScalarBezCurve partVarWidth, partVarWidthInner;
         fVarWidth.split(tmin, tmax, &partVarWidth);
         fVarWidthInner.split(tmin, tmax, &partVarWidthInner);
@@ -522,7 +606,8 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
         std::swap(offsetSegs, prevOffsetSegs);
         prevWasFirst = firstSegment;
         firstSegment = false;
-        tDist += dtDist;
+        lenTraveled += verbLength;
+        meas.nextVerb();
     }
 
     // Finish appending final offset segments
@@ -1006,6 +1091,9 @@ private:
             case '4':
                 this->toggle(fShowErrorCurve);
                 return true;
+            case '5':
+                this->toggle(fLengthMetric);
+                return true;
             case 'x':
                 resetToDefaults();
                 return true;
@@ -1022,6 +1110,11 @@ private:
     }
 
     void toggle(bool& value) { value = !value; }
+    void toggle(SkVarWidthStroker::LengthMetric& value) {
+        value = value == SkVarWidthStroker::LengthMetric::kPathLength
+                        ? SkVarWidthStroker::LengthMetric::kNumSegments
+                        : SkVarWidthStroker::LengthMetric::kPathLength;
+    }
 
     void resetToDefaults() {
         fPathPts[0] = {300, 400};
@@ -1032,6 +1125,7 @@ private:
 
         fWidth = 175;
 
+        fLengthMetric = SkVarWidthStroker::LengthMetric::kPathLength;
         fDistFncs = fDefaultsDistFncs;
         fDistFncsInner = fDefaultsDistFncs;
     }
@@ -1066,7 +1160,8 @@ private:
         ScalarBezCurve distFncInner =
                 fDifferentInnerFunc ? makeDistFnc(fDistFncsInner, fWidth) : distFnc;
         SkVarWidthStroker stroker;
-        SkPath fillPath = stroker.getFillPath(path, fStrokePaint, distFnc, distFncInner);
+        SkPath fillPath =
+                stroker.getFillPath(path, fStrokePaint, distFnc, distFncInner, fLengthMetric);
         fillPath.setFillType(SkPathFillType::kWinding);
         canvas->drawPath(fillPath, fNewFillPaint);
 
@@ -1243,9 +1338,24 @@ private:
                 }
             };
 
+            const std::array<std::pair<std::string, SkVarWidthStroker::LengthMetric>, 2> metrics = {
+                    std::make_pair("% path length", SkVarWidthStroker::LengthMetric::kPathLength),
+                    std::make_pair("% segment count",
+                                   SkVarWidthStroker::LengthMetric::kNumSegments),
+            };
+            if (ImGui::BeginMenu("Interpolation metric:")) {
+                for (const auto& metric : metrics) {
+                    if (ImGui::MenuItem(metric.first.c_str(), nullptr,
+                                        fLengthMetric == metric.second)) {
+                        fLengthMetric = metric.second;
+                    }
+                }
+                ImGui::EndMenu();
+            }
+
             drawControls(fDistFncs, "Degree", "P");
 
-            if (ImGui::CollapsingHeader("Demo part 2", true)) {
+            if (ImGui::CollapsingHeader("Inner stroke", true)) {
                 fDifferentInnerFunc = true;
                 drawControls(fDistFncsInner, "Degree (inner)", "Q");
             } else {
@@ -1263,6 +1373,7 @@ private:
     static constexpr int kNPts = 5;
     std::array<SkPoint, kNPts> fPathPts;
     SkSize fWinSize;
+    SkVarWidthStroker::LengthMetric fLengthMetric;
     const std::vector<DistFncMenuItem> fDefaultsDistFncs = {
             DistFncMenuItem("Linear", 1, true), DistFncMenuItem("Quadratic", 2, false),
             DistFncMenuItem("Cubic", 3, false), DistFncMenuItem("One Louder (11)", 11, false),
