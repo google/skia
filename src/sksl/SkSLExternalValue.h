@@ -105,6 +105,17 @@ public:
         return String("external<") + this->name() + ">";
     }
 
+    // Disable IRNode pooling on external value nodes. ExternalValue node lifetimes are controlled
+    // by the calling code; we can't guarantee that they will be destroyed before a Program is
+    // freed. (In fact, it's very unlikely that they would be.)
+    static void* operator new(const size_t size) {
+        return ::operator new(size);
+    }
+
+    static void operator delete(void* ptr) {
+        ::operator delete(ptr);
+    }
+
 private:
     using INHERITED = Symbol;
 
