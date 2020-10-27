@@ -229,3 +229,21 @@ private:
     }
 };
 DEF_GM(return new AnimCodecPlayerGM);
+
+DEF_SIMPLE_GM(AnimCodecPlayerExifGM, canvas, 30, 45) {
+    auto data = GetResourceAsData("images/stoplight_h.webp");
+    if (!data) return;
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    auto frameInfos = codec->getFrameInfo();
+
+    auto player = new SkAnimCodecPlayer(std::move(codec));
+    uint32_t duration = 0;
+    for (int frame = 0; duration < player->duration(); frame++) {
+        auto image = player->getFrame();
+        canvas->drawImage(image, 0, 0, nullptr);
+        canvas->translate(0, player->dimensions().height() + 4);
+        duration += frameInfos[frame].fDuration + 1;
+        player->seek(duration);
+    }
+}
