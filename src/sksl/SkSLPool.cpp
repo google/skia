@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLPool.h"
 
+#include <bitset>
+
 #include "include/private/SkMutex.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 
@@ -14,34 +16,124 @@
 
 namespace SkSL {
 
-static constexpr int kSmallNodeSize = 120;
-static constexpr int kNodesInPool = 512;
+namespace {
 
-namespace { struct IRNodeData {
-    union {
-        uint8_t fBuffer[kSmallNodeSize];
-        IRNodeData* fFreeListNext;
-    };
-}; }
+template <int kNodeSize, int kNumNodes>
+class Subpool {
+public:
+    Subpool() {
+        // Initializes each node in the pool as a free node. The free nodes form a singly-linked
+        // list, each pointing to the next free node in sequence.
+        for (int index = 0; index < kNumNodes - 1; ++index) {
+            fNodes[index].fFreeListNext = &fNodes[index + 1];
+        }
+        fNodes[kNumNodes - 1].fFreeListNext = nullptr;
+    }
 
-struct PoolData {
-    // This holds the first free node in the pool. It will be null when the pool is exhausted.
-    IRNodeData* fFreeListHead = fNodes;
+    void* poolBegin() {
+        return &fNodes[0];
+    }
 
-    // This points to end of our pooled data, and implies the number of nodes.
-    IRNodeData* fNodesEnd = nullptr;
+    void* poolEnd() {
+        return &fNodes[kNumNodes];
+    }
 
-    // Our pooled data lives here. (We allocate lots of nodes here, not just one.)
-    IRNodeData fNodes[1];
+    void* alloc() {
+        // Does the pool contain a free node?
+        if (!fFreeListHead) {
+            return nullptr;
+        }
+        // Yes. Take a node from the freelist.
+        auto* node = fFreeListHead;
+        fFreeListHead = node->fFreeListNext;
+        return node->fBuffer;
+    }
+
+    void free(void* node_v) {
+        SkASSERT(this->isValidNodePtrInPool(node_v));
+
+        // Push a node back onto the freelist.
+        auto* node = static_cast<Subpool::Node*>(node_v);
+        node->fFreeListNext = fFreeListHead;
+        fFreeListHead = node;
+    }
+
+    bool isValidNodePtrInPool(void* node_v) {
+        // Verify that the pointer exists in our subpool at all.
+        if (node_v < this->poolBegin()) {
+            return false;
+        }
+        if (node_v >= this->poolEnd()) {
+            return false;
+        }
+        // Verify that the pointer points to the start of a node, not the middle.
+        intptr_t offsetInPool = (intptr_t)node_v - (intptr_t)this->poolBegin();
+        return (offsetInPool % kNodeSize) == 0;
+    }
+
+    void checkForLeaks() {
+    #ifdef SK_DEBUG
+        // Walk the free list and mark each node. We should encounter every item in the pool.
+        std::bitset<kNumNodes> freed;
+        for (Node* node = fFreeListHead; node; node = node->fFreeListNext) {
+            ptrdiff_t nodeIndex = this->nodeIndex(node);
+            freed[nodeIndex] = true;
+        }
+        // Look for any bit left unset above, and report it as a leak.
+        bool foundLeaks = false;
+        for (int index = 0; index < kNumNodes; ++index) {
+            if (!freed[index]) {
+                SkDebugf("Node %d leaked: ", index);
+                IRNode* leak = reinterpret_cast<IRNode*>(fNodes[index].fBuffer);
+                SkDebugf("%s\n", leak->description().c_str());
+                foundLeaks = true;
+            }
+        }
+        if (foundLeaks) {
+            SkDEBUGFAIL("leaking SkSL pool nodes; if they are later freed, this will "
+                        "likely be fatal");
+        }
+    #endif
+    }
 
     // Accessors.
-    ptrdiff_t nodeCount() { return fNodesEnd - fNodes; }
+    constexpr int nodeCount() { return kNumNodes; }
 
-    int nodeIndex(IRNodeData* node) {
-        SkASSERT(node >= fNodes);
-        SkASSERT(node < fNodesEnd);
+    int nodeIndex(void* node_v) {
+        SkASSERT(this->isValidNodePtrInPool(node_v));
+
+        auto* node = static_cast<Subpool::Node*>(node_v);
         return SkToInt(node - fNodes);
     }
+
+private:
+    struct Node {
+        union {
+            uint8_t fBuffer[kNodeSize];
+            Node* fFreeListNext;
+        };
+    };
+
+    // This holds the first free node in the pool. It will be null when the pool is exhausted.
+    Node* fFreeListHead = fNodes;
+
+    // Our pooled data lives here.
+    Node fNodes[kNumNodes];
+};
+
+static constexpr int kSmallNodeSize = 120;
+static constexpr int kNumSmallNodes = 480;
+using SmallSubpool = Subpool<kSmallNodeSize, kNumSmallNodes>;
+
+static constexpr int kLargeNodeSize = 240;
+static constexpr int kNumLargeNodes = 20;
+using LargeSubpool = Subpool<kLargeNodeSize, kNumLargeNodes>;
+
+}  // namespace
+
+struct PoolData {
+    SmallSubpool fSmall;
+    LargeSubpool fLarge;
 };
 
 #if defined(SK_BUILD_FOR_IOS) && \
@@ -89,33 +181,17 @@ static SkMutex& recycled_pool_mutex() {
     return *mutex;
 }
 
-static PoolData* create_pool_data(int nodesInPool) {
-    // Create a PoolData structure with extra space at the end for additional IRNode data.
-    int numExtraIRNodes = nodesInPool - 1;
-    PoolData* poolData = static_cast<PoolData*>(malloc(sizeof(PoolData) +
-                                                       (sizeof(IRNodeData) * numExtraIRNodes)));
-
-    // Initialize each pool node as a free node. The free nodes form a singly-linked list, each
-    // pointing to the next free node in sequence.
-    for (int index = 0; index < nodesInPool - 1; ++index) {
-        poolData->fNodes[index].fFreeListNext = &poolData->fNodes[index + 1];
-    }
-    poolData->fNodes[nodesInPool - 1].fFreeListNext = nullptr;
-    poolData->fNodesEnd = &poolData->fNodes[nodesInPool];
-
-    return poolData;
-}
-
 Pool::~Pool() {
     if (get_thread_local_pool_data() == fData) {
         SkDEBUGFAIL("SkSL pool is being destroyed while it is still attached to the thread");
         set_thread_local_pool_data(nullptr);
     }
 
-    this->checkForLeaks();
+    fData->fSmall.checkForLeaks();
+    fData->fLarge.checkForLeaks();
 
     VLOG("DELETE Pool:0x%016llX\n", (uint64_t)fData);
-    free(fData);
+    delete fData;
 }
 
 std::unique_ptr<Pool> Pool::Create() {
@@ -127,8 +203,7 @@ std::unique_ptr<Pool> Pool::Create() {
         VLOG("REUSE  Pool:0x%016llX\n", (uint64_t)pool->fData);
     } else {
         pool = std::unique_ptr<Pool>(new Pool);
-        pool->fData = create_pool_data(kNodesInPool);
-        pool->fData->fFreeListHead = &pool->fData->fNodes[0];
+        pool->fData = new PoolData;
         VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fData);
     }
     return pool;
@@ -136,7 +211,8 @@ std::unique_ptr<Pool> Pool::Create() {
 
 void Pool::Recycle(std::unique_ptr<Pool> pool) {
     if (pool) {
-        pool->checkForLeaks();
+        pool->fData->fSmall.checkForLeaks();
+        pool->fData->fLarge.checkForLeaks();
     }
 
     SkAutoMutexExclusive lock(recycled_pool_mutex());
@@ -164,16 +240,21 @@ void* Pool::AllocIRNode(size_t size) {
     // Is a pool attached?
     PoolData* poolData = get_thread_local_pool_data();
     if (poolData) {
-        // Can the requested size fit in a pool node?
         if (size <= kSmallNodeSize) {
-            // Does the pool contain a free node?
-            IRNodeData* node = poolData->fFreeListHead;
+            // The node will fit in the small pool.
+            auto* node = poolData->fSmall.alloc();
             if (node) {
-                // Yes. Take a node from the freelist.
-                poolData->fFreeListHead = node->fFreeListNext;
-                VLOG("ALLOC  Pool:0x%016llX Index:%04d         0x%016llX\n",
-                     (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
-                return node->fBuffer;
+                VLOG("ALLOC  Pool:0x%016llX Index:S%03d         0x%016llX\n",
+                     (uint64_t)poolData, poolData->fSmall.nodeIndex(node), (uint64_t)node);
+                return node;
+            }
+        } else if (size <= kLargeNodeSize) {
+            // Try to allocate a large node.
+            auto* node = poolData->fLarge.alloc();
+            if (node) {
+                VLOG("ALLOC  Pool:0x%016llX Index:L%03d         0x%016llX\n",
+                     (uint64_t)poolData, poolData->fLarge.nodeIndex(node), (uint64_t)node);
+                return node;
             }
         }
     }
@@ -185,48 +266,31 @@ void* Pool::AllocIRNode(size_t size) {
     return ptr;
 }
 
-void Pool::FreeIRNode(void* node_v) {
+void Pool::FreeIRNode(void* node) {
     // Is a pool attached?
     PoolData* poolData = get_thread_local_pool_data();
     if (poolData) {
-        // Did this node come from our pool?
-        auto* node = static_cast<IRNodeData*>(node_v);
-        if (node >= &poolData->fNodes[0] && node < poolData->fNodesEnd) {
-            // Yes. Push it back onto the freelist.
-            VLOG("FREE   Pool:0x%016llX Index:%04d         0x%016llX\n",
-                 (uint64_t)poolData, poolData->nodeIndex(node), (uint64_t)node);
-            node->fFreeListNext = poolData->fFreeListHead;
-            poolData->fFreeListHead = node;
-            return;
+        // Did this node come from either of our pools?
+        if (node >= poolData->fSmall.poolBegin()) {
+            if (node < poolData->fSmall.poolEnd()) {
+                poolData->fSmall.free(node);
+                VLOG("FREE   Pool:0x%016llX Index:S%03d         0x%016llX\n",
+                     (uint64_t)poolData, poolData->fSmall.nodeIndex(node), (uint64_t)node);
+                return;
+            } else if (node < poolData->fLarge.poolEnd()) {
+                poolData->fLarge.free(node);
+                VLOG("FREE   Pool:0x%016llX Index:L%03d         0x%016llX\n",
+                     (uint64_t)poolData, poolData->fLarge.nodeIndex(node), (uint64_t)node);
+                return;
+            }
         }
     }
 
     // We couldn't associate this node with our pool. Free it using the system allocator.
     VLOG("FREE   Pool:0x%016llX Index:____ free    0x%016llX\n",
-         (uint64_t)poolData, (uint64_t)node_v);
-    ::operator delete(node_v);
+         (uint64_t)poolData, (uint64_t)node);
+    ::operator delete(node);
 }
 
-void Pool::checkForLeaks() {
-#ifdef SK_DEBUG
-    ptrdiff_t nodeCount = fData->nodeCount();
-    std::vector<bool> freed(nodeCount);
-    for (IRNodeData* node = fData->fFreeListHead; node; node = node->fFreeListNext) {
-        ptrdiff_t nodeIndex = fData->nodeIndex(node);
-        freed[nodeIndex] = true;
-    }
-    bool foundLeaks = false;
-    for (int index = 0; index < nodeCount; ++index) {
-        if (!freed[index]) {
-            IRNode* leak = reinterpret_cast<IRNode*>(fData->fNodes[index].fBuffer);
-            SkDebugf("Node %d leaked: %s\n", index, leak->description().c_str());
-            foundLeaks = true;
-        }
-    }
-    if (foundLeaks) {
-        SkDEBUGFAIL("leaking SkSL pool nodes; if they are later freed, this will likely be fatal");
-    }
-#endif
-}
 
 }  // namespace SkSL
