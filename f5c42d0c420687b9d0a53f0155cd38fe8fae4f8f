@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4defac9e_900b514f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-27T16:04:36Z",
+      "side": 1,
+      "message": "Here\u0027s another UMA stat for measuring vulkan allocator stuff. I\u0027m happy to talk about how to merge this into GPU stats, I just wanted to put up this change so you can see another concrete uma state we want to track.\n\nWith the amount of samples we\u0027ll get I don\u0027t think its an issue to report the stats on every allocation, the early allocations won\u0027t pull down the averages too much. However, I do think this could be a nicer stat to emit during a GrContext::endOfFrame() call (and could tie in better with our current gpu stats that way).",
+      "revId": "f5c42d0c420687b9d0a53f0155cd38fe8fae4f8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
