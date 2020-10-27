@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c606349b_2dcd081b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T19:12:39Z",
+      "side": 1,
+      "message": "neat!",
+      "revId": "0820fb15782538009a91b46d050abd24cd494538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "107dfc5e_8f377c91",
+        "filename": "modules/svg/src/SkSVGGradient.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-27T19:12:39Z",
+      "side": 1,
+      "message": "I\u0027m not sure about the correct composition order, but we can try both ways and see which one works best :)",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 46
+      },
+      "revId": "0820fb15782538009a91b46d050abd24cd494538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
