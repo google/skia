@@ -16,6 +16,23 @@
       "message": "@Florin I think this is ready for a review again. There are still quite a few issues with both linear and radial gradients, but I think this CL moves things a small step forward.",
       "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "555669f4_a7a2619f",
+        "filename": "modules/svg/src/SkSVGContainer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T15:46:00Z",
+      "side": 1,
+      "message": "@Florin, I had a question actually, if this was the right thing to do here. I can remove this object bounds implementation for a later CL if it needs more careful thought. Ditto on SkSVGUse",
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
