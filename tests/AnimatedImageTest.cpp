@@ -104,7 +104,7 @@ DEF_TEST(AnimatedImage_copyOnWrite, r) {
     }
     for (const char* file : { "images/alphabetAnim.gif",
                               "images/colorTables.gif",
-                              "images/webp-animated.webp",
+                              "images/stoplight.webp",
                               "images/required.webp",
                               }) {
         auto data = GetResourceAsData(file);
@@ -175,7 +175,7 @@ DEF_TEST(AnimatedImage, r) {
     }
     for (const char* file : { "images/alphabetAnim.gif",
                               "images/colorTables.gif",
-                              "images/webp-animated.webp",
+                              "images/stoplight.webp",
                               "images/required.webp",
                               }) {
         auto data = GetResourceAsData(file);
