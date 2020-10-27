@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d8d1c5a_9666fdfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-27T22:44:32Z",
+      "side": 1,
+      "message": "Hi Leon and Chong,\n\nI am working on adding AVIF support for android. This CL adds the AVIF enum types and the sniffer to the skia layer code being used by android.\n\nPlease let me know if i am doing anything wrong/silly.\n\nThank you!",
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
