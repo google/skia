@@ -556,7 +556,7 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
                 float t = tValues[i];
                 if (i != 0) {
                     float lastT = tValues[i - 1];
-                    t = SkTPin((t - lastT) / (1 - lastT), 0.f, 1.f);
+                    t = SkTPin(sk_ieee_float_divide(t - lastT, 1 - lastT), 0.f, 1.f);
                 }
                 SkChopCubicAt(src, dst, t);
             }
