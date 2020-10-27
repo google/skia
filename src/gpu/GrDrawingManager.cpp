@@ -738,7 +738,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     GrSurfaceProxy* proxy = surfaceView.proxy();
     this->closeRenderTasksForNewRenderTask(proxy);
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas(),
+    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas().recordTimeAllocator(),
                                            std::move(surfaceView),
                                            fContext->priv().auditTrail()));
     SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
