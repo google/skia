@@ -27,7 +27,7 @@ public:
 
     // Gives up ownership of a pool; conceptually, this deletes it. In practice, on some platforms,
     // it is expensive to free and reallocate pools, so this gives us an opportunity to reuse the
-    // allocation for future CreatePoolOnThread calls.
+    // allocation for future Create calls.
     static void Recycle(std::unique_ptr<Pool> pool);
 
     // Explicitly frees a previously recycled pool (if any), reclaiming the memory.
@@ -52,7 +52,7 @@ public:
 private:
     void checkForLeaks();
 
-    Pool() = default;  // use CreatePoolOnThread to make a pool
+    Pool() = default;  // use Create to make a pool
     PoolData* fData = nullptr;
 };
 
