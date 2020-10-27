@@ -16,6 +16,23 @@
       "message": "I think our tests and out wasm packager are the ones that use this.",
       "revId": "935c2c89f1820634bd7ae749d8082d6111c7bb1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98e2bcab_c0eddbd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-27T20:36:55Z",
+      "side": 1,
+      "message": "I added a CanvasKit tryjob, just to be sure.",
+      "revId": "935c2c89f1820634bd7ae749d8082d6111c7bb1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
