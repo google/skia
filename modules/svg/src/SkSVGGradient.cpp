@@ -106,6 +106,17 @@ SkColor SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
     return SkColorSetA(color, SkScalarRoundToInt(stop.stopOpacity() * 255));
 }
 
+SkSVGLength SkSVGGradient::convertLengthForGradientUnits(const SkSVGLength& length) const {
+    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox &&
+        length.unit() != SkSVGLength::Unit::kPercentage) {
+        // Convert length to a percentage so that it will be relative to the object bounds.
+        SkASSERT(length.unit() == SkSVGLength::Unit::kNumber);
+        return SkSVGLength(length.value() * 100.0f, SkSVGLength::Unit::kPercentage);
+    } else {
+        return length;
+    }
+}
+
 bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
     StopColorArray colors;
     StopPositionArray pos;

@@ -36,6 +36,10 @@ protected:
                                          const SkColor*, const SkScalar*, int count,
                                          SkTileMode, const SkMatrix& localMatrix) const = 0;
 
+    SkSVGLength convertLengthForGradientUnits(const SkSVGLength& length) const;
+
+    SkSVGGradientUnits fGradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kObjectBoundingBox);
+
 private:
     using StopPositionArray = SkSTArray<2, SkScalar, true>;
     using    StopColorArray = SkSTArray<2,  SkColor, true>;
@@ -45,7 +49,6 @@ private:
     SkSVGStringType    fHref;
     SkSVGTransformType fGradientTransform = SkSVGTransformType(SkMatrix::I());
     SkSVGSpreadMethod  fSpreadMethod = SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad);
-    SkSVGGradientUnits fGradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kUserSpaceOnUse);
 
     using INHERITED = SkSVGHiddenContainer;
 };

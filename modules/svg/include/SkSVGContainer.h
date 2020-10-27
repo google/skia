@@ -24,6 +24,8 @@ protected:
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 
+    SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
+
     bool hasChildren() const final;
 
     // TODO: add some sort of child iterator, and hide the container.
