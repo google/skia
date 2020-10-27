@@ -16,6 +16,23 @@
       "message": "The GrOps use new/delete or the GrMemoryPool. I forgot to change the code when using the pool. I\u0027m leaving the BUILD.gn changes here to run the bots, and will remove them in patchset 3.",
       "revId": "c72985633671fb5ac7a74c92cdc3f622d993e783",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2857cd8b_7af8abf0",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-27T18:24:11Z",
+      "side": 1,
+      "message": "?",
+      "revId": "c72985633671fb5ac7a74c92cdc3f622d993e783",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
