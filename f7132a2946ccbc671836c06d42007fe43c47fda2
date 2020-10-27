@@ -163,6 +163,30 @@
       },
       "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c4c16bd_6fda1732",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-27T18:49:31Z",
+      "side": 1,
+      "message": "Never mind, I reread your comment and I understand now -- if the points are already in a coordinate system of [0,1] then scaling the matrix to be equal to the object width and height by definition should get us what we want. Will try it out and update.",
+      "parentUuid": "d4b6531d_5150540d",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 37
+      },
+      "revId": "f7132a2946ccbc671836c06d42007fe43c47fda2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
