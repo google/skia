@@ -245,6 +245,12 @@ sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(const voi
     return sk_sp<VertexData>(new VertexData(vertices, vertexCount, vertexSize));
 }
 
+sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(sk_sp<GrGpuBuffer> buffer,
+                                                                       int vertexCount,
+                                                                       size_t vertexSize) {
+    return sk_sp<VertexData>(new VertexData(std::move(buffer), vertexCount, vertexSize));
+}
+
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(
                                                                          const GrUniqueKey& key) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
@@ -265,12 +271,17 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalAddVerts(
                                                                     const GrUniqueKey& key,
-                                                                    sk_sp<VertexData> vertData) {
+                                                                    sk_sp<VertexData> vertData,
+                                                                    IsNewerBetter isNewerBetter) {
     Entry* tmp = fUniquelyKeyedEntryMap.find(key);
     if (!tmp) {
         tmp = this->getEntry(key, std::move(vertData));
 
         SkASSERT(fUniquelyKeyedEntryMap.find(key));
+    } else if (isNewerBetter(tmp->getCustomData(), key.getCustomData())) {
+        // This orphans any existing uses of the prior vertex data but ensures the best
+        // version is in the cache.
+        tmp->set(key, std::move(vertData));
     }
 
     return { tmp->vertexData(), tmp->refCustomData() };
@@ -278,10 +289,11 @@ std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCach
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::addVertsWithData(
                                                                     const GrUniqueKey& key,
-                                                                    sk_sp<VertexData> vertData) {
+                                                                    sk_sp<VertexData> vertData,
+                                                                    IsNewerBetter isNewerBetter) {
     SkAutoSpinlock lock{fSpinLock};
 
-    return this->internalAddVerts(key, std::move(vertData));
+    return this->internalAddVerts(key, std::move(vertData), isNewerBetter);
 }
 
 void GrThreadSafeCache::remove(const GrUniqueKey& key) {
