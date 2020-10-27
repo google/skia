@@ -65,21 +65,57 @@ void SkSVGRadialGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& 
 }
 
 sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
-                                                  const SkColor* colors, const SkScalar* pos,
-                                                  int count, SkTileMode tm,
+                                                  const SkColor* colors,
+                                                  const SkScalar* pos,
+                                                  int count,
+                                                  SkTileMode tm,
                                                   const SkMatrix& m) const {
-    const auto&  lctx = ctx.lengthContext();
-    const auto      r = lctx.resolve(fR , SkSVGLengthContext::LengthType::kOther);
-    const auto center = SkPoint::Make(
-            lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal),
-            lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical));
-    const auto  focal = SkPoint::Make(
-        fFx.isValid() ? lctx.resolve(*fFx, SkSVGLengthContext::LengthType::kHorizontal)
-                      : center.x(),
-        fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
-                      : center.y());
+    const SkSVGLengthContext lctx =
+            fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox
+                    ? SkSVGLengthContext({1, 1})
+                    : ctx.lengthContext();
 
-    return center == focal
-        ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)
-        : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, pos, count, tm, 0, &m);
+    SkScalar r =
+            lctx.resolve(convertLengthForGradientUnits(fR), SkSVGLengthContext::LengthType::kOther);
+    SkPoint center = SkPoint::Make(lctx.resolve(convertLengthForGradientUnits(fCx),
+                                                SkSVGLengthContext::LengthType::kHorizontal),
+                                   lctx.resolve(convertLengthForGradientUnits(fCy),
+                                                SkSVGLengthContext::LengthType::kVertical));
+    SkPoint focal =
+            SkPoint::Make(fFx.isValid() ? lctx.resolve(convertLengthForGradientUnits(*fFx),
+                                                       SkSVGLengthContext::LengthType::kHorizontal)
+                                        : center.x(),
+                          fFy.isValid() ? lctx.resolve(convertLengthForGradientUnits(*fFy),
+                                                       SkSVGLengthContext::LengthType::kVertical)
+                                        : center.y());
+
+    // TODO: Handle r == 0 which has a specific meaning according to the spec
+    SkASSERT(r != 0);
+
+    SkMatrix localMatrix;
+    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox) {
+        SkASSERT(ctx.node());
+        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
+        r = r * SkScalarSqrt(objBounds.width() * objBounds.height());
+        center.fX = objBounds.width() * center.fX;
+        center.fY = objBounds.height() * center.fY;
+        focal.fX = objBounds.width() * focal.fX;
+        focal.fY = objBounds.height() * focal.fY;
+
+        // TODO: These transformations aren't quite right...
+        const SkScalar sx = objBounds.width() / r, sy = objBounds.height() / r;
+        localMatrix.preTranslate(objBounds.fLeft, objBounds.fTop);
+        localMatrix.preScale(sx, sy);
+
+        center.fX /= sx;
+        center.fY /= sy;
+        focal.fX /= sx;
+        focal.fY /= sy;
+    }
+    localMatrix.preConcat(m);
+
+    return center == focal ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0,
+                                                          &localMatrix)
+                           : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, pos,
+                                                                   count, tm, 0, &localMatrix);
 }
