@@ -62,7 +62,7 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
 }
 
 GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
-                                                              GrRecordingContext::Arenas* arenas,
+                                                              SkArenaAlloc* alloc,
                                                               const GrCaps&) {
     auto* op = grOp->cast<GrStrokeTessellateOp>();
     if (fColor != op->fColor ||
@@ -73,7 +73,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
         return CombineResult::kCannotCombine;
     }
 
-    fPaths.concat(std::move(op->fPaths), arenas->recordTimeAllocator());
+    fPaths.concat(std::move(op->fPaths), alloc);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
 
     return CombineResult::kMerged;

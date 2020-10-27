@@ -39,13 +39,12 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
-GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, GrRecordingContext::Arenas* arenas,
-                                            const GrCaps& caps) {
+GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, SkArenaAlloc* alloc, const GrCaps& caps) {
     SkASSERT(this != that);
     if (this->classID() != that->classID()) {
         return CombineResult::kCannotCombine;
     }
-    auto result = this->onCombineIfPossible(that, arenas, caps);
+    auto result = this->onCombineIfPossible(that, alloc, caps);
     if (result == CombineResult::kMerged) {
         this->joinBounds(*that);
     }

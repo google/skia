@@ -43,8 +43,7 @@ private:
 
     GrClearOp(Buffer buffer, const GrScissorState& scissor, const SkPMColor4f& color, bool stencil);
 
-    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
-                                      const GrCaps& caps) override;
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,

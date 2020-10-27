@@ -332,8 +332,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
     ++flushInfo->fNumDraws;
 }
 
-GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
-                                                       const GrCaps& caps) {
+GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
         return CombineResult::kCannotCombine;

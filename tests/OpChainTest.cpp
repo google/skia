@@ -138,8 +138,7 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas* arenas,
-                                      const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arenas, const GrCaps&) override {
         // This op doesn't use the arenas, but make sure the GrOpsTask is sending it
         SkASSERT(arenas);
         (void) arenas;
