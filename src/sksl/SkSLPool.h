@@ -41,8 +41,9 @@ public:
     // It is an error to call this while no pool is attached.
     void detachFromThread();
 
-    // Retrieves a node from the thread pool. If the pool is exhausted, this will allocate a node.
-    static void* AllocIRNode();
+    // Retrieves a node from the thread pool. If the pool is exhausted, or if the requested size
+    // exceeds the size that we can deliver from a pool, this will just allocate memory.
+    static void* AllocIRNode(size_t size);
 
     // Releases a node that was created by AllocIRNode. This will return it to the pool, or free it,
     // as appropriate. Make sure to free all nodes, since some of them may be real allocations.
