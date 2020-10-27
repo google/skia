@@ -23,13 +23,18 @@
 
 class SkHeifCodec : public SkCodec {
 public:
-    static bool IsHeif(const void*, size_t);
+    /*
+     * Returns true if the buffer is either a HEIF or an AVIF image. If
+     * encodedImageFormat is not nullptr, then it will contain the encoded image
+     * format that was detected.
+     */
+    static bool IsHeif(const void*, size_t, SkEncodedImageFormat* encodedImageFormat);
 
     /*
      * Assumes IsHeif was called and returned true.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(
-            std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy, Result*);
+            std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy, bool, Result*);
 
 protected:
 
@@ -40,7 +45,7 @@ protected:
             int* rowsDecoded) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
-        return SkEncodedImageFormat::kHEIF;
+        return fIsAvif ? SkEncodedImageFormat::kAVIF : SkEncodedImageFormat::kHEIF;
     }
 
     int onGetFrameCount() override;
@@ -59,7 +64,7 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation, bool isAvif);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
@@ -83,6 +88,7 @@ private:
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
     bool                               fUseAnimation;
+    bool                               fIsAvif;
 
     class Frame : public SkFrame {
     public:
