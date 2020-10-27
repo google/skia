@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c963b1d_fba58901",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-27T21:07:45Z",
+      "side": 1,
+      "message": "Is this the proper way to cite a formula from the internet?",
+      "range": {
+        "startLine": 130,
+        "startChar": 3,
+        "endLine": 130,
+        "endChar": 44
+      },
+      "revId": "ce0a659949eaf935622ae22a6039d906d697acf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "209c9fdd_b58f3c18",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-27T21:07:45Z",
+      "side": 1,
+      "message": "Would these be better as static const?",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 12
+      },
+      "revId": "ce0a659949eaf935622ae22a6039d906d697acf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
