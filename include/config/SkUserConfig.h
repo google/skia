@@ -81,7 +81,8 @@
  * Skia consumers can provide their own definitions of these macros to
  * integrate with their histogram collection backend.
  */
-//#define SK_HISTOGRAM_BOOLEAN(name, value)
-//#define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
+//#define SK_HISTOGRAM_BOOLEAN(name, sample)
+//#define SK_HISTOGRAM_ENUMERATION(name, sample, enum_size)
+//#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
 
 #endif

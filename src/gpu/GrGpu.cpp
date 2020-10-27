@@ -631,6 +631,22 @@ void GrGpu::executeFlushInfo(GrSurfaceProxy* proxies[],
     this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, numProxies, access, newState);
 }
 
+GrOpsRenderPass* GrGpu::getOpsRenderPass(
+        GrRenderTarget* renderTarget,
+        GrAttachment* stencil,
+        GrSurfaceOrigin origin,
+        const SkIRect& bounds,
+        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        GrXferBarrierFlags renderPassXferBarriers) {
+#if SK_HISTOGRAMS_ENABLED
+    fCurrentSubmitRenderPassCount++;
+#endif
+    return this->onGetOpsRenderPass(renderTarget, stencil, origin, bounds, colorInfo, stencilInfo,
+                                    sampledProxies, renderPassXferBarriers);
+}
+
 bool GrGpu::submitToGpu(bool syncCpu) {
     this->stats()->incNumSubmitToGpus();
 
@@ -645,6 +661,17 @@ bool GrGpu::submitToGpu(bool syncCpu) {
     bool submitted = this->onSubmitToGpu(syncCpu);
 
     this->callSubmittedProcs(submitted);
+
+#if SK_HISTOGRAMS_ENABLED
+    // The max allowed value for SK_HISTOGRAM_EXACT_LINEAR is 100. If we want to support higher
+    // values we can add SK_HISTOGRAM_CUSTOM_COUNTS but this has a number of buckets that is less
+    // than the number of actual values
+    static constexpr int kMaxRenderPassBucketValue = 100;
+    SK_HISTOGRAM_EXACT_LINEAR("SubmitRenderPasses",
+                              std::min(fCurrentSubmitRenderPassCount, kMaxRenderPassBucket),
+                              kMaxRenderPassBucketValue);
+    fCurrentSubmitRenderPassCount = 0;
+#endif
 
     return submitted;
 }

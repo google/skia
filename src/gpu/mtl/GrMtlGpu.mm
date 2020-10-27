@@ -182,7 +182,7 @@ void GrMtlGpu::destroyResources() {
     fDevice = nil;
 }
 
-GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
+GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
             GrRenderTarget* renderTarget, GrAttachment*,
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
