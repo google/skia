@@ -94,3 +94,7 @@ SkPath SkSVGRect::onAsPath(const SkSVGRenderContext& ctx) const {
 
     return path;
 }
+
+SkRect SkSVGRect::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    return ctx.lengthContext().resolveRect(fX, fY, fWidth, fHeight);
+}

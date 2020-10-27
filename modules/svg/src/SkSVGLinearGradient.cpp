@@ -59,7 +59,11 @@ sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   const SkColor* colors, const SkScalar* pos,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
-    const auto& lctx = ctx.lengthContext();
+    const SkSVGLengthContext lctx =
+            fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox
+                    ? SkSVGLengthContext({1, 1})
+                    : ctx.lengthContext();
+
     const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);
     const auto y1 = lctx.resolve(fY1, SkSVGLengthContext::LengthType::kVertical);
     const auto x2 = lctx.resolve(fX2, SkSVGLengthContext::LengthType::kHorizontal);
