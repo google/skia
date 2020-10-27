@@ -101,8 +101,7 @@ public:
             SkASSERT(fmtArgIter == f.fFormatArgs.cend());
             fragBuilder->emitFunction(f.fReturnType,
                                       fFunctionNames.back().c_str(),
-                                      f.fParameters.size(),
-                                      f.fParameters.data(),
+                                      {f.fParameters.data(), f.fParameters.size()},
                                       body.c_str());
         }
         fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);

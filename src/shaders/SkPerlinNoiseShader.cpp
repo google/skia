@@ -947,11 +947,11 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     SkString noiseFuncName = fragBuilder->getMangledFunctionName("noiseFuncName");
     if (pne.stitchTiles()) {
         fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(),
-                                  SK_ARRAY_COUNT(gPerlinNoiseStitchArgs), gPerlinNoiseStitchArgs,
+                                  {gPerlinNoiseStitchArgs, SK_ARRAY_COUNT(gPerlinNoiseStitchArgs)},
                                   noiseCode.c_str());
     } else {
         fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(),
-                                  SK_ARRAY_COUNT(gPerlinNoiseArgs), gPerlinNoiseArgs,
+                                  {gPerlinNoiseArgs, SK_ARRAY_COUNT(gPerlinNoiseArgs)},
                                   noiseCode.c_str());
     }
 
@@ -1215,7 +1215,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString fadeFuncName = fragBuilder->getMangledFunctionName("fade");
     fragBuilder->emitFunction(kHalf3_GrSLType, fadeFuncName.c_str(),
-                              SK_ARRAY_COUNT(fadeArgs), fadeArgs,
+                              {fadeArgs, SK_ARRAY_COUNT(fadeArgs)},
                               "return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);");
 
     // perm function
@@ -1225,8 +1225,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     SkString samplePerm = this->invokeChild(0, "half4(1)", args, "float2(x, 0.5)");
     SkString permFuncName = fragBuilder->getMangledFunctionName("perm");
     SkString permCode = SkStringPrintf("return %s.r * 255;", samplePerm.c_str());
-    fragBuilder->emitFunction(kHalf_GrSLType, permFuncName.c_str(), SK_ARRAY_COUNT(permArgs),
-                              permArgs, permCode.c_str());
+    fragBuilder->emitFunction(kHalf_GrSLType, permFuncName.c_str(),
+                              {permArgs, SK_ARRAY_COUNT(permArgs)}, permCode.c_str());
 
     // grad function
     const GrShaderVar gradArgs[] = {
@@ -1237,8 +1237,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     SkString gradFuncName = fragBuilder->getMangledFunctionName("grad");
     SkString gradCode = SkStringPrintf("return half(dot(%s.rgb * 255.0 - float3(1.0), p));",
                                        sampleGrad.c_str());
-    fragBuilder->emitFunction(kHalf_GrSLType, gradFuncName.c_str(), SK_ARRAY_COUNT(gradArgs),
-                              gradArgs, gradCode.c_str());
+    fragBuilder->emitFunction(kHalf_GrSLType, gradFuncName.c_str(),
+                              {gradArgs, SK_ARRAY_COUNT(gradArgs)}, gradCode.c_str());
 
     // lerp function
     const GrShaderVar lerpArgs[] = {
@@ -1247,8 +1247,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
             {"w", kHalf_GrSLType}
     };
     SkString lerpFuncName = fragBuilder->getMangledFunctionName("lerp");
-    fragBuilder->emitFunction(kHalf_GrSLType, lerpFuncName.c_str(), SK_ARRAY_COUNT(lerpArgs),
-                              lerpArgs, "return a + w * (b - a);");
+    fragBuilder->emitFunction(kHalf_GrSLType, lerpFuncName.c_str(),
+                              {lerpArgs, SK_ARRAY_COUNT(lerpArgs)}, "return a + w * (b - a);");
 
     // noise function
     const GrShaderVar noiseArgs[] = {
@@ -1284,8 +1284,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     noiseCode.appendf("%s(%s(BB + 1.0), p + half3(-1.0, -1.0, -1.0)), f.x), f.y), f.z);",
                       gradFuncName.c_str(), permFuncName.c_str());
     noiseCode.append("return result;");
-    fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(), SK_ARRAY_COUNT(noiseArgs),
-                              noiseArgs, noiseCode.c_str());
+    fragBuilder->emitFunction(kHalf_GrSLType, noiseFuncName.c_str(),
+                              {noiseArgs, SK_ARRAY_COUNT(noiseArgs)}, noiseCode.c_str());
 
     // noiseOctaves function
     const GrShaderVar noiseOctavesArgs[] = {
@@ -1302,7 +1302,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     noiseOctavesCode.append("}");
     noiseOctavesCode.append("return (result + 1.0) / 2.0;");
     fragBuilder->emitFunction(kHalf_GrSLType, noiseOctavesFuncName.c_str(),
-                              SK_ARRAY_COUNT(noiseOctavesArgs), noiseOctavesArgs,
+                              {noiseOctavesArgs, SK_ARRAY_COUNT(noiseOctavesArgs)},
                               noiseOctavesCode.c_str());
 
     fragBuilder->codeAppendf("half2 coords = half2(%s * %s);", args.fSampleCoord, baseFrequencyUni);
