@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdbbd3cd_bc2112d2",
+        "filename": "modules/canvaskit/compile_gm.sh",
+        "patchSetId": 19
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-27T13:45:45Z",
+      "side": 1,
+      "message": "Doesn\u0027t this slow them down? do you always want this?",
+      "revId": "a1e1e1451e81ebd295197f9d2c81c9e8b6ac51fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "242f835e_ee0359b1",
+        "filename": "tools/run-wasm-gm-tests/Makefile",
+        "patchSetId": 19
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-27T13:45:45Z",
+      "side": 1,
+      "message": "can you put all these args on different lines ending in \\",
+      "range": {
+        "startLine": 5,
+        "startChar": 35,
+        "endLine": 5,
+        "endChar": 36
+      },
+      "revId": "a1e1e1451e81ebd295197f9d2c81c9e8b6ac51fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
