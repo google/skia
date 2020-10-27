@@ -150,7 +150,7 @@ void GrDawnGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrOpsRenderPass* GrDawnGpu::getOpsRenderPass(
+GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
         GrAttachment*,
         GrSurfaceOrigin origin,

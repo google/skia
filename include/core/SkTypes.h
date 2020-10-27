@@ -396,18 +396,24 @@
 #  define GR_TEST_UTILS 0
 #endif
 
-#if defined(SK_HISTOGRAM_ENUMERATION) && defined(SK_HISTOGRAM_BOOLEAN)
+#if defined(SK_HISTOGRAM_ENUMERATION)  || \
+    defined(SK_HISTOGRAM_BOOLEAN)      || \
+    defined(SK_HISTOGRAM_EXACT_LINEAR)
 #  define SK_HISTOGRAMS_ENABLED 1
 #else
 #  define SK_HISTOGRAMS_ENABLED 0
 #endif
 
 #ifndef SK_HISTOGRAM_BOOLEAN
-#  define SK_HISTOGRAM_BOOLEAN(name, value)
+#  define SK_HISTOGRAM_BOOLEAN(name, sample)
 #endif
 
 #ifndef SK_HISTOGRAM_ENUMERATION
-#  define SK_HISTOGRAM_ENUMERATION(name, value, boundary_value)
+#  define SK_HISTOGRAM_ENUMERATION(name, sample, enum_size)
+#endif
+
+#ifndef SK_HISTOGRAM_EXACT_LINEAR
+#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
 #endif
 
 #ifndef SK_DISABLE_LEGACY_SHADERCONTEXT

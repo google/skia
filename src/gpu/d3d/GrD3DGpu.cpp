@@ -115,7 +115,7 @@ void GrD3DGpu::destroyResources() {
     fResourceProvider.destroyResources();
 }
 
-GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
+GrOpsRenderPass* GrD3DGpu::onGetOpsRenderPass(
         GrRenderTarget* rt,
         GrAttachment*,
         GrSurfaceOrigin origin,
