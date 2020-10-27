@@ -166,7 +166,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool;
+    friend class ::GrMemoryPool;
 
     GrProgramInfo* programInfo() override { return fProgramInfo; }
 

@@ -129,5 +129,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureOpTest, reporter, ctxInfo) {
     //   opC - opD/opA - opB
     check_chain(&chain1, kOpCRect, kOpBRect, 3);
 
-    chain1.deleteOps(arenas.opMemoryPool());
+    chain1.deleteOps();
 }

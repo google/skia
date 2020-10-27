@@ -224,8 +224,8 @@ private:
         const DstProxyView& dstProxyView() const { return fDstProxyView; }
         const SkRect& bounds() const { return fBounds; }
 
-        // Deletes all the ops in the chain via the pool.
-        void deleteOps(GrOpMemoryPool* pool);
+        // Deletes all the ops in the chain.
+        void deleteOps();
 
         // Attempts to move the ops from the passed chain to this chain at the head. Also attempts
         // to merge ops between the chains. Upon success the passed chain is empty.
