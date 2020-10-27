@@ -71,6 +71,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cb7a47e_cb55d15d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-27T16:26:39Z",
+      "side": 1,
+      "message": "If you\u0027ve got earlier versions of the shader with abs() or control flow, I\u0027d love to see them.  It\u0027d be neat to have more to test with, particularly now that I _think_ branchy control flow should work on the CPU.  Nice to get more test cases to know how it works and how it compares with where you ended up here... looking at it I\u0027m sure this will be the best version.",
+      "parentUuid": "28215631_00c083a5",
+      "revId": "f5ae004b9b5ce012fb597f0f6f593cd6a85d77b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d72c4c6d_44b0008c",
