@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07ea83df_2b503114",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-10-28T22:44:37Z",
+      "side": 1,
+      "message": "Thanks for the +1 but I don\u0027t have the ACLs to submit.\n\nThe Canary-Flutter trybot is also red and I don\u0027t know how to get from the Gerrit UI to the actual failure message.",
+      "revId": "369b3dd4d31144e30ba453c92bffff5690467afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a72433d2_b273fe81",
@@ -14,6 +31,30 @@
       "writtenOn": "2020-10-28T15:47:41Z",
       "side": 1,
       "message": "I think this would be more clear as something like:\n\n  for (bool use565 : { false, true })\n\nor even\n\n  for (auto colorType : { kN32_SkColorType, k565_SkColorType })\n\nMaybe the bool is better because it allows us to use the natural SkColorType, rather than forcing kN32 (which happens to be the default, but we don\u0027t expect that to change any time soon).",
+      "range": {
+        "startLine": 539,
+        "startChar": 0,
+        "endLine": 541,
+        "endChar": 48
+      },
+      "revId": "369b3dd4d31144e30ba453c92bffff5690467afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78a4575d_49999d4b",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-10-28T22:44:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a72433d2_b273fe81",
       "range": {
         "startLine": 539,
         "startChar": 0,
