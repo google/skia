@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d082c2f_96fc2123",
+        "filename": "tests/GrVxTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-28T14:18:54Z",
+      "side": 1,
+      "message": "Generally: It\u0027s pretty tough to figure out what values are being tested here. How slow is this if we just use nextafterf to clearly iterate over all floats in our desired input range (and test them one-at-a-time)?",
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
