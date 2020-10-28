@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4bf2f01_de5afd39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-28T17:07:45Z",
+      "side": 1,
+      "message": "My read of GrMemoryPool is that it frees entire blocks once they\u0027re empty, so this will ensure that our recycled pool is of a fixed/minimal size?",
+      "revId": "9315d26b8b882ae7cac345a3ea41e0f800a0ff1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
