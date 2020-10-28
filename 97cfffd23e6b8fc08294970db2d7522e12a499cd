@@ -16,6 +16,24 @@
       "message": "I feel like with the current implementation of the fallback pool (where Make returns nullptr), this check is going to always trigger? Have you tried running with the fallback pool forced on?",
       "revId": "97cfffd23e6b8fc08294970db2d7522e12a499cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b348d34_65fa5981",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-28T20:17:12Z",
+      "side": 1,
+      "message": "You know, I did, but I think assertions were off. Let me tweak this.",
+      "parentUuid": "58054141_5c263e8f",
+      "revId": "97cfffd23e6b8fc08294970db2d7522e12a499cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
