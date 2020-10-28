@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "606a8122_3ee376b2",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-28T19:49:16Z",
+      "side": 1,
+      "message": "I\u0027m a bit concerned about making this a public API like this. The reality is that this describes a colorspace. It just happens that some drawing APIs (like on Windows) expose a different color space for drawing glyphs and everything else.\n\nSo why isn\u0027t the existing colorspace on SkSurfaceProps? Well, it is on SkImageInfo (through SkColorInfo) since one needs to know how to draw out of it. On the other hand SkSurfaces don\u0027t really have a colorspace (the target may be deferred). Under the hood one can try to get at the colorspace by getting the SkCanvas and calling SkCanvas::imageInfo (which may come back without useful information, what is the colorspace of an skp or an nway canvas?). The colorspace information gets pushed through the Make* calls down to the internal SkDevices. I think that\u0027s somewhat seen here where this information needs to get set down on the device. As a result this may be more of a thing that gets passed as a separate colorspace to the Make* calls than living on the SkSurfaceProps.\n\nIn any event, I need to think about this a bit more to see if there is a cleaner way to express this sort of thing.",
+      "range": {
+        "startLine": 63,
+        "startChar": 51,
+        "endLine": 63,
+        "endChar": 93
+      },
+      "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d99353eb_6c8968c6",
         "filename": "src/core/SkMaskGamma.h",
         "patchSetId": 9
@@ -48,6 +71,24 @@
       "writtenOn": "2020-10-28T18:12:49Z",
       "side": 1,
       "message": "My gut says no... since the SK_LUM_COEFF_ macros are used elsewhere in Skia.  The DWrite values have no basis in reality, so it\u0027d be best to use them only for text-mask adjustments.\n\nMy understanding is that the SkMaskGamma code is really only used for the text-mask adjustments... please correct me if I\u0027m wrong.  (That said, the SkColorSpaceLuminance::computeLuminance function is used in one place not directly related to SkMaskGamma---in GrAtlasTextOp.cpp---but it\u0027s at least text related.)",
+      "parentUuid": "d99353eb_6c8968c6",
+      "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "357161e6_a4644776",
+        "filename": "src/core/SkMaskGamma.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-28T19:49:16Z",
+      "side": 1,
+      "message": "No, the point of SK_LUM_COEFF_X is pretty much to be BT.709. If something like this is really needed we could in theory have a \u0027SK_TEXT_CONTRAST_{RGB}\u0027 or something like that which would default to the BT.709 values but the build could set them otherwise. That being said, I\u0027m not sure where these numbers come from? What is the justification?\n\nNote that in relation to all of this Skia currently doesn\u0027t apply the colorspace from the SkSurface here (and maybe it should). Currently it kinda doesn\u0027t because this glyph colorspace is generally different from the colorspace for everything else. Perhaps just allowing a separate colorspace to be specified fixes that.",
       "parentUuid": "d99353eb_6c8968c6",
       "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
