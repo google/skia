@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a3448bb_0fdf68c7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "This should be:\n\n  Bug: b/141654151\n\nNot sure whether \"Bug\" needs to be capitalized, but that\u0027s what we normally do. The \"b/\" will ensure it links to the right place.",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 14
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5d8d1c5a_9666fdfb",
@@ -14,6 +37,185 @@
       "writtenOn": "2020-10-27T22:44:32Z",
       "side": 1,
       "message": "Hi Leon and Chong,\n\nI am working on adding AVIF support for android. This CL adds the AVIF enum types and the sniffer to the skia layer code being used by android.\n\nPlease let me know if i am doing anything wrong/silly.\n\nThank you!",
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39a1273a_96377c24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "Hi Vignesh,\n\nThis looks like the right direction - I\u0027m glad it\u0027s going to be so simple! I have some inline suggestions. Let me know if you need any help!",
+      "parentUuid": "5d8d1c5a_9666fdfb",
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeae59a0_d37cb7c8",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "Given that it now supports AVIF, can you think of a better (more general) name than SkHeifCodec?",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "842c2096_f15a6bf3",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "Given that it now supports AVIF, can you think of a better (more general) name than SkHeifCodec? It is now going to be something that generally forwards to Android\u0027s media decoders, so maybe it\u0027s something like SkAndroidMediaCodec?",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f57c6a0_fd878a81",
+        "filename": "include/core/SkEncodedImageFormat.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "After this lands, we\u0027ll need to update a switch statement on the Android side[1]. Can you take care of that?\n\n[1] https://source.corp.google.com/android/frameworks/base/libs/hwui/jni/BitmapFactory.cpp;l\u003d54?q\u003dkHeif\u0026sq\u003dpackage:%5Eandroid$%20-file:external%2Fskqp%20-file:external%2Fqt\u0026ct\u003drc\u0026cd\u003d4\u0026dr\u003dC\u0026srt\u003dCAMSAggBIiA1QjAzOTIxRDREMDQ0MkNDMDEyNDIxMUM1OTIyOThEQzjI7qXmxJ_ehMkB\u0026srqt\u003dCj1rSGVpZiBwYWNrYWdlOl5hbmRyb2lkJCAtZmlsZTpleHRlcm5hbC9za3FwIC1maWxlOmV4dGVybmFsL3F0EgAaDAisiOb8BRCPxY7sAiAMKgA4vezuoQE",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "644a5254_aa4f17ff",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "(This will make more sense after reading my comments in SkHeifCodec.cpp.) This can be\n\n  if (auto format \u003d SkHeifCodec::IsSupported(buffer, bytesRead)) {\n    return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy,\n                                       format.value(), outResult);\n  }",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61b4f518_d0651eed",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "I think this would be simpler and clearer if you just returned the SkEncodedImageFormat. It doesn\u0027t have a value you can return for false, so how about using std::optional?\n\n  std::optional\u003cSkEncodedImageFormat\u003e isSupported(const void* buffer,\n                                                  size_t bytesRead) {\n    ...\n    if (brand \u003d\u003d mif1 || brand \u003d\u003d heic || brand \u003d\u003d msf1 || brand \u003d\u003d hevc) {\n      return kHeif;\n    if (brand \u003d\u003d avif || brand \u003d\u003d avis) {\n      return kAvif;\n    ...\n    return std::nullopt;\n  }",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "132d5afe_f39685c6",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "Rather than a bool, let\u0027s make this an SkEncodedImageFormat. You can pass it directly from IsSupported, and you can store it instead of fIsAvif. Then we can also have\n\n  SkEncodedImageFormat onGetEncodedFormat() const override { return fFormat; }",
+      "range": {
+        "startLine": 137,
+        "startChar": 50,
+        "endLine": 137,
+        "endChar": 61
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf93ecfc_b8c26828",
+        "filename": "src/codec/SkHeifCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T15:31:10Z",
+      "side": 1,
+      "message": "This can be const.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 8
+      },
       "revId": "41513a8d32779794553f602817f078fd645b51df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
