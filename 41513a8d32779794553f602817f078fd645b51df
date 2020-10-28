@@ -107,6 +107,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2f2cccee_c9ef2a22",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2020-10-28T16:07:00Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s necessary to change the names, but it\u0027s okay if anyone comes up with a better name.\n\nAccording to https://aomediacodec.github.io/av1-avif/, AVIF is a kind of generic HEIF:\n\"This document specifies syntax and semantics for the storage of [AV1] images in the generic image file format [HEIF], which is based on [ISOBMFF]. \" \n\nSkAndroidMediaCodec is not a good name, SkHeifCodec itself has nothing specific to Android (the Android-specific stuff is inside HeifDecoderAPI but it\u0027s abstract and doesn\u0027t need to be android specific). Also, SkHeifCodec is specific to HEIF-like containers (which is based on Iso-base media), if in the future we decoder other container format on Android, it can\u0027t handle that either.",
+      "parentUuid": "842c2096_f15a6bf3",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5f57c6a0_fd878a81",
         "filename": "include/core/SkEncodedImageFormat.h",
         "patchSetId": 1
