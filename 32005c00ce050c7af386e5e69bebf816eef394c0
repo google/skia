@@ -33,6 +33,24 @@
       "message": "Would it make sense to override SK_LUM_COEFF_{R|G|B} where they are defined, conditional on the \n SK_USE_DWRITE_COMPATIBLE_CONTRAST macro?",
       "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69b96b42_f0391f5b",
+        "filename": "src/core/SkMaskGamma.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-28T18:12:49Z",
+      "side": 1,
+      "message": "My gut says no... since the SK_LUM_COEFF_ macros are used elsewhere in Skia.  The DWrite values have no basis in reality, so it\u0027d be best to use them only for text-mask adjustments.\n\nMy understanding is that the SkMaskGamma code is really only used for the text-mask adjustments... please correct me if I\u0027m wrong.  (That said, the SkColorSpaceLuminance::computeLuminance function is used in one place not directly related to SkMaskGamma---in GrAtlasTextOp.cpp---but it\u0027s at least text related.)",
+      "parentUuid": "d99353eb_6c8968c6",
+      "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

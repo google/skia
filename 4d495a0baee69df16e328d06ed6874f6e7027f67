@@ -246,6 +246,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9c41ae60_66c0cebb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-28T18:12:49Z",
+      "side": 1,
+      "message": "It was intended to start this conversation! 😊  To see if there is desire \u0026 willingness to adjust the contrast algorithm (at least on Windows), and prompt discussion about how to stage it, given the testing/screenshot implications.\n\nIdeally we\u0027d be able to put this behind a runtime flag so Chromium could roll it out gradually (and maybe A/B test), but I don\u0027t see an easy way to do that.  Is there a precedent for passing Chromium runtime flags into Skia, somehow?\n\n---\nFWIW, I\u0027ve been testing locally and providing custom Chromium builds for a few people internally.  I\u0027m building against *this* Skia CL, combined with a Chromium CL:  https://chromium-review.googlesource.com/c/chromium/src/+/2353360.\n\nThe results at this point are mostly within rounding-error territory compared with DWrite itself.  Direct screenshot comparisons against the other browsers are difficult due to layout differences (and because Spartan just hardcodes contrast\u003d1.0), but we\u0027ve been pleased with the results so far.",
+      "parentUuid": "2d5ea7b6_65a3029c",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
