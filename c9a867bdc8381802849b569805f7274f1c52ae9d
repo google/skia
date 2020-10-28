@@ -22,6 +22,30 @@
       },
       "revId": "c9a867bdc8381802849b569805f7274f1c52ae9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7be5f8c_6d44730e",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-28T20:31:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "75f44da7_1df5321f",
+      "range": {
+        "startLine": 664,
+        "startChar": 7,
+        "endLine": 678,
+        "endChar": 9
+      },
+      "revId": "c9a867bdc8381802849b569805f7274f1c52ae9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
