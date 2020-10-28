@@ -19,7 +19,7 @@ class SymbolTable;
 /**
  * A 'switch' statement.
  */
-class SwitchStatement : public Statement {
+class SwitchStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kSwitch;
 

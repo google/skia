@@ -15,7 +15,7 @@ namespace SkSL {
 /**
  * An extension declaration.
  */
-class Extension : public ProgramElement {
+class Extension final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kExtension;
 

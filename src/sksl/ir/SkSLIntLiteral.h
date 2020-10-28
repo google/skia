@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A literal integer.
  */
-class IntLiteral : public Expression {
+class IntLiteral final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kIntLiteral;
 

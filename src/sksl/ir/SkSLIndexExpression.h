@@ -41,7 +41,7 @@ static const Type& index_type(const Context& context, const Type& type) {
 /**
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
-struct IndexExpression : public Expression {
+struct IndexExpression final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kIndex;
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,

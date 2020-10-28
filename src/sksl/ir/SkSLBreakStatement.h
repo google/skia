@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'break' statement.
  */
-class BreakStatement : public Statement {
+class BreakStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kBreak;
 

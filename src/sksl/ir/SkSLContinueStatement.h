@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'continue' statement.
  */
-class ContinueStatement : public Statement {
+class ContinueStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kContinue;
 

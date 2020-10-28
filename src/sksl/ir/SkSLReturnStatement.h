@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'return' statement.
  */
-class ReturnStatement : public Statement {
+class ReturnStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kReturn;
 

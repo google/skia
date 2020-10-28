@@ -17,7 +17,7 @@ namespace SkSL {
  * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These are generally
  * collapsed down to their constant representations during the compilation process.
  */
-class Setting : public Expression {
+class Setting final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kSetting;
 

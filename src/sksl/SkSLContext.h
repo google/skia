@@ -349,7 +349,7 @@ public:
     const std::unique_ptr<Expression> fDefined_Expression;
 
 private:
-    class Defined : public Expression {
+    class Defined final : public Expression {
     public:
         static constexpr Kind kExpressionKind = Kind::kDefined;
 

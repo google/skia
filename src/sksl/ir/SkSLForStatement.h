@@ -17,7 +17,7 @@ namespace SkSL {
 /**
  * A 'for' statement.
  */
-class ForStatement : public Statement {
+class ForStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kFor;
 
