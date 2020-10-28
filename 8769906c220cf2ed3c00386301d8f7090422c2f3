@@ -98,6 +98,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "72c65092_d7c1bc25",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-28T16:06:07Z",
+      "side": 1,
+      "message": "\u003e (It\u0027s worth noting that in my example, `unfused` won\u0027t always be zero.  I think even some finite inputs can make it NaN or Inf.)\n\nHere\u0027s one the fuzzer found, where z is -inf:\n\nx -8.11498e+32 (-0x1.401466p+109), y -1.79498e+38 (-0x1.0e13fep+127)\n\t-\u003e -inf (-inf), want nan (nan)",
+      "parentUuid": "592bf18f_177a5dd8",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
