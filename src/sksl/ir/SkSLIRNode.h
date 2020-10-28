@@ -65,7 +65,7 @@ public:
     // purposes
     int fOffset;
 
-    // Override operator new and delete to allow us to control allocation behavior.
+    // Use a GrMemoryPool to improve IRNode allocation performance when SK_SUPPORT_GPU is enabled.
     static void* operator new(const size_t size) {
         return Pool::AllocIRNode(size);
     }
