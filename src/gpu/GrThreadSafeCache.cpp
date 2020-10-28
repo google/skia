@@ -118,6 +118,15 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeCache::internalFind(
     return {};
 }
 
+#ifdef SK_DEBUG
+bool GrThreadSafeCache::has(const GrUniqueKey& key) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    Entry* tmp = fUniquelyKeyedEntryMap.find(key);
+    return SkToBool(tmp);
+}
+#endif
+
 GrSurfaceProxyView GrThreadSafeCache::find(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -243,6 +252,12 @@ sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(const voi
                                                                        int vertexCount,
                                                                        size_t vertexSize) {
     return sk_sp<VertexData>(new VertexData(vertices, vertexCount, vertexSize));
+}
+
+sk_sp<GrThreadSafeCache::VertexData> GrThreadSafeCache::MakeVertexData(sk_sp<GrGpuBuffer> buffer,
+                                                                       int vertexCount,
+                                                                       size_t vertexSize) {
+    return sk_sp<VertexData>(new VertexData(std::move(buffer), vertexCount, vertexSize));
 }
 
 std::tuple<sk_sp<GrThreadSafeCache::VertexData>, sk_sp<SkData>> GrThreadSafeCache::internalFindVerts(

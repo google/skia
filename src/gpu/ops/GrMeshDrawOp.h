@@ -225,6 +225,7 @@ public:
 
     virtual GrXferBarrierFlags renderPassBarriers() const = 0;
 
+    virtual GrThreadSafeCache* threadSafeCache() const = 0;
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
 

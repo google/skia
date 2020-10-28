@@ -52,6 +52,9 @@ public:
     }
     const GrDirectContext* mockContext() const { return fMockContext.get(); }
     const GrCaps& caps() const override { return *fMockContext->priv().caps(); }
+    GrThreadSafeCache* threadSafeCache() const override {
+        return fMockContext->priv().threadSafeCache();
+    }
     GrResourceProvider* resourceProvider() const override {
         return fMockContext->priv().resourceProvider();
     }

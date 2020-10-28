@@ -32,7 +32,7 @@ void SkPromiseImageTexture::addKeyToInvalidate(uint32_t contextID, const GrUniqu
             return;
         }
     }
-    fMessages.emplace_back(key, contextID);
+    fMessages.emplace_back(key, contextID, /* inThreadSafeCache */ false);
 }
 
 #if GR_TEST_UTILS

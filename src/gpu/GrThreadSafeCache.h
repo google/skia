@@ -83,6 +83,8 @@ public:
     // Drop uniquely held refs that were last accessed before 'purgeTime'
     void dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
 
+    SkDEBUGCODE(bool has(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);)
+
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> findWithData(
                                                       const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
@@ -137,6 +139,13 @@ public:
                 , fVertexSize(vertexSize) {
         }
 
+        VertexData(sk_sp<GrGpuBuffer> gpuBuffer, int numVertices, size_t vertexSize)
+                : fVertices(nullptr)
+                , fNumVertices(numVertices)
+                , fVertexSize(vertexSize)
+                , fGpuBuffer(std::move(gpuBuffer)) {
+        }
+
         const void*        fVertices;
         int                fNumVertices;
         size_t             fVertexSize;
@@ -149,12 +158,16 @@ public:
     static sk_sp<VertexData> MakeVertexData(const void* vertices,
                                             int vertexCount,
                                             size_t vertexSize);
+    static sk_sp<VertexData> MakeVertexData(sk_sp<GrGpuBuffer> buffer,
+                                            int vertexCount,
+                                            size_t vertexSize);
 
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> findVertsWithData(
-                            const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
+                                                        const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> addVertsWithData(
-                            const GrUniqueKey&, sk_sp<VertexData>)  SK_EXCLUDES(fSpinLock);
+                                                        const GrUniqueKey&,
+                                                        sk_sp<VertexData>)  SK_EXCLUDES(fSpinLock);
 
     void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -206,6 +219,11 @@ private:
             return fKey;
         }
 
+        SkData* getCustomData() const {
+            SkASSERT(fTag != kEmpty);
+            return fKey.getCustomData();
+        }
+
         sk_sp<SkData> refCustomData() const {
             SkASSERT(fTag != kEmpty);
             return fKey.refCustomData();
@@ -239,7 +257,7 @@ private:
         }
 
         void set(const GrUniqueKey& key, sk_sp<VertexData> vertData) {
-            SkASSERT(fTag == kEmpty);
+            SkASSERT(fTag == kEmpty || fTag == kVertData);
             fKey = key;
             fVertData = vertData;
             fTag = kVertData;
@@ -280,14 +298,16 @@ private:
     void recycleEntry(Entry*)  SK_REQUIRES(fSpinLock);
 
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalFind(
-                                                       const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
+                                                        const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
     std::tuple<GrSurfaceProxyView, sk_sp<SkData>> internalAdd(
-                            const GrUniqueKey&, const GrSurfaceProxyView&)  SK_REQUIRES(fSpinLock);
+                                                const GrUniqueKey&,
+                                                const GrSurfaceProxyView&)  SK_REQUIRES(fSpinLock);
 
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> internalFindVerts(
-                                                       const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
+                                                        const GrUniqueKey&)  SK_REQUIRES(fSpinLock);
     std::tuple<sk_sp<VertexData>, sk_sp<SkData>> internalAddVerts(
-                            const GrUniqueKey&, sk_sp<VertexData>)  SK_REQUIRES(fSpinLock);
+                                                        const GrUniqueKey&,
+                                                        sk_sp<VertexData>)  SK_REQUIRES(fSpinLock);
 
     mutable SkSpinlock fSpinLock;
 

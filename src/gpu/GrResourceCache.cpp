@@ -513,9 +513,15 @@ void GrResourceCache::purgeAsNeeded() {
         SkASSERT(fProxyProvider);
 
         for (int i = 0; i < invalidKeyMsgs.count(); ++i) {
-            fProxyProvider->processInvalidUniqueKey(invalidKeyMsgs[i].key(), nullptr,
+            if (invalidKeyMsgs[i].inThreadSafeCache()) {
+                fThreadSafeCache->remove(invalidKeyMsgs[i].key());
+                SkASSERT(!fThreadSafeCache->has(invalidKeyMsgs[i].key()));
+            } else {
+                fProxyProvider->processInvalidUniqueKey(
+                                                    invalidKeyMsgs[i].key(), nullptr,
                                                     GrProxyProvider::InvalidateGPUResource::kYes);
-            SkASSERT(!this->findAndRefUniqueResource(invalidKeyMsgs[i].key()));
+                SkASSERT(!this->findAndRefUniqueResource(invalidKeyMsgs[i].key()));
+            }
         }
     }
 

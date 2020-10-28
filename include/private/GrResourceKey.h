@@ -334,8 +334,9 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1, GrUnique
 class GrUniqueKeyInvalidatedMessage {
 public:
     GrUniqueKeyInvalidatedMessage() = default;
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID)
-            : fKey(key), fContextID(contextUniqueID) {
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID,
+                                  bool inThreadSafeCache = false)
+            : fKey(key), fContextID(contextUniqueID), fInThreadSafeCache(inThreadSafeCache) {
         SkASSERT(SK_InvalidUniqueID != contextUniqueID);
     }
 
@@ -345,10 +346,12 @@ public:
 
     const GrUniqueKey& key() const { return fKey; }
     uint32_t contextID() const { return fContextID; }
+    bool inThreadSafeCache() const { return fInThreadSafeCache; }
 
 private:
     GrUniqueKey fKey;
     uint32_t fContextID = SK_InvalidUniqueID;
+    bool fInThreadSafeCache = false;
 };
 
 static inline bool SkShouldPostMessageToBus(const GrUniqueKeyInvalidatedMessage& msg,
