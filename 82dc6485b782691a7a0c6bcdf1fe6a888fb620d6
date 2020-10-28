@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8aa9fb5_0bd15e52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-28T19:48:21Z",
+      "side": 1,
+      "message": "Got it. Sounds like a plan.",
+      "parentUuid": "d6d42abc_80740d97",
+      "revId": "82dc6485b782691a7a0c6bcdf1fe6a888fb620d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5653b6c7_af40030f",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-10-26T23:57:07Z",
       "side": 1,
       "message": "Would be great if we could expose this with a public getter/setter so we could alter it programmatically instead of only through the XML.",
+      "revId": "82dc6485b782691a7a0c6bcdf1fe6a888fb620d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5caed41_c0a326a3",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-28T19:48:21Z",
+      "side": 1,
+      "message": "That\u0027s definitely in the cards. I still need to do that with background color as well, so that\u0027ll be another cl.",
+      "parentUuid": "5653b6c7_af40030f",
       "revId": "82dc6485b782691a7a0c6bcdf1fe6a888fb620d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
