@@ -10,6 +10,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/private/SkMalloc.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMessageBus.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -1371,4 +1372,53 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14, reporter, ctxInfo) {
             ctxInfo.directContext()->purgeUnlockedResources(/* scratchResourcesOnly */ false);
         }
     }
+}
+
+// Case 15: Test out posting invalidation messages that involve the thread safe cache
+static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check,
+                    void (*create_key)(GrUniqueKey*, int wh, int id)) {
+
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    GrUniqueKey key;
+    (*create_key)(&key, kImageWH, kNoID);
+
+    GrUniqueKeyInvalidatedMessage msg(key, dContext->priv().contextID(),
+                                      /* inThreadSafeCache */ true);
+
+    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+
+    // This purge call is needed to process the invalidation messages
+    dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    helper.checkImage(reporter, std::move(ddl1));
+    helper.checkImage(reporter, std::move(ddl2));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15View, reporter, ctxInfo) {
+    test_15(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView,
+            create_view_key);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) {
+    test_15(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert,
+            create_vert_key);
 }

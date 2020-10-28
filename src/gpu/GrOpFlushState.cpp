@@ -34,6 +34,10 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
+GrThreadSafeCache* GrOpFlushState::threadSafeCache() const {
+    return fGpu->getContext()->priv().threadSafeCache();
+}
+
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
         const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline,
         const GrUserStencilSettings* userStencilSettings) {
