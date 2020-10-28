@@ -1570,7 +1570,7 @@ bool GLSLCodeGenerator::generateCode() {
     OutputStream* rawOut = fOut;
     StringStream body;
     fOut = &body;
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         this->writeProgramElement(*e);
     }
     fOut = rawOut;

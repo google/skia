@@ -292,6 +292,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
             fIRGenerator->convertProgram(kind, &settings, &standaloneCaps, baseModule,
                                          /*isBuiltinCode=*/true, source->c_str(), source->length(),
                                          /*externalValues=*/nullptr);
+    SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = {std::move(ir.fSymbolTable), std::move(ir.fElements)};
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
@@ -1724,6 +1725,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                              fCaps,
                                              fContext,
                                              std::move(ir.fElements),
+                                             std::move(ir.fSharedElements),
                                              std::move(ir.fModifiers),
                                              std::move(ir.fSymbolTable),
                                              std::move(pool),
@@ -1752,7 +1754,7 @@ bool Compiler::optimize(Program& program) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        for (const auto& element : program.elements()) {
+        for (const auto& element : program.ownedElements()) {
             if (element->is<FunctionDefinition>()) {
                 madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage);
             }
@@ -1764,41 +1766,54 @@ bool Compiler::optimize(Program& program) {
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
         if (program.fSettings.fRemoveDeadFunctions) {
+            auto isDeadFunction = [&](const ProgramElement* element) {
+                if (!element->is<FunctionDefinition>()) {
+                    return false;
+                }
+                const FunctionDefinition& fn = element->as<FunctionDefinition>();
+                if (fn.declaration().name() != "main" && usage->get(fn.declaration()) == 0) {
+                    usage->remove(*element);
+                    madeChanges = true;
+                    return true;
+                }
+                return false;
+            };
             program.fElements.erase(
-                    std::remove_if(program.fElements.begin(),
-                                   program.fElements.end(),
+                    std::remove_if(program.fElements.begin(), program.fElements.end(),
                                    [&](const std::unique_ptr<ProgramElement>& element) {
-                                       if (!element->is<FunctionDefinition>()) {
-                                           return false;
-                                       }
-                                       const auto& fn = element->as<FunctionDefinition>();
-                                       bool dead = fn.declaration().name() != "main" &&
-                                                   usage->get(fn.declaration()) == 0;
-                                       if (dead) {
-                                           madeChanges = true;
-                                           usage->remove(*element);
-                                       }
-                                       return dead;
+                                       return isDeadFunction(element.get());
                                    }),
                     program.fElements.end());
+            program.fSharedElements.erase(
+                    std::remove_if(program.fSharedElements.begin(), program.fSharedElements.end(),
+                                   isDeadFunction),
+                    program.fSharedElements.end());
         }
 
         if (program.fKind != Program::kFragmentProcessor_Kind) {
             // Remove declarations of dead global variables
+            auto isDeadVariable = [&](const ProgramElement* element) {
+                if (!element->is<GlobalVarDeclaration>()) {
+                    return false;
+                }
+                const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
+                const VarDeclaration& varDecl = global.declaration()->as<VarDeclaration>();
+                if (usage->isDead(varDecl.var())) {
+                    madeChanges = true;
+                    return true;
+                }
+                return false;
+            };
             program.fElements.erase(
                     std::remove_if(program.fElements.begin(), program.fElements.end(),
                                    [&](const std::unique_ptr<ProgramElement>& element) {
-                                       if (!element->is<GlobalVarDeclaration>()) {
-                                           return false;
-                                       }
-                                       const auto& global = element->as<GlobalVarDeclaration>();
-                                       const auto& varDecl =
-                                                         global.declaration()->as<VarDeclaration>();
-                                       bool dead = usage->isDead(varDecl.var());
-                                       madeChanges |= dead;
-                                       return dead;
+                                       return isDeadVariable(element.get());
                                    }),
                     program.fElements.end());
+            program.fSharedElements.erase(
+                    std::remove_if(program.fSharedElements.begin(), program.fSharedElements.end(),
+                                   isDeadVariable),
+                    program.fSharedElements.end());
         }
 
         if (!madeChanges) {

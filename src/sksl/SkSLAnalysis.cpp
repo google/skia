@@ -442,9 +442,8 @@ bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 
-template <typename PROG, typename EXPR, typename STMT, typename ELEM>
-bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visit(PROG program) {
-    for (const auto& pe : program.elements()) {
+bool ProgramVisitor::visit(const Program& program) {
+    for (const ProgramElement* pe : program.elements()) {
         if (this->visitProgramElement(*pe)) {
             return true;
         }

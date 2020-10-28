@@ -160,7 +160,7 @@ void ByteCodeGenerator::gatherUniforms(const Type& type, const String& name) {
 }
 
 bool ByteCodeGenerator::generateCode() {
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
                 std::unique_ptr<ByteCodeFunction> f =
@@ -480,7 +480,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
         case Variable::Storage::kGlobal: {
             if (var.type() == *fContext.fFragmentProcessor_Type) {
                 int offset = 0;
-                for (const auto& e : fProgram.elements()) {
+                for (const ProgramElement* e : fProgram.elements()) {
                     if (e->is<GlobalVarDeclaration>()) {
                         const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                         const Variable& declVar = decl.declaration()->as<VarDeclaration>().var();
@@ -508,7 +508,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             }
             int offset = 0;
             bool isUniform = is_uniform(var);
-            for (const auto& e : fProgram.elements()) {
+            for (const ProgramElement* e : fProgram.elements()) {
                 if (e->is<GlobalVarDeclaration>()) {
                     const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                     const Variable& declVar = decl.declaration()->as<VarDeclaration>().var();

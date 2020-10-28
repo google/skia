@@ -3011,7 +3011,10 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     fIsBuiltinCode = isBuiltinCode;
 
     std::vector<std::unique_ptr<ProgramElement>> elements;
+    std::vector<const ProgramElement*> sharedElements;
+
     fProgramElements = &elements;
+    fSharedElements = &sharedElements;
 
     fInputs.reset();
     fInvocations = -1;
@@ -3141,7 +3144,8 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
 
     fSettings = nullptr;
 
-    return IRBundle{std::move(elements), this->releaseModifiers(), fSymbolTable, fInputs};
+    return IRBundle{std::move(elements), std::move(sharedElements), this->releaseModifiers(),
+                    fSymbolTable, fInputs};
 }
 
 }  // namespace SkSL

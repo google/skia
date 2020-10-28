@@ -100,6 +100,7 @@ public:
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
+        std::vector<const ProgramElement*>           fSharedElements;
         std::unique_ptr<ModifiersPool>               fModifiers;
         std::shared_ptr<SymbolTable>                 fSymbolTable;
         Program::Inputs                              fInputs;
@@ -250,6 +251,7 @@ private:
     ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
+    std::vector<const ProgramElement*>*           fSharedElements = nullptr;
     const Variable* fRTAdjust = nullptr;
     const Variable* fRTAdjustInterfaceBlock = nullptr;
     int fRTAdjustFieldIndex;
