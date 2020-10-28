@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "120a63eb_513ed6f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-28T15:49:40Z",
+      "side": 1,
+      "message": "This seems like the right fix, but I want to make sure there isn\u0027t some other lower-level reason that the algorithm leads to this singularity.",
+      "revId": "7671f3c6805569beeda8f73f174411e6556e6128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
