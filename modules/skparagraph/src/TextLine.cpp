@@ -600,7 +600,9 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     auto start = &fOwner->cluster(startIndex);
     auto end = &fOwner->cluster(endIndex);
     result.pos = start->startPos();
-    result.size = (end->isHardBreak() ? end->startPos() : end->endPos()) - start->startPos();
+    // Apparently, it's possible to have a hard line break on a normal text cluster
+    result.size = (end->isHardBreak() && end->isWhitespaces()
+                          ? end->startPos() : end->endPos()) - start->startPos();
 
     auto textStartInRun = run->positionX(start->startPos());
     auto textStartInLine = runOffsetInLine + textOffsetInRunInLine;
