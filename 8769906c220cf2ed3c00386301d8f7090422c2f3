@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "592bf18f_177a5dd8",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-28T16:01:29Z",
+      "side": 1,
+      "message": "I think the simplest demo of how maybe-fused-maybe-not-fused math can go wrong is how error-prone it can be to reason about zero, e.g.\n\n$ cat fma.c\n#include \u003cmath.h\u003e\n#include \u003cstdint.h\u003e\n#include \u003cstdio.h\u003e\n#include \u003cstdlib.h\u003e\n#include \u003cstring.h\u003e\n\nstatic int equiv(float x, float y) {\n    return x \u003d\u003d y || (isnan(x) \u0026\u0026 isnan(y));\n}\n\nint LLVMFuzzerTestOneInput(const uint8_t* buf, size_t len) {\n    if (len \u003d\u003d 8) {\n        float x,y;\n        memcpy(\u0026x, buf+0, 4);\n        memcpy(\u0026y, buf+4, 4);\n        float z \u003d -x*y;\n\n        float unfused \u003d x*y+z,\n                fused \u003d fmaf(x,y,z);\n\n        if (!equiv(fused, unfused)) {\n            fprintf(stderr,\n                    \"x %g (%a), y %g (%a)\\n\\t-\u003e %g (%a), want %g (%a)\\n\",\n                    x,x, y,y, fused,fused, unfused,unfused);\n            abort();\n        }\n    }\n    return 0;\n}\n\n# fmaf is slow, will abort() quickly.\n$ clang -fsanitize\u003dfuzzer fma.c \u0026\u0026 ./a.out\n\n# fmaf is fast, will abort() quickly.\n$ clang -fsanitize\u003dfuzzer -march\u003dhaswell fma.c \u0026\u0026 ./a.out\n\n# fmaf is fast, and the compiler is allowed to fuse even our `unfused`,\n# but won\u0027t due to optimization level.  Will abort() quickly.\n$ clang -fsanitize\u003dfuzzer -march\u003dhaswell -ffp-contract\u003dfast fma.c \u0026\u0026 ./a.out\n\n# fmaf is fast, and the compiler is allowed to fuse our `unfused`, \n# and actually will.  Will likely run forever.\n$ clang -fsanitize\u003dfuzzer -march\u003dhaswell -ffp-contract\u003dfast -O1 fma.c \u0026\u0026 ./a.out\n\nThe default settings for -ffp-contract vary by compiler and CPU target in significant ways, so even looking at the command line is not enough to tell you what will happen here.  Some compilers also care about how many expressions we\u0027ve written the value in, and so can change their mind about fusion if we happened to write `unfused` as\n\n    float unfused \u003d x*y;\n    unfused +\u003d z;\n\nThat all is just the risk you need to be aware of working with grvx::madd().  The situation for rsqrt() and rcp() is much much worse.  Code using any function from this file will break one day on a compiler/flag/user-cpu combo that we have not tested.  The particularly insidious part is the user-cpu aspect... we\u0027ll only get reports from the field about this.\n\n(It\u0027s worth noting that in my example, `unfused` won\u0027t always be zero.  I think even some finite inputs can make it NaN or Inf.)",
+      "parentUuid": "ec00c39e_4b888af7",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
