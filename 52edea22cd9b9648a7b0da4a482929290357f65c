@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30ad20a9_6ff516e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-28T13:31:49Z",
+      "side": 1,
+      "message": "To be clearer. Figuring out that the op memory pool was never used in all the call sites took longer than the edit.",
+      "parentUuid": "ddf63836_1fe15b76",
+      "revId": "52edea22cd9b9648a7b0da4a482929290357f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8cc73852_ff1bccb6",
