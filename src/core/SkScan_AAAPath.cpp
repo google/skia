@@ -25,7 +25,7 @@
 #include <utility>
 
 #if defined(SK_DISABLE_AAA)
-void SkScan::AAAFillPath(const SkPathView&, SkBlitter*, const SkIRect&, const SkIRect&, bool) {
+void SkScan::AAAFillPath(const SkPath&, SkBlitter*, const SkIRect&, const SkIRect&, bool) {
     SkDEBUGFAIL("AAA Disabled");
     return;
 }
@@ -1837,10 +1837,8 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
     }
 }
 
-#include "src/core/SkPathView.h"
-
 static SK_ALWAYS_INLINE void aaa_fill_path(
-        const SkPathView&   path,
+        const SkPath&    path,
         const SkIRect&   clipRect,
         AdditiveBlitter* blitter,
         int              start_y,
@@ -1916,7 +1914,7 @@ static SK_ALWAYS_INLINE void aaa_fill_path(
         // If we're using mask, then we have to limit the bound within the path bounds.
         // Otherwise, the edge drift may access an invalid address inside the mask.
         SkIRect ir;
-        path.fBounds.roundOut(&ir);
+        path.getBounds().roundOut(&ir);
         leftBound  = std::max(leftBound, SkIntToFixed(ir.fLeft));
         rightBound = std::min(rightBound, SkIntToFixed(ir.fRight));
     }
@@ -1932,11 +1930,11 @@ static SK_ALWAYS_INLINE void aaa_fill_path(
 
         // We skip intersection computation if there are many points which probably already
         // give us enough fractional scan lines.
-        bool skipIntersect = path.fPoints.count() > (stop_y - start_y) * 2;
+        bool skipIntersect = path.countPoints() > (stop_y - start_y) * 2;
 
         aaa_walk_edges(&headEdge,
                        &tailEdge,
-                       path.fFillType,
+                       path.getFillType(),
                        blitter,
                        start_y,
                        stop_y,
@@ -1949,7 +1947,7 @@ static SK_ALWAYS_INLINE void aaa_fill_path(
     }
 }
 
-void SkScan::AAAFillPath(const SkPathView& path,
+void SkScan::AAAFillPath(const SkPath&  path,
                          SkBlitter*     blitter,
                          const SkIRect& ir,
                          const SkIRect& clipBounds,

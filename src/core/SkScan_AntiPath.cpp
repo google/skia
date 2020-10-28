@@ -602,18 +602,18 @@ constexpr int kSampleSize = 8;
     constexpr SkScalar kComplexityThreshold = 0.25;
 #endif
 
-static void compute_complexity(const SkPathView& path, SkScalar& avgLength, SkScalar& complexity) {
-    int n = path.fPoints.count();
-    if (n < kSampleSize || path.fBounds.isEmpty()) {
+static void compute_complexity(const SkPath& path, SkScalar& avgLength, SkScalar& complexity) {
+    int n = path.countPoints();
+    if (n < kSampleSize || path.getBounds().isEmpty()) {
         // set to invalid value to indicate that we failed to compute
         avgLength = complexity = -1;
         return;
     }
 
     SkScalar sumLength = 0;
-    SkPoint lastPoint = path.fPoints[0];
+    SkPoint lastPoint = path.getPoint(0);
     for(int i = 1; i < kSampleSize; ++i) {
-        SkPoint point = path.fPoints[i];
+        SkPoint point = path.getPoint(i);
         sumLength += SkPoint::Distance(lastPoint, point);
         lastPoint = point;
     }
@@ -621,21 +621,21 @@ static void compute_complexity(const SkPathView& path, SkScalar& avgLength, SkSc
 
     auto sqr = [](SkScalar x) { return x*x; };
 
-    SkScalar diagonalSqr = sqr(path.fBounds.width()) + sqr(path.fBounds.height());
+    SkScalar diagonalSqr = sqr(path.getBounds().width()) + sqr(path.getBounds().height());
 
     // If the path consists of random line segments, the number of intersections should be
     // proportional to this.
     SkScalar intersections = sk_ieee_float_divide(sqr(n) * sqr(avgLength), diagonalSqr);
 
     // The number of intersections per scanline should be proportional to this number.
-    complexity = sk_ieee_float_divide(intersections, path.fBounds.height());
+    complexity = sk_ieee_float_divide(intersections, path.getBounds().height());
 
     if (sk_float_isnan(complexity)) {  // it may be possible to have 0.0 / 0.0; inf is fine for us.
         complexity = -1;
     }
 }
 
-static bool ShouldUseAAA(const SkPathView& path, SkScalar avgLength, SkScalar complexity) {
+static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar complexity) {
 #if defined(SK_DISABLE_AAA)
     return false;
 #else
@@ -650,16 +650,16 @@ static bool ShouldUseAAA(const SkPathView& path, SkScalar avgLength, SkScalar co
     }
 
     #ifdef SK_SUPPORT_LEGACY_AAA_CHOICE
-        const SkRect& bounds = path.fBounds;
+        const SkRect& bounds = path.getBounds();
         // When the path have so many points compared to the size of its
         // bounds/resolution, it indicates that the path is not quite smooth in
         // the current resolution: the expected number of turning points in
         // every pixel row/column is significantly greater than zero. Hence
         // Aanlytic AA is not likely to produce visible quality improvements,
         // and Analytic AA might be slower than supersampling.
-        return path.fPoints.count() < std::max(bounds.width(), bounds.height()) / 2 - 10;
+        return path.countPoints() < std::max(bounds.width(), bounds.height()) / 2 - 10;
     #else
-        if (path.fPoints.count() >= path.fBounds.height()) {
+        if (path.countPoints() >= path.getBounds().height()) {
             // SAA is faster than AAA in this case even if there are no
             // intersections because AAA will have too many scan lines. See
             // skbug.com/8272
@@ -671,7 +671,7 @@ static bool ShouldUseAAA(const SkPathView& path, SkScalar avgLength, SkScalar co
 #endif
 }
 
-void SkScan::SAAFillPath(const SkPathView& path, SkBlitter* blitter, const SkIRect& ir,
+void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
                   const SkIRect& clipBounds, bool forceRLE) {
     bool containedInClip = clipBounds.contains(ir);
     bool isInverse = path.isInverseFillType();
@@ -680,7 +680,7 @@ void SkScan::SAAFillPath(const SkPathView& path, SkBlitter* blitter, const SkIRe
     // if we're an inverse filltype
     if (!isInverse && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
         MaskSuperBlitter superBlit(blitter, ir, clipBounds, isInverse);
-        SkASSERT(SkIntToScalar(ir.fTop) <= path.fBounds.fTop);
+        SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, clipBounds, &superBlit, ir.fTop, ir.fBottom, SHIFT, containedInClip);
     } else {
         SuperBlitter superBlit(blitter, ir, clipBounds, isInverse);
@@ -711,14 +711,14 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, shift);
 }
 
-void SkScan::AntiFillPath(const SkPathView& path, const SkRegion& origClip,
+void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
                           SkBlitter* blitter, bool forceRLE) {
     if (origClip.isEmpty()) {
         return;
     }
 
     const bool isInverse = path.isInverseFillType();
-    SkIRect ir = safeRoundOut(path.fBounds);
+    SkIRect ir = safeRoundOut(path.getBounds());
     if (ir.isEmpty()) {
         if (isInverse) {
             blitter->blitRegion(origClip);
@@ -802,7 +802,7 @@ void SkScan::AntiFillPath(const SkPathView& path, const SkRegion& origClip,
 
 #include "src/core/SkRasterClip.h"
 
-void SkScan::FillPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
@@ -819,7 +819,7 @@ void SkScan::FillPath(const SkPathView& path, const SkRasterClip& clip, SkBlitte
     }
 }
 
-void SkScan::AntiFillPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isEmpty() || !path.isFinite()) {
         return;
     }

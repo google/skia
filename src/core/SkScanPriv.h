@@ -33,7 +33,7 @@ private:
     const SkIRect*      fClipRect;
 };
 
-void sk_fill_path(const SkPathView&, const SkIRect& clipRect,
+void sk_fill_path(const SkPath& path, const SkIRect& clipRect,
                   SkBlitter* blitter, int start_y, int stop_y, int shiftEdgesUp,
                   bool pathContainedInClip);
 
@@ -81,7 +81,7 @@ static EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
 }
 
 // Check if the path is a rect and fat enough after clipping; if so, blit it.
-static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPathView& path, const SkIRect& clip) {
+static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, const SkIRect& clip) {
     SkRect rect;
     if (!path.isRect(&rect)) {
         return false; // not rect

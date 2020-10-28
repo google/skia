@@ -507,7 +507,7 @@ void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int 
 }
 
 template <SkPaint::Cap capStyle>
-void hair_path(const SkPathView& path, const SkRasterClip& rclip, SkBlitter* blitter,
+void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter,
                       SkScan::HairRgnProc lineproc) {
     if (path.isEmpty()) {
         return;
@@ -521,7 +521,7 @@ void hair_path(const SkPathView& path, const SkRasterClip& rclip, SkBlitter* bli
 
     {
         const int capOut = SkPaint::kButt_Cap == capStyle ? 1 : 2;
-        const SkIRect ibounds = path.fBounds.roundOut().makeOutset(capOut, capOut);
+        const SkIRect ibounds = path.getBounds().roundOut().makeOutset(capOut, capOut);
         if (rclip.quickReject(ibounds)) {
             return;
         }
@@ -643,27 +643,27 @@ void hair_path(const SkPathView& path, const SkRasterClip& rclip, SkBlitter* bli
     }
 }
 
-void SkScan::HairPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::HairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kButt_Cap>(path, clip, blitter, SkScan::HairLineRgn);
 }
 
-void SkScan::AntiHairPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiHairPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kButt_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
 }
 
-void SkScan::HairSquarePath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::HairSquarePath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kSquare_Cap>(path, clip, blitter, SkScan::HairLineRgn);
 }
 
-void SkScan::AntiHairSquarePath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiHairSquarePath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kSquare_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
 }
 
-void SkScan::HairRoundPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::HairRoundPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kRound_Cap>(path, clip, blitter, SkScan::HairLineRgn);
 }
 
-void SkScan::AntiHairRoundPath(const SkPathView& path, const SkRasterClip& clip, SkBlitter* blitter) {
+void SkScan::AntiHairRoundPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     hair_path<SkPaint::kRound_Cap>(path, clip, blitter, SkScan::AntiHairLineRgn);
 }
 

@@ -9,7 +9,6 @@
 #define SkPathRef_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -24,7 +23,6 @@
 #include <limits>
 #include <tuple>
 
-struct SkPathView;
 class SkRBuffer;
 class SkWBuffer;
 
@@ -351,8 +349,6 @@ public:
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
-
-    SkPathView view(SkPathFillType, SkPathConvexity) const;
 
 private:
     enum SerializationOffsets {

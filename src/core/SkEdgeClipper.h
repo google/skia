@@ -10,7 +10,6 @@
 #define SkEdgeClipper_DEFINED
 
 #include "include/core/SkPath.h"
-#include "src/core/SkPathView.h"
 
 /** This is basically an iterator. It is initialized with an edge and a clip,
     and then next() is called until it returns kDone_Verb.
@@ -31,7 +30,7 @@ public:
      *  Clips each segment from the path, and passes the result (in a clipper) to the
      *  consume proc.
      */
-    static void ClipPath(const SkPathView& path, const SkRect& clip, bool canCullToTheRight,
+    static void ClipPath(const SkPath& path, const SkRect& clip, bool canCullToTheRight,
                          void (*consume)(SkEdgeClipper*, bool newCtr, void* ctx), void* ctx);
 
 private:

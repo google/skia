@@ -18,7 +18,6 @@
 class SkAutoPathBoundsUpdate;
 class SkData;
 class SkRRect;
-struct SkPathView;
 class SkWStream;
 
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/9000)
@@ -1539,8 +1538,6 @@ public:
         inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
     };
-
-    SkPathView view() const;
 
 private:
     /** \class SkPath::RangeIter
