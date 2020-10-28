@@ -965,7 +965,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             this->write(", constant Uniforms& _uniforms [[buffer(" +
                         to_string(fUniformBuffer) + ")]]");
         }
-        for (const auto& e : fProgram.elements()) {
+        for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
                 const VarDeclaration& var = decls.declaration()->as<VarDeclaration>();
@@ -1422,7 +1422,7 @@ void MetalCodeGenerator::writeHeader() {
 }
 
 void MetalCodeGenerator::writeUniformStruct() {
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
@@ -1455,7 +1455,7 @@ void MetalCodeGenerator::writeUniformStruct() {
 
 void MetalCodeGenerator::writeInputStruct() {
     this->write("struct Inputs {\n");
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
@@ -1488,7 +1488,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     } else if (fProgram.fKind == Program::kFragment_Kind) {
         this->write("    float4 sk_FragColor [[color(0)]];\n");
     }
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = decls.declaration()->as<VarDeclaration>().var();
@@ -1522,7 +1522,7 @@ void MetalCodeGenerator::writeOutputStruct() {
 
 void MetalCodeGenerator::writeInterfaceBlocks() {
     bool wroteInterfaceBlock = false;
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<InterfaceBlock>()) {
             this->writeInterfaceBlock(e->as<InterfaceBlock>());
             wroteInterfaceBlock = true;
@@ -1540,7 +1540,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
     for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
         visitor->VisitInterfaceBlock(*interfaceType, interfaceName);
     }
-    for (const auto& element : fProgram.elements()) {
+    for (const ProgramElement* element : fProgram.elements()) {
         if (!element->is<GlobalVarDeclaration>()) {
             continue;
         }
@@ -1843,7 +1843,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     auto found = fRequirements.find(&f);
     if (found == fRequirements.end()) {
         fRequirements[&f] = kNo_Requirements;
-        for (const auto& e : fProgram.elements()) {
+        for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<FunctionDefinition>()) {
                 const FunctionDefinition& def = e->as<FunctionDefinition>();
                 if (&def.declaration() == &f) {
@@ -1872,7 +1872,7 @@ bool MetalCodeGenerator::generateCode() {
     this->writeGlobalStruct();
     StringStream body;
     fOut = &body;
-    for (const auto& e : fProgram.elements()) {
+    for (const ProgramElement* e : fProgram.elements()) {
         this->writeProgramElement(*e);
     }
     fOut = rawOut;
