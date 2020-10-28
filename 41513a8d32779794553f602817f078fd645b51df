@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b6fa97c1_b3e41fa0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a3448bb_0fdf68c7",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 14
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5d8d1c5a_9666fdfb",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -55,6 +79,23 @@
       "side": 1,
       "message": "Hi Vignesh,\n\nThis looks like the right direction - I\u0027m glad it\u0027s going to be so simple! I have some inline suggestions. Let me know if you need any help!",
       "parentUuid": "5d8d1c5a_9666fdfb",
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a10c3358_a509b5db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "Thanks for the review Leon. Please take another look!",
       "revId": "41513a8d32779794553f602817f078fd645b51df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -200,6 +241,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14ac51a7_d7e43f64",
+        "filename": "include/core/SkEncodedImageFormat.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "yep i have a few other changes in flight as well for the android platform for AVIF support.",
+      "parentUuid": "5f57c6a0_fd878a81",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "644a5254_aa4f17ff",
@@ -213,6 +278,30 @@
       "writtenOn": "2020-10-28T15:31:10Z",
       "side": 1,
       "message": "(This will make more sense after reading my comments in SkHeifCodec.cpp.) This can be\n\n  if (auto format \u003d SkHeifCodec::IsSupported(buffer, bytesRead)) {\n    return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy,\n                                       format.value(), outResult);\n  }",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ceeb08e_a96baaf2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "644a5254_aa4f17ff",
       "range": {
         "startLine": 128,
         "startChar": 0,
@@ -246,6 +335,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17658048_94c04b60",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "I have used std::optional as the return type.\n\nIt is not possible to use the if condition structure that you have suggested since mif1 does not imply HEIF. AVIF files can also have the major brand as mif1. So i have kept the \"if\" structure that i had before.",
+      "parentUuid": "61b4f518_d0651eed",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "132d5afe_f39685c6",
@@ -269,6 +382,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e052af6_f15b866e",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "132d5afe_f39685c6",
+      "range": {
+        "startLine": 137,
+        "startChar": 50,
+        "endLine": 137,
+        "endChar": 61
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bf93ecfc_b8c26828",
@@ -282,6 +419,30 @@
       "writtenOn": "2020-10-28T15:31:10Z",
       "side": 1,
       "message": "This can be const.",
+      "range": {
+        "startLine": 91,
+        "startChar": 4,
+        "endLine": 91,
+        "endChar": 8
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "141b22af_cefee9fc",
+        "filename": "src/codec/SkHeifCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-28T22:42:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf93ecfc_b8c26828",
       "range": {
         "startLine": 91,
         "startChar": 4,
