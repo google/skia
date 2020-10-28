@@ -431,8 +431,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
     if (key.isValid()) {
         auto proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
         if (proxy) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
-                                     kLockTexturePathCount);
             GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
             if (mipMapped == GrMipmapped::kNo ||
@@ -461,8 +459,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         ScopedGenerator generator(fSharedGenerator);
         if (auto view = generator->generateTexture(rContext, this->imageInfo(), {0,0}, mipMapped,
                                                    texGenPolicy)) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
-                                     kLockTexturePathCount);
             installKey(view);
             return view;
         }
@@ -478,8 +474,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
                                       : SkBudgeted::kYes;
         auto view = this->textureProxyViewFromPlanes(rContext, budgeted);
         if (view) {
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
-                                     kLockTexturePathCount);
             installKey(view);
             return view;
         }
@@ -498,13 +492,10 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         auto view = bitmapMaker.view(mipMapped);
         if (view) {
             installKey(view);
-            SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
-                                     kLockTexturePathCount);
             return view;
         }
     }
 
-    SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath, kLockTexturePathCount);
     return {};
 }
 

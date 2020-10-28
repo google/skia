@@ -402,9 +402,6 @@ protected:
         return nullptr;
     }
 
-    // A helper function used by derived classes to log the scale factor of a bitmap or image draw.
-    static void LogDrawScaleFactor(const SkMatrix& view, const SkMatrix& srcToDst, SkFilterQuality);
-
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;

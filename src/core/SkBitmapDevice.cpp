@@ -448,8 +448,6 @@ void SkBitmapDevice::drawImageRect(const SkImage* image,
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
-    LogDrawScaleFactor(this->localToDevice(), matrix, paint.getFilterQuality());
-
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;
 
