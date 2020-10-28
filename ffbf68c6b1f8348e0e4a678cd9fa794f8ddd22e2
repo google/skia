@@ -85,6 +85,78 @@
       },
       "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e661f8e_d332c001",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-28T20:19:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bccd3d39_d7856dc0",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 9
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc432280_50ce81fa",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-28T20:19:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b62c946_35e52344",
+      "range": {
+        "startLine": 162,
+        "startChar": 47,
+        "endLine": 162,
+        "endChar": 52
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cff0ceb_006a185c",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-28T20:19:58Z",
+      "side": 1,
+      "message": "poor choice of words. Should read single color glyphs.",
+      "parentUuid": "1f356e93_519a469d",
+      "range": {
+        "startLine": 162,
+        "startChar": 90,
+        "endLine": 162,
+        "endChar": 91
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
