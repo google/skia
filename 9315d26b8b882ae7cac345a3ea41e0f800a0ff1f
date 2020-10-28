@@ -34,6 +34,24 @@
       "parentUuid": "f4bf2f01_de5afd39",
       "revId": "9315d26b8b882ae7cac345a3ea41e0f800a0ff1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95a7d97d_9ad001b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-28T17:27:54Z",
+      "side": 1,
+      "message": "That is correct. GrMemoryPool is actually used as the global allocator for all GrFP\u0027s (they really ought to be tied to a flush/recording lifecycle), but that suggests it works pretty well as a bounded, long-lived pool.\n\nIt will hold on to the last released block and re-attach it at the end of the block linked list. This prevents push-pop allocations at the end of a block from hammering malloc. Calling resetScratchSpace() will get fully delete it.",
+      "parentUuid": "6ee325e1_24436384",
+      "revId": "9315d26b8b882ae7cac345a3ea41e0f800a0ff1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
