@@ -16,6 +16,24 @@
       "message": "My read of GrMemoryPool is that it frees entire blocks once they\u0027re empty, so this will ensure that our recycled pool is of a fixed/minimal size?",
       "revId": "9315d26b8b882ae7cac345a3ea41e0f800a0ff1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ee325e1_24436384",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-28T17:15:42Z",
+      "side": 1,
+      "message": "Yes, that\u0027s my read as well--the initial \"prealloc\" storage exists forever (it\u0027s included in the GrMemoryPool\u0027s allocation) but additional blocks that it needs to allocate are freed as soon as they become empty. I added some temp logging to check recycled pool sizes and they were always 64K exactly.",
+      "parentUuid": "f4bf2f01_de5afd39",
+      "revId": "9315d26b8b882ae7cac345a3ea41e0f800a0ff1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
