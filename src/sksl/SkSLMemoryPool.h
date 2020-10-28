@@ -31,6 +31,7 @@ public:
     static std::unique_ptr<MemoryPool> Make(size_t, size_t) {
         return std::make_unique<MemoryPool>();
     }
+    void resetScratchSpace() {}
     void reportLeaks() const {}
     bool isEmpty() const { return true; }
     void* allocate(size_t size) { return ::operator new(size); }
