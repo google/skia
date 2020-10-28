@@ -717,9 +717,6 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // uses an effect to combine them dynamically on the GPU. This is done before requesting a
     // pinned texture proxy because YUV images force-flatten to RGBA in that scenario.
     if (as_IB(image)->isYUVA()) {
-        SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-
         GrYUVAImageTextureMaker maker(fContext.get(), image);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
@@ -732,9 +729,6 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     uint32_t pinnedUniqueID;
     if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
                                                               &pinnedUniqueID)) {
-        SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-        LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
-
         GrColorInfo colorInfo;
         if (fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
             SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
@@ -775,9 +769,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             // sending to the GPU.
             SkBitmap bm;
             if (as_IB(image)->getROPixels(nullptr, &bm)) {
-                // This is the funnel for all paths that draw tiled bitmaps/images. Log histogram
-                SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
-                LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
+                // This is the funnel for all paths that draw tiled bitmaps/images.
                 draw_tiled_bitmap(fContext.get(), fRenderTargetContext.get(), clip, bm, tileSize,
                                   matrixProvider, srcToDst, src, clippedSubset, paint, aa,
                                   constraint, {wrapMode, fm, mm}, bicubic);
@@ -785,10 +777,6 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             }
         }
     }
-
-    // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
-    SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
-    LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
