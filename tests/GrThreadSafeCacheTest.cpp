@@ -70,6 +70,10 @@ static void create_vert_key(GrUniqueKey* key, int wh, int id) {
     }
 }
 
+static bool is_newer_better(SkData* incumbent, SkData* challenger) {
+    return false;
+}
+
 // When testing views we create a bitmap that covers the entire screen and has an inset blue rect
 // atop a field of white.
 // When testing verts we clear the background to white and simply draw an inset blur rect.
@@ -494,7 +498,8 @@ private:
 
             fVertexData = GrThreadSafeCache::MakeVertexData(verts, 4, kVertSize);
 
-            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData);
+            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData,
+                                                                      is_newer_better);
             if (tmpV != fVertexData) {
                 // Someone beat us to creating the vertex data. Use that version.
                 fVertexData = tmpV;
