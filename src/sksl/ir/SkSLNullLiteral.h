@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * Represents 'null'.
  */
-class NullLiteral : public Expression {
+class NullLiteral final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kNullLiteral;
 

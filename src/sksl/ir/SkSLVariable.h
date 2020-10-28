@@ -30,7 +30,7 @@ enum class VariableStorage : int8_t {
  * variable itself (the storage location), which is shared between all VariableReferences which
  * read or write that storage location.
  */
-class Variable : public Symbol {
+class Variable final : public Symbol {
 public:
     using Storage = VariableStorage;
 

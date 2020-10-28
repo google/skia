@@ -18,7 +18,7 @@ namespace SkSL {
  * A no-op statement that indicates that a function was inlined here. This is necessary to detect
  * and prevent runaway infinite recursion. This node doesn't directly generate code.
  */
-class InlineMarker : public Statement {
+class InlineMarker final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kInlineMarker;
 

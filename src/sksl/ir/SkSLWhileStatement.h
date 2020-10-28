@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'while' loop.
  */
-struct WhileStatement : public Statement {
+struct WhileStatement final : public Statement {
     static constexpr Kind kStatementKind = Kind::kWhile;
 
     WhileStatement(int offset, std::unique_ptr<Expression> test,

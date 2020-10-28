@@ -17,7 +17,7 @@ namespace SkSL {
  * Represents an identifier referring to a type. This is an intermediate value: TypeReferences are
  * always eventually replaced by Constructors in valid programs.
  */
-class TypeReference : public Expression {
+class TypeReference final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kTypeReference;
 

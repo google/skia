@@ -17,7 +17,7 @@ namespace SkSL {
 /**
  * An expression modified by a unary operator appearing after it, such as 'i++'.
  */
-class PostfixExpression : public Expression {
+class PostfixExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kPostfix;
 

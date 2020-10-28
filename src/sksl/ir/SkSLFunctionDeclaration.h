@@ -23,7 +23,7 @@ class FunctionDefinition;
 /**
  * A function declaration (not a definition -- does not contain a body).
  */
-class FunctionDeclaration : public Symbol {
+class FunctionDeclaration final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 

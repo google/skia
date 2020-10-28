@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A block of multiple statements functioning as a single statement.
  */
-class Block : public Statement {
+class Block final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kBlock;
 

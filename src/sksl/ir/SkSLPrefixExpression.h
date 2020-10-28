@@ -19,7 +19,7 @@ namespace SkSL {
 /**
  * An expression modified by a unary operator appearing before it, such as '!flag'.
  */
-class PrefixExpression : public Expression {
+class PrefixExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kPrefix;
 

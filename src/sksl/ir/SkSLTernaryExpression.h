@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A ternary expression (test ? ifTrue : ifFalse).
  */
-class TernaryExpression : public Expression {
+class TernaryExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kTernary;
 

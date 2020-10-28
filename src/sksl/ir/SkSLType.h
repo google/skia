@@ -53,7 +53,7 @@ struct CoercionCost {
 /**
  * Represents a type, such as int or float4.
  */
-class Type : public Symbol {
+class Type final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kType;
 

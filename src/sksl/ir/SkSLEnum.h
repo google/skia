@@ -20,7 +20,7 @@ namespace SkSL {
 
 class Symbol;
 
-class Enum : public ProgramElement {
+class Enum final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kEnum;
 

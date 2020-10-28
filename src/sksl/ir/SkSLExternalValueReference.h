@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * Represents an identifier referring to an ExternalValue.
  */
-class ExternalValueReference : public Expression {
+class ExternalValueReference final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kExternalValue;
 

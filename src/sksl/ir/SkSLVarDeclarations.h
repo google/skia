@@ -20,7 +20,7 @@ namespace SkSL {
  * separate (sequential) statements. For instance, the SkSL 'int x = 2, y[3];' produces two
  * VarDeclaration instances (wrapped in an unscoped Block).
  */
-class VarDeclaration : public Statement {
+class VarDeclaration final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kVarDeclaration;
 
@@ -103,7 +103,7 @@ public:
  * A variable declaration appearing at global scope. A global declaration like 'int x, y;' produces
  * two GlobalVarDeclaration elements, each containing the declaration of one variable.
  */
-class GlobalVarDeclaration : public ProgramElement {
+class GlobalVarDeclaration final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 

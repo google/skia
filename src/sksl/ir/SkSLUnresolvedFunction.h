@@ -15,7 +15,7 @@ namespace SkSL {
 /**
  * A symbol representing multiple functions with the same name.
  */
-class UnresolvedFunction : public Symbol {
+class UnresolvedFunction final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
 

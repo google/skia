@@ -26,7 +26,7 @@ namespace SkSL {
  * Matrix constructors will always consist of either exactly 1 scalar, exactly 1 matrix, or a
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
-class Constructor : public Expression {
+class Constructor final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 

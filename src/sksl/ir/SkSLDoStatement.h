@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'do' statement.
  */
-class DoStatement : public Statement {
+class DoStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kDo;
 

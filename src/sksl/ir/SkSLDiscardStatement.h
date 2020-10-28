@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A 'discard' statement.
  */
-class DiscardStatement : public Statement {
+class DiscardStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kDiscard;
 

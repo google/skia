@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * An 'if' statement.
  */
-struct IfStatement : public Statement {
+struct IfStatement final : public Statement {
     static constexpr Kind kStatementKind = Kind::kIf;
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
