@@ -3169,34 +3169,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
     std::set<SpvId> interfaceVars;
-    // assign IDs to functions, determine sk_in size
-    int skInSize = -1;
+    // assign IDs to functions
     for (const auto& e : program.elements()) {
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = e->as<FunctionDefinition>();
                 fFunctionMap[&f.declaration()] = this->nextId();
-                break;
-            }
-            case ProgramElement::Kind::kModifiers: {
-                const Modifiers& m = e->as<ModifiersDeclaration>().modifiers();
-                if (m.fFlags & Modifiers::kIn_Flag) {
-                    switch (m.fLayout.fPrimitive) {
-                        case Layout::kPoints_Primitive: // break
-                        case Layout::kLines_Primitive:
-                            skInSize = 1;
-                            break;
-                        case Layout::kLinesAdjacency_Primitive: // break
-                            skInSize = 2;
-                            break;
-                        case Layout::kTriangles_Primitive: // break
-                        case Layout::kTrianglesAdjacency_Primitive:
-                            skInSize = 3;
-                            break;
-                        default:
-                            break;
-                    }
-                }
                 break;
             }
             default:
@@ -3205,13 +3183,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const auto& e : program.elements()) {
         if (e->is<InterfaceBlock>()) {
-            InterfaceBlock& intf = e->as<InterfaceBlock>();
-            const Modifiers& modifiers = intf.variable().modifiers();
-            if (SK_IN_BUILTIN == modifiers.fLayout.fBuiltin) {
-                SkASSERT(skInSize != -1);
-                intf.sizes().emplace_back(new IntLiteral(fContext, -1, skInSize));
-            }
+            const InterfaceBlock& intf = e->as<InterfaceBlock>();
             SpvId id = this->writeInterfaceBlock(intf);
+
+            const Modifiers& modifiers = intf.variable().modifiers();
             if (((modifiers.fFlags & Modifiers::kIn_Flag) ||
                 (modifiers.fFlags & Modifiers::kOut_Flag)) &&
                 modifiers.fLayout.fBuiltin == -1 &&
