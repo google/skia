@@ -34,6 +34,12 @@ GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize)
 }
 
 GrMemoryPool::~GrMemoryPool() {
+    this->reportLeaks();
+    SkASSERT(0 == fAllocationCount);
+    SkASSERT(this->isEmpty());
+}
+
+void GrMemoryPool::reportLeaks() const {
 #ifdef SK_DEBUG
     int i = 0;
     int n = fAllocatedIDs.count();
@@ -47,8 +53,6 @@ GrMemoryPool::~GrMemoryPool() {
         }
     });
 #endif
-    SkASSERT(0 == fAllocationCount);
-    SkASSERT(this->isEmpty());
 }
 
 void* GrMemoryPool::allocate(size_t size) {
