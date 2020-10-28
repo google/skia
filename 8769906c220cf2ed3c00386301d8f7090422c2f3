@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7b4c76ca_a1d6f21f",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-28T15:08:31Z",
+      "side": 1,
+      "message": "IIUC yes. The LSB difference come from the fact that FMA is more precise than doing the two operations separately.",
+      "parentUuid": "e4785767_1d1d3965",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "126c1098_caf07731",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-28T15:08:31Z",
+      "side": 1,
+      "message": "Empirically by the unit tests :-\\\n\nAlthough the accuracy of GRVX_FAST_ACOS_MAX_ERROR is a mathematical proof.",
+      "parentUuid": "8add1963_dfc3a28e",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 43
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0d082c2f_96fc2123",
         "filename": "tests/GrVxTest.cpp",
         "patchSetId": 6
@@ -60,6 +108,24 @@
       "writtenOn": "2020-10-28T14:18:54Z",
       "side": 1,
       "message": "Generally: It\u0027s pretty tough to figure out what values are being tested here. How slow is this if we just use nextafterf to clearly iterate over all floats in our desired input range (and test them one-at-a-time)?",
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba622a37_99c83d1a",
+        "filename": "tests/GrVxTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-28T15:08:31Z",
+      "side": 1,
+      "message": "Our entire input range is almost almost all 2^32 floats, and would take too long for a unit test. The goal here is to test every mantissa once with a pseudo-random exponent. Would a comment to that effect be helpful?",
+      "parentUuid": "0d082c2f_96fc2123",
       "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
