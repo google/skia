@@ -38,6 +38,7 @@ public:
     bool parseFontSize(SkSVGFontSize*);
     bool parseFontStyle(SkSVGFontStyle*);
     bool parseFontWeight(SkSVGFontWeight*);
+    bool parseTextAnchor(SkSVGTextAnchor*);
 
 private:
     // Stack-only

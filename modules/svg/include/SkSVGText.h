@@ -8,7 +8,6 @@
 #ifndef SkSVGText_DEFINED
 #define SkSVGText_DEFINED
 
-#include "include/core/SkFont.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/svg/include/SkSVGTransformableNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
@@ -21,10 +20,9 @@ class SkSVGText final : public SkSVGTransformableNode {
   static sk_sp<SkSVGText> Make() {
     return sk_sp<SkSVGText>(new SkSVGText()); }
 
-  void setX(const SkSVGLength&);
-  void setY(const SkSVGLength&);
-  void setText(const SkSVGStringType&);
-  void setTextAnchor(const SkSVGStringType&);
+  SVG_ATTR(X   , SkSVGLength    , SkSVGLength(0))
+  SVG_ATTR(Y   , SkSVGLength    , SkSVGLength(0))
+  SVG_ATTR(Text, SkSVGStringType, SkSVGStringType())
 
  protected:
   void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
@@ -40,12 +38,6 @@ class SkSVGText final : public SkSVGTransformableNode {
   SkSVGText();
 
   SkFont resolveFont(const SkSVGRenderContext&) const;
-
-  SkSVGLength        fX = SkSVGLength(0);
-  SkSVGLength        fY = SkSVGLength(0);
-  SkSVGStringType    fText;
-  sk_sp<SkTypeface>  fTypeface;
-  SkTextUtils::Align fTextAlign = SkTextUtils::Align::kLeft_Align;
 
   using INHERITED = SkSVGTransformableNode;
 };

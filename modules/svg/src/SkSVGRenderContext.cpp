@@ -302,6 +302,13 @@ void commitToPaint<SkSVGAttribute::kFontWeight>(const SkSVGPresentationAttribute
     // Not part of the SkPaint state; applied at render time.
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kTextAnchor>(const SkSVGPresentationAttributes&,
+                                                const SkSVGRenderContext&,
+                                                SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied at render time.
+}
+
 }  // namespace
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -403,6 +410,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeMiterLimit);
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
+    ApplyLazyInheritedAttribute(TextAnchor);
     ApplyLazyInheritedAttribute(Visibility);
     ApplyLazyInheritedAttribute(Color);
 

@@ -238,6 +238,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setStrokeWidth(*strokeWidth);
         }
         break;
+    case SkSVGAttribute::kTextAnchor:
+        if (const SkSVGTextAnchorValue* anchor = v.as<SkSVGTextAnchorValue>()) {
+            this->setTextAnchor(*anchor);
+        }
+        break;
     case SkSVGAttribute::kVisibility:
         if (const SkSVGVisibilityValue* visibility = v.as<SkSVGVisibilityValue>()) {
             this->setVisibility(*visibility);

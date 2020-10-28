@@ -99,6 +99,7 @@ public:
     SVG_PRES_ATTR(FontStyle , SkSVGFontStyle , true)
     SVG_PRES_ATTR(FontSize  , SkSVGFontSize  , true)
     SVG_PRES_ATTR(FontWeight, SkSVGFontWeight, true)
+    SVG_PRES_ATTR(TextAnchor, SkSVGTextAnchor, true)
 
 protected:
     SkSVGNode(SkSVGTag);

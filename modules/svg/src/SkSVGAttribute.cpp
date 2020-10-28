@@ -31,7 +31,8 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     result.fFontFamily.init("Sans");
     result.fFontStyle.init(SkSVGFontStyle::Type::kNormal);
     result.fFontSize.init(SkSVGLength(24));
-    result.fFontWeight.init(SkSVGFontWeight(SkSVGFontWeight::Type::kNormal));
+    result.fFontWeight.init(SkSVGFontWeight::Type::kNormal);
+    result.fTextAnchor.init(SkSVGTextAnchor::Type::kStart);
 
     return result;
 }
