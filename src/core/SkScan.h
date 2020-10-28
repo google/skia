@@ -11,13 +11,12 @@
 
 #include "include/core/SkRect.h"
 #include "include/private/SkFixed.h"
-#include "src/core/SkPathView.h"
-
 #include <atomic>
 
 class SkRasterClip;
 class SkRegion;
 class SkBlitter;
+class SkPath;
 
 /** Defines a fixed-point rectangle, identical to the integer SkIRect, but its
     coordinates are treated as SkFixed rather than int32_t.
@@ -40,7 +39,7 @@ public:
     typedef void (*HairRgnProc)(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     typedef void (*HairRCProc)(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
 
-    static void FillPath(const SkPathView&, const SkIRect&, SkBlitter*);
+    static void FillPath(const SkPath&, const SkIRect&, SkBlitter*);
 
     ///////////////////////////////////////////////////////////////////////////
     // rasterclip
@@ -50,8 +49,8 @@ public:
     static void FillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
-    static void FillPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void AntiFillPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
+    static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -61,15 +60,15 @@ public:
     static void AntiHairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
     static void HairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
-    static void HairPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void HairSquarePath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairSquarePath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void HairRoundPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairRoundPath(const SkPathView&, const SkRasterClip&, SkBlitter*);
+    static void HairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void HairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
 
     // Needed by do_fill_path in SkScanPriv.h
-    static void FillPath(const SkPathView&, const SkRegion& clip, SkBlitter*);
+    static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
 private:
     friend class SkAAClip;
@@ -80,16 +79,16 @@ private:
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillXRect(const SkXRect&, const SkRegion*, SkBlitter*);
-    static void AntiFillPath(const SkPathView&, const SkRegion& clip, SkBlitter*, bool forceRLE);
+    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*, bool forceRLE);
     static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
 
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRegion*, SkBlitter*);
     static void HairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
-    static void AAAFillPath(const SkPathView& path, SkBlitter* blitter, const SkIRect& pathIR,
+    static void AAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool forceRLE);
-    static void SAAFillPath(const SkPathView& path, SkBlitter* blitter, const SkIRect& pathIR,
+    static void SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool forceRLE);
 };
 
