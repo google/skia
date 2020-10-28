@@ -37,19 +37,6 @@ public:
             const SkImageInfo& info, SkIRect cropRect, sk_sp<SkPicture> postProcess);
 
     /**
-     *  Create an SkAnimatedImage from the SkAndroidCodec.
-     *
-     *  Returns null on failure to allocate pixels. On success, this will
-     *  decode the first frame.
-     *
-     *  @param scaledSize Size to draw the image, possibly requiring scaling.
-     *  @param cropRect Rectangle to crop to after scaling.
-     *  @param postProcess Picture to apply after scaling and cropping.
-     */
-    static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>,
-            SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess);
-
-    /**
      *  Simpler version that uses the default size, no cropping, and no postProcess.
      */
     static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>);

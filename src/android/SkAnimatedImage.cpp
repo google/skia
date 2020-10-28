@@ -19,15 +19,6 @@
 #include <utility>
 
 sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,
-        SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess) {
-    if (!codec) {
-        return nullptr;
-    }
-    auto info = codec->getInfo().makeDimensions(scaledSize);
-    return Make(std::move(codec), info, cropRect, std::move(postProcess));
-}
-
-sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,
         const SkImageInfo& requestedInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess) {
     if (!codec) {
         return nullptr;
