@@ -355,7 +355,7 @@ bool HCodeGenerator::generateCode() {
                  "class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());
-    for (const auto& p : fProgram.elements()) {
+    for (const ProgramElement* p : fProgram.elements()) {
         if (p->is<Enum>() && !p->as<Enum>().isSharedWithCpp()) {
             this->writef("%s\n", p->as<Enum>().code().c_str());
         }

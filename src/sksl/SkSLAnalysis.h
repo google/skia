@@ -66,8 +66,6 @@ class TProgramVisitor {
 public:
     virtual ~TProgramVisitor() = default;
 
-    bool visit(PROG program);
-
 protected:
     virtual bool visitExpression(EXPR expression);
     virtual bool visitStatement(STMT statement);
@@ -86,8 +84,14 @@ extern template class TProgramVisitor<Program&, Expression&, Statement&, Program
 #pragma clang diagnostic pop
 #endif
 
-using ProgramVisitor = TProgramVisitor<const Program&, const Expression&,
-                                       const Statement&, const ProgramElement&>;
+class ProgramVisitor : public TProgramVisitor<const Program&,
+                                              const Expression&,
+                                              const Statement&,
+                                              const ProgramElement&> {
+public:
+    bool visit(const Program& program);
+};
+
 using ProgramWriter = TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
 
 }  // namespace SkSL
