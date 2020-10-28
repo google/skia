@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A no-op statement that does nothing.
  */
-class Nop : public Statement {
+class Nop final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kNop;
 

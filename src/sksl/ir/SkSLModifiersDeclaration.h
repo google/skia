@@ -18,7 +18,7 @@ namespace SkSL {
  *
  * layout(blend_support_all_equations) out;
  */
-class ModifiersDeclaration : public ProgramElement {
+class ModifiersDeclaration final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kModifiers;
 

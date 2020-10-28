@@ -46,7 +46,7 @@ static inline bool check_ref(const Expression& expr) {
 /**
  * A binary operation.
  */
-class BinaryExpression : public Expression {
+class BinaryExpression final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBinary;
 

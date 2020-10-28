@@ -21,7 +21,7 @@ namespace SkSL {
  * whenever a bare reference to an identifier should refer to a struct field; in GLSL, this is the
  * result of declaring anonymous interface blocks.
  */
-class Field : public Symbol {
+class Field final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kField;
 

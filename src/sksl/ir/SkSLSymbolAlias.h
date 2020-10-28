@@ -15,7 +15,7 @@ namespace SkSL {
 /**
  * A symbol representing a new name for an existing symbol.
  */
-class SymbolAlias : public Symbol {
+class SymbolAlias final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kSymbolAlias;
 

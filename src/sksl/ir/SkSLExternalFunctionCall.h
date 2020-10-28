@@ -18,7 +18,7 @@ namespace SkSL {
 /**
  * An external function invocation.
  */
-class ExternalFunctionCall : public Expression {
+class ExternalFunctionCall final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 

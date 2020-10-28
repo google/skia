@@ -24,7 +24,7 @@ namespace SkSL {
  *
  * At the IR level, this is represented by a single variable of struct type.
  */
-class InterfaceBlock : public ProgramElement {
+class InterfaceBlock final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 

@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * Represents 'true' or 'false'.
  */
-class BoolLiteral : public Expression {
+class BoolLiteral final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 

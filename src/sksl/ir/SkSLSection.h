@@ -15,7 +15,7 @@ namespace SkSL {
 /**
  * A section declaration (e.g. @body { body code here })..
  */
-class Section : public ProgramElement {
+class Section final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kSection;
 
