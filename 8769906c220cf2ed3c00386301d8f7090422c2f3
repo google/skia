@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ec00c39e_4b888af7",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-28T15:09:47Z",
+      "side": 1,
+      "message": "Yeah, an FMA always works as if,\n\n   infinite_precision_float p \u003d x*y;\n   return (float)(p + z);\n\nit\u0027s usually, but not quite always, the same result you\u0027d get by doing\n\n   double p \u003d x*y;\n   return (float)(p + z);\n\nPrecision is not my main concern with these types of underspecified functions... it\u0027s the unpredictability.  We\u0027ve had bugs with expressions like sqrt(1-fma(...)) where everything is fine when fused (or unfused) but explodes when unfused (or fused).  Same for rsqrt, rcp.",
+      "parentUuid": "e4785767_1d1d3965",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
@@ -84,6 +108,30 @@
       "writtenOn": "2020-10-28T15:08:31Z",
       "side": 1,
       "message": "Empirically by the unit tests :-\\\n\nAlthough the accuracy of GRVX_FAST_ACOS_MAX_ERROR is a mathematical proof.",
+      "parentUuid": "8add1963_dfc3a28e",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 43
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4cae3e0_53361bb3",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-28T15:09:47Z",
+      "side": 1,
+      "message": "The minimum precision of these intrinsics is spec\u0027d on intel, but not the maximum, and the intrinsics sometimes generate different instructions depending on compiler settings.  Even the same instruction can deliver different results on different CPUs, most easily seen running on AMD CPUs, but even between Intel chips.\n\nI suspect the situation for ARM (with even more chip diversity) is worse than that, but I don\u0027t know it off the top of my head.",
       "parentUuid": "8add1963_dfc3a28e",
       "range": {
         "startLine": 51,
