@@ -2987,6 +2987,11 @@ private:
                 SkScalarInvert(rrect.fInnerYRadius)
             };
 
+            // If the stroke width is exactly double the radius, the inner radii will be zero.
+            // Pin to a large value, to avoid infinities in the shader. crbug.com/1139750
+            reciprocalRadii[2] = std::min(reciprocalRadii[2], 1e6f);
+            reciprocalRadii[3] = std::min(reciprocalRadii[3], 1e6f);
+
             // Extend the radii out half a pixel to antialias.
             SkScalar xOuterRadius = rrect.fXRadius + SK_ScalarHalf;
             SkScalar yOuterRadius = rrect.fYRadius + SK_ScalarHalf;
