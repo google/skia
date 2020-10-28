@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddf63836_1fe15b76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-28T13:17:58Z",
+      "side": 1,
+      "message": "I think we should do the change. We can go back to a structure when that happens. The editing for this change didn\u0027t take that long compared to trying to understand where all parameters flow.",
+      "parentUuid": "3ca32d4e_1f0ba58f",
+      "revId": "52edea22cd9b9648a7b0da4a482929290357f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8cc73852_ff1bccb6",
