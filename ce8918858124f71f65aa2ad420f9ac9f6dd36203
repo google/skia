@@ -16,6 +16,46 @@
       "message": "This has been updated. PTAL",
       "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9182fe84_2ee25b48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-28T18:15:10Z",
+      "side": 1,
+      "message": "Seems ok for ES. Have you checked the desktop GL spec to make sure we don\u0027t need these checks there?",
+      "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60db632f_050b9821",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3196,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-28T18:15:10Z",
+      "side": 1,
+      "message": "affect",
+      "range": {
+        "startLine": 3196,
+        "startChar": 37,
+        "endLine": 3196,
+        "endChar": 43
+      },
+      "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
