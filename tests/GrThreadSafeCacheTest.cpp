@@ -10,6 +10,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/private/SkMalloc.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkMessageBus.h"
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -70,6 +71,18 @@ static void create_vert_key(GrUniqueKey* key, int wh, int id) {
     }
 }
 
+static bool default_is_newer_better(SkData* incumbent, SkData* challenger) {
+    SkASSERT(0); // the default version should never actually be used
+    return false;
+}
+
+int foo = 0;
+
+static bool newer_is_always_better(SkData* incumbent, SkData* challenger) {
+    ++foo;
+    return true;
+}
+
 // When testing views we create a bitmap that covers the entire screen and has an inset blue rect
 // atop a field of white.
 // When testing verts we clear the background to white and simply draw an inset blur rect.
@@ -102,7 +115,10 @@ public:
         int fNumHWCreations = 0;
     };
 
-    TestHelper(GrDirectContext* dContext) : fDContext(dContext) {
+    TestHelper(GrDirectContext* dContext,
+               GrThreadSafeCache::IsNewerBetter isNewerBetter = default_is_newer_better)
+            : fDContext(dContext)
+            , fIsNewerBetter(isNewerBetter) {
 
         fDst = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, default_ii(kImageWH));
         SkAssertResult(fDst);
@@ -384,6 +400,7 @@ private:
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
+    GrThreadSafeCache::IsNewerBetter fIsNewerBetter;
 
     sk_sp<SkSurface> fDst;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
@@ -395,22 +412,25 @@ public:
     DEFINE_OP_CLASS_ID
 
     static GrOp::Owner Make(GrRecordingContext* rContext, TestHelper::Stats* stats,
-                            int wh, int id, bool failLookup, bool failFillingIn) {
+                            int wh, int id, bool failLookup, bool failFillingIn,
+                            GrThreadSafeCache::IsNewerBetter isNewerBetter) {
 
         return GrOp::Make<GrThreadSafeVertexTestOp>(
-                rContext, rContext, stats, wh, id, failLookup, failFillingIn);
+                rContext, rContext, stats, wh, id, failLookup, failFillingIn, isNewerBetter);
     }
 
 private:
     friend class GrOp; // for ctor
 
     GrThreadSafeVertexTestOp(GrRecordingContext* rContext, TestHelper::Stats* stats, int wh, int id,
-                             bool failLookup, bool failFillingIn)
+                             bool failLookup, bool failFillingIn,
+                             GrThreadSafeCache::IsNewerBetter isNewerBetter)
             : INHERITED(ClassID())
             , fStats(stats)
             , fWH(wh)
             , fID(id)
-            , fFailFillingIn(failFillingIn) {
+            , fFailFillingIn(failFillingIn)
+            , fIsNewerBetter(isNewerBetter) {
         this->setBounds(SkRect::MakeIWH(fWH, fWH), HasAABloat::kNo, IsHairline::kNo);
 
         // Normally we wouldn't add a ref to the vertex data at this point. However, it is
@@ -494,7 +514,8 @@ private:
 
             fVertexData = GrThreadSafeCache::MakeVertexData(verts, 4, kVertSize);
 
-            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData);
+            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData,
+                                                                      fIsNewerBetter);
             if (tmpV != fVertexData) {
                 // Someone beat us to creating the vertex data. Use that version.
                 fVertexData = tmpV;
@@ -559,13 +580,14 @@ private:
         flushState->draw(4, 0);
     }
 
-    TestHelper::Stats* fStats;
-    int                fWH;
-    int                fID;
-    bool               fFailFillingIn;
+    TestHelper::Stats*               fStats;
+    int                              fWH;
+    int                              fID;
+    bool                             fFailFillingIn;
+    GrThreadSafeCache::IsNewerBetter fIsNewerBetter;
 
     sk_sp<GrThreadSafeCache::VertexData> fVertexData;
-    GrProgramInfo*     fProgramInfo = nullptr;
+    GrProgramInfo*                   fProgramInfo = nullptr;
 
     using INHERITED = GrDrawOp;
 };
@@ -578,7 +600,8 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
 
     rtc->priv().testingOnly_addDrawOp(GrThreadSafeVertexTestOp::Make(rContext,
                                                                      &fStats, wh, id,
-                                                                     failLookup, failFillingIn));
+                                                                     failLookup, failFillingIn,
+                                                                     fIsNewerBetter));
 }
 
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
@@ -1371,4 +1394,83 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14, reporter, ctxInfo) {
             ctxInfo.directContext()->purgeUnlockedResources(/* scratchResourcesOnly */ false);
         }
     }
+}
+
+// Case 15: Test out posting invalidation messages that involve the thread safe cache
+static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                    TestHelper::addAccessFP addAccess,
+                    TestHelper::checkFP check,
+                    void (*create_key)(GrUniqueKey*, int wh, int id)) {
+
+    TestHelper helper(dContext);
+
+    (helper.*addAccess)(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas1(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    GrUniqueKey key;
+    (*create_key)(&key, kImageWH, kNoID);
+
+    GrUniqueKeyInvalidatedMessage msg(key, dContext->priv().contextID(),
+                                      /* inThreadSafeCache */ true);
+
+    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
+
+    // This purge call is needed to process the invalidation messages
+    dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    (helper.*addAccess)(helper.ddlCanvas2(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, (helper.*check)(helper.ddlCanvas2(), kImageWH,
+                                              /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    helper.checkImage(reporter, std::move(ddl1));
+    helper.checkImage(reporter, std::move(ddl2));
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15View, reporter, ctxInfo) {
+    test_15(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView,
+            create_view_key);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) {
+    test_15(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert,
+            create_vert_key);
+}
+
+// Case 16: Test out pre-emption of an existing vertex-data cache entry. This test simulates
+//          the case where there is a race to create vertex data. However, the second one
+//          to finish is better and usurps the first's position in the cache.
+//
+//          This capability isn't available for views.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts, reporter, ctxInfo) {
+
+    foo = 0;
+    TestHelper helper(ctxInfo.directContext(), newer_is_always_better);
+
+    helper.addVertAccess(helper.ddlCanvas1(), kImageWH, kNoID, false, false);
+    REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, foo == 0);
+
+    helper.addVertAccess(helper.ddlCanvas2(), kImageWH, kNoID, /* failLookup */ true, false);
+    REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, foo == 1);
+
+    helper.checkImage(reporter, std::move(ddl1));
+    helper.checkImage(reporter, std::move(ddl2));
 }
