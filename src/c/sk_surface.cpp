@@ -273,7 +273,7 @@ void sk_canvas_scale(sk_canvas_t* ccanvas, float sx, float sy) {
     AsCanvas(ccanvas)->scale(sx, sy);
 }
 
-void sk_canvas_rotate_degress(sk_canvas_t* ccanvas, float degrees) {
+void sk_canvas_rotate_degrees(sk_canvas_t* ccanvas, float degrees) {
     AsCanvas(ccanvas)->rotate(degrees);
 }
 
