@@ -129,6 +129,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceb5ffd6_d7bad7fc",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T16:28:49Z",
+      "side": 1,
+      "message": "Sorry for the double comment. (I think I may have triggered a Gerrit bug...)",
+      "parentUuid": "aeae59a0_d37cb7c8",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eac9111_49b61fd4",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-28T16:28:49Z",
+      "side": 1,
+      "message": "Ah, good to know. Then keeping the existing name sounds good to me.",
+      "parentUuid": "2f2cccee_c9ef2a22",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f57c6a0_fd878a81",
