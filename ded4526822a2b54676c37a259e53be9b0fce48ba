@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd8ab6cd_28581681",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-28T19:03:32Z",
+      "side": 1,
+      "message": "I tried to verify this locally, except that Vulkan still has GS disabled. Forcing it to be enabled, then running with --cc, I was able to get the old code to trigger, but then my (Intel) device immediately complained in the debug layers.",
+      "revId": "ded4526822a2b54676c37a259e53be9b0fce48ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
