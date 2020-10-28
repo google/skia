@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28393c4f_b904b649",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5652
+      },
+      "writtenOn": "2020-10-28T18:35:41Z",
+      "side": 1,
+      "message": "I\u0027m good with the change, modulo Brian\u0027s comment.\n\nNote that I landed the fix for the original issue here:\nhttps://chromium-review.googlesource.com/c/chromium/src/+/2499264\n\nwhich means the tests I was trying to fix already pass, so it\u0027s up to you to see if you want to land this in Skia, although it looks like an improvement to me, so I\u0027m in favor of landing this.\n",
+      "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60db632f_050b9821",
