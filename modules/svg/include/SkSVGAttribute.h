@@ -95,6 +95,7 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGFontStyle>  fFontStyle;
     SkTLazy<SkSVGFontSize>   fFontSize;
     SkTLazy<SkSVGFontWeight> fFontWeight;
+    SkTLazy<SkSVGTextAnchor> fTextAnchor;
 
     // TODO(tdenniston): add SkSVGStopColor
 

@@ -38,6 +38,7 @@ public:
         kSpreadMethod,
         kStopColor,
         kString,
+        kTextAnchor,
         kTransform,
         kViewBox,
         kVisibility,
@@ -106,6 +107,7 @@ using SkSVGFontFamilyValue   = SkSVGWrapperValue<SkSVGFontFamily   , SkSVGValue:
 using SkSVGFontSizeValue     = SkSVGWrapperValue<SkSVGFontSize     , SkSVGValue::Type::kFontSize  >;
 using SkSVGFontStyleValue    = SkSVGWrapperValue<SkSVGFontStyle    , SkSVGValue::Type::kFontStyle >;
 using SkSVGFontWeightValue   = SkSVGWrapperValue<SkSVGFontWeight   , SkSVGValue::Type::kFontWeight>;
+using SkSVGTextAnchorValue   = SkSVGWrapperValue<SkSVGTextAnchor   , SkSVGValue::Type::kTextAnchor>;
 
 using SkSVGPreserveAspectRatioValue = SkSVGWrapperValue<SkSVGPreserveAspectRatio,
                                                         SkSVGValue::Type::kPreserveAspectRatio>;

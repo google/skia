@@ -308,6 +308,19 @@ bool SetFontWeightAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetTextAnchorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                            const char* stringValue) {
+    SkSVGTextAnchor anchor;
+    SkSVGAttributeParser parser(stringValue);
+
+    if (!parser.parseTextAnchor(&anchor)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGTextAnchorValue(anchor));
+    return true;
+}
+
 bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                                      const char* stringValue) {
     SkSVGPreserveAspectRatio par;
@@ -439,7 +452,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "stroke-width"       , { SkSVGAttribute::kStrokeWidth      , SetLengthAttribute       }},
     { "style"              , { SkSVGAttribute::kUnknown          , SetStyleAttributes       }},
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
-    { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetStringAttribute       }},
+    { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetTextAnchorAttribute   }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
     { "viewBox"            , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
     { "visibility"         , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},

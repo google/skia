@@ -16,22 +16,6 @@
 
 SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
 
-void SkSVGText::setX(const SkSVGLength& x) { fX = x; }
-
-void SkSVGText::setY(const SkSVGLength& y) { fY = y; }
-
-void SkSVGText::setText(const SkSVGStringType& text) { fText = text; }
-
-void SkSVGText::setTextAnchor(const SkSVGStringType& text_anchor) {
-  if (strcmp(text_anchor.c_str(), "start") == 0) {
-    fTextAlign = SkTextUtils::Align::kLeft_Align;
-  } else if (strcmp(text_anchor.c_str(), "middle") == 0) {
-    fTextAlign = SkTextUtils::Align::kCenter_Align;
-  } else if (strcmp(text_anchor.c_str(), "end") == 0) {
-    fTextAlign = SkTextUtils::Align::kRight_Align;
-  }
-}
-
 SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
     auto weight = [](const SkSVGFontWeight& w) {
         switch (w.type()) {
@@ -92,14 +76,27 @@ SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
 void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
     const auto font = this->resolveFont(ctx);
 
+    const auto text_align = [](const SkSVGTextAnchor& anchor) {
+        switch (anchor.type()) {
+            case SkSVGTextAnchor::Type::kStart : return SkTextUtils::Align::kLeft_Align;
+            case SkSVGTextAnchor::Type::kMiddle: return SkTextUtils::Align::kCenter_Align;
+            case SkSVGTextAnchor::Type::kEnd   : return SkTextUtils::Align::kRight_Align;
+            case SkSVGTextAnchor::Type::kInherit:
+                SkASSERT(false);
+                return SkTextUtils::Align::kLeft_Align;
+        }
+        SkUNREACHABLE;
+    };
+
+    const auto align = text_align(*ctx.presentationContext().fInherited.fTextAnchor);
     if (const SkPaint* fillPaint = ctx.fillPaint()) {
         SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *fillPaint, fTextAlign);
+                                *fillPaint, align);
     }
 
     if (const SkPaint* strokePaint = ctx.strokePaint()) {
         SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *strokePaint, fTextAlign);
+                                *strokePaint, align);
     }
 }
 
@@ -128,12 +125,6 @@ void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
       if (const auto* text = v.as<SkSVGStringValue>()) {
         this->setText(*text);
       }
-      break;
-    case SkSVGAttribute::kTextAnchor:
-      if (const auto* text_anchor = v.as<SkSVGStringValue>()) {
-        this->setTextAnchor(*text_anchor);
-      }
-      break;
       break;
     default:
       this->INHERITED::onSetAttribute(attr, v);

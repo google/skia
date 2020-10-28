@@ -463,4 +463,27 @@ struct SkSVGPreserveAspectRatio {
     Scale fScale = kMeet;
 };
 
+class SkSVGTextAnchor {
+public:
+    enum class Type {
+        kStart,
+        kMiddle,
+        kEnd,
+        kInherit,
+    };
+
+    SkSVGTextAnchor() : fType(Type::kInherit) {}
+    explicit SkSVGTextAnchor(Type t) : fType(t) {}
+
+    bool operator==(const SkSVGTextAnchor& other) const {
+        return fType == other.fType;
+    }
+    bool operator!=(const SkSVGTextAnchor& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 #endif // SkSVGTypes_DEFINED

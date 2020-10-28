@@ -822,6 +822,26 @@ bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
     return parsedValue && this->parseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG11/text.html#TextAnchorProperty
+bool SkSVGAttributeParser::parseTextAnchor(SkSVGTextAnchor* anchor) {
+    static constexpr std::tuple<const char*, SkSVGTextAnchor::Type> gAnchorMap[] = {
+        { "start"  , SkSVGTextAnchor::Type::kStart  },
+        { "middle" , SkSVGTextAnchor::Type::kMiddle },
+        { "end"    , SkSVGTextAnchor::Type::kEnd    },
+        { "inherit", SkSVGTextAnchor::Type::kInherit},
+    };
+
+    bool parsedValue = false;
+    SkSVGTextAnchor::Type type;
+
+    if (this->parseEnumMap(gAnchorMap, &type)) {
+        *anchor = SkSVGTextAnchor(type);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG11/coords.html#PreserveAspectRatioAttribute
 bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* par) {
     static constexpr std::tuple<const char*, SkSVGPreserveAspectRatio::Align> gAlignMap[] = {
