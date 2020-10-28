@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e4785767_1d1d3965",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-28T14:57:37Z",
+      "side": 1,
+      "message": "I assume FMA is at least as precise than M followed by A, possibly more by avoiding rounding between M and A. Is that always true?",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8add1963_dfc3a28e",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-28T14:57:37Z",
+      "side": 1,
+      "message": "Are these various values for this macro spec\u0027ed or empirically determined?",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 43
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0d082c2f_96fc2123",
         "filename": "tests/GrVxTest.cpp",
         "patchSetId": 6
