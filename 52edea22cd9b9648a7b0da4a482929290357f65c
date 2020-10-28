@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71cf7af8_b56bccf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-28T16:21:15Z",
+      "side": 1,
+      "message": "After discussing, I am okay moving forward with this, since Arenas will remain as the ownership abstraction for the different pools that have to be managed by the recording context, direct context, and DDLs.\n\nWhen we get to the point of having sidecar data for ops, such as geometry, that can go into a shared pool, maybe we bring Arenas back. Alternatively, given your last comment, maybe we can come up with an interface that makes it clearer to find which ops use each particular pool.",
+      "parentUuid": "30ad20a9_6ff516e3",
+      "revId": "52edea22cd9b9648a7b0da4a482929290357f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8cc73852_ff1bccb6",
