@@ -200,7 +200,7 @@ static void basic_test(GrDirectContext* dContext,
 
     if (expectResourceToOutliveProxy) {
         proxy.reset();
-        GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID());
+        GrUniqueKeyInvalidatedMessage msg(texKey, dContext->priv().contextID(), false);
         SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(msg);
         cache->purgeAsNeeded();
         expectedCacheCount--;
@@ -299,7 +299,7 @@ static void invalidation_and_instantiation_test(GrDirectContext* dContext,
 
     // Send an invalidation message, which will be sitting in the cache's inbox
     SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-            GrUniqueKeyInvalidatedMessage(key, dContext->priv().contextID()));
+            GrUniqueKeyInvalidatedMessage(key, dContext->priv().contextID(), false));
 
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
