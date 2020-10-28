@@ -25,14 +25,15 @@ constexpr inline SkPoint rotate90(const SkPoint& p) { return {p.fY, -p.fX}; }
 inline SkPoint rotate180(const SkPoint& p) { return p * -1; }
 inline bool isClockwise(const SkPoint& a, const SkPoint& b) { return a.cross(b) > 0; }
 
-/** Version of setLength that asserts on failure to help catch edge cases */
-SkPoint setLength(SkPoint p, float len) {
+static SkPoint checkSetLength(SkPoint p, float len, const char* file, int line) {
     if (!p.setLength(len)) {
-        SkDebugf("Failed to set point length\n");
-        SkASSERT(false);
+        SkDebugf("%s:%d: Failed to set point length\n", file, line);
     }
     return p;
 }
+
+/** Version of setLength that prints debug msg on failure to help catch edge cases */
+#define setLength(p, len) checkSetLength(p, len, __FILE__, __LINE__)
 
 constexpr uint64_t choose(uint64_t n, uint64_t k) {
     SkASSERT(n >= k);
@@ -786,64 +787,69 @@ void SkVarWidthStroker::join(const SkPoint& common,
                              const OffsetSegments& prev,
                              const OffsetSegments& curr) {
     const auto miterJoin = [this](const SkPoint& common,
-                                  float innerRadius,
-                                  float outerRadius,
+                                  float leftRadius,
+                                  float rightRadius,
                                   const OffsetSegments& prev,
                                   const OffsetSegments& curr) {
-        // Common path endpoint of the two segments is the midpoint of the miter line.
-        const SkPoint miterMidpt = common;
+        // With variable-width stroke you can actually have a situation where both sides
+        // need an "inner" or an "outer" join. So we call the two sides "left" and
+        // "right" and they can each independently get an inner or outer join.
+        const auto makeJoin = [this, &common, &prev, &curr](bool left, float radius) {
+            SkPath* path = left ? &fOuter : &fInner;
+            const auto& prevSegs = left ? prev.fOuter : prev.fInner;
+            const auto& currSegs = left ? curr.fOuter : curr.fInner;
+            SkASSERT(!prevSegs.empty());
+            SkASSERT(!currSegs.empty());
+            const SkPoint afterEndpt = currSegs.front().fPoints[0];
+            SkPoint before = unitNormal(prevSegs.back(), 1, nullptr);
+            SkPoint after = unitNormal(currSegs.front(), 0, nullptr);
 
-        SkASSERT(!prev.fOuter.empty());
-        SkASSERT(!curr.fOuter.empty());
-        SkPoint outerBefore = unitNormal(prev.fOuter.back(), 1, nullptr);
-        SkPoint outerAfter = unitNormal(curr.fOuter.front(), 0, nullptr);
+            // Don't create any join geometry if the normals are nearly identical.
+            const float cosTheta = before.dot(after);
+            if (!SkScalarNearlyZero(1 - cosTheta)) {
+                bool outerJoin;
+                if (left) {
+                    outerJoin = isClockwise(before, after);
+                } else {
+                    before = rotate180(before);
+                    after = rotate180(after);
+                    outerJoin = !isClockwise(before, after);
+                }
 
-        const float cosTheta = outerBefore.dot(outerAfter);
-        if (SkScalarNearlyZero(1 - cosTheta)) {
-            // Nearly identical normals: don't bother.
-            return;
-        }
+                if (outerJoin) {
+                    // Before and after have the same origin and magnitude, so before+after is the
+                    // diagonal of their rhombus. Origin of this vector is the midpoint of the miter
+                    // line.
+                    SkPoint miterVec = before + after;
 
-        SkASSERT(!prev.fInner.empty());
-        SkASSERT(!curr.fInner.empty());
-        SkPoint innerBefore = rotate180(unitNormal(prev.fInner.back(), 1, nullptr));
-        SkPoint innerAfter = rotate180(unitNormal(curr.fInner.front(), 0, nullptr));
+                    // Note the relationship (draw a right triangle with the miter line as its
+                    // hypoteneuse):
+                    //     sin(theta/2) = strokeWidth / miterLength
+                    // so miterLength = strokeWidth / sin(theta/2)
+                    // where miterLength is the length of the miter from outer point to inner
+                    // corner. miterVec's origin is the midpoint of the miter line, so we use
+                    // strokeWidth/2. Sqrt is just an application of half-angle identities.
+                    const float sinHalfTheta = sqrtf(0.5 * (1 + cosTheta));
+                    const float halfMiterLength = radius / sinHalfTheta;
+                    // TODO: miter length limit
+                    miterVec = setLength(miterVec, halfMiterLength);
 
-        // Check who's inside and who's outside.
-        SkPath *outer = &fOuter, *inner = &fInner;
-        if (!isClockwise(outerBefore, outerAfter)) {
-            std::swap(inner, outer);
-            std::swap(innerBefore, outerBefore);
-            std::swap(innerAfter, outerAfter);
-            std::swap(innerRadius, outerRadius);
-        }
+                    // Outer join: connect to the miter point, and then to t=0 of next segment.
+                    path->lineTo(common + miterVec);
+                    path->lineTo(afterEndpt);
+                } else {
+                    // Connect to the miter midpoint (common path endpoint of the two segments),
+                    // and then to t=0 of the next segment. This adds an interior "loop"
+                    // of geometry that handles edge cases where segment lengths are shorter than
+                    // the stroke width.
+                    path->lineTo(common);
+                    path->lineTo(afterEndpt);
+                }
+            }
+        };
 
-        // Before and after have the same origin and magnitude, so before+after is the diagonal of
-        // their rhombus. Origin of this vector is the midpoint of the miter line.
-        SkPoint outerMiterVec = outerBefore + outerAfter;
-
-        // Note the relationship (draw a right triangle with the miter line as its hypoteneuse):
-        //     sin(theta/2) = strokeWidth / miterLength
-        // so miterLength = strokeWidth / sin(theta/2)
-        // where miterLength is the length of the miter from outer point to inner corner.
-        // miterVec's origin is the midpoint of the miter line, so we use strokeWidth/2.
-        // Sqrt is just an application of half-angle identities.
-        const float sinHalfTheta = sqrtf(0.5 * (1 + cosTheta));
-        const float halfMiterLength = outerRadius / sinHalfTheta;
-        outerMiterVec.setLength(halfMiterLength);  // TODO: miter length limit
-
-        // Outer: connect to the miter point, and then to t=0 (on outside stroke) of next segment.
-        const SkPoint outerDest = setLength(outerAfter, outerRadius);
-        outer->lineTo(miterMidpt + outerMiterVec);
-        outer->lineTo(miterMidpt + outerDest);
-
-        // Connect to the miter midpoint (common path endpoint of the two segments),
-        // and then to t=0 (on inside) of the next segment. This adds an interior "loop" of
-        // geometry that handles edge cases where segment lengths are shorter than the
-        // stroke width.
-        const SkPoint innerDest = setLength(innerAfter, innerRadius);
-        inner->lineTo(miterMidpt);
-        inner->lineTo(miterMidpt + innerDest);
+        makeJoin(true, leftRadius);
+        makeJoin(false, rightRadius);
     };
 
     switch (fJoin) {
@@ -942,13 +948,13 @@ void SkVarWidthStroker::approximateSegment(const PathSegment& seg,
     SkPoint offsetEnd = unitNormal(seg, 1, &tangentEnd);
     SkPoint offsetMid = offsetStart + offsetEnd;
 
-    float radiusStart = distFnc.eval(0);
-    float radiusMid = distFnc.eval(0.5f);
-    float radiusEnd = distFnc.eval(1);
+    const float radiusStart = distFnc.eval(0);
+    const float radiusMid = distFnc.eval(0.5f);
+    const float radiusEnd = distFnc.eval(1);
 
-    offsetStart.setLength(radiusStart);
-    offsetMid.setLength(radiusMid);
-    offsetEnd.setLength(radiusEnd);
+    offsetStart = radiusStart == 0 ? SkPoint::Make(0, 0) : setLength(offsetStart, radiusStart);
+    offsetMid = radiusMid == 0 ? SkPoint::Make(0, 0) : setLength(offsetMid, radiusMid);
+    offsetEnd = radiusEnd == 0 ? SkPoint::Make(0, 0) : setLength(offsetEnd, radiusEnd);
 
     SkPoint start, mid, end;
     switch (segmentDegree(seg)) {
@@ -999,7 +1005,10 @@ SkPoint SkVarWidthStroker::unitNormal(const PathSegment& seg, float t, SkPoint* 
                            (seg.fPoints[2] - seg.fPoints[1]) * t) *
                           2;
             }
-            tangent.normalize();
+            if (!tangent.normalize()) {
+                SkDebugf("Failed to normalize quad tangent\n");
+                SkASSERT(false);
+            }
             if (tangentOut) {
                 *tangentOut = tangent;
             }
