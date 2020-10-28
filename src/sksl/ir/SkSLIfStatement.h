@@ -16,44 +16,44 @@ namespace SkSL {
 /**
  * An 'if' statement.
  */
-struct IfStatement final : public Statement {
+class IfStatement final : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kIf;
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(offset, IfStatementData{isStatic}) {
-        fExpressionChildren.push_back(std::move(test));
-        fStatementChildren.reserve_back(2);
-        fStatementChildren.push_back(std::move(ifTrue));
-        fStatementChildren.push_back(std::move(ifFalse));
-    }
+        : INHERITED(offset, kStatementKind)
+        , fTest(std::move(test))
+        , fIfTrue(std::move(ifTrue))
+        , fIfFalse(std::move(ifFalse))
+        , fIsStatic(isStatic) {}
 
     bool isStatic() const {
-        return this->ifStatementData().fIsStatic;
+        return fIsStatic;
     }
 
     std::unique_ptr<Expression>& test() {
-        return this->fExpressionChildren[0];
+        return fTest;
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return this->fExpressionChildren[0];
+        return fTest;
     }
 
     std::unique_ptr<Statement>& ifTrue() {
-        return this->fStatementChildren[0];
+        return fIfTrue;
     }
 
     const std::unique_ptr<Statement>& ifTrue() const {
-        return this->fStatementChildren[0];
+        return fIfTrue;
     }
 
     std::unique_ptr<Statement>& ifFalse() {
-        return this->fStatementChildren[1];
+        return fIfFalse;
     }
 
     const std::unique_ptr<Statement>& ifFalse() const {
-        return this->fStatementChildren[1];
+        return fIfFalse;
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -75,6 +75,12 @@ struct IfStatement final : public Statement {
         }
         return result;
     }
+
+private:
+    std::unique_ptr<Expression> fTest;
+    std::unique_ptr<Statement> fIfTrue;
+    std::unique_ptr<Statement> fIfFalse;
+    bool fIsStatic;
 
     using INHERITED = Statement;
 };

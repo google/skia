@@ -456,10 +456,10 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
             case Expression::Kind::kBinary: {
                 BinaryExpression* b = &expr->as<BinaryExpression>();
                 if (b->getOperator() == Token::Kind::TK_EQ) {
-                    this->addDefinition(&b->left(), &b->rightPointer(), definitions);
+                    this->addDefinition(b->left().get(), &b->right(), definitions);
                 } else if (Compiler::IsAssignment(b->getOperator())) {
                     this->addDefinition(
-                                  &b->left(),
+                                  b->left().get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                   definitions);
 
@@ -621,7 +621,7 @@ static bool dead_assignment(const BinaryExpression& b, ProgramUsage* usage) {
     if (!Compiler::IsAssignment(b.getOperator())) {
         return false;
     }
-    return is_dead(b.left(), usage);
+    return is_dead(*b.left(), usage);
 }
 
 void Compiler::computeDataFlow(CFG* cfg) {
@@ -713,8 +713,8 @@ static void delete_left(BasicBlock* b,
     optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
-    Expression& left = bin.left();
-    std::unique_ptr<Expression>& rightPointer = bin.rightPointer();
+    Expression& left = *bin.left();
+    std::unique_ptr<Expression>& rightPointer = bin.right();
     SkASSERT(!left.hasSideEffects());
     bool result;
     if (bin.getOperator() == Token::Kind::TK_EQ) {
@@ -752,8 +752,8 @@ static void delete_right(BasicBlock* b,
     optimizationContext->fUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
-    std::unique_ptr<Expression>& leftPointer = bin.leftPointer();
-    Expression& right = bin.right();
+    std::unique_ptr<Expression>& leftPointer = bin.left();
+    Expression& right = *bin.right();
     SkASSERT(!right.hasSideEffects());
     // Remove references within RHS.
     optimizationContext->fUsage->remove(&right);
@@ -820,8 +820,8 @@ static void vectorize_left(BasicBlock* b,
                            Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
     // Remove references within RHS. Vectorization of LHS doesn't change reference counts.
-    optimizationContext->fUsage->remove(bin.rightPointer().get());
-    vectorize(b, iter, bin.right().type(), &bin.leftPointer(), optimizationContext);
+    optimizationContext->fUsage->remove(bin.right().get());
+    vectorize(b, iter, bin.right()->type(), &bin.left(), optimizationContext);
 }
 
 /**
@@ -833,8 +833,8 @@ static void vectorize_right(BasicBlock* b,
                             Compiler::OptimizationContext* optimizationContext) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
     // Remove references within LHS. Vectorization of RHS doesn't change reference counts.
-    optimizationContext->fUsage->remove(bin.leftPointer().get());
-    vectorize(b, iter, bin.left().type(), &bin.rightPointer(), optimizationContext);
+    optimizationContext->fUsage->remove(bin.left().get());
+    vectorize(b, iter, bin.left()->type(), &bin.right(), optimizationContext);
 }
 
 // Mark that an expression which we were writing to is no longer being written to
@@ -917,8 +917,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 delete_left(&b, iter, optimizationContext);
                 break;
             }
-            Expression& left = bin->left();
-            Expression& right = bin->right();
+            Expression& left = *bin->left();
+            Expression& right = *bin->right();
             const Type& leftType = left.type();
             const Type& rightType = right.type();
             // collapse useless expressions like x * 1 or x + 0
@@ -1223,7 +1223,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // of action. First, find the switch-case we are interested in.
     auto iter = switchStatement->cases().begin();
     for (; iter != switchStatement->cases().end(); ++iter) {
-        if (&*iter == caseToCapture) {
+        if (iter->get() == caseToCapture) {
             break;
         }
     }
@@ -1234,7 +1234,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     auto startIter = iter;
     Statement* unconditionalBreakStmt = nullptr;
     for (; iter != switchStatement->cases().end(); ++iter) {
-        for (std::unique_ptr<Statement>& stmt : iter->statements()) {
+        for (std::unique_ptr<Statement>& stmt : (*iter)->statements()) {
             if (contains_conditional_break(*stmt)) {
                 // We can't reduce switch-cases to a block when they have conditional breaks.
                 return nullptr;
@@ -1259,7 +1259,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
 
     // We can move over most of the statements as-is.
     while (startIter != iter) {
-        for (std::unique_ptr<Statement>& stmt : startIter->statements()) {
+        for (std::unique_ptr<Statement>& stmt : (*startIter)->statements()) {
             caseStmts.push_back(std::move(stmt));
         }
         ++startIter;
@@ -1268,7 +1268,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* switchStatemen
     // If we found an unconditional break at the end, we need to move what we can while avoiding
     // that break.
     if (unconditionalBreakStmt != nullptr) {
-        for (std::unique_ptr<Statement>& stmt : startIter->statements()) {
+        for (std::unique_ptr<Statement>& stmt : (*startIter)->statements()) {
             if (stmt.get() == unconditionalBreakStmt) {
                 move_all_but_break(stmt, &caseStmts);
                 unconditionalBreakStmt = nullptr;
@@ -1355,15 +1355,15 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
-                for (SwitchCase& c : s.cases()) {
-                    if (!c.value()) {
-                        defaultCase = &c;
+                for (const std::unique_ptr<SwitchCase>& c : s.cases()) {
+                    if (!c->value()) {
+                        defaultCase = c.get();
                         continue;
                     }
                     int64_t caseValue;
-                    SkAssertResult(fIRGenerator->getConstantInt(*c.value(), &caseValue));
+                    SkAssertResult(fIRGenerator->getConstantInt(*c->value(), &caseValue));
                     if (caseValue == switchValue) {
-                        std::unique_ptr<Statement> newBlock = block_for_case(&s, &c);
+                        std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock), usage);
                             found = true;

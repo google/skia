@@ -21,6 +21,7 @@ for inc in includes:
         if not os.path.isdir(targetDir):
             os.mkdir(targetDir)
         target = os.path.join(targetDir, tail)
+        print(" ".join([skslc, inc, target + ".dehydrated.sksl"]))
         subprocess.check_output([skslc, inc, target + ".dehydrated.sksl"])
     except subprocess.CalledProcessError as err:
         print("### Error compiling " + inc + ":")

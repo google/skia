@@ -823,8 +823,8 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
 
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
-    const Expression& left = b.left();
-    const Expression& right = b.right();
+    const Expression& left = *b.left();
+    const Expression& right = *b.right();
     const Type& leftType = left.type();
     const Type& rightType = right.type();
     Token::Kind op = b.getOperator();
@@ -1236,10 +1236,10 @@ void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glo
     this->writeType(var.baseType());
     this->write(" ");
     this->writeName(var.var().name());
-    for (int i = 0; i < var.sizeCount(); ++i) {
+    for (const std::unique_ptr<Expression>& size : var.sizes()) {
         this->write("[");
-        if (var.size(i)) {
-            this->writeExpression(*var.size(i), kTopLevel_Precedence);
+        if (size) {
+            this->writeExpression(*size, kTopLevel_Precedence);
         }
         this->write("]");
     }
@@ -1368,16 +1368,16 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->writeExpression(*s.value(), kTopLevel_Precedence);
     this->writeLine(") {");
     fIndentation++;
-    for (const SwitchCase& c : s.cases()) {
-        if (c.value()) {
+    for (const std::unique_ptr<SwitchCase>& c : s.cases()) {
+        if (c->value()) {
             this->write("case ");
-            this->writeExpression(*c.value(), kTopLevel_Precedence);
+            this->writeExpression(*c->value(), kTopLevel_Precedence);
             this->writeLine(":");
         } else {
             this->writeLine("default:");
         }
         fIndentation++;
-        for (const auto& stmt : c.statements()) {
+        for (const auto& stmt : c->statements()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }
@@ -1713,8 +1713,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(e->as<Swizzle>().base().get());
         case Expression::Kind::kBinary: {
             const BinaryExpression& bin = e->as<BinaryExpression>();
-            return this->requirements(&bin.left()) |
-                   this->requirements(&bin.right());
+            return this->requirements(bin.left().get()) |
+                   this->requirements(bin.right().get());
         }
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = e->as<IndexExpression>();
@@ -1802,8 +1802,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         case Statement::Kind::kSwitch: {
             const SwitchStatement& sw = s->as<SwitchStatement>();
             Requirements result = this->requirements(sw.value().get());
-            for (const SwitchCase& sc : sw.cases()) {
-                for (const auto& st : sc.statements()) {
+            for (const std::unique_ptr<SwitchCase>& sc : sw.cases()) {
+                for (const auto& st : sc->statements()) {
                     result |= this->requirements(st.get());
                 }
             }
