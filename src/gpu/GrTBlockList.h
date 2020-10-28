@@ -59,8 +59,10 @@ public:
      *
      * @param   itemsPerBlock   the number of items to allocate at once
      */
-    explicit GrTBlockList(int itemsPerBlock)
-            : fAllocator(GrBlockAllocator::GrowthPolicy::kFixed,
+    explicit GrTBlockList(int itemsPerBlock,
+                          GrBlockAllocator::GrowthPolicy policy =
+                                  GrBlockAllocator::GrowthPolicy::kFixed)
+            : fAllocator(policy,
                          GrBlockAllocator::BlockOverhead<alignof(T)>() + sizeof(T)*itemsPerBlock) {}
 
     ~GrTBlockList() { this->reset(); }
@@ -135,7 +137,7 @@ public:
      */
     void reset() {
         // Invoke destructors in reverse order if not trivially destructible
-        if /* constexpr */ (!std::is_trivially_destructible<T>::value) {
+        if constexpr (!std::is_trivially_destructible<T>::value) {
             for (T& t : this->ritems()) {
                 t.~T();
             }
@@ -292,6 +294,15 @@ public:
 template <typename T, int SI1>
 template <int SI2>
 void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
+    // Optimize the common case where the list to append only has a single item
+    if (other.empty()) {
+        return;
+    } else if (other.count() == 1) {
+        this->push_back(other.back());
+        other.pop_back();
+        return;
+    }
+
     // Manually move all items in other's head block into this list; all heap blocks from 'other'
     // will be appended to the block linked list (no per-item moves needed then).
     int headItemCount = 0;
@@ -311,7 +322,7 @@ void GrTBlockList<T, SI1>::concat(GrTBlockList<T, SI2>&& other) {
                                                      GrBlockAllocator::kIgnoreGrowthPolicy_Flag);
         }
 
-        if /*constexpr*/ (std::is_trivially_copyable<T>::value) {
+        if constexpr (std::is_trivially_copy_constructible<T>::value) {
             // memcpy all items at once (or twice between current and reserved space).
             SkASSERT(std::is_trivially_destructible<T>::value);
             auto copy = [](GrBlockAllocator::Block* src, int start, GrBlockAllocator* dst, int n) {
