@@ -21,15 +21,22 @@
     #include "src/codec/SkStubHeifDecoderAPI.h"
 #endif
 
+#include <optional>
+
 class SkHeifCodec : public SkCodec {
 public:
-    static bool IsHeif(const void*, size_t);
+    /*
+     * Returns kHEIF or kAVIF if one of those image types were detected.
+     * Returns nullopt otherwise
+     */
+    static std::optional<SkEncodedImageFormat> IsSupported(const void*, size_t);
 
     /*
-     * Assumes IsHeif was called and returned true.
+     * Assumes IsSupported was called and it returned a non-nullopt value.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(
-            std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy, Result*);
+            std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy,
+            SkEncodedImageFormat, Result*);
 
 protected:
 
@@ -40,7 +47,7 @@ protected:
             int* rowsDecoded) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
-        return SkEncodedImageFormat::kHEIF;
+        return fFormat;
     }
 
     int onGetFrameCount() override;
@@ -59,7 +66,8 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin, bool animation,
+            SkEncodedImageFormat);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
@@ -83,6 +91,7 @@ private:
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
     bool                               fUseAnimation;
+    const SkEncodedImageFormat         fFormat;
 
     class Frame : public SkFrame {
     public:
