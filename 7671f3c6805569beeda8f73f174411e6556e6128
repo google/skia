@@ -16,6 +16,46 @@
       "message": "This seems like the right fix, but I want to make sure there isn\u0027t some other lower-level reason that the algorithm leads to this singularity.",
       "revId": "7671f3c6805569beeda8f73f174411e6556e6128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc3e9f67_79cb3bf1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-28T16:19:08Z",
+      "side": 1,
+      "message": " Seems okay to me, but I\u0027m not overly familiar with the math going into the rrect shaders, so maybe want to wait for Jim, too?\n\nAs a side note, it would be nice if we could have a constant in Ganesh to represent \"infinite\" device pixel that is big enough to exceed any reasonable screen size and small enough not to mess with precision. Then we could clamp projected coordinates/sizes/radii etc. to it.",
+      "revId": "7671f3c6805569beeda8f73f174411e6556e6128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a075b4e6_9a1d8f94",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2997,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-28T16:19:08Z",
+      "side": 1,
+      "message": "maybe nit? Do we use capital E or e for these?",
+      "range": {
+        "startLine": 2997,
+        "startChar": 62,
+        "endLine": 2997,
+        "endChar": 66
+      },
+      "revId": "7671f3c6805569beeda8f73f174411e6556e6128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
