@@ -215,7 +215,74 @@ struct Program {
         fPool->detachFromThread();
     }
 
-    const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
+    class ElementsCollection {
+    public:
+        class iterator {
+        public:
+            const ProgramElement* operator*() {
+                if (fOwned != fOwnedEnd) {
+                    return fOwned->get();
+                } else {
+                    return *fShared;
+                }
+            }
+
+            iterator& operator++() {
+                if (fOwned != fOwnedEnd) {
+                    ++fOwned;
+                } else {
+                    ++fShared;
+                }
+                return *this;
+            }
+
+            bool operator==(const iterator& other) const {
+                return fOwned == other.fOwned && fShared == other.fShared;
+            }
+
+            bool operator!=(const iterator& other) const {
+                return !(*this == other);
+            }
+
+        private:
+            using Owned  = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
+            using Shared = std::vector<const ProgramElement*>::const_iterator;
+            friend class ElementsCollection;
+
+            iterator(Owned owned, Owned ownedEnd, Shared shared, Shared sharedEnd)
+                    : fOwned(owned), fOwnedEnd(ownedEnd), fShared(shared), fSharedEnd(sharedEnd) {}
+
+            Owned  fOwned;
+            Owned  fOwnedEnd;
+            Shared fShared;
+            Shared fSharedEnd;
+        };
+
+        iterator begin() const {
+            return iterator(fProgram.fElements.begin(), fProgram.fElements.end(),
+                            fProgram.fSharedElements.begin(), fProgram.fSharedElements.end());
+        }
+
+        iterator end() const {
+            return iterator(fProgram.fElements.end(), fProgram.fElements.end(),
+                            fProgram.fSharedElements.end(), fProgram.fSharedElements.end());
+        }
+
+    private:
+        friend struct Program;
+
+        ElementsCollection(const Program& program) : fProgram(program) {}
+        const Program& fProgram;
+    };
+
+    // Can be used to iterate over *all* elements in this Program, both owned and shared (builtin).
+    // The iterator's value type is 'const ProgramElement*', so it's clear that you *must not*
+    // modify anything (as you might be mutating shared data).
+    ElementsCollection elements() const { return ElementsCollection(*this); }
+
+    // Can be used to iterate over *just* the elements owned by the Program, not shared builtins.
+    // The iterator's value type is 'std::unique_ptr<ProgramElement>', and mutation is allowed.
+    const std::vector<std::unique_ptr<ProgramElement>>& ownedElements() { return fElements; }
 
     Kind fKind;
     std::unique_ptr<String> fSource;
@@ -230,6 +297,7 @@ struct Program {
 
 private:
     std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::vector<const ProgramElement*>           fSharedElements;
     std::unique_ptr<ModifiersPool> fModifiers;
     std::unique_ptr<ProgramUsage> fUsage;
 
