@@ -16,6 +16,23 @@
       "message": "Several progressions, due to text-anchor inheritance.",
       "revId": "7ade931bfe0b35741612c1bf419ffe0cbfcaa360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "492012a3_7462e7df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-28T13:52:49Z",
+      "side": 1,
+      "message": "Cool!",
+      "revId": "7ade931bfe0b35741612c1bf419ffe0cbfcaa360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
