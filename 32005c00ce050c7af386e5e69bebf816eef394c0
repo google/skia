@@ -16,6 +16,23 @@
       "message": "PT(another)L.  Thanks!",
       "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d99353eb_6c8968c6",
+        "filename": "src/core/SkMaskGamma.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-10-28T13:59:52Z",
+      "side": 1,
+      "message": "Would it make sense to override SK_LUM_COEFF_{R|G|B} where they are defined, conditional on the \n SK_USE_DWRITE_COMPATIBLE_CONTRAST macro?",
+      "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

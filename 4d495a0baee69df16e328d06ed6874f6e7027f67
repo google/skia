@@ -228,6 +228,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2d5ea7b6_65a3029c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-10-28T13:59:52Z",
+      "side": 1,
+      "message": "Thanks for the clarifications - is the intention with the SK_USE_DWRITE_COMPATIBLE_CONTRAST macro to use it for your testing? Or in other words, could you explain where you plan to be going with this flag?",
+      "parentUuid": "b841f7f2_754e09e2",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
