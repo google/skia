@@ -72,6 +72,13 @@ public:
     }
 
     /**
+     * In debug mode, this reports the IDs of unfreed nodes via `SkDebugf`. This reporting is also
+     * performed automatically whenever a GrMemoryPool is destroyed.
+     * In release mode, this method is a no-op.
+     */
+    void reportLeaks() const;
+
+    /**
      * Returns the total allocated size of the GrMemoryPool minus any preallocated amount
      */
     size_t size() const { return fAllocator.totalSize() - fAllocator.preallocSize(); }
