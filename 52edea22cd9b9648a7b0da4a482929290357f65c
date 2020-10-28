@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca32d4e_1f0ba58f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-28T12:55:49Z",
+      "side": 1,
+      "message": "I would prefer this not be done yet. While it\u0027s true that Arenas only holds the op memory pool and the record-time allocator now, originally we did directly pass the record time SkArenaAlloc to combineIfPossible. I added Arenas so that we could easily expand the set of shared pools that ops could store data into.  In particular, I have plans on a geometry/vertex-oriented pool that ops can use when merging to collect all of their coordinates. Having Arenas around makes it easy to experiment with those additional dedicated pools and ensure that everything is handed off appropriately from a recording context to a ddl.",
+      "revId": "52edea22cd9b9648a7b0da4a482929290357f65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8cc73852_ff1bccb6",
