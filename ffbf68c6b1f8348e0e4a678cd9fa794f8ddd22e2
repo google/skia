@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c580ba6_91f0a632",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-28T20:16:24Z",
+      "side": 1,
+      "message": "nits + a question",
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bccd3d39_d7856dc0",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-28T20:16:24Z",
+      "side": 1,
+      "message": "\u0027r\u0027",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 9
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b62c946_35e52344",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-28T20:16:24Z",
+      "side": 1,
+      "message": "white ?",
+      "range": {
+        "startLine": 162,
+        "startChar": 47,
+        "endLine": 162,
+        "endChar": 52
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f356e93_519a469d",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-28T20:16:24Z",
+      "side": 1,
+      "message": "There is no AA drawing of paths ?",
+      "range": {
+        "startLine": 162,
+        "startChar": 90,
+        "endLine": 162,
+        "endChar": 91
+      },
+      "revId": "ffbf68c6b1f8348e0e4a678cd9fa794f8ddd22e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
