@@ -668,7 +668,7 @@ bool GrGpu::submitToGpu(bool syncCpu) {
     // than the number of actual values
     static constexpr int kMaxRenderPassBucketValue = 100;
     SK_HISTOGRAM_EXACT_LINEAR("SubmitRenderPasses",
-                              std::min(fCurrentSubmitRenderPassCount, kMaxRenderPassBucket),
+                              std::min(fCurrentSubmitRenderPassCount, kMaxRenderPassBucketValue),
                               kMaxRenderPassBucketValue);
     fCurrentSubmitRenderPassCount = 0;
 #endif
