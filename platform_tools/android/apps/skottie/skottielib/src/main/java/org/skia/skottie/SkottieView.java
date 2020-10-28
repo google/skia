@@ -27,6 +27,7 @@ public class SkottieView extends FrameLayout {
     private SkottieAnimation mAnimation;
     private View mBackingView;
     private int mBackgroundColor;
+    private int mRepeatCount;
 
     private static final int BACKING_VIEW_TEXTURE = 0;
     private static final int BACKING_VIEW_SURFACE = 1;
@@ -38,6 +39,8 @@ public class SkottieView extends FrameLayout {
         TypedArray a = context.getTheme()
             .obtainStyledAttributes(attrs, R.styleable.SkottieView, 0, 0);
         try {
+            // set mRepeatCount
+            mRepeatCount = a.getInteger(R.styleable.SkottieView_android_repeatCount, 0);
             // set backing view and background color
             switch (a.getInteger(R.styleable.SkottieView_backing_view, -1)) {
                 case BACKING_VIEW_TEXTURE:
@@ -109,10 +112,10 @@ public class SkottieView extends FrameLayout {
     private SkottieAnimation setSourceHelper(InputStream inputStream) {
         if (mBackingView instanceof TextureView) {
             return SkottieRunner.getInstance()
-                .createAnimation(((TextureView) mBackingView), inputStream);
+                .createAnimation(((TextureView) mBackingView), inputStream, mBackgroundColor, mRepeatCount);
         } else {
             return SkottieRunner.getInstance()
-                .createAnimation(((SurfaceView) mBackingView), inputStream, mBackgroundColor);
+                .createAnimation(((SurfaceView) mBackingView), inputStream, mBackgroundColor, mRepeatCount);
         }
     }
 
