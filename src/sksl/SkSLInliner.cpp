@@ -828,7 +828,7 @@ public:
         fCandidateList = candidateList;
         fSymbolTableStack.push_back(program.fSymbols.get());
 
-        for (const auto& pe : program.elements()) {
+        for (const std::unique_ptr<ProgramElement>& pe : program.ownedElements()) {
             this->visitProgramElement(pe.get());
         }
 

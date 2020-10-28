@@ -187,7 +187,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     const SkSL::Context& ctx(compiler->context());
 
     // Go through program elements, pulling out information that we need
-    for (const auto& elem : program->elements()) {
+    for (const SkSL::ProgramElement* elem : program->elements()) {
         // Variables (uniform, varying, etc.)
         if (elem->is<SkSL::GlobalVarDeclaration>()) {
             const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
