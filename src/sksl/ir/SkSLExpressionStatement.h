@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A lone expression being used as a statement.
  */
-class ExpressionStatement : public Statement {
+class ExpressionStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kExpression;
 

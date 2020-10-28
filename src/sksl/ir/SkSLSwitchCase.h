@@ -16,7 +16,7 @@ namespace SkSL {
 /**
  * A single case of a 'switch' statement.
  */
-class SwitchCase : public Statement {
+class SwitchCase final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kSwitchCase;
 
