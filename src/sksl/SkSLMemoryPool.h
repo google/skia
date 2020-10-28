@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2020 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -31,6 +31,7 @@ public:
     static std::unique_ptr<MemoryPool> Make(size_t, size_t) {
         return std::make_unique<MemoryPool>();
     }
+    void resetScratchSpace() {}
     void reportLeaks() const {}
     bool isEmpty() const { return true; }
     void* allocate(size_t size) { return ::operator new(size); }
