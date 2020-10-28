@@ -535,32 +535,68 @@ DEF_TEST(Codec_AnimatedTransparentGif, r) {
         ERRORF(r, "Unexpected image info");
         return;
     }
-    SkBitmap bm;
-    bm.allocPixels(info);
 
-    for (int i = 0; i < 2; i++) {
-        SkColor expectedPixels[2][4] = {
-            { 0xFF800000, 0xFF900000, 0xFFA00000, 0xFFB00000 },
-            { 0xFFC00000, 0xFFD00000, 0xFFE00000, 0xFFF00000 },
-        };
-        if (i > 0) {
-            expectedPixels[1][1] = 0xFF0000FF;
-            expectedPixels[1][3] = 0xFF000055;
-        }
+    for (bool use565 : { false, true }) {
+        SkBitmap bm;
+        bm.allocPixels(use565 ? info.makeColorType(kRGB_565_SkColorType) : info);
 
-        SkCodec::Options options;
-        options.fFrameIndex = i;
-        options.fPriorFrame = (i > 0) ? (i - 1) : SkCodec::kNoFrame;
-        auto result = codec->getPixels(bm.pixmap(), &options);
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess, "Failed to decode frame %i", i);
+        for (int i = 0; i < 2; i++) {
+            SkCodec::Options options;
+            options.fFrameIndex = i;
+            options.fPriorFrame = (i > 0) ? (i - 1) : SkCodec::kNoFrame;
+            auto result = codec->getPixels(bm.pixmap(), &options);
+#ifdef SK_HAS_WUFFS_LIBRARY
+            // No-op. Wuffs' GIF decoder supports animated 565.
+#else
+            if (use565 && i > 0) {
+                // Unsupported. Quoting libgifcodec/SkLibGifCodec.cpp:
+                //
+                // In theory, we might be able to support this, but it's not
+                // clear that it is necessary (Chromium does not decode to 565,
+                // and Android does not decode frames beyond the first).
+                REPORTER_ASSERT(r, result != SkCodec::kSuccess,
+                                "Unexpected success to decode frame %i", i);
+                continue;
+            }
+#endif
+            REPORTER_ASSERT(r, result == SkCodec::kSuccess, "Failed to decode frame %i", i);
 
-        for (int y = 0; y < 2; y++) {
-            for (int x = 0; x < 4; x++) {
-                auto expected = expectedPixels[y][x];
-                auto actual = bm.getColor(x, y);
-                REPORTER_ASSERT(r, actual == expected,
-                                "frame %i, pixel (%i,%i) mismatch! expected: %x actual: %x",
-                                i, x, y, expected, actual);
+            // Per above: the first frame is full of various red pixels.
+            SkColor expectedPixels[2][4] = {
+                { 0xFF800000, 0xFF900000, 0xFFA00000, 0xFFB00000 },
+                { 0xFFC00000, 0xFFD00000, 0xFFE00000, 0xFFF00000 },
+            };
+            if (use565) {
+                // For kRGB_565_SkColorType, copy the red channel's high 3 bits
+                // to its low 3 bits.
+                expectedPixels[0][0] = 0xFF840000;
+                expectedPixels[0][1] = 0xFF940000;
+                expectedPixels[0][2] = 0xFFA50000;
+                expectedPixels[0][3] = 0xFFB50000;
+                expectedPixels[1][0] = 0xFFC60000;
+                expectedPixels[1][1] = 0xFFD60000;
+                expectedPixels[1][2] = 0xFFE70000;
+                expectedPixels[1][3] = 0xFFF70000;
+            }
+            if (i > 0) {
+                // Per above: the second frame overlays a 3x1 rectangle at (1,
+                // 1): light blue, transparent, dark blue.
+                //
+                // Again, for kRGB_565_SkColorType, copy the blue channel's
+                // high 3 bits to its low 3 bits.
+                expectedPixels[1][1] = use565 ? 0xFF0000FF : 0xFF0000FF;
+                expectedPixels[1][3] = use565 ? 0xFF000052 : 0xFF000055;
+            }
+
+            for (int y = 0; y < 2; y++) {
+                for (int x = 0; x < 4; x++) {
+                    auto expected = expectedPixels[y][x];
+                    auto actual = bm.getColor(x, y);
+                    REPORTER_ASSERT(r, actual == expected,
+                                    "use565 %i, frame %i, pixel (%i,%i) "
+                                    "mismatch! expected: %x actual: %x",
+                                    (int)use565, i, x, y, expected, actual);
+                }
             }
         }
     }
