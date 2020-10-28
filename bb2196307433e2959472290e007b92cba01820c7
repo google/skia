@@ -16,6 +16,24 @@
       "message": "This CL also have a bit of other cruft; namely the addition of the following helpers:\n\nGrOpFlushState::threadSafeCache\nGrThreadSafeCache::MakeVertexData\n\nJust lmk if they\u0027re too distracting and I can move them to their own CL.",
       "revId": "bb2196307433e2959472290e007b92cba01820c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e736b1f_a8a1ed2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-28T19:36:32Z",
+      "side": 1,
+      "message": "Nah they\u0027re good additions.",
+      "parentUuid": "e9ec5152_9e4e86a7",
+      "revId": "bb2196307433e2959472290e007b92cba01820c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
