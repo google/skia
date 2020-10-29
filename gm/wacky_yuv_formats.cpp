@@ -752,6 +752,9 @@ protected:
             case Type::kFromGenerator:
                 name += "_imggen";
                 break;
+            case Type::kFromTexturesCopyToExternal:
+                name += "_fromtextureswithcopy";
+                break;
         }
 
         return name;
@@ -943,6 +946,9 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::Type::kFromPixmaps);)
+DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
+                                    /* subset */ false,
+                                    WackyYUVFormatsGM::Type::kFromTexturesCopyToExternal);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:
