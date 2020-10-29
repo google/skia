@@ -192,6 +192,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69165726_71640785",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-29T19:58:56Z",
+      "side": 1,
+      "message": "\u003e I also renamed \"madd\" to \"fast_fma\" \n\nThe \u0027f\u0027 in \"fma\" stands for fused... do you mean maybe fma_if_fast() or fast_madd()?",
+      "parentUuid": "ebcb4d60_392d4f70",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8add1963_dfc3a28e",
