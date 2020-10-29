@@ -461,9 +461,6 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     if (options.fSubset) {
         return SkCodec::kUnimplemented;
     }
-    if (options.fFrameIndex > 0 && SkColorTypeIsAlwaysOpaque(dstInfo.colorType())) {
-        return SkCodec::kInvalidConversion;
-    }
     SkCodec::Result result = this->seekFrame(WhichDecoder::kIncrDecode, options.fFrameIndex);
     if (result != SkCodec::kSuccess) {
         return result;
@@ -481,6 +478,10 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     size_t   bytesPerPixel = 0;
 
     switch (dstInfo.colorType()) {
+        case kRGB_565_SkColorType:
+            pixelFormat = WUFFS_BASE__PIXEL_FORMAT__BGR_565;
+            bytesPerPixel = 2;
+            break;
         case kBGRA_8888_SkColorType:
             pixelFormat = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
             bytesPerPixel = 4;
@@ -937,7 +938,7 @@ const char* SkWuffsCodec::decodeFrame(WhichDecoder which) {
     while (true) {
         wuffs_base__status status = fDecoders[which]->decode_frame(
             &fPixelBuffer, &fIOBuffer, fIncrDecPixelBlend,
-            wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
+            wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), nullptr);
         if ((status.repr == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
