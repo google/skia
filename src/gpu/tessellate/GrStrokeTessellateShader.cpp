@@ -259,11 +259,12 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        float cubicConstant = GrWangsFormula::cubic_constant(shader.fParametricIntolerance);
+        float cubicConstantPow2 = GrWangsFormula::cubic_constant_pow2(
+                shader.fParametricIntolerance);
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
             numSegmentsInJoin,  // uNumSegmentsInJoin
-            cubicConstant * cubicConstant,  // uCubicConstantPow2 in path space.
+            cubicConstantPow2,  // uCubicConstantPow2 in path space.
             shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
         float strokeRadius = shader.fStroke.getWidth() * .5;
