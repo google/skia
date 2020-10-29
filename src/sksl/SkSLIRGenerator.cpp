@@ -798,7 +798,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
     #define SWIZZLE(expr, ...) std::unique_ptr<Expression>(new Swizzle(fContext, expr, \
-                                                                       { __VA_ARGS__ }))
+                                                                       ComponentArray{__VA_ARGS__}))
     #define OP(left, op, right) std::unique_ptr<Expression>( \
                                    new BinaryExpression(-1, left, op, right, \
                                                         fContext.fFloat2_Type.get()))
@@ -2483,8 +2483,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
 
-    std::vector<int> maskComponents;
-    maskComponents.reserve(fields.fLength);
+    ComponentArray maskComponents;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
@@ -2574,8 +2573,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     //   vector.y111 -> type4(vector.y, 1).xyyy
     //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
     const Type* numberType = baseType.isNumber() ? &baseType : &baseType.componentType();
-    std::vector<int> swizzleComponents;
-    swizzleComponents.reserve(fields.fLength);
+    ComponentArray swizzleComponents;
     int maskFieldIdx = 0;
     int constantFieldIdx = maskComponents.size();
     int constantZeroIdx = -1, constantOneIdx = -1;
@@ -2621,8 +2619,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     for (size_t i = 0; i < swizzleComponents.size(); ++i) {
         if (swizzleComponents[i] != int(i)) {
             // The swizzle has an effect, so apply it.
-            return std::make_unique<Swizzle>(fContext, std::move(expr),
-                                             std::move(swizzleComponents));
+            return std::make_unique<Swizzle>(fContext, std::move(expr), swizzleComponents);
         }
     }
 

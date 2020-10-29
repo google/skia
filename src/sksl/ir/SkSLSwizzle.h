@@ -22,8 +22,9 @@ namespace SkSL {
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
-    Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
-            : INHERITED(base->fOffset, swizzle_data(context, *base, std::move(components))) {
+    Swizzle(const Context& context, std::unique_ptr<Expression> base,
+            const ComponentArray& components)
+            : INHERITED(base->fOffset, MakeSwizzleData(context, *base, components)) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
         fExpressionChildren.push_back(std::move(base));
     }
@@ -40,14 +41,14 @@ struct Swizzle final : public Expression {
         return fExpressionChildren[0];
     }
 
-    const std::vector<int>& components() const {
+    const ComponentArray& components() const {
         return this->swizzleData().fComponents;
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (this->base()->kind() == Expression::Kind::kConstructor) {
-            Constructor& constructor = static_cast<Constructor&>(*this->base());
+        if (this->base()->is<Constructor>()) {
+            Constructor& constructor = this->base()->as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
                 // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
                 const Type& type = this->type();
@@ -85,17 +86,17 @@ struct Swizzle final : public Expression {
     }
 
 private:
-    Swizzle(const Type* type, std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fOffset, SwizzleData{type, std::move(components)}) {
+    Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
+            : INHERITED(base->fOffset, SwizzleData{type, components}) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
         fExpressionChildren.push_back(std::move(base));
     }
 
-    static SwizzleData swizzle_data(const Context& context, Expression& base,
-                                    std::vector<int> components) {
+    static SwizzleData MakeSwizzleData(const Context& context, Expression& base,
+                                       const ComponentArray& components) {
         SwizzleData result;
         result.fType = &base.type().componentType().toCompound(context, components.size(), 1);
-        result.fComponents = std::move(components);
+        result.fComponents = components;
         return result;
     }
 
