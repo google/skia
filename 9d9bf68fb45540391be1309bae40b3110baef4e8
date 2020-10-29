@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2723e0eb_d8bd7644",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T21:24:12Z",
+      "side": 1,
+      "message": "I stepped away from this problem for a while and let it simmer, then realized the problem with my earlier trial--I should be laundering EVERY allocation inside fStorage. Once I do that, GCC is satisfied at -O3, and it satisfies all the documented launder requirements. I\u0027ll amend this CL now.",
+      "parentUuid": "c264935f_d5d36170",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 56
+      },
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c85f09be_8d0c91bd",
         "filename": "include/private/SkTArray.h",
         "patchSetId": 2
