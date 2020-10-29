@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af5d78f2_35d2f630",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-29T18:21:41Z",
+      "side": 0,
+      "message": "The tl;dr here is that this code was made unreachable in https://skia-review.googlesource.com/c/skia/+/284519.",
+      "revId": "56957d9ccfde015a603f55a589c74d55eae181b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
