@@ -516,7 +516,12 @@ private:
         // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
         // must be conservative and use copy construction.
         for (int i = 0; i < this->count(); ++i) {
-            new (fItemArray + i) T(src[i]);
+#ifdef __cpp_lib_launder
+            T* dst = std::launder(fItemArray + i);
+#else
+            T* dst = fItemArray + i;
+#endif
+            new (dst) T(src[i]);
         }
     }
 
@@ -531,9 +536,14 @@ private:
         new (&fItemArray[dst]) T(std::move(fItemArray[src]));
         fItemArray[src].~T();
     }
-    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
+    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst_v) {
         for (int i = 0; i < this->count(); ++i) {
-            new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
+#ifdef __cpp_lib_launder
+            T* dst = std::launder(static_cast<T*>(dst_v) + i);
+#else
+            T* dst = static_cast<T*>(dst_v) + i;
+#endif
+            new (dst) T(std::move(fItemArray[i]));
             fItemArray[i].~T();
         }
     }
