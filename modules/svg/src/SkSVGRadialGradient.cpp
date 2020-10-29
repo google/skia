@@ -69,7 +69,7 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& m) const {
     const SkSVGLengthContext lctx =
-            fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox
+            fGradientUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
                     ? SkSVGLengthContext({1, 1})
                     : ctx.lengthContext();
 

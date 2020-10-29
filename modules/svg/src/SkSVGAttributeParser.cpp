@@ -597,14 +597,17 @@ bool SkSVGAttributeParser::parseStopColor(SkSVGStopColor* stopColor) {
     return parsedValue && this->parseEOSToken();
 }
 
-// https://www.w3.org/TR/SVG11/pservers.html#LinearGradientElementGradientUnitsAttribute
-bool SkSVGAttributeParser::parseGradientUnits(SkSVGGradientUnits* gradientUnits) {
+// https://www.w3.org/TR/SVG11/coords.html#ObjectBoundingBoxUnits
+bool SkSVGAttributeParser::parseObjectBoundingBoxUnits(
+        SkSVGObjectBoundingBoxUnits* objectBoundingBoxUnits) {
     bool parsedValue = false;
     if (this->parseExpectedStringToken("userSpaceOnUse")) {
-        *gradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kUserSpaceOnUse);
+        *objectBoundingBoxUnits =
+                SkSVGObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits::Type::kUserSpaceOnUse);
         parsedValue = true;
     } else if (this->parseExpectedStringToken("objectBoundingBox")) {
-        *gradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kObjectBoundingBox);
+        *objectBoundingBoxUnits =
+                SkSVGObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox);
         parsedValue = true;
     }
     return parsedValue && this->parseEOSToken();

@@ -200,15 +200,16 @@ bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetGradientUnitsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                               const char* stringValue) {
-    SkSVGGradientUnits gradientUnits;
+bool SetObjectBoundingBoxUnitsAttribute(const sk_sp<SkSVGNode>& node,
+                                        SkSVGAttribute attr,
+                                        const char* stringValue) {
+    SkSVGObjectBoundingBoxUnits objectBoundingBoxUnits;
     SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseGradientUnits(&gradientUnits)) {
+    if (!parser.parseObjectBoundingBoxUnits(&objectBoundingBoxUnits)) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGGradientUnitsValue(gradientUnits));
+    node->setAttribute(attr, SkSVGObjectBoundingBoxUnitsValue(objectBoundingBoxUnits));
     return true;
 }
 
@@ -428,7 +429,8 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fx"                 , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"                 , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
     { "gradientTransform"  , { SkSVGAttribute::kGradientTransform, SetTransformAttribute    }},
-    { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    , SetGradientUnitsAttribute}},
+    { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    ,
+                               SetObjectBoundingBoxUnitsAttribute }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},

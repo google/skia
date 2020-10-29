@@ -23,7 +23,7 @@ void SkSVGGradient::setSpreadMethod(const SkSVGSpreadMethod& spread) {
     fSpreadMethod = spread;
 }
 
-void SkSVGGradient::setGradientUnits(const SkSVGGradientUnits& gradientUnits) {
+void SkSVGGradient::setGradientUnits(const SkSVGObjectBoundingBoxUnits& gradientUnits) {
     fGradientUnits = gradientUnits;
 }
 
@@ -45,7 +45,7 @@ void SkSVGGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         }
         break;
     case SkSVGAttribute::kGradientUnits:
-        if (const auto* gradientUnits = v.as<SkSVGGradientUnitsValue>()) {
+        if (const auto* gradientUnits = v.as<SkSVGObjectBoundingBoxUnitsValue>()) {
             this->setGradientUnits(*gradientUnits);
         }
         break;
@@ -127,7 +127,7 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
     const auto tileMode = static_cast<SkTileMode>(fSpreadMethod.type());
 
     SkMatrix localMatrix = SkMatrix::I();
-    if (fGradientUnits.type() == SkSVGGradientUnits::Type::kObjectBoundingBox) {
+    if (fGradientUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
         SkASSERT(ctx.node());
         const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
         localMatrix.preTranslate(objBounds.fLeft, objBounds.fTop);

@@ -23,7 +23,7 @@ public:
     void setHref(const SkSVGStringType&);
     void setGradientTransform(const SkSVGTransformType&);
     void setSpreadMethod(const SkSVGSpreadMethod&);
-    void setGradientUnits(const SkSVGGradientUnits&);
+    void setGradientUnits(const SkSVGObjectBoundingBoxUnits&);
 
 protected:
     explicit SkSVGGradient(SkSVGTag t) : INHERITED(t) {}
@@ -36,7 +36,8 @@ protected:
                                          const SkColor*, const SkScalar*, int count,
                                          SkTileMode, const SkMatrix& localMatrix) const = 0;
 
-    SkSVGGradientUnits fGradientUnits = SkSVGGradientUnits(SkSVGGradientUnits::Type::kObjectBoundingBox);
+    SkSVGObjectBoundingBoxUnits fGradientUnits =
+            SkSVGObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox);
 
 private:
     using StopPositionArray = SkSTArray<2, SkScalar, true>;
