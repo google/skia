@@ -45,6 +45,30 @@
       },
       "revId": "b24db67fc3cefb3f14a8ab09f911aadb1f316a33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6a1a480_d3358c24",
+        "filename": "src/core/SkYUVAPixmaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-29T19:45:28Z",
+      "side": 1,
+      "message": "Well to be fair there actually is better support for F16 than 160 bit unorm.",
+      "parentUuid": "e96d828d_db9cf4b8",
+      "range": {
+        "startLine": 183,
+        "startChar": 43,
+        "endLine": 183,
+        "endChar": 49
+      },
+      "revId": "b24db67fc3cefb3f14a8ab09f911aadb1f316a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
