@@ -264,6 +264,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f26ad532_e0261757",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-10-29T23:37:00Z",
+      "side": 1,
+      "message": "Also: Let me know if you think I should split the SK_USE_DWRITE_COMPATIBLE_CONTRAST change from the SkSurfaceProps part of the change.\n\nThey\u0027re certainly related, but independent enough that splitting the change might make sense.",
+      "parentUuid": "9c41ae60_66c0cebb",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
