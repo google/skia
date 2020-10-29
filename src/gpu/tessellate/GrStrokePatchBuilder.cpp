@@ -247,7 +247,7 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     // actual rotation.
     float numRadialSegments = SkMeasureQuadRotation(p) * fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
-    float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
+    float numParametricSegments = GrWangsFormula::fast_root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
     float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
     if (numCombinedSegments > fMaxTessellationSegments) {
@@ -362,7 +362,7 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     // its actual rotation.
     float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
-    float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
+    float numParametricSegments = GrWangsFormula::fast_root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
     float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
     if (numCombinedSegments > fMaxTessellationSegments) {
@@ -410,7 +410,7 @@ void GrStrokePatchBuilder::joinTo(JoinType joinType, SkPoint nextControlPoint, i
         (fStroke.getJoin() == SkPaint::kRound_Join || joinType == JoinType::kCusp)) {
         SkVector tan0 = fCurrentPoint - fLastControlPoint;
         SkVector tan1 = nextControlPoint - fCurrentPoint;
-        float rotation = SkMeasureAngleInsideVectors(tan0, tan1);
+        float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
         float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
         if (numRadialSegments > fMaxTessellationSegments) {
             // This is a round join that requires more segments than the tessellator supports.
