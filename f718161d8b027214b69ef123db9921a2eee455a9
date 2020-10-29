@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b7cb560_8c0dd8a0",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-29T12:56:19Z",
+      "side": 1,
+      "message": "We should be able to assert a stronger guarantee, that memPool \u003d\u003d fMemPool.get(), right?",
+      "revId": "f718161d8b027214b69ef123db9921a2eee455a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
