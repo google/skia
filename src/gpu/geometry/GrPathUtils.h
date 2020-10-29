@@ -10,6 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrVx.h"
@@ -150,6 +151,13 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
     out[2] = bit_pun<SkPoint>(grvx::madd<2>(p2, 1/3.f, c));
     out[3] = bit_pun<SkPoint>(p2);
 }
+
+// Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting
+// cubics are convex and rotate no more than 180 degrees. If the given cubic is "serpentine", then
+// the T values are its inflection points. If the cubic is a flat line, then the T values are any
+// cusp points were the line makes a 180 degree turn. Otherwise the T value is the point at which
+// rotation reaches 180 degrees (if any).
+int findCubicConvex180Chops(const SkPoint[], float T[2]);
 
 }  // namespace GrPathUtils
 
