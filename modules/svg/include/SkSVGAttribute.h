@@ -102,6 +102,7 @@ struct SkSVGPresentationAttributes {
     // uninherited
     SkTLazy<SkSVGNumberType> fOpacity;
     SkTLazy<SkSVGClip>       fClipPath;
+    SkTLazy<SkSVGFilterType> fFilter;
 };
 
 #endif // SkSVGAttribute_DEFINED

@@ -488,4 +488,31 @@ private:
     Type fType;
 };
 
+class SkSVGFilterType {
+public:
+    enum class Type {
+        kNone,
+        kIRI,
+        kInherit,
+    };
+
+    SkSVGFilterType() : fType(Type::kNone) {}
+    explicit SkSVGFilterType(Type t) : fType(t) {}
+    explicit SkSVGFilterType(const SkString& iri) : fType(Type::kIRI), fIRI(iri) {}
+
+    bool operator==(const SkSVGFilterType& other) const { return fType == other.fType; }
+    bool operator!=(const SkSVGFilterType& other) const { return !(*this == other); }
+
+    const SkString& iri() const {
+        SkASSERT(fType == Type::kIRI);
+        return fIRI;
+    }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+    SkString fIRI;
+};
+
 #endif // SkSVGTypes_DEFINED

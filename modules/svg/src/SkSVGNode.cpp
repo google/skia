@@ -101,6 +101,10 @@ void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
     SetInheritedByDefault(fPresentationAttributes.fFillRule, fillRule);
 }
 
+void SkSVGNode::setFilter(const SkSVGFilterType& filter) {
+    fPresentationAttributes.fFilter.set(filter);
+}
+
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
@@ -171,6 +175,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kFillRule:
         if (const SkSVGFillRuleValue* fillRule = v.as<SkSVGFillRuleValue>()) {
             this->setFillRule(*fillRule);
+        }
+        break;
+    case SkSVGAttribute::kFilter:
+        if (const SkSVGFilterValue* filter = v.as<SkSVGFilterValue>()) {
+            this->setFilter(*filter);
         }
         break;
     case SkSVGAttribute::kFontFamily:
