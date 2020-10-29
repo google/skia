@@ -8,6 +8,7 @@ void main() {
     sk_FragColor.r = 2 ^ 7;
     sk_FragColor.r = 1 << 4;
     sk_FragColor.r = 128 >> 2;
+    sk_FragColor.r = 123 % 45;
     sk_FragColor.r = -1 == -1 ? 1 : -1;
     sk_FragColor.r = -1 == -2 ? 2 : -2;
     sk_FragColor.r = 0 != 1 ? 3 : -3;

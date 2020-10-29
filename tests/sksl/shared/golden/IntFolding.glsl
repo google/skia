@@ -10,6 +10,7 @@ void main() {
     sk_FragColor.x = 5.0;
     sk_FragColor.x = 16.0;
     sk_FragColor.x = 32.0;
+    sk_FragColor.x = 33.0;
     sk_FragColor.x = 1.0;
     sk_FragColor.x = -2.0;
     sk_FragColor.x = 3.0;

@@ -18,6 +18,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _out->sk_FragColor.x = 5.0;
     _out->sk_FragColor.x = 16.0;
     _out->sk_FragColor.x = 32.0;
+    _out->sk_FragColor.x = 33.0;
     _out->sk_FragColor.x = 1.0;
     _out->sk_FragColor.x = -2.0;
     _out->sk_FragColor.x = 3.0;
