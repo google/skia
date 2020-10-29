@@ -53,6 +53,7 @@ bench_sources = [
   "$_bench/GlyphQuadFillBench.cpp",
   "$_bench/GrMemoryPoolBench.cpp",
   "$_bench/GrMipmapBench.cpp",
+  "$_bench/GrPathUtilsBench.cpp",
   "$_bench/GrQuadBench.cpp",
   "$_bench/GrResourceCacheBench.cpp",
   "$_bench/GradientBench.cpp",
