@@ -892,15 +892,27 @@ void CPPCodeGenerator::flushEmittedCode() {
 String CPPCodeGenerator::assembleCodeAndFormatArgPrintf(const String& code) {
     // Count % format specifiers.
     size_t argCount = 0;
+    bool prevCharacterWasPercent = false;
     for (size_t index = 0; index < code.size(); ++index) {
         if ('%' == code[index]) {
-            if (index == code.size() - 1) {
-                break;
-            }
-            if (code[index + 1] != '%') {
+            if (!prevCharacterWasPercent) {
+                // We detected an argument! Count it.
                 ++argCount;
+                prevCharacterWasPercent = true;
+            } else {
+                // We thought we detected an argument on the previous character, but we were wrong.
+                // It was just a %%, indicating a % character.
+                --argCount;
+                prevCharacterWasPercent = false;
             }
+        } else {
+            prevCharacterWasPercent = false;
         }
+    }
+
+    if (prevCharacterWasPercent) {
+        --argCount;
+        SkDEBUGFAIL("found a dangling format specifier at the end of a string");
     }
 
     // Assemble the printf arguments.
