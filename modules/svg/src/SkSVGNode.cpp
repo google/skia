@@ -7,6 +7,8 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTPin.h"
 #include "modules/svg/include/SkSVGNode.h"
@@ -22,7 +24,35 @@ void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
     SkSVGRenderContext localContext(ctx, this);
 
     if (this->onPrepareToRender(&localContext)) {
-        this->onRender(localContext);
+        if (fPresentationAttributes.fFilter.isValid()) {
+            this->renderWithFilter(localContext);
+        } else {
+            this->onRender(localContext);
+        }
+    }
+}
+
+void SkSVGNode::renderWithFilter(const SkSVGRenderContext& ctx) const {
+    const SkRect bounds = SkRect::MakeLTRB(SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
+                                           SK_ScalarInfinity, SK_ScalarInfinity);
+    SkPictureRecorder recorder;
+    this->onRender(SkSVGRenderContext(ctx, recorder.beginRecording(bounds)));
+    const sk_sp<SkPicture> sourceGraphic = recorder.finishRecordingAsPicture();
+
+    SkASSERT(fPresentationAttributes.fFilter.isValid());
+    const auto filter = *fPresentationAttributes.fFilter;
+    sk_sp<SkImageFilter> imageFilter;
+    if (filter.type() == SkSVGFilterType::Type::kIRI) {
+        const auto node = ctx.findNodeById(filter.iri());
+        if (!node || !node->onAsImageFilter(ctx, sourceGraphic, &imageFilter)) {
+            return;
+        }
+    }
+
+    if (imageFilter) {
+        SkPaint paint;
+        paint.setImageFilter(imageFilter);
+        ctx.canvas()->drawPaint(paint);
     }
 }
 

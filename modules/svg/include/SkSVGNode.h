@@ -12,9 +12,11 @@
 #include "modules/svg/include/SkSVGAttribute.h"
 
 class SkCanvas;
+class SkImageFilter;
 class SkMatrix;
 class SkPaint;
 class SkPath;
+class SkPicture;
 class SkSVGLengthContext;
 class SkSVGRenderContext;
 class SkSVGValue;
@@ -118,6 +120,12 @@ protected:
 
     virtual bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const { return false; }
 
+    virtual bool onAsImageFilter(const SkSVGRenderContext&,
+                                 const sk_sp<SkPicture>&,
+                                 sk_sp<SkImageFilter>*) const {
+        return false;
+    }
+
     virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
@@ -129,6 +137,8 @@ protected:
     }
 
 private:
+    void renderWithFilter(const SkSVGRenderContext&) const;
+
     SkSVGTag                    fTag;
 
     // FIXME: this should be sparse

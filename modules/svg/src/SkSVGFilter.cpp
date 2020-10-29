@@ -43,3 +43,42 @@ void SkSVGFilter::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->INHERITED::onSetAttribute(attr, v);
     }
 }
+
+bool SkSVGFilter::onAsImageFilter(const SkSVGRenderContext& ctx,
+                                  const sk_sp<SkPicture>& sourceGraphic,
+                                  sk_sp<SkImageFilter>* filter) const {
+    SkRect filterRegion;
+    if (fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
+        SkASSERT(ctx.node());
+        const SkSVGLengthContext lctx = SkSVGLengthContext({1, 1});
+        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
+        const SkScalar x = lctx.resolve(fX, SkSVGLengthContext::LengthType::kHorizontal);
+        const SkScalar y = lctx.resolve(fY, SkSVGLengthContext::LengthType::kVertical);
+        const SkScalar w = lctx.resolve(fWidth, SkSVGLengthContext::LengthType::kHorizontal);
+        const SkScalar h = lctx.resolve(fHeight, SkSVGLengthContext::LengthType::kVertical);
+        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + objBounds.fLeft * x,
+                                        objBounds.fTop + objBounds.fTop * y,
+                                        objBounds.width() * w,
+                                        objBounds.height() * h);
+    } else {
+        filterRegion = ctx.lengthContext().resolveRect(fX, fY, fWidth, fHeight);
+    }
+
+    SkSVGFilterContext fctx(sourceGraphic, filterRegion);
+    bool addedFilter = false;
+    for (const auto& child : fChildren) {
+        if (!SkSVGFe::IsFilterElement(child)) {
+            continue;
+        }
+
+        const auto& feNode = static_cast<const SkSVGFe&>(*child);
+        sk_sp<SkImageFilter> imageFilter = feNode.makeImageFilter(ctx, &fctx);
+        if (imageFilter) {
+            // TODO: there are specific composition rules that need to be followed
+            *filter = SkImageFilters::Compose(imageFilter, *filter);
+            addedFilter = true;
+        }
+    }
+
+    return addedFilter;
+}

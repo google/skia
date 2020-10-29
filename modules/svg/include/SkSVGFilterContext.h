@@ -8,8 +8,10 @@
 #ifndef SkSVGFilterContext_DEFINED
 #define SkSVGFilterContext_DEFINED
 
+#include "include/core/SkPicture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/SkTHash.h"
 
 class SkImageFilter;
