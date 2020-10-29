@@ -66,30 +66,6 @@ static void mask_release_proc(void* addr, void* /*context*/) {
     SkMask::FreeImage(addr);
 }
 
-#ifdef SK_DEBUG
-// Brute force computation of the destination bounds of a SW filtered mask
-static SkIRect sw_calc_draw_rect(const SkMatrix& viewMatrix,
-                                 const GrStyledShape& shape,
-                                 const SkMaskFilter* filter,
-                                 const SkIRect& clipBounds) {
-    SkRect devBounds = shape.bounds();
-    viewMatrix.mapRect(&devBounds);
-
-    SkMask srcM, dstM;
-    if (!SkDraw::ComputeMaskBounds(devBounds, &clipBounds, filter, &viewMatrix, &srcM.fBounds)) {
-        return {};
-    }
-
-    srcM.fFormat = SkMask::kA8_Format;
-
-    if (!as_MFB(filter)->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
-        return {};
-    }
-
-    return dstM.fBounds;
-}
-#endif
-
 // This stores the mapping from an unclipped, integerized, device-space, shape bounds to
 // the filtered mask's draw rect.
 struct DrawRectData {
@@ -140,9 +116,6 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         SkASSERT(kMaskOrigin == filteredMaskView.origin());
 
         *drawRect = extract_draw_rect_from_data(data.get(), unclippedDevShapeBounds);
-
-        SkDEBUGCODE(auto oldDrawRect = sw_calc_draw_rect(viewMatrix, shape, filter, clipBounds));
-        SkASSERT(*drawRect == oldDrawRect);
     } else {
         SkStrokeRec::InitStyle fillOrHairline = shape.style().isSimpleHairline()
                                                         ? SkStrokeRec::kHairline_InitStyle
