@@ -43,6 +43,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a4ebb11c_c7187824",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T14:44:47Z",
+      "side": 1,
+      "message": "This reads a little funny to me, seems easy to lose the minus sign. Maybe just -.5f * b?",
+      "range": {
+        "startLine": 620,
+        "startChar": 27,
+        "endLine": 620,
+        "endChar": 33
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d82b9ba_c173d693",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T14:44:47Z",
+      "side": 1,
+      "message": "I am wondering if you\u0027ll see better performance if you unload the values of \u0027roots\u0027 and \u0027inside\u0027 from skvx::Vec types (inside is a skvx::Vec\u003cint, 2\u003e right?). In my quadrilateral tessellation code, after doing the math, it was faster to pull out the values and then interleave x,y,w for vertices vs. doing the random access into the simd types. So it may be worth experimenting with this section looking like:\n\n   float2 roots \u003d float2{q,c} / float2{a,q};\n   bool inside[2];\n   (roots \u003e 0) \u0026 (roots \u003c 1).store(inside);\n\n   roots.store(T);\n   if (inside[0]) {\n      if (inside[1] \u0026\u0026 T[0] !\u003d T[1]) {\n         // Two distinct roots, so make them sorted\n         if (T[1] \u003c T[0]) {\n            swap(T[0], T[1]);\n         }\n         return 2;\n      } else {\n         // 1st root inside, 2nd root not inside or same as 1st root\n         return 1;\n      }\n   } else if (inside[1]) {\n      // 1st root wasn\u0027t inside, use 2nd\n      T[0] \u003d T[1];\n      return 1;\n   } else {\n      // No inside roots\n      return 0;\n   }",
+      "range": {
+        "startLine": 666,
+        "startChar": 4,
+        "endLine": 681,
+        "endChar": 13
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2e8d3026_812b023a",
         "filename": "src/gpu/geometry/GrPathUtils.h",
         "patchSetId": 6
