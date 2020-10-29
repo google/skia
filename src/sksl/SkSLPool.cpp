@@ -7,10 +7,6 @@
 
 #include "src/sksl/SkSLPool.h"
 
-#include <bitset>
-
-#include "include/private/SkMutex.h"
-
 #define VLOG(...) // printf(__VA_ARGS__)
 
 namespace SkSL {
@@ -54,12 +50,6 @@ static void set_thread_local_memory_pool(MemoryPool* memPool) {
 
 #endif
 
-static Pool* sRecycledPool; // GUARDED_BY recycled_pool_mutex
-static SkMutex& recycled_pool_mutex() {
-    static SkMutex* mutex = new SkMutex;
-    return *mutex;
-}
-
 Pool::~Pool() {
     if (get_thread_local_memory_pool() == fMemPool.get()) {
         SkDEBUGFAIL("SkSL pool is being destroyed while it is still attached to the thread");
@@ -73,37 +63,10 @@ Pool::~Pool() {
 }
 
 std::unique_ptr<Pool> Pool::Create() {
-    SkAutoMutexExclusive lock(recycled_pool_mutex());
-    std::unique_ptr<Pool> pool;
-    if (sRecycledPool) {
-        pool = std::unique_ptr<Pool>(sRecycledPool);
-        sRecycledPool = nullptr;
-        VLOG("REUSE  Pool:0x%016llX\n", (uint64_t)pool->fMemPool.get());
-    } else {
-        pool = std::unique_ptr<Pool>(new Pool);
-        pool->fMemPool = MemoryPool::Make(/*preallocSize=*/65536, /*minAllocSize=*/32768);
-        VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fMemPool.get());
-    }
+    auto pool = std::unique_ptr<Pool>(new Pool);
+    pool->fMemPool = MemoryPool::Make(/*preallocSize=*/65536, /*minAllocSize=*/32768);
+    VLOG("CREATE Pool:0x%016llX\n", (uint64_t)pool->fMemPool.get());
     return pool;
-}
-
-void Pool::Recycle(std::unique_ptr<Pool> pool) {
-    if (pool) {
-        if (get_thread_local_memory_pool() == pool->fMemPool.get()) {
-            SkDEBUGFAIL("SkSL pool is being recycled while it is still attached to the thread");
-        }
-
-        pool->fMemPool->reportLeaks();
-        SkASSERT(pool->fMemPool->isEmpty());
-    }
-
-    SkAutoMutexExclusive lock(recycled_pool_mutex());
-    if (sRecycledPool) {
-        delete sRecycledPool;
-    }
-
-    VLOG("STASH  Pool:0x%016llX\n", pool ? (uint64_t)pool->fMemPool.get() : 0ull);
-    sRecycledPool = pool.release();
 }
 
 void Pool::attachToThread() {

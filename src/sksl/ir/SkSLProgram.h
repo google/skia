@@ -213,10 +213,6 @@ struct Program {
         fSymbols.reset();
         fModifiers.reset();
         fPool->detachFromThread();
-
-        // We are done with the pool; recycle it so that it can be reused for future program
-        // compilation.
-        Pool::Recycle(std::move(fPool));
     }
 
     const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
