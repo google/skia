@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81d56f94_d9c353fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-10-29T05:20:24Z",
+      "side": 1,
+      "message": "IIUC, the Build-Debian10-Clang-x86_64-Debug-Tidy trybot otherwise fails:\n\n/mnt/pd0/s/w/ir/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-Tidy/Debug/../../../../../../skia/src/codec/SkWuffsCodec.cpp:941:72: error: use nullptr [modernize-use-nullptr,-warnings-as-errors]\n            wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);\n                                                                       ^~~~\n                                                                       nullptr\n",
+      "revId": "72d70c4b8e9c2ad8da86b373df2d5d25f969fdf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
