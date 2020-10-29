@@ -359,9 +359,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     if (!fOpsTask) {
         sk_sp<GrOpsTask> newOpsTask =
                 this->drawingManager()->newOpsTask(this->writeSurfaceView(), fManagedOpsTask);
-        if (fOpsTask && fNumStencilSamples > 0) {
-            // Store the stencil values in memory upon completion of fOpsTask.
-            fOpsTask->setMustPreserveStencil();
+        if (fPriorOpsTaskPreservedStencil) {
             // Reload the stencil buffer content at the beginning of newOpsTask.
             // FIXME: Could the topo sort insert a task between these two that modifies the stencil
             // values?
@@ -2132,5 +2130,13 @@ bool GrRenderTargetContext::blitTexture(GrSurfaceProxyView view, const SkIRect& 
 
 void GrRenderTargetContext::wasClosed(const GrOpsTask& task) {
     SkASSERT(&task == fOpsTask.get());
+    // TODO: We don't want to preserve stencil unless we have followup ops on this RTC
+    // but at the same time, we want to drop ownership of this task now. Chicken & egg problem.
+    // Q: Why do we want to drop ownership now? Added in CL 284519.
+    if (fNumStencilSamples > 0) {
+        // Store the stencil values in memory upon completion of fOpsTask.
+        fOpsTask->setMustPreserveStencil();
+        fPriorOpsTaskPreservedStencil = true;
+    }
     fOpsTask.reset();
 }

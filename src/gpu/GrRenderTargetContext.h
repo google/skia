@@ -716,6 +716,7 @@ private:
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpsTask;
+    bool fPriorOpsTaskPreservedStencil = false;
 
     int fNumStencilSamples = 0;
 
