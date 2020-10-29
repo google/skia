@@ -490,6 +490,40 @@ static constexpr bool GrGLFormatIsPackedDepthStencil(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
+static constexpr bool GrGLFormatIsSRGB(GrGLFormat format) {
+    switch (format) {
+    case GrGLFormat::kSRGB8_ALPHA8:
+        return true;
+    case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+    case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+    case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+    case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
+    case GrGLFormat::kRGBA8:
+    case GrGLFormat::kR8:
+    case GrGLFormat::kALPHA8:
+    case GrGLFormat::kLUMINANCE8:
+    case GrGLFormat::kBGRA8:
+    case GrGLFormat::kRGB565:
+    case GrGLFormat::kRGBA16F:
+    case GrGLFormat::kR16F:
+    case GrGLFormat::kLUMINANCE16F:
+    case GrGLFormat::kRGB8:
+    case GrGLFormat::kRG8:
+    case GrGLFormat::kRGB10_A2:
+    case GrGLFormat::kRGBA4:
+    case GrGLFormat::kR16:
+    case GrGLFormat::kRG16:
+    case GrGLFormat::kRGBA16:
+    case GrGLFormat::kRG16F:
+    case GrGLFormat::kSTENCIL_INDEX8:
+    case GrGLFormat::kSTENCIL_INDEX16:
+    case GrGLFormat::kDEPTH24_STENCIL8:
+    case GrGLFormat::kUnknown:
+        return false;
+    }
+    SkUNREACHABLE;
+}
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {
