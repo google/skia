@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2f9237c_03dda5c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-29T13:08:30Z",
+      "side": 1,
+      "message": "Aware that this is pending investigation on the initializer_list CL, figured I\u0027d take a look anyway.",
+      "revId": "54fdc556de6961d7203d086131ac2c28b00957bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "371afabb_2061839b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-29T13:08:30Z",
+      "side": 1,
+      "message": "This one is also unnecessary (and you\u0027ve removed others in similar spots) - though it\u0027s less-so (as the thing being moved is non-const).",
+      "range": {
+        "startLine": 2623,
+        "startChar": 45,
+        "endLine": 2623,
+        "endChar": 54
+      },
+      "revId": "54fdc556de6961d7203d086131ac2c28b00957bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c3da8f3_98eaaf90",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-29T13:08:30Z",
+      "side": 1,
+      "message": "One more std::move() that\u0027s no longer doing anything (and can be removed).",
+      "range": {
+        "startLine": 99,
+        "startChar": 29,
+        "endLine": 99,
+        "endChar": 50
+      },
+      "revId": "54fdc556de6961d7203d086131ac2c28b00957bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
