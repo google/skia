@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d61c836_54688291",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-29T20:00:29Z",
+      "side": 1,
+      "message": "This part sounds illegal.  Does std::launder make it legal?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 56
+      },
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c85f09be_8d0c91bd",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-29T20:00:29Z",
+      "side": 1,
+      "message": "What do we do about GCC users who are not using C++17 yet?",
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
