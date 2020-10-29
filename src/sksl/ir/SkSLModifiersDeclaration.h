@@ -23,14 +23,15 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kModifiers;
 
     ModifiersDeclaration(ModifiersPool::Handle modifiers)
-    : INHERITED(-1, ModifiersDeclarationData{modifiers}) {}
+        : INHERITED(-1, kProgramElementKind)
+        , fModifiersHandle(modifiers) {}
 
     const Modifiers& modifiers() const {
-        return *this->modifiersDeclarationData().fModifiersHandle;
+        return *fModifiersHandle;
     }
 
     const ModifiersPool::Handle& modifiersHandle() const {
-        return this->modifiersDeclarationData().fModifiersHandle;
+        return fModifiersHandle;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
@@ -42,6 +43,8 @@ public:
     }
 
 private:
+    ModifiersPool::Handle fModifiersHandle;
+
     using INHERITED = ProgramElement;
 };
 

@@ -23,24 +23,20 @@ public:
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
     ExternalFunctionCall(int offset, const ExternalValue* function, ExpressionArray arguments)
-    : INHERITED(offset, kExpressionKind, ExternalValueData{&function->callReturnType(), function}) {
-        fExpressionChildren = std::move(arguments);
-    }
-
-    const Type& type() const override {
-        return *this->externalValueData().fType;
-    }
+        : INHERITED(offset, kExpressionKind, &function->callReturnType())
+        , fFunction(*function)
+        , fArguments(std::move(arguments)) {}
 
     ExpressionArray& arguments() {
-        return fExpressionChildren;
+        return fArguments;
     }
 
     const ExpressionArray& arguments() const {
-        return fExpressionChildren;
+        return fArguments;
     }
 
     const ExternalValue& function() const {
-        return *this->externalValueData().fValue;
+        return fFunction;
     }
 
     bool hasProperty(Property property) const override {
@@ -76,6 +72,10 @@ public:
         result += ")";
         return result;
     }
+
+private:
+    const ExternalValue& fFunction;
+    ExpressionArray fArguments;
 
     using INHERITED = Expression;
 };

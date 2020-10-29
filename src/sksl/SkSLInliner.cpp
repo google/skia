@@ -355,9 +355,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kBinary: {
             const BinaryExpression& b = expression.as<BinaryExpression>();
             return std::make_unique<BinaryExpression>(offset,
-                                                      expr(b.leftPointer()),
+                                                      expr(b.left()),
                                                       b.getOperator(),
-                                                      expr(b.rightPointer()),
+                                                      expr(b.right()),
                                                       &b.type());
         }
         case Expression::Kind::kBoolLiteral:
@@ -535,10 +535,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             std::vector<std::unique_ptr<SwitchCase>> cases;
-            cases.reserve(ss.cases().count());
-            for (const SwitchCase& sc : ss.cases()) {
-                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc.value()),
-                                                             stmts(sc.statements())));
+            cases.reserve(ss.cases().size());
+            for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
+                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->value()),
+                                                             stmts(sc->statements())));
             }
             return std::make_unique<SwitchStatement>(offset, ss.isStatic(), expr(ss.value()),
                                                      std::move(cases),
@@ -547,9 +547,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             ExpressionArray sizes;
-            sizes.reserve_back(decl.sizeCount());
-            for (int i = 0; i < decl.sizeCount(); ++i) {
-                sizes.push_back(expr(decl.size(i)));
+            sizes.reserve_back(decl.sizes().count());
+            for (const std::unique_ptr<Expression>& size : decl.sizes()) {
+                sizes.push_back(expr(size));
             }
             std::unique_ptr<Expression> initialValue = expr(decl.value());
             const Variable& old = decl.var();
@@ -940,9 +940,9 @@ public:
                 }
 
                 this->visitExpression(&switchStmt.value());
-                for (SwitchCase& switchCase : switchStmt.cases()) {
+                for (const std::unique_ptr<SwitchCase>& switchCase : switchStmt.cases()) {
                     // The switch-case's fValue cannot be a FunctionCall; skip it.
-                    for (std::unique_ptr<Statement>& caseBlock : switchCase.statements()) {
+                    for (std::unique_ptr<Statement>& caseBlock : switchCase->statements()) {
                         this->visitStatement(&caseBlock);
                     }
                 }
@@ -999,7 +999,7 @@ public:
 
             case Expression::Kind::kBinary: {
                 BinaryExpression& binaryExpr = (*expr)->as<BinaryExpression>();
-                this->visitExpression(&binaryExpr.leftPointer());
+                this->visitExpression(&binaryExpr.left());
 
                 // Logical-and and logical-or binary expressions do not inline the right side,
                 // because that would invalidate short-circuiting. That is, when evaluating
@@ -1013,7 +1013,7 @@ public:
                 bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
                                          op == Token::Kind::TK_LOGICALOR);
                 if (!shortCircuitable) {
-                    this->visitExpression(&binaryExpr.rightPointer());
+                    this->visitExpression(&binaryExpr.right());
                 }
                 break;
             }

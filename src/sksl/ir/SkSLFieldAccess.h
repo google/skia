@@ -31,29 +31,25 @@ public:
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = OwnerKind::kDefault)
-    : INHERITED(base->fOffset, FieldAccessData{base->type().fields()[fieldIndex].fType,
-                                               fieldIndex, ownerKind}) {
-        fExpressionChildren.push_back(std::move(base));
-    }
-
-    const Type& type() const override {
-        return *this->fieldAccessData().fType;
-    }
+    : INHERITED(base->fOffset, kExpressionKind, base->type().fields()[fieldIndex].fType)
+    , fFieldIndex(fieldIndex)
+    , fOwnerKind(ownerKind)
+    , fBase(std::move(base)) {}
 
     std::unique_ptr<Expression>& base() {
-        return fExpressionChildren[0];
+        return fBase;
     }
 
     const std::unique_ptr<Expression>& base() const {
-        return fExpressionChildren[0];
+        return fBase;
     }
 
     int fieldIndex() const {
-        return this->fieldAccessData().fFieldIndex;
+        return fFieldIndex;
     }
 
     OwnerKind ownerKind() const {
-        return this->fieldAccessData().fOwnerKind;
+        return fOwnerKind;
     }
 
     bool hasProperty(Property property) const override {
@@ -72,6 +68,10 @@ public:
     }
 
 private:
+    int fFieldIndex;
+    FieldAccessOwnerKind fOwnerKind;
+    std::unique_ptr<Expression> fBase;
+
     using INHERITED = Expression;
 };
 
