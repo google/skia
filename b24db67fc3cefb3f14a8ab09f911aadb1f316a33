@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d62fd611_bfc36282",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-29T17:32:12Z",
+      "side": 1,
+      "message": "Idea is to use this in the future to determine the color type of yuva images, https://crbug.com/1113801",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 58
+      },
+      "revId": "b24db67fc3cefb3f14a8ab09f911aadb1f316a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
