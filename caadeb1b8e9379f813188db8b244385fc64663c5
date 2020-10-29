@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f979f74_18f22b90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-10-29T10:19:45Z",
+      "side": 1,
+      "message": "\u003e Patch Set 2:\n\u003e \n\u003e Gold has detected about 1 untriaged digest(s) on patchset 2.\n\u003e View them at https://gold.skia.org/cl/gerrit/329916\n\nOK, that gives me a lead, but I\u0027m still lost trying to figure out what it means or how to reproduce it. Something something gm??\n\nI\u0027m also confused as to why Canary-Flutter is red but Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs is green. AFAICT they should be using the same version of Wuffs...",
+      "revId": "caadeb1b8e9379f813188db8b244385fc64663c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
