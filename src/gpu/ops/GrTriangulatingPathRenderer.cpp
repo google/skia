@@ -50,26 +50,22 @@ namespace {
 // value.
 struct TessInfo {
     int       fNumVertices;
-    int       fNumCountedCurves;
+    bool      fIsLinear;
     SkScalar  fTolerance;
 };
 
-static sk_sp<SkData> create_data(int numVertices, int numCountedCurves, SkScalar tol) {
-    TessInfo info { numVertices, numCountedCurves, tol };
+static sk_sp<SkData> create_data(int numVertices, bool isLinear, SkScalar tol) {
+    TessInfo info { numVertices, isLinear, tol };
     return SkData::MakeWithCopy(&info, sizeof(info));
 }
 
-bool cache_match(const SkData* data, SkScalar tol,
-                 int* actualNumVertices, int* actualNumCountedCurves) {
+bool cache_match(const SkData* data, SkScalar tol, int* actualNumVertices) {
     SkASSERT(data);
 
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
-    if (info->fNumCountedCurves == 0 || info->fTolerance < 3.0f * tol) {
+    if (info->fIsLinear || info->fTolerance < 3.0f * tol) {
         if (actualNumVertices) {
             *actualNumVertices = info->fNumVertices;
-        }
-        if (actualNumCountedCurves) {
-            *actualNumCountedCurves = info->fNumCountedCurves;
         }
         return true;
     }
@@ -283,7 +279,7 @@ private:
                            const GrStyledShape& shape,
                            const SkIRect& devClipBounds,
                            SkScalar tol,
-                           int* numCountedCurves) {
+                           bool* isLinear) {
         SkRect clipBounds = SkRect::Make(devClipBounds);
 
         SkMatrix vmi;
@@ -297,7 +293,7 @@ private:
         shape.asPath(&path);
 
         return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator,
-                                               GrTriangulator::Mode::kNormal, numCountedCurves);
+                                               GrTriangulator::Mode::kNormal, isLinear);
     }
 
     void createNonAAMesh(Target* target) {
@@ -315,7 +311,7 @@ private:
             int actualVertexCount;
 
             if (cache_match(cachedVertexBuffer->getUniqueKey().getCustomData(), tol,
-                            &actualVertexCount, nullptr)) {
+                            &actualVertexCount)) {
                 fMesh = CreateMesh(target, std::move(cachedVertexBuffer), 0, actualVertexCount);
                 return;
             }
@@ -324,16 +320,16 @@ private:
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
 
-        int numCountedCurves;
+        bool isLinear;
         int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
-                                      &numCountedCurves);
+                                      &isLinear);
         if (vertexCount == 0) {
             return;
         }
 
         sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
 
-        key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
+        key.setCustomData(create_data(vertexCount, isLinear, tol));
 
         fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
@@ -353,11 +349,11 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        int numCountedCurves;
+        bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
         int vertexCount = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
                                                           GrTriangulator::Mode::kEdgeAntialias,
-                                                          &numCountedCurves);
+                                                          &isLinear);
         if (vertexCount == 0) {
             return;
         }
