@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd5404f0_3fbc9305",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T19:02:01Z",
+      "side": 1,
+      "message": "You should get a MOMA badge for a +1 on a CL this big without any comments :) ",
+      "revId": "f2a21cc9fc44282ac803fc9a4d5da184f6d42d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
