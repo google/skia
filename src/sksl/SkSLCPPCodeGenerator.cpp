@@ -895,9 +895,15 @@ String CPPCodeGenerator::assembleCodeAndFormatArgPrintf(const String& code) {
     for (size_t index = 0; index < code.size(); ++index) {
         if ('%' == code[index]) {
             if (index == code.size() - 1) {
+                SkDEBUGFAIL("found a dangling format specifier at the end of a string");
                 break;
             }
-            if (code[index + 1] != '%') {
+            if (code[index + 1] == '%') {
+                // %% indicates a literal % sign, not a format argument. Skip over the next
+                // character to avoid mistakenly counting that one as an argument.
+                ++index;
+            } else {
+                // Count the format argument that we found.
                 ++argCount;
             }
         }
