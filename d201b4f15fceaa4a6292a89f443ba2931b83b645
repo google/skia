@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c2a3f0b_328e2503",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T18:39:49Z",
+      "side": 1,
+      "message": "The one reported gold diff is from a flaky bot; this doesn\u0027t change how things render.",
+      "revId": "d201b4f15fceaa4a6292a89f443ba2931b83b645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dae6a147_c67b55e4",
+        "filename": "src/gpu/GrTBlockList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T18:39:49Z",
+      "side": 1,
+      "message": "There was no real reason that the growth policy couldn\u0027t be changed by the user. The implementation does not depend on knowing the number of T\u0027s that fit within any given block. This allows users to switch to an expanding policy if that is likely to match their allocation patterns.",
+      "range": {
+        "startLine": 63,
+        "startChar": 26,
+        "endLine": 64,
+        "endChar": 73
+      },
+      "revId": "d201b4f15fceaa4a6292a89f443ba2931b83b645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dc432ad_3b5b576e",
+        "filename": "src/gpu/GrTBlockList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T18:39:49Z",
+      "side": 1,
+      "message": "Since this is an internal header, and it\u0027s not a lot of work if someone else needs to backport to C++11/14, I\u0027d rather just be explicit about these constexpr conditionals.",
+      "range": {
+        "startLine": 140,
+        "startChar": 11,
+        "endLine": 140,
+        "endChar": 21
+      },
+      "revId": "d201b4f15fceaa4a6292a89f443ba2931b83b645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "887e157e_66642e43",
+        "filename": "src/gpu/GrTBlockList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T18:39:49Z",
+      "side": 1,
+      "message": "is_trivially_copyable was not sufficient for all use cases, and explicit copy construction is what actually is performed in the else branch. This allows T\u0027s that are immutable or have const fields to be memcpy\u0027ed in bulk.",
+      "range": {
+        "startLine": 325,
+        "startChar": 27,
+        "endLine": 325,
+        "endChar": 58
+      },
+      "revId": "d201b4f15fceaa4a6292a89f443ba2931b83b645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
