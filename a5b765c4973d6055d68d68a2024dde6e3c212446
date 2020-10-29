@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "037358be_cddb6e84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T06:02:08Z",
+      "side": 1,
+      "message": "I think you two reviewed this same math for the tessellation shader. Shouldn\u0027t be too bad since it\u0027s basically a repeat.",
+      "revId": "a5b765c4973d6055d68d68a2024dde6e3c212446",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
