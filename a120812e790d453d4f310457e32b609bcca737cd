@@ -22,6 +22,23 @@
       },
       "revId": "a120812e790d453d4f310457e32b609bcca737cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e83f7b3a_85191bfa",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-29T18:49:57Z",
+      "side": 1,
+      "message": "Is the sense of this correct ?",
+      "revId": "a120812e790d453d4f310457e32b609bcca737cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
