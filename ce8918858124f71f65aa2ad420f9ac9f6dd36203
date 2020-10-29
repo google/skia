@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78c244ae_495507d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-29T13:27:17Z",
+      "side": 1,
+      "message": "From what I can tell from the spec, GL requires that integer can\u0027t go to float/fixed and vice versa. This is handled by our externalType check at the start.\n\nAdditionally it looks like GL has the same srgb requirements so I moved that outside of the gles block as well.\n\nI don\u0027t see anything similar to the component requirements.",
+      "parentUuid": "9182fe84_2ee25b48",
+      "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60db632f_050b9821",
@@ -65,6 +83,30 @@
       "writtenOn": "2020-10-28T18:15:10Z",
       "side": 1,
       "message": "affect",
+      "range": {
+        "startLine": 3196,
+        "startChar": 37,
+        "endLine": 3196,
+        "endChar": 43
+      },
+      "revId": "ce8918858124f71f65aa2ad420f9ac9f6dd36203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aad42054_6dcdf589",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3196,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-29T13:27:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60db632f_050b9821",
       "range": {
         "startLine": 3196,
         "startChar": 37,
