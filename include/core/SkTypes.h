@@ -398,7 +398,8 @@
 
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \
     defined(SK_HISTOGRAM_BOOLEAN)      || \
-    defined(SK_HISTOGRAM_EXACT_LINEAR)
+    defined(SK_HISTOGRAM_EXACT_LINEAR) || \
+    defined(SK_HISTOGRAM_MEMORY_KB)
 #  define SK_HISTOGRAMS_ENABLED 1
 #else
 #  define SK_HISTOGRAMS_ENABLED 0
@@ -413,8 +414,15 @@
 #endif
 
 #ifndef SK_HISTOGRAM_EXACT_LINEAR
-#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
+#  define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
 #endif
+
+#ifndef SK_HISTOGRAM_MEMORY_KB
+#  define SK_HISTOGRAM_MEMORY_KB(name, sample)
+#endif
+
+#define SK_HISTOGRAM_PERCENTAGE(name, percent_as_int) \
+    SK_HISTOGRAM_EXACT_LINEAR(name, percent_as_int, 101)
 
 #ifndef SK_DISABLE_LEGACY_SHADERCONTEXT
 #define SK_ENABLE_LEGACY_SHADERCONTEXT
