@@ -515,4 +515,18 @@ private:
     SkString fIRI;
 };
 
+using SkSVGFeTurbulenceBaseFrequency = SkTDArray<SkScalar>;
+
+struct SkSVGFeTurbulenceType {
+    enum Type {
+        kFractalNoise,
+        kTurbulence,
+    };
+
+    Type fType;
+
+    SkSVGFeTurbulenceType() : fType(kTurbulence) {}
+    explicit SkSVGFeTurbulenceType(Type type) : fType(type) {}
+};
+
 #endif // SkSVGTypes_DEFINED

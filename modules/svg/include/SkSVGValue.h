@@ -21,6 +21,8 @@ public:
         kClip,
         kColor,
         kDashArray,
+        kFeTurbulenceBaseFrequency,
+        kFeTurbulenceType,
         kFillRule,
         kFilter,
         kFontFamily,
@@ -114,5 +116,11 @@ using SkSVGPreserveAspectRatioValue    = SkSVGWrapperValue<SkSVGPreserveAspectRa
 
 using SkSVGObjectBoundingBoxUnitsValue = SkSVGWrapperValue<SkSVGObjectBoundingBoxUnits,
                                                            SkSVGValue::Type::kObjectBoundingBoxUnits>;
+
+using SkSVGFeTurbulenceBaseFrequencyValue =
+        SkSVGWrapperValue<SkSVGFeTurbulenceBaseFrequency,
+                          SkSVGValue::Type::kFeTurbulenceBaseFrequency>;
+using SkSVGFeTurbulenceTypeValue =
+        SkSVGWrapperValue<SkSVGFeTurbulenceType, SkSVGValue::Type::kFeTurbulenceType>;
 
 #endif // SkSVGValue_DEFINED
