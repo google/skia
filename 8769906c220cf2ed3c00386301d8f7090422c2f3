@@ -146,6 +146,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9f62480c_f9257304",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-29T12:56:55Z",
+      "side": 1,
+      "message": "I\u0027d feel a little better if that macro was defined from spec documentation rather than empirically to avoid problems with untested or future chips that have the instructions but different implementation (or because the code is called in a different context or different with settings).\n\nIt also seems that we could use these instructions for the narrow use case without presenting it like a generic utility. Do you have future use cases in mind?",
+      "parentUuid": "ff620bcc_ef206195",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
