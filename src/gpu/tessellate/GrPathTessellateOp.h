@@ -75,13 +75,13 @@ private:
     // Returns false if the inner triangles do not form a simple polygon (e.g., self intersection,
     // double winding). Non-simple polygons would need to split edges in order to avoid overlap,
     // and this is not an option as it would introduce T-junctions with the outer cubics.
-    bool prePrepareInnerPolygonTriangulation(const PrePrepareArgs&, int* numCountedCurves);
+    bool prePrepareInnerPolygonTriangulation(const PrePrepareArgs&, bool* isLinear);
 
     void prePrepareStencilTrianglesProgram(const PrePrepareArgs&);
     template<typename ShaderType> void prePrepareStencilCubicsProgram(const PrePrepareArgs&);
     void prePreparePipelineForStencils(const PrePrepareArgs&);
 
-    void prePrepareFillTrianglesProgram(const PrePrepareArgs&, int numCountedCurves);
+    void prePrepareFillTrianglesProgram(const PrePrepareArgs&, bool isLinear);
     void prePrepareFillCubicHullsProgram(const PrePrepareArgs&);
     void prePrepareFillBoundingBoxProgram(const PrePrepareArgs&);
     void prePreparePipelineForFills(const PrePrepareArgs&);
