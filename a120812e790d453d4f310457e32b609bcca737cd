@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b285477_4518b1d0",
+        "filename": "src/gpu/GrTriangulator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T18:46:30Z",
+      "side": 1,
+      "message": "This is the file in question, and it made a 100% clean revert.",
+      "range": {
+        "startLine": 820,
+        "startChar": 1,
+        "endLine": 826,
+        "endChar": 21
+      },
+      "revId": "a120812e790d453d4f310457e32b609bcca737cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
