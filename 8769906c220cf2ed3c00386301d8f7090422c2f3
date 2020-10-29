@@ -122,6 +122,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ff620bcc_ef206195",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T08:54:09Z",
+      "side": 1,
+      "message": "Thanks for the explanations. Using rcp/rsqrt is playing with fire. fma to a lesser degree, however I still think there\u0027s something to be said for the fact that the GPU will inject fmas everywhere anyway.\n\nSince fast_rcp/fast_rsqrt aren\u0027t defined outside SSE and NEON, no code that uses these will pass the bots unless they wrap it in an #if that checks GRVX_FAST_RCP_PRECISION_BITS, and that hopefully forces the author think carefully about how much precision they need. My hope is that this will deter casual usage of these methods while still having them available for code that needs the speed and can tolerate the low precision.\n\nThe use case I need these for is approximating how many linear segments a stroke needs in order to look smooth. It\u0027s both extremely demanding of CPU time and tolerant of poor precision. It\u0027s rare, but I really think it\u0027s a good fit for these instructions.",
+      "parentUuid": "72c65092_d7c1bc25",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
@@ -222,6 +246,24 @@
       "side": 1,
       "message": "Our entire input range is almost almost all 2^32 floats, and would take too long for a unit test. The goal here is to test every mantissa once with a pseudo-random exponent. Would a comment to that effect be helpful?",
       "parentUuid": "0d082c2f_96fc2123",
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dcb19d0_bc549463",
+        "filename": "tests/GrVxTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T08:54:09Z",
+      "side": 1,
+      "message": "Added better comments",
+      "parentUuid": "ba622a37_99c83d1a",
       "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
