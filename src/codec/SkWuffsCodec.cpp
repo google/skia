@@ -938,7 +938,7 @@ const char* SkWuffsCodec::decodeFrame(WhichDecoder which) {
     while (true) {
         wuffs_base__status status = fDecoders[which]->decode_frame(
             &fPixelBuffer, &fIOBuffer, fIncrDecPixelBlend,
-            wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
+            wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), nullptr);
         if ((status.repr == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
             continue;
