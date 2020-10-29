@@ -152,7 +152,7 @@ DEF_TEST(WangsFormula_log2, r) {
         }
     };
 
-    // GrWangsFormula::cubic and ::quadratic both use rsqrt instead of sqrt for speed. Linearization
+    // GrWangsFormula::fast_root4 uses grvx::fast_rsqrt instead of sqrt for speed. Linearization
     // is all approximate anyway, so as long as we are within ~1/2 tessellation segment of the
     // reference value we are good enough.
     constexpr static float kTessellationTolerance = 1/128.f;
