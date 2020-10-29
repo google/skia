@@ -16,6 +16,41 @@
       "message": "\u003e Patch Set 2:\n\u003e \n\u003e Gold has detected about 1 untriaged digest(s) on patchset 2.\n\u003e View them at https://gold.skia.org/cl/gerrit/329916\n\nOK, that gives me a lead, but I\u0027m still lost trying to figure out what it means or how to reproduce it. Something something gm??\n\nI\u0027m also confused as to why Canary-Flutter is red but Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs is green. AFAICT they should be using the same version of Wuffs...",
       "revId": "caadeb1b8e9379f813188db8b244385fc64663c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccce484d_27edf0e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-29T14:10:18Z",
+      "side": 1,
+      "message": "\u003e \u003e Patch Set 2:\n\u003e \u003e \n\u003e \u003e Gold has detected about 1 untriaged digest(s) on patchset 2.\n\u003e \u003e View them at https://gold.skia.org/cl/gerrit/329916\n\u003e \n\u003e OK, that gives me a lead, but I\u0027m still lost trying to figure out what it means or how to reproduce it. Something something gm??\n\nTo reproduce that, you\u0027d need to run something like:\n\n  dm --src gm --match imagefilterstransformed\n\nBut looking at that link, if you scroll down, it shows the settings that led to these images, and neither mentions Wuffs. (On the other hand, Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs is listed below that. I don\u0027t know what this list means. Kevin, can you help explain this list?)\n\nMore importantly, that GM doesn\u0027t appear to test a GIF. (Maybe that\u0027s not obvious, but you could also find the imagefilterstransformed gm in our code base, if you were so inclined.)\n\nAnyway, this seems to have been falsely attributed to you.",
+      "parentUuid": "1f979f74_18f22b90",
+      "revId": "caadeb1b8e9379f813188db8b244385fc64663c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdd98b41_59510f0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-29T14:10:18Z",
+      "side": 1,
+      "message": "+Kevin for a question about Gold.",
+      "revId": "caadeb1b8e9379f813188db8b244385fc64663c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
