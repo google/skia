@@ -16,6 +16,24 @@
       "message": "Can we do this without the extra state (closer to the old logic?). Seems like the first check in the old version just needs the SkDEBUGFAIL, then the second check needs an:\n\n  else { ++index; }",
       "revId": "cb02e4b82223cd14fa8395c37198badbe2321dc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12316ce2_70ff69a2",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 895,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T21:15:02Z",
+      "side": 1,
+      "message": "I was worried about the case of\n\n    %%%d\n\n(One format arg, should emit \"%42\".)\n\nPutting the ++index inside an else block won\u0027t cut it in that case. But I *think* it works if you have the ++ out in the open. I was trying to consume it more like the actual parser does but I think this\u0027ll get it as well.",
+      "parentUuid": "002a728f_c1782358",
+      "revId": "cb02e4b82223cd14fa8395c37198badbe2321dc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
