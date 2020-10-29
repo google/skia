@@ -502,7 +502,11 @@ private:
             fOwnMemory = true;
         } else {
             fAllocCount = preallocCount;
+#ifdef __cpp_lib_launder
+            fItemArray = std::launder((T*)preallocStorage);
+#else
             fItemArray = (T*)preallocStorage;
+#endif
             fOwnMemory = false;
         }
     }
