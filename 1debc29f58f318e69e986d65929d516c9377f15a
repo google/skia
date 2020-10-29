@@ -16,6 +16,24 @@
       "message": "Will you need to reset this when play() is called?\n\n(Now that I looked at the code, there is no \"play()\" or \"reset()\" yet, so I guess it\u0027s ok for now. I suppose changing the progress with setProgress() should not affect the repeatCount...) \n\nJust something to think about for future CLs.",
       "revId": "1debc29f58f318e69e986d65929d516c9377f15a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16013d13_f4450dec",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-29T20:14:14Z",
+      "side": 1,
+      "message": "I\u0027m updated the cl so that we store the initial repeatCount in case of resetting. Doesn\u0027t do anything now, but I\u0027ll definitely need it when extending Animator which is happening soon.",
+      "parentUuid": "bb20a0d9_626cbcb2",
+      "revId": "1debc29f58f318e69e986d65929d516c9377f15a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
