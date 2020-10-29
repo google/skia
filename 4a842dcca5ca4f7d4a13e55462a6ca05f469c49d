@@ -159,6 +159,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eac55e00_ba927107",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T21:39:00Z",
+      "side": 1,
+      "message": "Interesting! Why can\u0027t this stuff be easier :P But also yay for 10% more!",
+      "parentUuid": "fe4d1810_0f889076",
+      "range": {
+        "startLine": 666,
+        "startChar": 4,
+        "endLine": 681,
+        "endChar": 13
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e8d3026_812b023a",
@@ -196,6 +220,30 @@
       "side": 1,
       "message": "Is that comment more clear?",
       "parentUuid": "2e8d3026_812b023a",
+      "range": {
+        "startLine": 161,
+        "startChar": 45,
+        "endLine": 161,
+        "endChar": 79
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c7a6607_049fab21",
+        "filename": "src/gpu/geometry/GrPathUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T21:39:00Z",
+      "side": 1,
+      "message": "Yep, thanks!",
+      "parentUuid": "5df5a4e8_1856006c",
       "range": {
         "startLine": 161,
         "startChar": 45,
