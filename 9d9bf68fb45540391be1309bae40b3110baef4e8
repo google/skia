@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c94681ef_495bb3dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T21:47:03Z",
+      "side": 1,
+      "message": "Done.\n\nCompiler Explorer demo: https://godbolt.org/z/WeYGoh",
+      "parentUuid": "2723e0eb_d8bd7644",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 56
+      },
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c85f09be_8d0c91bd",
