@@ -30,10 +30,9 @@ public:
         : INHERITED(offset, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
+        , fBody(std::move(body))
         , fReferencedIntrinsics(std::move(referencedIntrinsics))
-        , fSource(nullptr) {
-        fStatementChildren.push_back(std::move(body));
-    }
+        , fSource(nullptr) {}
 
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;
@@ -44,11 +43,11 @@ public:
     }
 
     std::unique_ptr<Statement>& body() {
-        return this->fStatementChildren[0];
+        return fBody;
     }
 
     const std::unique_ptr<Statement>& body() const {
-        return this->fStatementChildren[0];
+        return fBody;
     }
 
     const std::unordered_set<const FunctionDeclaration*>& referencedIntrinsics() const {
@@ -76,6 +75,7 @@ public:
 private:
     const FunctionDeclaration* fDeclaration;
     bool fBuiltin;
+    std::unique_ptr<Statement> fBody;
     // We track intrinsic functions we reference so that we can ensure that all of them end up
     // copied into the final output.
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
