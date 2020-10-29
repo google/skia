@@ -33,6 +33,8 @@
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
+    using value_type = T;
+
     /**
      * Creates an empty array with no initial storage
      */
@@ -482,8 +484,8 @@ private:
             fOwnMemory = true;
             fReserved = false;
         } else {
-            fAllocCount = SkToU32(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
-            fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
+            fAllocCount = SkToU32(std::max({count, kMinHeapAllocCount, reserveCount}));
+            fItemArray = static_cast<T*>(sk_malloc_throw(fAllocCount, sizeof(T)));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
         }
@@ -498,11 +500,11 @@ private:
         fReserved = false;
         if (count > preallocCount) {
             fAllocCount = std::max(count, kMinHeapAllocCount);
-            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = static_cast<T*>(sk_malloc_throw(fAllocCount, sizeof(T)));
             fOwnMemory = true;
         } else {
             fAllocCount = preallocCount;
-            fItemArray = (T*)preallocStorage;
+            fItemArray = static_cast<T*>(preallocStorage);
             fOwnMemory = false;
         }
     }
