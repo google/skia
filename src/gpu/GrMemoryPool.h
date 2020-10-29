@@ -91,6 +91,13 @@ public:
         return offsetof(GrMemoryPool, fAllocator) + fAllocator.preallocSize();
     }
 
+    /**
+     * Frees any scratch blocks that are no longer being used.
+     */
+    void resetScratchSpace() {
+        fAllocator.resetScratchSpace();
+    }
+
 #ifdef SK_DEBUG
     void validate() const;
 #endif
