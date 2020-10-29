@@ -15,6 +15,7 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGDefs.h"
 #include "modules/svg/include/SkSVGEllipse.h"
+#include "modules/svg/include/SkSVGFilter.h"
 #include "modules/svg/include/SkSVGG.h"
 #include "modules/svg/include/SkSVGLine.h"
 #include "modules/svg/include/SkSVGLinearGradient.h"
@@ -433,6 +434,9 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"               , { SkSVGAttribute::kFill             , SetPaintAttribute        }},
     { "fill-opacity"       , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
     { "fill-rule"          , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
+    { "filter"             , { SkSVGAttribute::kFilter           , SetFilterAttribute       }},
+    { "filterUnits"        , { SkSVGAttribute::kFilterUnits      ,
+                               SetObjectBoundingBoxUnitsAttribute }},
     { "font-family"        , { SkSVGAttribute::kFontFamily       , SetFontFamilyAttribute   }},
     { "font-size"          , { SkSVGAttribute::kFontSize         , SetFontSizeAttribute     }},
     { "font-style"         , { SkSVGAttribute::kFontStyle        , SetFontStyleAttribute    }},
@@ -486,6 +490,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
     { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
+    { "filter"        , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();         }},
     { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
     { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
     { "linearGradient", []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
