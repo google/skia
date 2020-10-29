@@ -228,9 +228,7 @@ Compiler::Compiler(Flags flags)
     fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag), fGPUModule);
 }
 
-Compiler::~Compiler() {
-    Pool::FreeRecycledPool();
-}
+Compiler::~Compiler() {}
 
 const ParsedModule& Compiler::loadGeometryModule() {
     if (!fGeometryModule.fSymbols) {
