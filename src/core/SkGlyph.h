@@ -199,6 +199,10 @@ public:
     SkIRect iRect() const {
         return SkIRect::MakeLTRB(fRect[0], fRect[1], -fRect[2], -fRect[3]);
     }
+    SkGlyphRect offset(int16_t x, int16_t y) const {
+        return SkGlyphRect{fRect + Storage{x, y, SkTo<int16_t>(-x), SkTo<int16_t>(-y)}};
+    }
+    skvx::Vec<2, int16_t> topLeft() const { return {fRect[0], fRect[1]}; }
     friend SkGlyphRect skglyph::rect_union(SkGlyphRect, SkGlyphRect);
     friend SkGlyphRect skglyph::rect_intersection(SkGlyphRect, SkGlyphRect);
 
@@ -308,6 +312,10 @@ public:
     int maxDimension() const { return std::max(fWidth, fHeight); }
     SkIRect iRect() const { return SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight); }
     SkRect rect()   const { return SkRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);  }
+    SkGlyphRect glyphRect() const {
+        return {fLeft, fTop,
+                SkTo<int16_t>(fLeft + fWidth), SkTo<int16_t>(fTop + fHeight)};
+    }
     int left()   const { return fLeft;   }
     int top()    const { return fTop;    }
     int width()  const { return fWidth;  }

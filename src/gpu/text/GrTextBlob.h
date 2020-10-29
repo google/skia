@@ -153,6 +153,7 @@ private:
     SkScalar fMaxMinScale{-SK_ScalarMax};
     SkScalar fMinMaxScale{SK_ScalarMax};
 
+    bool fSomeGlyphsExcluded{false};
     SkTInternalLList<GrSubRun> fSubRunList;
     SkArenaAlloc fAlloc;
 };
