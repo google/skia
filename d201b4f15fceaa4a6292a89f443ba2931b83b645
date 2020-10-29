@@ -64,6 +64,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c58dea3_fc25fcd6",
+        "filename": "src/gpu/GrTBlockList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T18:45:55Z",
+      "side": 1,
+      "message": "Requiring C++17 is fine as long as you don\u0027t use newly-introduced standard library functionality.",
+      "parentUuid": "9dc432ad_3b5b576e",
+      "range": {
+        "startLine": 140,
+        "startChar": 11,
+        "endLine": 140,
+        "endChar": 21
+      },
+      "revId": "d201b4f15fceaa4a6292a89f443ba2931b83b645",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "887e157e_66642e43",
