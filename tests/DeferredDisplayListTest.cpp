@@ -56,7 +56,7 @@
 
 class SurfaceParameters {
 public:
-    static const int kNumParams      = 12;
+    static const int kNumParams      = 14;
     static const int kFBO0Count      = 9;
 
     SurfaceParameters(GrRecordingContext* rContext)
@@ -161,6 +161,13 @@ public:
             if (fCanBeProtected) {
                 set(fIsProtected, GrProtected(!static_cast<bool>(fIsProtected)));
             }
+            break;
+        case 12:
+            fSurfaceProps = SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, SK_GAMMA_CONTRAST, 1.8f);
+            break;
+        case 13:
+            fSurfaceProps = SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, 0.75f,
+                                           SK_GAMMA_EXPONENT);
             break;
         }
         return changed;
