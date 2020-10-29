@@ -31,14 +31,6 @@ public:
     // make sure to reattach the pool by calling pool->attachToThread() again.
     static std::unique_ptr<Pool> Create();
 
-    // Gives up ownership of a pool; conceptually, this deletes it. In practice, on some platforms,
-    // it is expensive to free and reallocate pools, so this gives us an opportunity to reuse the
-    // allocation for future Create calls.
-    static void Recycle(std::unique_ptr<Pool> pool);
-
-    // Explicitly frees a previously recycled pool (if any), reclaiming the memory.
-    static void FreeRecycledPool() { Recycle(nullptr); }
-
     // Attaches a pool to the current thread.
     // It is an error to call this while a pool is already attached.
     void attachToThread();
