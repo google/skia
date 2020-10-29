@@ -560,6 +560,8 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
       "src/core/SkMath.cpp",
       "src/core/SkSemaphore.cpp",
       "src/core/SkThreadID.cpp",
+      "src/gpu/GrBlockAllocator.cpp",
+      "src/gpu/GrMemoryPool.cpp",
       "src/ports/SkMemory_malloc.cpp",
       "src/sksl/SkSLMain.cpp",
     ]
