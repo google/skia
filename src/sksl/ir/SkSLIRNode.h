@@ -36,6 +36,7 @@ enum class FieldAccessOwnerKind : int8_t;
 enum class VariableRefKind : int8_t;
 enum class VariableStorage : int8_t;
 
+using ComponentArray = SkSTArray<4, int8_t>; // for Swizzles
 using ExpressionArray = SkSTArray<2, std::unique_ptr<Expression>>;
 using StatementArray = SkSTArray<2, std::unique_ptr<Statement>>;
 
@@ -147,7 +148,7 @@ protected:
 
     struct SwizzleData {
         const Type* fType;
-        std::vector<int> fComponents;
+        ComponentArray fComponents;
     };
 
     struct SymbolData {
