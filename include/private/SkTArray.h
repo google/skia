@@ -33,6 +33,8 @@
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
+    using value_type = T;
+
     /**
      * Creates an empty array with no initial storage
      */
