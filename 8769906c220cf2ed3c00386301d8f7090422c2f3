@@ -168,6 +168,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebcb4d60_392d4f70",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T17:11:01Z",
+      "side": 1,
+      "message": "Let\u0027s land the first iteration with out rcp/rsqrt contamination. I also renamed \"madd\" to \"fast_fma\" to (hopefully) draw more attention to the fact that its behavior is platform dependent.\n\nI have two possible use-cases in mind for rsqrt/rcp.\n\n  1. Use rcp in fast_acos. Bumps error from .96 to 1.25 degrees.\n\n  2. Use \"rsqrt(rsqrt(max(x,epsilon)))\" in Wang\u0027s formula instead of \"sqrt(sqrt(x))\". Preliminary testing shows that the rsqrt version still gets us within a fraction of a tessellation segment.\n\nBut let\u0027s first dig around for some better documentation and do a more formal perf analysis once stroking is closer to complete before committing to these instructions.",
+      "parentUuid": "9f62480c_f9257304",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8add1963_dfc3a28e",
