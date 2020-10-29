@@ -1104,13 +1104,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             // detect swizzles of swizzles, e.g. replace foo.argb.r000 with foo.a000
             if (s.base()->kind() == Expression::Kind::kSwizzle) {
                 Swizzle& base = s.base()->as<Swizzle>();
-                std::vector<int> final;
+                ComponentArray final;
                 for (int c : s.components()) {
                     final.push_back(base.components()[c]);
                 }
                 optimizationContext->fUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
-                                                                    std::move(final)));
+                                                                    final));
                 // No fUsage change: foo.gbr.gbr and foo.brg have equivalent reference counts
                 if (!try_replace_expression(&b, iter, &replacement)) {
                     optimizationContext->fNeedsRescan = true;
