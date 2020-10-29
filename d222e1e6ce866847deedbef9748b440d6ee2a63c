@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51fbcc35_05dbc8ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-29T18:21:01Z",
+      "side": 1,
+      "message": "Leon: could you attempt to repro with this patch? \nBrian: can you shed light here? What\u0027s the motivation for dropping the ref early?\nAnyone: is my assumption true that this can\u0027t land because preserving the stencil of the last (or only) task is too expensive?",
+      "revId": "d222e1e6ce866847deedbef9748b440d6ee2a63c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
