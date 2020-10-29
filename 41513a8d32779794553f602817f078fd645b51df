@@ -74,6 +74,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b3bdc2e7_9f7d0367",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-29T20:26:35Z",
+      "side": 1,
+      "message": "Sorry you are right. I was using git cl upload and was assuming the git push behavior. I have edited it in the UI now.",
+      "parentUuid": "9c5d492a_a2f20c86",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 14
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5d8d1c5a_9666fdfb",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -397,6 +421,30 @@
       "side": 1,
       "message": "Ah, thanks for the clarification and comment. It sounds like you\u0027re saying we could see the following brands:\n\n  mif1 avif\n\nand we would conclude that the file is kAVIF. Is that the case for other brands, too? e.g. if we see one of the following:\n\n  msf1 hevc avis\n  heif avif\n  heic msf1 avif\n\nShould those be treated as kAVIF? Or perhaps we should we reject them?",
       "parentUuid": "17658048_94c04b60",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55d19967_da987f4f",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-10-29T20:26:35Z",
+      "side": 1,
+      "message": "\u003e Ah, thanks for the clarification and comment. It sounds like you\u0027re saying we could see the following brands:\n\u003e \n\u003e   mif1 avif\n\u003e \n\u003e and we would conclude that the file is kAVIF. Is that the case for other brands, too? e.g. if we see one of the following:\n\u003e \n\u003e   msf1 hevc avis\n\u003e   heif avif\n\u003e   heic msf1 avif\n\u003e \n\u003e Should those be treated as kAVIF? Or perhaps we should we reject them?\n\nWhile all the 3 cases are possible in theory, it is practically not going to happen. It is possible that the image is encoded as heic and the thumbnail is encoded as avif or some such. In that case, i don\u0027t think we should reject them.\n\nThe underlying android platform code is capable of deducing the actual bitstream type and invoking the right decoder. So i think the sniffer should let them go through as HEIC (which is the current behavior).",
+      "parentUuid": "d3fd2b9c_dae48a42",
       "range": {
         "startLine": 77,
         "startChar": 0,
