@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "621a9406_d01d98f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-29T14:02:14Z",
+      "side": 1,
+      "message": "Can you check out the Google3 roll?  I think this is holding it up, with errors like\n\nthird_party/skia/HEAD/src/sksl/SkSLPool.cpp:35:8: error: unknown type name \u0027PoolData\u0027\nstatic PoolData* get_thread_local_memory_pool() {\n       ^\nthird_party/skia/HEAD/src/sksl/SkSLPool.cpp:36:24: error: unknown type name \u0027PoolData\u0027\n    return static_cast\u003cPoolData*\u003e(pthread_getspecific(get_pthread_key()));\n                       ^\nthird_party/skia/HEAD/src/sksl/SkSLPool.cpp:36:35: error: cannot initialize return object of type \u0027int *\u0027 with an rvalue of type \u0027void * _Nullable\u0027\n    return static_cast\u003cPoolData*\u003e(pthread_getspecific(get_pthread_key()));\n                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nthird_party/skia/HEAD/src/sksl/SkSLPool.cpp:39:42: error: unknown type name \u0027PoolData\u0027\nstatic void set_thread_local_memory_pool(PoolData* poolData) {\n",
+      "revId": "67e1cf4b1d81185051bdaaaab4a1d88723e57358",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
