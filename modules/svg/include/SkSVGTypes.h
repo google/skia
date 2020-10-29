@@ -308,20 +308,22 @@ private:
     SkSVGColorType fColor;
 };
 
-class SkSVGGradientUnits {
+class SkSVGObjectBoundingBoxUnits {
 public:
     enum class Type {
         kUserSpaceOnUse,
         kObjectBoundingBox,
     };
 
-    SkSVGGradientUnits() : fType(Type::kUserSpaceOnUse) {}
-    explicit SkSVGGradientUnits(Type t) : fType(t) {}
+    SkSVGObjectBoundingBoxUnits() : fType(Type::kUserSpaceOnUse) {}
+    explicit SkSVGObjectBoundingBoxUnits(Type t) : fType(t) {}
 
-    bool operator==(const SkSVGGradientUnits& other) const {
+    bool operator==(const SkSVGObjectBoundingBoxUnits& other) const {
         return fType == other.fType;
     }
-    bool operator!=(const SkSVGGradientUnits& other) const { return !(*this == other); }
+    bool operator!=(const SkSVGObjectBoundingBoxUnits& other) const {
+        return !(*this == other);
+    }
 
     Type type() const { return fType; }
 
