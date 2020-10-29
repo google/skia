@@ -481,6 +481,10 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     size_t   bytesPerPixel = 0;
 
     switch (dstInfo.colorType()) {
+        case kRGB_565_SkColorType:
+            pixelFormat = WUFFS_BASE__PIXEL_FORMAT__BGR_565;
+            bytesPerPixel = 2;
+            break;
         case kBGRA_8888_SkColorType:
             pixelFormat = WUFFS_BASE__PIXEL_FORMAT__BGRA_NONPREMUL;
             bytesPerPixel = 4;
