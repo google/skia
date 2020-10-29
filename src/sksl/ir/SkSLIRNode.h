@@ -65,7 +65,7 @@ public:
     // purposes
     int fOffset;
 
-    // Override operator new and delete to allow us to use a memory pool.
+    // Override operator new and delete to allow us to control allocation behavior.
     static void* operator new(const size_t size) {
         return Pool::AllocIRNode(size);
     }

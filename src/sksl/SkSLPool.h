@@ -10,16 +10,10 @@
 
 #include <memory>
 
-#include "src/sksl/SkSLMemoryPool.h"
-
 namespace SkSL {
 
-/**
- * Efficiently allocates memory for IRNodes in an SkSL program. Optimized for allocate/release
- * performance over memory efficiency.
- *
- * All allocated IRNodes must be released back to the pool before it can be destroyed or recycled.
- */
+class IRNode;
+struct PoolData;
 
 class Pool {
 public:
@@ -59,7 +53,7 @@ private:
     void checkForLeaks();
 
     Pool() = default;  // use Create to make a pool
-    std::unique_ptr<SkSL::MemoryPool> fMemPool;
+    PoolData* fData = nullptr;
 };
 
 }  // namespace SkSL
