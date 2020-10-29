@@ -32,7 +32,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]);
 
 /** Measures the angle between two vectors, in the range [0, pi].
 */
-float SkMeasureAngleInsideVectors(SkVector, SkVector);
+float SkMeasureAngleBetweenVectors(SkVector, SkVector);
 
 /** Returns a new, arbitrarily scaled vector that bisects the given vectors. The returned bisector
     will always point toward the interior of the provided vectors.
@@ -69,7 +69,7 @@ void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]);
     Quadratics can have rotations in the range [0, pi].
 */
 inline float SkMeasureQuadRotation(const SkPoint pts[3]) {
-    return SkMeasureAngleInsideVectors(pts[1] - pts[0], pts[2] - pts[1]);
+    return SkMeasureAngleBetweenVectors(pts[1] - pts[0], pts[2] - pts[1]);
 }
 
 /** Given a src quadratic bezier, returns the T value whose tangent angle is halfway between the
