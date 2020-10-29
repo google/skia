@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b6887cf_b4921065",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T14:23:07Z",
+      "side": 1,
+      "message": "Still a little sleepy to follow all the math, but I appreciate the detail in the impl\u0027s comments.",
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5a88b69_df5333bc",
+        "filename": "bench/TessellateBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T14:23:07Z",
+      "side": 1,
+      "message": "What do you think, style wise, about having both of these assignments be\n\n   float [name] \u003d \n           [expression];\n\ninstead of splitting the expression across the newlines?",
+      "range": {
+        "startLine": 293,
+        "startChar": 12,
+        "endLine": 296,
+        "endChar": 81
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e8d3026_812b023a",
+        "filename": "src/gpu/geometry/GrPathUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-29T14:23:07Z",
+      "side": 1,
+      "message": "If we return 1 when it reaches 180, are we splitting? If so, 180 rotation is not allowed in the resulting cubics, right? Then maybe the first sentence\u0027s \"no more than 180 degrees\" should just be \"less than 180 degrees\"?",
+      "range": {
+        "startLine": 161,
+        "startChar": 45,
+        "endLine": 161,
+        "endChar": 79
+      },
+      "revId": "4a842dcca5ca4f7d4a13e55462a6ca05f469c49d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
