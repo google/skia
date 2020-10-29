@@ -32,30 +32,27 @@ public:
     };
 
     Symbol(int offset, Kind kind, StringFragment name, const Type* type = nullptr)
-    : INHERITED(offset, (int) kind, SymbolData{name, type}) {
+        : INHERITED(offset, (int) kind)
+        , fName(name)
+        , fType(type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
-
-    Symbol(int offset, const SymbolAliasData& data)
-    : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
-
-    Symbol(int offset, const UnresolvedFunctionData& data)
-    : INHERITED(offset, (int) Kind::kUnresolvedFunction, data) {}
 
     Symbol& operator=(const Symbol&) = default;
 
     ~Symbol() override {}
 
-    virtual const Type& type() const {
-        return *this->symbolData().fType;
+    const Type& type() const {
+        SkASSERT(fType);
+        return *fType;
     }
 
     Kind kind() const {
         return (Kind) fKind;
     }
 
-    virtual StringFragment name() const {
-        return this->symbolData().fName;
+    StringFragment name() const {
+        return fName;
     }
 
     /**
@@ -83,7 +80,12 @@ public:
     }
 
 private:
+    StringFragment fName;
+    const Type* fType;
+
     using INHERITED = IRNode;
+
+    friend class Type;
 };
 
 }  // namespace SkSL

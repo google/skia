@@ -23,17 +23,15 @@ public:
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
     IntLiteral(const Context& context, int offset, int64_t value)
-    : INHERITED(offset, IntLiteralData{context.fInt_Type.get(), value}) {}
+        : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
+        , fValue(value) {}
 
     IntLiteral(int offset, int64_t value, const Type* type = nullptr)
-    : INHERITED(offset, IntLiteralData{type, value}) {}
-
-    const Type& type() const override {
-        return *this->intLiteralData().fType;
-    }
+        : INHERITED(offset, kExpressionKind, type)
+        , fValue(value) {}
 
     int64_t value() const {
-        return this->intLiteralData().fValue;
+        return fValue;
     }
 
     String description() const override {
@@ -69,6 +67,8 @@ public:
     }
 
 private:
+    int64_t fValue;
+
     using INHERITED = Expression;
 };
 
