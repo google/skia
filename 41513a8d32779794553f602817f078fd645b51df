@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c5d492a_a2f20c86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-29T13:49:24Z",
+      "side": 1,
+      "message": "Not done. You can edit it from the Gerrit UI, but if you\u0027re using \"git push\" it will be overwritten. (On the other hand, if you edit it on your machine and use \"git cl upload\" the Gerrit commit description is unchanged, if I recall correctly.)",
+      "parentUuid": "b6fa97c1_b3e41fa0",
+      "range": {
+        "startLine": 16,
+        "startChar": 5,
+        "endLine": 16,
+        "endChar": 14
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5d8d1c5a_9666fdfb",
@@ -349,6 +373,30 @@
       "side": 1,
       "message": "I have used std::optional as the return type.\n\nIt is not possible to use the if condition structure that you have suggested since mif1 does not imply HEIF. AVIF files can also have the major brand as mif1. So i have kept the \"if\" structure that i had before.",
       "parentUuid": "61b4f518_d0651eed",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3fd2b9c_dae48a42",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-29T13:49:24Z",
+      "side": 1,
+      "message": "Ah, thanks for the clarification and comment. It sounds like you\u0027re saying we could see the following brands:\n\n  mif1 avif\n\nand we would conclude that the file is kAVIF. Is that the case for other brands, too? e.g. if we see one of the following:\n\n  msf1 hevc avis\n  heif avif\n  heic msf1 avif\n\nShould those be treated as kAVIF? Or perhaps we should we reject them?",
+      "parentUuid": "17658048_94c04b60",
       "range": {
         "startLine": 77,
         "startChar": 0,
