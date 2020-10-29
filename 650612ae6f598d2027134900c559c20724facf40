@@ -22,6 +22,30 @@
       },
       "revId": "650612ae6f598d2027134900c559c20724facf40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9e934d7_ac33f5be",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-29T19:58:20Z",
+      "side": 0,
+      "message": "Almost certainly that\u0027s the cause. I missed the hand-off here of stencil preservations between the old/new opstasks.",
+      "parentUuid": "e8bbc886_f7ef6a9e",
+      "range": {
+        "startLine": 426,
+        "startChar": 17,
+        "endLine": 426,
+        "endChar": 41
+      },
+      "revId": "650612ae6f598d2027134900c559c20724facf40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
