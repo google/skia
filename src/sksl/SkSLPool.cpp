@@ -89,6 +89,10 @@ std::unique_ptr<Pool> Pool::Create() {
 
 void Pool::Recycle(std::unique_ptr<Pool> pool) {
     if (pool) {
+        if (get_thread_local_memory_pool() == pool->fMemPool.get()) {
+            SkDEBUGFAIL("SkSL pool is being recycled while it is still attached to the thread");
+        }
+
         pool->fMemPool->reportLeaks();
         SkASSERT(pool->fMemPool->isEmpty());
     }
@@ -109,8 +113,10 @@ void Pool::attachToThread() {
 }
 
 void Pool::detachFromThread() {
-    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)get_thread_local_memory_pool());
-    SkASSERT(get_thread_local_memory_pool() != nullptr);
+    MemoryPool* memPool = get_thread_local_memory_pool();
+    VLOG("DETACH Pool:0x%016llX\n", (uint64_t)memPool);
+    SkASSERT(memPool == fMemPool.get());
+    memPool->resetScratchSpace();
     set_thread_local_memory_pool(nullptr);
 }
 
