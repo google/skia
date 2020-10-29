@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c264935f_d5d36170",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T20:15:13Z",
+      "side": 1,
+      "message": "Here\u0027s the launder requirements:\n\n- YES: the pointer p represents the address A of a byte in memory\n- YES: an object X is located at the address A\n- YES: X is within its lifetime\n- NOT SURE: the type of X is the same as T, ignoring cv-qualifiers at every level\n- YES: every byte that would be reachable through the result is reachable through p\n\n(If all are true, then std::launder(p) returns a value of type T* that points to the object X. Otherwise, the behavior is undefined.)\n\nI\u0027m not confident about the type-sameness case because at this point in the code, we haven\u0027t done anything with fStorage yet; it\u0027s just a char[]. I would intuitively think they\u0027re not the same until we placement-new into it.\n\nHowever, I tried using the launder call after the placement-new copy/move loop, and it caused the asserts to fire again.\n\nWhat do you think?",
+      "parentUuid": "6d61c836_54688291",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 56
+      },
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c85f09be_8d0c91bd",
         "filename": "include/private/SkTArray.h",
         "patchSetId": 2
@@ -37,6 +61,24 @@
       "writtenOn": "2020-10-29T20:00:29Z",
       "side": 1,
       "message": "What do we do about GCC users who are not using C++17 yet?",
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54535021_9f8aa327",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-29T20:15:13Z",
+      "side": 1,
+      "message": "We already require that C++17 language support must be enabled, and I don\u0027t know why a GCC user would enable C++17 but then revert to C++14 for their standard library; I know Chrome does this, but I wouldn\u0027t expect it from a typical codebase.\n\nAssuming the situation did occur in the wild (--std\u003dc++17 without std::launder), they would need to compile in -O2 -fno-strict-aliasing to work around the bug, I guess. I don\u0027t know of any way to fix the issue for them. It\u0027s possible that this client would already running into inexplicable errors, or maybe our usage of SkSTArray is limited enough that we don\u0027t actually encounter this issue anywhere outside of tests.",
+      "parentUuid": "c85f09be_8d0c91bd",
       "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
