@@ -151,6 +151,17 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
     out[3] = bit_pun<SkPoint>(p2);
 }
 
+// Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting
+// cubics are convex and rotate no more than 180 degrees.
+//
+//   - If the cubic is "serpentine", then the T values are any inflection points in [0 < T < 1].
+//
+//   - If the cubic is linear, then the T values are any 180-degree cusp points in [0 < T < 1].
+//
+//   - Otherwise the T value is the point at which rotation reaches 180 degrees, iff in [0 < T < 1].
+//
+int findCubicConvex180Chops(const SkPoint[], float T[2]);
+
 }  // namespace GrPathUtils
 
 #endif
