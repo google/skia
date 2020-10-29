@@ -218,6 +218,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7fd1279c_9cdd1b78",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-29T20:52:17Z",
+      "side": 1,
+      "message": "I was trying to stick to familiar GLSL names, where \"fma\" means \"fused if possible\" https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/fma.xhtml\n\nBut fast_madd is probably less ambiguous. I\u0027ll change it",
+      "parentUuid": "69165726_71640785",
+      "range": {
+        "startLine": 20,
+        "startChar": 17,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "8769906c220cf2ed3c00386301d8f7090422c2f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8add1963_dfc3a28e",
         "filename": "src/gpu/GrVx.h",
         "patchSetId": 6
