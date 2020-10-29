@@ -18,6 +18,7 @@ public:
     bool parseColor(SkSVGColorType*);
     bool parseClipPath(SkSVGClip*);
     bool parseFillRule(SkSVGFillRule*);
+    bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);

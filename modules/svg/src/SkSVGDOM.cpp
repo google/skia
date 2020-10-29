@@ -237,6 +237,18 @@ bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetFilterAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                        const char* stringValue) {
+    SkSVGFilterType filter;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFilter(&filter)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFilterValue(filter));
+    return true;
+}
+
 bool SetVisibilityAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                             const char* stringValue) {
     SkSVGVisibility visibility;

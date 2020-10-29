@@ -22,6 +22,7 @@ public:
         kColor,
         kDashArray,
         kFillRule,
+        kFilter,
         kFontFamily,
         kFontSize,
         kFontStyle,
@@ -85,6 +86,7 @@ private:
 using SkSVGClipValue         = SkSVGWrapperValue<SkSVGClip         , SkSVGValue::Type::kClip      >;
 using SkSVGColorValue        = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor     >;
 using SkSVGFillRuleValue     = SkSVGWrapperValue<SkSVGFillRule     , SkSVGValue::Type::kFillRule  >;
+using SkSVGFilterValue       = SkSVGWrapperValue<SkSVGFilterType   , SkSVGValue::Type::kFilter    >;
 using SkSVGLengthValue       = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength    >;
 using SkSVGPathValue         = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath      >;
 using SkSVGTransformValue    = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform >;
