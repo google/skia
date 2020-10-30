@@ -34,6 +34,24 @@
       "parentUuid": "62094d18_df172b47",
       "revId": "b9a513e10e8e5a93cc69210358fe3f2460a4ed9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "490706a6_a96bc3cd",
+        "filename": "modules/svg/include/SkSVGFilterContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-30T19:30:11Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not familar with \"current draw\" or saveLayer(), can you explain a bit how those would work for filter inputs?\n\nTwo ways to apply an image filter: via a draw paint drawFoo(..., IMF) or via a layer paint saveLayer(..., IMF).\n\nA nullptr filter input refers to the \"current draw\" content - either the explicit layer or an implicit layer generated with drawFoo\u0027s content.  This is equivalent to SourceGraphic, and it means you don\u0027t really have to package the input in a separate SkPicture.\n\nE.g. if you wanted to filter a drawCircle you could do this https://fiddle.skia.org/c/6aa41a12d4fcfc0c47f824d6967b89ba\n\nFor arbitrary content (not necessarily an atomic draw) the process is usually\n\n1) saveLayer(IMF)\n2) draw content\n3) restore\n\nwhere nullptr in the filter DAG is essentially the layer content/sourcegraphic: https://fiddle.skia.org/c/3afa417d130607693ec51f5af4c1e345",
+      "parentUuid": "76ae2af8_f96211ef",
+      "revId": "b9a513e10e8e5a93cc69210358fe3f2460a4ed9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
