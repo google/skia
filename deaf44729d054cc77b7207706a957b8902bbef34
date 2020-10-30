@@ -34,6 +34,24 @@
       "parentUuid": "ef95a66e_86f267b9",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a0283df_018b1c4c",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-30T15:24:14Z",
+      "side": 1,
+      "message": "Also wanted to say that it seems std::launder is insane in that while it is called \u0027Pointer optimization barrier\u0027 in the specification, it requires that an actual object X be present at the location pointed to, so it cannot be used to obtain a X* of a zero sized container (which is at least one reason why patch set 1 doesn\u0027t fulfill the requirements). It\u0027s more of a \u0027Pointer to complete object optimization barrier\u0027. (It\u0027s kinda like the reason for \u0027meow::data()\u0027 since \u0027\u0026meow::[0]\u0027 fails on empty containers.) Now, in theory this shouldn\u0027t make a difference since you couldn\u0027t access anything through an X* of a zero sized container, but on the other hand calling std::launder on such a thing is technically UB! So I think SkTArray::data would need to be careful not to call \u0027std::launder(fItemArray)\u0027 when empty, since that would technically be undefined behavior.",
+      "parentUuid": "ef95a66e_86f267b9",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
