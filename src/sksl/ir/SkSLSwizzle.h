@@ -22,11 +22,12 @@ namespace SkSL {
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
-    Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
+    Swizzle(const Context& context, std::unique_ptr<Expression> base,
+            const ComponentArray& components)
             : INHERITED(base->fOffset, kExpressionKind,
                         &base->type().componentType().toCompound(context, components.size(), 1))
             , fBase(std::move(base))
-            , fComponents(std::move(components)) {
+            , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
 
@@ -38,14 +39,14 @@ struct Swizzle final : public Expression {
         return fBase;
     }
 
-    const std::vector<int>& components() const {
+    const ComponentArray& components() const {
         return fComponents;
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (this->base()->kind() == Expression::Kind::kConstructor) {
-            Constructor& constructor = static_cast<Constructor&>(*this->base());
+        if (this->base()->is<Constructor>()) {
+            Constructor& constructor = this->base()->as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
                 // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
                 const Type& type = this->type();
@@ -83,15 +84,15 @@ struct Swizzle final : public Expression {
     }
 
 private:
-    Swizzle(const Type* type, std::unique_ptr<Expression> base, std::vector<int> components)
+    Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
         : INHERITED(base->fOffset, kExpressionKind, type)
         , fBase(std::move(base))
-        , fComponents(std::move(components)) {
+        , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
 
     std::unique_ptr<Expression> fBase;
-    std::vector<int> fComponents;
+    ComponentArray fComponents;
 
     using INHERITED = Expression;
 };
