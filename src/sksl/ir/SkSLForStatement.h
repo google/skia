@@ -24,49 +24,47 @@ public:
     ForStatement(int offset, std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, ForStatementData{std::move(symbols)}) {
-        fStatementChildren.reserve_back(2);
-        fStatementChildren.push_back(std::move(initializer));
-        fStatementChildren.push_back(std::move(statement));
-        fExpressionChildren.reserve_back(2);
-        fExpressionChildren.push_back(std::move(test));
-        fExpressionChildren.push_back(std::move(next));
-    }
+    : INHERITED(offset, kStatementKind)
+    , fSymbolTable(std::move(symbols))
+    , fInitializer(std::move(initializer))
+    , fTest(std::move(test))
+    , fNext(std::move(next))
+    , fStatement(std::move(statement)) {}
 
     std::unique_ptr<Statement>& initializer() {
-        return fStatementChildren[0];
+        return fInitializer;
     }
 
     const std::unique_ptr<Statement>& initializer() const {
-        return fStatementChildren[0];
+        return fInitializer;
     }
 
     std::unique_ptr<Expression>& test() {
-        return fExpressionChildren[0];
+        return fTest;
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return fExpressionChildren[0];
+        return fTest;
     }
 
     std::unique_ptr<Expression>& next() {
-        return fExpressionChildren[1];
+        return fNext;
     }
 
     const std::unique_ptr<Expression>& next() const {
-        return fExpressionChildren[1];
+        return fNext;
     }
 
     std::unique_ptr<Statement>& statement() {
-        return fStatementChildren[1];
+        return fStatement;
     }
 
     const std::unique_ptr<Statement>& statement() const {
-        return fStatementChildren[1];
+        return fStatement;
     }
 
-    std::shared_ptr<SymbolTable> symbols() const {
-        return this->forStatementData().fSymbolTable;
+    const std::shared_ptr<SymbolTable>& symbols() const {
+        return fSymbolTable;
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -99,6 +97,12 @@ public:
     }
 
 private:
+    std::shared_ptr<SymbolTable> fSymbolTable;
+    std::unique_ptr<Statement> fInitializer;
+    std::unique_ptr<Expression> fTest;
+    std::unique_ptr<Expression> fNext;
+    std::unique_ptr<Statement> fStatement;
+
     using INHERITED = Statement;
 };
 
