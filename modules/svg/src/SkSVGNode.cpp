@@ -173,6 +173,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setFillRule(*fillRule);
         }
         break;
+    case SkSVGAttribute::kFilter:
+        if (const SkSVGFilterValue* filter = v.as<SkSVGFilterValue>()) {
+            this->setFilter(*filter);
+        }
+        break;
     case SkSVGAttribute::kFontFamily:
         if (const SkSVGFontFamilyValue* family = v.as<SkSVGFontFamilyValue>()) {
             this->setFontFamily(*family);
