@@ -142,6 +142,24 @@
       "parentUuid": "58e342d2_75f08894",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b7dec6d_6602ba42",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T17:23:37Z",
+      "side": 1,
+      "message": "Ack. Breaking out skstd::launder into its own CL at http://review.skia.org/330819 and will update followup CLs to avoid testing SkSTArray on GCC for the time being.",
+      "parentUuid": "7f2a2513_1e5b4152",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
