@@ -89,7 +89,7 @@ public:
         dawnProcSetProcs(&backendProcs);
 
         std::vector<dawn_native::Adapter> adapters = instance.GetAdapters();
-        for (dawn_native::Adapter adapter : adapters) {
+        for (dawn_native::Adapter& adapter : adapters) {
             if (adapter.GetBackendType() == type) {
                 return wgpu::Device::Acquire(adapter.CreateDevice());
             }
