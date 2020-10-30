@@ -134,6 +134,24 @@
       "parentUuid": "357161e6_a4644776",
       "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e99aca3_48a51a4d",
+        "filename": "src/core/SkMaskGamma.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-10-30T17:35:52Z",
+      "side": 1,
+      "message": "Thanks for the update, SGTM. My main intention was not to have magic numbers in the code here and have them defined as constants at a place where similar values are defined.",
+      "parentUuid": "d59f2298_fbce9c66",
+      "revId": "32005c00ce050c7af386e5e69bebf816eef394c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

@@ -282,6 +282,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "531dc0bf_3c984e0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-10-30T17:35:52Z",
+      "side": 1,
+      "message": "Yes, I am almost always in favour of more splitting. Agree that that would make sense. But also, we need to be clear, why we want the SK_USE_DWRITE_COMPATIBLE_CONTRAST define and put a justification in a comment in the code. I am not a Skia OWNER/reviewer myself, but as my 2 cents: I\u0027d be okay with having this define temporarily for your testing, but then at some point we need a setup where this is tested and not just hidden code.",
+      "parentUuid": "f26ad532_e0261757",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
