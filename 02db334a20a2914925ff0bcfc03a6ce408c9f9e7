@@ -22,6 +22,30 @@
       },
       "revId": "02db334a20a2914925ff0bcfc03a6ce408c9f9e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "173b31f3_b48c3355",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-30T16:49:45Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "04da424b_07023db0",
+      "range": {
+        "startLine": 73,
+        "startChar": 103,
+        "endLine": 73,
+        "endChar": 114
+      },
+      "revId": "02db334a20a2914925ff0bcfc03a6ce408c9f9e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
