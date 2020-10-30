@@ -106,6 +106,24 @@
       "parentUuid": "1402eb71_afb5e95d",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58e342d2_75f08894",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T15:59:23Z",
+      "side": 1,
+      "message": "The only potential sinking ship is if we have some GCC client out there in the wild, who might be experiencing inexplicable Skia crashes in -O3 that go away in -O2. Is this actually happening? No idea. :) It wouldn\u0027t be anything within Google as far as I know; google3 hasn\u0027t been on GCC in a long time.",
+      "parentUuid": "76d31706_0ae605dd",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
