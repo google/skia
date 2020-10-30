@@ -17,6 +17,7 @@
 #include "include/private/SkTo.h"
 
 #include <string.h>
+#include <initializer_list>
 #include <memory>
 #include <new>
 #include <utility>
@@ -33,6 +34,8 @@
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
+    using value_type = T;
+
     /**
      * Creates an empty array with no initial storage
      */
@@ -80,6 +83,13 @@ public:
     SkTArray(const T* array, int count) {
         this->init(count);
         this->copy(array);
+    }
+    /**
+     * Creates a SkTArray by copying contents of an initializer list.
+     */
+    SkTArray(std::initializer_list<T> data) {
+        this->init(data.size());
+        this->copy(&*data.begin());
     }
 
     SkTArray& operator=(const SkTArray& that) {
@@ -361,7 +371,7 @@ public:
     size_t size() const { return (size_t)fCount; }
     void resize(size_t count) { this->resize_back((int)count); }
 
-   /**
+    /**
      * Get the i^th element.
      */
     T& operator[] (int i) {
@@ -471,6 +481,17 @@ protected:
     SkTArray(const T* array, int count, SkAlignedSTStorage<N,T>* storage) {
         this->initWithPreallocatedStorage(count, storage->get(), N);
         this->copy(array);
+    }
+
+    /**
+     * Copy the contents of an initializer list, using preallocated storage if
+     * preAllocCount >= count. Otherwise storage will only be used when array
+     * shrinks to fit.
+     */
+    template <int N>
+    SkTArray(std::initializer_list<T> data, SkAlignedSTStorage<N,T>* storage) {
+        this->initWithPreallocatedStorage(data.size(), storage->get(), N);
+        this->copy(&*data.begin());
     }
 
 private:
@@ -606,7 +627,7 @@ template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHea
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
-template <int N, typename T, bool MEM_MOVE= false>
+template <int N, typename T, bool MEM_MOVE = false>
 class SkSTArray : public SkTArray<T, MEM_MOVE> {
 private:
     using INHERITED = SkTArray<T, MEM_MOVE>;
@@ -637,6 +658,10 @@ public:
 
     SkSTArray(const T* array, int count)
         : INHERITED(array, count, &fStorage) {
+    }
+
+    SkSTArray(std::initializer_list<T> data)
+        : INHERITED(data, &fStorage) {
     }
 
     SkSTArray& operator=(const SkSTArray& array) {
