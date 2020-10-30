@@ -179,6 +179,7 @@ private:
 
     GrGeometryProcessor* setupDfProcessor(SkArenaAlloc*,
                                           const GrShaderCaps&,
+                                          const SkMatrix& localMatrix,
                                           const GrSurfaceProxyView* views,
                                           unsigned int numActiveViews) const;
 
