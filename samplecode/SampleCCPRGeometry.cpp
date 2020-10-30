@@ -66,7 +66,6 @@ class CCPRGeometryView : public Sample {
     void updateGpuData();
 
     PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
-    SkCubicType fCubicType;
 
     SkPoint fPoints[4] = {
             {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
@@ -187,7 +186,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     caption.appendf("PrimitiveType_%s",
                     GrCCCoverageProcessor::PrimitiveTypeName(fPrimitiveType));
     if (PrimitiveType::kCubics == fPrimitiveType) {
-        caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
+        caption.appendf(" (%s)", SkCubicTypeName(SkClassifyCubic(fPoints)));
     } else if (PrimitiveType::kConics == fPrimitiveType) {
         caption.appendf(" (w=%f)", fConicWeight);
     }
