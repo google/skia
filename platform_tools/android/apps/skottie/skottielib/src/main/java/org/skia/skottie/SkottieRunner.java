@@ -495,7 +495,9 @@ class SkottieRunner {
 
         private void drawFrame() {
             try {
+                boolean forceDraw = false;
                 if (mNewSurface) {
+                    forceDraw = true;
                     // if there is a new SurfaceTexture, we need to recreate the EGL surface.
                     if (mEglSurface != null) {
                         mEgl.eglDestroySurface(mEglDisplay, mEglSurface);
@@ -528,7 +530,7 @@ class SkottieRunner {
                     }
                     // only if nDrawFrames() returns true do we need to swap buffers
                     if(nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
-                            mProgress, mBackgroundColor)) {
+                            mProgress, mBackgroundColor, forceDraw)) {
                         if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
                             int error = mEgl.eglGetError();
                             if (error == EGL10.EGL_BAD_SURFACE
@@ -670,7 +672,7 @@ class SkottieRunner {
         private native void nDeleteProxy(long nativeProxy);
         private native boolean nDrawFrame(long nativeProxy, int width, int height,
                                           boolean wideColorGamut, float progress,
-                                          int backgroundColor);
+                                          int backgroundColor, boolean forceDraw);
         private native long nGetDuration(long nativeProxy);
     }
 

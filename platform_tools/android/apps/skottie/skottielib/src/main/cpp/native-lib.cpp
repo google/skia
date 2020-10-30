@@ -179,7 +179,8 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
                                                                      jint height,
                                                                      jboolean wideColorGamut,
                                                                      jfloat progress,
-                                                                     jint backgroundColor) {
+                                                                     jint backgroundColor,
+                                                                     jboolean forceDraw) {
     ATRACE_NAME("SkottieDrawFrame");
     if (!nativeProxy) {
         return false;
@@ -196,7 +197,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
 
     if (skottieAnimation->mAnimation) {
         skottieAnimation->mAnimation->seek(progress, &ic);
-        if (ic.bounds().isEmpty()) {
+        if (!forceDraw && ic.bounds().isEmpty()) {
             return false;
         }
     }
