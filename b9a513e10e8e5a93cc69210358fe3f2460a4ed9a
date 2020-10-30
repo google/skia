@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62094d18_df172b47",
+        "filename": "modules/svg/include/SkSVGFilterContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-30T18:36:39Z",
+      "side": 1,
+      "message": "Are you thinking of always converting inputs to SkPicture?  Normally we would just pass nullptr in Skia to refer to the \"current draw\" - which most likely will end up being a saveLayer().\n\nLet\u0027s leave out for now, until we get to rendering.",
+      "revId": "b9a513e10e8e5a93cc69210358fe3f2460a4ed9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
