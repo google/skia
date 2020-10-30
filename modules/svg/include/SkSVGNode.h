@@ -24,6 +24,7 @@ enum class SkSVGTag {
     kClipPath,
     kDefs,
     kEllipse,
+    kFilter,
     kG,
     kLine,
     kLinearGradient,
@@ -84,6 +85,7 @@ public:
     void setFill(const SkSVGPaint&);
     void setFillOpacity(const SkSVGNumberType&);
     void setFillRule(const SkSVGFillRule&);
+    void setFilter(const SkSVGFilterType&);
     void setOpacity(const SkSVGNumberType&);
     void setStroke(const SkSVGPaint&);
     void setStrokeDashArray(const SkSVGDashArray&);
@@ -100,7 +102,6 @@ public:
     SVG_PRES_ATTR(FontSize  , SkSVGFontSize  , true)
     SVG_PRES_ATTR(FontWeight, SkSVGFontWeight, true)
     SVG_PRES_ATTR(TextAnchor, SkSVGTextAnchor, true)
-    SVG_PRES_ATTR(Filter    , SkSVGFilterType, false)
 
 protected:
     SkSVGNode(SkSVGTag);

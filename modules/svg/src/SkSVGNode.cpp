@@ -101,6 +101,10 @@ void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
     SetInheritedByDefault(fPresentationAttributes.fFillRule, fillRule);
 }
 
+void SkSVGNode::setFilter(const SkSVGFilterType& filter) {
+    fPresentationAttributes.fFilter.set(filter);
+}
+
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
