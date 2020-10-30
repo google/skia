@@ -16,6 +16,75 @@
       "message": "This is the MaskType refactor split out from the larger GrAtlasTextOp change, basically just making it inline with our newer style guide and defining a MaskTypeCount constant.",
       "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dceb1ecb_a524be8e",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T20:29:55Z",
+      "side": 1,
+      "message": "Won\u0027t the switch tell me if I have all the enums covered? If so, I prefer the switch.",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 5
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "778f6430_dad2ee38",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T20:29:55Z",
+      "side": 1,
+      "message": "I don\u0027t see where these are used? Can they be removed?",
+      "range": {
+        "startLine": 60,
+        "startChar": 7,
+        "endLine": 63,
+        "endChar": 0
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11a1a2d3_745736a5",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T20:29:55Z",
+      "side": 1,
+      "message": "It looks like this is not used outside this class. Please remove it from the interface, and use the field internally.",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 51
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
