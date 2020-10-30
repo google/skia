@@ -33,6 +33,75 @@
       "message": "I don\u0027t think the MaskType change to a class enum is important for this change, and it clutters the CL. Can it go in a separate CL?",
       "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8d66224_901e312b",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T19:58:09Z",
+      "side": 1,
+      "message": "This extra abstraction is unneeded. Please keep it inline in the op. If you want to reduce the op size for this data. Just add the bitfield specifications there.",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22e56d24_7a412f3f",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T19:58:09Z",
+      "side": 1,
+      "message": "This can\u0027t be checked and and not getting this right will break the comparison.",
+      "range": {
+        "startLine": 148,
+        "startChar": 8,
+        "endLine": 148,
+        "endChar": 52
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38d0efe8_712af9a8",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T19:58:09Z",
+      "side": 1,
+      "message": "Did you explore using an SkArenaAlloc? Its overhead maybe less than GrTBlockList.",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 26
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
