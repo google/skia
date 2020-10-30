@@ -26,27 +26,31 @@
           android:layout_width="1000px"
           android:layout_height="1000px"
           app:backing_view="texture_view"
-          app:src="@raw/star">
+          app:src="@raw/star"
+          android:repeatCount="infinite">
       </org.skia.skottie.SkottieView>
       <org.skia.skottie.SkottieView
           android:layout_width="1000px"
           android:layout_height="1000px"
           app:backing_view="texture_view"
-          app:src="@raw/movie_loading">
+          app:src="@raw/movie_loading"
+          android:repeatCount="infinite">
       </org.skia.skottie.SkottieView>
       <org.skia.skottie.SkottieView
           android:layout_width="1000px"
           android:layout_height="1000px"
           app:backing_view="surface_view"
           app:background_color="#fefefe"
-          app:src="@raw/uk">
+          app:src="@raw/uk"
+          android:repeatCount="infinite">
       </org.skia.skottie.SkottieView>
       <org.skia.skottie.SkottieView
         android:layout_width="1000px"
         android:layout_height="1000px"
         app:backing_view="surface_view"
         app:background_color="#fefefe"
-        app:src="@raw/white_material_wave_loading">
+        app:src="@raw/white_material_wave_loading"
+        android:repeatCount="infinite">
       </org.skia.skottie.SkottieView>
     </LinearLayout>
   </ScrollView>
