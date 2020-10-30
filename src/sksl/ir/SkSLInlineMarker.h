@@ -23,11 +23,10 @@ public:
     static constexpr Kind kStatementKind = Kind::kInlineMarker;
 
     InlineMarker(const FunctionDeclaration* function)
-            : INHERITED(-1, kStatementKind)
-            , fFunction(*function) {}
+            : INHERITED(-1, InlineMarkerData{function}) {}
 
     const FunctionDeclaration& function() const {
-        return fFunction;
+        return *this->inlineMarkerData().fFunction;
     }
 
     bool isEmpty() const override {
@@ -43,8 +42,6 @@ public:
     }
 
 private:
-    const FunctionDeclaration& fFunction;
-
     using INHERITED = Statement;
 };
 

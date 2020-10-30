@@ -20,8 +20,7 @@ public:
     static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
 
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
-    : INHERITED(-1, kSymbolKind, funcs[0]->name())
-    , fFunctions(std::move(funcs)) {
+    : INHERITED(-1, UnresolvedFunctionData{std::move(funcs)}) {
 #ifdef SK_DEBUG
         SkASSERT(!this->functions().empty());
         for (auto func : this->functions()) {
@@ -30,8 +29,12 @@ public:
 #endif
     }
 
+    StringFragment name() const override {
+        return this->functions()[0]->name();
+    }
+
     const std::vector<const FunctionDeclaration*>& functions() const {
-        return fFunctions;
+        return this->unresolvedFunctionData().fFunctions;
     }
 
     String description() const override {
@@ -39,8 +42,6 @@ public:
     }
 
 private:
-    std::vector<const FunctionDeclaration*> fFunctions;
-
     using INHERITED = Symbol;
 };
 

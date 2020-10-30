@@ -22,24 +22,25 @@ public:
 
     DoStatement(int offset, std::unique_ptr<Statement> statement,
                 std::unique_ptr<Expression> test)
-        : INHERITED(offset, kStatementKind)
-        , fStatement(std::move(statement))
-        , fTest(std::move(test)) {}
+    : INHERITED(offset, kStatementKind) {
+        fStatementChildren.push_back(std::move(statement));
+        fExpressionChildren.push_back(std::move(test));
+    }
 
     std::unique_ptr<Statement>& statement() {
-        return fStatement;
+        return fStatementChildren[0];
     }
 
     const std::unique_ptr<Statement>& statement() const {
-        return fStatement;
+        return fStatementChildren[0];
     }
 
     std::unique_ptr<Expression>& test() {
-        return fTest;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return fTest;
+        return fExpressionChildren[0];
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -53,9 +54,6 @@ public:
     }
 
 private:
-    std::unique_ptr<Statement> fStatement;
-    std::unique_ptr<Expression> fTest;
-
     using INHERITED = Statement;
 };
 

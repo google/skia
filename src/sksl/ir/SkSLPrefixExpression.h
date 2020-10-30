@@ -24,20 +24,24 @@ public:
     static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
-        , fOperator(op)
-        , fOperand(std::move(operand)) {}
+    : INHERITED(operand->fOffset, kExpressionKind, TypeTokenData{&operand->type(), op}) {
+        fExpressionChildren.push_back(std::move(operand));
+    }
+
+    const Type& type() const override {
+        return *this->typeTokenData().fType;
+    }
 
     Token::Kind getOperator() const {
-        return fOperator;
+        return this->typeTokenData().fToken;
     }
 
     std::unique_ptr<Expression>& operand() {
-        return fOperand;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& operand() const {
-        return fOperand;
+        return fExpressionChildren[0];
     }
 
     bool isCompileTimeConstant() const override {
@@ -91,9 +95,6 @@ public:
     }
 
 private:
-    Token::Kind fOperator;
-    std::unique_ptr<Expression> fOperand;
-
     using INHERITED = Expression;
 };
 

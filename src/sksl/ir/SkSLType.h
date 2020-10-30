@@ -116,7 +116,7 @@ public:
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(NumberKind::kNonnumeric) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        this->symbolData().fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 
     // Create a generic type which maps to the listed types.
@@ -133,7 +133,7 @@ public:
     , fTypeKind(TypeKind::kStruct)
     , fNumberKind(NumberKind::kNonnumeric)
     , fFields(std::move(fields)) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        this->symbolData().fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 
     // Create a scalar type.
@@ -169,7 +169,7 @@ public:
     , fColumns(1)
     , fRows(1)
     , fDimensions(SpvDim1D) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        this->symbolData().fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 
     // Create a vector type.
@@ -189,7 +189,7 @@ public:
     , fRows(1)
     , fDimensions(SpvDim1D) {
         SkASSERT(fColumns > 0 || (fTypeKind == TypeKind::kArray && fColumns == kUnsizedArray));
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        this->symbolData().fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 
     // Create a matrix type.

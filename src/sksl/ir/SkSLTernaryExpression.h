@@ -22,35 +22,36 @@ public:
 
     TernaryExpression(int offset, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-        : INHERITED(offset, kExpressionKind, &ifTrue->type())
-        , fTest(std::move(test))
-        , fIfTrue(std::move(ifTrue))
-        , fIfFalse(std::move(ifFalse)) {
-        SkASSERT(this->ifTrue()->type() == this->ifFalse()->type());
+    : INHERITED(offset, kExpressionKind, &ifTrue->type()) {
+        SkASSERT(ifTrue->type() == ifFalse->type());
+        fExpressionChildren.reserve_back(3);
+        fExpressionChildren.push_back(std::move(test));
+        fExpressionChildren.push_back(std::move(ifTrue));
+        fExpressionChildren.push_back(std::move(ifFalse));
     }
 
     std::unique_ptr<Expression>& test() {
-        return fTest;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return fTest;
+        return fExpressionChildren[0];
     }
 
     std::unique_ptr<Expression>& ifTrue() {
-        return fIfTrue;
+        return fExpressionChildren[1];
     }
 
     const std::unique_ptr<Expression>& ifTrue() const {
-        return fIfTrue;
+        return fExpressionChildren[1];
     }
 
     std::unique_ptr<Expression>& ifFalse() {
-        return fIfFalse;
+        return fExpressionChildren[2];
     }
 
     const std::unique_ptr<Expression>& ifFalse() const {
-        return fIfFalse;
+        return fExpressionChildren[2];
     }
 
     bool hasProperty(Property property) const override {
@@ -75,10 +76,6 @@ public:
     }
 
 private:
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Expression> fIfTrue;
-    std::unique_ptr<Expression> fIfFalse;
-
     using INHERITED = Expression;
 };
 

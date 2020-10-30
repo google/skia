@@ -31,15 +31,16 @@ public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
     Constructor(int offset, const Type* type, ExpressionArray arguments)
-        : INHERITED(offset, kExpressionKind, type)
-        , fArguments(std::move(arguments)) {}
+            : INHERITED(offset, kExpressionKind, type) {
+        fExpressionChildren = std::move(arguments);
+    }
 
     ExpressionArray& arguments() {
-        return fArguments;
+        return fExpressionChildren;
     }
 
     const ExpressionArray& arguments() const {
-        return fArguments;
+        return fExpressionChildren;
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -113,8 +114,6 @@ public:
     SKSL_FLOAT getMatComponent(int col, int row) const override;
 
 private:
-    ExpressionArray fArguments;
-
     using INHERITED = Expression;
 };
 

@@ -2317,8 +2317,8 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
-    const Expression& left = *b.left();
-    const Expression& right = *b.right();
+    const Expression& left = b.left();
+    const Expression& right = b.right();
     Token::Kind op = b.getOperator();
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (op) {
@@ -2357,14 +2357,14 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
     SkASSERT(a.getOperator() == Token::Kind::TK_LOGICALAND);
     BoolLiteral falseLiteral(fContext, -1, false);
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
-    SpvId lhs = this->writeExpression(*a.left(), out);
+    SpvId lhs = this->writeExpression(a.left(), out);
     SpvId rhsLabel = this->nextId();
     SpvId end = this->nextId();
     SpvId lhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeInstruction(SpvOpBranchConditional, lhs, rhsLabel, end, out);
     this->writeLabel(rhsLabel, out);
-    SpvId rhs = this->writeExpression(*a.right(), out);
+    SpvId rhs = this->writeExpression(a.right(), out);
     SpvId rhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(end, out);
@@ -2378,14 +2378,14 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream
     SkASSERT(o.getOperator() == Token::Kind::TK_LOGICALOR);
     BoolLiteral trueLiteral(fContext, -1, true);
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
-    SpvId lhs = this->writeExpression(*o.left(), out);
+    SpvId lhs = this->writeExpression(o.left(), out);
     SpvId rhsLabel = this->nextId();
     SpvId end = this->nextId();
     SpvId lhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeInstruction(SpvOpBranchConditional, lhs, end, rhsLabel, out);
     this->writeLabel(rhsLabel, out);
-    SpvId rhs = this->writeExpression(*o.right(), out);
+    SpvId rhs = this->writeExpression(o.right(), out);
     SpvId rhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(end, out);
@@ -3055,11 +3055,11 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     SpvId defaultLabel = end;
     fBreakTarget.push(end);
     int size = 3;
-    auto& cases = s.cases();
-    for (const std::unique_ptr<SwitchCase>& c : cases) {
+    auto cases = s.cases();
+    for (const SwitchCase& c : cases) {
         SpvId label = this->nextId();
         labels.push_back(label);
-        if (c->value()) {
+        if (c.value()) {
             size += 2;
         } else {
             defaultLabel = label;
@@ -3070,16 +3070,16 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeOpCode(SpvOpSwitch, size, out);
     this->writeWord(value, out);
     this->writeWord(defaultLabel, out);
-    for (size_t i = 0; i < cases.size(); ++i) {
-        if (!cases[i]->value()) {
+    for (int i = 0; i < cases.count(); ++i) {
+        if (!cases[i].value()) {
             continue;
         }
-        this->writeWord(cases[i]->value()->as<IntLiteral>().value(), out);
+        this->writeWord(cases[i].value()->as<IntLiteral>().value(), out);
         this->writeWord(labels[i], out);
     }
-    for (size_t i = 0; i < cases.size(); ++i) {
+    for (int i = 0; i < cases.count(); ++i) {
         this->writeLabel(labels[i], out);
-        for (const auto& stmt : cases[i]->statements()) {
+        for (const auto& stmt : cases[i].statements()) {
             this->writeStatement(*stmt, out);
         }
         if (fCurrentBlock) {

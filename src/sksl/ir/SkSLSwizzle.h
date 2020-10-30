@@ -23,23 +23,25 @@ struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
     Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
-            : INHERITED(base->fOffset, kExpressionKind,
-                        &base->type().componentType().toCompound(context, components.size(), 1))
-            , fBase(std::move(base))
-            , fComponents(std::move(components)) {
+            : INHERITED(base->fOffset, swizzle_data(context, *base, std::move(components))) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
+        fExpressionChildren.push_back(std::move(base));
+    }
+
+    const Type& type() const override {
+        return *this->swizzleData().fType;
     }
 
     std::unique_ptr<Expression>& base() {
-        return fBase;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& base() const {
-        return fBase;
+        return fExpressionChildren[0];
     }
 
     const std::vector<int>& components() const {
-        return fComponents;
+        return this->swizzleData().fComponents;
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -84,14 +86,18 @@ struct Swizzle final : public Expression {
 
 private:
     Swizzle(const Type* type, std::unique_ptr<Expression> base, std::vector<int> components)
-        : INHERITED(base->fOffset, kExpressionKind, type)
-        , fBase(std::move(base))
-        , fComponents(std::move(components)) {
+    : INHERITED(base->fOffset, SwizzleData{type, std::move(components)}) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
+        fExpressionChildren.push_back(std::move(base));
     }
 
-    std::unique_ptr<Expression> fBase;
-    std::vector<int> fComponents;
+    static SwizzleData swizzle_data(const Context& context, Expression& base,
+                                    std::vector<int> components) {
+        SwizzleData result;
+        result.fType = &base.type().componentType().toCompound(context, components.size(), 1);
+        result.fComponents = std::move(components);
+        return result;
+    }
 
     using INHERITED = Expression;
 };

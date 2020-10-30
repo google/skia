@@ -908,8 +908,8 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
 
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
-    const Expression& left = *b.left();
-    const Expression& right = *b.right();
+    const Expression& left = b.left();
+    const Expression& right = b.right();
     Token::Kind op = b.getOperator();
     if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
             (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR)) {
@@ -952,10 +952,10 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // Transform:
     // a && b  =>   a ? b : false
     // a || b  =>   a ? true : b
-    this->writeExpression(*b.left(), kTernary_Precedence);
+    this->writeExpression(b.left(), kTernary_Precedence);
     this->write(" ? ");
     if (b.getOperator() == Token::Kind::TK_LOGICALAND) {
-        this->writeExpression(*b.right(), kTernary_Precedence);
+        this->writeExpression(b.right(), kTernary_Precedence);
     } else {
         BoolLiteral boolTrue(fContext, -1, true);
         this->writeBoolLiteral(boolTrue);
@@ -965,7 +965,7 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
         BoolLiteral boolFalse(fContext, -1, false);
         this->writeBoolLiteral(boolFalse);
     } else {
-        this->writeExpression(*b.right(), kTernary_Precedence);
+        this->writeExpression(b.right(), kTernary_Precedence);
     }
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
@@ -1251,10 +1251,10 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     this->writeType(var.baseType());
     this->write(" ");
     this->write(var.var().name());
-    for (const std::unique_ptr<Expression>& size : var.sizes()) {
+    for (int i = 0; i < var.sizeCount(); ++i) {
         this->write("[");
-        if (size) {
-            this->writeExpression(*size, kTopLevel_Precedence);
+        if (var.size(i)) {
+            this->writeExpression(*var.size(i), kTopLevel_Precedence);
         }
         this->write("]");
     }
@@ -1448,16 +1448,16 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     this->writeExpression(*s.value(), kTopLevel_Precedence);
     this->writeLine(") {");
     fIndentation++;
-    for (const std::unique_ptr<SwitchCase>& c : s.cases()) {
-        if (c->value()) {
+    for (const SwitchCase& c : s.cases()) {
+        if (c.value()) {
             this->write("case ");
-            this->writeExpression(*c->value(), kTopLevel_Precedence);
+            this->writeExpression(*c.value(), kTopLevel_Precedence);
             this->writeLine(":");
         } else {
             this->writeLine("default:");
         }
         fIndentation++;
-        for (const auto& stmt : c->statements()) {
+        for (const auto& stmt : c.statements()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }

@@ -22,29 +22,27 @@ public:
 
     Block(int offset, StatementArray statements,
           const std::shared_ptr<SymbolTable> symbols = nullptr, bool isScope = true)
-    : INHERITED(offset, kStatementKind)
-    , fChildren(std::move(statements))
-    , fSymbolTable(std::move(symbols))
-    , fIsScope(isScope) {}
+    : INHERITED(offset, kStatementKind, BlockData{std::move(symbols), isScope},
+                std::move(statements)) {}
 
     const StatementArray& children() const {
-        return fChildren;
+        return fStatementChildren;
     }
 
     StatementArray& children() {
-        return fChildren;
+        return fStatementChildren;
     }
 
     bool isScope() const {
-        return fIsScope;
+        return this->blockData().fIsScope;
     }
 
     void setIsScope(bool isScope) {
-        fIsScope = isScope;
+        this->blockData().fIsScope = isScope;
     }
 
     std::shared_ptr<SymbolTable> symbolTable() const {
-        return fSymbolTable;
+        return this->blockData().fSymbolTable;
     }
 
     bool isEmpty() const override {
@@ -78,13 +76,6 @@ public:
     }
 
 private:
-    StatementArray fChildren;
-    std::shared_ptr<SymbolTable> fSymbolTable;
-    // if isScope is false, this is just a group of statements rather than an actual
-    // language-level block. This allows us to pass around multiple statements as if they were a
-    // single unit, with no semantic impact.
-    bool fIsScope;
-
     using INHERITED = Statement;
 };
 

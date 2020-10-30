@@ -23,43 +23,49 @@ class SwitchStatement final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kSwitch;
 
+    using CaseArray = NodeArrayWrapper<SwitchCase, Statement>;
+
+    using ConstCaseArray = ConstNodeArrayWrapper<SwitchCase, Statement>;
+
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-        : INHERITED(offset, kStatementKind)
-        , fIsStatic(isStatic)
-        , fValue(std::move(value))
-        , fCases(std::move(cases))
-        , fSymbols(std::move(symbols)) {}
+    : INHERITED(offset, SwitchStatementData{isStatic, std::move(symbols)}) {
+        fExpressionChildren.push_back(std::move(value));
+        fStatementChildren.reserve_back(cases.size());
+        for (std::unique_ptr<SwitchCase>& c : cases) {
+            fStatementChildren.push_back(std::move(c));
+        }
+    }
 
     std::unique_ptr<Expression>& value() {
-        return fValue;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& value() const {
-        return fValue;
+        return fExpressionChildren[0];
     }
 
-    std::vector<std::unique_ptr<SwitchCase>>& cases() {
-        return fCases;
+    CaseArray cases() {
+        return CaseArray(&fStatementChildren);
     }
 
-    const std::vector<std::unique_ptr<SwitchCase>>& cases() const {
-        return fCases;
+    ConstCaseArray cases() const {
+        return ConstCaseArray(&fStatementChildren);
     }
 
     bool isStatic() const {
-        return fIsStatic;
+        return this->switchStatementData().fIsStatic;
     }
 
     const std::shared_ptr<SymbolTable>& symbols() const {
-        return fSymbols;
+        return this->switchStatementData().fSymbols;
     }
 
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<SwitchCase>> cloned;
-        for (const std::unique_ptr<SwitchCase>& sc : this->cases()) {
-            cloned.emplace_back(&sc->clone().release()->as<SwitchCase>());
+        for (const std::unique_ptr<Statement>& s : fStatementChildren) {
+            cloned.emplace_back((SwitchCase*) s->as<SwitchCase>().clone().release());
         }
         return std::unique_ptr<Statement>(new SwitchStatement(
                                                       fOffset,
@@ -76,18 +82,13 @@ public:
         }
         result += String::printf("switch (%s) {\n", this->value()->description().c_str());
         for (const auto& c : this->cases()) {
-            result += c->description();
+            result += c.description();
         }
         result += "}";
         return result;
     }
 
 private:
-    bool fIsStatic;
-    std::unique_ptr<Expression> fValue;
-    std::vector<std::unique_ptr<SwitchCase>> fCases;
-    std::shared_ptr<SymbolTable> fSymbols;
-
     using INHERITED = Statement;
 };
 

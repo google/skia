@@ -15,10 +15,12 @@
 namespace SkSL {
 
 VariableReference::VariableReference(int offset, const Variable* variable, RefKind refKind)
-    : INHERITED(offset, kExpressionKind, &variable->type())
-    , fVariable(variable)
-    , fRefKind(refKind) {
+        : INHERITED(offset, VariableReferenceData{variable, refKind}) {
     SkASSERT(this->variable());
+}
+
+const Type& VariableReference::type() const {
+    return this->variableReferenceData().fVariable->type();
 }
 
 bool VariableReference::hasProperty(Property property) const {
@@ -40,11 +42,11 @@ String VariableReference::description() const {
 }
 
 void VariableReference::setRefKind(RefKind refKind) {
-    fRefKind = refKind;
+    this->variableReferenceData().fRefKind = refKind;
 }
 
 void VariableReference::setVariable(const Variable* variable) {
-    fVariable = variable;
+    this->variableReferenceData().fVariable = variable;
 }
 
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,

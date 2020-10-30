@@ -267,9 +267,9 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kBinary: {
                 const BinaryExpression& b = e->as<BinaryExpression>();
                 this->writeCommand(Rehydrator::kBinary_Command);
-                this->write(b.left().get());
+                this->write(&b.left());
                 this->writeU8((int) b.getOperator());
-                this->write(b.right().get());
+                this->write(&b.right());
                 this->write(b.type());
                 break;
             }
@@ -469,11 +469,11 @@ void Dehydrator::write(const Statement* s) {
                 this->writeU8(ss.isStatic());
                 AutoDehydratorSymbolTable symbols(this, ss.symbols());
                 this->write(ss.value().get());
-                this->writeU8(ss.cases().size());
-                for (const std::unique_ptr<SwitchCase>& sc : ss.cases()) {
-                    this->write(sc->value().get());
-                    this->writeU8(sc->statements().size());
-                    for (const std::unique_ptr<Statement>& stmt : sc->statements()) {
+                this->writeU8(ss.cases().count());
+                for (const SwitchCase& sc : ss.cases()) {
+                    this->write(sc.value().get());
+                    this->writeU8(sc.statements().size());
+                    for (const std::unique_ptr<Statement>& stmt : sc.statements()) {
                         this->write(stmt.get());
                     }
                 }
@@ -487,9 +487,9 @@ void Dehydrator::write(const Statement* s) {
                 this->writeCommand(Rehydrator::kVarDeclaration_Command);
                 this->writeU16(this->symbolId(&v.var()));
                 this->write(v.baseType());
-                this->writeU8(v.sizes().count());
-                for (const std::unique_ptr<Expression>& size : v.sizes()) {
-                    this->write(size.get());
+                this->writeU8(v.sizeCount());
+                for (int i = 0; i < v.sizeCount(); ++i) {
+                    this->write(v.size(i).get());
                 }
                 this->write(v.value().get());
                 break;

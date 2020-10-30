@@ -46,24 +46,27 @@ struct IndexExpression final : public Expression {
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-        : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type()))
-        , fBase(std::move(base))
-        , fIndex(std::move(index)) {}
+    : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type())) {
+        SkASSERT(index->type() == *context.fInt_Type || index->type() == *context.fUInt_Type);
+        fExpressionChildren.reserve_back(2);
+        fExpressionChildren.push_back(std::move(base));
+        fExpressionChildren.push_back(std::move(index));
+    }
 
     std::unique_ptr<Expression>& base() {
-        return fBase;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& base() const {
-        return fBase;
+        return fExpressionChildren[0];
     }
 
     std::unique_ptr<Expression>& index() {
-        return fIndex;
+        return fExpressionChildren[1];
     }
 
     const std::unique_ptr<Expression>& index() const {
-        return fIndex;
+        return fExpressionChildren[1];
     }
 
     bool hasProperty(Property property) const override {
@@ -85,13 +88,11 @@ struct IndexExpression final : public Expression {
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
-        : INHERITED(base->fOffset, Kind::kIndex, type)
-        , fBase(std::move(base))
-        , fIndex(std::move(index)) {}
-
-
-    std::unique_ptr<Expression> fBase;
-    std::unique_ptr<Expression> fIndex;
+    : INHERITED(base->fOffset, Kind::kIndex, type) {
+        fExpressionChildren.reserve_back(2);
+        fExpressionChildren.push_back(std::move(base));
+        fExpressionChildren.push_back(std::move(index));
+    }
 };
 
 }  // namespace SkSL

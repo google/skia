@@ -22,20 +22,24 @@ public:
     static constexpr Kind kExpressionKind = Kind::kPostfix;
 
     PostfixExpression(std::unique_ptr<Expression> operand, Token::Kind op)
-        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
-        , fOperand(std::move(operand))
-        , fOperator(op) {}
+    : INHERITED(operand->fOffset, kExpressionKind, TypeTokenData{&operand->type(), op}) {
+        fExpressionChildren.push_back(std::move(operand));
+    }
+
+    const Type& type() const override {
+        return *this->typeTokenData().fType;
+    }
 
     Token::Kind getOperator() const {
-        return fOperator;
+        return this->typeTokenData().fToken;
     }
 
     std::unique_ptr<Expression>& operand() {
-        return fOperand;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& operand() const {
-        return fOperand;
+        return fExpressionChildren[0];
     }
 
     bool hasProperty(Property property) const override {
@@ -55,9 +59,6 @@ public:
     }
 
 private:
-    std::unique_ptr<Expression> fOperand;
-    Token::Kind fOperator;
-
     using INHERITED = Expression;
 };
 

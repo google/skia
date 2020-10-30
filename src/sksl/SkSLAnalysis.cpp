@@ -470,8 +470,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
 
         case Expression::Kind::kBinary: {
             auto& b = e.template as<BinaryExpression>();
-            return (b.left() && this->visitExpression(*b.left())) ||
-                   (b.right() && this->visitExpression(*b.right()));
+            return (b.leftPointer() && this->visitExpression(b.left())) ||
+                   (b.rightPointer() && this->visitExpression(b.right()));
         }
         case Expression::Kind::kConstructor: {
             auto& c = e.template as<Constructor>();
@@ -572,10 +572,10 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
                 return true;
             }
             for (const auto& c : sw.cases()) {
-                if (c->value() && this->visitExpression(*c->value())) {
+                if (c.value() && this->visitExpression(*c.value())) {
                     return true;
                 }
-                for (auto& st : c->statements()) {
+                for (auto& st : c.statements()) {
                     if (st && this->visitStatement(*st)) {
                         return true;
                     }
@@ -585,8 +585,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kVarDeclaration: {
             auto& v = s.template as<VarDeclaration>();
-            for (const std::unique_ptr<Expression>& size : v.sizes()) {
-                if (size && this->visitExpression(*size)) {
+            for (int i = 0; i < v.sizeCount(); ++i) {
+                if (v.size(i) && this->visitExpression(*v.size(i))) {
                     return true;
                 }
             }
