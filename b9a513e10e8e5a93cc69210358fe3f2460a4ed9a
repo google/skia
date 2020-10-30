@@ -16,6 +16,24 @@
       "message": "Are you thinking of always converting inputs to SkPicture?  Normally we would just pass nullptr in Skia to refer to the \"current draw\" - which most likely will end up being a saveLayer().\n\nLet\u0027s leave out for now, until we get to rendering.",
       "revId": "b9a513e10e8e5a93cc69210358fe3f2460a4ed9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76ae2af8_f96211ef",
+        "filename": "modules/svg/include/SkSVGFilterContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-10-30T19:04:25Z",
+      "side": 1,
+      "message": "I\u0027m not familar with \"current draw\" or saveLayer(), can you explain a bit how those would work for filter inputs? Either way I\u0027ll remove for now, turbulence doesn\u0027t take an input so we can still keep that as the initial filter.",
+      "parentUuid": "62094d18_df172b47",
+      "revId": "b9a513e10e8e5a93cc69210358fe3f2460a4ed9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
