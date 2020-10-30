@@ -16,6 +16,24 @@
       "message": "This is currently breaking: Build-Debian10-EMCC-wasm-Release-WasmGMTests\n\nhttps://task-driver.skia.org/td/vw9s1OSMQSZB7lrumeC4",
       "revId": "f71e0be970978f04b4670b41c12ad0baffbb7fcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef6879c4_0d26df1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-30T11:59:36Z",
+      "side": 1,
+      "message": "../../src/sksl/ir/SkSLIRNode.h:46:13: error: definition of implicit copy assignment operator for \u0027IRNode\u0027 is deprecated because it has a user-declared destructor [-Werror,-Wdeprecated-copy-dtor]\n    virtual ~IRNode() {}\n            ^\n../../src/sksl/ir/SkSLSymbol.h:41:46: note: in implicit copy assignment operator for \u0027SkSL::IRNode\u0027 first required here\n    Symbol\u0026 operator\u003d(const Symbol\u0026) \u003d default;\n                                             ^\n../../src/sksl/ir/SkSLType.h:56:7: note: in defaulted copy assignment operator for \u0027SkSL::Symbol\u0027 first required here\nclass Type final : public Symbol {\n      ^\n../../src/sksl/SkSLSPIRVCodeGenerator.cpp:2197:13: note: in implicit copy assignment operator for \u0027SkSL::Type\u0027 first required here\n        tmp \u003d this-\u003egetActualType(leftType);\n            ^\n1 error generated.",
+      "parentUuid": "db6024b7_f0c08492",
+      "revId": "f71e0be970978f04b4670b41c12ad0baffbb7fcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
