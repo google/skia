@@ -16,6 +16,23 @@
       "message": "I put a lot of notes in the commit message, about where the size reductions come from. Perf is neutral on my machine, but I would like to test it on the waterfall at least to see how other devices behave.",
       "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf1d11fe_9de5925f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-30T19:37:04Z",
+      "side": 1,
+      "message": "I don\u0027t think the MaskType change to a class enum is important for this change, and it clutters the CL. Can it go in a separate CL?",
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
