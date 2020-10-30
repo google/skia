@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74d55c53_2e1f9f97",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-30T18:26:18Z",
+      "side": 1,
+      "message": "Does SVG_PRES_ATTR(..., false) work instead?  I\u0027m hoping we can convert everything to macros to cut down boilerplate.",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 18
+      },
+      "revId": "90320bbcddbe54ef5a0905bf46424a96b18254cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
