@@ -70,6 +70,24 @@
       "parentUuid": "7a0283df_018b1c4c",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1402eb71_afb5e95d",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T15:51:29Z",
+      "side": 1,
+      "message": "I think I agree with your analysis. Your \"I\u0027m going to be pedantic\" explanation above sounds right to me--there are a LOT of places where we access fItemArray, and hypothetically many of them might need a launder call. (I think it\u0027s only in places where the existence of a T object at a given address changes, not every cast? But still, lots of review to do.) Do you think we need to do that in this CL, or can we tackle it in followup CLs? What we have in the code now is \"visibly broken and definitely not to spec\" and this CL gets us to \"passing tests but not entirely to spec\" even if it\u0027s imperfect. I think it\u0027s still a step in the right direction, but I can understand if we don\u0027t want to take half measures.\n\n(I do have some blocked follow-up CLs related to converting a vector to SkSTArray so I\u0027m somewhat motivated to get those submitted, but they\u0027re not critical and don\u0027t necessarily need to be blocked. I can just reorganize them to work another way.)",
+      "parentUuid": "5cef3e29_e8226cf2",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
