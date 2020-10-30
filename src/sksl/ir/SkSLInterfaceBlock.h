@@ -34,9 +34,8 @@ public:
     , fVariable(var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
-    , fTypeOwner(std::move(typeOwner)) {
-        fExpressionChildren.move_back_n(sizes.size(), sizes.data());
-    }
+    , fSizes(std::move(sizes))
+    , fTypeOwner(std::move(typeOwner)) {}
 
     const Variable& variable() const {
         return *fVariable;
@@ -59,11 +58,11 @@ public:
     }
 
     ExpressionArray& sizes() {
-        return fExpressionChildren;
+        return fSizes;
     }
 
     const ExpressionArray& sizes() const {
-        return fExpressionChildren;
+        return fSizes;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
@@ -104,6 +103,7 @@ private:
     const Variable* fVariable;
     String fTypeName;
     String fInstanceName;
+    ExpressionArray fSizes;
     std::shared_ptr<SymbolTable> fTypeOwner;
 
     using INHERITED = ProgramElement;
