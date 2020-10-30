@@ -8,6 +8,8 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
+#include "src/gpu/GrTBlockList.h"
+#include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/text/GrTextBlob.h"
 
@@ -18,8 +20,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (int i = 0; i < fGeoCount; i++) {
-            fGeoData[i].fBlob->unref();
+        for (const auto& g : fGeometries.items()) {
+            g.fBlob->unref();
         }
     }
 
@@ -35,7 +37,8 @@ public:
         const SkIRect        fClipRect;
         GrTextBlob* const    fBlob;  // mutable to make unref call in Op dtor.
 
-        // Strangely, the color is mutated as part of the onPrepare process.
+        // Color is updated after processor analysis if it was determined the shader resolves to
+        // a constant color that we then evaluate on the CPU.
         SkPMColor4f          fColor;
     };
 
@@ -61,7 +64,7 @@ public:
     };
     static const int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
-    MaskType maskType() const { return fMaskType; }
+    MaskType maskType() const { return fMetadata.maskType(); }
 
 #if GR_TEST_UTILS
     static GrOp::Owner CreateOpTestingOnly(GrRenderTargetContext* rtc,
@@ -75,9 +78,6 @@ public:
 
 private:
     friend class GrOp; // for ctor
-
-    // The minimum number of Geometry we will try to allocate.
-    static constexpr auto kMinGeometryAllocated = 12;
 
     GrAtlasTextOp(MaskType maskType,
                   bool needsTransform,
@@ -104,6 +104,52 @@ private:
         int fGlyphsToFlush = 0;
         int fVertexOffset = 0;
         int fNumDraws = 0;
+    };
+
+    struct Metadata {
+        Metadata(MaskType maskType,
+                 uint32_t dfgpFlags,
+                 bool needsGlyphTransform,
+                 bool drawMatrixHasPerspective,
+                 bool useGammaCorrectDistanceTable)
+            : fDFGPFlags(dfgpFlags)
+            , fMaskType(static_cast<uint32_t>(maskType))
+            , fUsesLocalCoords(0)
+            , fNeedsGlyphTransform(needsGlyphTransform)
+            , fHasPerspective(needsGlyphTransform && drawMatrixHasPerspective)
+            , fUseGammaCorrectDistanceTable(useGammaCorrectDistanceTable)
+            , fUnused(0) {}
+
+        MaskType maskType() const { return static_cast<MaskType>(fMaskType); }
+        uint32_t dfgpFlags() const { return fDFGPFlags; }
+        bool usesLocalCoords() const { return fUsesLocalCoords; }
+        bool needsGlyphTransform() const { return fNeedsGlyphTransform; }
+        bool hasPerspective() const { return fHasPerspective; }
+        bool useGammaCorrectDistanceTable() const { return fUseGammaCorrectDistanceTable; }
+
+        void setUsesLocalCoords(bool usesLocalCoords) {
+            fUsesLocalCoords = usesLocalCoords;
+        }
+
+        uint32_t asBitMask() const {
+            static_assert(sizeof(Metadata) == 4);
+
+            uint32_t mask;
+            memcpy(&mask, this, 4);
+            return mask;
+        }
+
+        uint32_t fDFGPFlags                    : 9; // Distance field properties
+        uint32_t fMaskType                     : 3; // MaskType
+        uint32_t fUsesLocalCoords              : 1; // Filled in post processor analysis
+        uint32_t fNeedsGlyphTransform          : 1;
+        uint32_t fHasPerspective               : 1; // True if perspective affects draw
+        uint32_t fUseGammaCorrectDistanceTable : 1;
+        uint32_t fUnused                       : 16; // # of bits left before Metadata > 4 bytes
+
+        static_assert(kMaskTypeCount <= 8, "MaskType will not fit in 3 bits");
+        static_assert(kInvalid_DistanceFieldEffectFlag <= (1 << 8),
+                      "DFGP Flags will not fit in 9 bits");
     };
 
     GrProgramInfo* programInfo() override {
@@ -171,10 +217,6 @@ private:
     inline void createDrawForGeneratedGlyphs(
             GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
-    const SkPMColor4f& color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-    int numGlyphs() const { return fNumGlyphs; }
-
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
     GrGeometryProcessor* setupDfProcessor(SkArenaAlloc*,
@@ -183,18 +225,20 @@ private:
                                           const GrSurfaceProxyView* views,
                                           unsigned int numActiveViews) const;
 
-    const MaskType fMaskType;
-    const bool fNeedsGlyphTransform;
-    const SkColor fLuminanceColor{0};
-    const bool fUseGammaCorrectDistanceTable{false};
-    // Distance field properties
-    const uint32_t fDFGPFlags;
-    SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
-    int fGeoDataAllocSize;
+    // The minimum number of Geometry we will try to allocate as ops are merged together.
+    // The atlas text op holds one Geometry inline. When combined with the linear growth policy,
+    // the total number of geometries follows 6, 18, 36, 60, 90 (the deltas are 6*n).
+    static constexpr auto kMinGeometryAllocated = 6;
+
+    GrTBlockList<Geometry> fGeometries{kMinGeometryAllocated,
+                                       GrBlockAllocator::GrowthPolicy::kLinear};
     GrProcessorSet fProcessors;
-    bool fUsesLocalCoords;
-    int fGeoCount;
-    int fNumGlyphs;
+    Metadata fMetadata; // All combinable ops have the same metadata
+    int fNumGlyphs; // Sum of glyphs in each geometry's subrun
+
+    // Only used for distance fields; per-channel luminance for LCD, or gamma-corrected luminance
+    // for single-channel distance fields.
+    const SkColor fLuminanceColor{0};
 
     using INHERITED = GrMeshDrawOp;
 };
