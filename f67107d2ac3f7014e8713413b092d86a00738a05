@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5836676_0f15f85d",
+        "filename": "include/private/SkTLogic.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T13:56:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d5b7ffa_3bca482e",
+      "revId": "f67107d2ac3f7014e8713413b092d86a00738a05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d8bec64b_68d845eb",
@@ -48,6 +66,24 @@
       "writtenOn": "2020-10-30T13:48:41Z",
       "side": 1,
       "message": "Let\u0027s make this #error?",
+      "revId": "f67107d2ac3f7014e8713413b092d86a00738a05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a07e681b_ffa3fbac",
+        "filename": "include/private/SkTLogic.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T13:56:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8bec64b_68d845eb",
       "revId": "f67107d2ac3f7014e8713413b092d86a00738a05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
