@@ -1369,7 +1369,7 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
     }
 
     if (kAppend_AddPathMode == mode && !matrix.hasPerspective()) {
-        if (src->fLastMoveToIndex >= 0) {
+        if (src->fLastMoveToIndex != 0) {
             fLastMoveToIndex = this->countPoints() + src->fLastMoveToIndex;
         }
         SkPathRef::Editor ed(&fPathRef);

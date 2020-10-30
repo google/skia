@@ -147,6 +147,23 @@ static void test_fuzz_crbug_638223() {
         SkBits2Float(0x6bf9abea));  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
     test_draw_AA_path(250, 250, path);
 }
+static void test_crbug_1134474(skiatest::Reporter* reporter) {
+    SkPath path1;
+    SkPath path2;
+    SkRect rect = SkRect::MakeXYWH(20, 20, 40 , 40);
+
+    path1.moveTo(230, 230); // Try to trick addpath
+    path1.addRect(rect);
+
+    path2.addPath(path1);
+    path2.lineTo(10, 10);
+
+    // retrieve the point from which the lineTo started
+    const SkPoint lineOrigin = path2.getPoint(path2.countPoints()-2);
+
+    REPORTER_ASSERT(reporter, 20 == lineOrigin.fX);
+    REPORTER_ASSERT(reporter, 20 == lineOrigin.fY);
+}
 
 static void test_fuzz_crbug_643933() {
     SkPath path;
@@ -4982,6 +4999,7 @@ DEF_TEST(Paths, reporter) {
     test_skbug_3239(reporter);
     test_bounds_crbug_513799(reporter);
     test_fuzz_crbug_638223();
+    test_crbug_1134474(reporter);
 }
 
 DEF_TEST(conservatively_contains_rect, reporter) {
