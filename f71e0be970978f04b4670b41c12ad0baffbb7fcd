@@ -34,6 +34,24 @@
       "parentUuid": "db6024b7_f0c08492",
       "revId": "f71e0be970978f04b4670b41c12ad0baffbb7fcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abd29e86_60de5877",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-30T13:22:41Z",
+      "side": 1,
+      "message": "Rolled back at http://review.skia.org/330736\n\nIt\u0027s probably a simple fix but this will get the tree back on its feet for now.",
+      "parentUuid": "ef6879c4_0d26df1d",
+      "revId": "f71e0be970978f04b4670b41c12ad0baffbb7fcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
