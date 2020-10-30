@@ -542,12 +542,11 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
             int count = this->readU8();
-            std::vector<int> components;
-            components.reserve(count);
+            ComponentArray components;
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return std::make_unique<Swizzle>(fContext, std::move(base), std::move(components));
+            return std::make_unique<Swizzle>(fContext, std::move(base), components);
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();

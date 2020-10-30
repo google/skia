@@ -797,18 +797,26 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
-    #define SWIZZLE(expr, ...) std::unique_ptr<Expression>(new Swizzle(fContext, expr, \
-                                                                       { __VA_ARGS__ }))
+    #define SWIZZLE(expr, comp) std::unique_ptr<Expression>( \
+                    new Swizzle(fContext, expr, ComponentArray(comp, SK_ARRAY_COUNT(comp))))
     #define OP(left, op, right) std::unique_ptr<Expression>( \
                                    new BinaryExpression(-1, left, op, right, \
                                                         fContext.fFloat2_Type.get()))
+
+    static constexpr int8_t kXYIndices[] = {0, 1};
+    static constexpr int8_t kXZIndices[] = {0, 2};
+    static constexpr int8_t kYWIndices[] = {1, 3};
+    static constexpr int8_t kWWIndices[] = {3, 3};
+    static constexpr int8_t kWIndex[]    = {3};
+
     ExpressionArray children;
     children.reserve_back(3);
-    children.push_back(OP(OP(SWIZZLE(POS, 0, 1), Token::Kind::TK_STAR, SWIZZLE(ADJUST, 0, 2)),
-                          Token::Kind::TK_PLUS,
-                          OP(SWIZZLE(POS, 3, 3), Token::Kind::TK_STAR, SWIZZLE(ADJUST, 1, 3))));
+    children.push_back(
+            OP(OP(SWIZZLE(POS, kXYIndices), Token::Kind::TK_STAR, SWIZZLE(ADJUST, kXZIndices)),
+                  Token::Kind::TK_PLUS,
+                  OP(SWIZZLE(POS, kWWIndices), Token::Kind::TK_STAR, SWIZZLE(ADJUST, kYWIndices))));
     children.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, /*value=*/0.0));
-    children.push_back(SWIZZLE(POS, 3));
+    children.push_back(SWIZZLE(POS, kWIndex));
     std::unique_ptr<Expression> result = OP(POS, Token::Kind::TK_EQ,
                                  std::make_unique<Constructor>(/*offset=*/-1,
                                                                fContext.fFloat4_Type.get(),
@@ -2483,8 +2491,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
 
-    std::vector<int> maskComponents;
-    maskComponents.reserve(fields.fLength);
+    ComponentArray maskComponents;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
@@ -2574,8 +2581,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     //   vector.y111 -> type4(vector.y, 1).xyyy
     //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
     const Type* numberType = baseType.isNumber() ? &baseType : &baseType.componentType();
-    std::vector<int> swizzleComponents;
-    swizzleComponents.reserve(fields.fLength);
+    ComponentArray swizzleComponents;
     int maskFieldIdx = 0;
     int constantFieldIdx = maskComponents.size();
     int constantZeroIdx = -1, constantOneIdx = -1;
@@ -2621,8 +2627,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     for (size_t i = 0; i < swizzleComponents.size(); ++i) {
         if (swizzleComponents[i] != int(i)) {
             // The swizzle has an effect, so apply it.
-            return std::make_unique<Swizzle>(fContext, std::move(expr),
-                                             std::move(swizzleComponents));
+            return std::make_unique<Swizzle>(fContext, std::move(expr), swizzleComponents);
         }
     }
 

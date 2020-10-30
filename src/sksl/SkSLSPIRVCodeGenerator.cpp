@@ -1647,7 +1647,7 @@ private:
 
 class SwizzleLValue : public SPIRVCodeGenerator::LValue {
 public:
-    SwizzleLValue(SPIRVCodeGenerator& gen, SpvId vecPointer, const std::vector<int>& components,
+    SwizzleLValue(SPIRVCodeGenerator& gen, SpvId vecPointer, const ComponentArray& components,
                   const Type& baseType, const Type& swizzleType,
                   SPIRVCodeGenerator::Precision precision)
     : fGen(gen)
@@ -1720,7 +1720,7 @@ public:
 private:
     SPIRVCodeGenerator& fGen;
     const SpvId fVecPointer;
-    const std::vector<int>& fComponents;
+    const ComponentArray& fComponents;
     const Type& fBaseType;
     const Type& fSwizzleType;
     const SPIRVCodeGenerator::Precision fPrecision;
