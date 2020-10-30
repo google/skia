@@ -88,6 +88,24 @@
       "parentUuid": "5cef3e29_e8226cf2",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76d31706_0ae605dd",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-30T15:55:12Z",
+      "side": 1,
+      "message": "Why don\u0027t you go ahead with the other follow ups in a way that\u0027s agnostic to whether or not this lands, so then we can take our time to get something we like here.  This has brought up some issues that suggest we seriously rework some of these data structures, and I\u0027d like to do that coherently and once if possible.  There\u0027s no boat actively sinking right now that needs bailing out, right?",
+      "parentUuid": "1402eb71_afb5e95d",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
