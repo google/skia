@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e62d37d_466e5fc8",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-30T20:43:59Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 1061,
+        "startChar": 67,
+        "endLine": 1061,
+        "endChar": 78
+      },
+      "revId": "1048d37ce0e3ec8ed43972d6371f55c996b24831",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
