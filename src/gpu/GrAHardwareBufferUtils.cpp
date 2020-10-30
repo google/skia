@@ -527,7 +527,9 @@ static bool can_import_protected_content(GrDirectContext* dContext) {
         static bool hasIt = can_import_protected_content_eglimpl();
         return hasIt;
     } else if (GrBackendApi::kVulkan == dContext->backend()) {
+#ifdef SK_VULKAN
         return static_cast<GrVkGpu*>(dContext->priv().getGpu())->protectedContext();
+#endif
     }
     return false;
 }
