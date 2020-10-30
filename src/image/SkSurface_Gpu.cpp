@@ -655,13 +655,6 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
     }
 
     bool isTextureable = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE);
-    bool isProtectedContent = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
-
-    // We currently don't support protected content for Vulkan
-    if (isProtectedContent && dContext->backend() == GrBackendApi::kVulkan) {
-        SkDebugf("We currently don't support protected content for Vulkan\n");
-        return nullptr;
-    }
 
     GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(dContext,
                                                                              hardwareBuffer,
@@ -675,6 +668,9 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
         GrAHardwareBufferUtils::DeleteImageProc deleteImageProc = nullptr;
         GrAHardwareBufferUtils::UpdateImageProc updateImageProc = nullptr;
         GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
+
+        bool isProtectedContent =
+                SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
 
         GrBackendTexture backendTexture =
                 GrAHardwareBufferUtils::MakeBackendTexture(dContext, hardwareBuffer,

@@ -310,6 +310,8 @@ static GrBackendTexture make_vk_backend_texture(
     SkASSERT(dContext->backend() == GrBackendApi::kVulkan);
     GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
 
+    SkASSERT(!isProtectedContent || gpu->protectedContext());
+
     VkPhysicalDevice physicalDevice = gpu->physicalDevice();
     VkDevice device = gpu->device();
 
@@ -383,10 +385,12 @@ static GrBackendTexture make_vk_backend_texture(
     // to use linear. Add better linear support throughout Ganesh.
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
 
+    VkImageCreateFlags flags = isProtectedContent ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
         &externalMemoryImageInfo,                    // pNext
-        0,                                           // VkImageCreateFlags
+        flags,                                       // VkImageCreateFlags
         VK_IMAGE_TYPE_2D,                            // VkImageType
         format,                                      // VkFormat
         { (uint32_t)width, (uint32_t)height, 1 },    // VkExtent3D
@@ -490,6 +494,7 @@ static GrBackendTexture make_vk_backend_texture(
     // support that extension. Or if we know the source of the AHardwareBuffer is not from a
     // "foreign" device we can leave them as external.
     imageInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
+    imageInfo.fProtected = isProtectedContent ? GrProtected::kYes : GrProtected::kNo;
     imageInfo.fYcbcrConversionInfo = *ycbcrConversion;
     imageInfo.fSharingMode = imageCreateInfo.sharingMode;
 
@@ -521,6 +526,8 @@ static bool can_import_protected_content(GrDirectContext* dContext) {
         // function is called.
         static bool hasIt = can_import_protected_content_eglimpl();
         return hasIt;
+    } else if (GrBackendApi::kVulkan == dContext->backend()) {
+        return static_cast<GrVkGpu*>(dContext->priv().getGpu())->protectedContext();
     }
     return false;
 }
@@ -546,8 +553,6 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* dContext, AHardwareBuffer* 
     } else {
         SkASSERT(GrBackendApi::kVulkan == dContext->backend());
 #ifdef SK_VULKAN
-        // Currently we don't support protected images on vulkan
-        SkASSERT(!createProtectedImage);
         return make_vk_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
                                        updateProc, imageCtx, createProtectedImage, backendFormat,
                                        isRenderable);
