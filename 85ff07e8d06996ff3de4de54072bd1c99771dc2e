@@ -187,6 +187,30 @@
       },
       "revId": "85ff07e8d06996ff3de4de54072bd1c99771dc2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b63691c2_445241de",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-30T16:25:31Z",
+      "side": 1,
+      "message": "I think it would be an easy enough addition to this CL. It looks like tests can\u0027t modify the GrMockOptions, so it would be as simple as:\n\n    if ((*contextTypeFilter)(sk_gpu_test::GrContextFactory::ContextType::kGL_ContextType)) {\n        run_test(GrDirectContext::MakeGL(options));\n    }\n    if ((*contextTypeFilter)(sk_gpu_test::GrContextFactory::ContextType::kMock_ContextType)) {\n        run_test(GrDirectContext::MakeMock(nullptr, options));\n    }",
+      "parentUuid": "9ac31afb_76a5f8c2",
+      "range": {
+        "startLine": 296,
+        "startChar": 95,
+        "endLine": 296,
+        "endChar": 110
+      },
+      "revId": "85ff07e8d06996ff3de4de54072bd1c99771dc2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
