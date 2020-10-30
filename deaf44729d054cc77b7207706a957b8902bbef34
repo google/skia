@@ -52,6 +52,24 @@
       "parentUuid": "ef95a66e_86f267b9",
       "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cef3e29_e8226cf2",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-30T15:27:12Z",
+      "side": 1,
+      "message": "\u003e I\u0027m also not really sure why we have SkAlignedSTStorage when we can just do `alignas(T) char buf[sizeof(T) * K]`-type setups.\n\nWe should (I think) at least try to move to std::aligned_storage, which is used elsewhere. I\u0027m pretty sure that\u0027s more or less a direct replacement? Of course, that\u0027s pretty much a vocabulary type for exactly what you propose.",
+      "parentUuid": "7a0283df_018b1c4c",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
