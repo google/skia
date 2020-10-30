@@ -1093,43 +1093,45 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     SkASSERT(intf.fKind == ASTNode::Kind::kInterfaceBlock);
     ASTNode::InterfaceBlockData id = intf.getInterfaceBlockData();
     std::shared_ptr<SymbolTable> old = fSymbolTable;
-    this->pushSymbolTable();
-    std::shared_ptr<SymbolTable> symbols = fSymbolTable;
+    std::shared_ptr<SymbolTable> symbols;
     std::vector<Type::Field> fields;
-    bool haveRuntimeArray = false;
     bool foundRTAdjust = false;
     auto iter = intf.begin();
-    for (size_t i = 0; i < id.fDeclarationCount; ++i) {
-        StatementArray decls = this->convertVarDeclarations(*(iter++),
-                                                            Variable::Storage::kInterfaceBlock);
-        if (decls.empty()) {
-            return nullptr;
-        }
-        for (const auto& decl : decls) {
-            const VarDeclaration& vd = decl->as<VarDeclaration>();
-            if (haveRuntimeArray) {
-                fErrors.error(decl->fOffset,
-                            "only the last entry in an interface block may be a runtime-sized "
-                            "array");
+    {
+        AutoSymbolTable table(this);
+        symbols = fSymbolTable;
+        bool haveRuntimeArray = false;
+        for (size_t i = 0; i < id.fDeclarationCount; ++i) {
+            StatementArray decls = this->convertVarDeclarations(*(iter++),
+                                                                Variable::Storage::kInterfaceBlock);
+            if (decls.empty()) {
+                return nullptr;
             }
-            if (&vd.var() == fRTAdjust) {
-                foundRTAdjust = true;
-                SkASSERT(vd.var().type() == *fContext.fFloat4_Type);
-                fRTAdjustFieldIndex = fields.size();
-            }
-            fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
-                                        &vd.var().type()));
-            if (vd.value()) {
-                fErrors.error(decl->fOffset,
-                            "initializers are not permitted on interface block fields");
-            }
-            if (vd.var().type().typeKind() == Type::TypeKind::kArray &&
-                vd.var().type().columns() == Type::kUnsizedArray) {
-                haveRuntimeArray = true;
+            for (const auto& decl : decls) {
+                const VarDeclaration& vd = decl->as<VarDeclaration>();
+                if (haveRuntimeArray) {
+                    fErrors.error(decl->fOffset,
+                                "only the last entry in an interface block may be a runtime-sized "
+                                "array");
+                }
+                if (&vd.var() == fRTAdjust) {
+                    foundRTAdjust = true;
+                    SkASSERT(vd.var().type() == *fContext.fFloat4_Type);
+                    fRTAdjustFieldIndex = fields.size();
+                }
+                fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
+                                            &vd.var().type()));
+                if (vd.value()) {
+                    fErrors.error(decl->fOffset,
+                                "initializers are not permitted on interface block fields");
+                }
+                if (vd.var().type().typeKind() == Type::TypeKind::kArray &&
+                    vd.var().type().columns() == Type::kUnsizedArray) {
+                    haveRuntimeArray = true;
+                }
             }
         }
     }
-    this->popSymbolTable();
     const Type* type =
             old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
     ExpressionArray sizes;
