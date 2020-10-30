@@ -24,6 +24,7 @@ enum class SkSVGTag {
     kClipPath,
     kDefs,
     kEllipse,
+    kFilter,
     kG,
     kLine,
     kLinearGradient,
