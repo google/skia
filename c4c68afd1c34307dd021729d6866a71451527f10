@@ -16,6 +16,23 @@
       "message": "Mike, I\u0027m not too familiar with the behavior of fLastMoveToIndex. Are you the one to ask? Does this look right to you?",
       "revId": "c4c68afd1c34307dd021729d6866a71451527f10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1f2873d_9fd7eec9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-30T16:56:44Z",
+      "side": 1,
+      "message": "If I run the new test w/o the patch, it doesn\u0027t fail. Is that expected?",
+      "revId": "c4c68afd1c34307dd021729d6866a71451527f10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
