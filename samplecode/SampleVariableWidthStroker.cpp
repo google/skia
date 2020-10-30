@@ -450,17 +450,11 @@ private:
     /** Initialize stroker state */
     void initForPath(const SkPath& path, const SkPaint& paint);
 
-    /** Strokes a line segment */
-    OffsetSegments strokeLine(const PathSegment& line,
-                              const ScalarBezCurve& varWidth,
-                              const ScalarBezCurve& varWidthInner,
-                              bool needsMove);
-
-    /** Strokes a quadratic segment */
-    OffsetSegments strokeQuad(const PathSegment& quad,
-                              const ScalarBezCurve& varWidth,
-                              const ScalarBezCurve& varWidthInner,
-                              bool needsMove);
+    /** Strokes a path segment */
+    OffsetSegments strokeSegment(const PathSegment& segment,
+                                 const ScalarBezCurve& varWidth,
+                                 const ScalarBezCurve& varWidthInner,
+                                 bool needsMove);
 
     /**
      * Strokes the given segment using the given distance function.
@@ -578,10 +572,9 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
         // Stroke the current segment
         switch (segment.fVerb) {
             case SkPath::kLine_Verb:
-                offsetSegs = strokeLine(segment, partVarWidth, partVarWidthInner, firstSegment);
-                break;
             case SkPath::kQuad_Verb:
-                offsetSegs = strokeQuad(segment, partVarWidth, partVarWidthInner, firstSegment);
+            case SkPath::kCubic_Verb:
+                offsetSegs = strokeSegment(segment, partVarWidth, partVarWidthInner, firstSegment);
                 break;
             case SkPath::kMove_Verb:
                 // Don't care about multiple contours currently
@@ -630,25 +623,15 @@ SkPath SkVarWidthStroker::getFillPath(const SkPath& path,
     return fOuter;
 }
 
-SkVarWidthStroker::OffsetSegments SkVarWidthStroker::strokeLine(const PathSegment& line,
-                                                                const ScalarBezCurve& varWidth,
-                                                                const ScalarBezCurve& varWidthInner,
-                                                                bool needsMove) {
+SkVarWidthStroker::OffsetSegments SkVarWidthStroker::strokeSegment(
+        const PathSegment& segment,
+        const ScalarBezCurve& varWidth,
+        const ScalarBezCurve& varWidthInner,
+        bool needsMove) {
     viz::outerErr.reset(nullptr);
 
-    std::vector<PathSegment> outer = strokeSegment(line, varWidth);
-    std::vector<PathSegment> inner = strokeSegment(line, varWidthInner);
-    return {inner, outer};
-}
-
-SkVarWidthStroker::OffsetSegments SkVarWidthStroker::strokeQuad(const PathSegment& quad,
-                                                                const ScalarBezCurve& varWidth,
-                                                                const ScalarBezCurve& varWidthInner,
-                                                                bool needsMove) {
-    viz::outerErr.reset(nullptr);
-
-    std::vector<PathSegment> outer = strokeSegment(quad, varWidth);
-    std::vector<PathSegment> inner = strokeSegment(quad, varWidthInner);
+    std::vector<PathSegment> outer = strokeSegment(segment, varWidth);
+    std::vector<PathSegment> inner = strokeSegment(segment, varWidthInner);
     return {inner, outer};
 }
 
@@ -1007,6 +990,18 @@ SkPoint SkVarWidthStroker::unitNormal(const PathSegment& seg, float t, SkPoint* 
             }
             if (!tangent.normalize()) {
                 SkDebugf("Failed to normalize quad tangent\n");
+                SkASSERT(false);
+            }
+            if (tangentOut) {
+                *tangentOut = tangent;
+            }
+            return rotate90(tangent);
+        }
+        case SkPath::kCubic_Verb: {
+            SkPoint tangent;
+            SkEvalCubicAt(seg.fPoints.data(), t, nullptr, &tangent, nullptr);
+            if (!tangent.normalize()) {
+                SkDebugf("Failed to normalize cubic tangent\n");
                 SkASSERT(false);
             }
             if (tangentOut) {
