@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef95a66e_86f267b9",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-30T15:07:48Z",
+      "side": 1,
+      "message": "So I\u0027m going to be pedantic here, but that\u0027s the only way to be with std::launder. This is still undefined behavior (it works in gcc because gcc seems to be using launder as a full break in pointer analysis for that pointer, since things might be insane, like at the bottom of https://miyuki.github.io/2016/10/21/std-launder.html ). The need for std::launder is *after* the \u0027new\u0027. It seems that just about anywhere the return value of \u0027placement new T\u0027 is disregarded is eventually going to want a std::launder. (Note that it is the pointer returned from launder which is \u0027laundered\u0027, the original pointer is not). I believe if we kept an array of the pointers which came out of these \u0027placement new T\u0027 (including all the others in this file) and used those instead of going through fItemArray offsets (which the compiler is seeing through the aliasing and doesn\u0027t think is \u0027really\u0027 a T*) then things would work. Of course, no one is going to do that.\n\nI think generally the only real right way to do it is to make fItemArray just be a \u0027char*\u0027 and std::launder every cast to T*.\n\nNote that the existing code on the left of this particular diff carefully stays in \u0027char*\u0027 and avoids the \u0027static_cast\u003cT*\u003e(dst_v) + i\u0027 since it is really difficult to tell if doing pointer arithmetic in T space is actually legal here (in the end \u0027new\u0027 is just taking it as \u0027void*\u0027 so it might be ok?). I\u0027m almost convinced that going with \u0027static_cast\u003cT*\u003e(dst_v) + i\u0027 won\u0027t cause trouble at some point, but I\u0027m not sure enough to bet on it either way.",
+      "revId": "deaf44729d054cc77b7207706a957b8902bbef34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
