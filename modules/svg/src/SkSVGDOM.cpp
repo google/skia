@@ -237,6 +237,18 @@ bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetFilterAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                        const char* stringValue) {
+    SkSVGFilterType filter;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFilter(&filter)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFilterValue(filter));
+    return true;
+}
+
 bool SetVisibilityAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                             const char* stringValue) {
     SkSVGVisibility visibility;
@@ -421,6 +433,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fill"               , { SkSVGAttribute::kFill             , SetPaintAttribute        }},
     { "fill-opacity"       , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
     { "fill-rule"          , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
+    { "filter"             , { SkSVGAttribute::kFilter           , SetFilterAttribute       }},
     { "font-family"        , { SkSVGAttribute::kFontFamily       , SetFontFamilyAttribute   }},
     { "font-size"          , { SkSVGAttribute::kFontSize         , SetFontSizeAttribute     }},
     { "font-style"         , { SkSVGAttribute::kFontStyle        , SetFontStyleAttribute    }},

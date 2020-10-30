@@ -684,6 +684,25 @@ bool SkSVGAttributeParser::parseFillRule(SkSVGFillRule* fillRule) {
     return parsedValue && this->parseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG11/filters.html#FilterProperty
+bool SkSVGAttributeParser::parseFilter(SkSVGFilterType* filter) {
+    SkSVGStringType iri;
+    bool parsedValue = false;
+
+    if (this->parseExpectedStringToken("none")) {
+        *filter = SkSVGFilterType(SkSVGFilterType::Type::kNone);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *filter = SkSVGFilterType(SkSVGFilterType::Type::kInherit);
+        parsedValue = true;
+    } else if (this->parseFuncIRI(&iri)) {
+        *filter = SkSVGFilterType(iri);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG11/painting.html#VisibilityProperty
 bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
     static const struct {
