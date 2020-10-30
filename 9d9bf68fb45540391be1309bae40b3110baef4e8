@@ -129,6 +129,24 @@
       "parentUuid": "c85f09be_8d0c91bd",
       "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "165d8140_2d027391",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-30T00:19:42Z",
+      "side": 1,
+      "message": "Let\u0027s try writing our own launder while we wait for C++17 across the board, like we do other things.\n\n   namespace skstd {\n       template \u003ctypename T\u003e\n       T* launder(T* ptr) { return __builtin_launder(ptr); }\n   }",
+      "parentUuid": "54535021_9f8aa327",
+      "revId": "9d9bf68fb45540391be1309bae40b3110baef4e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
