@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2614b5f1_5f257383",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:16:15Z",
+      "side": 0,
+      "message": "I wanted to get rid of this function in particular because its existence implied to me that the atlas text op always has a constant color across all its geometries. That\u0027s not actually true for certain mask types, but I went down a small rabbit hole of removing color from Geometry before I found the per-vertex color variants.",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 92
+      },
+      "revId": "cd9a25d87feb416c5929e83ff873ce21e5b5b29d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91478158_c3980019",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:16:15Z",
+      "side": 0,
+      "message": "I removed this since it\u0027s only internal, and then you can just use the accessor on Metadata.",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 61
+      },
+      "revId": "cd9a25d87feb416c5929e83ff873ce21e5b5b29d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9387b111_3a5f07ca",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:16:15Z",
+      "side": 0,
+      "message": "At that point, I removed this since it was the private getter left. From a const point of view, using it over fNumGlyphs in non-const functions enforces that you won\u0027t assign to fNumGlyphs. If that\u0027s worth it, I can undo this deletion.",
+      "range": {
+        "startLine": 176,
+        "startChar": 3,
+        "endLine": 176,
+        "endChar": 48
+      },
+      "revId": "cd9a25d87feb416c5929e83ff873ce21e5b5b29d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
