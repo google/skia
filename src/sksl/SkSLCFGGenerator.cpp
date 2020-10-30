@@ -256,7 +256,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             return true;
         case Expression::Kind::kPostfix:
             if (!this->tryRemoveExpressionBefore(iter,
-                                                 expr->as<PrefixExpression>().operand().get())) {
+                                                 expr->as<PostfixExpression>().operand().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
