@@ -21,15 +21,17 @@ public:
     static constexpr Kind kExpressionKind = Kind::kFloatLiteral;
 
     FloatLiteral(const Context& context, int offset, float value)
-        : INHERITED(offset, kExpressionKind, context.fFloatLiteral_Type.get())
-        , fValue(value) {}
+    : INHERITED(offset, FloatLiteralData{context.fFloatLiteral_Type.get(), value}) {}
 
     FloatLiteral(int offset, float value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fValue(value) {}
+    : INHERITED(offset, FloatLiteralData{type, value}) {}
+
+    const Type& type() const override {
+        return *this->floatLiteralData().fType;
+    }
 
     float value() const {
-        return fValue;
+        return this->floatLiteralData().fValue;
     }
 
     String description() const override {
@@ -64,8 +66,6 @@ public:
     }
 
 private:
-    float fValue;
-
     using INHERITED = Expression;
 };
 

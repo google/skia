@@ -22,24 +22,25 @@ public:
 
     // null value implies "default" case
     SwitchCase(int offset, std::unique_ptr<Expression> value, StatementArray statements)
-        : INHERITED(offset, kStatementKind)
-        , fValue(std::move(value))
-        , fStatements(std::move(statements)) {}
+            : INHERITED(offset, kStatementKind) {
+        fExpressionChildren.push_back(std::move(value));
+        fStatementChildren = std::move(statements);
+    }
 
     std::unique_ptr<Expression>& value() {
-        return fValue;
+        return fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& value() const {
-        return fValue;
+        return fExpressionChildren[0];
     }
 
     StatementArray& statements() {
-        return fStatements;
+        return fStatementChildren;
     }
 
     const StatementArray& statements() const {
-        return fStatements;
+        return fStatementChildren;
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -67,9 +68,6 @@ public:
     }
 
 private:
-    std::unique_ptr<Expression> fValue;
-    StatementArray fStatements;
-
     using INHERITED = Statement;
 };
 

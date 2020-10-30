@@ -21,11 +21,14 @@ public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     BoolLiteral(const Context& context, int offset, bool value)
-        : INHERITED(offset, kExpressionKind, context.fBool_Type.get())
-        , fValue(value) {}
+    : INHERITED(offset, BoolLiteralData{context.fBool_Type.get(), value}) {}
+
+    const Type& type() const override {
+        return *this->boolLiteralData().fType;
+    }
 
     bool value() const {
-        return fValue;
+        return this->boolLiteralData().fValue;
     }
 
     String description() const override {
@@ -51,10 +54,7 @@ public:
 
 private:
     BoolLiteral(int offset, bool value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fValue(value) {}
-
-    bool fValue;
+    : INHERITED(offset, BoolLiteralData{type, value}) {}
 
     using INHERITED = Expression;
 };

@@ -680,8 +680,8 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type,
 }
 
 bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool discard) {
-    const Expression& left = *b.left();
-    const Expression& right = *b.right();
+    const Expression& left = b.left();
+    const Expression& right = b.right();
     Token::Kind op = b.getOperator();
     if (op == Token::Kind::TK_EQ) {
         std::unique_ptr<LValue> lvalue = this->getLValue(left);

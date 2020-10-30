@@ -33,7 +33,15 @@ public:
     };
 
     ProgramElement(int offset, Kind kind)
-        : INHERITED(offset, (int) kind) {
+    : INHERITED(offset, (int) kind) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
+    ProgramElement(int offset, const ModifiersDeclarationData& data)
+    : INHERITED(offset, (int) Kind::kModifiers, data) {}
+
+    ProgramElement(int offset, Kind kind, const String& data)
+    : INHERITED(offset, (int) kind, data) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 

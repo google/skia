@@ -22,8 +22,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kSetting;
 
     Setting(int offset, String name, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fName(std::move(name)) {}
+    : INHERITED(offset, SettingData{std::move(name), type}) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
@@ -33,7 +32,11 @@ public:
     }
 
     const String& name() const {
-        return fName;
+        return this->settingData().fName;
+    }
+
+    const Type& type() const override {
+        return *this->settingData().fType;
     }
 
     String description() const override {
@@ -49,8 +52,6 @@ public:
     }
 
 private:
-    String fName;
-
     using INHERITED = Expression;
 };
 

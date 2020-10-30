@@ -33,7 +33,6 @@
 
 namespace SkSL {
 
-class ExternalValue;
 class FunctionCall;
 struct ParsedModule;
 struct Swizzle;

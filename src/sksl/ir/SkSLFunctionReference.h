@@ -24,11 +24,14 @@ public:
 
     FunctionReference(const Context& context, int offset,
                       std::vector<const FunctionDeclaration*> functions)
-        : INHERITED(offset, kExpressionKind, context.fInvalid_Type.get())
-        , fFunctions(std::move(functions)) {}
+    : INHERITED(offset, FunctionReferenceData{context.fInvalid_Type.get(), std::move(functions)}) {}
+
+    const Type& type() const override {
+        return *this->functionReferenceData().fType;
+    }
 
     const std::vector<const FunctionDeclaration*>& functions() const {
-        return fFunctions;
+        return this->functionReferenceData().fFunctions;
     }
 
     bool hasProperty(Property property) const override {
@@ -47,10 +50,7 @@ public:
 private:
     FunctionReference(int offset, std::vector<const FunctionDeclaration*> functions,
                       const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fFunctions(std::move(functions)) {}
-
-    std::vector<const FunctionDeclaration*> fFunctions;
+    : INHERITED(offset, FunctionReferenceData{type, std::move(functions)}) {}
 
     using INHERITED = Expression;
 };

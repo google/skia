@@ -44,6 +44,26 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Statement(int offset, Kind kind, BlockData data, StatementArray stmts)
+    : INHERITED(offset, (int) kind, data, std::move(stmts)) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
+    Statement(int offset, const ForStatementData& data)
+    : INHERITED(offset, (int) Kind::kFor, data) {}
+
+    Statement(int offset, const IfStatementData& data)
+    : INHERITED(offset, (int) Kind::kIf, data) {}
+
+    Statement(int offset, const InlineMarkerData& data)
+    : INHERITED(offset, (int) Kind::kInlineMarker, data) {}
+
+    Statement(int offset, const SwitchStatementData& data)
+    : INHERITED(offset, (int) Kind::kSwitch, data) {}
+
+    Statement(int offset, const VarDeclarationData& data)
+    : INHERITED(offset, (int) Kind::kVarDeclaration, data) {}
+
     Kind kind() const {
         return (Kind) fKind;
     }

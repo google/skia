@@ -21,11 +21,14 @@ public:
     static constexpr Kind kExpressionKind = Kind::kExternalValue;
 
     ExternalValueReference(int offset, const ExternalValue* ev)
-        : INHERITED(offset, kExpressionKind, &ev->type())
-        , fValue(*ev) {}
+    : INHERITED(offset, kExpressionKind, ExternalValueData{&ev->type(), ev}) {}
+
+    const Type& type() const override {
+        return *this->externalValueData().fType;
+    }
 
     const ExternalValue& value() const {
-        return fValue;
+        return *this->externalValueData().fValue;
     }
 
     bool hasProperty(Property property) const override {
@@ -41,8 +44,6 @@ public:
     }
 
 private:
-    const ExternalValue& fValue;
-
     using INHERITED = Expression;
 };
 

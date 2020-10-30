@@ -16,44 +16,44 @@ namespace SkSL {
 /**
  * An 'if' statement.
  */
-class IfStatement final : public Statement {
-public:
+struct IfStatement final : public Statement {
     static constexpr Kind kStatementKind = Kind::kIf;
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-        : INHERITED(offset, kStatementKind)
-        , fTest(std::move(test))
-        , fIfTrue(std::move(ifTrue))
-        , fIfFalse(std::move(ifFalse))
-        , fIsStatic(isStatic) {}
+    : INHERITED(offset, IfStatementData{isStatic}) {
+        fExpressionChildren.push_back(std::move(test));
+        fStatementChildren.reserve_back(2);
+        fStatementChildren.push_back(std::move(ifTrue));
+        fStatementChildren.push_back(std::move(ifFalse));
+    }
 
     bool isStatic() const {
-        return fIsStatic;
+        return this->ifStatementData().fIsStatic;
     }
 
     std::unique_ptr<Expression>& test() {
-        return fTest;
+        return this->fExpressionChildren[0];
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return fTest;
+        return this->fExpressionChildren[0];
     }
 
     std::unique_ptr<Statement>& ifTrue() {
-        return fIfTrue;
+        return this->fStatementChildren[0];
     }
 
     const std::unique_ptr<Statement>& ifTrue() const {
-        return fIfTrue;
+        return this->fStatementChildren[0];
     }
 
     std::unique_ptr<Statement>& ifFalse() {
-        return fIfFalse;
+        return this->fStatementChildren[1];
     }
 
     const std::unique_ptr<Statement>& ifFalse() const {
-        return fIfFalse;
+        return this->fStatementChildren[1];
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -75,12 +75,6 @@ public:
         }
         return result;
     }
-
-private:
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Statement> fIfTrue;
-    std::unique_ptr<Statement> fIfFalse;
-    bool fIsStatic;
 
     using INHERITED = Statement;
 };

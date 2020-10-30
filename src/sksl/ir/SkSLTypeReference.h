@@ -22,11 +22,14 @@ public:
     static constexpr Kind kExpressionKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, int offset, const Type* value)
-        : INHERITED(offset, kExpressionKind, context.fInvalid_Type.get())
-        , fValue(*value) {}
+    : INHERITED(offset, TypeReferenceData{context.fInvalid_Type.get(), value}) {}
+
+    const Type& type() const override {
+        return *this->typeReferenceData().fType;
+    }
 
     const Type& value() const {
-        return fValue;
+        return *this->typeReferenceData().fValue;
     }
 
     bool hasProperty(Property property) const override {
@@ -44,10 +47,7 @@ public:
 
 private:
     TypeReference(int offset, const Type* value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
-        , fValue(*value) {}
-
-    const Type& fValue;
+    : INHERITED(offset, TypeReferenceData{type, value}) {}
 
     using INHERITED = Expression;
 };
