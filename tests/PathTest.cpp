@@ -5665,7 +5665,67 @@ static void test_edger(skiatest::Reporter* r,
     REPORTER_ASSERT(r, !iter.next());
 }
 
+static void assert_points(const SkPath& path, const std::initializer_list<SkPoint>& list) {
+    const SkPoint* expected = list.begin();
+    SkPath::RawIter iter(path);
+    for (size_t i = 0;;) {
+        SkPoint pts[4];
+        switch (iter.next(pts)) {
+            case SkPath::kDone_Verb:
+                SkASSERT(i == list.size());
+                return;
+            case SkPath::kMove_Verb:
+                SkASSERT(pts[0] == expected[i]);
+                i++;
+                break;
+            case SkPath::kLine_Verb:
+                SkASSERT(pts[1] == expected[i]);
+                i++;
+                break;
+            case SkPath::kClose_Verb: break;
+            default: SkASSERT(false);
+        }
+    }
+}
+
+static void test_crbug_1134474(skiatest::Reporter* reporter) {
+    SkPath path;
+    const SkRect r = {1, 2, 3, 4};
+    // build our default p-array clockwise
+    const SkPoint p[] = {
+        {r.fLeft,  r.fTop},    {r.fRight, r.fTop},
+        {r.fRight, r.fBottom}, {r.fLeft,  r.fBottom},
+    };
+
+    for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+        int increment = dir == SkPathDirection::kCW ? 1 : 3;
+        for (int i = 0; i < 4; ++i) {
+            path.reset();
+            path.addRect(r, dir, i);
+
+            SkPoint pts[4];
+            for (int j = 0; j < 4; ++j) {
+                int index = (i + j*increment) % 4;
+                pts[j] = p[index];
+            }
+            assert_points(path, { pts[0], pts[1], pts[2], pts[3] });
+        }
+    }
+
+    path.reset();
+
+    path.moveTo(7, 8); // Try to trick addpath
+    path.addRect(r, SkPathDirection::kCW, 2);
+    path.lineTo(5, 6);
+
+    assert_points(path, {
+        p[2], p[3], p[0], p[1],
+        p[2], {5, 6},
+    });
+}
+
 DEF_TEST(pathedger, r) {
+    test_crbug_1134474(r); return;
     auto M = SkPath::kMove_Verb;
     auto L = SkPath::kLine_Verb;
     auto C = SkPath::kClose_Verb;
