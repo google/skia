@@ -13,10 +13,35 @@
 #define SkTLogic_DEFINED
 
 #include <cstddef>
+#include <new>
 #include <type_traits>
 #include <utility>
 
 namespace skstd {
+
+// C++17, <new>
+#if (__cpp_lib_launder) || (_MSC_VER && _HAS_LAUNDER)
+    // Use the real std::launder if it's available.
+    template <typename T> T* launder(T* ptr) { return std::launder(ptr); }
+    #define SKSTD_LAUNDER
+#endif
+
+#ifndef SKSTD_LAUNDER
+    #ifdef __has_builtin
+        #if __has_builtin(__builtin_launder)
+            // Use __builtin_launder as a fallback
+            template <typename T> T* launder(T* ptr) { return __builtin_launder(ptr); }
+            #define SKSTD_LAUNDER
+        #endif
+    #endif
+#endif
+
+#ifndef SKSTD_LAUNDER
+    // We failed to find a suitable launder implementation.
+    #error "std::launder/__builtin_launder not found! Enable C++17 or update your compiler."
+#endif
+
+#undef SKSTD_LAUNDER
 
 // C++17, <variant>
 struct monostate {};
