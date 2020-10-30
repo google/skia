@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8855df9_58eeebda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:28:51Z",
+      "side": 1,
+      "message": "If you want, I can further split this CL into one that does the metadata/state compaction first and then a later CL that switches to GrTBlockList.",
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

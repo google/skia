@@ -78,6 +78,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "80b1f2b1_a8e3dec2",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:28:51Z",
+      "side": 1,
+      "message": "If I do that, can I still make static assertions about how the bit fields are being packed together? That\u0027s the main advantage of it as its own struct right now.",
+      "parentUuid": "e8d66224_901e312b",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "22e56d24_7a412f3f",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 7
@@ -101,6 +125,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fa917240_5d98ace6",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:28:51Z",
+      "side": 1,
+      "message": "I\u0027m don\u0027t follow the \"can\u0027t be checked\" assertion, can you clarify?. \n\nThat bit field is always initialized to 0 in the constructor. I can make it private to enforce no one able to modify it. There\u0027s a static_assert that the Metadata size is 32 bits, so if that passes, we know there are no other unassigned bits that could be undefined and break comparison. I can also update asBitmask() to assert that fUnused remains 0.",
+      "parentUuid": "22e56d24_7a412f3f",
+      "range": {
+        "startLine": 148,
+        "startChar": 8,
+        "endLine": 148,
+        "endChar": 52
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "38d0efe8_712af9a8",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 7
@@ -112,6 +160,30 @@
       "writtenOn": "2020-10-30T19:58:09Z",
       "side": 1,
       "message": "Did you explore using an SkArenaAlloc? Its overhead maybe less than GrTBlockList.",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 26
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b11b93b1_9f4e61bc",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:28:51Z",
+      "side": 1,
+      "message": "I did not because SkArenaAlloc does not allow you to concatenate/move allocations from one arena to another, which we have to perform somehow when ops are merged. \n\nIn a backwards merge that happens right after op creation, the consumed op will likely only have one geometry, so copying the inlined geoemtry is necessary (until we are able to update the op system and drawing manage to append directly to existing ops).  In the forwards merge that happens at flush time, there\u0027s a much more real possibility that we are merging two text ops that both have multiple geometries. In this case, being able to just concatenate the underlying blocks is better than having to copy. SkArenaAlloc could be modified to allow this sort of stealing, but that has farther reaching implications.\n\nSkArenaAlloc also doesn\u0027t provide a built in way to iterate over the items within it, so we\u0027d have to add some external collection to hold pointers to the arena-allocated geometries. As it stands, SkArenaAlloc is 32 bytes or 48 bytes overhead if using the resettable variant (which I don\u0027t think we do). But naively holding a std::vector\u003cGeometry*\u003e in parallel for iteration adds another 24 bytes and then we\u0027re equivalent in terms of overhead.",
+      "parentUuid": "38d0efe8_712af9a8",
       "range": {
         "startLine": 233,
         "startChar": 4,
