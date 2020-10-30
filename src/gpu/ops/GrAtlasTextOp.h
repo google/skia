@@ -48,15 +48,18 @@ public:
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
 
-    enum MaskType {
-        kGrayscaleCoverageMask_MaskType,
-        kLCDCoverageMask_MaskType,
-        kColorBitmapMask_MaskType,
-        kAliasedDistanceField_MaskType,
-        kGrayscaleDistanceField_MaskType,
-        kLCDDistanceField_MaskType,
-        kLCDBGRDistanceField_MaskType,
+    enum class MaskType : uint32_t {
+        kGrayscaleCoverage,
+        kLCDCoverage,
+        kColorBitmap,
+        kAliasedDistanceField,
+        kGrayscaleDistanceField,
+        kLCDDistanceField,
+        kLCDBGRDistanceField,
+
+        kLast = kLCDBGRDistanceField
     };
+    static const int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
     MaskType maskType() const { return fMaskType; }
 
@@ -135,32 +138,34 @@ private:
 #endif
 
     GrMaskFormat maskFormat() const {
-        switch (fMaskType) {
-            case kLCDCoverageMask_MaskType:
+        switch (this->maskType()) {
+            case MaskType::kLCDCoverage:
                 return kA565_GrMaskFormat;
-            case kColorBitmapMask_MaskType:
+            case MaskType::kColorBitmap:
                 return kARGB_GrMaskFormat;
-            case kGrayscaleCoverageMask_MaskType:
-            case kAliasedDistanceField_MaskType:
-            case kGrayscaleDistanceField_MaskType:
-            case kLCDDistanceField_MaskType:
-            case kLCDBGRDistanceField_MaskType:
+            case MaskType::kGrayscaleCoverage:
+            case MaskType::kAliasedDistanceField:
+            case MaskType::kGrayscaleDistanceField:
+            case MaskType::kLCDDistanceField:
+            case MaskType::kLCDBGRDistanceField:
                 return kA8_GrMaskFormat;
         }
         return kA8_GrMaskFormat;  // suppress warning
     }
 
     bool usesDistanceFields() const {
-        return kAliasedDistanceField_MaskType == fMaskType ||
-               kGrayscaleDistanceField_MaskType == fMaskType ||
-               kLCDDistanceField_MaskType == fMaskType ||
-               kLCDBGRDistanceField_MaskType == fMaskType;
+        MaskType type = this->maskType();
+        return MaskType::kAliasedDistanceField == type ||
+               MaskType::kGrayscaleDistanceField == type ||
+               MaskType::kLCDDistanceField == type ||
+               MaskType::kLCDBGRDistanceField == type;
     }
 
     bool isLCD() const {
-        return kLCDCoverageMask_MaskType == fMaskType ||
-               kLCDDistanceField_MaskType == fMaskType ||
-               kLCDBGRDistanceField_MaskType == fMaskType;
+        MaskType type = this->maskType();
+        return MaskType::kLCDCoverage == type ||
+               MaskType::kLCDDistanceField == type ||
+               MaskType::kLCDBGRDistanceField == type;
     }
 
     inline void createDrawForGeneratedGlyphs(
