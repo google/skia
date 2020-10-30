@@ -7,5 +7,6 @@
     </attr>
     <attr name="background_color" format="color"/>
     <attr name="src" format="reference"/>
+    <attr name="android:repeatCount" format="integer"/>
   </declare-styleable>
 </resources>
