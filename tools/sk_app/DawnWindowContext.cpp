@@ -112,7 +112,7 @@ wgpu::Device DawnWindowContext::createDevice(dawn_native::BackendType type) {
     dawnProcSetProcs(&backendProcs);
 
     std::vector<dawn_native::Adapter> adapters = fInstance->GetAdapters();
-    for (dawn_native::Adapter adapter : adapters) {
+    for (dawn_native::Adapter& adapter : adapters) {
         if (adapter.GetBackendType() == type) {
             return adapter.CreateDevice();
         }
