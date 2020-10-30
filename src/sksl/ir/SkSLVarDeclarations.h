@@ -28,47 +28,42 @@ public:
                    const Type* baseType,
                    ExpressionArray sizes,
                    std::unique_ptr<Expression> value)
-            : INHERITED(var->fOffset, VarDeclarationData{baseType, var}) {
-        fExpressionChildren.reserve_back(sizes.size() + 1);
-        fExpressionChildren.move_back_n(sizes.size(), sizes.data());
-        fExpressionChildren.push_back(std::move(value));
-    }
+            : INHERITED(var->fOffset, kStatementKind)
+            , fVar(var)
+            , fBaseType(*baseType)
+            , fSizes(std::move(sizes))
+            , fValue(std::move(value)) {}
 
     const Type& baseType() const {
-        return *this->varDeclarationData().fBaseType;
+        return fBaseType;
     }
 
     const Variable& var() const {
-        return *this->varDeclarationData().fVar;
+        return *fVar;
     }
 
     void setVar(const Variable* var) {
-        this->varDeclarationData().fVar = var;
+        fVar = var;
     }
 
-    int sizeCount() const {
-        return fExpressionChildren.size() - 1;
-    }
-
-    const std::unique_ptr<Expression>& size(int index) const {
-        SkASSERT(index >= 0 && index < this->sizeCount());
-        return fExpressionChildren[index];
+    const ExpressionArray& sizes() const {
+        return fSizes;
     }
 
     std::unique_ptr<Expression>& value() {
-        return fExpressionChildren.back();
+        return fValue;
     }
 
     const std::unique_ptr<Expression>& value() const {
-        return fExpressionChildren.back();
+        return fValue;
     }
 
     std::unique_ptr<Statement> clone() const override {
         ExpressionArray sizesClone;
-        sizesClone.reserve_back(this->sizeCount());
-        for (int i = 0; i < this->sizeCount(); ++i) {
-            if (this->size(i)) {
-                sizesClone.push_back(this->size(i)->clone());
+        sizesClone.reserve_back(this->sizes().count());
+        for (const std::unique_ptr<Expression>& size : this->sizes()) {
+            if (size) {
+                sizesClone.push_back(size->clone());
             } else {
                 sizesClone.push_back(nullptr);
             }
@@ -82,9 +77,9 @@ public:
     String description() const override {
         String result = this->var().modifiers().description() + this->baseType().description() +
                         " " + this->var().name();
-        for (int i = 0; i < this->sizeCount(); ++i) {
-            if (this->size(i)) {
-                result += "[" + this->size(i)->description() + "]";
+        for (const std::unique_ptr<Expression>& size : this->sizes()) {
+            if (size) {
+                result += "[" + size->description() + "]";
             } else {
                 result += "[]";
             }
@@ -95,6 +90,12 @@ public:
         result += ";";
         return result;
     }
+
+private:
+    const Variable* fVar;
+    const Type& fBaseType;
+    ExpressionArray fSizes;
+    std::unique_ptr<Expression> fValue;
 
     using INHERITED = Statement;
 };
@@ -108,17 +109,17 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(int offset, std::unique_ptr<Statement> decl)
-            : INHERITED(offset, kProgramElementKind) {
-        SkASSERT(decl->is<VarDeclaration>());
-        fStatementChildren.push_back(std::move(decl));
+            : INHERITED(offset, kProgramElementKind)
+            , fDeclaration(std::move(decl)) {
+        SkASSERT(this->declaration()->is<VarDeclaration>());
     }
 
     std::unique_ptr<Statement>& declaration() {
-        return fStatementChildren[0];
+        return fDeclaration;
     }
 
     const std::unique_ptr<Statement>& declaration() const {
-        return fStatementChildren[0];
+        return fDeclaration;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
@@ -130,6 +131,8 @@ public:
     }
 
 private:
+    std::unique_ptr<Statement> fDeclaration;
+
     using INHERITED = ProgramElement;
 };
 

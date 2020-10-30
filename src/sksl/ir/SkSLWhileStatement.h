@@ -21,25 +21,24 @@ struct WhileStatement final : public Statement {
 
     WhileStatement(int offset, std::unique_ptr<Expression> test,
                    std::unique_ptr<Statement> statement)
-    : INHERITED(offset, kStatementKind) {
-        fExpressionChildren.push_back(std::move(test));
-        fStatementChildren.push_back(std::move(statement));
-    }
+        : INHERITED(offset, kStatementKind)
+        , fTest(std::move(test))
+        , fStatement(std::move(statement)) {}
 
     std::unique_ptr<Expression>& test() {
-        return fExpressionChildren[0];
+        return fTest;
     }
 
     const std::unique_ptr<Expression>& test() const {
-        return fExpressionChildren[0];
+        return fTest;
     }
 
     std::unique_ptr<Statement>& statement() {
-        return fStatementChildren[0];
+        return fStatement;
     }
 
     const std::unique_ptr<Statement>& statement() const {
-        return fStatementChildren[0];
+        return fStatement;
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -50,6 +49,10 @@ struct WhileStatement final : public Statement {
     String description() const override {
         return "while (" + this->test()->description() + ") " + this->statement()->description();
     }
+
+private:
+    std::unique_ptr<Expression> fTest;
+    std::unique_ptr<Statement> fStatement;
 
     using INHERITED = Statement;
 };

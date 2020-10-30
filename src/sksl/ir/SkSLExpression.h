@@ -58,55 +58,10 @@ public:
         kContainsRTAdjust
     };
 
-    Expression(int offset, const BoolLiteralData& data)
-        : INHERITED(offset, (int) Kind::kBoolLiteral, data) {
-    }
-
-    Expression(int offset, Kind kind, const ExternalValueData& data)
-        : INHERITED(offset, (int) kind, data) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
-
-    Expression(int offset, const FieldAccessData& data)
-        : INHERITED(offset, (int) Kind::kFieldAccess, data) {}
-
-    Expression(int offset, const FloatLiteralData& data)
-        : INHERITED(offset, (int) Kind::kFloatLiteral, data) {}
-
-    Expression(int offset, const FunctionCallData& data)
-        : INHERITED(offset, (int) Kind::kFunctionCall, data) {}
-
-    Expression(int offset, const FunctionReferenceData& data)
-        : INHERITED(offset, (int) Kind::kFunctionReference, data) {}
-
-    Expression(int offset, const IntLiteralData& data)
-        : INHERITED(offset, (int) Kind::kIntLiteral, data) {
-    }
-
-    Expression(int offset, const SettingData& data)
-        : INHERITED(offset, (int) Kind::kSetting, data) {
-    }
-
-    Expression(int offset, const SwizzleData& data)
-        : INHERITED(offset, (int) Kind::kSwizzle, data) {
-    }
-
     Expression(int offset, Kind kind, const Type* type)
-        : INHERITED(offset, (int) kind, type) {
+        : INHERITED(offset, (int) kind)
+        , fType(type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
-
-    Expression(int offset, const TypeReferenceData& data)
-        : INHERITED(offset, (int) Kind::kTypeReference, data) {
-    }
-
-    Expression(int offset, Kind kind, const TypeTokenData& data)
-        : INHERITED(offset, (int) kind, data) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
-
-    Expression(int offset, const VariableReferenceData& data)
-        : INHERITED(offset, (int) Kind::kVariableReference, data) {
     }
 
     Kind kind() const {
@@ -114,7 +69,7 @@ public:
     }
 
     virtual const Type& type() const {
-        return *this->typeData();
+        return *fType;
     }
 
     /**
@@ -240,6 +195,8 @@ public:
     virtual std::unique_ptr<Expression> clone() const = 0;
 
 private:
+    const Type* fType;
+
     using INHERITED = IRNode;
 };
 

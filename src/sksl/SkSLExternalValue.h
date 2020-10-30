@@ -20,8 +20,7 @@ public:
     static constexpr Kind kSymbolKind = Kind::kExternal;
 
     ExternalValue(const char* name, const Type& type)
-        : INHERITED(-1, kSymbolKind, name)
-        , fType(type) {}
+        : INHERITED(-1, kSymbolKind, name, &type) {}
 
     virtual bool canRead() const {
         return false;
@@ -33,13 +32,6 @@ public:
 
     virtual bool canCall() const {
         return false;
-    }
-
-    /**
-     * Returns the type for purposes of read and write operations.
-     */
-    const Type& type() const override {
-        return fType;
     }
 
     virtual int callParameterCount() const {
@@ -58,7 +50,7 @@ public:
      * Returns the return type resulting from a call operation.
      */
     virtual const Type& callReturnType() const {
-        return fType;
+        return this->type();
     }
 
     /**
@@ -118,8 +110,6 @@ public:
 
 private:
     using INHERITED = Symbol;
-
-    const Type& fType;
 };
 
 }  // namespace SkSL

@@ -23,26 +23,22 @@ public:
 
     FunctionCall(int offset, const Type* type, const FunctionDeclaration* function,
                  ExpressionArray arguments)
-    : INHERITED(offset, FunctionCallData{type, function}) {
-        fExpressionChildren = std::move(arguments);
-    }
+        : INHERITED(offset, kExpressionKind, type)
+        , fFunction(*function)
+        , fArguments(std::move(arguments)) {}
 
     ~FunctionCall() override {}
 
-    const Type& type() const override {
-        return *this->functionCallData().fType;
-    }
-
     const FunctionDeclaration& function() const {
-        return *this->functionCallData().fFunction;
+        return fFunction;
     }
 
     ExpressionArray& arguments() {
-        return fExpressionChildren;
+        return fArguments;
     }
 
     const ExpressionArray& arguments() const {
-        return fExpressionChildren;
+        return fArguments;
     }
 
     bool hasProperty(Property property) const override {
@@ -81,6 +77,9 @@ public:
     }
 
 private:
+    const FunctionDeclaration& fFunction;
+    ExpressionArray fArguments;
+
     using INHERITED = Expression;
 };
 

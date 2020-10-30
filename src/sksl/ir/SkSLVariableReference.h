@@ -42,14 +42,12 @@ public:
     VariableReference(const VariableReference&) = delete;
     VariableReference& operator=(const VariableReference&) = delete;
 
-    const Type& type() const override;
-
     const Variable* variable() const {
-        return this->variableReferenceData().fVariable;
+        return fVariable;
     }
 
     RefKind refKind() const {
-        return (RefKind) this->variableReferenceData().fRefKind;
+        return fRefKind;
     }
 
     void setRefKind(RefKind refKind);
@@ -70,6 +68,9 @@ public:
                                                   const DefinitionMap& definitions) override;
 
 private:
+    const Variable* fVariable;
+    VariableRefKind fRefKind;
+
     using INHERITED = Expression;
 };
 
