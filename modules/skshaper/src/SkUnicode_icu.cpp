@@ -304,8 +304,8 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractPositions
-        (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> add) {
+    bool extractPositions
+        (const char utf8[], int utf8Units, BreakType type, std::function<void(int, LineBreakType)> add) {
 
         UErrorCode status = U_ZERO_ERROR;
         UText sUtf8UText = UTEXT_INITIALIZER;
@@ -317,7 +317,7 @@ class SkUnicode_icu : public SkUnicode {
         }
         SkASSERT(text);
 
-        ICUBreakIterator iterator(ubrk_open(convertType(type), uloc_getDefault(), nullptr, 0, &status));
+        ICUBreakIterator iterator(ubrk_open(convertType(type), "th", nullptr, 0, &status));
         if (U_FAILURE(status)) {
             SkDEBUGF("Break error: %s", u_errorName(status));
         }
@@ -329,9 +329,23 @@ class SkUnicode_icu : public SkUnicode {
         }
 
         auto iter = iterator.get();
-        int32_t pos = ubrk_first(iter);
+        int32_t pos = 0;
+        const char* start = utf8;
+        const char* end = start + utf8Units;
+        const char* last = start;
         while (pos != UBRK_DONE) {
-            add(pos, ubrk_getRuleStatus(iter));
+            auto lastHardBreak = -1;
+            while ((last - start) < pos) {
+                SkUnichar utf8Char = utf8_next(&last, end);
+                if (this->isHardLineBreak(utf8Char)) {
+                    add(lastHardBreak = (last - start), LineBreakType::kHardLineBreak);
+                }
+            }
+
+            if (lastHardBreak < pos) {
+                last = start + pos;
+                add(pos, LineBreakType::kSoftLineBreak);
+            }
             pos = ubrk_next(iter);
         }
         return true;
@@ -409,6 +423,10 @@ public:
         return u_isWhitespace(utf8);
     }
 
+    bool isHardLineBreak(SkUnichar utf8) override {
+        return utf8 == '\n';
+    }
+
     SkString convertUtf16ToUtf8(const std::u16string& utf16) override {
         std::unique_ptr<char[]> utf8;
         auto utf8Units = SkUnicode_icu::utf16ToUtf8((uint16_t*)utf16.data(), utf16.size(), &utf8);
@@ -431,10 +449,8 @@ public:
                        std::vector<LineBreakBefore>* results) override {
 
         return extractPositions(utf8, utf8Units, BreakType::kLines,
-            [results](int pos, int status) {
-                    results->emplace_back(pos,status == UBRK_LINE_HARD
-                                                        ? LineBreakType::kHardLineBreak
-                                                        : LineBreakType::kSoftLineBreak);
+            [this, results](int pos, LineBreakType type) {
+                results->emplace_back(pos, type);
         });
     }
 
@@ -453,7 +469,7 @@ public:
     bool getGraphemes(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
         return extractPositions(utf8, utf8Units, BreakType::kGraphemes,
-            [results](int pos, int status) { results->emplace_back(pos);
+            [results](int pos, LineBreakType type) { results->emplace_back(pos);
         });
     }
 
@@ -477,4 +493,23 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
     }
     #endif
     return std::make_unique<SkUnicode_icu>();
+}
+
+void SkUnicode::test(const char* label, SkString str, const char* locale) {
+  auto unicode = SkUnicode::Make();
+  if (locale == nullptr) {
+    locale = uloc_getDefault();
+  }
+  SkDebugf("%s: %s '%s'\n", label, locale, str.c_str());
+    std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+    if (!unicode->getLineBreaks(str.c_str(), str.size(), &lineBreaks)) {
+        return;
+    }
+    for (auto& lineBreak : lineBreaks) {
+        SkDebugf("%d: %s, ", lineBreak.pos,
+        lineBreak.breakType == SkUnicode::LineBreakType::kHardLineBreak
+                                           ? "hard"
+                                           : "soft");
+    }
+  SkDebugf("\n");
 }
