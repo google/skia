@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddc8cf70_79ba3613",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-30T20:06:31Z",
+      "side": 1,
+      "message": "This is the MaskType refactor split out from the larger GrAtlasTextOp change, basically just making it inline with our newer style guide and defining a MaskTypeCount constant.",
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
