@@ -1047,48 +1047,41 @@ public:
 private:
 #endif
 
-    /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
-        starting with top-left corner of SkRect; followed by top-right, bottom-right,
-        and bottom-left if dir is kCW_Direction; or followed by bottom-left,
-        bottom-right, and top-right if dir is kCCW_Direction.
+    /** Adds a new contour to the path, defined by the rect, and wound in the
+        specified direction. The verbs added to the path will be:
 
-        @param rect  SkRect to add as a closed contour
-        @param dir   SkPath::Direction to wind added contour
-        @return      reference to SkPath
+        kMove, kLine, kLine, kLine, kClose
 
-        example: https://fiddle.skia.org/c/@Path_addRect
-    */
-    SkPath& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW);
+        start specifies which corner to begin the contour:
+            0: upper-left  corner
+            1: upper-right corner
+            2: lower-right corner
+            3: lower-left  corner
 
-    /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb.
-        If dir is kCW_Direction, SkRect corners are added clockwise; if dir is
-        kCCW_Direction, SkRect corners are added counterclockwise.
-        start determines the first corner added.
+        This start point also acts as the implied beginning of the subsequent,
+        contour, if it does not have an explicit moveTo(). e.g.
+
+            path.addRect(...)
+            // if we don't say moveTo() here, we will use the rect's start point
+            path.lineTo(...)
 
         @param rect   SkRect to add as a closed contour
-        @param dir    SkPath::Direction to wind added contour
+        @param dir    SkPath::Direction to orient the new contour
         @param start  initial corner of SkRect to add
         @return       reference to SkPath
 
         example: https://fiddle.skia.org/c/@Path_addRect_2
-    */
+     */
     SkPath& addRect(const SkRect& rect, SkPathDirection dir, unsigned start);
 
-    /** Adds SkRect (left, top, right, bottom) to SkPath,
-        appending kMove_Verb, three kLine_Verb, and kClose_Verb,
-        starting with top-left corner of SkRect; followed by top-right, bottom-right,
-        and bottom-left if dir is kCW_Direction; or followed by bottom-left,
-        bottom-right, and top-right if dir is kCCW_Direction.
+    SkPath& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
+        return this->addRect(rect, dir, 0);
+    }
 
-        @param left    smaller x-axis value of SkRect
-        @param top     smaller y-axis value of SkRect
-        @param right   larger x-axis value of SkRect
-        @param bottom  larger y-axis value of SkRect
-        @param dir     SkPath::Direction to wind added contour
-        @return        reference to SkPath
-    */
     SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
-                    SkPathDirection dir = SkPathDirection::kCW);
+                    SkPathDirection dir = SkPathDirection::kCW) {
+        return this->addRect({left, top, right, bottom}, dir, 0);
+    }
 
     /** Adds oval to path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
         Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
