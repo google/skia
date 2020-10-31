@@ -33,6 +33,24 @@
       "message": "If I run the new test w/o the patch, it doesn\u0027t fail. Is that expected?",
       "revId": "c4c68afd1c34307dd021729d6866a71451527f10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2545706e_36de1e22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-10-31T00:43:50Z",
+      "side": 1,
+      "message": "Not quite used to Gerrit yet, so I\u0027m not sure what \"resolved\" refers to, but are you still unable to fail this test w/o the patch?\nHere I have 10 failures when running \u0027dm\u0027 with no args, the two firsts being\n\n\t../../tests/PathTest.cpp:164\t [Paths]: 20 \u003d\u003d lineOrigin.fX\n\t../../tests/PathTest.cpp:165\t [Paths]: 20 \u003d\u003d lineOrigin.fY\n\nAfter applying the patch I only have the remaining 8 failures.",
+      "parentUuid": "f1f2873d_9fd7eec9",
+      "revId": "c4c68afd1c34307dd021729d6866a71451527f10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
