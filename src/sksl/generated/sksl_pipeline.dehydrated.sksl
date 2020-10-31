@@ -47,9 +47,12 @@ static uint8_t SKSL_INCLUDE_sksl_pipeline[] = {87,0,
 40,16,0,2,0,
 9,0,
 0,0,
-12,1,
+12,4,0,
 48,
 47,1,0,
 40,2,0,0,
-50,};
+50,
+52,5,0,
+52,11,0,
+52,16,0,};
 static constexpr size_t SKSL_INCLUDE_sksl_pipeline_LENGTH = sizeof(SKSL_INCLUDE_sksl_pipeline);

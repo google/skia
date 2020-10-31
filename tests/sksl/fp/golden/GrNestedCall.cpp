@@ -37,7 +37,10 @@ public:
 , func3_name.c_str());
         fragBuilder->emitFunction(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0}, func2_impl.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s();
+R"SkSL(// -- prototype here --
+// -- prototype here --
+// -- prototype here --
+%s = %s();
 )SkSL"
 , args.fOutputColor, func1_name.c_str());
     }

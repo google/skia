@@ -1514,6 +1514,10 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
+        case ProgramElement::Kind::kFunctionPrototype:
+            //this->writeFunctionPrototype(e.as<FunctionDefinition>());
+            this->writeLine("// -- prototype here --");
+            break;
         case ProgramElement::Kind::kModifiers: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
@@ -1532,7 +1536,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 #ifdef SK_DEBUG
             printf("unsupported program element %s\n", e.description().c_str());
 #endif
-            SkASSERT(false);
+          SkASSERT(false);
     }
 }
 

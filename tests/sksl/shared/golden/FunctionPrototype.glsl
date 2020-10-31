@@ -1,3 +1,17 @@
 
-void main() {
+out vec4 sk_FragColor;
+// -- prototype here --
+// -- prototype here --
+// -- prototype here --
+vec4 this_function_is_defined_before_use() {
+    return vec4(1.0);
 }
+// -- prototype here --
+void main() {
+    sk_FragColor = this_function_is_defined_before_use();
+    sk_FragColor = this_function_is_defined_after_use();
+}
+vec4 this_function_is_defined_after_use() {
+    return vec4(2.0);
+}
+// -- prototype here --

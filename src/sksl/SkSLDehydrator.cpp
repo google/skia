@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
@@ -541,6 +542,13 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
+        case ProgramElement::Kind::kFunctionPrototype: {
+            const FunctionPrototype& f = e.as<FunctionPrototype>();
+            this->writeCommand(Rehydrator::kFunctionPrototype_Command);
+            this->writeId(&f.declaration());
+            printf("Prototype: %s\n", f.description().c_str());
+            break;
+        }
         case ProgramElement::Kind::kInterfaceBlock: {
             const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeCommand(Rehydrator::kInterfaceBlock_Command);
@@ -570,7 +578,7 @@ void Dehydrator::write(const ProgramElement& e) {
 
 void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& elements) {
     this->writeCommand(Rehydrator::kElements_Command);
-    this->writeU8(elements.size());
+    this->writeU16(elements.size());
     for (const auto& e : elements) {
         this->write(*e);
     }
