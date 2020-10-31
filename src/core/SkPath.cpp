@@ -766,15 +766,6 @@ static void assert_known_direction(SkPathDirection dir) {
     SkASSERT(SkPathDirection::kCW == dir || SkPathDirection::kCCW == dir);
 }
 
-SkPath& SkPath::addRect(const SkRect& rect, SkPathDirection dir) {
-    return this->addRect(rect, dir, 0);
-}
-
-SkPath& SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
-                     SkScalar bottom, SkPathDirection dir) {
-    return this->addRect(SkRect::MakeLTRB(left, top, right, bottom), dir, 0);
-}
-
 SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startIndex) {
     assert_known_direction(dir);
     this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathFirstDirection)dir
