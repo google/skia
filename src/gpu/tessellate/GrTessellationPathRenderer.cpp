@@ -81,7 +81,7 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
     //     GrWangsFormula::worst_case_cubic(kLinearizationIntolerance, w, kMaxAtlasPathHeight^2 / w)
     //              == maxTessellationSegments
     //
-    float k = GrWangsFormula::cubic_constant(kLinearizationIntolerance);
+    float k = GrWangsFormula::length_term<3>(kLinearizationIntolerance);
     float h = kMaxAtlasPathHeight;
     float s = caps.shaderCaps()->maxTessellationSegments();
     // Quadratic formula from Numerical Recipes in C:
