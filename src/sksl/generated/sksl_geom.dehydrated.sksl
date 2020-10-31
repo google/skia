@@ -68,10 +68,14 @@ static uint8_t SKSL_INCLUDE_sksl_geom[] = {134,0,
 5,0,
 4,0,
 1,0,
-12,2,
+12,6,0,
 26,
 40,4,0,2,0,53,0,1,
 50,
 26,
-40,7,0,2,0,135,0,0,};
+40,7,0,2,0,135,0,0,
+52,10,0,
+52,13,0,
+52,14,0,
+52,15,0,};
 static constexpr size_t SKSL_INCLUDE_sksl_geom_LENGTH = sizeof(SKSL_INCLUDE_sksl_geom);

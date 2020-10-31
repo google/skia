@@ -142,6 +142,8 @@ public:
         kVoid_Command,
         // Expression test, Statement body
         kWhile_Command,
+        // no args (ignored)
+        kFunctionPrototype_Command,
     };
 
     // src must remain in memory as long as the objects created from it do

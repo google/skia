@@ -25,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
@@ -282,7 +283,7 @@ const Type* Rehydrator::type() {
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
     SkDEBUGCODE(uint8_t command = )this->readU8();
     SkASSERT(command == kElements_Command);
-    uint8_t count = this->readU8();
+    uint16_t count = this->readU16();
     std::vector<std::unique_ptr<ProgramElement>> result;
     result.reserve(count);
     for (int i = 0; i < count; ++i) {
@@ -323,6 +324,11 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             decl->setDefinition(result.get());
             return std::move(result);
         }
+        case Rehydrator::kFunctionPrototype_Command: {
+            const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
+                                                                Symbol::Kind::kFunctionDeclaration);
+            return std::make_unique<FunctionPrototype>(/*offset=*/-1, decl, /*builtin=*/true);
+        }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
             SkASSERT(var && var->is<Variable>());
@@ -339,8 +345,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
-            return std::unique_ptr<ProgramElement>(
-                    new GlobalVarDeclaration(/*offset=*/-1, std::move(decl)));
+            return std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl));
         }
         default:
             printf("unsupported element %d\n", kind);
