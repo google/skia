@@ -790,3 +790,44 @@ DEF_TEST(unit_floats, r) {
         }
     }
 }
+
+DEF_TEST(float_frac, r) {
+    auto cpu_frac = [](float x) { return x - floorf(x); };
+
+    auto test_unit = [](float x) { return x >= 0 && x < 1; };
+
+    const float one_minus_eps = SkBits2Float(SkFloat2Bits(1.0f) - 1);
+    SkDebugf("last valid unit %X\n", SkFloat2Bits(one_minus_eps));
+
+    const float min = -1.0f;
+
+    SkDebugf("begin float_frac\n");
+    float x = min;
+
+    enum State { GOOD, BAD };
+
+    State s = GOOD;
+
+    while (x <= 0) {
+        float fx = cpu_frac(x);
+
+        if (test_unit(fx)) {
+            if (s == BAD) {
+                SkDebugf("End bad: %g %X\n", x, SkFloat2Bits(x));
+                s = GOOD;
+            }
+        } else {
+            if (s == GOOD) {
+                SkDebugf("Start bad: %g %X\n", x, SkFloat2Bits(x));
+                s = BAD;
+            }
+
+            float fx2 = std::min(fx, one_minus_eps);
+            SkASSERT(test_unit(fx2));
+        }
+
+        x = SkBits2Float(SkFloat2Bits(x) - 1);
+    }
+
+    SkDebugf("end float_frac\n");
+}
