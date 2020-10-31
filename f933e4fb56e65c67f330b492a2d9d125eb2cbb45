@@ -16,6 +16,24 @@
       "message": "Regardless of the value of \u0027use565\u0027, we\u0027re setting this to 0xFF0000FF.  Did we intend a different value for one of these cases?",
       "revId": "f933e4fb56e65c67f330b492a2d9d125eb2cbb45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "666f4aad_d8ab1b5a",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-10-31T00:58:12Z",
+      "side": 1,
+      "message": "We did not intend a different value. It was deliberate to match the expression structure on the next line, so that it\u0027s easier to see the whole situation (by looking at a column) when use565 is true or false.\n\nIf you think it\u0027s confusing, I\u0027m happy to change this line to just:\nexpectedPixels[1][1] \u003d 0xFF0000FF;  // It\u0027s 100% saturated blue regardless of use565.",
+      "parentUuid": "ae21747f_684259a6",
+      "revId": "f933e4fb56e65c67f330b492a2d9d125eb2cbb45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
