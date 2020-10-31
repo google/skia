@@ -16,11 +16,14 @@
 // "MAX_LINEARIZATION_ERROR" from the actual curve.
 constexpr static char kWangsFormulaCubicFn[] = R"(
         #define MAX_LINEARIZATION_ERROR 0.25  // 1/4 pixel
+        float length_pow2(vec2 v) {
+            return dot(v, v);
+        }
         float wangs_formula_cubic(vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
             float k = (3.0 * 2.0) / (8.0 * MAX_LINEARIZATION_ERROR);
-            float f = sqrt(k * length(max(abs(p2 - p1*2.0 + p0),
-                                          abs(p3 - p2*2.0 + p1))));
-            return max(1.0, ceil(f));
+            float m = max(length_pow2(-2.0*p1 + p2 + p0),
+                          length_pow2(-2.0*p2 + p3 + p1));
+            return max(1.0, ceil(sqrt(k * sqrt(m))));
         })";
 
 // Evaluate our point of interest using numerically stable mix() operations.

@@ -35,7 +35,7 @@ private:
 
         args.fVaryingHandler->emitAttributes(shader);
 
-        // uNumSegmentsInJoin, uCubicConstantPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
+        // uNumSegmentsInJoin, uWangsTermPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
         fTessArgs1Uniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
                                                    kFloat4_GrSLType, "tessArgs1", nullptr);
         // uJoinTolerancePow2, uStrokeRadius.
@@ -259,11 +259,10 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        float cubicConstant = GrWangsFormula::cubic_constant(shader.fParametricIntolerance);
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
             numSegmentsInJoin,  // uNumSegmentsInJoin
-            cubicConstant * cubicConstant,  // uCubicConstantPow2 in path space.
+            GrWangsFormula::length_term_pow2<3>(shader.fParametricIntolerance),  // uWangsTermPow2
             shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
         float strokeRadius = shader.fStroke.getWidth() * .5;
@@ -304,7 +303,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     const char* tessArgs1Name = impl->getTessArgs1UniformName(uniformHandler);
     code.appendf("uniform vec4 %s;\n", tessArgs1Name);
     code.appendf("#define uNumSegmentsInJoin %s.x\n", tessArgs1Name);
-    code.appendf("#define uCubicConstantPow2 %s.y\n", tessArgs1Name);
+    code.appendf("#define uWangsTermPow2 %s.y\n", tessArgs1Name);
     code.appendf("#define uNumRadialSegmentsPerRadian %s.z\n", tessArgs1Name);
     code.appendf("#define uMiterLimitInvPow2 %s.w\n", tessArgs1Name);
 
@@ -373,9 +372,9 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // section of the curve into. (See GrWangsFormula::cubic() for more documentation on this
         // formula.) The final tessellated strip will be a composition of these parametric segments
         // as well as radial segments.
-        float w = length_pow2(max(abs(P[2] - P[1]*2.0 + P[0]),
-                                  abs(P[3] - P[2]*2.0 + P[1]))) * uCubicConstantPow2;
-        float numParametricSegments = ceil(inversesqrt(inversesqrt(max(w, 1e-2))));
+        float m = max(length_pow2(-2.0*P[1] + P[2] + P[0]),
+                      length_pow2(-2.0*P[2] + P[3] + P[1])) * uWangsTermPow2;
+        float numParametricSegments = ceil(inversesqrt(inversesqrt(max(m, 1e-2))));
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
             // >>1 segment in this scenario. Assign 1 parametric segment.

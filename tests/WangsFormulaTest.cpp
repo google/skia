@@ -21,27 +21,15 @@ const SkPoint kLoop[4] = {
 const SkPoint kQuad[4] = {
         {460.625f, 557.187f}, {707.121f, 209.688f}, {779.628f, 577.687f}};
 
-static float length(const Sk2f& v) {
-    Sk2f vv = v*v;
-    return SkScalarSqrt(vv[0] + vv[1]);
+static float wangs_formula_quadratic_reference_impl(float intolerance, const SkPoint p[3]) {
+    float k = (2 * 1) / 8.f * intolerance;
+    return sqrtf(k * (p[0] - p[1]*2 + p[2]).length());
 }
 
-static float wangs_formula_quadratic_reference_impl(float intolerance, const SkPoint pts[4]) {
-    Sk2f p0 = Sk2f::Load(pts);
-    Sk2f p1 = Sk2f::Load(pts + 1);
-    Sk2f p2 = Sk2f::Load(pts + 2);
-    float k = GrWangsFormula::quadratic_constant(intolerance);
-    return SkScalarSqrt(k * length(p0 - p1*2 + p2));
-}
-
-static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint pts[4]) {
-    Sk2f p0 = Sk2f::Load(pts);
-    Sk2f p1 = Sk2f::Load(pts + 1);
-    Sk2f p2 = Sk2f::Load(pts + 2);
-    Sk2f p3 = Sk2f::Load(pts + 3);
-    float k = GrWangsFormula::cubic_constant(intolerance);
-    return SkScalarSqrt(k * length(Sk2f::Max((p0 - p1*2 + p2).abs(),
-                                             (p1 - p2*2 + p3).abs())));
+static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint p[4]) {
+    float k = (3 * 2) / 8.f * intolerance;
+    return sqrtf(k * std::max((p[0] - p[1]*2 + p[2]).length(),
+                              (p[1] - p[2]*2 + p[3]).length()));
 }
 
 static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
