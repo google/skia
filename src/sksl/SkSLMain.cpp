@@ -190,10 +190,29 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
     }
 }
 
+void testDSL();
+
+#include "src/sksl/dsl/DSL.h"
+
 /**
  * Very simple standalone executable to facilitate testing.
  */
 int main(int argc, const char** argv) {
+    if (argc == 2 && !strcmp(argv[1], "--testDSL")) {
+        using namespace skslcode;
+        Var<Int> x("x");
+        Var<Bool> y("y");
+        Var<Int> z("z");
+        Function<Int>("main").define(
+            Declare(x),
+            Declare(y),
+            x = z,
+            If(x > 5,
+               y = true
+            )
+        );
+        exit(0);
+    }
     bool honorSettings = true;
     if (argc == 4) {
         if (0 == strcmp(argv[3], "--settings")) {

@@ -31,6 +31,12 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+namespace skslcode {
+
+class DSLWriter;
+
+} // namespace skslcode
+
 namespace SkSL {
 
 class ExternalValue;
@@ -248,6 +254,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class skslcode::DSLWriter;
 };
 
 }  // namespace SkSL

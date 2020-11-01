@@ -140,6 +140,10 @@ public:
     Compiler(const Compiler&) = delete;
     Compiler& operator=(const Compiler&) = delete;
 
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
+    }
+
     /**
      * If externalValues is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
