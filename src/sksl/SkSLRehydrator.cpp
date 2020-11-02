@@ -282,11 +282,9 @@ const Type* Rehydrator::type() {
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
     SkDEBUGCODE(uint8_t command = )this->readU8();
     SkASSERT(command == kElements_Command);
-    uint8_t count = this->readU8();
     std::vector<std::unique_ptr<ProgramElement>> result;
-    result.reserve(count);
-    for (int i = 0; i < count; ++i) {
-        result.push_back(this->element());
+    while (std::unique_ptr<ProgramElement> elem = this->element()) {
+        result.push_back(std::move(elem));
     }
     return result;
 }
