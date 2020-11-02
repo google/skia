@@ -110,6 +110,7 @@ tests_sources = [
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrMipMappedTest.cpp",
   "$_tests/GrOpListFlushTest.cpp",
+  "$_tests/GrPathUtilsTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",
   "$_tests/GrQuadBufferTest.cpp",

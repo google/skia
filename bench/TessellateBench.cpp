@@ -116,7 +116,7 @@ public:
 
 private:
     sk_sp<GrDirectContext> fMockContext;
-    SkPoint fStaticVertexData[(kNumCubicsInChalkboard + 2) * 8];
+    SkPoint fStaticVertexData[4800000];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
     SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
 };
@@ -266,14 +266,20 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
 }
 
 class StrokePatchBuilderBench : public Benchmark {
-    const char* onGetName() override { return "tessellate_StrokePatchBuilder"; }
+public:
+    StrokePatchBuilderBench(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
+        fName.printf("tessellate_StrokePatchBuilder%s", suffix);
+    }
+
+private:
+    const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
 
     void onDelayedSetup() override {
         fPath.reset().moveTo(0, 0);
         for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-            fPath.cubicTo(100, 0, 0, 100, 100, 100);
-            fPath.cubicTo(100, 0, 0, 100, 0, 0);
+            fPath.cubicTo(100, 0, 50, 100, 100, 100);
+            fPath.cubicTo(0, -100, 200, 100, 0, 0);
         }
         fStrokeRec.setStrokeStyle(8);
         fStrokeRec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kMiter_Join, 4);
@@ -287,19 +293,23 @@ class StrokePatchBuilderBench : public Benchmark {
         for (int i = 0; i < loops; ++i) {
             fPatchChunks.reset();
             // TODO: Combine GrStrokePatchBuilder with GrStrokeTessellateOp.
-            float parametricIntolerance = GrTessellationPathRenderer::kLinearizationIntolerance;
-            float numRadialSegmentsPerRadian = .5f /
-                    acosf(1 - 2/(parametricIntolerance * fStrokeRec.getWidth()));
+            float parametricIntolerance =
+                    GrTessellationPathRenderer::kLinearizationIntolerance * fMatrixScale;
+            float numRadialSegmentsPerRadian =
+                    .5f / acosf(1 - 2/(parametricIntolerance * fStrokeRec.getWidth()));
             GrStrokePatchBuilder builder(&fTarget, &fPatchChunks, fStrokeRec, parametricIntolerance,
                                          numRadialSegmentsPerRadian, fPath.countVerbs());
             builder.addPath(fPath);
         }
     }
 
+    const float fMatrixScale;
+    SkString fName;
     BenchmarkTarget fTarget;
     SkPath fPath;
     SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
     SkSTArray<8, GrStrokePatchBuilder::PatchChunk> fPatchChunks;
 };
 
-DEF_BENCH( return new StrokePatchBuilderBench(); )
+DEF_BENCH( return new StrokePatchBuilderBench(1, ""); )
+DEF_BENCH( return new StrokePatchBuilderBench(5, "_one_chop"); )

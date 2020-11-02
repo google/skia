@@ -10,6 +10,7 @@
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkUtils.h"
 
 static const SkScalar gMinCurveTol = 0.0001f;
 
@@ -582,4 +583,111 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
         SkPoint* cubic = chopped + 3*i;
         convert_noninflect_cubic_to_quads_with_constraint(cubic, tolSqd, dir, quads);
     }
+}
+
+static inline bool is_float_inside_0_1_exclusive(float x) {
+    constexpr static uint32_t kIEEE_one = 127 << 23;
+    return sk_bit_cast<uint32_t>(x) - 1 < kIEEE_one - 1;
+}
+
+int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2]) {
+    using grvx::float2;
+
+    float2 p0 = skvx::bit_pun<float2>(pts[0]);
+    float2 p1 = skvx::bit_pun<float2>(pts[1]);
+    float2 p2 = skvx::bit_pun<float2>(pts[2]);
+    float2 p3 = skvx::bit_pun<float2>(pts[3]);
+
+    // Find the cubic's power basis coefficients. These define the bezier curve as:
+    //
+    //                                    |T^3|
+    //     Cubic(T) = x,y = |A  3B  3C| * |T^2| + P0
+    //                      |.   .   .|   |T  |
+    //
+    // And the tangent direction (scaled by a uniform 1/3) will be:
+    //
+    //                                                 |T^2|
+    //     Tangent_Direction(T) = dx,dy = |A  2B  C| * |T  |
+    //                                    |.   .  .|   |1  |
+    //
+    float2 C = p1 - p0;
+    float2 D = p2 - p1;
+    float2 E = p3 - p0;
+    float2 B = D - C;
+    float2 A = grvx::fast_madd<2>(-3,D,E);
+
+    // Now find the cubic's inflection function. There are inflections where F' x F'' == 0.
+    // We formulate this as a quadratic equation:  F' x F'' == aT^2 + bT + c == 0.
+    // See: https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+    // NOTE: We only need the roots, so a uniform scale factor does not affect the solution.
+    float a = grvx::cross(A,B);
+    float b = grvx::cross(A,C);
+    float c = grvx::cross(B,C);
+    float b_over_minus_2 = -.5f * b;
+    float discr_over_4 = b_over_minus_2*b_over_minus_2 - a*c;
+
+    if (discr_over_4 <= 0) {
+        if (a != 0 || b_over_minus_2 != 0 || c != 0) {
+            // The curve does not inflect or cusp. This means it might rotate more than 180 degrees
+            // instead. Chop were rotation == 180 deg. (This is the 2nd root where the tangent is
+            // parallel to tan0.)
+            //
+            //      Tangent_Direction(T) x tan0 == 0
+            //      (AT^2 x tan0) + (2BT x tan0) + (C x tan0) == 0
+            //      (A x C)T^2 + (2B x C)T + (C x C) == 0  [[because tan0 == P1 - P0 == C]]
+            //      bT^2 + 2c + 0 == 0  [[because A x C == b, B x C == c]]
+            //      T = [0, -2c/b]
+            //
+            // NOTE: if C == 0, then C != tan0. But this is fine because the curve is definitely
+            // convex-180 if any points are colocated, and T[0] will equal NaN which returns 0
+            // chops.
+            float root = c / b_over_minus_2;
+            if (is_float_inside_0_1_exclusive(root)) {
+                T[0] = root;
+                return 1;
+            }
+            return 0;
+        }
+
+        // The curve is a flat line. The standard inflection function doesn't detect cusps from flat
+        // lines. Find cusps by searching instead for points where the tangent is perpendicular to
+        // tan0. This will find any cusp point.
+        //
+        //     dot(tan0, Tangent_Direction(T)) == 0
+        //
+        //                         |T^2|
+        //     tan0 * |A  2B  C| * |T  | == 0
+        //            |.   .  .|   |1  |
+        //
+        float2 tan0 = skvx::if_then_else(C != 0, C, p2 - p0);
+        a = grvx::dot(tan0, A);
+        b_over_minus_2 = -grvx::dot(tan0, B);
+        c = grvx::dot(tan0, C);
+        discr_over_4 = std::max(b_over_minus_2*b_over_minus_2 - a*c, 0.f);
+    }
+
+    // Solve our quadratic equation to find where to chop. See the quadratic formula from
+    // Numerical Recipes in C.
+    float q = sqrtf(discr_over_4);
+    q = copysignf(q, b_over_minus_2);
+    q = q + b_over_minus_2;
+    float2 roots = float2{q,c} / float2{a,q};
+
+    auto inside = (roots > 0) & (roots < 1);
+    if (inside[0]) {
+        if (inside[1] && roots[0] != roots[1]) {
+            if (roots[0] > roots[1]) {
+                roots = skvx::shuffle<1,0>(roots);  // Sort.
+            }
+            roots.store(T);
+            return 2;
+        }
+        T[0] = roots[0];
+        return 1;
+    }
+    if (inside[1]) {
+        T[0] = roots[1];
+        return 1;
+    }
+    return 0;
 }
