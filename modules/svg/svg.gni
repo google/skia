@@ -51,6 +51,7 @@ skia_svg_sources = [
   "$_src/SkSVGDOM.cpp",
   "$_src/SkSVGEllipse.cpp",
   "$_src/SkSVGFe.cpp",
+  "$_src/SkSVGFeTurbulence.cpp",
   "$_src/SkSVGFilter.cpp",
   "$_src/SkSVGFilterContext.cpp",
   "$_src/SkSVGGradient.cpp",
