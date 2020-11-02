@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48c0fac0_38c8b42c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-02T17:49:25Z",
+      "side": 1,
+      "message": "Surfaces cannot be resized. This view should be viable until the wasm heap resizes.",
+      "parentUuid": "ac07bfd0_3eb08761",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cfb6517_ae8ee1c2",
