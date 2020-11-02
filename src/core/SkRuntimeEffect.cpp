@@ -23,6 +23,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -41,7 +42,18 @@ class SharedCompiler {
 public:
     SharedCompiler() : fLock(compiler_mutex()) {
         if (!gCompiler) {
-            gCompiler = new SkSL::Compiler{};
+            // These caps are configured to apply *no* workarounds. The goal is to pass-through the
+            // user SkSL so that the processor emits essentially the same code. Any device/caps
+            // decisions are then applied to *that* SkSL, where we have the entire program, and
+            // the backend's compiler (constructed with the correct caps).
+            gCaps = ShaderCapsFactory::Standalone();
+            gCaps->fBuiltinFMASupport = true;
+            gCaps->fBuiltinDeterminantSupport = true;
+            // Prevent inlining in situations that require do loops, so we don't bake that decision
+            // in too early.
+            gCaps->fCanUseDoLoops = false;
+
+            gCompiler = new SkSL::Compiler(gCaps.get());
             gInlineThreshold = SkSL::Program::Settings().fInlineThreshold;
         }
     }
@@ -59,11 +71,13 @@ private:
         return mutex;
     }
 
-    static SkSL::Compiler* gCompiler;
-    static int             gInlineThreshold;
+    static ShaderCapsPointer gCaps;
+    static SkSL::Compiler*   gCompiler;
+    static int               gInlineThreshold;
 };
-SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
-int             SharedCompiler::gInlineThreshold = 0;
+ShaderCapsPointer SharedCompiler::gCaps = nullptr;
+SkSL::Compiler*   SharedCompiler::gCompiler = nullptr;
+int               SharedCompiler::gInlineThreshold = 0;
 }  // namespace SkSL
 
 void SkRuntimeEffect_SetInlineThreshold(int threshold) {
@@ -304,7 +318,6 @@ bool SkRuntimeEffect::toPipelineStage(const GrShaderCaps* shaderCaps,
     // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
     // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
     SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
     settings.fInlineThreshold = compiler.getInlineThreshold();
     settings.fAllowNarrowingConversions = true;
 
