@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03a009ab_7ed437bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-02T21:29:21Z",
+      "side": 1,
+      "message": "I\u0027m still staring at this due to tlwh being bigger than tlbr and how the narrowing affects things.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9000e36_af4db93b",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-02T21:29:21Z",
+      "side": 1,
+      "message": "Before I didn\u0027t worry about overflow...",
+      "range": {
+        "startLine": 203,
+        "startChar": 33,
+        "endLine": 203,
+        "endChar": 34
+      },
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c0b5466_d7653590",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-02T21:29:21Z",
+      "side": 1,
+      "message": "And more overflow.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "247f4d86_e7f808fc",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-02T21:29:21Z",
+      "side": 1,
+      "message": "Here they are not (and were not) subject to overflow.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e40b9db_9faf2e1d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-02T21:29:21Z",
+      "side": 1,
+      "message": "So if they all did fit and later there is a change of position which would push some of the out of bounds that could still be re-used? (They won\u0027t wrap around and get drawn somewhere they shouldn\u0027t?)",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
