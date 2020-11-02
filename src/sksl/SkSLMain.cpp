@@ -190,10 +190,24 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
     }
 }
 
+#include "src/sksl/dsl/DSL.h"
+
 /**
  * Very simple standalone executable to facilitate testing.
  */
 int main(int argc, const char** argv) {
+    if (argc == 2 && !strcmp(argv[1], "--testDSL")) {
+        using namespace skslcode;
+        Var<Int> x("x");
+        Function<Int>("main").define(
+            Declare(x),
+            x = 1,
+            If(x > 0,
+                Swizzle(sk_FragColor(), R, G, B) = Float3(Float(1), Float(1), Float(1)),
+                Swizzle(sk_FragColor(), R, G, B) = Float3(Float(0), Float(0), Float(0)))
+        );
+        exit(0);
+    }
     bool honorSettings = true;
     if (argc == 4) {
         if (0 == strcmp(argv[3], "--settings")) {

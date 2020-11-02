@@ -134,11 +134,18 @@ public:
 
     const Context& fContext;
 
-private:
+    ModifiersPool::Handle modifiersHandle(const Modifiers& modifiers) {
+        return fModifiers->handle(modifiers);
+    }
+
     /**
      * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
      */
     std::unique_ptr<ModifiersPool> releaseModifiers();
+
+    std::shared_ptr<SymbolTable>& symbolTable() {
+        return fSymbolTable;
+    }
 
     void pushSymbolTable();
     void popSymbolTable();
@@ -215,6 +222,7 @@ private:
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void cloneBuiltinVariables();
 
+private:
     Program::Inputs fInputs;
     const Program::Settings* fSettings = nullptr;
     Program::Kind fKind;

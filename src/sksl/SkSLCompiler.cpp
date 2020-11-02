@@ -215,7 +215,7 @@ Compiler::Compiler(Flags flags)
     // treat it as builtin (ie, no need to clone it into the Program).
     StringFragment skCapsName("sk_Caps");
     fRootSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
-                                                     fIRGenerator->fModifiers->handle(Modifiers()),
+                                                     fIRGenerator->modifiersHandle(Modifiers()),
                                                      skCapsName,
                                                      fContext->fSkCaps_Type.get(),
                                                      /*builtin=*/false,

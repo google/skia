@@ -8,11 +8,13 @@
 #ifndef SKSL_MODIFIERSPOOL
 #define SKSL_MODIFIERSPOOL
 
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+
 #include <unordered_map>
+#include <vector>
 
 namespace SkSL {
-
-struct Modifiers;
 
 /**
  * Stores a pool of Modifiers objects. Modifiers is fairly heavy, so to reduce IRNode's size we only

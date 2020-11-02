@@ -43,6 +43,10 @@
 
 class SkBitSet;
 
+namespace skslcode {
+    class DSLWriter;
+}
+
 namespace SkSL {
 
 class ByteCode;
@@ -139,6 +143,10 @@ public:
 
     Compiler(const Compiler&) = delete;
     Compiler& operator=(const Compiler&) = delete;
+
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
+    }
 
     /**
      * If externalValues is supplied, those values are registered in the symbol table of the
@@ -287,6 +295,7 @@ private:
     String fErrorText;
 
     friend class AutoSource;
+    friend class skslcode::DSLWriter;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
