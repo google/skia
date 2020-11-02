@@ -69,6 +69,24 @@
       "message": "Would this optimization even help the bug poster? Odds Are they aren\u0027t planning on using the CPU backend. better ask them what they\u0027re really trying to do.",
       "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3c120b4_3c28bd96",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-02T15:21:02Z",
+      "side": 1,
+      "message": "I don\u0027t know for sure but I think it\u0027s generally useful to expose anyway. Especially for Node.js backends where there is no access to the WebGL backend.",
+      "parentUuid": "63815e6e_51276ec7",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
