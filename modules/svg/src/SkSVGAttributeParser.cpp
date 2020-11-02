@@ -901,3 +901,33 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
     return parsedValue && this->parseEOSToken();
 }
 
+bool SkSVGAttributeParser::parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency* freq) {
+    SkSVGNumberType freqX;
+    if (!this->parseNumber(&freqX)) {
+        return false;
+    }
+
+    freq->push_back(freqX);
+
+    SkSVGNumberType freqY;
+    this->parseCommaWspToken();
+    if (this->parseNumber(&freqY)) {
+        freq->push_back(freqY);
+    }
+
+    return this->parseEOSToken();
+}
+
+bool SkSVGAttributeParser::parseFeTurbulenceType(SkSVGFeTurbulenceType* type) {
+    bool parsedValue = false;
+
+    if (this->parseExpectedStringToken("fractalNoise")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kFractalNoise);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("turbulence")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kTurbulence);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}

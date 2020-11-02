@@ -35,6 +35,9 @@ public:
     bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
+    bool parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency*);
+    bool parseFeTurbulenceType(SkSVGFeTurbulenceType*);
+
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);
     bool parseFontStyle(SkSVGFontStyle*);
