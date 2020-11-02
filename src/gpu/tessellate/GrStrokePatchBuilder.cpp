@@ -410,7 +410,7 @@ void GrStrokePatchBuilder::joinTo(JoinType joinType, SkPoint nextControlPoint, i
         (fStroke.getJoin() == SkPaint::kRound_Join || joinType == JoinType::kCusp)) {
         SkVector tan0 = fCurrentPoint - fLastControlPoint;
         SkVector tan1 = nextControlPoint - fCurrentPoint;
-        float rotation = SkMeasureAngleInsideVectors(tan0, tan1);
+        float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
         float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
         if (numRadialSegments > fMaxTessellationSegments) {
             // This is a round join that requires more segments than the tessellator supports.
