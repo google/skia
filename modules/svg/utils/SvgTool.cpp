@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     svg_dom->render(surface->getCanvas());
 
     SkPixmap pixmap;
-    surface->peekPixels(&pixmap);
+    surface->secret_peekPixels(&pixmap);
 
     SkFILEWStream out(FLAGS_output[0]);
     if (!out.isValid()) {

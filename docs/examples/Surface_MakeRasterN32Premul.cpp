@@ -8,7 +8,7 @@ void draw(SkCanvas* ) {
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPixmap pixmap;
-    if (surface->peekPixels(&pixmap)) {
+    if (surface->secret_peekPixels(&pixmap)) {
         const uint32_t* colorPtr = pixmap.addr32();
         SkPMColor pmWhite = colorPtr[0];
         SkPaint paint;

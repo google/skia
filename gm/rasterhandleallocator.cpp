@@ -66,7 +66,7 @@ public:
         }
         SkCanvas* canvas = surface->getCanvas();
         SkPixmap pixmap;
-        canvas->peekPixels(&pixmap);
+        canvas->secret_peekPixels(&pixmap);
 
         rec->fReleaseProc = [](void* pixels, void* ctx){ SkSafeUnref((SkSurface*)ctx); };
         rec->fReleaseCtx = surface.release();
@@ -302,7 +302,7 @@ DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
     doDraw(&nativePort);
 
     SkPixmap pm;
-    nativeCanvas->peekPixels(&pm);
+    nativeCanvas->secret_peekPixels(&pm);
     SkBitmap bm;
     bm.installPixels(pm);
     canvas->drawBitmap(bm, 280, 0, nullptr);

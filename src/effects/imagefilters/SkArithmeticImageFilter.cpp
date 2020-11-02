@@ -393,7 +393,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
                                                const SkIRect& fgBounds) const {
     SkPixmap dst;
-    if (!canvas->peekPixels(&dst)) {
+    if (!canvas->secret_peekPixels(&dst)) {
         return;
     }
 

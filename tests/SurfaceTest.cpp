@@ -220,11 +220,11 @@ static void test_canvas_peek(skiatest::Reporter* reporter,
     surface->getCanvas()->clear(color);
 
     SkPixmap pmap;
-    bool success = surface->getCanvas()->peekPixels(&pmap);
+    bool success = surface->getCanvas()->secret_peekPixels(&pmap);
     REPORTER_ASSERT(reporter, expectPeekSuccess == success);
 
     SkPixmap pmap2;
-    const void* addr2 = surface->peekPixels(&pmap2) ? pmap2.addr() : nullptr;
+    const void* addr2 = surface->secret_peekPixels(&pmap2) ? pmap2.addr() : nullptr;
 
     if (success) {
         REPORTER_ASSERT(reporter, requestInfo == pmap.info());
@@ -604,7 +604,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, ctxInfo) {
 
 static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Reporter* reporter) {
     SkPixmap surfacePM;
-    REPORTER_ASSERT(reporter, surface->peekPixels(&surfacePM));
+    REPORTER_ASSERT(reporter, surface->secret_peekPixels(&surfacePM));
 
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     SkPixmap pm;
@@ -642,7 +642,7 @@ DEF_TEST(surface_rowbytes, reporter) {
 DEF_TEST(surface_raster_zeroinitialized, reporter) {
     sk_sp<SkSurface> s(SkSurface::MakeRasterN32Premul(100, 100));
     SkPixmap pixmap;
-    REPORTER_ASSERT(reporter, s->peekPixels(&pixmap));
+    REPORTER_ASSERT(reporter, s->secret_peekPixels(&pixmap));
 
     for (int i = 0; i < pixmap.info().width(); ++i) {
         for (int j = 0; j < pixmap.info().height(); ++j) {

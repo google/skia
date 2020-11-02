@@ -241,7 +241,7 @@ public:
     PixelIter();
     PixelIter(SkSurface* surf) {
         SkPixmap pm;
-        if (!surf->peekPixels(&pm)) {
+        if (!surf->secret_peekPixels(&pm)) {
             pm.reset();
         }
         this->reset(pm);

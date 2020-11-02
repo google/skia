@@ -627,6 +627,11 @@ public:
     */
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint);
 
+#ifdef SK_SUPPORT_LEGACY_SURFACE_PEEKPIXELS
+public:
+#else
+private:
+#endif
     /** Copies SkSurface pixel address, row bytes, and SkImageInfo to SkPixmap, if address
         is available, and returns true. If pixel address is not available, return
         false and leave SkPixmap unchanged.
@@ -639,6 +644,8 @@ public:
         example: https://fiddle.skia.org/c/@Surface_peekPixels
     */
     bool peekPixels(SkPixmap* pixmap);
+public:
+    bool secret_peekPixels(SkPixmap* pixmap) { return this->peekPixels(pixmap); }
 
     /** Copies SkRect of pixels to dst.
 

@@ -325,6 +325,11 @@ public:
     */
     SkRasterHandleAllocator::Handle accessTopRasterHandle() const;
 
+#ifdef SK_SUPPORT_LEGACY_SURFACE_PEEKPIXELS
+public:
+#else
+private:
+#endif
     /** Returns true if SkCanvas has direct access to its pixels.
 
         Pixels are readable when SkBaseDevice is raster. Pixels are not readable when SkCanvas
@@ -341,6 +346,8 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_peekPixels
     */
     bool peekPixels(SkPixmap* pixmap);
+public:
+    bool secret_peekPixels(SkPixmap* pixmap) { return this->peekPixels(pixmap); }
 
     /** Copies SkRect of pixels from SkCanvas into dstPixels. SkMatrix and clip are
         ignored.

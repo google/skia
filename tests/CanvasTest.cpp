@@ -209,7 +209,7 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
     REPORTER_ASSERT(reporter, canvas);
 
     SkPixmap pmap;
-    const SkPMColor* addr = canvas->peekPixels(&pmap) ? pmap.addr32() : nullptr;
+    const SkPMColor* addr = canvas->secret_peekPixels(&pmap) ? pmap.addr32() : nullptr;
     REPORTER_ASSERT(reporter, addr);
     REPORTER_ASSERT(reporter, info == pmap.info());
     REPORTER_ASSERT(reporter, minRowBytes == pmap.rowBytes());

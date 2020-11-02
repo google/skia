@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     lil->getCanvas()->clear(SK_ColorBLACK);
     lil->draw(big->getCanvas(), 16, 16, nullptr);
     SkPixmap pixmap;
-    if (big->peekPixels(&pixmap)) {
+    if (big->secret_peekPixels(&pixmap)) {
         SkBitmap bigBits;
         bigBits.installPixels(pixmap);
         canvas->drawBitmap(bigBits, 0, 0);
