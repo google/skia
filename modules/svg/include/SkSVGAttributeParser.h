@@ -20,6 +20,7 @@ public:
     bool parseFillRule(SkSVGFillRule*);
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
+    bool parseInteger(SkSVGIntegerType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parseTransform(SkSVGTransformType*);
@@ -34,6 +35,9 @@ public:
     bool parseVisibility(SkSVGVisibility*);
     bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
+
+    bool parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency*);
+    bool parseFeTurbulenceType(SkSVGFeTurbulenceType*);
 
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);
@@ -55,6 +59,7 @@ private:
     bool parseCommaWspToken();
     bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
+    bool parseInt32Token(int32_t*);
     bool parseHexToken(uint32_t*);
     bool parseLengthUnitToken(SkSVGLength::Unit*);
     bool parseNamedColorToken(SkColor*);

@@ -15,6 +15,7 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGDefs.h"
 #include "modules/svg/include/SkSVGEllipse.h"
+#include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilter.h"
 #include "modules/svg/include/SkSVGG.h"
 #include "modules/svg/include/SkSVGLine.h"
@@ -138,6 +139,18 @@ bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGNumberValue(number));
+    return true;
+}
+
+bool SetIntegerAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                         const char* stringValue) {
+    SkSVGIntegerType number;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseInteger(&number)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGIntegerValue(number));
     return true;
 }
 
@@ -347,6 +360,31 @@ bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribut
     return true;
 }
 
+bool SetFeTurbulenceBaseFrequencyAttribute(const sk_sp<SkSVGNode>& node,
+                                           SkSVGAttribute attr,
+                                           const char* stringValue) {
+    SkSVGFeTurbulenceBaseFrequency baseFreq;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFeTurbulenceBaseFrequency(&baseFreq)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFeTurbulenceBaseFrequencyValue(baseFreq));
+    return true;
+}
+
+bool SetFeTurbulenceTypeAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                                  const char* stringValue) {
+    SkSVGFeTurbulenceType type;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFeTurbulenceType(&type)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFeTurbulenceTypeValue(type));
+    return true;
+}
+
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -425,6 +463,8 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
+    { "baseFrequency"      , { SkSVGAttribute::kFeTurbulenceBaseFrequency,
+                               SetFeTurbulenceBaseFrequencyAttribute }},
     { "clip-path"          , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
     { "clip-rule"          , { SkSVGAttribute::kClipRule         , SetFillRuleAttribute     }},
     { "color"              , { SkSVGAttribute::kColor            , SetColorAttribute        }},
@@ -448,6 +488,8 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    ,
                                SetObjectBoundingBoxUnitsAttribute }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
+    { "numOctaves"         , { SkSVGAttribute::kFeTurbulenceNumOctaves,
+                               SetIntegerAttribute }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
     { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
@@ -457,6 +499,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
+    { "seed"               , { SkSVGAttribute::kFeTurbulenceSeed , SetNumberAttribute       }},
     { "spreadMethod"       , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
     { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
@@ -472,6 +515,8 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
     { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetTextAnchorAttribute   }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
+    { "type"               , { SkSVGAttribute::kFeTurbulenceType ,
+                               SetFeTurbulenceTypeAttribute }},
     { "viewBox"            , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
     { "visibility"         , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},
     { "width"              , { SkSVGAttribute::kWidth            , SetLengthAttribute       }},
@@ -490,6 +535,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
     { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
     { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
+    { "feTurbulence"  , []() -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make();   }},
     { "filter"        , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();         }},
     { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
     { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
