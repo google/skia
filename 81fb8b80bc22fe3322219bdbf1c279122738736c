@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e585e855_52b0925d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-02T14:47:58Z",
+      "side": 1,
+      "message": "+Derek for API review. We need an extra SkEncodedImageFormat for AVIF",
+      "revId": "81fb8b80bc22fe3322219bdbf1c279122738736c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
