@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ef9e49b_a2663a08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-02T18:19:49Z",
+      "side": 1,
+      "message": "or the surface is destroyed\nor a copy-on-write happens after an image snapshot",
+      "parentUuid": "48c0fac0_38c8b42c",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cfb6517_ae8ee1c2",
