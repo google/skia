@@ -9,8 +9,6 @@ Milestone 88
 
   * <insert new release notes here>
 
-  * Add AVIF support to SkHeifCodec.
-
   * Removed SkSurfaceProps::kLegacyFontHost_InitType, SkFontLCDConfig, and related code.
     The default pixel geometry for SkSurfaceProps is now kUnknown instead of kRGB_H.
     The removal was guarded by the SK_LEGACY_SURFACE_PROPS build flag which was later removed.
