@@ -120,7 +120,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     }
 
     auto buildProgram = [this](const SkSL::String& code, Program* p) {
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(/*caps=*/nullptr);
         SkSL::Program::Settings settings;
         settings.fRemoveDeadFunctions = false;
 
