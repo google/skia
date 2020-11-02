@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33a38bf6_2078248b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T15:57:14Z",
+      "side": 1,
+      "message": "lgtm, but naming suggestion inline.",
+      "revId": "b9a1942a51a5cc7506ac1206b871456f01e5defa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3c7c82e_f52db548",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T15:57:14Z",
+      "side": 1,
+      "message": "I think this and \"fast_angle_between_vectors\" are a bit different than \"fast_madd\" in that not only are they fast, they\u0027re using a mathematical approximation. I think maybe approx_ instead of fast_, or fast_approx_ if the \"fast\" is also important.",
+      "range": {
+        "startLine": 70,
+        "startChar": 30,
+        "endLine": 70,
+        "endChar": 39
+      },
+      "revId": "b9a1942a51a5cc7506ac1206b871456f01e5defa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
