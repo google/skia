@@ -148,4 +148,24 @@ private:
         void set##attr_name(const attr_type& a) { f##attr_name = a; }     \
         void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); }
 
+#if defined(SK_VERBOSE_SVG_PARSING)
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value) \
+    SkDebugf("could not parse '%s=\"%s\"\n", attr_name, attr_value)
+#else
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value)
+#endif
+
+#define SVG_ATTR_PARSE_AND_SET(attr_name, str_value, svg_name, cpp_type, set_fnc) \
+    do {                                                                          \
+        SkSVGAttributeParser parser(str_value);                                   \
+        if (strcmp(attr_name, svg_name) == 0) {                                   \
+            cpp_type parsed_value;                                                \
+            if (parser.parse(&parsed_value)) {                                    \
+                set_fnc(parsed_value);                                            \
+            } else {                                                              \
+                SVG_ATTR_PARSE_ERR(attr_name, str_value);                         \
+            }                                                                     \
+        }                                                                         \
+    } while (0)
+
 #endif // SkSVGNode_DEFINED
