@@ -1456,16 +1456,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) 
             create_vert_key);
 }
 
+static bool newer_is_always_better(SkData* /* incumbent */, SkData* /* challenger */) {
+    return true;
+};
+
 // Case 16: Test out pre-emption of an existing vertex-data cache entry. This test simulates
 //          the case where there is a race to create vertex data. However, the second one
 //          to finish is better and usurps the first's position in the cache.
 //
 //          This capability isn't available for views.
-
-static bool newer_is_always_better(SkData* /* incumbent */, SkData* /* challenger */) {
-    return true;
-};
-
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts, reporter, ctxInfo) {
     GrUniqueKey key;
     create_vert_key(&key, kImageWH, kNoID);
