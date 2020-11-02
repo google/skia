@@ -130,6 +130,7 @@ private:
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
 
     void applyOpacity(SkScalar opacity, uint32_t flags);
+    void applyFilter(const SkSVGFilterType&);
     void applyClip(const SkSVGClip&);
     void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 

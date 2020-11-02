@@ -17,6 +17,8 @@ public:
 
     static sk_sp<SkSVGFilter> Make() { return sk_sp<SkSVGFilter>(new SkSVGFilter()); }
 
+    sk_sp<SkImageFilter> buildFilterDAG(const SkSVGRenderContext&) const;
+
     SVG_ATTR(X, SkSVGLength, SkSVGLength(-10, SkSVGLength::Unit::kPercentage))
     SVG_ATTR(Y, SkSVGLength, SkSVGLength(-10, SkSVGLength::Unit::kPercentage))
     SVG_ATTR(Width, SkSVGLength, SkSVGLength(120, SkSVGLength::Unit::kPercentage))
@@ -27,6 +29,8 @@ public:
 
 private:
     SkSVGFilter() : INHERITED(SkSVGTag::kFilter) {}
+
+    SkRect resolveFilterRegion(const SkSVGRenderContext&) const;
 
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
