@@ -96,7 +96,7 @@ GrGLContext::~GrGLContext() {
 
 SkSL::Compiler* GrGLContext::compiler() const {
     if (!fCompiler) {
-        fCompiler = new SkSL::Compiler();
+        fCompiler = new SkSL::Compiler(fGLCaps->shaderCaps());
     }
     return fCompiler;
 }
