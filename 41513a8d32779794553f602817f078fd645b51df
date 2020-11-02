@@ -455,6 +455,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf5c967f_5e6943ae",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-02T14:19:34Z",
+      "side": 1,
+      "message": "\u003e \u003e Ah, thanks for the clarification and comment. It sounds like you\u0027re saying we could see the following brands:\n\u003e \u003e \n\u003e \u003e   mif1 avif\n\u003e \u003e \n\u003e \u003e and we would conclude that the file is kAVIF. Is that the case for other brands, too? e.g. if we see one of the following:\n\u003e \u003e \n\u003e \u003e   msf1 hevc avis\n\u003e \u003e   heif avif\n\u003e \u003e   heic msf1 avif\n\u003e \u003e \n\u003e \u003e Should those be treated as kAVIF? Or perhaps we should we reject them?\n\u003e \n\u003e While all the 3 cases are possible in theory, it is practically not going to happen.\n\nFWIW, encoded images are commonly used to attempt to exploit security vulnerabilities, so we should expect to see any possible input. But if the underlying decoder is going to do the right thing, then I agree this is fine.\n\n\u003e It is possible that the image is encoded as heic and the thumbnail is encoded as avif or some such. In that case, i don\u0027t think we should reject them.\n\u003e \n\u003e The underlying android platform code is capable of deducing the actual bitstream type and invoking the right decoder. So i think the sniffer should let them go through as HEIC (which is the current behavior).",
+      "parentUuid": "55d19967_da987f4f",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 9
+      },
+      "revId": "41513a8d32779794553f602817f078fd645b51df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "132d5afe_f39685c6",
