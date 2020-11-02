@@ -125,6 +125,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/SwizzleOutOfBounds.sksl",
   "$_tests/sksl/errors/SwizzleTooManyComponents.sksl",
   "$_tests/sksl/errors/TernaryMismatch.sksl",
+  "$_tests/sksl/errors/UndeclaredFunction.sksl",
   "$_tests/sksl/errors/UndefinedFunction.sksl",
   "$_tests/sksl/errors/UndefinedSymbol.sksl",
   "$_tests/sksl/errors/Unreachable.sksl",
