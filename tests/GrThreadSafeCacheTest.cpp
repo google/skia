@@ -1461,7 +1461,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) 
 //          to finish is better and usurps the first's position in the cache.
 //
 //          This capability isn't available for views.
-
 static bool newer_is_always_better(SkData* /* incumbent */, SkData* /* challenger */) {
     return true;
 };
