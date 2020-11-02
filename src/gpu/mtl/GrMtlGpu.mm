@@ -136,12 +136,12 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fDevice(device)
         , fQueue(queue)
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
-        , fCompiler(new SkSL::Compiler())
         , fResourceProvider(this)
         , fStagingBufferManager(this)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
+    fCompiler.reset(new SkSL::Compiler(fMtlCaps->shaderCaps()));
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 }
 

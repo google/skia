@@ -31,7 +31,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(/*caps=*/nullptr);
         SkSL::Program::Settings settings;
         auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, fSrc, settings);
         SkASSERT(compiler.errorCount() == 0);
