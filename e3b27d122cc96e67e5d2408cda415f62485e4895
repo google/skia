@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6d6e80b_b27bba90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T15:59:35Z",
+      "side": 1,
+      "message": "Cool! Math LGTM",
+      "revId": "e3b27d122cc96e67e5d2408cda415f62485e4895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86a04ac7_049cb3fd",
@@ -32,6 +49,24 @@
       "side": 1,
       "message": "This result is \"maxLength^2 * k^2\"\n\nnumParametricSegments is \"sqrt(maxLength * k) \u003d\u003d sqrt(sqrt(maxLength^2 * k^2))\"\n\nSo the result is numParametricSegments^4. This is all tested and verified in WangsFormulaTest.cpp.",
       "parentUuid": "86a04ac7_049cb3fd",
+      "revId": "e3b27d122cc96e67e5d2408cda415f62485e4895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "863eb3e0_33b3d976",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T15:59:35Z",
+      "side": 1,
+      "message": "Aha, got it. Thanks!",
+      "parentUuid": "62e923cf_948ddec1",
       "revId": "e3b27d122cc96e67e5d2408cda415f62485e4895",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
