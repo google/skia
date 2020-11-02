@@ -80,6 +80,13 @@ template<int N> inline vec<N> approx_acos(vec<N> x) {
 }
 
 // Approximates the angle between a and b within .96 degrees (GRVX_FAST_ACOS_MAX_ERROR).
+//
+// Due to fp32 overflow, this method is only valid for max(abs(ax), abs(ay)) and
+// max(abs(bx), abs(by)) in the range (2^-31, 2^31) exclusive. Results are undefined if the inputs
+// fall outside this range.
+//
+// NOTE: If necessary, we can extend our valid range to 2^(+/-63) by normalizing a and b separately.
+// i.e.: "cosTheta = dot(a,b) / sqrt(dot(a,a)) / sqrt(dot(b,b))".
 template<int N> inline vec<N> approx_angle_between_vectors(vec<N> ax, vec<N> ay, vec<N> bx,
                                                            vec<N> by) {
     vec<N> ab_cosTheta = fast_madd(ax, bx, ay*by);
