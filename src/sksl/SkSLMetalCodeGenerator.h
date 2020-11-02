@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
@@ -164,9 +165,11 @@ protected:
 
     void writeFunctionStart(const FunctionDeclaration& f);
 
-    void writeFunctionDeclaration(const FunctionDeclaration& f);
+    bool writeFunctionDeclaration(const FunctionDeclaration& f);
 
     void writeFunction(const FunctionDefinition& f);
+
+    void writeFunctionPrototype(const FunctionPrototype& f);
 
     void writeLayout(const Layout& layout);
 

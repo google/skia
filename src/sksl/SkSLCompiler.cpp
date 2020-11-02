@@ -364,6 +364,10 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
                 intrinsics->insertOrDie(f.declaration().description(), std::move(element));
                 break;
             }
+            case ProgramElement::Kind::kFunctionPrototype: {
+                // These are already in the symbol table.
+                break;
+            }
             case ProgramElement::Kind::kEnum: {
                 const Enum& e = element->as<Enum>();
                 SkASSERT(e.isBuiltin());
