@@ -23,7 +23,7 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         , fN1(1)
         // The head block always fills remaining space from GrBlockAllocator's size, because it's
         // inline, but can take over the specified number of bytes immediately after it.
-        , fHead(nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
+        , fHead(/*prev=*/nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
     SkASSERT(fBlockIncrement >= 1);
     SkASSERT(additionalPreallocBytes <= kMaxAllocationSize);
 }
@@ -37,9 +37,13 @@ GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
          , fAllocatorMetadata(0) {
     SkASSERT(allocationSize >= (int) sizeof(Block));
     SkDEBUGCODE(fSentinel = kAssignedMarker;)
+
+    this->poisonRange(kDataStart, fSize);
 }
 
 GrBlockAllocator::Block::~Block() {
+    this->unpoisonRange(kDataStart, fSize);
+
     SkASSERT(fSentinel == kAssignedMarker);
     SkDEBUGCODE(fSentinel = kFreedMarker;) // FWIW
 }

@@ -10,6 +10,7 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
+#include "src/core/SkASAN.h"
 
 #include <memory>  // std::unique_ptr
 #include <cstddef> // max_align_t
@@ -124,6 +125,14 @@ public:
         friend class GrBlockAllocator;
 
         Block(Block* prev, int allocationSize);
+
+        // We poison the unallocated space in a Block to allow ASAN to catch invalid writes.
+        void poisonRange(int start, int end) {
+            sk_asan_poison_memory_region(reinterpret_cast<char*>(this) + start, end - start);
+        }
+        void unpoisonRange(int start, int end) {
+            sk_asan_unpoison_memory_region(reinterpret_cast<char*>(this) + start, end - start);
+        }
 
         // Get fCursor, but aligned such that ptr(rval) satisfies Align.
         template <size_t Align, size_t Padding>
@@ -577,6 +586,9 @@ GrBlockAllocator::ByteRange GrBlockAllocator::allocate(size_t size) {
 
     int start = fTail->fCursor;
     fTail->fCursor = end;
+
+    fTail->unpoisonRange(offset - Padding, end);
+
     return {fTail, start, offset, end};
 }
 
@@ -647,6 +659,9 @@ bool GrBlockAllocator::Block::resize(int start, int end, int deltaBytes) {
 bool GrBlockAllocator::Block::release(int start, int end) {
     SkASSERT(fSentinel == kAssignedMarker);
     SkASSERT(start >= kDataStart && end <= fSize && start < end);
+
+    this->poisonRange(start, end);
+
     if (fCursor == end) {
         fCursor = start;
         return true;
