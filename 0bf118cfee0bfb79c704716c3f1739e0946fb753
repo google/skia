@@ -87,6 +87,42 @@
       "parentUuid": "63815e6e_51276ec7",
       "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41d32514_f41e3342",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T16:27:05Z",
+      "side": 1,
+      "message": "This is exactly what the bug is asking for.",
+      "parentUuid": "e3c120b4_3c28bd96",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "064073d4_50bc05be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T16:27:05Z",
+      "side": 1,
+      "message": "Ah, great!  Seems perfect then.",
+      "parentUuid": "73a90700_b39c06f4",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

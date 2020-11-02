@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cfb6517_ae8ee1c2",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 2259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T16:27:05Z",
+      "side": 1,
+      "message": "The idea is that we pair this with the surface\u0027s imageInfo(), right?",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
