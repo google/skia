@@ -8,6 +8,7 @@
 #ifndef SkSVGFilter_DEFINED
 #define SkSVGFilter_DEFINED
 
+#include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
@@ -27,6 +28,8 @@ public:
 
 private:
     SkSVGFilter() : INHERITED(SkSVGTag::kFilter) {}
+
+    sk_sp<SkImageFilter> onAsImageFilter(const SkSVGRenderContext&) const final;
 
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
