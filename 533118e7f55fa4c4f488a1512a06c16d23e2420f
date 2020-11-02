@@ -22,6 +22,30 @@
       },
       "revId": "533118e7f55fa4c4f488a1512a06c16d23e2420f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a134e489_9874d8f0",
+        "filename": "src/codec/SkHeifCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-11-02T22:08:33Z",
+      "side": 1,
+      "message": "i created a separate CL with this suggestion: https://skia-review.googlesource.com/c/skia/+/331496\n\nplease take a look at that and we can abandon this. :)",
+      "parentUuid": "51bb9ec7_03625dd9",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 19
+      },
+      "revId": "533118e7f55fa4c4f488a1512a06c16d23e2420f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
