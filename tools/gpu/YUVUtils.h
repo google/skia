@@ -37,6 +37,7 @@ public:
         kFromPixmaps,
         kFromGenerator,
         kFromTextures,
+        kFromTexturesCopyToExternal
     };
 
     SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
@@ -52,7 +53,7 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
 
     // Memoized SkImages formed with planes, one for each Type.
-    sk_sp<SkImage> fYUVImage[3];
+    sk_sp<SkImage> fYUVImage[4];
 
     LazyYUVImage() = default;
 
