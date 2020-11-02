@@ -1202,7 +1202,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var bPtr = copyRectToWasm(boundsRect);
     // These or clauses help emscripten, which does not deal with undefined well.
     return this._saveLayer(paint || null, bPtr, backdrop || null, flags || 0);
-  }
+  };
 
   // pixels should be a Uint8Array or a plain JS array.
   CanvasKit.Canvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,

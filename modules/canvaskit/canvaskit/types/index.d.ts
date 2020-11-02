@@ -1273,6 +1273,12 @@ export interface Canvas extends EmbindObject<Canvas> {
               flags?: SaveLayerFlag): number;
 
     /**
+     * As saveLayer, but with no other parameters. Can be called for slightly less overhead.
+     * @param paint
+     */
+    saveLayerPaint(paint: Paint): number;
+
+    /**
      * Scales the current matrix by sx on the x-axis and sy on the y-axis.
      * @param sx
      * @param sy

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `CanvasKit.Shader`.
  - `peekPixels` to Surface (only works for raster/software backend).
  - `getLineMetrics` to Paragraph.
+ - `Canvas.saveLayerPaint` as a "fast path" if one only needs to pass the paint.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
