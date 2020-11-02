@@ -43,6 +43,53 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1cc319b5_5b1ca859",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T14:17:34Z",
+      "side": 1,
+      "message": "+1. Yes, we get a warning if the switch isn\u0027t exhaustive.",
+      "parentUuid": "dceb1ecb_a524be8e",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 5
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "497a25b1_8f0d0e23",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T14:17:34Z",
+      "side": 1,
+      "message": "De-yoda-idfy this comparison (and the one on 430)?",
+      "range": {
+        "startLine": 360,
+        "startChar": 12,
+        "endLine": 360,
+        "endChar": 54
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "778f6430_dad2ee38",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 2
@@ -82,6 +129,76 @@
         "startChar": 4,
         "endLine": 64,
         "endChar": 51
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ec29260_6e94823e",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T14:17:34Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "11a1a2d3_745736a5",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 51
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a20f90ab_447a9caa",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T14:17:34Z",
+      "side": 1,
+      "message": "Style suggestion: I only like these case/return-on-one-line things when it reads like an aligned columnar table, e.g.\n        case kA8_GrMaskFormat :  return GrAtlasTextOp::MaskType::kGrayscaleCoverage;\n        case kA565_GrMaskFormat: return GrAtlasTextOp::MaskType::kLCDCoverage;\n        case kARGB_GrMaskFormat: return GrAtlasTextOp::MaskType::kColorBitmap;\n\n\nAlso, don\u0027t need \"GrAtlasTextOp::\" on these, we\u0027re in the class.",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 78
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87c1b8f1_0a65b029",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T14:17:34Z",
+      "side": 1,
+      "message": "rm and put \"SkUNREACHABLE;\" after line 75?",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 68
       },
       "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
