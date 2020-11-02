@@ -34,6 +34,29 @@
       "parentUuid": "3c3c7f17_edaf0dba",
       "revId": "c86c3ffa2f0462669cb4c5f1e143e0342ee3561a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "045acca9_33500ef5",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2997,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-02T18:45:47Z",
+      "side": 1,
+      "message": "We could probably get away with 1e3f, just to reduce issues on lower-precision devices.",
+      "range": {
+        "startLine": 2997,
+        "startChar": 62,
+        "endLine": 2997,
+        "endChar": 66
+      },
+      "revId": "c86c3ffa2f0462669cb4c5f1e143e0342ee3561a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
