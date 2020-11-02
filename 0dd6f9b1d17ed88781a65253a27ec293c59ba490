@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2b6a153_f5890570",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-02T15:12:37Z",
+      "side": 1,
+      "message": "I think I led you astray here. I believe this method gets called once and then you have to run every context in a loop.\n\nAlso, I think WebGL is more similar to GLES than GL, right?\n\n for (auto contextType : {ContextType::kGLES_ContextType, ContextType::kMock_ContextType) {\n         if (contextTypeFilter \u0026\u0026 !(*contextTypeFilter)(contextType)) {\n             continue;\n         }\n         sk_sp\u003cGrDirectContext\u003e ctx \u003d (contextType \u003d\u003d ContextType::kGLES_ContextType) ?\n                 GrDirectContext::MakeGL(options) :\n                 GrDirectContext::MakeMock(nullptr, options);\n         // Finish running test...\n }",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 5
+      },
+      "revId": "0dd6f9b1d17ed88781a65253a27ec293c59ba490",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
