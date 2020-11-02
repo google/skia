@@ -10,7 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkVx.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/tessellate/GrVectorXform.h"
 
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
@@ -48,11 +48,11 @@ SK_ALWAYS_INLINE static int nextlog16(float x) {
 // Returns Wang's formula, raised to the 4th power, specialized for a quadratic curve.
 SK_ALWAYS_INLINE static float quadratic_pow4(float intolerance, const SkPoint pts[],
                                              const GrVectorXform& vectorXform = GrVectorXform()) {
-    using float2 = skvx::Vec<2, float>;
-    float2 p0 = float2::Load(pts);
-    float2 p1 = float2::Load(pts + 1);
-    float2 p2 = float2::Load(pts + 2);
-    float2 v = p0 + p1*-2 + p2;
+    using grvx::float2, skvx::bit_pun;
+    float2 p0 = bit_pun<float2>(pts[0]);
+    float2 p1 = bit_pun<float2>(pts[1]);
+    float2 p2 = bit_pun<float2>(pts[2]);
+    float2 v = grvx::fast_madd<2>(-2, p1, p0) + p2;
     v = vectorXform(v);
     float2 vv = v*v;
     return (vv[0] + vv[1]) * length_term_pow2<2>(intolerance);
@@ -75,11 +75,11 @@ SK_ALWAYS_INLINE static int quadratic_log2(float intolerance, const SkPoint pts[
 // Returns Wang's formula, raised to the 4th power, specialized for a cubic curve.
 SK_ALWAYS_INLINE static float cubic_pow4(float intolerance, const SkPoint pts[],
                                          const GrVectorXform& vectorXform = GrVectorXform()) {
-    using float4 = skvx::Vec<4, float>;
+    using grvx::float4;
     float4 p01 = float4::Load(pts);
     float4 p12 = float4::Load(pts + 1);
     float4 p23 = float4::Load(pts + 2);
-    float4 v = p01 + p12*-2 + p23;
+    float4 v = grvx::fast_madd<4>(-2, p12, p01) + p23;
     v = vectorXform(v);
     float4 vv = v*v;
     return std::max(vv[0] + vv[1], vv[2] + vv[3]) * length_term_pow2<3>(intolerance);
