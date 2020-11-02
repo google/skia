@@ -34,6 +34,24 @@
       "parentUuid": "90d9608e_f3f13098",
       "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73a90700_b39c06f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-02T15:14:51Z",
+      "side": 1,
+      "message": "This implementation does *not* copy the data - it wraps the underlying WASM memory in a TypedArray.",
+      "parentUuid": "c8ba54be_5cc46e40",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
