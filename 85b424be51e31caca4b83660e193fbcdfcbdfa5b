@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d870d845_b88ead18",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T21:09:06Z",
+      "side": 1,
+      "message": "I don\u0027t think we can just assert here, someone could always build a malformed SVG with IRIs pointing at arbitrary elements.  We should test and bail if not a filter.",
+      "range": {
+        "startLine": 482,
+        "startChar": 4,
+        "endLine": 482,
+        "endChar": 47
+      },
+      "revId": "85b424be51e31caca4b83660e193fbcdfcbdfa5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

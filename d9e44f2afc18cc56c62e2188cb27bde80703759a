@@ -133,6 +133,24 @@
       "parentUuid": "fe256378_e9d809e2",
       "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e424870d_6a09cbff",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T21:09:06Z",
+      "side": 1,
+      "message": "I think they would be applied in the right order (filters first, then opacity modulation just before blitting to the backbuffer).  We\u0027ll have to confirm.",
+      "parentUuid": "71119739_8a72cf2b",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
