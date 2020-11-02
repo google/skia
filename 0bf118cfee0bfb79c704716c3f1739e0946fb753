@@ -52,6 +52,23 @@
       "parentUuid": "c8ba54be_5cc46e40",
       "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63815e6e_51276ec7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-11-02T15:17:04Z",
+      "side": 1,
+      "message": "Would this optimization even help the bug poster? Odds Are they aren\u0027t planning on using the CPU backend. better ask them what they\u0027re really trying to do.",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
