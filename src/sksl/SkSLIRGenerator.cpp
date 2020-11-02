@@ -462,15 +462,15 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
             return nullptr;
         }
         fInvocations = modifiers.fLayout.fInvocations;
-        if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
+        if (fCaps && !fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
             }
         }
     }
-    if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 && fSettings->fCaps &&
-        !fSettings->fCaps->gsInvocationsSupport()) {
+    if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 && fCaps &&
+        !fCaps->gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
     return std::make_unique<ModifiersDeclaration>(fModifiers->handle(modifiers));
@@ -1065,8 +1065,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             fSymbolTable->addWithoutOwnership(param);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
-                                          fSettings->fCaps &&
-                                          !fSettings->fCaps->gsInvocationsSupport();
+                                          fCaps && !fCaps->gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
         fCurrentFunction = nullptr;
         if (!body) {
@@ -1372,8 +1371,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                 case SK_FRAGCOORD_BUILTIN:
                     fInputs.fFlipY = true;
                     if (fSettings->fFlipY &&
-                        (!fSettings->fCaps ||
-                            !fSettings->fCaps->fragCoordConventionsExtensionString())) {
+                        (!fCaps || !fCaps->fragCoordConventionsExtensionString())) {
                         fInputs.fRTHeight = true;
                     }
 #endif
@@ -2930,6 +2928,7 @@ void IRGenerator::cloneBuiltinVariables() {
 IRGenerator::IRBundle IRGenerator::convertProgram(
         Program::Kind kind,
         const Program::Settings* settings,
+        const ShaderCapsClass* caps,
         const ParsedModule& base,
         bool isBuiltinCode,
         const char* text,
@@ -2937,6 +2936,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
     fKind = kind;
     fSettings = settings;
+    fCaps = caps;
     fSymbolTable = base.fSymbols;
     fIntrinsics = base.fIntrinsics.get();
     if (fIntrinsics) {
@@ -2953,8 +2953,8 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     fRTAdjustInterfaceBlock = nullptr;
 
     fCapsMap.clear();
-    if (settings->fCaps) {
-        fill_caps(*settings->fCaps, &fCapsMap);
+    if (fCaps) {
+        fill_caps(*fCaps, &fCapsMap);
     } else {
         fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
     }
@@ -2964,7 +2964,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     if (kind == Program::kGeometry_Kind && !fIsBuiltinCode) {
         // Declare sk_InvocationID programmatically. With invocations support, it's an 'in' builtin.
         // If we're applying the workaround, then it's a plain global.
-        bool workaround = fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport();
+        bool workaround = fCaps && !fCaps->gsInvocationsSupport();
         Modifiers m;
         if (!workaround) {
             m.fFlags = Modifiers::kIn_Flag;
