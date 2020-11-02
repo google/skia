@@ -125,6 +125,7 @@ var CanvasKit = {
     getGlyphPositionAtCoordinate: function() {},
     getHeight: function() {},
     getIdeographicBaseline: function() {},
+    getLineMetrics: function() {},
     getLongestLine: function() {},
     getMaxIntrinsicWidth: function() {},
     getMaxWidth: function() {},
