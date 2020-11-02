@@ -72,6 +72,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ad26f34_ccc8f754",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-02T19:06:22Z",
+      "side": 1,
+      "message": "I\u0027m not clear about the image snapshot part - for the raster backend, we draw to a buffer using a RasterDirectSurface and then copy that buffer to a 2d canvas.\n\nThis version of peekPixels exposes that buffer, so I don\u0027t think it gets invalidated unless the surface is destroyed. After which time, the TypedArray will be pointing to freed memory on the WASM heap and the client should not use it.",
+      "parentUuid": "93fdbf8a_1f6a3b46",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cfb6517_ae8ee1c2",
