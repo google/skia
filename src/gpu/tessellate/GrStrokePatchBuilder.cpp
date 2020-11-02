@@ -335,22 +335,20 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     SkPoint chops[10];
     if (convex180Status == Convex180Status::kUnknown) {
         float chopT[2];
-        int n = SkFindCubicInflections(p, chopT);
-        if (n == 0) {
-            // No inflections. Chop at midtangent to guarantee rotation <= 180 degrees.
-            chopT[0] = SkFindCubicMidTangent(p);
-            n = 1;
-        }
-        SkChopCubicAt(p, chops, chopT, n);
-        this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth);
-        for (int i = 1; i <= n; ++i) {
-            // If we chopped at a cusp then rotation is not continuous between the two curves.
-            // Insert a double cuspe up for lost rotation. (This should not be possible from a
-            // purely mathematical standpoint, since an inflection is not a cusp, but we still check
-            // for the sake of robust handling of FP32 precision issues.)
-            JoinType nextJoinType = (cubic_chop_is_cusp(chops + (i - 1)*3)) ?
-                    JoinType::kCusp : JoinType::kFromStroke;
-            this->cubicTo(chops + i*3, nextJoinType, Convex180Status::kYes, maxDepth);
+        if (int n = GrPathUtils::findCubicConvex180Chops(p, chopT)) {
+            SkChopCubicAt(p, chops, chopT, n);
+            this->cubicTo(chops, prevJoinType, Convex180Status::kYes, maxDepth);
+            for (int i = 1; i <= n; ++i) {
+                // If we chopped at a cusp then rotation is not continuous between the two curves.
+                // Insert a double cusp to make up for lost rotation.
+                JoinType nextJoinType = (cubic_chop_is_cusp(chops + (i - 1)*3)) ?
+                        JoinType::kCusp : JoinType::kFromStroke;
+                this->cubicTo(chops + i*3, nextJoinType, Convex180Status::kYes, maxDepth);
+            }
+        } else {
+            // The cubic was Convex180Status::kYes after all. Try again when we can use 180-degree
+            // max segment limits instead of 360.
+            this->cubicTo(p, prevJoinType, Convex180Status::kYes, maxDepth);
         }
         return;
     }
