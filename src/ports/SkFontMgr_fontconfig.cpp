@@ -57,23 +57,26 @@ class SkData;
 
 namespace {
 
-// Fontconfig is not threadsafe before 2.10.91. Before that, we lock with a global mutex.
-// See https://bug.skia.org/1497 for background.
+// FontConfig was thread antagonistic until 2.10.91 with known thread safety issues until 2.13.93.
+// Before that, lock with a global mutex.
+// See https://bug.skia.org/1497 and cl/339089311 for background.
 static SkMutex& f_c_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
 }
 
 class FCLocker {
+    static constexpr int FontConfigThreadSafeVersion = 21393;
+
     // Assume FcGetVersion() has always been thread safe.
     static void lock() SK_NO_THREAD_SAFETY_ANALYSIS {
-        if (FcGetVersion() < 21091) {
+        if (FcGetVersion() < FontConfigThreadSafeVersion) {
             f_c_mutex().acquire();
         }
     }
     static void unlock() SK_NO_THREAD_SAFETY_ANALYSIS {
         AssertHeld();
-        if (FcGetVersion() < 21091) {
+        if (FcGetVersion() < FontConfigThreadSafeVersion) {
             f_c_mutex().release();
         }
     }
@@ -93,7 +96,7 @@ public:
     };
 
     static void AssertHeld() { SkDEBUGCODE(
-        if (FcGetVersion() < 21091) {
+        if (FcGetVersion() < FontConfigThreadSafeVersion) {
             f_c_mutex().assertHeld();
         }
     ) }
