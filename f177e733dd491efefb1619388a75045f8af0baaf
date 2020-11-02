@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4727f50d_e31eac65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T19:03:00Z",
+      "side": 1,
+      "message": "This CL got a little big on me... happy to split it up if it makes it easier on the eyes.",
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
