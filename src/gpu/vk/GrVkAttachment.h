@@ -28,6 +28,15 @@ public:
                                           VkFormat format,
                                           GrProtected isProtected);
 
+    static sk_sp<GrAttachment> MakeWrapped(GrVkGpu* gpu,
+                                           SkISize dimensions,
+                                           const GrVkImageInfo&,
+                                           sk_sp<GrBackendSurfaceMutableStateImpl>,
+                                           UsageFlags attachmentUsages,
+                                           SkBudgeted budgeted,
+                                           GrWrapOwnership,
+                                           GrWrapCacheable);
+
     ~GrVkAttachment() override;
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
@@ -56,6 +65,16 @@ private:
                    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                    sk_sp<const GrVkImageView> view,
                    SkBudgeted);
+
+    GrVkAttachment(GrVkGpu* gpu,
+                SkISize dimensions,
+                UsageFlags supportedUsages,
+                const GrVkImageInfo&,
+                sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                sk_sp<const GrVkImageView> view,
+                SkBudgeted budgeted,
+                GrBackendObjectOwnership,
+                GrWrapCacheable);
 
     GrVkGpu* getVkGpu() const;
 
