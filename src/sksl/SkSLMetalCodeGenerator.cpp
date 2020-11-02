@@ -944,10 +944,10 @@ void MetalCodeGenerator::writeSetting(const Setting& s) {
     ABORT("internal error; setting was not folded to a constant during compilation\n");
 }
 
-void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
+bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals->_anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
-    if ("main" == f.declaration().name()) {
+    if ("main" == f.name()) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
                 this->write("fragment Outputs fragmentMain");
@@ -957,7 +957,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 break;
             default:
                 fErrors.error(-1, "unsupported kind of program");
-                return;
+                return false;
         }
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
@@ -972,12 +972,12 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                     if (var.var().modifiers().fLayout.fBinding < 0) {
                         fErrors.error(decls.fOffset,
                                         "Metal samplers must have 'layout(binding=...)'");
-                        return;
+                        return false;
                     }
                     if (var.var().type().dimensions() != SpvDim2D) {
-                        // TODO: Support other texture types (skbug.com/10797)
+                        // Not yet implemented--Skia currently only uses 2D textures.
                         fErrors.error(decls.fOffset, "Unsupported texture dimensions");
-                        return;
+                        return false;
                     }
                     this->write(", texture2d<float> ");
                     this->writeName(var.var().name());
@@ -1017,11 +1017,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         separator = ", ";
     } else {
-        this->writeType(f.declaration().returnType());
+        this->writeType(f.returnType());
         this->write(" ");
-        this->writeName(f.declaration().name());
+        this->writeName(f.name());
         this->write("(");
-        Requirements requirements = this->requirements(f.declaration());
+        Requirements requirements = this->requirements(f);
         if (requirements & kInputs_Requirement) {
             this->write("Inputs _in");
             separator = ", ";
@@ -1047,7 +1047,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             separator = ", ";
         }
     }
-    for (const auto& param : f.declaration().parameters()) {
+    for (const auto& param : f.parameters()) {
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), false);
@@ -1071,9 +1071,23 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             }
         }
     }
-    this->writeLine(") {");
+    this->write(")");
+    return true;
+}
 
+void MetalCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
+    this->writeFunctionDeclaration(f.declaration());
+    this->writeLine(";");
+}
+
+void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
+
+    if (!this->writeFunctionDeclaration(f.declaration())) {
+        return;
+    }
+
+    this->writeLine(" {");
 
     if (f.declaration().name() == "main") {
         this->writeGlobalInit();
@@ -1669,6 +1683,9 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
+        case ProgramElement::Kind::kFunctionPrototype:
+            this->writeFunctionPrototype(e.as<FunctionPrototype>());
+            break;
         case ProgramElement::Kind::kModifiers:
             this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(), true);
             this->writeLine(";");
@@ -1831,6 +1848,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
                 }
             }
         }
+        // We never found a definition for this declared function, but it's legal to prototype a
+        // function without ever giving a definition, as long as you don't call it.
+        return kNo_Requirements;
     }
     return found->second;
 }
