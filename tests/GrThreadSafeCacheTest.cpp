@@ -71,6 +71,10 @@ static void create_vert_key(GrUniqueKey* key, int wh, int id) {
     }
 }
 
+static bool default_is_newer_better(SkData* incumbent, SkData* challenger) {
+    return false;
+}
+
 // When testing views we create a bitmap that covers the entire screen and has an inset blue rect
 // atop a field of white.
 // When testing verts we clear the background to white and simply draw an inset blur rect.
@@ -92,6 +96,8 @@ static SkBitmap create_bitmap(int wh) {
     return bitmap;
 }
 
+class GrThreadSafeVertexTestOp;
+
 class TestHelper {
 public:
     struct Stats {
@@ -103,7 +109,10 @@ public:
         int fNumHWCreations = 0;
     };
 
-    TestHelper(GrDirectContext* dContext) : fDContext(dContext) {
+    TestHelper(GrDirectContext* dContext,
+               GrThreadSafeCache::IsNewerBetter isNewerBetter = default_is_newer_better)
+            : fDContext(dContext)
+            , fIsNewerBetter(isNewerBetter) {
 
         fDst = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, default_ii(kImageWH));
         SkAssertResult(fDst);
@@ -264,12 +273,21 @@ public:
         return true;
     }
 
+    void addVertAccess(SkCanvas* canvas,
+                       int wh,
+                       int id,
+                       bool failLookup,
+                       bool failFillingIn,
+                       GrThreadSafeVertexTestOp** createdOp);
+
     // Add a draw on 'canvas' that will introduce a ref on a 'wh' vertex data
     void addVertAccess(SkCanvas* canvas,
                        int wh,
                        int id = kNoID,
                        bool failLookup = false,
-                       bool failFillingIn = false);
+                       bool failFillingIn = false) {
+        this->addVertAccess(canvas, wh, id, failLookup, failFillingIn, nullptr);
+    }
 
     bool checkVert(SkCanvas* canvas, int wh,
                    int expectedHits, int expectedMisses, int expectedNumRefs, int expectedID) {
@@ -385,6 +403,7 @@ private:
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
+    GrThreadSafeCache::IsNewerBetter fIsNewerBetter;
 
     sk_sp<SkSurface> fDst;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
@@ -396,22 +415,27 @@ public:
     DEFINE_OP_CLASS_ID
 
     static GrOp::Owner Make(GrRecordingContext* rContext, TestHelper::Stats* stats,
-                            int wh, int id, bool failLookup, bool failFillingIn) {
+                            int wh, int id, bool failLookup, bool failFillingIn,
+                            GrThreadSafeCache::IsNewerBetter isNewerBetter) {
 
         return GrOp::Make<GrThreadSafeVertexTestOp>(
-                rContext, rContext, stats, wh, id, failLookup, failFillingIn);
+                rContext, rContext, stats, wh, id, failLookup, failFillingIn, isNewerBetter);
     }
+
+    const GrThreadSafeCache::VertexData* vertexData() const { return fVertexData.get(); }
 
 private:
     friend class GrOp; // for ctor
 
     GrThreadSafeVertexTestOp(GrRecordingContext* rContext, TestHelper::Stats* stats, int wh, int id,
-                             bool failLookup, bool failFillingIn)
+                             bool failLookup, bool failFillingIn,
+                             GrThreadSafeCache::IsNewerBetter isNewerBetter)
             : INHERITED(ClassID())
             , fStats(stats)
             , fWH(wh)
             , fID(id)
-            , fFailFillingIn(failFillingIn) {
+            , fFailFillingIn(failFillingIn)
+            , fIsNewerBetter(isNewerBetter) {
         this->setBounds(SkRect::MakeIWH(fWH, fWH), HasAABloat::kNo, IsHairline::kNo);
 
         // Normally we wouldn't add a ref to the vertex data at this point. However, it is
@@ -495,7 +519,8 @@ private:
 
             fVertexData = GrThreadSafeCache::MakeVertexData(verts, 4, kVertSize);
 
-            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData);
+            auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData,
+                                                                      fIsNewerBetter);
             if (tmpV != fVertexData) {
                 // Someone beat us to creating the vertex data. Use that version.
                 fVertexData = tmpV;
@@ -560,26 +585,34 @@ private:
         flushState->draw(4, 0);
     }
 
-    TestHelper::Stats* fStats;
-    int                fWH;
-    int                fID;
-    bool               fFailFillingIn;
+    TestHelper::Stats*               fStats;
+    int                              fWH;
+    int                              fID;
+    bool                             fFailFillingIn;
+    GrThreadSafeCache::IsNewerBetter fIsNewerBetter;
 
     sk_sp<GrThreadSafeCache::VertexData> fVertexData;
-    GrProgramInfo*     fProgramInfo = nullptr;
+    GrProgramInfo*                   fProgramInfo = nullptr;
 
     using INHERITED = GrDrawOp;
 };
 
 void TestHelper::addVertAccess(SkCanvas* canvas,
                                int wh, int id,
-                               bool failLookup, bool failFillingIn) {
+                               bool failLookup, bool failFillingIn,
+                               GrThreadSafeVertexTestOp** createdOp) {
     auto rContext = canvas->recordingContext();
     auto rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
-    rtc->priv().testingOnly_addDrawOp(GrThreadSafeVertexTestOp::Make(rContext,
-                                                                     &fStats, wh, id,
-                                                                     failLookup, failFillingIn));
+    GrOp::Owner op = GrThreadSafeVertexTestOp::Make(rContext, &fStats,
+                                                    wh, id,
+                                                    failLookup, failFillingIn,
+                                                    fIsNewerBetter);
+    if (createdOp) {
+        *createdOp = (GrThreadSafeVertexTestOp*) op.get();
+    }
+
+    rtc->priv().testingOnly_addDrawOp(std::move(op));
 }
 
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
@@ -1421,4 +1454,50 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15View, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) {
     test_15(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert,
             create_vert_key);
+}
+
+// Case 16: Test out pre-emption of an existing vertex-data cache entry. This test simulates
+//          the case where there is a race to create vertex data. However, the second one
+//          to finish is better and usurps the first's position in the cache.
+//
+//          This capability isn't available for views.
+
+static bool newer_is_always_better(SkData* /* incumbent */, SkData* /* challenger */) {
+    return true;
+};
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts, reporter, ctxInfo) {
+    GrUniqueKey key;
+    create_vert_key(&key, kImageWH, kNoID);
+
+    TestHelper helper(ctxInfo.directContext(), newer_is_always_better);
+
+    GrThreadSafeVertexTestOp* op1 = nullptr, *op2 = nullptr;
+
+    helper.addVertAccess(helper.ddlCanvas1(), kImageWH, kNoID, false, false, &op1);
+    REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+
+    {
+        REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+        auto [vertexData, xtraData] = helper.threadSafeCache()->findVertsWithData(key);
+        REPORTER_ASSERT(reporter, vertexData.get() == op1->vertexData());
+    }
+
+    helper.addVertAccess(helper.ddlCanvas2(), kImageWH, kNoID, /* failLookup */ true, false, &op2);
+    REPORTER_ASSERT(reporter, helper.checkVert(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, op1->vertexData() != op2->vertexData());
+
+    {
+        REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+        auto [vertexData, xtraData] = helper.threadSafeCache()->findVertsWithData(key);
+        REPORTER_ASSERT(reporter, vertexData.get() == op2->vertexData());
+    }
+
+    helper.checkImage(reporter, std::move(ddl1));
+    helper.checkImage(reporter, std::move(ddl2));
 }
