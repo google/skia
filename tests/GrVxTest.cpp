@@ -194,18 +194,18 @@ DEF_TEST(grvx_approx_angle_between_vectors, r) {
     check_approx_angle_between_vectors(r, {epsilon, -epsilon*2}, {-epsilon*3, epsilon*4});
 
     // Test random floats of all types.
-    int4 mantissas = {0,0,0,0};
-    int4 exp = int4{126, 127, 128, 129};
-    for (int i = 0; i < (1 << 12); ++i) {
-        int a=exp[0], b=exp[1], c=exp[2], d=exp[3];
+    uint4 mantissas = {0,0,0,0};
+    uint4 exp = uint4{126, 127, 128, 129};
+    for (uint32_t i = 0; i < (1 << 12); ++i) {
+        uint32_t a=exp[0], b=exp[1], c=exp[2], d=exp[3];
         // Run two tests where both components of both vectors have the same exponent, one where
         // both components of a given vector have the same exponent, and one where all components of
         // all vectors have different exponents.
-        int4 x0exp = int4{a,b,a,a} << 23;
-        int4 y0exp = int4{a,b,a,b} << 23;
-        int4 x1exp = int4{a,b,b,c} << 23;
-        int4 y1exp = int4{a,b,b,d} << 23;
-        int4 signs = int4{i<<31, i<<30, i<<29, i<<28} & (1<<31);
+        uint4 x0exp = uint4{a,b,a,a} << 23;
+        uint4 y0exp = uint4{a,b,a,b} << 23;
+        uint4 x1exp = uint4{a,b,b,c} << 23;
+        uint4 y1exp = uint4{a,b,b,d} << 23;
+        uint4 signs = uint4{i<<31, i<<30, i<<29, i<<28} & (1u<<31);
         float4 x0 = bit_pun<float4>(signs | x0exp | mantissas[0]);
         float4 y0 = bit_pun<float4>(signs | y0exp | mantissas[1]);
         float4 x1 = bit_pun<float4>(signs | x1exp | mantissas[2]);
@@ -217,7 +217,7 @@ DEF_TEST(grvx_approx_angle_between_vectors, r) {
             }
         }
         // Adding primes makes sure we test every value before we repeat.
-        mantissas = (mantissas + int4{123456791, 201345691, 198765433, 156789029}) & ((1<<23) - 1);
-        exp = (exp + int4{79, 83, 199, 7}) & 0xff;
+        mantissas = (mantissas + uint4{123456791, 201345691, 198765433, 156789029}) & ((1<<23) - 1);
+        exp = (exp + uint4{79, 83, 199, 7}) & 0xff;
     }
 }
