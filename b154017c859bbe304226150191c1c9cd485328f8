@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "931790f1_1240944b",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T18:10:57Z",
+      "side": 1,
+      "message": "Ahhhh.  Let\u0027s leave a note about that.  One day we\u0027ll be using an ARM GN.",
+      "parentUuid": "03628fe1_6459efd1",
+      "revId": "b154017c859bbe304226150191c1c9cd485328f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "106625f8_1e280495",
         "filename": "third_party/zlib/BUILD.gn",
         "patchSetId": 1
@@ -73,6 +91,30 @@
       "side": 1,
       "message": "This fails with:\nfatal error: \u0027asm/hwcap.h\u0027 file not found",
       "parentUuid": "106625f8_1e280495",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 32
+      },
+      "revId": "b154017c859bbe304226150191c1c9cd485328f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22e0369b_78fd46f9",
+        "filename": "third_party/zlib/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T18:10:57Z",
+      "side": 1,
+      "message": "Ah, ok.  That\u0027s a linux header.  Glad we tried.",
+      "parentUuid": "70c1eeee_dd39b4d6",
       "range": {
         "startLine": 44,
         "startChar": 0,
