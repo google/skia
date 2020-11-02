@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51bb9ec7_03625dd9",
+        "filename": "src/codec/SkHeifCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-02T16:23:04Z",
+      "side": 1,
+      "message": "Sorry I led you astray here. Apparently Chrome doesn\u0027t support optional. But Chrome doesn\u0027t use this file, either. I think you could still use it if you add a line here that says:\n\n  #ifdef SK_HAS_HEIF_LIBRARY\n\nand an\n\n  #endif\n\nat the end of the file.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 19
+      },
+      "revId": "533118e7f55fa4c4f488a1512a06c16d23e2420f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
