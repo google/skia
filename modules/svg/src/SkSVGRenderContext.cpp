@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkTo.h"
@@ -423,6 +424,11 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     // Uninherited attributes.  Only apply to the current context.
 
+    if (auto* filter = attrs.fFilter.getMaybeNull()) {
+        // TODO: Can be combined with opacity layer
+        this->applyFilter(*filter);
+    }
+
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
         this->applyOpacity(*opacity, flags);
     }
@@ -460,6 +466,23 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
+}
+
+void SkSVGRenderContext::applyFilter(const SkSVGFilterType& filter) {
+    if (filter.type() != SkSVGFilterType::Type::kIRI) {
+        return;
+    }
+
+    sk_sp<SkImageFilter> imageFilter;
+    const auto filterNode = this->findNodeById(filter.iri());
+    if (!filterNode || !(imageFilter = filterNode->asImageFilter(*this))) {
+        return;
+    }
+
+    SkPaint filterPaint;
+    filterPaint.setImageFilter(imageFilter);
+    // Balanced in the destructor, via restoreToCount().
+    fCanvas->saveLayer(nullptr, &filterPaint);
 }
 
 void SkSVGRenderContext::saveOnce() {
