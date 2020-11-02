@@ -8,6 +8,7 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
+#include "src/core/SkASAN.h"
 #include "src/gpu/GrBlockAllocator.h"
 
 #ifdef SK_DEBUG
