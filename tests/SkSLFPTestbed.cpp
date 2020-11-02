@@ -12,9 +12,8 @@
 
 static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src) {
     SkSL::Program::Settings settings;
-    settings.fCaps = &caps;
     settings.fRemoveDeadFunctions = false;
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(&caps);
     SkSL::StringStream output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kFragmentProcessor_Kind,

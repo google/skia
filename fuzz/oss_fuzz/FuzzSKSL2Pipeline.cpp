@@ -11,10 +11,9 @@
 #include "fuzz/Fuzz.h"
 
 bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
-    SkSL::Compiler compiler;
-    SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
+    SkSL::Compiler compiler(caps.get());
+    SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                     SkSL::Program::kPipelineStage_Kind,
                                                     SkSL::String((const char*) bytes->data(),
