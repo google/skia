@@ -27,6 +27,20 @@ GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
     this->registerWithCache(budgeted);
 }
 
+GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
+                               SkISize dimensions,
+                               UsageFlags supportedUsages,
+                               const GrVkImageInfo& info,
+                               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+                               sk_sp<const GrVkImageView> view,
+                               GrBackendObjectOwnership ownership,
+                               GrWrapCacheable cacheable)
+        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, info.fProtected)
+        , GrVkImage(gpu, info, std::move(mutableState), ownership)
+        , fView(std::move(view)) {
+    this->registerWithCacheWrapped(cacheable);
+}
+
 sk_sp<GrVkAttachment> GrVkAttachment::MakeStencil(GrVkGpu* gpu,
                                                   SkISize dimensions,
                                                   int sampleCnt,
@@ -96,6 +110,37 @@ sk_sp<GrVkAttachment> GrVkAttachment::Make(GrVkGpu* gpu,
     return sk_sp<GrVkAttachment>(new GrVkAttachment(gpu, dimensions, attachmentUsages, info,
                                                     std::move(mutableState), std::move(imageView),
                                                     budgeted));
+}
+
+sk_sp<GrAttachment> GrVkAttachment::MakeWrapped(
+        GrVkGpu* gpu,
+        SkISize dimensions,
+        const GrVkImageInfo& info,
+        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
+        UsageFlags attachmentUsages,
+        GrWrapOwnership ownership,
+        GrWrapCacheable cacheable) {
+    GrVkImageView::Type viewType;
+    if (attachmentUsages & UsageFlags::kStencil) {
+        // If we have stencil usage than we should not have any other usages
+        SkASSERT(attachmentUsages == UsageFlags::kStencil);
+        viewType = GrVkImageView::kStencil_Type;
+    } else {
+        viewType = GrVkImageView::kColor_Type;
+    }
+
+    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(
+            gpu, info.fImage, info.fFormat, viewType, info.fLevelCount, info.fYcbcrConversionInfo);
+    if (!imageView) {
+        return nullptr;
+    }
+
+     GrBackendObjectOwnership backendOwnership = kBorrow_GrWrapOwnership == ownership
+            ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
+
+    return sk_sp<GrVkAttachment>(new GrVkAttachment(gpu, dimensions, attachmentUsages, info,
+                                                    std::move(mutableState), std::move(imageView),
+                                                    backendOwnership, cacheable));
 }
 
 GrVkAttachment::~GrVkAttachment() {
