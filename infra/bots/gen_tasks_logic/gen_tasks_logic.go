@@ -1734,7 +1734,7 @@ func (b *jobBuilder) compileWasmGMTests(compileName string) {
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.dep(b.buildTaskDrivers())
 		b.output("wasm_out")
-		b.timeout(20 * time.Minute)
+		b.timeout(60 * time.Minute)
 		b.isolate("compile.isolate")
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.cache(CACHES_DOCKER...)

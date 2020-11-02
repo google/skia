@@ -117,7 +117,7 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   ${GN_FONT} \
   skia_use_expat=true \
-  skia_enable_ccpr=false \
+  skia_enable_ccpr=true \
   skia_enable_svg=true \
   skia_enable_skshaper=true \
   skia_enable_nvpr=false \
@@ -144,10 +144,12 @@ if [[ `uname` != "Linux" ]]; then
 fi
 
 GMS_TO_BUILD="gm/*.cpp"
+TESTS_TO_BUILD="tests/*.cpp"
 # When developing locally, it can be faster to focus only on the gms or tests you care about
 # (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
 if false; then
-   GMS_TO_BUILD="gm/beziereffects.cpp gm/gm.cpp"
+   GMS_TO_BUILD="gm/bleed.cpp gm/gm.cpp"
+   TESTS_TO_BUILD="tests/OctoBoundsTest.cpp tests/Test.cpp"
 fi
 
 # These gms do not compile or link with the WASM code. Thus, we omit them.
@@ -155,7 +157,28 @@ GLOBIGNORE="gm/cgms.cpp:"\
 "gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/xform.cpp:"\
-"gm/video_decoder.cpp"
+"gm/video_decoder.cpp:"
+
+# These tests do not compile with the WASM code (require other deps).
+GLOBIGNORE+="tests/CodecTest.cpp:"\
+"tests/ColorSpaceTest.cpp:"\
+"tests/DrawOpAtlasTest.cpp:"\
+"tests/EncodeTest.cpp:"\
+"tests/FontMgrAndroidParserTest.cpp:"\
+"tests/FontMgrFontConfigTest.cpp:"\
+"tests/SkVMTest.cpp:"
+
+# These tests do complex things with TestContexts, which is not easily supported for the WASM
+# test harness. Thus we omit them.
+GLOBIGNORE+="tests/BackendAllocationTest.cpp:"\
+"tests/EGLImageTest.cpp:"\
+"tests/ImageTest.cpp:"\
+"tests/SurfaceSemaphoreTest.cpp:"\
+"tests/TextureBindingsResetTest.cpp:"\
+"tests/VkHardwareBufferTest.cpp:"
+
+# All the tests in these files crash.
+GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
@@ -168,12 +191,15 @@ EMCC_DEBUG=1 ${EMCXX} \
     -DGR_OP_ALLOCATE_USE_NEW \
     $WASM_GPU \
     -std=c++17 \
+    --profiling-funcs \
+    --profiling \
     --bind \
     --no-entry \
     --pre-js $BASE_DIR/gm.js \
     tools/Resources.cpp \
     $BASE_DIR/gm_bindings.cpp \
     $GMS_TO_BUILD \
+    $TESTS_TO_BUILD \
     $GM_LIB \
     $BUILD_DIR/libskshaper.a \
     $BUILD_DIR/libsvg.a \
