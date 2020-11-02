@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86a04ac7_049cb3fd",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T15:49:15Z",
+      "side": 1,
+      "message": "So if I\u0027m reading this right, this result is numParametricSegments^2: should this result be squared again so that it becomes ^4? Ditto in the quad pow4 function",
+      "revId": "e3b27d122cc96e67e5d2408cda415f62485e4895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
