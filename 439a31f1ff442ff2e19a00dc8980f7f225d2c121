@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05c7bf63_f222d735",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-02T21:19:19Z",
+      "side": 1,
+      "message": "No uses as of this CL but it will be needed to start transitioning things to the attachment interface.\n\nFor now just doing all this in Vulkan cause I\u0027m still trying to sort out how this will all shake out and don\u0027t want to spend too much time implementing other backends just to change it all later.\n\nDown the line the plan is for the base class GrAttachment to store a GrBackendTexture (in both wrapped and not wrapped case). In that world we can have a single MakeWrapped factory on the base class that takes a GrBackendTexture. But in the current state of our code that is pretty difficult to change. So I think this is a better stepping stone so we can first work on breaking off GrRenderTarget then we\u0027ll be in a state where its much easier to have all GrAttachments/GrSurfaces just have a single GrBackendTexture object.",
+      "revId": "439a31f1ff442ff2e19a00dc8980f7f225d2c121",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
