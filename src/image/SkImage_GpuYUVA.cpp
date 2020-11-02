@@ -356,7 +356,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
         GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        tempViews[i] = bitmapMaker.view(buildMips);
+        tempViews[i] = bitmapMaker.view1(buildMips);
         if (!tempViews[i]) {
             return nullptr;
         }

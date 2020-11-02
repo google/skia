@@ -158,7 +158,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         bm.setImmutable();
 
         GrBitmapTextureMaker maker(rContext, bm, SkBackingFit::kApprox);
-        filteredMaskView = maker.view(GrMipmapped::kNo);
+        filteredMaskView = maker.view1(GrMipmapped::kNo);
         if (!filteredMaskView.proxy()) {
             return {};
         }

@@ -844,7 +844,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto view = producer->view(GrMipmapped::kNo);
+    auto view = producer->view1(GrMipmapped::kNo);
     if (!view) {
         return;
     }

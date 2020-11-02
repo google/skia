@@ -95,7 +95,7 @@ protected:
             return DrawResult::kSkip;
         }
         GrBitmapTextureMaker maker(context, fBitmap, GrImageTexGenPolicy::kDraw);
-        auto view = maker.view(mipmapped);
+        auto view = maker.view1(mipmapped);
         if (!view) {
             *errorMsg = "Failed to create proxy.";
             return DrawResult::kFail;
@@ -129,7 +129,7 @@ protected:
         fBitmap.extractSubset(&subsetBmp, texelSubset);
         subsetBmp.setImmutable();
         GrBitmapTextureMaker subsetMaker(context, subsetBmp, GrImageTexGenPolicy::kDraw);
-        auto subsetView = subsetMaker.view(mipmapped);
+        auto subsetView = subsetMaker.view1(mipmapped);
 
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 

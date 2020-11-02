@@ -287,7 +287,7 @@ class TestFPGenerator {
                 bitmap.setImmutable();
                 GrBitmapTextureMaker maker(fContext, bitmap,
                                            GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-                GrSurfaceProxyView view = maker.view(GrMipmapped::kNo);
+                GrSurfaceProxyView view = maker.view1(GrMipmapped::kNo);
                 if (!view.proxy() || !view.proxy()->instantiate(fResourceProvider)) {
                     SkDebugf("Unable to instantiate RGBA8888 test texture.");
                     return false;
@@ -314,7 +314,7 @@ class TestFPGenerator {
                 bitmap.setImmutable();
                 GrBitmapTextureMaker maker(fContext, bitmap,
                                            GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-                GrSurfaceProxyView view = maker.view(GrMipmapped::kNo);
+                GrSurfaceProxyView view = maker.view1(GrMipmapped::kNo);
                 if (!view.proxy() || !view.proxy()->instantiate(fResourceProvider)) {
                     SkDebugf("Unable to instantiate A8 test texture.");
                     return false;
@@ -387,7 +387,7 @@ GrSurfaceProxyView make_input_texture(GrRecordingContext* context,
     bitmap.installPixels(ii, pixel, ii.minRowBytes());
     bitmap.setImmutable();
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    return maker.view(GrMipmapped::kNo);
+    return maker.view1(GrMipmapped::kNo);
 }
 
 // We tag logged data as unpremul to avoid conversion when encoding as PNG. The input texture

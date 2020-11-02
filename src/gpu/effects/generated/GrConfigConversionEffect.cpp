@@ -132,7 +132,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(dContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto dataView = maker.view(GrMipmapped::kNo);
+    auto dataView = maker.view1(GrMipmapped::kNo);
     if (!dataView) {
         return false;
     }

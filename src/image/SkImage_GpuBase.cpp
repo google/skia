@@ -193,7 +193,7 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
 
     GrTextureAdjuster adjuster(context, *this->view(context), this->imageInfo().colorInfo(),
                                this->uniqueID());
-    return adjuster.view(mipMapped);
+    return adjuster.view1(mipMapped);
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,

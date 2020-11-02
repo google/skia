@@ -691,7 +691,7 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
     bitmap.setImmutable();
 
     GrBitmapTextureMaker maker(rContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    view = maker.view(GrMipmapped::kNo);
+    view = maker.view1(GrMipmapped::kNo);
     if (!view) {
         return {};
     }

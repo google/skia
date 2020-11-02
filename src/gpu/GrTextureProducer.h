@@ -87,7 +87,7 @@ public:
      * base on caps, format, and whether the texture is 1x1. A non-MIP mapped request may still
      * receive a MIP mapped texture (if that is what is available in the cache).
      */
-    GrSurfaceProxyView view(GrMipmapped);
+    GrSurfaceProxyView view1(GrMipmapped);
 
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
@@ -124,7 +124,7 @@ protected:
     GrRecordingContext* context() const { return fContext; }
 
 private:
-    virtual GrSurfaceProxyView onView(GrMipmapped) = 0;
+    virtual GrSurfaceProxyView onView1(GrMipmapped) = 0;
 
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;

@@ -202,7 +202,7 @@ GrSurfaceProxyView SkImage_Lazy::refView(GrRecordingContext* context, GrMipmappe
     }
 
     GrImageTextureMaker textureMaker(context, this, GrImageTexGenPolicy::kDraw);
-    return textureMaker.view(mipMapped);
+    return textureMaker.view1(mipMapped);
 }
 #endif
 
@@ -297,7 +297,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(ctx, bitmap, fit);
-        yuvViews[i] = maker.view(GrMipmapped::kNo);
+        yuvViews[i] = maker.view1(GrMipmapped::kNo);
 
         if (!yuvViews[i]) {
             return {};
@@ -489,7 +489,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
                                    ? GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                    : GrImageTexGenPolicy::kNew_Uncached_Budgeted;
         GrBitmapTextureMaker bitmapMaker(rContext, bitmap, makerPolicy);
-        auto view = bitmapMaker.view(mipMapped);
+        auto view = bitmapMaker.view1(mipMapped);
         if (view) {
             installKey(view);
             return view;

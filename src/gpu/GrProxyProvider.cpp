@@ -109,6 +109,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
     if (proxy) {
         return sk_ref_sp(proxy);
     }
+
+    static int local = 0;
+    printf("findProxyByUniqueKey -- failed %d", ++local);
+
     return nullptr;
 }
 
@@ -214,6 +218,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
 
     auto direct = fImageContext->asDirectContext();
     if (!direct) {
+
+        static int local1 = 0;
+        printf("findOrCreateProxyByUniqueKey - failed 1 - creating new %d", ++local1);
+
         return nullptr;
     }
 
@@ -223,6 +231,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     if (!resource) {
         return nullptr;
     }
+
+    static int local = 0;
+
+    printf("findOrCreateProxyByUniqueKey - failed 2 - creating new %d", ++local);
 
     sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
     SkASSERT(texture);

@@ -254,7 +254,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
     bm.setImmutable();
 
     GrBitmapTextureMaker maker(rContext, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    profileView = maker.view(GrMipmapped::kNo);
+    profileView = maker.view1(GrMipmapped::kNo);
     if (!profileView) {
         return nullptr;
     }

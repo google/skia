@@ -199,7 +199,7 @@ GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context,
     if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
         GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
                                    fPinnedUniqueID);
-        return adjuster.view(mipMapped);
+        return adjuster.view1(mipMapped);
     }
 
     return GrRefCachedBitmapView(context, fBitmap, mipMapped);

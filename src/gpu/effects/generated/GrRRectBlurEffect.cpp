@@ -210,7 +210,7 @@ static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* rContext,
     result.setImmutable();
 
     GrBitmapTextureMaker maker(rContext, result, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto view = maker.view(GrMipmapped::kNo);
+    auto view = maker.view1(GrMipmapped::kNo);
     if (!view) {
         return {};
     }

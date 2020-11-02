@@ -123,7 +123,7 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
 GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
                                          GrMipmapped mipMapped) {
     GrBitmapTextureMaker maker(ctx, bitmap, GrImageTexGenPolicy::kDraw);
-    return maker.view(mipMapped);
+    return maker.view1(mipMapped);
 }
 
 GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context,
@@ -133,7 +133,7 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context,
     }
 
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kDraw);
-    return maker.view(GrMipmapped::kNo);
+    return maker.view1(GrMipmapped::kNo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

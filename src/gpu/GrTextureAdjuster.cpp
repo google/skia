@@ -49,7 +49,7 @@ GrSurfaceProxyView GrTextureAdjuster::makeMippedCopy() {
     return copy;
 }
 
-GrSurfaceProxyView GrTextureAdjuster::onView(GrMipmapped mipMapped) {
+GrSurfaceProxyView GrTextureAdjuster::onView1(GrMipmapped mipMapped) {
     if (this->context()->abandoned()) {
         // The texture was abandoned.
         return {};
@@ -81,7 +81,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
         const SkRect* domain,
         GrSamplerState samplerState) {
     return this->createFragmentProcessorForView(
-            this->view(samplerState.mipmapped()), textureMatrix, subset, domain, samplerState);
+            this->view1(samplerState.mipmapped()), textureMatrix, subset, domain, samplerState);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createBicubicFragmentProcessor(
@@ -92,5 +92,5 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createBicubicFragmentPro
         GrSamplerState::WrapMode wrapY,
         SkImage::CubicResampler kernel) {
     return this->createBicubicFragmentProcessorForView(
-            this->view(GrMipmapped::kNo), textureMatrix, subset, domain, wrapX, wrapY, kernel);
+            this->view1(GrMipmapped::kNo), textureMatrix, subset, domain, wrapX, wrapY, kernel);
 }

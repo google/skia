@@ -442,7 +442,7 @@ static void draw_texture_producer(GrRecordingContext* context,
         can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto view = producer->view(GrMipmapped::kNo);
+        auto view = producer->view1(GrMipmapped::kNo);
         if (!view) {
             return;
         }

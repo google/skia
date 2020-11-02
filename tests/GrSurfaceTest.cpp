@@ -403,7 +403,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         GrBitmapTextureMaker maker(dContext, copySrcBitmap,
                                    GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto copySrc = maker.view(GrMipmapped::kNo);
+        auto copySrc = maker.view1(GrMipmapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());
         auto copyResult = surfContext->testCopy(copySrc.proxy());
