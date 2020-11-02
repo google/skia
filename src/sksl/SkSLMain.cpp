@@ -53,7 +53,9 @@ static SkSL::String base_name(const char* fpPath, const char* prefix, const char
 // Given a string containing an SkSL program, searches for a #pragma settings comment, like so:
 //    /*#pragma settings Default Sharpen*/
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
-static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Settings* settings) {
+static void detect_shader_settings(const SkSL::String& text,
+                                   SkSL::Program::Settings* settings,
+                                   const SkSL::ShaderCapsClass** caps) {
     using Factory = SkSL::ShaderCapsFactory;
 
     // Find a matching comment and isolate the name portion.
@@ -75,95 +77,95 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
 
                 if (settingsText.consumeSuffix(" AddAndTrueToLoopCondition")) {
                     static auto s_addAndTrueCaps = Factory::AddAndTrueToLoopCondition();
-                    settings->fCaps = s_addAndTrueCaps.get();
+                    *caps = s_addAndTrueCaps.get();
                 }
                 if (settingsText.consumeSuffix(" BlendModesFailRandomlyForAllZeroVec")) {
                     static auto s_blendZeroCaps = Factory::BlendModesFailRandomlyForAllZeroVec();
-                    settings->fCaps = s_blendZeroCaps.get();
+                    *caps = s_blendZeroCaps.get();
                 }
                 if (settingsText.consumeSuffix(" CannotUseFractForNegativeValues")) {
                     static auto s_negativeFractCaps = Factory::CannotUseFractForNegativeValues();
-                    settings->fCaps = s_negativeFractCaps.get();
+                    *caps = s_negativeFractCaps.get();
                 }
                 if (settingsText.consumeSuffix(" CannotUseFragCoord")) {
                     static auto s_noFragCoordCaps = Factory::CannotUseFragCoord();
-                    settings->fCaps = s_noFragCoordCaps.get();
+                    *caps = s_noFragCoordCaps.get();
                 }
                 if (settingsText.consumeSuffix(" CannotUseMinAndAbsTogether")) {
                     static auto s_minAbsCaps = Factory::CannotUseMinAndAbsTogether();
-                    settings->fCaps = s_minAbsCaps.get();
+                    *caps = s_minAbsCaps.get();
                 }
                 if (settingsText.consumeSuffix(" Default")) {
                     static auto s_defaultCaps = Factory::Default();
-                    settings->fCaps = s_defaultCaps.get();
+                    *caps = s_defaultCaps.get();
                 }
                 if (settingsText.consumeSuffix(" EmulateAbsIntFunction")) {
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
-                    settings->fCaps = s_emulateAbsIntCaps.get();
+                    *caps = s_emulateAbsIntCaps.get();
                 }
                 if (settingsText.consumeSuffix(" FragCoordsOld")) {
                     static auto s_fragCoordsOld = Factory::FragCoordsOld();
-                    settings->fCaps = s_fragCoordsOld.get();
+                    *caps = s_fragCoordsOld.get();
                 }
                 if (settingsText.consumeSuffix(" FragCoordsNew")) {
                     static auto s_fragCoordsNew = Factory::FragCoordsNew();
-                    settings->fCaps = s_fragCoordsNew.get();
+                    *caps = s_fragCoordsNew.get();
                 }
                 if (settingsText.consumeSuffix(" GeometryShaderExtensionString")) {
                     static auto s_geometryExtCaps = Factory::GeometryShaderExtensionString();
-                    settings->fCaps = s_geometryExtCaps.get();
+                    *caps = s_geometryExtCaps.get();
                 }
                 if (settingsText.consumeSuffix(" GeometryShaderSupport")) {
                     static auto s_geometryShaderCaps = Factory::GeometryShaderSupport();
-                    settings->fCaps = s_geometryShaderCaps.get();
+                    *caps = s_geometryShaderCaps.get();
                 }
                 if (settingsText.consumeSuffix(" GSInvocationsExtensionString")) {
                     static auto s_gsInvocationCaps = Factory::GSInvocationsExtensionString();
-                    settings->fCaps = s_gsInvocationCaps.get();
+                    *caps = s_gsInvocationCaps.get();
                 }
                 if (settingsText.consumeSuffix(" IncompleteShortIntPrecision")) {
                     static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
-                    settings->fCaps = s_incompleteShortIntCaps.get();
+                    *caps = s_incompleteShortIntCaps.get();
                 }
                 if (settingsText.consumeSuffix(" MustGuardDivisionEvenAfterExplicitZeroCheck")) {
                     static auto s_div0Caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();
-                    settings->fCaps = s_div0Caps.get();
+                    *caps = s_div0Caps.get();
                 }
                 if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
-                    settings->fCaps = s_negativeAtanCaps.get();
+                    *caps = s_negativeAtanCaps.get();
                 }
                 if (settingsText.consumeSuffix(" NoGSInvocationsSupport")) {
                     static auto s_noGSInvocations = Factory::NoGSInvocationsSupport();
-                    settings->fCaps = s_noGSInvocations.get();
+                    *caps = s_noGSInvocations.get();
                 }
                 if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
-                    settings->fCaps = s_powCaps.get();
+                    *caps = s_powCaps.get();
                 }
                 if (settingsText.consumeSuffix(" RewriteDoWhileLoops")) {
                     static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
-                    settings->fCaps = s_rewriteLoopCaps.get();
+                    *caps = s_rewriteLoopCaps.get();
                 }
                 if (settingsText.consumeSuffix(" ShaderDerivativeExtensionString")) {
                     static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();
-                    settings->fCaps = s_derivativeCaps.get();
+                    *caps = s_derivativeCaps.get();
                 }
                 if (settingsText.consumeSuffix(" UnfoldShortCircuitAsTernary")) {
                     static auto s_ternaryCaps = Factory::UnfoldShortCircuitAsTernary();
-                    settings->fCaps = s_ternaryCaps.get();
+                    *caps = s_ternaryCaps.get();
                 }
                 if (settingsText.consumeSuffix(" UsesPrecisionModifiers")) {
                     static auto s_precisionCaps = Factory::UsesPrecisionModifiers();
-                    settings->fCaps = s_precisionCaps.get();
+                    *caps = s_precisionCaps.get();
                 }
                 if (settingsText.consumeSuffix(" Version110")) {
                     static auto s_version110Caps = Factory::Version110();
-                    settings->fCaps = s_version110Caps.get();
+                    *caps = s_version110Caps.get();
                 }
                 if (settingsText.consumeSuffix(" Version450Core")) {
                     static auto s_version450CoreCaps = Factory::Version450Core();
-                    settings->fCaps = s_version450CoreCaps.get();
+                    *caps = s_version450CoreCaps.get();
                 }
                 if (settingsText.consumeSuffix(" FlipY")) {
                     settings->fFlipY = true;
@@ -240,13 +242,14 @@ int main(int argc, const char** argv) {
     }
 
     SkSL::Program::Settings settings;
+    const SkSL::ShaderCapsClass* caps = &SkSL::standaloneCaps;
     if (honorSettings) {
-        detect_shader_settings(text, &settings);
+        detect_shader_settings(text, &settings, &caps);
     }
     SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -262,7 +265,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".glsl")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -278,7 +281,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".metal")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -294,7 +297,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".h")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
+        SkSL::Compiler compiler(caps, SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -311,7 +314,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".cpp")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
+        SkSL::Compiler compiler(caps, SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -328,7 +331,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".dehydrated.sksl")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
