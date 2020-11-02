@@ -10,7 +10,7 @@ void draw(SkCanvas* ) {
     SkCanvas canvas(bitmap);
     canvas.clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order
     SkPixmap pixmap;  // provides guaranteed access to the drawn pixels
-    if (!canvas.peekPixels(&pixmap)) {
+    if (!canvas.secret_peekPixels(&pixmap)) {
         SkDebugf("peekPixels should never fail.\n");
     }
     const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap

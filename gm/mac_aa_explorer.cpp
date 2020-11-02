@@ -81,7 +81,7 @@ static void test_mac_fonts(SkCanvas* canvas, SkScalar size, SkScalar xpos) {
         SkImageInfo ii = SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType);
         auto surf = SkSurface::MakeRaster(ii);
         SkPixmap pm;
-        surf->peekPixels(&pm);
+        surf->secret_peekPixels(&pm);
         CGContextRef ctx = make_cg_ctx(pm);
         CGContextSelectFont(ctx, "Times", size, kCGEncodingMacRoman);
 

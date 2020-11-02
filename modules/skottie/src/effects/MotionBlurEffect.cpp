@@ -203,7 +203,7 @@ void MotionBlurEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) cons
     AutoInvalBlocker aib(this, child);
 
     SkPixmap pm;
-    if (canvas->peekPixels(&pm) && (canvas->imageInfo().colorType() == kRGBA_8888_SkColorType ||
+    if (canvas->secret_peekPixels(&pm) && (canvas->imageInfo().colorType() == kRGBA_8888_SkColorType ||
                                     canvas->imageInfo().colorType() == kBGRA_8888_SkColorType   )
                                 && SkIsPow2(fVisibleSampleCount)) {
         this->renderToRaster8888Pow2Samples(canvas, ctx);

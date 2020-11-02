@@ -62,7 +62,7 @@ sk_sp<SkSurface> RasterWindowContext_xlib::getBackbufferSurface() { return fBack
 
 void RasterWindowContext_xlib::swapBuffers() {
     SkPixmap pm;
-    if (!fBackbufferSurface->peekPixels(&pm)) {
+    if (!fBackbufferSurface->secret_peekPixels(&pm)) {
         return;
     }
     int bitsPerPixel = pm.info().bytesPerPixel() * 8;

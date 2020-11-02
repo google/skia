@@ -132,7 +132,7 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                                     SkSurface::kDiscardWrite_BackendHandleAccess);
         REPORTER_ASSERT(reporter, isGPUBacked == backendTex.isValid());
         SkPixmap tmpPixmap;
-        REPORTER_ASSERT(reporter, isGPUBacked != !!tightSurf->peekPixels(&tmpPixmap));
+        REPORTER_ASSERT(reporter, isGPUBacked != !!tightSurf->secret_peekPixels(&tmpPixmap));
     }
 }
 

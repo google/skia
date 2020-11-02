@@ -75,7 +75,7 @@ void SkSurface_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
     SkBitmap src;
     SkPixmap peek;
     SkIRect srcRect;
-    if (this->peekPixels(&peek)) {
+    if (this->secret_peekPixels(&peek)) {
         src.installPixels(peek);
         srcRect = origSrcRect;
     } else {
@@ -217,7 +217,7 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 bool SkSurface::peekPixels(SkPixmap* pmap) {
-    return this->getCanvas()->peekPixels(pmap);
+    return this->getCanvas()->secret_peekPixels(pmap);
 }
 
 bool SkSurface::readPixels(const SkPixmap& pm, int srcX, int srcY) {

@@ -251,7 +251,7 @@ sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,
 }
 
 bool SkPaintFilterCanvas::onPeekPixels(SkPixmap* pixmap) {
-    return proxy()->peekPixels(pixmap);
+    return proxy()->secret_peekPixels(pixmap);
 }
 
 bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
