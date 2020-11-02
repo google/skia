@@ -20,14 +20,14 @@ public:
         const GrNestedChildProcessors& _outer = args.fFp.cast<GrNestedChildProcessors>();
         (void) _outer;
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
-        SkString _input141 = SkStringPrintf("%s * half4(0.5)", args.fUniformHandler->getUniformCStr(colorVar));
-        SkString _sample141 = this->invokeChild(0, _input141.c_str(), args);
-        SkString _input118 = SkStringPrintf("%s * %s", args.fUniformHandler->getUniformCStr(colorVar), _sample141.c_str());
-        SkString _sample118 = this->invokeChild(1, _input118.c_str(), args);
+        SkString _input1 = SkStringPrintf("%s * half4(0.5)", args.fUniformHandler->getUniformCStr(colorVar));
+        SkString _sample1 = this->invokeChild(0, _input1.c_str(), args);
+        SkString _input0 = SkStringPrintf("%s * %s", args.fUniformHandler->getUniformCStr(colorVar), _sample1.c_str());
+        SkString _sample0 = this->invokeChild(1, _input0.c_str(), args);
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s;
 )SkSL"
-, args.fOutputColor, _sample118.c_str());
+, args.fOutputColor, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

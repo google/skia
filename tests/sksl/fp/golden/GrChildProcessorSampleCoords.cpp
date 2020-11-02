@@ -19,13 +19,13 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrChildProcessorSampleCoords& _outer = args.fFp.cast<GrChildProcessorSampleCoords>();
         (void) _outer;
-        SkString _sample79 = this->invokeChild(0, args);
-        SkString _coords95 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
-        SkString _sample95 = this->invokeChild(0, args, _coords95.c_str());
+        SkString _sample0 = this->invokeChild(0, args);
+        SkString _coords1 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
+        SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s + %s;
 )SkSL"
-, args.fOutputColor, _sample79.c_str(), _sample95.c_str());
+, args.fOutputColor, _sample0.c_str(), _sample1.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

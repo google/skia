@@ -24,7 +24,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrHSLToRGBFilterEffect& _outer = args.fFp.cast<GrHSLToRGBFilterEffect>();
         (void)_outer;
-        SkString _sample523 = this->invokeChild(0, args);
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 half3 hsl = inputColor.xyz;
@@ -35,7 +35,7 @@ half3 rgb = (q - 0.5) * C + hsl.z;
 %s = clamp(half4(rgb, inputColor.w), 0.0, 1.0);
 %s.xyz *= %s.w;
 )SkSL",
-                _sample523.c_str(), args.fOutputColor, args.fOutputColor, args.fOutputColor);
+                _sample0.c_str(), args.fOutputColor, args.fOutputColor, args.fOutputColor);
     }
 
 private:
