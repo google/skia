@@ -19,6 +19,7 @@
 #include "include/private/SkTDArray.h"
 
 using SkSVGColorType     = SkColor;
+using SkSVGIntegerType   = int;
 using SkSVGNumberType    = SkScalar;
 using SkSVGStringType    = SkString;
 using SkSVGViewBoxType   = SkRect;
@@ -513,6 +514,20 @@ public:
 private:
     Type fType;
     SkString fIRI;
+};
+
+using SkSVGFeTurbulenceBaseFrequency = SkTDArray<SkScalar>;
+
+struct SkSVGFeTurbulenceType {
+    enum Type {
+        kFractalNoise,
+        kTurbulence,
+    };
+
+    Type fType;
+
+    SkSVGFeTurbulenceType() : fType(kTurbulence) {}
+    explicit SkSVGFeTurbulenceType(Type type) : fType(type) {}
 };
 
 #endif // SkSVGTypes_DEFINED
