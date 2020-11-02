@@ -700,6 +700,11 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
             }
             break;
         }
+        case ProgramElement::Kind::kFunctionPrototype: {
+            // Function prototypes are handled at the C++ level (in writeEmitCode).
+            // We don't want prototypes to be emitted inside the FP's main() function.
+            return;
+        }
         default:
             break;
     }
