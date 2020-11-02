@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90d9608e_f3f13098",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-02T14:45:42Z",
+      "side": 1,
+      "message": "peekPixels() really only differs from readPixels() in two ways:\n- it does not make a copy (so it can be faster)\n- it always fails for gpu backends\n\nDo we need this in JS if we already have readPixels? We\u0027re gonna have to make a copy (for JS)...\n",
+      "revId": "0bf118cfee0bfb79c704716c3f1739e0946fb753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
