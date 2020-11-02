@@ -24,7 +24,7 @@ static bool nearly_equal(const float a[], const float b[], int count) {
 
 void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
           bool exactCompare = true) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src), settings);
@@ -68,7 +68,7 @@ void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
 }
 
 void vec_test(skiatest::Reporter* r, const char* src) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src), settings);
@@ -132,7 +132,7 @@ void vec_test(skiatest::Reporter* r, const char* src) {
 
 void test(skiatest::Reporter* r, const char* src, float inR, float inG, float inB, float inA,
           float expectedR, float expectedG, float expectedB, float expectedA) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src), settings);
@@ -619,7 +619,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
         "  }\n"
         "}\n";
 
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     settings.fRemoveDeadFunctions = false;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
@@ -697,7 +697,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 }
 
 static void expect_failure(skiatest::Reporter* r, const char* src) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                            SkSL::String(src), settings);
@@ -709,7 +709,7 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
 }
 
 static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                            SkSL::String(src), settings);
@@ -738,7 +738,7 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
     // Unlike returns in loops, returns in conditionals should work.
     const char* src = "float main(float x, float y) { if (x < y) { return x; } return y; }";
 
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
                                                                      SkSL::String(src),
                                                                      SkSL::Program::Settings{});
@@ -796,7 +796,7 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
         "float dot3_test(float x) { return dot(float3(x, x + 1, x + 2), float3(1, -1, 2)); }\n"
         "float dot2_test(float x) { return dot(float2(x, x + 1), float2(1, -1)); }\n";
 
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     settings.fRemoveDeadFunctions = false;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
@@ -1052,7 +1052,7 @@ private:
 DEF_TEST(SkSLInterpreterExternalValues, r) {
     const char* json = "{ \"value1\": 12, \"child\": { \"value2\": true, \"value3\": 5.5 } }";
     skjson::DOM dom(json, strlen(json));
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     const char* src = "float main() {"
                       "    outValue = 152;"
@@ -1084,7 +1084,7 @@ DEF_TEST(SkSLInterpreterExternalValues, r) {
 }
 
 DEF_TEST(SkSLInterpreterExternalValuesVector, r) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     const char* src = "void main() {"
                       "    value *= 2;"
@@ -1146,7 +1146,7 @@ private:
 };
 
 DEF_TEST(SkSLInterpreterExternalValuesCall, r) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     const char* src = "float main() {"
                       "    return external(25);"
@@ -1207,7 +1207,7 @@ private:
 
 
 DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(/*caps=*/nullptr);
     SkSL::Program::Settings settings;
     const char* src =
             "float4 main() {"

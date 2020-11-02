@@ -9,10 +9,10 @@
 
 #include "tests/Test.h"
 
-static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings, const char* src,
-                 const char* expected, SkSL::Program::Inputs* inputs,
-                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
-    SkSL::Compiler compiler;
+static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
+                 const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+    SkSL::Compiler compiler(&caps);
+    SkSL::Program::Settings settings;
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
@@ -20,7 +20,6 @@ static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings,
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
     REPORTER_ASSERT(r, program);
-    *inputs = program->fInputs;
     REPORTER_ASSERT(r, compiler.toMetal(*program, &output));
     if (program) {
         SkSL::String skExpected(expected);
@@ -30,14 +29,6 @@ static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings,
         }
         REPORTER_ASSERT(r, output == skExpected);
     }
-}
-
-static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
-                 const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
-    SkSL::Program::Settings settings;
-    settings.fCaps = &caps;
-    SkSL::Program::Inputs inputs;
-    test(r, settings, src, expected, &inputs, kind);
 }
 
 DEF_TEST(SkSLMetalHelloWorld, r) {
