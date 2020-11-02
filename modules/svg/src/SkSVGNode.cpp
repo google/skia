@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTPin.h"
@@ -51,6 +52,12 @@ SkPath SkSVGNode::asPath(const SkSVGRenderContext& ctx) const {
 SkRect SkSVGNode::objectBoundingBox(const SkSVGRenderContext& ctx) const {
     return this->onObjectBoundingBox(ctx);
 }
+
+sk_sp<SkImageFilter> SkSVGNode::asImageFilter(const SkSVGRenderContext& ctx) const {
+    return this->onAsImageFilter(ctx);
+}
+
+sk_sp<SkImageFilter> SkSVGNode::onAsImageFilter(const SkSVGRenderContext&) const { return nullptr; }
 
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     ctx->applyPresentationAttributes(fPresentationAttributes,

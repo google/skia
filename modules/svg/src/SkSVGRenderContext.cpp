@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkTo.h"
@@ -430,6 +431,11 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     if (auto* clip = attrs.fClipPath.getMaybeNull()) {
         this->applyClip(*clip);
     }
+
+    // TODO: is this the right order of operations w.r.t. opacity and clip?
+    if (auto* filter = attrs.fFilter.getMaybeNull()) {
+        this->applyFilter(*filter);
+    }
 }
 
 void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
@@ -460,6 +466,23 @@ void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }
+}
+
+void SkSVGRenderContext::applyFilter(const SkSVGFilterType& filter) {
+    if (filter.type() != SkSVGFilterType::Type::kIRI) {
+        return;
+    }
+
+    sk_sp<SkImageFilter> imageFilter;
+    const auto filterNode = this->findNodeById(filter.iri());
+    if (!filterNode || !(imageFilter = filterNode->asImageFilter(*this))) {
+        return;
+    }
+
+    SkPaint filterPaint;
+    filterPaint.setImageFilter(imageFilter);
+    // Balanced in the destructor, via restoreToCount().
+    fCanvas->saveLayer(nullptr, &filterPaint);
 }
 
 void SkSVGRenderContext::saveOnce() {

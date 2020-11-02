@@ -28,6 +28,10 @@ public:
 private:
     SkSVGFilter() : INHERITED(SkSVGTag::kFilter) {}
 
+    SkRect resolveFilterRegion(const SkSVGRenderContext&) const;
+
+    sk_sp<SkImageFilter> onAsImageFilter(const SkSVGRenderContext&) const final;
+
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
     using INHERITED = SkSVGHiddenContainer;

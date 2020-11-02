@@ -12,6 +12,7 @@
 #include "modules/svg/include/SkSVGAttribute.h"
 
 class SkCanvas;
+class SkImageFilter;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -75,6 +76,7 @@ public:
     bool asPaint(const SkSVGRenderContext&, SkPaint*) const;
     SkPath asPath(const SkSVGRenderContext&) const;
     SkRect objectBoundingBox(const SkSVGRenderContext&) const;
+    sk_sp<SkImageFilter> asImageFilter(const SkSVGRenderContext&) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
     bool setAttribute(const char* attributeName, const char* attributeValue);
@@ -117,6 +119,8 @@ protected:
     virtual void onRender(const SkSVGRenderContext&) const = 0;
 
     virtual bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const { return false; }
+
+    virtual sk_sp<SkImageFilter> onAsImageFilter(const SkSVGRenderContext&) const;
 
     virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
