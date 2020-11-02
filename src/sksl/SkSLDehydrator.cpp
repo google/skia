@@ -570,10 +570,10 @@ void Dehydrator::write(const ProgramElement& e) {
 
 void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& elements) {
     this->writeCommand(Rehydrator::kElements_Command);
-    this->writeU8(elements.size());
     for (const auto& e : elements) {
         this->write(*e);
     }
+    this->writeCommand(Rehydrator::kElementsComplete_Command);
 }
 
 void Dehydrator::finish(OutputStream& out) {
