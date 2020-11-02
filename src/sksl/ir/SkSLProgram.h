@@ -111,11 +111,6 @@ struct Program {
             };
         };
 
-#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
-        const StandaloneShaderCaps* fCaps = &standaloneCaps;
-#else
-        const GrShaderCaps* fCaps = nullptr;
-#endif
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
@@ -185,6 +180,7 @@ struct Program {
     Program(Kind kind,
             std::unique_ptr<String> source,
             Settings settings,
+            const ShaderCapsClass* caps,
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::unique_ptr<ModifiersPool> modifiers,
@@ -194,6 +190,7 @@ struct Program {
     : fKind(kind)
     , fSource(std::move(source))
     , fSettings(settings)
+    , fCaps(caps)
     , fContext(context)
     , fSymbols(symbols)
     , fPool(std::move(pool))
@@ -220,6 +217,7 @@ struct Program {
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
+    const ShaderCapsClass* fCaps;
     std::shared_ptr<Context> fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols

@@ -111,6 +111,7 @@ public:
      */
     IRBundle convertProgram(Program::Kind kind,
                             const Program::Settings* settings,
+                            const ShaderCapsClass* caps,
                             const ParsedModule& base,
                             bool isBuiltinCode,
                             const char* text,
@@ -217,6 +218,7 @@ private:
 
     Program::Inputs fInputs;
     const Program::Settings* fSettings = nullptr;
+    const ShaderCapsClass* fCaps = nullptr;
     Program::Kind fKind;
 
     Inliner* fInliner = nullptr;

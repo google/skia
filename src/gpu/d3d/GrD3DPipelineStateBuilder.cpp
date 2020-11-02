@@ -550,7 +550,6 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     this->finalizeShaders();
 
     SkSL::Program::Settings settings;
-    settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;

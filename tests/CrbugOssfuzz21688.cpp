@@ -16,11 +16,10 @@
 
 DEF_TEST(crbug_ossfuzz_21688_interfaceblock, reporter) {
     // Tests that arrays of zero-sized interface blocks are disallowed.
-    SkSL::Compiler compiler;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    SkSL::Compiler compiler(caps.get());
     SkSL::String output;
     SkSL::Program::Settings settings;
-    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
     const char* const kProgramText = "testBlock {} x[2];";
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      kProgramText, settings);

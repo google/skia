@@ -126,12 +126,12 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(device.GetDefaultQueue())
-        , fCompiler(new SkSL::Compiler())
         , fUniformRingBuffer(this, wgpu::BufferUsage::Uniform)
         , fStagingBufferManager(this)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fFinishCallbacks(this) {
     fCaps.reset(new GrDawnCaps(options));
+    fCompiler.reset(new SkSL::Compiler(fCaps->shaderCaps()));
 }
 
 GrDawnGpu::~GrDawnGpu() {
@@ -931,7 +931,6 @@ void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
 SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString, SkSL::Program::Kind kind, bool flipY,
                                     uint32_t rtHeightOffset, SkSL::Program::Inputs* inputs) {
     SkSL::Program::Settings settings;
-    settings.fCaps = this->caps()->shaderCaps();
     settings.fFlipY = flipY;
     settings.fRTHeightOffset = rtHeightOffset;
     settings.fRTHeightBinding = 0;

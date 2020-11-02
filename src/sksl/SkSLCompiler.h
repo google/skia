@@ -133,7 +133,7 @@ public:
     };
 #endif
 
-    Compiler(Flags flags = kNone_Flags);
+    Compiler(const ShaderCapsClass* caps, Flags flags = kNone_Flags);
 
     ~Compiler() override;
 
@@ -262,6 +262,8 @@ private:
     bool optimize(Program& program);
 
     Position position(int offset);
+
+    const ShaderCapsClass* fCaps = nullptr;
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
 

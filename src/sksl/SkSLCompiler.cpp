@@ -83,8 +83,9 @@ public:
     const String* fOldSource;
 };
 
-Compiler::Compiler(Flags flags)
-: fFlags(flags)
+Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
+: fCaps(caps)
+, fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
@@ -322,10 +323,11 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
-    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(
-            kind, &settings, baseModule, /*isBuiltinCode=*/true, source->c_str(), source->length(),
-            /*externalValues=*/nullptr);
-    LoadedModule module = { std::move(ir.fSymbolTable), std::move(ir.fElements) };
+    IRGenerator::IRBundle ir =
+            fIRGenerator->convertProgram(kind, &settings, &standaloneCaps, baseModule,
+                                         /*isBuiltinCode=*/true, source->c_str(), source->length(),
+                                         /*externalValues=*/nullptr);
+    LoadedModule module = {std::move(ir.fSymbolTable), std::move(ir.fElements)};
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -1575,7 +1577,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(fContext.get(), fIRGenerator->fModifiers.get(), &settings);
+    fInliner.reset(fContext.get(), fIRGenerator->fModifiers.get(), &settings, fCaps);
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -1587,12 +1589,13 @@ std::unique_ptr<Program> Compiler::convertProgram(
     // The Program will take ownership of the pool.
     std::unique_ptr<Pool> pool = Pool::Create();
     pool->attachToThread();
-    IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
-                                         textPtr->c_str(), textPtr->size(), externalValues);
+    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(
+            kind, &settings, fCaps, baseModule, /*isBuiltinCode=*/false, textPtr->c_str(),
+            textPtr->size(), externalValues);
     auto program = std::make_unique<Program>(kind,
                                              std::move(textPtr),
                                              settings,
+                                             fCaps,
                                              fContext,
                                              std::move(ir.fElements),
                                              std::move(ir.fModifiers),

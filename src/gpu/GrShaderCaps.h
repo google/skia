@@ -15,6 +15,7 @@
 
 namespace SkSL {
 class ShaderCapsFactory;
+class SharedCompiler;
 }  // namespace SkSL
 
 struct GrContextOptions;
@@ -338,6 +339,7 @@ private:
     friend class GrMtlCaps;
     friend class GrVkCaps;
     friend class SkSL::ShaderCapsFactory;
+    friend class SkSL::SharedCompiler;
 };
 
 #endif

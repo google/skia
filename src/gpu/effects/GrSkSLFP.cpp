@@ -157,15 +157,13 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntim
     if (uniforms->size() != effect->uniformSize()) {
         return nullptr;
     }
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(
-            context->priv().caps()->refShaderCaps(), context->priv().getShaderErrorHandler(),
-            std::move(effect), name, std::move(uniforms)));
+    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().getShaderErrorHandler(),
+                                                  std::move(effect), name, std::move(uniforms)));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* shaderErrorHandler,
-                   sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
+GrSkSLFP::GrSkSLFP(ShaderErrorHandler* shaderErrorHandler, sk_sp<SkRuntimeEffect> effect,
+                   const char* name, sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
-        , fShaderCaps(std::move(shaderCaps))
         , fShaderErrorHandler(shaderErrorHandler)
         , fEffect(std::move(effect))
         , fName(name)
@@ -177,7 +175,6 @@ GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, ShaderErrorHandler* sha
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
-        , fShaderCaps(other.fShaderCaps)
         , fShaderErrorHandler(other.fShaderErrorHandler)
         , fEffect(other.fEffect)
         , fName(other.fName)
@@ -202,7 +199,7 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     // Note: This is actually SkSL (again) but with inline format specifiers.
     SkSL::PipelineStageArgs args;
-    SkAssertResult(fEffect->toPipelineStage(fShaderCaps.get(), fShaderErrorHandler, &args));
+    SkAssertResult(fEffect->toPipelineStage(fShaderErrorHandler, &args));
     return new GrGLSLSkSLFP(std::move(args));
 }
 

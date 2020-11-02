@@ -10,10 +10,9 @@
 #include "tests/Test.h"
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
-    SkSL::Compiler compiler;
-    SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
+    SkSL::Compiler compiler(caps.get());
+    SkSL::Program::Settings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkSL::String(src), settings);
     if (program) {

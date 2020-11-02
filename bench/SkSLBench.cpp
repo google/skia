@@ -21,7 +21,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            SkSL::Compiler compiler;
+            SkSL::Compiler compiler(/*caps=*/nullptr);
         }
     }
 };
@@ -32,7 +32,8 @@ class SkSLBench : public Benchmark {
 public:
     SkSLBench(SkSL::String name, const char* src)
         : fName("sksl_" + name)
-        , fSrc(src) {}
+        , fSrc(src)
+        , fCompiler(/*caps=*/nullptr) {}
 
 protected:
     const char* onGetName() override {
@@ -474,7 +475,7 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
 
     {
         int before = heap_bytes_used();
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(/*caps=*/nullptr);
         int after = heap_bytes_used();
         bench("sksl_compiler_baseline", after - before);
     }

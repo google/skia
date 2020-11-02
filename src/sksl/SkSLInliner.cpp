@@ -304,10 +304,11 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 }
 
 void Inliner::reset(const Context* context, ModifiersPool* modifiers,
-                    const Program::Settings* settings) {
+                    const Program::Settings* settings, const ShaderCapsClass* caps) {
     fContext = context;
     fModifiers = modifiers;
     fSettings = settings;
+    fCaps = caps;
     fInlineVarCounter = 0;
 }
 
@@ -764,7 +765,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
+    if (!fCaps || !fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
         bool hasEarlyReturn = has_early_return(*functionDef);
