@@ -91,7 +91,14 @@
         CanvasKit._free(this._pixelPtr);
       }
       this.delete();
-    }
+    };
+
+    CanvasKit.Surface.prototype.peekPixels = function() {
+      if (!this._pixelPtr) {
+        return null; // Not available for GPU backed canvases.
+      }
+      return new Uint8ClampedArray(CanvasKit.HEAPU8.buffer, this._pixelPtr, this._pixelLen);
+    };
 
     CanvasKit.currentContext = CanvasKit.currentContext || function() {
       // no op if this is a cpu-only build.
