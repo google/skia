@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18c3a1d8_eda53793",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T16:52:16Z",
+      "side": 1,
+      "message": "LG, just a couple of nits.",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3545566_6e816b59",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T16:52:16Z",
+      "side": 1,
+      "message": "Also, I wonder if we can hide from SkSVGNode and push down to SkSVGFilter (we\u0027re always starting off a filter element).  I guess we need a way to query its type/cast, but that seems more useful in general than exposing this entry point on all nodes.\n\nThen I think we don\u0027t even need a virtual.",
+      "range": {
+        "startLine": 79,
+        "startChar": 25,
+        "endLine": 79,
+        "endChar": 38
+      },
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55b4c8e7_1b53d729",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T16:52:16Z",
+      "side": 1,
+      "message": "Naming nit: this is following existing patterns, but these days I\u0027m thinking of asFoo() as typesafe casting helpers.  Building the filter dag is definitely more involved than that, maybe buildFilterDAG() would be more descriptive?",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe256378_e9d809e2",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-02T16:52:16Z",
+      "side": 1,
+      "message": "// TODO: when both a filter and opacity are present, we can apply both with a single layer",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
