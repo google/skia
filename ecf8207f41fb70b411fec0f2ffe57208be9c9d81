@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc5d125d_6831bc8c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T17:43:59Z",
+      "side": 1,
+      "message": "This appears to be different than the code comment.",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 31
+      },
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "e8855df9_58eeebda",
@@ -14,6 +37,29 @@
       "writtenOn": "2020-10-30T20:28:51Z",
       "side": 1,
       "message": "If you want, I can further split this CL into one that does the metadata/state compaction first and then a later CL that switches to GrTBlockList.",
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee597772_8482dff6",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-02T17:43:59Z",
+      "side": 1,
+      "message": "Meta-comment about TBlockList (not asking for anything in this change): Seeing items() in action it seems a bit off to me. Usually the class itself is the range for a container. I guess it is this way because we also have ritems(). I think I\u0027d lean to putting begin() and end() directly on GrTBlockList along with rbegin()/rend(). If ritems() is really useful, we could have something like boost::reverse to iterate from T::rbegin() to T::rend().",
+      "range": {
+        "startLine": 87,
+        "startChar": 25,
+        "endLine": 87,
+        "endChar": 44
+      },
       "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
