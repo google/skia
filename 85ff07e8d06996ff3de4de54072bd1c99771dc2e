@@ -235,6 +235,30 @@
       },
       "revId": "85ff07e8d06996ff3de4de54072bd1c99771dc2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea1187ce_d125e830",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-02T13:17:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1646ef1_2bb9c461",
+      "range": {
+        "startLine": 296,
+        "startChar": 95,
+        "endLine": 296,
+        "endChar": 110
+      },
+      "revId": "85ff07e8d06996ff3de4de54072bd1c99771dc2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
