@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcc6bb55_539ad7b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-02T17:33:06Z",
+      "side": 1,
+      "message": "Can we chat about this one? Is there a real savings? In general, SkCanvas has way too many variants of its various features, and I\u0027d like to be deliberate about what we expose to new languages (like Dart, JS, Java, etc.)",
+      "revId": "2ca578b04af0b1433922a65dd98eba267d65d677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9cb4611_01e2bc82",
