@@ -73,6 +73,24 @@
       "message": "// TODO: when both a filter and opacity are present, we can apply both with a single layer",
       "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71119739_8a72cf2b",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T17:36:57Z",
+      "side": 1,
+      "message": "I wondered about that. Aren\u0027t there some edge cases though? E.g. if you have opacity 30% on the same element as a \u003cfeFlood\u003e which fills the region with an opaque color, does the ordering of the two layers change the output? I looked briefly through the spec but didn\u0027t turn up anything yet.",
+      "parentUuid": "fe256378_e9d809e2",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
