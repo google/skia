@@ -25,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInlineMarker.h"
@@ -337,12 +338,13 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
-            return std::unique_ptr<ProgramElement>(
-                    new GlobalVarDeclaration(/*offset=*/-1, std::move(decl)));
+            return std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl));
         }
+        case Rehydrator::kElementsComplete_Command:
+            return nullptr;
+
         default:
-            printf("unsupported element %d\n", kind);
-            SkASSERT(false);
+            SkDEBUGFAILF("unsupported element %d\n", kind);
             return nullptr;
     }
 }
