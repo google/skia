@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b3e2ddb_89a4016a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T21:03:47Z",
+      "side": 1,
+      "message": "@Florin I wanted to see what you thought about this as a potential direction to go. No worries if you think this isn\u0027t a good approach.",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
