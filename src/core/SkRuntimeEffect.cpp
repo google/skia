@@ -23,6 +23,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -40,16 +41,15 @@ namespace SkSL {
 class SharedCompiler {
 public:
     SharedCompiler() : fLock(compiler_mutex()) {
-        if (!gCompiler) {
-            gCompiler = new SkSL::Compiler{};
-            gInlineThreshold = SkSL::Program::Settings().fInlineThreshold;
+        if (!gImpl) {
+            gImpl = new Impl();
         }
     }
 
-    SkSL::Compiler* operator->() const { return gCompiler; }
+    SkSL::Compiler* operator->() const { return gImpl->fCompiler; }
 
-    int  getInlineThreshold() const { return gInlineThreshold; }
-    void setInlineThreshold(int threshold) { gInlineThreshold = threshold; }
+    int  getInlineThreshold() const { return gImpl->fInlineThreshold; }
+    void setInlineThreshold(int threshold) { gImpl->fInlineThreshold = threshold; }
 
 private:
     SkAutoMutexExclusive fLock;
@@ -59,11 +59,33 @@ private:
         return mutex;
     }
 
-    static SkSL::Compiler* gCompiler;
-    static int             gInlineThreshold;
+    struct Impl {
+        Impl() {
+            // These caps are configured to apply *no* workarounds. The goal is to pass-through the
+            // user SkSL so that the processor emits essentially the same code. Any device/caps
+            // decisions are then applied to *that* SkSL, where we have the entire program, and
+            // the backend's compiler (constructed with the correct caps).
+            fCaps = ShaderCapsFactory::Standalone();
+            fCaps->fBuiltinFMASupport = true;
+            fCaps->fBuiltinDeterminantSupport = true;
+            // Prevent inlining in situations that require do loops, so we don't bake that decision
+            // in too early.
+            fCaps->fCanUseDoLoops = false;
+
+            fCompiler = new SkSL::Compiler(fCaps.get());
+            fInlineThreshold = SkSL::Program::Settings().fInlineThreshold;
+        }
+
+        SkSL::ShaderCapsPointer fCaps;
+        SkSL::Compiler*         fCompiler;
+        int                     fInlineThreshold;
+    };
+
+    static Impl* gImpl;
 };
-SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
-int             SharedCompiler::gInlineThreshold = 0;
+
+SharedCompiler::Impl* SharedCompiler::gImpl = nullptr;
+
 }  // namespace SkSL
 
 void SkRuntimeEffect_SetInlineThreshold(int threshold) {
@@ -296,27 +318,11 @@ int SkRuntimeEffect::findChild(const char* name) const {
 }
 
 #if SK_SUPPORT_GPU
-bool SkRuntimeEffect::toPipelineStage(const GrShaderCaps* shaderCaps,
-                                      GrContextOptions::ShaderErrorHandler* errorHandler,
+bool SkRuntimeEffect::toPipelineStage(GrContextOptions::ShaderErrorHandler* errorHandler,
                                       SkSL::PipelineStageArgs* outArgs) {
     SkSL::SharedCompiler compiler;
 
-    // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
-    // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-    settings.fInlineThreshold = compiler.getInlineThreshold();
-    settings.fAllowNarrowingConversions = true;
-
-    auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                            SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                            settings);
-    if (!program) {
-        errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    if (!compiler->toPipelineStage(*program, outArgs)) {
+    if (!compiler->toPipelineStage(*fBaseProgram, outArgs)) {
         errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
         return false;
     }

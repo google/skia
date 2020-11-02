@@ -230,7 +230,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendConte
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
     SkASSERT(fMemoryAllocator);
 
-    fCompiler = new SkSL::Compiler();
+    fCompiler = new SkSL::Compiler(fVkCaps->shaderCaps());
 
     fCaps.reset(SkRef(fVkCaps.get()));
 

@@ -16,10 +16,12 @@
 // undoubtedly end up breaking some of these tests. That is a good thing, as long as the new code is
 // equivalent!
 
-static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings, const char* src,
-                 SkSL::Program::Inputs* inputs,
+static void test(skiatest::Reporter* r,
+                 const GrShaderCaps& caps,
+                 const char* src,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(&caps);
+    SkSL::Program::Settings settings;
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
@@ -27,19 +29,10 @@ static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings,
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         REPORTER_ASSERT(r, program);
     } else {
-        *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
         REPORTER_ASSERT(r, output != "");
         //SkDebugf("GLSL output:\n\n%s", output.c_str());
     }
-}
-
-static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
-                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
-    SkSL::Program::Settings settings;
-    settings.fCaps = &caps;
-    SkSL::Program::Inputs inputs;
-    test(r, settings, src, &inputs, kind);
 }
 
 DEF_TEST(SkSLGLSLTestbed, r) {
