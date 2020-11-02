@@ -282,11 +282,9 @@ const Type* Rehydrator::type() {
 std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
     SkDEBUGCODE(uint8_t command = )this->readU8();
     SkASSERT(command == kElements_Command);
-    uint8_t count = this->readU8();
     std::vector<std::unique_ptr<ProgramElement>> result;
-    result.reserve(count);
-    for (int i = 0; i < count; ++i) {
-        result.push_back(this->element());
+    while (std::unique_ptr<ProgramElement> elem = this->element()) {
+        result.push_back(std::move(elem));
     }
     return result;
 }
@@ -339,12 +337,13 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
-            return std::unique_ptr<ProgramElement>(
-                    new GlobalVarDeclaration(/*offset=*/-1, std::move(decl)));
+            return std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl));
         }
+        case Rehydrator::kElementsComplete_Command:
+            return nullptr;
+
         default:
-            printf("unsupported element %d\n", kind);
-            SkASSERT(false);
+            SkDEBUGFAILF("unsupported element %d\n", kind);
             return nullptr;
     }
 }

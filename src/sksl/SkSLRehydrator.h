@@ -58,8 +58,10 @@ public:
         kDiscard_Command,
         // Statement stmt, Expression test
         kDo_Command,
-        // uint8 count, uint8 index
+        // ProgramElement[] elements (reads until command `kElementsComplete_Command` is found)
         kElements_Command,
+        // no arguments--indicates end of Elements list
+        kElementsComplete_Command,
         // String typeName, SymbolTable symbols, int32[] values
         kEnum_Command,
         // uint16 id, String name
