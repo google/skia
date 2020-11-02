@@ -58,6 +58,48 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edb12cc6_964cff74",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T17:50:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55b4c8e7_1b53d729",
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef378672_66b6bc1b",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-02T17:50:39Z",
+      "side": 1,
+      "message": "Should be done -- used the existing SkSVGTag to add an assert, but let me know if there\u0027s a safer way to do this than just a straight cast.",
+      "parentUuid": "e3545566_6e816b59",
+      "range": {
+        "startLine": 79,
+        "startChar": 25,
+        "endLine": 79,
+        "endChar": 38
+      },
+      "revId": "d9e44f2afc18cc56c62e2188cb27bde80703759a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe256378_e9d809e2",
