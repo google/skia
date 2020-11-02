@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8afec82_2973b266",
+        "filename": "src/sksl/SkSLRehydrator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-02T17:43:34Z",
+      "side": 1,
+      "message": "This comment is out of date now",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "41567f4e36936c258780bc4f15e736ef55d43c98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
