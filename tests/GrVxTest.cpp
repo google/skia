@@ -132,21 +132,36 @@ DEF_TEST(grvx_approx_acos, r) {
     }
 }
 
+static float precise_angle_between_vectors(SkPoint a, SkPoint b) {
+    if (a.isZero() || b.isZero()) {
+        return 0;
+    }
+    double ax=a.fX, ay=a.fY, bx=b.fX, by=b.fY;
+    double theta = (ax*bx + ay*by) / sqrt(ax*ax + ay*ay) / sqrt(bx*bx + by*by);
+    return (float)acos(theta);
+}
+
 static bool check_approx_angle_between_vectors(skiatest::Reporter* r, SkVector a, SkVector b,
                                                float approxTheta) {
-    float expectedTheta = SkMeasureAngleBetweenVectors(a, b);
+    float expectedTheta = precise_angle_between_vectors(a, b);
     float error = expectedTheta - approxTheta;
     if (!(fabsf(error) <= GRVX_FAST_ACOS_MAX_ERROR + SK_ScalarNearlyZero)) {
+        int expAx = SkFloat2Bits(a.fX) >> 23 & 0xff;
+        int expAy = SkFloat2Bits(a.fY) >> 23 & 0xff;
+        int expBx = SkFloat2Bits(b.fX) >> 23 & 0xff;
+        int expBy = SkFloat2Bits(b.fY) >> 23 & 0xff;
         ERRORF(r, "Larger-than-expected error from grvx::approx_angle_between_vectors\n"
                   "  a=                {%f, %f}\n"
                   "  b=                {%f, %f}\n"
+                  "  expA=             {%u, %u}\n"
+                  "  expB=             {%u, %u}\n"
                   "  approxTheta=      %f  (%f degrees\n"
                   "  expectedTheta=     %f  (%f degrees)\n"
                   "  error=             %f  (%f degrees)\n"
                   "  tolerance=         %f  (%f degrees)\n\n",
-                  a.fX, a.fY, b.fX, b.fY, approxTheta, SkRadiansToDegrees(approxTheta),
-                  expectedTheta, SkRadiansToDegrees(expectedTheta), error,
-                  SkRadiansToDegrees(error), GRVX_FAST_ACOS_MAX_ERROR,
+                  a.fX, a.fY, b.fX, b.fY, expAx, expAy, expBx, expBy, approxTheta,
+                  SkRadiansToDegrees(approxTheta), expectedTheta, SkRadiansToDegrees(expectedTheta),
+                  error, SkRadiansToDegrees(error), GRVX_FAST_ACOS_MAX_ERROR,
                   SkRadiansToDegrees(GRVX_FAST_ACOS_MAX_ERROR));
         return false;
     }
@@ -170,41 +185,34 @@ DEF_TEST(grvx_approx_angle_between_vectors, r) {
     // Test infinities.
     REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
             std::numeric_limits<float>::infinity(),1,2,3).val));
-    check_approx_angle_between_vectors(r, {std::numeric_limits<float>::infinity(),1}, {2,3});
-    check_approx_angle_between_vectors(r, {0,-std::numeric_limits<float>::infinity()}, {2,3});
-    check_approx_angle_between_vectors(r, {0,1}, {std::numeric_limits<float>::infinity(),3});
-    check_approx_angle_between_vectors(r, {0,1}, {2,-std::numeric_limits<float>::infinity()});
 
     // Test NaNs.
     REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
             std::numeric_limits<float>::quiet_NaN(),1,2,3).val));
-    check_approx_angle_between_vectors(r, {std::numeric_limits<float>::quiet_NaN(),1}, {2,3});
-    check_approx_angle_between_vectors(r, {0,std::numeric_limits<float>::quiet_NaN()}, {2,3});
-    check_approx_angle_between_vectors(r, {0,1}, {std::numeric_limits<float>::quiet_NaN(),3});
-    check_approx_angle_between_vectors(r, {0,1}, {2,std::numeric_limits<float>::quiet_NaN()});
 
     // Test demorms.
-    // NOTE: there isn't a floating point value large enough to multiply a denormalized value to 1,
-    // but these should behave the same as SkMeasureAngleBetweenVectors.
     float epsilon = std::numeric_limits<float>::denorm_min();
     REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
             epsilon, epsilon, epsilon, epsilon).val));
-    check_approx_angle_between_vectors(r, {epsilon, epsilon}, {epsilon, epsilon});
-    check_approx_angle_between_vectors(r, {epsilon, epsilon}, {-epsilon, -epsilon});
-    check_approx_angle_between_vectors(r, {epsilon, -epsilon*2}, {-epsilon*3, epsilon*4});
 
     // Test random floats of all types.
     uint4 mantissas = {0,0,0,0};
     uint4 exp = uint4{126, 127, 128, 129};
     for (uint32_t i = 0; i < (1 << 12); ++i) {
-        uint32_t a=exp[0], b=exp[1], c=exp[2], d=exp[3];
+        // approx_angle_between_vectors is only valid for absolute values < 2^31.
+        uint4 exp_ = skvx::min(exp, 127 + 30);
+        uint32_t a=exp_[0], b=exp_[1], c=exp_[2], d=exp_[3];
+        // approx_angle_between_vectors is only valid if at least one vector component's magnitude
+        // is >2^-31.
+        a = std::max(a, 127u - 30);
+        c = std::max(a, 127u - 30);
         // Run two tests where both components of both vectors have the same exponent, one where
         // both components of a given vector have the same exponent, and one where all components of
         // all vectors have different exponents.
-        uint4 x0exp = uint4{a,b,a,a} << 23;
-        uint4 y0exp = uint4{a,b,a,b} << 23;
-        uint4 x1exp = uint4{a,b,b,c} << 23;
-        uint4 y1exp = uint4{a,b,b,d} << 23;
+        uint4 x0exp = uint4{a,c,a,a} << 23;
+        uint4 y0exp = uint4{a,c,a,b} << 23;
+        uint4 x1exp = uint4{a,c,c,c} << 23;
+        uint4 y1exp = uint4{a,c,c,d} << 23;
         uint4 signs = uint4{i<<31, i<<30, i<<29, i<<28} & (1u<<31);
         float4 x0 = bit_pun<float4>(signs | x0exp | mantissas[0]);
         float4 y0 = bit_pun<float4>(signs | y0exp | mantissas[1]);
