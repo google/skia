@@ -39,6 +39,30 @@
       },
       "revId": "b9a1942a51a5cc7506ac1206b871456f01e5defa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3ac2c43_840416f9",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-02T17:53:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3c7c82e_f52db548",
+      "range": {
+        "startLine": 70,
+        "startChar": 30,
+        "endLine": 70,
+        "endChar": 39
+      },
+      "revId": "b9a1942a51a5cc7506ac1206b871456f01e5defa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
