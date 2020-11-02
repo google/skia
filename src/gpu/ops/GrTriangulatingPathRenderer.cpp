@@ -59,6 +59,7 @@ static sk_sp<SkData> create_data(int numVertices, int numCountedCurves, SkScalar
     return SkData::MakeWithCopy(&info, sizeof(info));
 }
 
+// TODO: remove 'actualNumVertices' and 'actualNumCountedCurves' in a follow up CL
 bool cache_match(const SkData* data, SkScalar tol,
                  int* actualNumVertices, int* actualNumCountedCurves) {
     SkASSERT(data);
@@ -76,11 +77,23 @@ bool cache_match(const SkData* data, SkScalar tol,
     return false;
 }
 
+// Should 'challenger' replace 'incumbent' in the cache if there is a collision?
+bool is_newer_better(SkData* incumbent, SkData* challenger) {
+    const TessInfo* i = static_cast<const TessInfo*>(incumbent->data());
+    const TessInfo* c = static_cast<const TessInfo*>(challenger->data());
+
+    if (i->fNumCountedCurves == 0 || i->fTolerance <= c->fTolerance) {
+        return false;  // prefer the incumbent
+    }
+
+    return true;
+}
+
 // When the SkPathRef genID changes, invalidate a corresponding GrResource described by key.
 class UniqueKeyInvalidator : public SkIDChangeListener {
 public:
     UniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contextUniqueID)
-            : fMsg(key, contextUniqueID) {}
+            : fMsg(key, contextUniqueID, /* inThreadSafeCache */ true) {}
 
 private:
     GrUniqueKeyInvalidatedMessage fMsg;
@@ -92,18 +105,19 @@ class StaticVertexAllocator : public GrEagerVertexAllocator {
 public:
     StaticVertexAllocator(GrResourceProvider* resourceProvider, bool canMapVB)
             : fResourceProvider(resourceProvider)
-            , fCanMapVB(canMapVB)
-            , fVertices(nullptr) {
+            , fCanMapVB(canMapVB) {
     }
 
 #ifdef SK_DEBUG
     ~StaticVertexAllocator() override {
-        SkASSERT(!fLockStride);
+        SkASSERT(!fLockStride && !fVertices && !fVertexBuffer && !fVertexData);
     }
 #endif
+
     void* lock(size_t stride, int eagerCount) override {
-        SkASSERT(!fLockStride);
-        SkASSERT(stride);
+        SkASSERT(!fLockStride && !fVertices && !fVertexBuffer && !fVertexData);
+        SkASSERT(stride && eagerCount);
+
         size_t size = eagerCount * stride;
         fVertexBuffer = fResourceProvider->createBuffer(size, GrGpuBufferType::kVertex,
                                                         kStatic_GrAccessPattern);
@@ -118,24 +132,80 @@ public:
         fLockStride = stride;
         return fVertices;
     }
+
     void unlock(int actualCount) override {
-        SkASSERT(fLockStride);
+        SkASSERT(fLockStride && fVertices && fVertexBuffer && !fVertexData);
+
         if (fCanMapVB) {
             fVertexBuffer->unmap();
         } else {
             fVertexBuffer->updateData(fVertices, actualCount * fLockStride);
             sk_free(fVertices);
         }
+
+        fVertexData = GrThreadSafeCache::MakeVertexData(std::move(fVertexBuffer),
+                                                        actualCount, fLockStride);
+
         fVertices = nullptr;
         fLockStride = 0;
     }
-    sk_sp<GrGpuBuffer> detachVertexBuffer() { return std::move(fVertexBuffer); }
+
+    sk_sp<GrThreadSafeCache::VertexData> detachVertexData() {
+        SkASSERT(!fLockStride && !fVertices && !fVertexBuffer && fVertexData);
+
+        return std::move(fVertexData);
+    }
 
 private:
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
     sk_sp<GrGpuBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
-    void* fVertices;
+    void* fVertices = nullptr;
+    size_t fLockStride = 0;
+};
+
+class CpuVertexAllocator : public GrEagerVertexAllocator {
+public:
+    CpuVertexAllocator() = default;
+
+#ifdef SK_DEBUG
+    ~CpuVertexAllocator() override {
+        SkASSERT(!fLockStride && !fVertices && !fVertexData);
+    }
+#endif
+
+    void* lock(size_t stride, int eagerCount) override {
+        SkASSERT(!fLockStride && !fVertices && !fVertexData);
+        SkASSERT(stride && eagerCount);
+
+        fVertices = sk_malloc_throw(eagerCount * stride);
+        fLockStride = stride;
+
+        return fVertices;
+    }
+
+    void unlock(int actualCount) override {
+        SkASSERT(fLockStride && fVertices && !fVertexData);
+
+        fVertices = sk_realloc_throw(fVertices, actualCount * fLockStride);
+
+        fVertexData = GrThreadSafeCache::MakeVertexData(fVertices, actualCount, fLockStride);
+
+        fVertices = nullptr;
+        fLockStride = 0;
+    }
+
+    sk_sp<GrThreadSafeCache::VertexData> detachVertexData() {
+        SkASSERT(!fLockStride && !fVertices && fVertexData);
+
+        return std::move(fVertexData);
+    }
+
+private:
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
+
+    void*  fVertices = nullptr;
     size_t fLockStride = 0;
 };
 
@@ -303,6 +373,7 @@ private:
     void createNonAAMesh(Target* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
+        auto threadSafeCache = target->threadSafeCache();
 
         GrUniqueKey key;
         CreateKey(&key, fShape, fDevClipBounds);
@@ -310,15 +381,30 @@ private:
         SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
                                                         fViewMatrix, fShape.bounds());
 
-        sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
-        if (cachedVertexBuffer) {
-            int actualVertexCount;
-
-            if (cache_match(cachedVertexBuffer->getUniqueKey().getCustomData(), tol,
-                            &actualVertexCount, nullptr)) {
-                fMesh = CreateMesh(target, std::move(cachedVertexBuffer), 0, actualVertexCount);
-                return;
+        if (!fVertexData) {
+            auto [cachedVerts, data] = threadSafeCache->findVertsWithData(key);
+            if (cachedVerts && cache_match(data.get(), tol, nullptr, nullptr)) {
+                fVertexData = std::move(cachedVerts);
             }
+        }
+
+        if (fVertexData) {
+            if (!fVertexData->gpuBuffer()) {
+                sk_sp<GrGpuBuffer> buffer = rp->createBuffer(fVertexData->size(),
+                                                             GrGpuBufferType::kVertex,
+                                                             kStatic_GrAccessPattern,
+                                                             fVertexData->vertices());
+                if (!buffer) {
+                    return;
+                }
+
+                // Since we have a direct context and a ref on 'fVertexData' we need not worry
+                // about any threading issues in this call.
+                fVertexData->setGpuBuffer(std::move(buffer));
+            }
+
+            fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
+            return;
         }
 
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
@@ -331,18 +417,28 @@ private:
             return;
         }
 
-        sk_sp<GrGpuBuffer> vb = allocator.detachVertexBuffer();
+        fVertexData = allocator.detachVertexData();
 
         key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
 
-        fShape.addGenIDChangeListener(
+        auto [tmpV, tmpD] = threadSafeCache->addVertsWithData(key, fVertexData, is_newer_better);
+        if (tmpV != fVertexData) {
+            SkASSERT(!tmpV->gpuBuffer());
+            // In this case, although the different triangulation found in the cache is better,
+            // we will continue on with the current triangulation since it is already on the gpu.
+        } else {
+            // This isn't perfect. The current triangulation is in the cache but it may have
+            // replaced a pre-existing one. A duplicated listener is unlikely and not that
+            // expensive so we just roll with it.
+            fShape.addGenIDChangeListener(
                 sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
-        rp->assignUniqueKeyToResource(key, vb.get());
+        }
 
-        fMesh = CreateMesh(target, std::move(vb), 0, vertexCount);
+        fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
     }
 
     void createAAMesh(Target* target) {
+        SkASSERT(!fVertexData);
         SkASSERT(fAntiAlias);
         SkPath path = this->getPath();
         if (path.isEmpty()) {
@@ -426,6 +522,58 @@ private:
 
         INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
                                      renderPassXferBarriers);
+
+        if (fAntiAlias) {
+            // TODO: pull the triangulation work forward to the recording thread for the AA case
+            // too.
+            return;
+        }
+
+        auto threadSafeViewCache = rContext->priv().threadSafeCache();
+
+        GrUniqueKey key;
+        CreateKey(&key, fShape, fDevClipBounds);
+
+        SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
+                                                        fViewMatrix, fShape.bounds());
+
+        auto [cachedVerts, data] = threadSafeViewCache->findVertsWithData(key);
+        if (cachedVerts && cache_match(data.get(), tol, nullptr, nullptr)) {
+            fVertexData = std::move(cachedVerts);
+            return;
+        }
+
+        CpuVertexAllocator allocator;
+
+        int numCountedCurves;
+        int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
+                                      &numCountedCurves);
+        if (vertexCount == 0) {
+            return;
+        }
+
+        fVertexData = allocator.detachVertexData();
+
+        key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
+
+        // If some other thread created and cached its own triangulation, the 'is_newer_better'
+        // predicate will replace the version in the cache if 'fVertexData' is a more accurate
+        // triangulation. This will leave some other recording threads using a poorer triangulation
+        // but will result in a version with greater applicability being in the cache.
+        auto [tmpV, tmpD] = threadSafeViewCache->addVertsWithData(key, fVertexData,
+                                                                  is_newer_better);
+        if (tmpV != fVertexData) {
+            // Someone beat us to creating the triangulation (and it is better than ours) so
+            // just go ahead and use it.
+            SkASSERT(cache_match(tmpD.get(), tol, nullptr, nullptr));
+            fVertexData = std::move(tmpV);
+        } else {
+            // This isn't perfect. The current triangulation is in the cache but it may have
+            // replaced a pre-existing one. A duplicated listener is unlikely and not that
+            // expensive so we just roll with it.
+            fShape.addGenIDChangeListener(
+                    sk_make_sp<UniqueKeyInvalidator>(key, rContext->priv().contextID()));
+        }
     }
 
     void onPrepareDraws(Target* target) override {
@@ -473,6 +621,8 @@ private:
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
+
+    sk_sp<GrThreadSafeCache::VertexData> fVertexData;
 
     using INHERITED = GrMeshDrawOp;
 };
