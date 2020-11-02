@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac07bfd0_3eb08761",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-02T16:54:54Z",
+      "side": 1,
+      "message": "Ah, my bad, I didn\u0027t know we could wrap \u0027native\u0027 memory and expose it.\n\nWhat is the lifetime of the returned JS-array? Peek promises to that the underlying values are volatile, and that the returned pointer will be dead if the surface dies or resizes (if that\u0027s possible).",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cfb6517_ae8ee1c2",
