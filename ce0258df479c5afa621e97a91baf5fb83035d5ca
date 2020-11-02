@@ -90,6 +90,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40ab069e_fd4bcddc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-02T19:25:55Z",
+      "side": 1,
+      "message": "\u003e After which time, the TypedArray will be pointing to freed memory on the WASM heap and the client should not use it.\n\nThis is what I mean by equivalent to a pointer to no longer valid memory in C.",
+      "parentUuid": "6ad26f34_ccc8f754",
+      "revId": "ce0258df479c5afa621e97a91baf5fb83035d5ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cfb6517_ae8ee1c2",
