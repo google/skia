@@ -639,6 +639,7 @@ var CanvasKit = {
     prototype: {
       /** @return {CanvasKit.Image} */
       makeImageSnapshot: function() {},
+      peekPixels: function() {},
     },
 
     // private API

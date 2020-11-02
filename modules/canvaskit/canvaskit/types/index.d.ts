@@ -2251,6 +2251,14 @@ export interface Surface extends EmbindObject<Surface> {
     makeSurface(info: ImageInfo): Surface;
 
     /**
+     * Raster Surface (CPU) only. Returns null for GPU surface.
+     * Returns a live read/write view into the pixel data on the screen. It may be invalidated in the future, so
+     * check to see if the length of the returned TypedArray is zero; if so, call this function again.
+     * If writes are made, they won't be reflected on the HTML canvas until flush() is called.
+     */
+    peekPixels(): Uint8ClampedArray | null;
+
+    /**
      * Returns if this Surface is a GPU-backed surface or not.
      */
     reportBackendTypeIsGPU(): boolean;

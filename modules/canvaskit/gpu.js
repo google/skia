@@ -101,6 +101,7 @@
         surface.openGLversion = openGLversion;
         return surface;
       };
+
       // Default to trying WebGL first.
       CanvasKit.MakeCanvasSurface = CanvasKit.MakeWebGLCanvasSurface;
     });

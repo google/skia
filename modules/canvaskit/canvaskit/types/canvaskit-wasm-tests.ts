@@ -784,6 +784,7 @@ function surfaceTests(CK: CanvasKit) {
     const count = surfaceThree.sampleCnt(); // $ExpectType number
     const img = surfaceFour.makeImageSnapshot([0, 3, 2, 5]); // $ExpectType Image
     const img2 = surfaceSix.makeImageSnapshot(); // $ExpectType Image
+    const pixels = surfaceFive.peekPixels();  // $ExpectType Uint8ClampedArray | null
 
     surfaceSeven.delete();
 

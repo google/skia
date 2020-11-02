@@ -1036,4 +1036,24 @@ describe('Core canvas behavior', () => {
             expect(expected[i]).toBeCloseTo(actual[i], 5, `element ${i}`);
         }
     }
+
+    it('supports peekPixels on the software backend', () => {
+        if (CanvasKit.gpu) {
+            return;
+        }
+        const surface = CanvasKit.MakeSWCanvasSurface('test');
+        expect(surface).toBeTruthy('Could not make surface');
+        if (!surface) {
+            return;
+        }
+
+        surface.getCanvas().clear(CanvasKit.RED);
+        const pixels = surface.peekPixels();
+        expect(pixels).toBeTruthy();
+        // Spot check the color of the first pixel.
+        expect(pixels[0]).toEqual(255); // red
+        expect(pixels[1]).toEqual(0); // green
+        expect(pixels[2]).toEqual(0); // blue
+        expect(pixels[3]).toEqual(255); // alpha
+    });
 });
