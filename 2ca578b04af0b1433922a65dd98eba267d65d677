@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb049cf3_2ade6533",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-11-02T17:28:52Z",
+      "side": 1,
+      "message": "\\o/\n\nLGTM if LGT Nathaniel",
+      "revId": "2ca578b04af0b1433922a65dd98eba267d65d677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9cb4611_01e2bc82",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-11-02T17:28:52Z",
+      "side": 1,
+      "message": "Why add ; here but not in other places?",
+      "revId": "2ca578b04af0b1433922a65dd98eba267d65d677",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
