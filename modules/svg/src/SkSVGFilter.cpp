@@ -43,3 +43,41 @@ void SkSVGFilter::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->INHERITED::onSetAttribute(attr, v);
     }
 }
+
+SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
+    const SkSVGLengthContext lctx =
+            fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
+                    ? SkSVGLengthContext({1, 1})
+                    : ctx.lengthContext();
+
+    SkRect filterRegion = lctx.resolveRect(fX, fY, fWidth, fHeight);
+    if (fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
+        SkASSERT(ctx.node());
+        const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
+        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + filterRegion.fLeft * objBounds.fLeft,
+                                        objBounds.fTop + filterRegion.fTop * objBounds.fTop,
+                                        filterRegion.width() * objBounds.width(),
+                                        filterRegion.height() * objBounds.height());
+    }
+
+    return filterRegion;
+}
+
+sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) const {
+    sk_sp<SkImageFilter> filter;
+    SkSVGFilterContext fctx(resolveFilterRegion(ctx));
+    for (const auto& child : fChildren) {
+        if (!SkSVGFe::IsFilterElement(child)) {
+            continue;
+        }
+
+        const auto& feNode = static_cast<const SkSVGFe&>(*child);
+        sk_sp<SkImageFilter> imageFilter = feNode.makeImageFilter(ctx, &fctx);
+        if (imageFilter) {
+            // TODO: there are specific composition rules that need to be followed
+            filter = SkImageFilters::Compose(imageFilter, filter);
+        }
+    }
+
+    return filter;
+}
