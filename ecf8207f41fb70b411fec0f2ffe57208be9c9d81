@@ -62,6 +62,29 @@
       },
       "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c32ae7d0_39490d12",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-02T20:08:12Z",
+      "side": 1,
+      "message": "I don\u0027t think you need all this cleverness. I think the compiler does a great job with out any of the brittle fUnused stuff. Check out the link:\nhttps://godbolt.org/z/PYsd3b",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 9
+      },
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
