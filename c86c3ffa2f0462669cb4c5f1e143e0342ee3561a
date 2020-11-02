@@ -16,6 +16,24 @@
       "message": "If one of the inner radii is near-zero, shouldn\u0027t we treat this as a fill?",
       "revId": "c86c3ffa2f0462669cb4c5f1e143e0342ee3561a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbd05328_3a31c3ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-02T16:33:24Z",
+      "side": 1,
+      "message": "Ah, I see -- it\u0027s the radii not including the inner rect. Let me ponder this a bit.",
+      "parentUuid": "3c3c7f17_edaf0dba",
+      "revId": "c86c3ffa2f0462669cb4c5f1e143e0342ee3561a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
