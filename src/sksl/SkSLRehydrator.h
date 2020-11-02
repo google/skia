@@ -60,6 +60,8 @@ public:
         kDo_Command,
         // uint8 count, uint8 index
         kElements_Command,
+        // no arguments--indicates end of Elements list
+        kElementsComplete_Command,
         // String typeName, SymbolTable symbols, int32[] values
         kEnum_Command,
         // uint16 id, String name
@@ -82,6 +84,8 @@ public:
         // uint16 id, Modifiers modifiers, String name, uint8 parameterCount, uint16[] parameterIds,
         // Type returnType
         kFunctionDeclaration_Command,
+        // uint16 declaration
+        kFunctionPrototype_Command,
         // bool isStatic, Expression test, Statement ifTrue, Statement ifFalse
         kIf_Command,
         // Expression base, Expression index
