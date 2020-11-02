@@ -60,6 +60,8 @@ public:
         kDo_Command,
         // uint8 count, uint8 index
         kElements_Command,
+        // no arguments--indicates end of Elements list
+        kElementsComplete_Command,
         // String typeName, SymbolTable symbols, int32[] values
         kEnum_Command,
         // uint16 id, String name
