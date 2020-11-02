@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "794f4cee_0345a768",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-11-02T22:07:59Z",
+      "side": 1,
+      "message": "Leon,\n\nPatchset 1 is the failed CL as-is. Patchset 2 is the fix that you suggested.\n\nThank you!",
+      "revId": "8e588089018e5c0322a7bf6aa69edf5941282cc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
