@@ -752,6 +752,9 @@ protected:
             case Type::kFromGenerator:
                 name += "_imggen";
                 break;
+            case Type::kFromTexturesCopyToExternal:
+                name += "_fromtextureswithcopy";
+                break;
         }
 
         return name;
@@ -807,8 +810,9 @@ protected:
                                                          resultBMs,
                                                          numPlanes);
                     auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
-
+                    SkDebugf(" create o:%d, cs:%d, f:%d -- ", opaque, cs, f);
                     fImages[opaque][cs][format] = lazyYUV->refImage(dContext, fImageType);
+                    SkDebugf("%d\n", (bool)fImages[opaque][cs][format]);
                 }
             }
         }
@@ -850,6 +854,7 @@ protected:
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j <= kLastEnum_SkYUVColorSpace; ++j) {
                 for (int k = 0; k <= kLast_YUVFormat; ++k) {
+                    SkDebugf(" destroy o:%d, cs:%d, f:%d -- ", i, j, k);
                     fImages[i][j][k] = nullptr;
                 }
             }
@@ -904,6 +909,7 @@ protected:
                             fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace, direct);
                         canvas->drawImageRect(csImage, srcRect, dstRect, &paint, constraint);
                     } else {
+                        SkDebugf(" draw o:%d, cs:%d, f:%d\n", opaque, cs, format);
                         canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
                                               &paint, constraint);
                     }
@@ -913,6 +919,7 @@ protected:
                 dstRect.offset(cellWidth + kPad, 0.f);
             }
         }
+        SkDebugf("finished drawing\n");
     }
 
 private:
@@ -943,6 +950,9 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::Type::kFromPixmaps);)
+DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
+                                    /* subset */ false,
+                                    WackyYUVFormatsGM::Type::kFromTexturesCopyToExternal);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:
