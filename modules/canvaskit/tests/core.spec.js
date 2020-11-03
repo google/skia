@@ -882,7 +882,7 @@ describe('Core canvas behavior', () => {
             const colorSpace = CanvasKit.ColorSpace.SRGB;
             const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.SRGB);
             expect(surface).toBeTruthy('Could not make surface');
-            let info = surface.imageInfo()
+            let info = surface.imageInfo();
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_8888);
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
@@ -900,7 +900,7 @@ describe('Core canvas behavior', () => {
                 console.log('Not expecting color space support in cpu backed suface.');
                 return;
             }
-            let info = surface.imageInfo()
+            let info = surface.imageInfo();
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
@@ -918,7 +918,7 @@ describe('Core canvas behavior', () => {
                 console.log('Not expecting color space support in cpu backed suface.');
                 return;
             }
-            let info = surface.imageInfo()
+            let info = surface.imageInfo();
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
@@ -1036,4 +1036,26 @@ describe('Core canvas behavior', () => {
             expect(expected[i]).toBeCloseTo(actual[i], 5, `element ${i}`);
         }
     }
+
+    it('can create a RasterDirectSurface', () => {
+        // Make enough space for a 5x5 8888 surface (4 bytes for R, G, B, A)
+        const rdsData = CanvasKit.Malloc(Uint8Array, 5 * 5 * 4);
+        const surface = CanvasKit.MakeRasterDirectSurface({
+            'width': 5,
+            'height': 5,
+            'colorType': CanvasKit.ColorType.RGBA_8888,
+            'alphaType': CanvasKit.AlphaType.Premul,
+            'colorSpace': CanvasKit.ColorSpace.SRGB,
+        }, rdsData, 5 * 4);
+
+        surface.getCanvas().clear(CanvasKit.Color(200, 100, 0, 0.8));
+        const pixels = rdsData.toTypedArray();
+        // Check that the first pixels colors are right.
+        expect(pixels[0]).toEqual(160); // red (premul, 0.8 * 200)
+        expect(pixels[1]).toEqual(80); // green (premul, 0.8 * 100)
+        expect(pixels[2]).toEqual(0); // blue (premul, not that it matters)
+        expect(pixels[3]).toEqual(204); // alpha (0.8 * 255)
+        surface.delete();
+        CanvasKit.Free(rdsData);
+    });
 });
