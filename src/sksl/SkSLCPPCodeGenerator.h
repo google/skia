@@ -59,7 +59,9 @@ private:
 
     void writeFunction(const FunctionDefinition& f) override;
 
-    void writeFunctionPrototype(const FunctionDefinition& f);
+    void prepareHelperFunction(const FunctionDeclaration& decl);
+
+    void prototypeHelperFunction(const FunctionDeclaration& decl);
 
     void writeSetting(const Setting& s) override;
 
