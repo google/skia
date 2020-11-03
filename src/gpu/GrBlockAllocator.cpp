@@ -23,7 +23,7 @@ GrBlockAllocator::GrBlockAllocator(GrowthPolicy policy, size_t blockIncrementByt
         , fN1(1)
         // The head block always fills remaining space from GrBlockAllocator's size, because it's
         // inline, but can take over the specified number of bytes immediately after it.
-        , fHead(nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
+        , fHead(/*prev=*/nullptr, additionalPreallocBytes + BaseHeadBlockSize()) {
     SkASSERT(fBlockIncrement >= 1);
     SkASSERT(additionalPreallocBytes <= kMaxAllocationSize);
 }
@@ -37,9 +37,13 @@ GrBlockAllocator::Block::Block(Block* prev, int allocationSize)
          , fAllocatorMetadata(0) {
     SkASSERT(allocationSize >= (int) sizeof(Block));
     SkDEBUGCODE(fSentinel = kAssignedMarker;)
+
+    this->poisonRange(kDataStart, fSize);
 }
 
 GrBlockAllocator::Block::~Block() {
+    this->unpoisonRange(kDataStart, fSize);
+
     SkASSERT(fSentinel == kAssignedMarker);
     SkDEBUGCODE(fSentinel = kFreedMarker;) // FWIW
 }
@@ -94,6 +98,7 @@ void GrBlockAllocator::releaseBlock(Block* block) {
         // Reset the cursor of the head block so that it can be reused if it becomes the new tail
         block->fCursor = kDataStart;
         block->fMetadata = 0;
+        block->poisonRange(kDataStart, block->fSize);
         // Unlike in reset(), we don't set the head's next block to null because there are
         // potentially heap-allocated blocks that are still connected to it.
     } else {
@@ -168,6 +173,7 @@ void GrBlockAllocator::reset() {
             // For reset(), but NOT releaseBlock(), the head allocatorMetadata and scratch block
             // are reset/destroyed.
             b->fAllocatorMetadata = 0;
+            b->poisonRange(kDataStart, b->fSize);
             this->resetScratchSpace();
         } else {
             delete b;
