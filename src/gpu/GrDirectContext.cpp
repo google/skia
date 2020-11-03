@@ -106,8 +106,7 @@ void GrDirectContext::abandonContext() {
 
     fResourceProvider->abandon();
 
-    // abandon first to so destructors
-    // don't try to free the resources in the API.
+    // abandon first so destructors don't try to free the resources in the API.
     fResourceCache->abandonAll();
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
