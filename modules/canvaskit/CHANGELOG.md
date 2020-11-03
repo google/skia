@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `CanvasKit.Shader`.
  - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels.
  - `getLineMetrics` to Paragraph.
- - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass the paint.
+ - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass 
+   the paint.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
@@ -23,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.Shader.Blend`, `...Color`, and `...Lerp` have been renamed to
    `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to align with naming conventions.
    The old names will be removed in an upcoming release.
+ - `readPixels` now takes a malloc'd object as the last parameter. If provided, the data will be 
+    copied into there instead of allocating a new buffer.
 
 ### Removed
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.

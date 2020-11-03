@@ -920,7 +920,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
   };
 
-  CanvasKit.Image.prototype.readPixels = function(imageInfo, srcX, srcY) {
+  CanvasKit.Image.prototype.readPixels = function(imageInfo, srcX, srcY, destMallocObj) {
     var rowBytes;
     // Important to use ['string'] notation here, otherwise the closure compiler will
     // minify away the colorType.
@@ -936,11 +936,24 @@ CanvasKit.onRuntimeInitialized = function() {
         return;
     }
     var pBytes = rowBytes * imageInfo.height;
-    var pPtr = CanvasKit._malloc(pBytes);
+    var pPtr;
+    if (destMallocObj) {
+      pPtr = destMallocObj['byteOffset'];
+    } else {
+      pPtr = CanvasKit._malloc(pBytes);
+    }
 
     if (!this._readPixels(imageInfo, pPtr, rowBytes, srcX, srcY)) {
       Debug('Could not read pixels with the given inputs');
+      if (!destMallocObj) {
+        CanvasKit._free(pPtr);
+      }
       return null;
+    }
+
+    // If the user provided us a buffer to copy into, we don't need to allocate a new TypedArray.
+    if (destMallocObj) {
+      return destMallocObj['toTypedArray'](); // Return the typed array wrapper w/o allocating.
     }
 
     // Put those pixels into a typed array of the right format and then
@@ -1163,9 +1176,10 @@ CanvasKit.onRuntimeInitialized = function() {
     return rv;
   };
 
-  // returns Uint8Array
+  // TODO(kjlubick) align this API with Image.readPixels
   CanvasKit.Canvas.prototype.readPixels = function(x, y, w, h, alphaType,
-                                                     colorType, colorSpace, dstRowBytes) {
+                                                   colorType, colorSpace, dstRowBytes,
+                                                   destMallocObj) {
     // supply defaults (which are compatible with HTMLCanvas's getImageData)
     alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
     colorType = colorType || CanvasKit.ColorType.RGBA_8888;
@@ -1176,24 +1190,37 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     dstRowBytes = dstRowBytes || (pixBytes * w);
 
-    var len = h * dstRowBytes
-    var pptr = CanvasKit._malloc(len);
+    var len = h * dstRowBytes;
+    var pPtr;
+    if (destMallocObj) {
+      pPtr = destMallocObj['byteOffset'];
+    } else {
+      pPtr = CanvasKit._malloc(len);
+    }
+
     var ok = this._readPixels({
       'width': w,
       'height': h,
       'colorType': colorType,
       'alphaType': alphaType,
       'colorSpace': colorSpace,
-    }, pptr, dstRowBytes, x, y);
+    }, pPtr, dstRowBytes, x, y);
     if (!ok) {
-      CanvasKit._free(pptr);
+      if (!destMallocObj) {
+        CanvasKit._free(pPtr);
+      }
       return null;
+    }
+
+    // If the user provided us a buffer to copy into, we don't need to allocate a new TypedArray.
+    if (destMallocObj) {
+      return destMallocObj['toTypedArray'](); // Return the typed array wrapper w/o allocating.
     }
 
     // The first typed array is just a view into memory. Because we will
     // be free-ing that, we call slice to make a persistent copy.
-    var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pptr, len).slice();
-    CanvasKit._free(pptr);
+    var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pPtr, len).slice();
+    CanvasKit._free(pPtr);
     return pixels;
   };
 
