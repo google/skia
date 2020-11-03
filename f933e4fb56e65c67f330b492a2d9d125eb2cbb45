@@ -34,6 +34,24 @@
       "parentUuid": "ae21747f_684259a6",
       "revId": "f933e4fb56e65c67f330b492a2d9d125eb2cbb45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41adaedd_62a44b3f",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-11-03T04:18:39Z",
+      "side": 1,
+      "message": "It\u0027s probably fine as is.  Sorry for the naive drive-by, and thanks for the explanation.",
+      "parentUuid": "666f4aad_d8ab1b5a",
+      "revId": "f933e4fb56e65c67f330b492a2d9d125eb2cbb45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
