@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97cb556b_b1654f27",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T19:28:36Z",
+      "side": 1,
+      "message": "If this is bytes-per-colortype, it will need to be computed/looked-up, based on imageInfo. In that case we don\u0027t need the \u0027* 4\u0027 part of the computation.\n\nNote, not all colorTypes have 4 components (e.g. Alpha8 or RGB565)",
+      "range": {
+        "startLine": 68,
+        "startChar": 41,
+        "endLine": 68,
+        "endChar": 58
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5950e53_45beb369",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T19:28:36Z",
+      "side": 1,
+      "message": "On the C++ side, we take this explicitly as another parameter from the client:\n\nImageInfo\nPointer\nBytesPerRow\n\nThis allows the caller to decide if they want \u0027packed\u0027 rows (i.e. just enough room for width-pixels) or extra space per-row (perhaps to round up to some other multiple).",
+      "range": {
+        "startLine": 70,
+        "startChar": 78,
+        "endLine": 70,
+        "endChar": 89
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
