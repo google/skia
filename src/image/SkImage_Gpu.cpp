@@ -210,10 +210,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
                                                   sk_sp<SkColorSpace> cs,
                                                   TextureReleaseProc releaseP,
                                                   ReleaseContext releaseC) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseP) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
-    }
+    auto releaseHelper = GrRefCntedCallback::Make(releaseP, releaseC);
 
     if (!rContext) {
         return nullptr;
@@ -244,10 +241,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
                                         TextureReleaseProc releaseP, ReleaseContext releaseC) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (releaseP) {
-        releaseHelper.reset(new GrRefCntedCallback(releaseP, releaseC));
-    }
+    auto releaseHelper = GrRefCntedCallback::Make(releaseP, releaseC);
 
     if (!rContext) {
         return nullptr;
@@ -417,14 +411,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
         ReleaseContext yuvaReleaseContext,
         TextureReleaseProc rgbaReleaseProc,
         ReleaseContext rgbaReleaseContext) {
-    sk_sp<GrRefCntedCallback> yuvaReleaseHelper;
-    if (yuvaReleaseProc) {
-        yuvaReleaseHelper.reset(new GrRefCntedCallback(yuvaReleaseProc, yuvaReleaseContext));
-    }
-    sk_sp<GrRefCntedCallback> rgbaReleaseHelper;
-    if (rgbaReleaseProc) {
-        rgbaReleaseHelper.reset(new GrRefCntedCallback(rgbaReleaseProc, rgbaReleaseContext));
-    }
+    auto yuvaReleaseHelper = GrRefCntedCallback::Make(yuvaReleaseProc, yuvaReleaseContext);
+    auto rgbaReleaseHelper = GrRefCntedCallback::Make(rgbaReleaseProc, rgbaReleaseContext);
 
     SkYUVAIndex yuvaIndices[4];
     int numTextures;
@@ -480,10 +468,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
         sk_sp<SkColorSpace> imageColorSpace,
         TextureReleaseProc textureReleaseProc,
         ReleaseContext releaseContext) {
-    sk_sp<GrRefCntedCallback> releaseHelper;
-    if (textureReleaseProc) {
-        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
-    }
+    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
 
     SkYUVAIndex yuvaIndices[4] = {
             SkYUVAIndex{0, get_single_channel(nv12Textures[0])},
@@ -719,8 +704,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
     }
     SkASSERT(deleteImageProc);
 
-    sk_sp<GrRefCntedCallback> releaseHelper(new GrRefCntedCallback(deleteImageProc,
-                                                                   deleteImageCtx));
+    auto releaseHelper = GrRefCntedCallback::Make(deleteImageProc, deleteImageCtx);
 
     SkColorType colorType =
             GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);

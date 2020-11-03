@@ -274,9 +274,7 @@ void GrMtlGpu::checkForFinishedCommandBuffers() {
 void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    sk_sp<GrRefCntedCallback> finishedCallback(
-            new GrRefCntedCallback(finishedProc, finishedContext));
-    this->addFinishedCallback(std::move(finishedCallback));
+    this->addFinishedCallback(GrRefCntedCallback::Make(finishedProc, finishedContext));
 }
 
 void GrMtlGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
