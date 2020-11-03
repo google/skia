@@ -55,6 +55,8 @@ private:
 
     void writeSwitchStatement(const SwitchStatement& s) override;
 
+    String getSampleVarName(const char* prefix, int sampleCounter);
+
     void writeFunctionCall(const FunctionCall& c) override;
 
     void writeFunction(const FunctionDefinition& f) override;
@@ -151,6 +153,9 @@ private:
 
     // True while compiling the main() function of the FP.
     bool fInMain = false;
+
+    // Gives unique but predictable names to invocations of sample().
+    int fSampleCounter = 0;
 
     // Keeps track of how main() returns a color to the caller. An FP file cannot mix return types.
     ReturnType fReturnType = ReturnType::kNothing;

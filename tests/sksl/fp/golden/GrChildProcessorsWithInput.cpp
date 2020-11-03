@@ -23,20 +23,20 @@ public:
         fragBuilder->codeAppendf(
 R"SkSL(half4 childIn = %s;)SkSL"
 , args.fUniformHandler->getUniformCStr(colorVar));
-        SkString _input150("childIn");
-        SkString _sample150 = this->invokeChild(0, _input150.c_str(), args);
+        SkString _input0("childIn");
+        SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
         fragBuilder->codeAppendf(
 R"SkSL(
 half4 childOut1 = %s;)SkSL"
-, _sample150.c_str());
-        SkString _input197("childOut1");
-        SkString _sample197 = this->invokeChild(1, _input197.c_str(), args);
+, _sample0.c_str());
+        SkString _input1("childOut1");
+        SkString _sample1 = this->invokeChild(1, _input1.c_str(), args);
         fragBuilder->codeAppendf(
 R"SkSL(
 half4 childOut2 = %s;
 %s = childOut2;
 )SkSL"
-, _sample197.c_str(), args.fOutputColor);
+, _sample1.c_str(), args.fOutputColor);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

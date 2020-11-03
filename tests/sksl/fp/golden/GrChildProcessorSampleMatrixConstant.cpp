@@ -19,11 +19,11 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrChildProcessorSampleMatrixConstant& _outer = args.fFp.cast<GrChildProcessorSampleMatrixConstant>();
         (void) _outer;
-        SkString _sample68 = this->invokeChildWithMatrix(0, args);
+        SkString _sample0 = this->invokeChildWithMatrix(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s;
 )SkSL"
-, args.fOutputColor, _sample68.c_str());
+, args.fOutputColor, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

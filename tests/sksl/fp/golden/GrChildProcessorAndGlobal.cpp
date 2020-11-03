@@ -24,7 +24,7 @@ hasCap = sk_Caps.externalTextureSupport;
 R"SkSL(bool hasCap = %s;
 if (hasCap) {)SkSL"
 , (hasCap ? "true" : "false"));
-        SkString _sample135 = this->invokeChild(0, args);
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(
     %s = %s;
@@ -32,7 +32,7 @@ R"SkSL(
     %s = half4(1.0);
 }
 )SkSL"
-, args.fOutputColor, _sample135.c_str(), args.fOutputColor);
+, args.fOutputColor, _sample0.c_str(), args.fOutputColor);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

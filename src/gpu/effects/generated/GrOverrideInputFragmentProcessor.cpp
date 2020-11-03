@@ -35,17 +35,17 @@ public:
             uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
-        SkString _input1853 = SkStringPrintf(
+        SkString _input0 = SkStringPrintf(
                 "%s ? %s : half4(%f, %f, %f, %f)", (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
-        SkString _sample1853 = this->invokeChild(0, _input1853.c_str(), args);
+        SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(return %s;
 )SkSL",
-                _sample1853.c_str());
+                _sample0.c_str());
     }
 
 private:

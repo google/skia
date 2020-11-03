@@ -60,13 +60,13 @@ half alpha;
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
                 args.fUniformHandler->getUniformCStr(rectUniformVar), (int)_outer.edgeType,
                 (int)_outer.edgeType);
-        SkString _sample1678 = this->invokeChild(0, args);
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
 %s = inputColor * alpha;
 )SkSL",
-                _sample1678.c_str(), args.fOutputColor);
+                _sample0.c_str(), args.fOutputColor);
     }
 
 private:

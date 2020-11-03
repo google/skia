@@ -30,7 +30,7 @@ public:
         (void)makePremul;
         auto colorsAreOpaque = _outer.colorsAreOpaque;
         (void)colorsAreOpaque;
-        SkString _sample454 = this->invokeChild(1, args);
+        SkString _sample0 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 t = %s;
 if (!%s && t.y < 0.0) {
@@ -47,18 +47,18 @@ if (!%s && t.y < 0.0) {
         t.x = fract(t.x);
     }
     @if (!%s) {)SkSL",
-                _sample454.c_str(),
+                _sample0.c_str(),
                 (_outer.childProcessor(1)->preservesOpaqueInput() ? "true" : "false"),
                 (_outer.mirror ? "true" : "false"), (_outer.makePremul ? "true" : "false"));
-        SkString _coords1470("float2(half2(t.x, 0.0))");
-        SkString _sample1470 = this->invokeChild(0, args, _coords1470.c_str());
+        SkString _coords1("float2(half2(t.x, 0.0))");
+        SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
         return %s;
     } else {)SkSL",
-                _sample1470.c_str());
-        SkString _coords1541("float2(half2(t.x, 0.0))");
-        SkString _sample1541 = this->invokeChild(0, args, _coords1541.c_str());
+                _sample1.c_str());
+        SkString _coords2("float2(half2(t.x, 0.0))");
+        SkString _sample2 = this->invokeChild(0, args, _coords2.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
         half4 outColor = %s;
@@ -66,7 +66,7 @@ if (!%s && t.y < 0.0) {
     }
 }
 )SkSL",
-                _sample1541.c_str());
+                _sample2.c_str());
     }
 
 private:

@@ -70,13 +70,13 @@ if (delta.x < 2.0 && delta.y < 2.0) {
                 args.fUniformHandler->getUniformCStr(boundsUniformVar),
                 args.fUniformHandler->getUniformCStr(xInvInsetVar),
                 args.fUniformHandler->getUniformCStr(yInvInsetVar));
-        SkString _coords1037 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
-        SkString _sample1037 = this->invokeChild(0, args, _coords1037.c_str());
+        SkString _coords0 = SkStringPrintf("mix(%s, zoom_coord, weight)", args.fSampleCoord);
+        SkString _sample0 = this->invokeChild(0, args, _coords0.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 return %s;
 )SkSL",
-                _sample1037.c_str());
+                _sample0.c_str());
     }
 
 private:

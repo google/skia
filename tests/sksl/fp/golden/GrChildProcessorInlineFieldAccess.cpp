@@ -22,7 +22,7 @@ public:
         fragBuilder->codeAppendf(
 R"SkSL(if (%s) {)SkSL"
 , (_outer.childProcessor(0)->preservesOpaqueInput() ? "true" : "false"));
-        SkString _sample109 = this->invokeChild(0, args);
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(
     %s = %s;
@@ -30,7 +30,7 @@ R"SkSL(
     %s = half4(1.0);
 }
 )SkSL"
-, args.fOutputColor, _sample109.c_str(), args.fOutputColor);
+, args.fOutputColor, _sample0.c_str(), args.fOutputColor);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

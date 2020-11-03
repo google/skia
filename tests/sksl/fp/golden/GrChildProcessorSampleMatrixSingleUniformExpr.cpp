@@ -20,12 +20,12 @@ public:
         const GrChildProcessorSampleMatrixSingleUniformExpr& _outer = args.fFp.cast<GrChildProcessorSampleMatrixSingleUniformExpr>();
         (void) _outer;
         matrixVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "matrix");
-        SkString _matrix93 = SkStringPrintf("0.5 * %s", args.fUniformHandler->getUniformCStr(matrixVar));
-        SkString _sample93 = this->invokeChildWithMatrix(0, args, _matrix93.c_str());
+        SkString _matrix0 = SkStringPrintf("0.5 * %s", args.fUniformHandler->getUniformCStr(matrixVar));
+        SkString _sample0 = this->invokeChildWithMatrix(0, args, _matrix0.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s;
 )SkSL"
-, args.fOutputColor, _sample93.c_str());
+, args.fOutputColor, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
