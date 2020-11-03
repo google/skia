@@ -12,6 +12,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
 #include <climits>
+#include <cstring>
 #include <limits>
 #include <memory>
 
@@ -42,10 +43,24 @@ public:
         *this->chunkFor(index) |= ChunkMaskFor(index);
     }
 
-    /** Set the value of the index-th bit to false.  */
+    /** Sets every bit in the bitset to true. */
+    void set() {
+        Chunk* chunks = fChunks.get();
+        const size_t numChunks = NumChunksFor(fSize);
+        std::memset(chunks, 0xFF, sizeof(Chunk) * numChunks);
+    }
+
+    /** Set the value of the index-th bit to false. */
     void reset(size_t index) {
         SkASSERT(index < fSize);
         *this->chunkFor(index) &= ~ChunkMaskFor(index);
+    }
+
+    /** Sets every bit in the bitset to false. */
+    void reset() {
+        Chunk* chunks = fChunks.get();
+        const size_t numChunks = NumChunksFor(fSize);
+        std::memset(chunks, 0, sizeof(Chunk) * numChunks);
     }
 
     bool test(size_t index) const {
