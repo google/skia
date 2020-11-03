@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a01cdba_afc75183",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T19:13:00Z",
+      "side": 1,
+      "message": "Yeah, I figured it was recursive along those lines. But yeah, this is easier to follow.",
+      "revId": "59e1e3b0fe73a42595a613ab465fd07a8d69dd27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
