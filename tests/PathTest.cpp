@@ -5737,8 +5737,61 @@ static void test_addRect_and_trailing_lineTo(skiatest::Reporter* reporter) {
     });
 }
 
+/*
+ *  SkPath allows the caller to "skip" calling moveTo for contours. If lineTo (or a curve) is
+ *  called on an empty path, a 'moveTo(0,0)' will automatically be injected. If the path is
+ *  not empty, but its last contour has been "closed", then it will inject a moveTo corresponding
+ *  to where the last contour itself started (i.e. it's moveTo).
+ *
+ *  This test exercises this in a particular case:
+ *      path.moveTo(...)
+ *      path.addRect(...)
+ *      // at this point, the path's verbs are: M M L L L C
+ *      path.ineTo(...)
+ *      // after lineTo,  the path's verbs are: M M L L L C M L
+ *
+ *      The initial moveTo() is needed to show the bug...
+ */
+static void test_addPath_and_lineTo(skiatest::Reporter* reporter) {
+    /*
+     *  Given a path, and the expected last-point and last-move-to in it,
+     *  assert that, after a lineTo(), that the injected moveTo corresponds
+     *  to the expected value.
+     */
+    auto test_before_after_lineto = [reporter](SkPath& path,
+                                               SkPoint expectedLastPt,
+                                               SkPoint expectedMoveTo) {
+        SkPoint p = path.getPoint(path.countPoints() - 1);
+        REPORTER_ASSERT(reporter, p == expectedLastPt);
+
+        const SkPoint newLineTo = {1234, 5678};
+        path.lineTo(newLineTo);
+
+        p = path.getPoint(path.countPoints() - 2);
+        REPORTER_ASSERT(reporter, p == expectedMoveTo); // this was injected by lineTo()
+
+        p = path.getPoint(path.countPoints() - 1);
+        REPORTER_ASSERT(reporter, p == newLineTo);
+    };
+
+    SkPath path1;
+    SkPath path2;
+    const SkRect rect = {20, 30, 40, 50};
+
+    path1.moveTo(230, 230); // Needed to show the bug: a moveTo before the addRect
+
+    path1.addRect(rect);    // produces: M:20,30  L:40,30  L:40,50  L:20,50  C
+
+    path2.addPath(path1);   // this must correctly update it's "last-move-to" so that when
+                            // lineTo is called, it will inject the correct moveTo.
+
+    // at this point, path1 and path2 should be the same...
+
+    test_before_after_lineto(path1, {20,50}, {20,30});
+    test_before_after_lineto(path2, {20,50}, {20,30});
+}
+
 DEF_TEST(pathedger, r) {
-    test_addRect_and_trailing_lineTo(r); return;
     auto M = SkPath::kMove_Verb;
     auto L = SkPath::kLine_Verb;
     auto C = SkPath::kClose_Verb;
@@ -5753,4 +5806,7 @@ DEF_TEST(pathedger, r) {
     test_edger(r, { M, L, L, C }, { L, L, L });
 
     test_edger(r, { M, L, L, M, L, L }, { L, L, L,   L, L, L });
+
+    test_addRect_and_trailing_lineTo(r);
+    test_addPath_and_lineTo(r);
 }
