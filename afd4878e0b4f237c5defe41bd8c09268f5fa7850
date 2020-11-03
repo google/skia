@@ -204,6 +204,30 @@
       },
       "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "074223d7_e3dcb958",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T19:09:38Z",
+      "side": 1,
+      "message": "This resize() isn\u0027t resizing the block. It resizes an allocation that the block allocator had returned previously. We do have a GrBlockAllocatorResize unit test in GrBlockAllocatorTest, but the tests don\u0027t touch the bytes within the byte reservations. That would probably be a good update to them.",
+      "parentUuid": "84a1ca74_873f6542",
+      "range": {
+        "startLine": 648,
+        "startChar": 8,
+        "endLine": 651,
+        "endChar": 9
+      },
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
