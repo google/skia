@@ -18,11 +18,11 @@
 #define FOURCC(c1, c2, c3, c4) \
     ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))
 
-std::optional<SkEncodedImageFormat> SkHeifCodec::IsSupported(const void* buffer, size_t bytesRead) {
-    // Parse the ftyp box up to bytesRead to determine if this is HEIF or AVIF.
+bool SkHeifCodec::IsHeif(const void* buffer, size_t bytesRead) {
+    // Parse the ftyp box up to bytesRead to determine if this is HEIF.
     // Any valid ftyp box should have at least 8 bytes.
     if (bytesRead < 8) {
-        return std::nullopt;
+        return false;
     }
 
     uint32_t* ptr = (uint32_t*)buffer;
@@ -30,7 +30,7 @@ std::optional<SkEncodedImageFormat> SkHeifCodec::IsSupported(const void* buffer,
     uint32_t chunkType = SkEndian_SwapBE32(ptr[1]);
 
     if (chunkType != FOURCC('f', 't', 'y', 'p')) {
-        return std::nullopt;
+        return false;
     }
 
     int64_t offset = 8;
@@ -38,18 +38,18 @@ std::optional<SkEncodedImageFormat> SkHeifCodec::IsSupported(const void* buffer,
         // This indicates that the next 8 bytes represent the chunk size,
         // and chunk data comes after that.
         if (bytesRead < 16) {
-            return std::nullopt;
+            return false;
         }
         auto* chunkSizePtr = SkTAddOffset<const uint64_t>(buffer, offset);
         chunkSize = SkEndian_SwapBE64(*chunkSizePtr);
         if (chunkSize < 16) {
             // The smallest valid chunk is 16 bytes long in this case.
-            return std::nullopt;
+            return false;
         }
         offset += 8;
     } else if (chunkSize < 8) {
         // The smallest valid chunk is 8 bytes long.
-        return std::nullopt;
+        return false;
     }
 
     if (chunkSize > bytesRead) {
@@ -59,11 +59,10 @@ std::optional<SkEncodedImageFormat> SkHeifCodec::IsSupported(const void* buffer,
     // It should at least have major brand (4-byte) and minor version (4-bytes).
     // The rest of the chunk (if any) is a list of (4-byte) compatible brands.
     if (chunkDataSize < 8) {
-        return std::nullopt;
+        return false;
     }
 
     uint32_t numCompatibleBrands = (chunkDataSize - 8) / 4;
-    bool isHeif = false;
     for (size_t i = 0; i < numCompatibleBrands + 2; ++i) {
         if (i == 1) {
             // Skip this index, it refers to the minorVersion,
@@ -73,23 +72,11 @@ std::optional<SkEncodedImageFormat> SkHeifCodec::IsSupported(const void* buffer,
         auto* brandPtr = SkTAddOffset<const uint32_t>(buffer, offset + 4 * i);
         uint32_t brand = SkEndian_SwapBE32(*brandPtr);
         if (brand == FOURCC('m', 'i', 'f', '1') || brand == FOURCC('h', 'e', 'i', 'c')
-         || brand == FOURCC('m', 's', 'f', '1') || brand == FOURCC('h', 'e', 'v', 'c')
-         || brand == FOURCC('a', 'v', 'i', 'f') || brand == FOURCC('a', 'v', 'i', 's')) {
-            // AVIF files could have "mif1" as the major brand. So we cannot
-            // distinguish whether the image is AVIF or HEIC just based on the
-            // "mif1" brand. So wait until we see a specific avif brand to
-            // determine whether it is AVIF or HEIC.
-            isHeif = true;
-            if (brand == FOURCC('a', 'v', 'i', 'f')
-              || brand == FOURCC('a', 'v', 'i', 's')) {
-                return SkEncodedImageFormat::kAVIF;
-            }
+         || brand == FOURCC('m', 's', 'f', '1') || brand == FOURCC('h', 'e', 'v', 'c')) {
+            return true;
         }
     }
-    if (isHeif) {
-      return SkEncodedImageFormat::kHEIF;
-    }
-    return std::nullopt;
+    return false;
 }
 
 static SkEncodedOrigin get_orientation(const HeifFrameInfo& frameInfo) {
@@ -136,7 +123,7 @@ static void releaseProc(const void* ptr, void* context) {
 }
 
 std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-        SkCodec::SelectionPolicy selectionPolicy, SkEncodedImageFormat format, Result* result) {
+        SkCodec::SelectionPolicy selectionPolicy, Result* result) {
     std::unique_ptr<HeifDecoder> heifDecoder(createHeifDecoder());
     if (heifDecoder == nullptr) {
         *result = kInternalError;
@@ -175,21 +162,19 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
     *result = kSuccess;
     return std::unique_ptr<SkCodec>(new SkHeifCodec(
-            std::move(info), heifDecoder.release(), orientation, frameCount > 1, format));
+            std::move(info), heifDecoder.release(), orientation, frameCount > 1));
 }
 
 SkHeifCodec::SkHeifCodec(
         SkEncodedInfo&& info,
         HeifDecoder* heifDecoder,
         SkEncodedOrigin origin,
-        bool useAnimation,
-        SkEncodedImageFormat format)
+        bool useAnimation)
     : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, nullptr, origin)
     , fHeifDecoder(heifDecoder)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fUseAnimation(useAnimation)
-    , fFormat(format)
 {}
 
 bool SkHeifCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaque,
