@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccc40e6b_5d1b3a73",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cc319b5_5b1ca859",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 5
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "497a25b1_8f0d0e23",
@@ -88,6 +112,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b18d5ba_f61b68af",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "497a25b1_8f0d0e23",
+      "range": {
+        "startLine": 360,
+        "startChar": 12,
+        "endLine": 360,
+        "endChar": 54
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "778f6430_dad2ee38",
@@ -101,6 +149,30 @@
       "writtenOn": "2020-10-30T20:29:55Z",
       "side": 1,
       "message": "I don\u0027t see where these are used? Can they be removed?",
+      "range": {
+        "startLine": 60,
+        "startChar": 7,
+        "endLine": 63,
+        "endChar": 0
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "521afdaa_df539bb7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "kMaskTypeCount will be used in static asserts for the bitfield packing, but I\u0027ll remove it from this CL and add in that one instead so the dependency is clearer.",
+      "parentUuid": "778f6430_dad2ee38",
       "range": {
         "startLine": 60,
         "startChar": 7,
@@ -158,6 +230,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17921508_e6214b19",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ec29260_6e94823e",
+      "range": {
+        "startLine": 64,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 51
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a20f90ab_447a9caa",
@@ -181,6 +277,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbef21ea_959e62e5",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "Done, but we do need GrAtlasTextOp::; it\u0027s just a static function in GrTextBlob.",
+      "parentUuid": "a20f90ab_447a9caa",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 78
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87c1b8f1_0a65b029",
@@ -194,6 +314,30 @@
       "writtenOn": "2020-11-02T14:17:34Z",
       "side": 1,
       "message": "rm and put \"SkUNREACHABLE;\" after line 75?",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 68
+      },
+      "revId": "282f0311f3b0f50fad438ef73cb42b24b7d23c10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "211b6dfd_1fa00c98",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T16:04:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87c1b8f1_0a65b029",
       "range": {
         "startLine": 73,
         "startChar": 0,
