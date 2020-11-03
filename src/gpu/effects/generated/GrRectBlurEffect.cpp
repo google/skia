@@ -70,14 +70,14 @@ float2 pos = sk_FragCoord.xy;
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
-        SkString _coords8395("float2(half2(xy.x, 0.5))");
-        SkString _sample8395 = this->invokeChild(1, args, _coords8395.c_str());
+        SkString _coords0("float2(half2(xy.x, 0.5))");
+        SkString _sample0 = this->invokeChild(1, args, _coords0.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     xCoverage = %s.w;)SkSL",
-                _sample8395.c_str());
-        SkString _coords8453("float2(half2(xy.y, 0.5))");
-        SkString _sample8453 = this->invokeChild(1, args, _coords8453.c_str());
+                _sample0.c_str());
+        SkString _coords1("float2(half2(xy.y, 0.5))");
+        SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     yCoverage = %s.w;
@@ -90,35 +90,35 @@ float2 pos = sk_FragCoord.xy;
         rect.xy = half2(float2(%s.xy) - pos);
         rect.zw = half2(pos - float2(%s.zw));
     })SkSL",
-                _sample8453.c_str(),
+                _sample1.c_str(),
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectFVar.isValid() ? args.fUniformHandler->getUniformCStr(rectFVar) : "float4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)",
                 rectHVar.isValid() ? args.fUniformHandler->getUniformCStr(rectHVar) : "half4(0)");
-        SkString _coords9772("float2(half2(rect.x, 0.5))");
-        SkString _sample9772 = this->invokeChild(1, args, _coords9772.c_str());
-        SkString _coords9835("float2(half2(rect.z, 0.5))");
-        SkString _sample9835 = this->invokeChild(1, args, _coords9835.c_str());
+        SkString _coords2("float2(half2(rect.x, 0.5))");
+        SkString _sample2 = this->invokeChild(1, args, _coords2.c_str());
+        SkString _coords3("float2(half2(rect.z, 0.5))");
+        SkString _sample3 = this->invokeChild(1, args, _coords3.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     xCoverage = (1.0 - %s.w) - %s.w;)SkSL",
-                _sample9772.c_str(), _sample9835.c_str());
-        SkString _coords9899("float2(half2(rect.y, 0.5))");
-        SkString _sample9899 = this->invokeChild(1, args, _coords9899.c_str());
-        SkString _coords9962("float2(half2(rect.w, 0.5))");
-        SkString _sample9962 = this->invokeChild(1, args, _coords9962.c_str());
+                _sample2.c_str(), _sample3.c_str());
+        SkString _coords4("float2(half2(rect.y, 0.5))");
+        SkString _sample4 = this->invokeChild(1, args, _coords4.c_str());
+        SkString _coords5("float2(half2(rect.w, 0.5))");
+        SkString _sample5 = this->invokeChild(1, args, _coords5.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     yCoverage = (1.0 - %s.w) - %s.w;
 })SkSL",
-                _sample9899.c_str(), _sample9962.c_str());
-        SkString _sample10031 = this->invokeChild(0, args);
+                _sample4.c_str(), _sample5.c_str());
+        SkString _sample6 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;
 %s = (inputColor * xCoverage) * yCoverage;
 )SkSL",
-                _sample10031.c_str(), args.fOutputColor);
+                _sample6.c_str(), args.fOutputColor);
     }
 
 private:

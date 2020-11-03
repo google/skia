@@ -23,19 +23,19 @@ public:
         fragBuilder->codeAppendf(
 R"SkSL(float3x3 matrix = float3x3(float(%s.w));)SkSL"
 , args.fUniformHandler->getUniformCStr(colorVar));
-        SkString _matrix142("matrix");
-        SkString _sample142 = this->invokeChildWithMatrix(0, args, _matrix142.c_str());
+        SkString _matrix0("matrix");
+        SkString _sample0 = this->invokeChildWithMatrix(0, args, _matrix0.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(
 %s = %s;)SkSL"
-, args.fOutputColor, _sample142.c_str());
-        SkString _coords183 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
-        SkString _sample183 = this->invokeChild(0, args, _coords183.c_str());
+, args.fOutputColor, _sample0.c_str());
+        SkString _coords1 = SkStringPrintf("%s / 2.0", args.fSampleCoord);
+        SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(
 %s = %s;
 )SkSL"
-, args.fOutputColor, _sample183.c_str());
+, args.fOutputColor, _sample1.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
