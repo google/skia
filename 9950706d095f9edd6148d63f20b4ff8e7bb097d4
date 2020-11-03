@@ -36,6 +36,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "669bb4fe_2466b34b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-03T15:43:27Z",
+      "side": 1,
+      "message": "Ok, I think you\u0027ve convinced present me it works, but it would be nice to also convince future me.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9000e36_af4db93b",
@@ -73,6 +90,30 @@
       "side": 1,
       "message": "Maybe I should make this class more explicitly state that it is only used for the direct case. The transformed cases will likely stay in floats. That way I can make sure up the stack that x and y will never cause an overflow.",
       "parentUuid": "c9000e36_af4db93b",
+      "range": {
+        "startLine": 203,
+        "startChar": 33,
+        "endLine": 203,
+        "endChar": 34
+      },
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf67256d_569a31df",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-03T15:43:27Z",
+      "side": 1,
+      "message": "Yeah, the other parts of this class avoid overflow or at least check it in debug. In this case the \u0027+\u0027 here isn\u0027t doing that. In the one place we\u0027re calling \u0027offset\u0027 in this CL the call is guarded externally to prevent overflow, but outside the context of this CL it isn\u0027t super obvious that the int16_t used to calculate the value of kMaxPos is the same int16_t used by Storage.",
+      "parentUuid": "ef9ec90a_e6e29ccc",
       "range": {
         "startLine": 203,
         "startChar": 33,
@@ -149,6 +190,46 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "247f4d86_e7f808fc",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd839016_8af24f29",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-03T15:43:27Z",
+      "side": 1,
+      "message": "Maybe the check would be easier to understand if the characters \u0027SkGlyphRect\u0027 were used here. This is used as a kind of pre-condition enforcer of SkGlyphRect::offset, where overflow is defined but probably doesn\u0027t end up with the result you logically want.",
+      "range": {
+        "startLine": 490,
+        "startChar": 12,
+        "endLine": 490,
+        "endChar": 47
+      },
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b8c2742_d3ca2837",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-03T15:43:27Z",
+      "side": 1,
+      "message": "Ok, so this predicate is what is making the call to \u0027offset\u0027 below safe and avoids issues with the runBounds being accidentally \u0027empty\u0027 (an overflow causing a \u0027right\u0027 which is very negative). I suppose that the comment on kMaxPos somewhat explains this, but it would be nice if it were a little more explicit.",
       "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
