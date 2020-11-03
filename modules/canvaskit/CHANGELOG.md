@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `CanvasKit.Shader`.
  - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels
     (like peekPixels in C++).
+ - `getLineMetrics` to Paragraph.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
