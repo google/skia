@@ -1,6 +1,52 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "50f0f557_172595b5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "I expect this to outperform binary search since we\u0027ll only be checking a small number of options vs. the kitchen sink list.\n\nFor common presentation attributes we can keep the binary search if it makes sense.",
+      "range": {
+        "startLine": 32,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 24
+      },
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5878200_83b0a24b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "Arguably an advantage :)",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 35,
+        "endChar": 30
+      },
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4b3e2ddb_89a4016a",
@@ -14,6 +60,80 @@
       "writtenOn": "2020-11-02T21:03:47Z",
       "side": 1,
       "message": "@Florin I wanted to see what you thought about this as a potential direction to go. No worries if you think this isn\u0027t a good approach.",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "892f6fe6_6e80f9ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "Definitely the direction I had in mind!",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04cb45a5_63c27fe0",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "To cut boilerplate here we could just have a generic\n\n  template\u003ctypename T\u003e\n  bool parse(T*);\n\ndeclaration and then define the supported specializations in the cpp file.\n\nWhile at it, I\u0027m tempted to get rid of the out param and return a tuple or a ParseResult\u003cT\u003e thing.",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "864893f9_0877269b",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "Wonder if it would make sense to move specialized type parsing to the specific element compilation unit, and only keep generic/basic type parsing here.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d9b46b2_daaa43ca",
+        "filename": "modules/svg/src/SkSVGFeTurbulence.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:50:30Z",
+      "side": 1,
+      "message": "To avoid iterating the attributes multiple times, I think we\u0027ll want to combine this with presentation attribute parsing and some form of dynamic dispatch.\n\nAlso, I can\u0027t think of specific examples, but aren\u0027t there cases where intermediate/ancestor classes have (shared) attributes that need to be parsed too?\n\nMaybe we can keep a single iterator control loop in a central place (SkSVGDom/parsing) and have a parseAttribute() virtual on SkSVGNode - then the implementation here would be something along these lines\n\nbool parseAttribute(const char attr_name[], const char attr_value[]) override {\n    // try dispatching to ancestor classes first\n    return INHERITED::parseAttribute(attr_name, attr_value)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"numOctaves\",...)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"seed\", ...)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"type\", ...);\n}\n\nwhere Node::parseAttribute handles all the common presentation attrs.",
       "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
