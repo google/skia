@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc007ddd_7e8be8b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T16:59:27Z",
+      "side": 1,
+      "message": "This was the only shader workaround that was \"on\" in the standalone caps (except for canUseDoLoops, which has a comment explaining the rationale). I think it was just an oversight.",
+      "revId": "dd0ce351ebee0960a7a1bebc862e709c51d182ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
