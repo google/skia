@@ -217,6 +217,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "933ffdce_29c62c79",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T18:00:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd839016_8af24f29",
+      "range": {
+        "startLine": 490,
+        "startChar": 12,
+        "endLine": 490,
+        "endChar": 47
+      },
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1b8c2742_d3ca2837",
@@ -230,6 +254,24 @@
       "writtenOn": "2020-11-03T15:43:27Z",
       "side": 1,
       "message": "Ok, so this predicate is what is making the call to \u0027offset\u0027 below safe and avoids issues with the runBounds being accidentally \u0027empty\u0027 (an overflow causing a \u0027right\u0027 which is very negative). I suppose that the comment on kMaxPos somewhat explains this, but it would be nice if it were a little more explicit.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08ff6fac_064d04d8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T18:00:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b8c2742_d3ca2837",
       "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -265,6 +307,24 @@
       "side": 1,
       "message": "The translation is delayed until vertex generation. At that point the values calculated will be done in ints.",
       "parentUuid": "8e40b9db_9faf2e1d",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e91f4cea_15101af1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T18:00:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d36eb3a_d446430f",
       "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
