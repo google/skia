@@ -106,6 +106,23 @@ describe('Paragraph Behavior', function() {
             end: 26,
         });
 
+
+        const lineMetrics = paragraph.getLineMetrics();
+        expect(lineMetrics.length).toEqual(8); // 8 lines worth of metrics
+        const flm = lineMetrics[0]; // First Line Metric
+        expect(flm.startIndex).toEqual(0);
+        expect(flm.endIndex).toEqual(15);
+        expect(flm.endExcludingWhitespaces).toEqual(14);
+        expect(flm.endIncludingNewline).toEqual(15);
+        expect(flm.lineNumber).toEqual(0);
+        expect(flm.isHardBreak).toEqual(true);
+        expect(flm.ascent).toBeCloseTo(21.377, 3);
+        expect(flm.descent).toBeCloseTo(5.859, 3);
+        expect(flm.height).toBeCloseTo(27.000, 3);
+        expect(flm.width).toBeCloseTo(172.360, 3);
+        expect(flm.left).toBeCloseTo(13.818, 3);
+        expect(flm.baseline).toBeCloseTo(21.141, 3);
+
         canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
