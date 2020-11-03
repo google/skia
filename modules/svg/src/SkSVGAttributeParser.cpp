@@ -297,7 +297,7 @@ bool SkSVGAttributeParser::parseNumber(SkSVGNumberType* number) {
 }
 
 // https://www.w3.org/TR/SVG11/types.html#DataTypeInteger
-bool SkSVGAttributeParser::parseInteger(SkSVGIntegerType* number) {
+bool SkSVGAttributeParser::parse(SkSVGIntegerType* number) {
     // consume WS
     this->parseWSToken();
 
@@ -928,7 +928,7 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
     return parsedValue && this->parseEOSToken();
 }
 
-bool SkSVGAttributeParser::parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency* freq) {
+bool SkSVGAttributeParser::parse(SkSVGFeTurbulenceBaseFrequency* freq) {
     SkSVGNumberType freqX;
     if (!this->parseNumber(&freqX)) {
         return false;
@@ -945,7 +945,7 @@ bool SkSVGAttributeParser::parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseF
     return this->parseEOSToken();
 }
 
-bool SkSVGAttributeParser::parseFeTurbulenceType(SkSVGFeTurbulenceType* type) {
+bool SkSVGAttributeParser::parse(SkSVGFeTurbulenceType* type) {
     bool parsedValue = false;
 
     if (this->parseExpectedStringToken("fractalNoise")) {

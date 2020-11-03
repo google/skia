@@ -20,11 +20,13 @@ public:
     bool parseFillRule(SkSVGFillRule*);
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
-    bool parseInteger(SkSVGIntegerType*);
+    bool parse(SkSVGNumberType* n) { return parseNumber(n); }
+    bool parse(SkSVGIntegerType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parseTransform(SkSVGTransformType*);
     bool parsePaint(SkSVGPaint*);
+    bool parse(SkSVGPaint* p) { return parsePaint(p); }
     bool parseLineCap(SkSVGLineCap*);
     bool parseLineJoin(SkSVGLineJoin*);
     bool parsePoints(SkSVGPointsType*);
@@ -36,8 +38,8 @@ public:
     bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
-    bool parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency*);
-    bool parseFeTurbulenceType(SkSVGFeTurbulenceType*);
+    bool parse(SkSVGFeTurbulenceBaseFrequency*);
+    bool parse(SkSVGFeTurbulenceType*);
 
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);

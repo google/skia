@@ -7,36 +7,26 @@
 
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
+#include "src/xml/SkDOM.h"
 
-void SkSVGFeTurbulence::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-        case SkSVGAttribute::kFeTurbulenceBaseFrequency:
-            if (const auto* f = v.as<SkSVGFeTurbulenceBaseFrequencyValue>()) {
-                this->setBaseFrequency(*f);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceNumOctaves:
-            if (const auto* n = v.as<SkSVGIntegerValue>()) {
-                this->setNumOctaves(*n);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceSeed:
-            if (const auto* s = v.as<SkSVGNumberValue>()) {
-                this->setSeed(*s);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceType:
-            if (const auto* t = v.as<SkSVGFeTurbulenceTypeValue>()) {
-                this->setTurbulenceType(*t);
-            }
-            break;
-        default:
-            this->INHERITED::onSetAttribute(attr, v);
-    }
+sk_sp<SkSVGFeTurbulence> SkSVGFeTurbulence::Make(const SkDOM& xmlDom, const SkDOM::Node* xmlNode) {
+    auto res = sk_sp<SkSVGFeTurbulence>(new SkSVGFeTurbulence);
+    return res;
+}
+
+bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value) {
+    bool consumedAttribute = INHERITED::parseAndSetAttribute(name, value);
+    SVG_ATTR_PARSE_AND_SET(
+            name, value, "baseFrequency", SkSVGFeTurbulenceBaseFrequency, this->setBaseFrequency);
+    SVG_ATTR_PARSE_AND_SET(name, value, "numOctaves", SkSVGIntegerType, this->setNumOctaves);
+    SVG_ATTR_PARSE_AND_SET(name, value, "seed", SkSVGNumberType, this->setSeed);
+    SVG_ATTR_PARSE_AND_SET(name, value, "type", SkSVGFeTurbulenceType, this->setTurbulenceType);
+    return consumedAttribute;
 }
 
 sk_sp<SkImageFilter> SkSVGFeTurbulence::onMakeImageFilter(const SkSVGRenderContext& ctx,

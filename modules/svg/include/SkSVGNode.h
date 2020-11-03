@@ -80,6 +80,9 @@ public:
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
     bool setAttribute(const char* attributeName, const char* attributeValue);
 
+    // TODO: consolidate with existing setAttribute
+    virtual bool parseAndSetAttribute(const char* name, const char* value);
+
     void setClipPath(const SkSVGClip&);
     void setClipRule(const SkSVGFillRule&);
     void setColor(const SkSVGColorType&);
@@ -147,5 +150,29 @@ private:
         const attr_type& get##attr_name() const { return f##attr_name; }  \
         void set##attr_name(const attr_type& a) { f##attr_name = a; }     \
         void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); }
+
+#if defined(SK_VERBOSE_SVG_PARSING)
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value) \
+    SkDebugf("could not parse '%s=\"%s\"\n", attr_name, attr_value)
+#else
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value)
+#endif
+
+#define SVG_ATTR_PARSE_AND_SET(attr_name, str_value, svg_name, cpp_type, set_fnc) \
+    do {                                                                          \
+        if (consumedAttribute) {                                                  \
+            return consumedAttribute;                                             \
+        }                                                                         \
+        SkSVGAttributeParser parser(str_value);                                   \
+        if (strcmp(attr_name, svg_name) == 0) {                                   \
+            cpp_type parsed_value;                                                \
+            if (parser.parse(&parsed_value)) {                                    \
+                set_fnc(parsed_value);                                            \
+                consumedAttribute = true;                                         \
+            } else {                                                              \
+                SVG_ATTR_PARSE_ERR(attr_name, str_value);                         \
+            }                                                                     \
+        }                                                                         \
+    } while (0)
 
 #endif // SkSVGNode_DEFINED

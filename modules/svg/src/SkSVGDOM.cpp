@@ -142,18 +142,6 @@ bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetIntegerAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                         const char* stringValue) {
-    SkSVGIntegerType number;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseInteger(&number)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGIntegerValue(number));
-    return true;
-}
-
 bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                          const char* stringValue) {
     SkSVGViewBoxType viewBox;
@@ -360,31 +348,6 @@ bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribut
     return true;
 }
 
-bool SetFeTurbulenceBaseFrequencyAttribute(const sk_sp<SkSVGNode>& node,
-                                           SkSVGAttribute attr,
-                                           const char* stringValue) {
-    SkSVGFeTurbulenceBaseFrequency baseFreq;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFeTurbulenceBaseFrequency(&baseFreq)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFeTurbulenceBaseFrequencyValue(baseFreq));
-    return true;
-}
-
-bool SetFeTurbulenceTypeAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                                  const char* stringValue) {
-    SkSVGFeTurbulenceType type;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFeTurbulenceType(&type)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFeTurbulenceTypeValue(type));
-    return true;
-}
-
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -463,8 +426,6 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "baseFrequency"      , { SkSVGAttribute::kFeTurbulenceBaseFrequency,
-                               SetFeTurbulenceBaseFrequencyAttribute }},
     { "clip-path"          , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
     { "clip-rule"          , { SkSVGAttribute::kClipRule         , SetFillRuleAttribute     }},
     { "color"              , { SkSVGAttribute::kColor            , SetColorAttribute        }},
@@ -488,8 +449,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    ,
                                SetObjectBoundingBoxUnitsAttribute }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
-    { "numOctaves"         , { SkSVGAttribute::kFeTurbulenceNumOctaves,
-                               SetIntegerAttribute }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
     { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
@@ -499,7 +458,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
-    { "seed"               , { SkSVGAttribute::kFeTurbulenceSeed , SetNumberAttribute       }},
     { "spreadMethod"       , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
     { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
@@ -515,8 +473,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
     { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetTextAnchorAttribute   }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
-    { "type"               , { SkSVGAttribute::kFeTurbulenceType ,
-                               SetFeTurbulenceTypeAttribute }},
     { "viewBox"            , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
     { "visibility"         , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},
     { "width"              , { SkSVGAttribute::kWidth            , SetLengthAttribute       }},
@@ -529,27 +485,27 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "y2"                 , { SkSVGAttribute::kY2               , SetLengthAttribute       }},
 };
 
-SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
-    { "a"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
-    { "circle"        , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();         }},
-    { "clipPath"      , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
-    { "defs"          , []() -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
-    { "ellipse"       , []() -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
-    { "feTurbulence"  , []() -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make();   }},
-    { "filter"        , []() -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();         }},
-    { "g"             , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
-    { "line"          , []() -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
-    { "linearGradient", []() -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
-    { "path"          , []() -> sk_sp<SkSVGNode> { return SkSVGPath::Make();           }},
-    { "pattern"       , []() -> sk_sp<SkSVGNode> { return SkSVGPattern::Make();        }},
-    { "polygon"       , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();    }},
-    { "polyline"      , []() -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline();   }},
-    { "radialGradient", []() -> sk_sp<SkSVGNode> { return SkSVGRadialGradient::Make(); }},
-    { "rect"          , []() -> sk_sp<SkSVGNode> { return SkSVGRect::Make();           }},
-    { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
-    { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
-    { "text"          , []() -> sk_sp<SkSVGNode> { return SkSVGText::Make();           }},
-    { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
+SortedDictionaryEntry<sk_sp<SkSVGNode>(*)(const SkDOM&, const SkDOM::Node*)> gTagFactories[] = {
+    { "a"             , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
+    { "circle"        , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();         }},
+    { "clipPath"      , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();       }},
+    { "defs"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGDefs::Make();           }},
+    { "ellipse"       , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGEllipse::Make();        }},
+    { "feTurbulence"  , [](const SkDOM& dom, const SkDOM::Node* n) -> sk_sp<SkSVGNode> { return SkSVGFeTurbulence::Make(dom, n);}},
+    { "filter"        , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGFilter::Make();         }},
+    { "g"             , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGG::Make();              }},
+    { "line"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGLine::Make();           }},
+    { "linearGradient", [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGLinearGradient::Make(); }},
+    { "path"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGPath::Make();           }},
+    { "pattern"       , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGPattern::Make();        }},
+    { "polygon"       , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolygon();    }},
+    { "polyline"      , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGPoly::MakePolyline();   }},
+    { "radialGradient", [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGRadialGradient::Make(); }},
+    { "rect"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGRect::Make();           }},
+    { "stop"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
+    { "svg"           , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
+    { "text"          , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGText::Make();           }},
+    { "use"           , [](const SkDOM&, const SkDOM::Node*) -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
 
 struct ConstructionContext {
@@ -562,6 +518,11 @@ struct ConstructionContext {
 };
 
 bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
+    if (node->parseAndSetAttribute(name, value)) {
+        // Handled by new code path
+        return true;
+    }
+
     const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
                                       SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
                                       name, sizeof(gAttributeParseInfo[0]));
@@ -580,6 +541,7 @@ bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 #endif
         return false;
     }
+
 
     return true;
 }
@@ -625,7 +587,7 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
     }
 
     SkASSERT(SkTo<size_t>(tagIndex) < SK_ARRAY_COUNT(gTagFactories));
-    sk_sp<SkSVGNode> node = gTagFactories[tagIndex].fValue();
+    sk_sp<SkSVGNode> node = gTagFactories[tagIndex].fValue(dom, xmlNode);
     parse_node_attributes(dom, xmlNode, node, ctx.fIDMapper);
 
     ConstructionContext localCtx(ctx, node);
