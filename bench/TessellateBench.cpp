@@ -13,7 +13,7 @@
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrResolveLevelCounter.h"
-#include "src/gpu/tessellate/GrStrokePatchBuilder.h"
+#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 
@@ -143,8 +143,12 @@ public:
     class middle_out_triangulation;
 
 private:
+    void onDelayedSetup() override {
+        fTarget = std::make_unique<BenchmarkTarget>();
+    }
+
     void onDraw(int loops, SkCanvas*) final {
-        if (!fTarget.mockContext()) {
+        if (!fTarget->mockContext()) {
             SkDebugf("ERROR: could not create mock context.");
             return;
         }
@@ -160,15 +164,15 @@ private:
             // Make fStencilCubicsProgram non-null to keep assertions happy.
             fOp.fStencilCubicsProgram = (GrProgramInfo*)-1;
             fOp.fFillPathProgram = nullptr;
-            this->runBench(&fTarget, &fOp);
-            fTarget.resetAllocator();
+            this->runBench(fTarget.get(), &fOp);
+            fTarget->resetAllocator();
         }
     }
 
     virtual void runBench(GrMeshDrawOp::Target*, GrPathTessellateOp*) = 0;
 
     GrPathTessellateOp fOp;
-    BenchmarkTarget fTarget;
+    std::unique_ptr<BenchmarkTarget> fTarget;
     SkString fName;
 };
 
@@ -265,10 +269,10 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     }
 }
 
-class StrokePatchBuilderBench : public Benchmark {
+class GrStrokeTessellateOp::TestingOnly_Benchmark : public Benchmark {
 public:
-    StrokePatchBuilderBench(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
-        fName.printf("tessellate_StrokePatchBuilder%s", suffix);
+    TestingOnly_Benchmark(float matrixScale, const char* suffix) : fMatrixScale(matrixScale) {
+        fName.printf("tessellate_GrStrokeTessellateOp_prepare%s", suffix);
     }
 
 private:
@@ -276,6 +280,7 @@ private:
     bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
 
     void onDelayedSetup() override {
+        fTarget = std::make_unique<BenchmarkTarget>();
         fPath.reset().moveTo(0, 0);
         for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
             fPath.cubicTo(100, 0, 50, 100, 100, 100);
@@ -286,30 +291,24 @@ private:
     }
 
     void onDraw(int loops, SkCanvas*) final {
-        if (!fTarget.mockContext()) {
+        if (!fTarget->mockContext()) {
             SkDebugf("ERROR: could not create mock context.");
             return;
         }
         for (int i = 0; i < loops; ++i) {
-            fPatchChunks.reset();
-            // TODO: Combine GrStrokePatchBuilder with GrStrokeTessellateOp.
-            float parametricIntolerance =
-                    GrTessellationPathRenderer::kLinearizationIntolerance * fMatrixScale;
-            float numRadialSegmentsPerRadian =
-                    .5f / acosf(1 - 2/(parametricIntolerance * fStrokeRec.getWidth()));
-            GrStrokePatchBuilder builder(&fTarget, &fPatchChunks, fStrokeRec, parametricIntolerance,
-                                         numRadialSegmentsPerRadian, fPath.countVerbs());
-            builder.addPath(fPath);
+            GrStrokeTessellateOp op(GrAAType::kMSAA, SkMatrix::Scale(fMatrixScale, fMatrixScale),
+                                    fStrokeRec, fPath, GrPaint());
+            op.fTarget = fTarget.get();
+            op.prepareBuffers();
         }
     }
 
     const float fMatrixScale;
     SkString fName;
-    BenchmarkTarget fTarget;
+    std::unique_ptr<BenchmarkTarget> fTarget;
     SkPath fPath;
     SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
-    SkSTArray<8, GrStrokePatchBuilder::PatchChunk> fPatchChunks;
 };
 
-DEF_BENCH( return new StrokePatchBuilderBench(1, ""); )
-DEF_BENCH( return new StrokePatchBuilderBench(5, "_one_chop"); )
+DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
+DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
