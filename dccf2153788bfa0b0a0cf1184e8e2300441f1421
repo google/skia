@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3aef7ad_84cd04f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T19:15:47Z",
+      "side": 1,
+      "message": "The major changes here are in SkSLCompiler and SkSLProgram. Everything else (mostly) falls out from moving where caps are stored...\n\nExcept for the SkRuntimeEffect changes. We don\u0027t have the GPU\u0027s compiler instance, and we can\u0027t inject the GPU\u0027s caps like we were doing before. But it should now be structured so that the initial compile doesn\u0027t apply any workarounds (basically ignores caps), so we just use that to emit the SkSL that\u0027s stitched into the full program by the FP.",
+      "revId": "dccf2153788bfa0b0a0cf1184e8e2300441f1421",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
