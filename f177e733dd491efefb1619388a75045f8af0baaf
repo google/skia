@@ -16,6 +16,63 @@
       "message": "This CL got a little big on me... happy to split it up if it makes it easier on the eyes.",
       "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ee241e6_38b6ddf1",
+        "filename": "modules/svg/include/SkSVGFe.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:14:49Z",
+      "side": 1,
+      "message": "Ah, I was a bit confused about the name here - \"filter element\" sounds like \u003cfilter\u003e, not like \u003cfeFoo\u003e.  I believe the latter is shorthand for \"filter effect\", maybe rename to IsFilterEffect?",
+      "range": {
+        "startLine": 20,
+        "startChar": 24,
+        "endLine": 20,
+        "endChar": 31
+      },
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "020efe19_320ca8a8",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:14:49Z",
+      "side": 1,
+      "message": "This is one or two values only, right?  I think it\u0027d be cleaner to make an explicit {x,y} tuple/struct and handle the correct initialization in the parser?",
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "126443db_e3ff6a8c",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T13:14:49Z",
+      "side": 1,
+      "message": "bummer that SkParse doesn\u0027t handle this.",
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
