@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
@@ -39,6 +40,22 @@ DEF_TEST(pathbuilder, reporter) {
 
     is_empty(reporter, b.snapshot());
     is_empty(reporter, b.detach());
+}
+
+DEF_TEST(pathbuilder_filltype, reporter) {
+    for (auto fillType : { SkPathFillType::kWinding,
+                           SkPathFillType::kEvenOdd,
+                           SkPathFillType::kInverseWinding,
+                           SkPathFillType::kInverseEvenOdd }) {
+        SkPathBuilder b(fillType);
+
+        REPORTER_ASSERT(reporter, b.fillType() == fillType);
+
+        for (const SkPath& path : { b.snapshot(), b.detach() }) {
+            REPORTER_ASSERT(reporter, path.getFillType() == fillType);
+            is_empty(reporter, path);
+        }
+    }
 }
 
 static bool check_points(const SkPath& path, const SkPoint expected[], size_t count) {
