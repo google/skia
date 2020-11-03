@@ -202,12 +202,10 @@ const GrVkImageView* GrVkTexture::textureView() {
     return fTextureView.get();
 }
 
-void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState type) {
-    INHERITED::addIdleProc(idleProc, type);
-    if (type == IdleState::kFinished) {
-        if (auto* resource = this->resource()) {
-            resource->addIdleProc(this, std::move(idleProc));
-        }
+void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc) {
+    INHERITED::addIdleProc(idleProc);
+    if (auto* resource = this->resource()) {
+        resource->addIdleProc(this, std::move(idleProc));
     }
 }
 
