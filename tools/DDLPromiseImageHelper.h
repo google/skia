@@ -48,19 +48,11 @@ public:
     void destroyBackendTexture();
 
     sk_sp<SkPromiseImageTexture> fulfill() {
-        SkASSERT(fUnreleasedFulfills >= 0);
-        ++fUnreleasedFulfills;
         ++fTotalFulfills;
         return fPromiseImageTexture;
     }
 
     void release() {
-        SkASSERT(fUnreleasedFulfills > 0);
-        --fUnreleasedFulfills;
-        ++fTotalReleases;
-    }
-
-    void done() {
         ++fDoneCnt;
         SkASSERT(fDoneCnt <= fNumImages);
     }
@@ -79,11 +71,6 @@ public:
     static void PromiseImageReleaseProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
         callbackContext->release();
-    }
-
-    static void PromiseImageDoneProc(void* textureContext) {
-        auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
-        callbackContext->done();
         callbackContext->unref();
     }
 
@@ -93,8 +80,6 @@ private:
     sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
     int                          fNumImages = 0;
     int                          fTotalFulfills = 0;
-    int                          fTotalReleases = 0;
-    int                          fUnreleasedFulfills = 0;
     int                          fDoneCnt = 0;
 
     using INHERITED = SkRefCnt;

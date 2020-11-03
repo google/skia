@@ -185,20 +185,18 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
     SkASSERT(fCallbackContext);
 
     // The promise image gets a ref on the promise callback context
-    sk_sp<SkImage> promiseImage = recorder->makePromiseTexture(
-                                    fCallbackContext->backendFormat(),
-                                    fClip.width(),
-                                    fClip.height(),
-                                    GrMipmapped::kNo,
-                                    GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
-                                    fCharacterization.colorType(),
-                                    kPremul_SkAlphaType,
-                                    fCharacterization.refColorSpace(),
-                                    PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                    PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                    PromiseImageCallbackContext::PromiseImageDoneProc,
-                                    (void*)this->refCallbackContext().release(),
-                                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+    sk_sp<SkImage> promiseImage =
+            recorder->makePromiseTexture(fCallbackContext->backendFormat(),
+                                         fClip.width(),
+                                         fClip.height(),
+                                         GrMipmapped::kNo,
+                                         GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                                         fCharacterization.colorType(),
+                                         kPremul_SkAlphaType,
+                                         fCharacterization.refColorSpace(),
+                                         PromiseImageCallbackContext::PromiseImageFulfillProc,
+                                         PromiseImageCallbackContext::PromiseImageReleaseProc,
+                                         (void*)this->refCallbackContext().release());
     fCallbackContext->wasAddedToImage();
 
     return promiseImage;
