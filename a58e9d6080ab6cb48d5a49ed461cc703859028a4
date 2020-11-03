@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4737fb06_1531630c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-03T20:37:59Z",
+      "side": 1,
+      "message": "Hey Greg, this is just a refactor. Mind giving it the signoff?",
+      "revId": "a58e9d6080ab6cb48d5a49ed461cc703859028a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
