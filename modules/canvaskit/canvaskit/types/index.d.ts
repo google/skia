@@ -168,6 +168,14 @@ export interface CanvasKit {
     MakeCanvasSurface(canvas: HTMLCanvasElement | string): Surface | null;
 
     /**
+     * Creates a Raster (CPU) Surface that will draw into the provided Malloc'd buffer. This allows
+     * clients to efficiently be able to read the current pixels w/o having to copy.
+     * @param pixels
+     * @param ii
+     */
+    MakeRasterDirectSurface(pixels: MallocObj, ii: ImageInfo): Surface | null;
+
+    /**
      * Creates a CPU backed (aka raster) surface.
      * @param canvas - either the canvas element itself or a string with the DOM id of it.
      */
