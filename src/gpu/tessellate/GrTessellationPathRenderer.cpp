@@ -19,7 +19,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
@@ -258,9 +258,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &devPath);
         SkStrokeRec devStroke = args.fShape->style().strokeRec();
         devStroke.setStrokeStyle(1);
-        auto op = GrOp::Make<GrStrokeTessellateOp>(
-                args.fContext, args.fAAType, SkMatrix::I(), devStroke,
-                devPath, std::move(args.fPaint));
+        auto op = GrStrokeOp::Make(args.fContext, args.fAAType, SkMatrix::I(), devStroke, devPath,
+                                   std::move(args.fPaint), shaderCaps);
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -268,9 +267,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = GrOp::Make<GrStrokeTessellateOp>(
-                args.fContext, args.fAAType, *args.fViewMatrix, stroke,
-                path, std::move(args.fPaint));
+        auto op = GrStrokeOp::Make(args.fContext, args.fAAType, *args.fViewMatrix, stroke, path,
+                                   std::move(args.fPaint), shaderCaps);
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
