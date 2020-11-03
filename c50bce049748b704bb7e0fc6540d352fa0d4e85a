@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "912c289b_625ccd49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-03T18:52:39Z",
+      "side": 1,
+      "message": "\u003e Patch Set 2:\n\u003e \n\u003e Gold has detected about 44 untriaged digest(s) on patchset 2.\n\u003e View them at https://gold.skia.org/cl/gerrit/331495\n\nJust FYI: I did a local run of GMs with patchset 1 and patchset 2 on Mac, and did not see any diffs.\n\nCommand line was: out/Release/dm --config dawn --src gm",
+      "revId": "c50bce049748b704bb7e0fc6540d352fa0d4e85a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
