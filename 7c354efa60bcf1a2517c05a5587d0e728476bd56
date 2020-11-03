@@ -63,6 +63,99 @@
       },
       "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b25efb4c_1c0d6a72",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T19:43:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b0c6dee0_5fe95524",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 66
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edb597f8_53000b1a",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T19:43:32Z",
+      "side": 1,
+      "message": "If that\u0027s the ultimate goal, maybe it would make more sense to pass in the rest of the Settings too, not just the caps, so we could completely disable the optimizer and inliner.\n\n        fRemoveDeadFunctions \u003d 0;\n        fInlineThreshold \u003d 0;\n        fOptimize \u003d false;",
+      "range": {
+        "startLine": 45,
+        "startChar": 68,
+        "endLine": 46,
+        "endChar": 79
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aab2c37b_d9983a0b",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T19:43:32Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be zero to minimize change?",
+      "range": {
+        "startLine": 57,
+        "startChar": 31,
+        "endLine": 57,
+        "endChar": 74
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "873e7490_46c73810",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T19:43:32Z",
+      "side": 1,
+      "message": "It seems like it\u0027d be clearer to have a SharedCompiler object with normal member variables, wrapped with a separate class/helper that handles the locking and singleton-ness of it? Having one \"SharedCompiler\" object that you need to \"instantiate,\" but instantiation really means taking a lock and all the real members are static, is not a pattern I\u0027m familiar with. It took me a while before I understood what was going on (and had written up a handful of comments that I needed to discard)",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 46
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
