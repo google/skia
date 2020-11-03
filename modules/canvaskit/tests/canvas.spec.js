@@ -494,7 +494,7 @@ describe('Canvas Behavior', () => {
         // 0th layer (i.e. when restore() is called), it will use the provided
         // paint to do so. The provided paint is set to have 30% opacity, but
         // it could also have things set like blend modes or image filters.
-        canvas.saveLayer(alpha);
+        canvas.saveLayerPaint(alpha);
 
         // Draw the same blue overlapping rectangles as before. Notice in the
         // final output, we have two different shades of purple instead of the
