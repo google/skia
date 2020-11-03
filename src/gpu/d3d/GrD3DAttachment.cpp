@@ -57,7 +57,8 @@ sk_sp<GrD3DAttachment> GrD3DAttachment::MakeStencil(GrD3DGpu* gpu,
             gpu->resourceProvider().createDepthStencilView(info.fResource.get());
 
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(info.fResourceState));
-    return sk_sp<GrD3DAttachment>(new GrD3DAttachment(gpu, dimensions, UsageFlags::kStencil,
+    return sk_sp<GrD3DAttachment>(new GrD3DAttachment(gpu, dimensions,
+                                                      UsageFlags::kStencilAttachment,
                                                       format, resourceDesc, info,
                                                       std::move(state), view));
 }

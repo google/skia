@@ -24,7 +24,7 @@ public:
             : GrAttachment(gpu, dimensions, supportedUsages, sampleCnt, GrProtected::kNo)
             , fFormat(format)
             , fRenderbufferID(idDesc.fRenderbufferID) {
-        SkASSERT(supportedUsages == UsageFlags::kStencil);
+        SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
         this->registerWithCache(SkBudgeted::kYes);
     }
 

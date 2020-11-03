@@ -261,7 +261,7 @@ sk_sp<GrAttachment> GrMockGpu::makeStencilAttachmentForRenderTarget(const GrRend
     SkASSERT(numStencilSamples == rt->numSamples());
     fStats.incStencilAttachmentCreates();
     return sk_sp<GrAttachment>(
-            new GrMockAttachment(this, dimensions, GrAttachment::UsageFlags::kStencil,
+            new GrMockAttachment(this, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
                                  rt->numSamples()));
 }
 

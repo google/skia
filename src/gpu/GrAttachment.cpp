@@ -75,7 +75,7 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
 }
 
 void GrAttachment::computeScratchKey(GrScratchKey* key) const {
-    if (fSupportedUsages & UsageFlags::kMSAA) {
+    if (fSupportedUsages & UsageFlags::kColorAttachment) {
         auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         ComputeScratchKey(*this->getGpu()->caps(), this->backendFormat(), this->dimensions(),
                           fSupportedUsages, this->numSamples(), isProtected, key);
