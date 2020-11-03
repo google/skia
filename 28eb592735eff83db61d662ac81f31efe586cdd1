@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "868f46f9_26613ae5",
+        "filename": "src/codec/SkHeifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-03T18:10:48Z",
+      "side": 1,
+      "message": "std::optional is a C++17 library feature. Skia only uses up to c++14 library features. This is breaking some of our bots, e.g.:\nhttps://ci.chromium.org/raw/build/logs.chromium.org/skia/4fa8175011a1c411/+/annotations",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 46
+      },
+      "revId": "28eb592735eff83db61d662ac81f31efe586cdd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
