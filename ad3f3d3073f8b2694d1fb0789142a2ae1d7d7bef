@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c6a4a1b_4f26cbfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-03T18:28:18Z",
+      "side": 1,
+      "message": "PTAL. Not exposing peekPixels but MakeRasterDirectSurface as we discussed.",
+      "revId": "ad3f3d3073f8b2694d1fb0789142a2ae1d7d7bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
