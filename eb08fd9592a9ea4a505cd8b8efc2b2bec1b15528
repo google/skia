@@ -195,6 +195,24 @@
       "parentUuid": "7d9b46b2_daaa43ca",
       "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c28d0de_b38b1d2a",
+        "filename": "modules/svg/src/SkSVGFeTurbulence.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T16:30:36Z",
+      "side": 1,
+      "message": "Oh I may see what you meant for the first part. If we do the virtual parseAttribute() idea then there\u0027s no reason to put the iter loop inside each Make function -- easier to just drive it from the outside. Without the parseAttribute() function (like the current patchset) we\u0027d need a subsequent loop after the Make() call to handle the base class / presentation attributes.",
+      "parentUuid": "e1c18e55_5fd83f62",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
