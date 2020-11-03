@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07b7aec5_b1577ff9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-03T18:26:37Z",
+      "side": 1,
+      "message": "Alternatively, we can remove the declaration. I\u0027m guessing it was an oversight that it\u0027s not implemented? (I happened to notice when I attempted to use it in a GM.)",
+      "revId": "51df2aaf6ff8e857a9aaccd577029c88cb4659bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
