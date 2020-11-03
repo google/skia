@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e2f43ee3_41bbbce1",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T19:30:17Z",
+      "side": 1,
+      "message": "Document how much memory needs to be in the pixels object:\n\nbytesPerRow (somewhat arbitrary) * height\n\nwhere bytesPerRow must be at least width * bytesPerColorType",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 7
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "97cb556b_b1654f27",
         "filename": "modules/canvaskit/cpu.js",
         "patchSetId": 5
