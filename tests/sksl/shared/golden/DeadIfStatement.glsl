@@ -1,3 +1,4 @@
-### Compilation failed:
 
-
+void main() {
+    return;
+}

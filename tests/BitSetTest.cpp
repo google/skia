@@ -51,4 +51,12 @@ DEF_TEST(BitSet, reporter) {
     REPORTER_ASSERT(reporter, set1.test(12345) == true);
     REPORTER_ASSERT(reporter, set1.test(22) == false);
     REPORTER_ASSERT(reporter, set0.test(35) == true);
+
+    set0.reset();
+    REPORTER_ASSERT(reporter, !set0.findFirst());
+    REPORTER_ASSERT(reporter, set0.test(1234) == false);
+
+    set0.set();
+    REPORTER_ASSERT(reporter, !set0.findFirstUnset());
+    REPORTER_ASSERT(reporter, set0.test(5678) == true);
 }
