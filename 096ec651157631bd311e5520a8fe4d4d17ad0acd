@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa4f497d_5d1e4680",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T19:48:42Z",
+      "side": 1,
+      "message": "Hmm, the gold diffs seem problematic to me. They weren\u0027t there in the GrTBlockList CL before I split this out, so I probably introduced a bug in the separation. Most likely with batching, but I\u0027ll look into it tomorrow.",
+      "revId": "096ec651157631bd311e5520a8fe4d4d17ad0acd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
