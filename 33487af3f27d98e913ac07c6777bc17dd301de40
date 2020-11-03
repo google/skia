@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c2fdf45_3f542574",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-03T21:36:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2f43ee3_41bbbce1",
+      "range": {
+        "startLine": 175,
+        "startChar": 4,
+        "endLine": 175,
+        "endChar": 7
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97cb556b_b1654f27",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1b4db95_97a96a12",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-03T21:36:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "97cb556b_b1654f27",
+      "range": {
+        "startLine": 68,
+        "startChar": 41,
+        "endLine": 68,
+        "endChar": 58
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5950e53_45beb369",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-03T19:28:36Z",
       "side": 1,
       "message": "On the C++ side, we take this explicitly as another parameter from the client:\n\nImageInfo\nPointer\nBytesPerRow\n\nThis allows the caller to decide if they want \u0027packed\u0027 rows (i.e. just enough room for width-pixels) or extra space per-row (perhaps to round up to some other multiple).",
+      "range": {
+        "startLine": 70,
+        "startChar": 78,
+        "endLine": 70,
+        "endChar": 89
+      },
+      "revId": "33487af3f27d98e913ac07c6777bc17dd301de40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c89fed0_608e25d6",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-03T21:36:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5950e53_45beb369",
       "range": {
         "startLine": 70,
         "startChar": 78,
