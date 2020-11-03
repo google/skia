@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a62bf0e_fb6c8cfc",
+        "filename": "modules/svg/include/SkSVGFe.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T15:05:47Z",
+      "side": 1,
+      "message": "Oh that makes sense, I definitely thought \"fe\" was short for filter element. Done.",
+      "parentUuid": "4ee241e6_38b6ddf1",
+      "range": {
+        "startLine": 20,
+        "startChar": 24,
+        "endLine": 20,
+        "endChar": 31
+      },
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "020efe19_320ca8a8",
@@ -54,6 +78,24 @@
       "writtenOn": "2020-11-03T13:14:49Z",
       "side": 1,
       "message": "This is one or two values only, right?  I think it\u0027d be cleaner to make an explicit {x,y} tuple/struct and handle the correct initialization in the parser?",
+      "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a69cff70_a7f3533b",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T15:05:47Z",
+      "side": 1,
+      "message": "Excellent point, done.",
+      "parentUuid": "020efe19_320ca8a8",
       "revId": "f177e733dd491efefb1619388a75045f8af0baaf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
