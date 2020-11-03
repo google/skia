@@ -48,6 +48,7 @@
       // Allocate the buffer of pixels to be drawn into.
       var pixelPtr = CanvasKit._malloc(pixelLen);
 
+      // TODO(kjlubick) don't use RDS, as it will always copy if snapping off an SkImage.
       var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width*4);
       if (surface) {
         surface._canvas = null;
@@ -61,6 +62,12 @@
         surface.getCanvas().clear(CanvasKit.TRANSPARENT);
       }
       return surface;
+    };
+
+    CanvasKit.MakeRasterDirectSurface = function(mallocObj, imageInfo) {
+      var bpe = mallocObj.toTypedArray().BYTES_PER_ELEMENT;
+      var bytesPerRow =  bpe * imageInfo['width'] * 4;
+      return this._getRasterDirectSurface(imageInfo, mallocObj['byteOffset'], bytesPerRow);
     };
 
     // For GPU builds, simply proxies to native code flush.  For CPU builds,
