@@ -61,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ef9ec90a_e6e29ccc",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T15:14:50Z",
+      "side": 1,
+      "message": "Maybe I should make this class more explicitly state that it is only used for the direct case. The transformed cases will likely stay in floats. That way I can make sure up the stack that x and y will never cause an overflow.",
+      "parentUuid": "c9000e36_af4db93b",
+      "range": {
+        "startLine": 203,
+        "startChar": 33,
+        "endLine": 203,
+        "endChar": 34
+      },
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9c0b5466_d7653590",
         "filename": "src/core/SkGlyph.h",
         "patchSetId": 8
@@ -72,6 +96,24 @@
       "writtenOn": "2020-11-02T21:29:21Z",
       "side": 1,
       "message": "And more overflow.",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e8c7401_e17abf37",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T15:14:50Z",
+      "side": 1,
+      "message": "We should restrict this to the direct case where fWidth and fHeight are \u003c max atlas size",
+      "parentUuid": "9c0b5466_d7653590",
       "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -93,6 +135,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdc21c5d_789bfc27",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T15:14:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "247f4d86_e7f808fc",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e40b9db_9faf2e1d",
@@ -106,6 +166,24 @@
       "writtenOn": "2020-11-02T21:29:21Z",
       "side": 1,
       "message": "So if they all did fit and later there is a change of position which would push some of the out of bounds that could still be re-used? (They won\u0027t wrap around and get drawn somewhere they shouldn\u0027t?)",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d36eb3a_d446430f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T15:14:50Z",
+      "side": 1,
+      "message": "The translation is delayed until vertex generation. At that point the values calculated will be done in ints.",
+      "parentUuid": "8e40b9db_9faf2e1d",
       "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
