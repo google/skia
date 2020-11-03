@@ -39,6 +39,30 @@
       },
       "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0c6dee0_5fe95524",
+        "filename": "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T19:34:45Z",
+      "side": 1,
+      "message": "The original code had non-owning caps pointers in Settings. I kept that model, which meant that someone needed to own the caps. The factory functions return them via sk_sp or shared_ptr.\n\nI could simplify that a bit if the Compiler took those types, and kept a ref on the caps, though that\u0027s going to create some more casting requirements in the various GPU classes.",
+      "parentUuid": "aaf67de6_aac4a943",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 66
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
