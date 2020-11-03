@@ -171,6 +171,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d1fedaf_9f625974",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T23:31:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "52592990_1cf583e1",
+      "range": {
+        "startLine": 45,
+        "startChar": 68,
+        "endLine": 46,
+        "endChar": 79
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aab2c37b_d9983a0b",
@@ -220,6 +244,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3750e60_4de5dfdb",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T23:31:59Z",
+      "side": 1,
+      "message": "Makes sense. We should expose this info to the reader since it\u0027s super non-obvious why this is done (at least, I never would have guessed). Could you please capture this in a code comment?",
+      "parentUuid": "ad9264d4_a872ff48",
+      "range": {
+        "startLine": 57,
+        "startChar": 31,
+        "endLine": 57,
+        "endChar": 74
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "873e7490_46c73810",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -255,6 +303,30 @@
       "side": 1,
       "message": "Rewrote this a bit - I think it\u0027s less obtuse now?",
       "parentUuid": "873e7490_46c73810",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 46
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d624ace_81ee95a4",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T23:31:59Z",
+      "side": 1,
+      "message": "Yes, this is much clearer, thanks :)",
+      "parentUuid": "b524bdd1_1f4aafd5",
       "range": {
         "startLine": 69,
         "startChar": 0,

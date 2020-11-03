@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f60b861_da85618f",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-03T23:31:59Z",
+      "side": 1,
+      "message": "I\u0027m not entirely sure why fInlineThreshold lives inside the SharedCompiler. At first I thought these accessors directly controlled the inline threshold of fCompiler but it\u0027s not that--it just sets a static global value, which is filled into the Settings of the fCompiler when SkRuntimeEffect::Make runs. I guess it\u0027s just so it can share the compiler_mutex? Would a static-global atomic\u003cint\u003e be just as good?\n\nI don\u0027t necessarily thing anything needs to change, but a brief comment explaining this stuff would go a long way :)",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 83
+      },
+      "revId": "6b39660a421fe13d617a798dea55ea7db90e4b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
