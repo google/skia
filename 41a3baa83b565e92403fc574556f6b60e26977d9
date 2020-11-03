@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a2b7b3e_38580ae3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-11-03T23:03:50Z",
+      "side": 1,
+      "message": "I have replaced the use of std::optional with a boolean return value + an output pointer parameter.\n\nPatchset 1 is the one that was reverted. Patchset 2 is the fix.",
+      "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
