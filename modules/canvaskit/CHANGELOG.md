@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels
     (like peekPixels in C++).
  - `getLineMetrics` to Paragraph.
+ - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass the paint.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
