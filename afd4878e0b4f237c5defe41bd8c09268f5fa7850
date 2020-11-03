@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98afafdf_41bb93a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T15:48:07Z",
+      "side": 1,
+      "message": "Thanks for tackling this! I have no issues with the new API, just a few more places we need to handle things inside GrBlockAllocator.\n\nPer the comment in SkASAN, it would be nice to have gaps between allocations, but that\u0027s not something that should be handled by GrBlockAllocator. There are some users of GrBlockAllocator that assume that their allocations are tight (because it\u0027s aways same alignment and fixed size requests). But we could update GrMemoryPool to leverage the poisoning and tweak what it requests from the block allocator to add some pre and post bytes to its allocations.",
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94748bf5_67d81367",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T15:48:07Z",
+      "side": 1,
+      "message": "The head block should be re-poisoned here.",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 76
+      },
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "552950cd_aeab291a",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T15:48:07Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure how we should handle this. The scratch block is re-initialized when it gets moved back to a new block, so that goes through the ctor and becomes poisoned. But it\u0027s probably a good idea to poison it here, so that any accesses to it while it\u0027s \"scratch\" are caught.\n\nThen since the head block is also supposed to be poisoned in the condition up above, maybe we just have the first step of releaseBlock() be to poison the whole range. If we end up deleting the block, its destructor will unpoison it before it\u0027s freed and that\u0027s correct. If it\u0027s not deleted, we\u0027ve made sure it\u0027s poisoned while we hold on to it for later reuse.",
+      "range": {
+        "startLine": 120,
+        "startChar": 12,
+        "endLine": 120,
+        "endChar": 35
+      },
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "faafde14_18720fd5",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T15:48:07Z",
+      "side": 1,
+      "message": "The head block should be poisoned here again",
+      "range": {
+        "startLine": 168,
+        "startChar": 12,
+        "endLine": 174,
+        "endChar": 38
+      },
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2d7968c_a92e0ee5",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T15:48:07Z",
+      "side": 1,
+      "message": "Inside this if statement, we need to poison or unpoison depending on the size of deltaBytes.\n\nIf nextCursor \u003c fCursor, then we poison (nextCursor+1 to end). Otherwise, we unpoison (end to nextCursor).",
+      "range": {
+        "startLine": 648,
+        "startChar": 8,
+        "endLine": 651,
+        "endChar": 9
+      },
+      "revId": "afd4878e0b4f237c5defe41bd8c09268f5fa7850",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
