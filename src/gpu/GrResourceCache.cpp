@@ -201,8 +201,6 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
-    fThreadSafeCache->dropAllRefs();
-
     // We need to make sure to free any resources that were waiting on a free message but never
     // received one.
     fTexturesAwaitingUnref.reset();
@@ -218,6 +216,8 @@ void GrResourceCache::abandonAll() {
         SkASSERT(!top->wasDestroyed());
         top->cacheAccess().abandon();
     }
+
+    fThreadSafeCache->dropAllRefs();
 
     SkASSERT(!fScratchMap.count());
     SkASSERT(!fUniqueHash.count());
