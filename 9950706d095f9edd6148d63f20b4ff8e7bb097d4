@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7febdd11_5a3df0b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-03T14:54:01Z",
+      "side": 1,
+      "message": "In this change w and h are \u003c the maximum atlas size (256). The code strongly relies on that fact, but I have not exposed it well in the code. :-/",
+      "parentUuid": "03a009ab_7ed437bf",
+      "revId": "9950706d095f9edd6148d63f20b4ff8e7bb097d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9000e36_af4db93b",
