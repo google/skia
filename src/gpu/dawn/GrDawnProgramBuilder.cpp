@@ -373,7 +373,10 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         inputs.push_back(input);
     }
     wgpu::VertexStateDescriptor vertexState;
-    vertexState.indexFormat = wgpu::IndexFormat::Uint16;
+    if (programInfo.primitiveType() == GrPrimitiveType::kTriangleStrip ||
+        programInfo.primitiveType() == GrPrimitiveType::kLineStrip) {
+        vertexState.indexFormat = wgpu::IndexFormat::Uint16;
+    }
     vertexState.vertexBufferCount = inputs.size();
     vertexState.vertexBuffers = &inputs.front();
 
