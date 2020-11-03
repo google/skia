@@ -541,6 +541,12 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
+        case ProgramElement::Kind::kFunctionPrototype: {
+            // We don't need to emit function prototypes into the dehydrated data, because we don't
+            // ever need to re-emit the intrinsics files as raw GLSL/Metal. As long as the symbols
+            // exist in the symbol table, we're in good shape.
+            break;
+        }
         case ProgramElement::Kind::kInterfaceBlock: {
             const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeCommand(Rehydrator::kInterfaceBlock_Command);

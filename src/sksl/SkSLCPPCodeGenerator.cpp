@@ -594,8 +594,7 @@ static const char* glsltype_string(const Context& context, const Type& type) {
     return nullptr;
 }
 
-void CPPCodeGenerator::writeFunctionPrototype(const FunctionDefinition& f) {
-    const FunctionDeclaration& decl = f.declaration();
+void CPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
     if (decl.isBuiltin() || decl.name() == "main") {
         return;
     }
@@ -617,7 +616,10 @@ void CPPCodeGenerator::writeFunctionPrototype(const FunctionDefinition& f) {
     args += " };";
 
     this->addExtraEmitCodeLine(args.c_str());
+}
 
+void CPPCodeGenerator::prototypeHelperFunction(const FunctionDeclaration& decl) {
+    String funcName = decl.name();
     this->addExtraEmitCodeLine(String::printf(
             "fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), {%s_args, %zu});",
             glsltype_string(fContext, decl.returnType()),
@@ -699,6 +701,11 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
                 return;
             }
             break;
+        }
+        case ProgramElement::Kind::kFunctionPrototype: {
+            // Function prototypes are handled at the C++ level (in writeEmitCode).
+            // We don't want prototypes to be emitted inside the FP's main() function.
+            return;
         }
         default:
             break;
@@ -1030,9 +1037,24 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
 
     this->newExtraEmitCodeBlock();
 
+    // Generate mangled names and argument lists for helper functions.
+    std::unordered_set<const FunctionDeclaration*> definedHelpers;
     for (const auto& p : fProgram.elements()) {
         if (p->is<FunctionDefinition>()) {
-            this->writeFunctionPrototype(p->as<FunctionDefinition>());
+            const FunctionDeclaration* decl = &p->as<FunctionDefinition>().declaration();
+            definedHelpers.insert(decl);
+            this->prepareHelperFunction(*decl);
+        }
+    }
+
+    // Emit prototypes for defined helper functions that originally had prototypes in the FP file.
+    // (If a function was prototyped but never defined, we skip it, since it wasn't prepared above.)
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<FunctionPrototype>()) {
+            const FunctionDeclaration* decl = &p->as<FunctionPrototype>().declaration();
+            if (definedHelpers.find(decl) != definedHelpers.end()) {
+                this->prototypeHelperFunction(*decl);
+            }
         }
     }
 

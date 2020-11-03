@@ -1036,19 +1036,12 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
     ABORT("internal error; setting was not folded to a constant during compilation\n");
 }
 
-void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    fSetupFragPositionLocal = false;
-    fSetupFragCoordWorkaround = false;
-
-    // The pipeline-stage code generator can't use functions written this way, so make sure we don't
-    // accidentally end up here.
-    SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
-
-    this->writeTypePrecision(f.declaration().returnType());
-    this->writeType(f.declaration().returnType());
-    this->write(" " + f.declaration().name() + "(");
+void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
+    this->writeTypePrecision(f.returnType());
+    this->writeType(f.returnType());
+    this->write(" " + f.name() + "(");
     const char* separator = "";
-    for (const auto& param : f.declaration().parameters()) {
+    for (const auto& param : f.parameters()) {
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), false);
@@ -1069,7 +1062,19 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
             }
         }
     }
-    this->writeLine(") {");
+    this->write(")");
+}
+
+void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    fSetupFragPositionLocal = false;
+    fSetupFragCoordWorkaround = false;
+
+    // The pipeline-stage code generator can't use functions written this way, so make sure we don't
+    // accidentally end up here.
+    SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
+
+    this->writeFunctionDeclaration(f.declaration());
+    this->writeLine(" {");
     fIndentation++;
 
     fFunctionHeader = "";
@@ -1089,6 +1094,11 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = oldOut;
     this->write(fFunctionHeader);
     this->write(buffer.str());
+}
+
+void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
+    this->writeFunctionDeclaration(f.declaration());
+    this->writeLine(";");
 }
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
@@ -1514,6 +1524,9 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
+        case ProgramElement::Kind::kFunctionPrototype:
+            this->writeFunctionPrototype(e.as<FunctionPrototype>());
+            break;
         case ProgramElement::Kind::kModifiers: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
@@ -1529,10 +1542,8 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kEnum:
             break;
         default:
-#ifdef SK_DEBUG
-            printf("unsupported program element %s\n", e.description().c_str());
-#endif
-            SkASSERT(false);
+            SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());
+            break;
     }
 }
 

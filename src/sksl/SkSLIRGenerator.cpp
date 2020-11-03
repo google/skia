@@ -34,6 +34,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -1050,15 +1051,18 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                                                                   returnType,
                                                                   fIsBuiltinCode));
     }
-    if (iter != f.end()) {
-        // compile body
+    if (iter == f.end()) {
+        // If there's no body, we've found a prototype.
+        fProgramElements->push_back(std::make_unique<FunctionPrototype>(f.fOffset, decl,
+                                                                        fIsBuiltinCode));
+    } else {
+        // Compile function body.
         SkASSERT(!fCurrentFunction);
         fCurrentFunction = decl;
-        std::shared_ptr<SymbolTable> old = fSymbolTable;
+
         AutoSymbolTable table(this);
-        const std::vector<const Variable*>& declParameters = decl->parameters();
-        for (size_t i = 0; i < parameters.size(); i++) {
-            fSymbolTable->addWithoutOwnership(declParameters[i]);
+        for (const Variable* param : decl->parameters()) {
+            fSymbolTable->addWithoutOwnership(param);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fSettings->fCaps &&

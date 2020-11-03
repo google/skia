@@ -42,8 +42,6 @@ public:
         const GrShaderVar HSLToRGB_args[] = {GrShaderVar("p", kHalf_GrSLType),
                                              GrShaderVar("q", kHalf_GrSLType),
                                              GrShaderVar("t", kHalf_GrSLType)};
-        fragBuilder->emitFunctionPrototype(kHalf_GrSLType, HSLToRGB_name.c_str(),
-                                           {HSLToRGB_args, 3});
         fragBuilder->emitFunction(kHalf_GrSLType, HSLToRGB_name.c_str(), {HSLToRGB_args, 3},
                                   R"SkSL(if (t < 0.0) t += 1.0;
 if (t > 1.0) t -= 1.0;

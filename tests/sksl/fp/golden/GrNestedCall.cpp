@@ -21,12 +21,12 @@ public:
         (void) _outer;
         SkString func1_name = fragBuilder->getMangledFunctionName("func1");
         const GrShaderVar func1_args[] = {  };
-        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func1_name.c_str(), {func1_args, 0});
         SkString func2_name = fragBuilder->getMangledFunctionName("func2");
         const GrShaderVar func2_args[] = {  };
-        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0});
         SkString func3_name = fragBuilder->getMangledFunctionName("func3");
         const GrShaderVar func3_args[] = {  };
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func1_name.c_str(), {func1_args, 0});
+        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0});
         fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func3_name.c_str(), {func3_args, 0});
         const String func1_impl = String::printf(R"SkSL(return %s();
 )SkSL"

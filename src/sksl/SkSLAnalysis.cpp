@@ -606,6 +606,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
     switch (pe.kind()) {
         case ProgramElement::Kind::kEnum:
         case ProgramElement::Kind::kExtension:
+        case ProgramElement::Kind::kFunctionPrototype:
         case ProgramElement::Kind::kModifiers:
         case ProgramElement::Kind::kSection:
             // Leaf program elements just return false by default

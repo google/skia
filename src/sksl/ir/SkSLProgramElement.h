@@ -23,6 +23,7 @@ public:
         kEnum = 0,
         kExtension,
         kFunction,
+        kFunctionPrototype,
         kInterfaceBlock,
         kModifiers,
         kSection,
