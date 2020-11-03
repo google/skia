@@ -183,7 +183,7 @@ void GrDawnOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
     }
     if (indexBuffer) {
         wgpu::Buffer index = static_cast<const GrDawnBuffer*>(indexBuffer.get())->get();
-        fPassEncoder.SetIndexBuffer(index);
+        fPassEncoder.SetIndexBufferWithFormat(index, wgpu::IndexFormat::Uint16);
     }
 }
 
