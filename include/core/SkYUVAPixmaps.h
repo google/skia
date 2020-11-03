@@ -171,10 +171,7 @@ private:
  */
 class SK_API SkYUVAPixmaps {
 public:
-    using DataType = SkYUVAPixmapInfo::DataType;
     static constexpr auto kMaxPlanes = SkYUVAPixmapInfo::kMaxPlanes;
-
-    static SkColorType RecommendedRGBAColorType(DataType);
 
     /** Allocate space for pixmaps' pixels in the SkYUVAPixmaps. */
     static SkYUVAPixmaps Allocate(const SkYUVAPixmapInfo& yuvaPixmapInfo);
@@ -220,8 +217,6 @@ public:
 
     const SkYUVAInfo& yuvaInfo() const { return fYUVAInfo; }
 
-    DataType dataType() const { return fDataType; }
-
     SkYUVAPixmapInfo pixmapsInfo() const;
 
     /** Number of pixmap planes or 0 if this SkYUVAPixmaps is invalid. */
@@ -255,12 +250,11 @@ public:
 
 private:
     SkYUVAPixmaps(const SkYUVAPixmapInfo&, sk_sp<SkData>);
-    SkYUVAPixmaps(const SkYUVAInfo&, DataType, const SkPixmap[kMaxPlanes]);
+    SkYUVAPixmaps(const SkYUVAInfo&, const SkPixmap[kMaxPlanes]);
 
+    SkYUVAInfo fYUVAInfo;
     std::array<SkPixmap, kMaxPlanes> fPlanes = {};
     sk_sp<SkData> fData;
-    SkYUVAInfo fYUVAInfo;
-    DataType fDataType;
 };
 
 //////////////////////////////////////////////////////////////////////////////

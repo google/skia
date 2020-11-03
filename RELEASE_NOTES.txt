@@ -23,11 +23,7 @@ Milestone 88
     which wraps an SkYUVAInfo and compatible set of GrBackendTextures. The provides
     a more complete and structured specification of the planar configuration. Previous
     version is deprecated.
-    Already deprecated MakeFromYUVATexturesCopyToExternal added to replace other deprecated
-    APIs. It's not recommended that clients use this and instead use the pattern described
-    in the API comment.
     https://review.skia.org/317762
-    https://review.skia.org/329956
 
   * Add field to GrContextOptions to disable mipmap support even if the backend
     supports it.

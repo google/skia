@@ -51,7 +51,8 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
-        this->setRelease(GrRefCntedCallback::Make(proc, ctx));
+        sk_sp<GrRefCntedCallback> helper(new GrRefCntedCallback(proc, ctx));
+        this->setRelease(std::move(helper));
     }
 
     /**

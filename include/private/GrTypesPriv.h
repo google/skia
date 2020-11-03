@@ -1205,29 +1205,19 @@ static constexpr GrColorType GrMaskFormatToColorType(GrMaskFormat format) {
 /**
  * Ref-counted object that calls a callback from its destructor.
  */
-class GrRefCntedCallback : public SkNVRefCnt<GrRefCntedCallback> {
+class GrRefCntedCallback : public SkRefCnt {
 public:
     using Context = void*;
     using Callback = void (*)(Context);
 
-    static sk_sp<GrRefCntedCallback> Make(Callback proc, Context ctx) {
-        if (!proc) {
-            return nullptr;
-        }
-        return sk_sp<GrRefCntedCallback>(new GrRefCntedCallback(proc, ctx));
+    GrRefCntedCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {
+        SkASSERT(proc);
     }
-
-    ~GrRefCntedCallback() { fReleaseProc(fReleaseCtx); }
+    ~GrRefCntedCallback() override { fReleaseProc ? fReleaseProc(fReleaseCtx) : void(); }
 
     Context context() const { return fReleaseCtx; }
 
 private:
-    GrRefCntedCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
-    GrRefCntedCallback(const GrRefCntedCallback&) = delete;
-    GrRefCntedCallback(GrRefCntedCallback&&) = delete;
-    GrRefCntedCallback& operator=(const GrRefCntedCallback&) = delete;
-    GrRefCntedCallback& operator=(GrRefCntedCallback&&) = delete;
-
     Callback fReleaseProc;
     Context fReleaseCtx;
 };
