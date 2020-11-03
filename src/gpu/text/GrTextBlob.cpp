@@ -67,12 +67,11 @@ struct ARGB3DVertex {
 
 GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     switch (grMaskFormat) {
-        case kA8_GrMaskFormat: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
-        case kA565_GrMaskFormat: return GrAtlasTextOp::kLCDCoverageMask_MaskType;
-        case kARGB_GrMaskFormat: return GrAtlasTextOp::kColorBitmapMask_MaskType;
-            // Needed to placate some compilers.
-        default: return GrAtlasTextOp::kGrayscaleCoverageMask_MaskType;
+        case kA8_GrMaskFormat:   return GrAtlasTextOp::MaskType::kGrayscaleCoverage;
+        case kA565_GrMaskFormat: return GrAtlasTextOp::MaskType::kLCDCoverage;
+        case kARGB_GrMaskFormat: return GrAtlasTextOp::MaskType::kColorBitmap;
     }
+    SkUNREACHABLE;
 }
 
 SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
@@ -926,23 +925,21 @@ GrSDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
     bool isLCD = fUseLCDText && SkPixelGeometryIsH(props.pixelGeometry());
     using MT = GrAtlasTextOp::MaskType;
-    MT maskType = !fAntiAliased ? MT::kAliasedDistanceField_MaskType
-                                : isLCD ? (isBGR ? MT::kLCDBGRDistanceField_MaskType
-                                                 : MT::kLCDDistanceField_MaskType)
-                                        : MT::kGrayscaleDistanceField_MaskType;
+    MT maskType = !fAntiAliased ? MT::kAliasedDistanceField
+                                : isLCD ? (isBGR ? MT::kLCDBGRDistanceField
+                                                 : MT::kLCDDistanceField)
+                                        : MT::kGrayscaleDistanceField;
 
     bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
     uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
     DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= MT::kAliasedDistanceField_MaskType == maskType ?
-                 kAliased_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
 
     if (isLCD) {
         DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-        DFGPFlags |= MT::kLCDBGRDistanceField_MaskType == maskType ?
-                     kBGR_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= MT::kLCDBGRDistanceField == maskType ? kBGR_DistanceFieldEffectFlag : 0;
     }
 
     GrAtlasTextOp::Geometry geometry = {

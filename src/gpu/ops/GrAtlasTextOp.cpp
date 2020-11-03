@@ -118,26 +118,30 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
         GrClampType clampType) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
-    if (kColorBitmapMask_MaskType == fMaskType) {
+    if (fMaskType == MaskType::kColorBitmap) {
         color.setToUnknown();
     } else {
+        // finalize() is called before any merging is done, so at this point there's at most one
+        // Geometry with a color. Later, for non-bitmap ops, we may have mixed colors.
         color.setToConstant(this->color());
     }
+
     switch (fMaskType) {
-        case kGrayscaleCoverageMask_MaskType:
-        case kAliasedDistanceField_MaskType:
-        case kGrayscaleDistanceField_MaskType:
+        case MaskType::kGrayscaleCoverage:
+        case MaskType::kAliasedDistanceField:
+        case MaskType::kGrayscaleDistanceField:
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
             break;
-        case kLCDCoverageMask_MaskType:
-        case kLCDDistanceField_MaskType:
-        case kLCDBGRDistanceField_MaskType:
+        case MaskType::kLCDCoverage:
+        case MaskType::kLCDDistanceField:
+        case MaskType::kLCDBGRDistanceField:
             coverage = GrProcessorAnalysisCoverage::kLCD;
             break;
-        case kColorBitmapMask_MaskType:
+        case MaskType::kColorBitmap:
             coverage = GrProcessorAnalysisCoverage::kNone;
             break;
     }
+
     auto analysis = fProcessors.finalize(
             color, coverage, clip, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps,
             clampType, &fGeoData[0].fColor);
@@ -367,7 +371,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, c
             return CombineResult::kCannotCombine;
         }
     } else {
-        if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
+        if (fMaskType == MaskType::kColorBitmap && this->color() != that->color()) {
             return CombineResult::kCannotCombine;
         }
     }
@@ -437,7 +441,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
-        if (kAliasedDistanceField_MaskType != fMaskType) {
+        if (fMaskType != MaskType::kAliasedDistanceField) {
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,
                                                                 fLuminanceColor);
             correction = dfAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
@@ -528,5 +532,3 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 }
 
 #endif
-
-
