@@ -25,18 +25,18 @@ public:
         (void) matrixB;
         matrixAVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "matrixA");
         matrixBVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "matrixB");
-        SkString _matrix126(args.fUniformHandler->getUniformCStr(matrixAVar));
-        SkString _sample126 = this->invokeChildWithMatrix(0, args, _matrix126.c_str());
+        SkString _matrix0(args.fUniformHandler->getUniformCStr(matrixAVar));
+        SkString _sample0 = this->invokeChildWithMatrix(0, args, _matrix0.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(%s = %s;)SkSL"
-, args.fOutputColor, _sample126.c_str());
-        SkString _matrix169(args.fUniformHandler->getUniformCStr(matrixBVar));
-        SkString _sample169 = this->invokeChildWithMatrix(0, args, _matrix169.c_str());
+, args.fOutputColor, _sample0.c_str());
+        SkString _matrix1(args.fUniformHandler->getUniformCStr(matrixBVar));
+        SkString _sample1 = this->invokeChildWithMatrix(0, args, _matrix1.c_str());
         fragBuilder->codeAppendf(
 R"SkSL(
 %s += %s;
 )SkSL"
-, args.fOutputColor, _sample169.c_str());
+, args.fOutputColor, _sample1.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {

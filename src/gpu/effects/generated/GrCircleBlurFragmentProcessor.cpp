@@ -312,18 +312,18 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _sample13905 = this->invokeChild(0, args);
+        SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13905.c_str());
-        SkString _coords13946("float2(half2(dist, 0.5))");
-        SkString _sample13946 = this->invokeChild(1, args, _coords13946.c_str());
+                _sample0.c_str());
+        SkString _coords1("float2(half2(dist, 0.5))");
+        SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 return inputColor * %s.w;
 )SkSL",
-                _sample13946.c_str());
+                _sample1.c_str());
     }
 
 private:

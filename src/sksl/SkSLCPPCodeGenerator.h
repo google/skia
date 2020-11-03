@@ -55,6 +55,8 @@ private:
 
     void writeSwitchStatement(const SwitchStatement& s) override;
 
+    String getSampleVarName(const char* prefix, const FunctionCall& c);
+
     void writeFunctionCall(const FunctionCall& c) override;
 
     void writeFunction(const FunctionDefinition& f) override;
@@ -149,6 +151,9 @@ private:
 
     // True while compiling the main() function of the FP.
     bool fInMain = false;
+
+    // Gives unique but predictable names to invocations of sample().
+    std::unordered_map<const FunctionCall*, size_t> fSampleMap; // <function call, counter value>
 
     // Keeps track of how main() returns a color to the caller. An FP file cannot mix return types.
     ReturnType fReturnType = ReturnType::kNothing;
