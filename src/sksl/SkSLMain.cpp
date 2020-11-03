@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/dsl/DSL.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
@@ -194,6 +195,15 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
  * Very simple standalone executable to facilitate testing.
  */
 int main(int argc, const char** argv) {
+    if (argc == 2 && !strcmp(argv[1], "--testDSL")) {
+        using namespace skslcode;
+        Var x(Float());
+        Var y(Float());
+        Function(Int(), "main").define(
+            Swizzle(sk_FragColor, R, G, B) = Swizzle(Half(5.0), R, R, ONE)
+        );
+        exit(0);
+    }
     bool honorSettings = true;
     if (argc == 4) {
         if (0 == strcmp(argv[3], "--settings")) {
