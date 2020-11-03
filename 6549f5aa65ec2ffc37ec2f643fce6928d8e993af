@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d29ea0d_b4528460",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T22:17:34Z",
+      "side": 1,
+      "message": "not sure this is needed -- since there is a RasterDirect surface factory in C++ to reference.",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 29
+      },
+      "revId": "6549f5aa65ec2ffc37ec2f643fce6928d8e993af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
