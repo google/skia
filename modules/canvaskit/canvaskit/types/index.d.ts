@@ -1241,10 +1241,13 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param alphaType - defaults to Unpremul
      * @param colorType - defaults to RGBA_8888
      * @param colorSpace - defaults to SRGB
+     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing access to the
+     *               pixels without allocating a new TypedArray.
      * @param dstRowBytes
      */
     readPixels(x: number, y: number, w: number, h: number, alphaType?: AlphaType,
-               colorType?: ColorType, colorSpace?: ColorSpace, dstRowBytes?: number): Uint8Array;
+               colorType?: ColorType, colorSpace?: ColorSpace, dstRowBytes?: number,
+               dest?: MallocObj): Uint8Array;
 
     /**
      * Removes changes to the current matrix and clip since Canvas state was
@@ -1566,9 +1569,13 @@ export interface Image extends EmbindObject<Image> {
      * @param imageInfo - describes the destination format of the pixels.
      * @param srcX
      * @param srcY
-     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested.
+     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing access to the
+     *               pixels without allocating a new TypedArray.
+     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested. null will be returned
+     *          on any error.
+     *
      */
-    readPixels(imageInfo: ImageInfo, srcX: number, srcY: number): Uint8Array | Float32Array | null;
+    readPixels(imageInfo: ImageInfo, srcX: number, srcY: number, dest?: MallocObj): Uint8Array | Float32Array | null;
 
     /**
      * Return the width in pixels of the image.
