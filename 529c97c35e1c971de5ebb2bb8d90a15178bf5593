@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eec4d790_5df91c1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:35:01Z",
+      "side": 1,
+      "message": "This is pulled from https://skia-review.googlesource.com/c/skia/+/330738 and just rearranges and compacts the fixed state fields of the GrAtlasTextOp.\n\nAs part of this, the Metadata struct I had introduced earlier goes away and GrAtlasTextOp just has the fields decleared inline. It relies on the compiler optimization that Herb pointed out for converting multiple bitfield equality tests into a single check automatically.",
+      "revId": "529c97c35e1c971de5ebb2bb8d90a15178bf5593",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
