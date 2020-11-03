@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ab1917d_7ea516b7",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T18:32:45Z",
+      "side": 1,
+      "message": "Given that all uses are in this scope, you could just have a counter variable (rather than fSampleMap), and grab/increment it here. Your choice.",
+      "revId": "bbf4a4dc26a4595d76b3f28c8165b86947223772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
