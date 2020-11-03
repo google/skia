@@ -585,7 +585,7 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
     }
 }
 
-static inline bool is_float_inside_0_1_exclusive(float x) {
+static inline bool is_ieee_float_inside_0_1_exclusive(float x) {
     constexpr static uint32_t kIEEE_one = 127 << 23;
     return sk_bit_cast<uint32_t>(x) - 1 < kIEEE_one - 1;
 }
@@ -641,8 +641,8 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2]) {
             // NOTE: if C == 0, then C != tan0. But this is fine because the curve is definitely
             // convex-180 if any points are colocated, and T[0] will equal NaN which returns 0
             // chops.
-            float root = c / b_over_minus_2;
-            if (is_float_inside_0_1_exclusive(root)) {
+            float root = sk_ieee_float_divide(c, b_over_minus_2);
+            if (is_ieee_float_inside_0_1_exclusive(root)) {
                 T[0] = root;
                 return 1;
             }
