@@ -213,6 +213,24 @@
       "parentUuid": "e1c18e55_5fd83f62",
       "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94a9c8e7_44c8cae4",
+        "filename": "modules/svg/src/SkSVGFeTurbulence.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-03T17:06:32Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not totally sure what you mean in the second question (ancestor classes having shared attributes).\n\nE.g. SkSVGTransformable is the base class for a bunch of elements, and it handles the transform attribute.  We wouldn\u0027t want all subclasses to have to deal with transform parsing, something like INHERITED::parseAttribute() to dispatch up the type hierarchy should take care of it.",
+      "parentUuid": "4c28d0de_b38b1d2a",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
