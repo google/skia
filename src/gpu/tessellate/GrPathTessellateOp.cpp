@@ -102,11 +102,11 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     float gpuFragmentWork = bounds.height() * scales[0] * bounds.width() * scales[1];
     float cpuTessellationWork = (float)numVerbs * SkNextLog2(numVerbs);  // N log N.
     if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
-        int numCountedCubics;
+        bool isLinear;
         // This will fail if the inner triangles do not form a simple polygon (e.g., self
         // intersection, double winding).
-        if (this->prePrepareInnerPolygonTriangulation(args, &numCountedCubics)) {
-            if (numCountedCubics > 0) {
+        if (this->prePrepareInnerPolygonTriangulation(args, &isLinear)) {
+            if (!isLinear) {
                 // Always use indirect draws for cubics instead of tessellation here. Our goal in
                 // this mode is to maximize GPU performance, and the middle-out topology used by our
                 // indirect draws is easier on the rasterizer than a tessellated fan. There also
@@ -155,7 +155,7 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
 }
 
 bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArgs& args,
-                                                             int* numCountedCurves) {
+                                                             bool* isLinear) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
@@ -166,7 +166,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     fTriangleVertexCount = GrTriangulator::PathToTriangles(fPath, 0, SkRect::MakeEmpty(),
                                                            args.fInnerTriangleAllocator,
                                                            Mode::kSimpleInnerPolygons,
-                                                           numCountedCurves);
+                                                           isLinear);
     if (fTriangleVertexCount == 0) {
         // Mode::kSimpleInnerPolygons causes PathToTriangles to fail if the inner polygon(s) are not
         // simple.
@@ -180,7 +180,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
         // stencilled.
         this->prePrepareStencilTrianglesProgram(args);
     }
-    this->prePrepareFillTrianglesProgram(args, *numCountedCurves);
+    this->prePrepareFillTrianglesProgram(args, *isLinear);
     return true;
 }
 
@@ -263,8 +263,7 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kKeep,
         0xffff>());
 
-void GrPathTessellateOp::prePrepareFillTrianglesProgram(const PrePrepareArgs& args,
-                                                        int numCountedCurves) {
+void GrPathTessellateOp::prePrepareFillTrianglesProgram(const PrePrepareArgs& args, bool isLinear) {
     SkASSERT(!fFillTrianglesProgram);
 
     if (fOpFlags & OpFlags::kStencilOnly) {
@@ -302,7 +301,7 @@ void GrPathTessellateOp::prePrepareFillTrianglesProgram(const PrePrepareArgs& ar
     if (fStencilTrianglesProgram) {
         // The path was already stencilled. Here we just need to do a cover pass.
         stencil = &kTestAndResetStencil;
-    } else if (numCountedCurves == 0) {
+    } else if (isLinear) {
         // There are no stencilled curves. We can ignore stencil and fill the path directly.
         stencil = &GrUserStencilSettings::kUnused;
     } else if (SkPathFillType::kWinding == fPath.getFillType()) {

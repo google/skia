@@ -50,12 +50,12 @@ namespace {
 // value.
 struct TessInfo {
     int       fNumVertices;
-    int       fNumCountedCurves;
+    bool      fIsLinear;
     SkScalar  fTolerance;
 };
 
-static sk_sp<SkData> create_data(int numVertices, int numCountedCurves, SkScalar tol) {
-    TessInfo info { numVertices, numCountedCurves, tol };
+static sk_sp<SkData> create_data(int numVertices, bool isLinear, SkScalar tol) {
+    TessInfo info { numVertices, isLinear, tol };
     return SkData::MakeWithCopy(&info, sizeof(info));
 }
 
@@ -64,7 +64,7 @@ bool cache_match(const SkData* data, SkScalar tol) {
 
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
 
-    return info->fNumCountedCurves == 0 || info->fTolerance < 3.0f * tol;
+    return info->fIsLinear || info->fTolerance < 3.0f * tol;
 }
 
 // Should 'challenger' replace 'incumbent' in the cache if there is a collision?
@@ -72,7 +72,7 @@ bool is_newer_better(SkData* incumbent, SkData* challenger) {
     const TessInfo* i = static_cast<const TessInfo*>(incumbent->data());
     const TessInfo* c = static_cast<const TessInfo*>(challenger->data());
 
-    if (i->fNumCountedCurves == 0 || i->fTolerance <= c->fTolerance) {
+    if (i->fIsLinear || i->fTolerance <= c->fTolerance) {
         return false;  // prefer the incumbent
     }
 
@@ -343,7 +343,7 @@ private:
                            const GrStyledShape& shape,
                            const SkIRect& devClipBounds,
                            SkScalar tol,
-                           int* numCountedCurves) {
+                           bool* isLinear) {
         SkRect clipBounds = SkRect::Make(devClipBounds);
 
         SkMatrix vmi;
@@ -357,7 +357,7 @@ private:
         shape.asPath(&path);
 
         return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator,
-                                               GrTriangulator::Mode::kNormal, numCountedCurves);
+                                               GrTriangulator::Mode::kNormal, isLinear);
     }
 
     void createNonAAMesh(Target* target) {
@@ -400,16 +400,16 @@ private:
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
 
-        int numCountedCurves;
+        bool isLinear;
         int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
-                                      &numCountedCurves);
+                                      &isLinear);
         if (vertexCount == 0) {
             return;
         }
 
         fVertexData = allocator.detachVertexData();
 
-        key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
+        key.setCustomData(create_data(vertexCount, isLinear, tol));
 
         auto [tmpV, tmpD] = threadSafeCache->addVertsWithData(key, fVertexData, is_newer_better);
         if (tmpV != fVertexData) {
@@ -439,11 +439,11 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        int numCountedCurves;
+        bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
         int vertexCount = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
                                                           GrTriangulator::Mode::kEdgeAntialias,
-                                                          &numCountedCurves);
+                                                          &isLinear);
         if (vertexCount == 0) {
             return;
         }
@@ -535,16 +535,16 @@ private:
 
         CpuVertexAllocator allocator;
 
-        int numCountedCurves;
+        bool isLinear;
         int vertexCount = Triangulate(&allocator, fViewMatrix, fShape, fDevClipBounds, tol,
-                                      &numCountedCurves);
+                                      &isLinear);
         if (vertexCount == 0) {
             return;
         }
 
         fVertexData = allocator.detachVertexData();
 
-        key.setCustomData(create_data(vertexCount, numCountedCurves, tol));
+        key.setCustomData(create_data(vertexCount, isLinear, tol));
 
         // If some other thread created and cached its own triangulation, the 'is_newer_better'
         // predicate will replace the version in the cache if 'fVertexData' is a more accurate
