@@ -100,6 +100,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5711da54_8f50c8a8",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:32:47Z",
+      "side": 1,
+      "message": "Coming back to this, after the godbolt demo, I agree and have removed Metadata as an extra type.",
+      "parentUuid": "80b1f2b1_a8e3dec2",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e56d24_7a412f3f",
@@ -137,6 +161,30 @@
       "side": 1,
       "message": "I\u0027m don\u0027t follow the \"can\u0027t be checked\" assertion, can you clarify?. \n\nThat bit field is always initialized to 0 in the constructor. I can make it private to enforce no one able to modify it. There\u0027s a static_assert that the Metadata size is 32 bits, so if that passes, we know there are no other unassigned bits that could be undefined and break comparison. I can also update asBitmask() to assert that fUnused remains 0.",
       "parentUuid": "22e56d24_7a412f3f",
+      "range": {
+        "startLine": 148,
+        "startChar": 8,
+        "endLine": 148,
+        "endChar": 52
+      },
+      "revId": "6af9157b399d57ef2f4e8e02fa04000c14afdfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d5f4dde_9bfd26d6",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:32:47Z",
+      "side": 1,
+      "message": "fUnused is gone now.",
+      "parentUuid": "fa917240_5d98ace6",
       "range": {
         "startLine": 148,
         "startChar": 8,

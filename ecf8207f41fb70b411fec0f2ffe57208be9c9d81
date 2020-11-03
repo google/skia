@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1c456d14_204ddad0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:32:47Z",
+      "side": 1,
+      "message": "Good catch, the gerrit comment was wrong.",
+      "parentUuid": "dc5d125d_6831bc8c",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 31
+      },
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e8855df9_58eeebda",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 8
@@ -77,6 +101,30 @@
       "writtenOn": "2020-11-02T20:08:12Z",
       "side": 1,
       "message": "I don\u0027t think you need all this cleverness. I think the compiler does a great job with out any of the brittle fUnused stuff. Check out the link:\nhttps://godbolt.org/z/PYsd3b",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 9
+      },
+      "revId": "ecf8207f41fb70b411fec0f2ffe57208be9c9d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce47740b_4dcc10a7",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:32:47Z",
+      "side": 1,
+      "message": "Thanks! That is really helpful to see and now I\u0027m totally onboard with getting rid of Metadata as a type. As part of that, I\u0027ve split this state compaction out to a separate CL, since it\u0027ll hopefully be useful regardless of the GrTBlockList outcome.",
+      "parentUuid": "c32ae7d0_39490d12",
       "range": {
         "startLine": 134,
         "startChar": 8,

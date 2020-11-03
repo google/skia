@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc247074_80379ff7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-03T17:32:47Z",
+      "side": 1,
+      "message": "PTAL, I ended up splitting the state bitfield compaction into another CL so this will just be changing out the geometry data storage.",
+      "revId": "c4be30be31dcbe018405e65e4967b95432209509",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
