@@ -17,7 +17,9 @@ class SkSVGFe : public SkSVGHiddenContainer {
 public:
     ~SkSVGFe() override = default;
 
-    static bool IsFilterElement(const sk_sp<SkSVGNode>& node) { return false; }
+    static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
+        return node->tag() == SkSVGTag::kFeTurbulence;
+    }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,
                                          SkSVGFilterContext* fctx) const;

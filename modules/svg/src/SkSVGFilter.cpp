@@ -67,7 +67,7 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
     sk_sp<SkImageFilter> filter;
     SkSVGFilterContext fctx(resolveFilterRegion(ctx));
     for (const auto& child : fChildren) {
-        if (!SkSVGFe::IsFilterElement(child)) {
+        if (!SkSVGFe::IsFilterEffect(child)) {
             continue;
         }
 
