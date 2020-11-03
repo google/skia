@@ -109,10 +109,10 @@ public:
     bool draw(const SkDeferredDisplayList* deferredDisplayList);
 #endif
 
+    bool isCompatible(const SkSurfaceCharacterization& characterization) const;
+
 private:
     explicit GrVkSecondaryCBDrawContext(sk_sp<SkGpuDevice>, const SkSurfaceProps*);
-
-    bool isCompatible(const SkSurfaceCharacterization& characterization) const;
 
     sk_sp<SkGpuDevice>        fDevice;
     std::unique_ptr<SkCanvas> fCachedCanvas;
