@@ -64,7 +64,7 @@ CanvasKit.onRuntimeInitialized = function() {
       m[size] = size%(n+1) == 0 ? 1.0 : 0.0;
     }
     return m;
-  }
+  };
 
   // Stride, a function for compactly representing several ways of copying an array into another.
   // Write vector `v` into matrix `m`. `m` is a matrix encoded as an array in row-major
@@ -85,7 +85,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ] = v[i];
     }
     return m;
-  }
+  };
 
   CanvasKit.Matrix.identity = function() {
     return identityN(3);
@@ -135,7 +135,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return ptArr;
   };
 
-  function isnumber(val) { return val !== NaN; };
+  function isnumber(val) { return !isNaN(val); }
 
   // generalized iterative algorithm for multiplying two matrices.
   function multiply(m1, m2, size) {
@@ -162,7 +162,7 @@ CanvasKit.onRuntimeInitialized = function() {
       }
     }
     return result;
-  };
+  }
 
   // Accept an integer indicating the size of the matrices being multiplied (3 for 3x3), and any
   // number of matrices following it.
@@ -177,7 +177,7 @@ CanvasKit.onRuntimeInitialized = function() {
       next++;
     }
     return result;
-  };
+  }
 
   // Accept any number 3x3 of matrices as arguments, multiply them together.
   // Matrix multiplication is associative but not commutative. the order of the arguments
@@ -228,28 +228,28 @@ CanvasKit.onRuntimeInitialized = function() {
       throw 'Cannot perform dot product on arrays of different length ('+a.length+' vs '+b.length+')';
     }
     return a.map(function(v, i) { return v*b[i] }).reduce(function(acc, cur) { return acc + cur; });
-  }
+  };
   CanvasKit.Vector.lengthSquared = function(v) {
     return CanvasKit.Vector.dot(v, v);
-  }
+  };
   CanvasKit.Vector.length = function(v) {
     return Math.sqrt(CanvasKit.Vector.lengthSquared(v));
-  }
+  };
   CanvasKit.Vector.mulScalar = function(v, s) {
     return v.map(function(i) { return i*s });
-  }
+  };
   CanvasKit.Vector.add = function(a, b) {
     return a.map(function(v, i) { return v+b[i] });
-  }
+  };
   CanvasKit.Vector.sub = function(a, b) {
     return a.map(function(v, i) { return v-b[i]; });
-  }
+  };
   CanvasKit.Vector.dist = function(a, b) {
     return CanvasKit.Vector.length(CanvasKit.Vector.sub(a, b));
-  }
+  };
   CanvasKit.Vector.normalize = function(v) {
     return CanvasKit.Vector.mulScalar(v, 1/CanvasKit.Vector.length(v));
-  }
+  };
   CanvasKit.Vector.cross = function(a, b) {
     if (IsDebug && (a.length !== 3 || a.length !== 3)) {
       throw 'Cross product is only defined for 3-dimensional vectors (a.length='+a.length+', b.length='+b.length+')';
@@ -259,7 +259,7 @@ CanvasKit.onRuntimeInitialized = function() {
       a[2]*b[0] - a[0]*b[2],
       a[0]*b[1] - a[1]*b[0],
     ];
-  }
+  };
 
   // Functions for creating and manipulating (row-major) 4x4 matrices. Accepted in place of
   // SkM44 in canvas methods, for the same reasons as the 3x3 matrices above.
@@ -268,23 +268,23 @@ CanvasKit.onRuntimeInitialized = function() {
   // Create a 4x4 identity matrix
   CanvasKit.M44.identity = function() {
     return identityN(4);
-  }
+  };
 
   // Anything named vec below is an array of length 3 representing a vector/point in 3D space.
   // Create a 4x4 matrix representing a translate by the provided 3-vec
   CanvasKit.M44.translated = function(vec) {
     return stride(vec, identityN(4), 4, 3, 0);
-  }
+  };
   // Create a 4x4 matrix representing a scaling by the provided 3-vec
   CanvasKit.M44.scaled = function(vec) {
     return stride(vec, identityN(4), 4, 0, 1);
-  }
+  };
   // Create a 4x4 matrix representing a rotation about the provided axis 3-vec.
   // axis does not need to be normalized.
   CanvasKit.M44.rotated = function(axisVec, radians) {
     return CanvasKit.M44.rotatedUnitSinCos(
       CanvasKit.Vector.normalize(axisVec), Math.sin(radians), Math.cos(radians));
-  }
+  };
   // Create a 4x4 matrix representing a rotation about the provided normalized axis 3-vec.
   // Rotation is provided redundantly as both sin and cos values.
   // This rotate can be used when you already have the cosAngle and sinAngle values
@@ -304,7 +304,7 @@ CanvasKit.onRuntimeInitialized = function() {
       t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
       0,           0,           0,           1
     ];
-  }
+  };
   // Create a 4x4 matrix representing a camera at eyeVec, pointed at centerVec.
   CanvasKit.M44.lookat = function(eyeVec, centerVec, upVec) {
     var f = CanvasKit.Vector.normalize(CanvasKit.Vector.sub(centerVec, eyeVec));
@@ -323,7 +323,7 @@ CanvasKit.onRuntimeInitialized = function() {
       return CanvasKit.M44.identity();
     }
     return m2;
-  }
+  };
   // Create a 4x4 matrix representing a perspective. All arguments are scalars.
   // angle is in radians.
   CanvasKit.M44.perspective = function(near, far, angle) {
@@ -339,15 +339,15 @@ CanvasKit.onRuntimeInitialized = function() {
       0,   0,   (far+near)*dInv, 2*far*near*dInv,
       0,   0,   -1,              1,
     ];
-  }
+  };
   // Returns the number at the given row and column in matrix m.
   CanvasKit.M44.rc = function(m, r, c) {
     return m[r*4+c];
-  }
+  };
   // Accepts any number of 4x4 matrix arguments, multiplies them left to right.
   CanvasKit.M44.multiply = function() {
     return multiplyMany(4, arguments);
-  }
+  };
 
   // Invert the 4x4 matrix if it is invertible and return it. if not, return null.
   // taken from SkM44.cpp (altered to use row-major order)
@@ -439,7 +439,7 @@ CanvasKit.onRuntimeInitialized = function() {
       return null;
     }
     return tmp;
-  }
+  };
 
   CanvasKit.M44.transpose = function(m) {
     return [
@@ -448,7 +448,7 @@ CanvasKit.onRuntimeInitialized = function() {
       m[2], m[6], m[10], m[14],
       m[3], m[7], m[11], m[15],
     ];
-  }
+  };
 
   // Return the inverse of an SkM44. throw an error if it's not invertible
   CanvasKit.M44.mustInvert = function(m) {
@@ -457,7 +457,7 @@ CanvasKit.onRuntimeInitialized = function() {
       throw 'Matrix not invertible';
     }
     return m2;
-  }
+  };
 
   // returns a matrix that sets up a 3D perspective view from a given camera.
   //
@@ -482,7 +482,7 @@ CanvasKit.onRuntimeInitialized = function() {
       CanvasKit.M44.scaled(viewScale));
     return CanvasKit.M44.multiply(
       viewport, perspective, camera, CanvasKit.M44.mustInvert(viewport));
-  }
+  };
 
   // An ColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
@@ -514,7 +514,7 @@ CanvasKit.onRuntimeInitialized = function() {
     m[bScale] = 1;
     m[aScale] = 1;
     return m;
-  }
+  };
 
   CanvasKit.ColorMatrix.scaled = function(rs, gs, bs, as) {
     var m = new Float32Array(20);
@@ -523,7 +523,7 @@ CanvasKit.onRuntimeInitialized = function() {
     m[bScale] = bs;
     m[aScale] = as;
     return m;
-  }
+  };
 
   var rotateIndices = [
     [6, 7, 11, 12],
@@ -539,7 +539,7 @@ CanvasKit.onRuntimeInitialized = function() {
     m[indices[2]] = -sine;
     m[indices[3]] = cosine;
     return m;
-  }
+  };
 
   // m is a ColorMatrix (i.e. a Float32Array), and this sets the 4 "special"
   // params that will translate the colors after they are multiplied by the 4x4 matrix.
@@ -549,7 +549,7 @@ CanvasKit.onRuntimeInitialized = function() {
     m[bPostTrans] += db;
     m[aPostTrans] += da;
     return m;
-  }
+  };
 
   // concat returns a new ColorMatrix that is the result of multiplying outer*inner
   CanvasKit.ColorMatrix.concat = function(outer, inner) {
@@ -913,12 +913,12 @@ CanvasKit.onRuntimeInitialized = function() {
     }
 
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
-  }
+  };
 
   CanvasKit.Image.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
     return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
-  }
+  };
 
   CanvasKit.Image.prototype.readPixels = function(imageInfo, srcX, srcY) {
     var rowBytes;
@@ -958,35 +958,35 @@ CanvasKit.onRuntimeInitialized = function() {
     // Free the allocated pixels in the WASM memory
     CanvasKit._free(pPtr);
     return retVal;
-  }
+  };
 
   // Accepts an array of four numbers in the range of 0-1 representing a 4f color
   CanvasKit.Canvas.prototype.clear = function(color4f) {
     var cPtr = copyColorToWasm(color4f);
     this._clear(cPtr);
-  }
+  };
 
   CanvasKit.Canvas.prototype.clipRRect = function(rrect, op, antialias) {
     var rPtr = copyRRectToWasm(rrect);
     this._clipRRect(rPtr, op, antialias);
-  }
+  };
 
   CanvasKit.Canvas.prototype.clipRect = function(rect, op, antialias) {
     var rPtr = copyRectToWasm(rect);
     this._clipRect(rPtr, op, antialias);
-  }
+  };
 
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
   // under the hood, SkCanvas uses a 4x4 matrix.
   CanvasKit.Canvas.prototype.concat = function(matr) {
     var matrPtr = copy4x4MatrixToWasm(matr);
     this._concat(matrPtr);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawArc = function(oval, startAngle, sweepAngle, useCenter, paint) {
     var oPtr = copyRectToWasm(oval);
     this._drawArc(oPtr, startAngle, sweepAngle, useCenter, paint);
-  }
+  };
 
   // atlas is an Image, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects, dstXforms, and colors should be CanvasKit.RectBuilder, CanvasKit.RSXFormBuilder,
@@ -1052,7 +1052,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (colorPtr && !colors.build) {
       freeArraysThatAreNotMallocedByUsers(colorPtr, colors);
     }
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawColor = function (color4f, mode) {
     var cPtr = copyColorToWasm(color4f);
@@ -1061,7 +1061,7 @@ CanvasKit.onRuntimeInitialized = function() {
     } else {
       this._drawColor(cPtr);
     }
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawColorComponents = function (r, g, b, a, mode) {
     var cPtr = copyColorComponentsToWasm(r, g, b, a);
@@ -1070,30 +1070,30 @@ CanvasKit.onRuntimeInitialized = function() {
     } else {
       this._drawColor(cPtr);
     }
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawDRRect = function(outer, inner, paint) {
     var oPtr = copyRRectToWasm(outer, _scratchRRectPtr);
     var iPtr = copyRRectToWasm(inner, _scratchRRect2Ptr);
     this._drawDRRect(oPtr, iPtr, paint);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawImageNine = function(img, center, dest, paint) {
     var cPtr = copyIRectToWasm(center);
     var dPtr = copyRectToWasm(dest);
     this._drawImageNine(img, cPtr, dPtr, paint);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample) {
     var sPtr = copyRectToWasm(src,  _scratchRectPtr);
     var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
     this._drawImageRect(img, sPtr, dPtr, paint, !!fastSample);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawOval = function(oval, paint) {
     var oPtr = copyRectToWasm(oval);
     this._drawOval(oPtr, paint);
-  }
+  };
 
   // points is either an array of [x, y] where x and y are numbers or
   // a typed array from Malloc where the even indices will be treated
@@ -1112,17 +1112,17 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     this._drawPoints(mode, ptr, n, paint);
     freeArraysThatAreNotMallocedByUsers(ptr, points);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawRRect = function(rrect, paint) {
     var rPtr = copyRRectToWasm(rrect);
     this._drawRRect(rPtr, paint);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawRect = function(rect, paint) {
     var rPtr = copyRectToWasm(rect);
     this._drawRect(rPtr, paint);
-  }
+  };
 
   CanvasKit.Canvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
     var ambiPtr = copyColorToWasmNoScratch(ambientColor);
@@ -1130,14 +1130,14 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawShadow(path, zPlaneParams, lightPos, lightRadius, ambiPtr, spotPtr, flags);
     freeArraysThatAreNotMallocedByUsers(ambiPtr, ambientColor);
     freeArraysThatAreNotMallocedByUsers(spotPtr, spotColor);
-  }
+  };
 
   // getLocalToDevice returns a 4x4 matrix.
   CanvasKit.Canvas.prototype.getLocalToDevice = function() {
     // _getLocalToDevice will copy the values into the pointer.
     this._getLocalToDevice(_scratch4x4MatrixPtr);
     return copy4x4MatrixFromWasm(_scratch4x4MatrixPtr);
-  }
+  };
 
   // findMarkedCTM returns a 4x4 matrix, or null if a matrix was not found at
   // the provided marker.
@@ -1148,7 +1148,7 @@ CanvasKit.onRuntimeInitialized = function() {
       return null;
     }
     return copy4x4MatrixFromWasm(_scratch4x4MatrixPtr);
-  }
+  };
 
   // getTotalMatrix returns the current matrix as a 3x3 matrix.
   CanvasKit.Canvas.prototype.getTotalMatrix = function() {
@@ -1161,7 +1161,7 @@ CanvasKit.onRuntimeInitialized = function() {
       rv[i] = CanvasKit.HEAPF32[_scratch3x3MatrixPtr/4 + i]; // divide by 4 to "cast" to float.
     }
     return rv;
-  }
+  };
 
   // returns Uint8Array
   CanvasKit.Canvas.prototype.readPixels = function(x, y, w, h, alphaType,
@@ -1195,14 +1195,14 @@ CanvasKit.onRuntimeInitialized = function() {
     var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pptr, len).slice();
     CanvasKit._free(pptr);
     return pixels;
-  }
+  };
 
   CanvasKit.Canvas.prototype.saveLayer = function(paint, boundsRect, backdrop, flags) {
     // bPtr will be 0 (nullptr) if boundsRect is undefined/null.
     var bPtr = copyRectToWasm(boundsRect);
     // These or clauses help emscripten, which does not deal with undefined well.
     return this._saveLayer(paint || null, bPtr, backdrop || null, flags || 0);
-  }
+  };
 
   // pixels should be a Uint8Array or a plain JS array.
   CanvasKit.Canvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,
@@ -1228,13 +1228,13 @@ CanvasKit.onRuntimeInitialized = function() {
 
     freeArraysThatAreNotMallocedByUsers(pptr, pixels);
     return ok;
-  }
+  };
 
   CanvasKit.ColorFilter.MakeBlend = function(color4f, mode) {
     var cPtr = copyColorToWasm(color4f);
     var result = CanvasKit.ColorFilter._MakeBlend(cPtr, mode);
     return result;
-  }
+  };
 
   // colorMatrix is an ColorMatrix (e.g. Float32Array of length 20)
   CanvasKit.ColorFilter.MakeMatrix = function(colorMatrix) {
@@ -1246,24 +1246,24 @@ CanvasKit.onRuntimeInitialized = function() {
     var m = CanvasKit.ColorFilter._makeMatrix(fptr);
     freeArraysThatAreNotMallocedByUsers(fptr, colorMatrix);
     return m;
-  }
+  };
 
   CanvasKit.ImageFilter.MakeMatrixTransform = function(matr, filterQuality, input) {
     var matrPtr = copy3x3MatrixToWasm(matr);
     return CanvasKit.ImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
-  }
+  };
 
   CanvasKit.Paint.prototype.getColor = function() {
     this._getColor(_scratchColorPtr);
     return copyColorFromWasm(_scratchColorPtr);
-  }
+  };
 
   CanvasKit.Paint.prototype.setColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null; // null will be replaced with sRGB in the C++ method.
     // emscripten wouldn't bind undefined to the sk_sp<ColorSpace> expected here.
     var cPtr = copyColorToWasm(color4f);
     this._setColor(cPtr, colorSpace);
-  }
+  };
 
   // The color components here are expected to be floating point values (nominally between
   // 0.0 and 1.0, but with wider color gamuts, the values could exceed this range). To convert
@@ -1273,17 +1273,17 @@ CanvasKit.onRuntimeInitialized = function() {
     // emscripten wouldn't bind undefined to the sk_sp<ColorSpace> expected here.
     var cPtr = copyColorComponentsToWasm(r, g, b, a);
     this._setColor(cPtr, colorSpace);
-  }
+  };
 
   CanvasKit.PictureRecorder.prototype.beginRecording = function(bounds) {
     var bPtr = copyRectToWasm(bounds);
     return this._beginRecording(bPtr);
-  }
+  };
 
   CanvasKit.Surface.prototype.makeImageSnapshot = function(optionalBoundsRect) {
     var bPtr = copyIRectToWasm(optionalBoundsRect);
     return this._makeImageSnapshot(bPtr);
-  }
+  };
 
   CanvasKit.Surface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
     if (!this._cached_canvas) {
@@ -1301,7 +1301,7 @@ CanvasKit.onRuntimeInitialized = function() {
       // For drawing a single frame, prefer drawOnce().
       this.flush(dirtyRect);
     }.bind(this));
-  }
+  };
 
   // drawOnce will dispose of the surface after drawing the frame using the provided
   // callback.
@@ -1318,7 +1318,7 @@ CanvasKit.onRuntimeInitialized = function() {
       this.flush(dirtyRect);
       this.dispose();
     }.bind(this));
-  }
+  };
 
   CanvasKit.PathEffect.MakeDash = function(intervals, phase) {
     if (!phase) {
@@ -1331,13 +1331,13 @@ CanvasKit.onRuntimeInitialized = function() {
     var dpe = CanvasKit.PathEffect._MakeDash(ptr, intervals.length, phase);
     freeArraysThatAreNotMallocedByUsers(ptr, intervals);
     return dpe;
-  }
+  };
 
   CanvasKit.Shader.MakeColor = function(color4f, colorSpace) {
     colorSpace = colorSpace || null
     var cPtr = copyColorToWasm(color4f);
     return CanvasKit.Shader._MakeColor(cPtr, colorSpace);
-  }
+  };
 
   // TODO(kjlubick) remove deprecated names.
   CanvasKit.Shader.Blend = CanvasKit.Shader.MakeBlend;
@@ -1357,7 +1357,7 @@ CanvasKit.onRuntimeInitialized = function() {
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return lgs;
-  }
+  };
 
   CanvasKit.Shader.MakeRadialGradient = function(center, radius, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null
@@ -1372,7 +1372,7 @@ CanvasKit.onRuntimeInitialized = function() {
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
-  }
+  };
 
   CanvasKit.Shader.MakeSweepGradient = function(cx, cy, colors, pos, mode, localMatrix, flags, startAngle, endAngle, colorSpace) {
     colorSpace = colorSpace || null
@@ -1391,7 +1391,7 @@ CanvasKit.onRuntimeInitialized = function() {
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return sgs;
-  }
+  };
 
   CanvasKit.Shader.MakeTwoPointConicalGradient = function(start, startRadius, end, endRadius,
                                                           colors, pos, mode, localMatrix, flags, colorSpace) {
@@ -1408,7 +1408,7 @@ CanvasKit.onRuntimeInitialized = function() {
     freeArraysThatAreNotMallocedByUsers(cPtrInfo.colorPtr, colors);
     pos && freeArraysThatAreNotMallocedByUsers(posPtr, pos);
     return rgs;
-  }
+  };
 
   // Clients can pass in a Float32Array with length 4 to this and the results
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
@@ -1421,7 +1421,7 @@ CanvasKit.onRuntimeInitialized = function() {
       return optionalOutputArray;
     }
     return ta.slice();
-  }
+  };
 
   // Run through the JS files that are added at compile time.
   if (CanvasKit._extraInitializations) {
@@ -1496,7 +1496,7 @@ CanvasKit.MakeAnimatedImageFromEncoded = function(data) {
     return null;
   }
   return img;
-}
+};
 
 // data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
 CanvasKit.MakeImageFromEncoded = function(data) {
@@ -1510,7 +1510,7 @@ CanvasKit.MakeImageFromEncoded = function(data) {
     return null;
   }
   return img;
-}
+};
 
 // A variable to hold a canvasElement which can be reused once created the first time.
 var memoizedCanvas2dElement = null;
@@ -1542,7 +1542,7 @@ CanvasKit.MakeImageFromCanvasImageSource = function(canvasImageSource) {
     CanvasKit.ColorType.RGBA_8888,
     CanvasKit.ColorSpace.SRGB
   );
-}
+};
 
 // pixels may be any Typed Array, but Uint8Array or Uint8ClampedArray is recommended,
 // with bytes representing the pixel values.
@@ -1560,7 +1560,7 @@ CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colo
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
   return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
-}
+};
 
 // Colors may be a Uint32Array of int colors, a Flat Float32Array of float colors
 // or a 2d Array of Float32Array(4) (deprecated)

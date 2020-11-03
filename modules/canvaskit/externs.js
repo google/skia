@@ -218,6 +218,7 @@ var CanvasKit = {
     restoreToCount: function() {},
     rotate: function() {},
     save: function() {},
+    saveLayerPaint: function() {},
     scale: function() {},
     skew: function() {},
     translate: function() {},
