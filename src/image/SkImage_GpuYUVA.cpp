@@ -240,7 +240,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> imageColorSpace,
                                              TextureReleaseProc textureReleaseProc,
                                              ReleaseContext releaseContext) {
-    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
 
     SkYUVAIndex yuvaIndices[4];
     int numTextures;
@@ -280,7 +283,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* ctx,
                                              sk_sp<SkColorSpace> imageColorSpace,
                                              TextureReleaseProc textureReleaseProc,
                                              ReleaseContext releaseContext) {
-    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
+    sk_sp<GrRefCntedCallback> releaseHelper;
+    if (textureReleaseProc) {
+        releaseHelper.reset(new GrRefCntedCallback(textureReleaseProc, releaseContext));
+    }
 
     int numTextures;
     if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {

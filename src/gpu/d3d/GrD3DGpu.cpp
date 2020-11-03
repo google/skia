@@ -213,7 +213,9 @@ void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
 void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
                                GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
-    this->addFinishedCallback(GrRefCntedCallback::Make(finishedProc, finishedContext));
+    sk_sp<GrRefCntedCallback> finishedCallback(
+            new GrRefCntedCallback(finishedProc, finishedContext));
+    this->addFinishedCallback(std::move(finishedCallback));
 }
 
 void GrD3DGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {

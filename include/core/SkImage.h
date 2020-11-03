@@ -428,46 +428,6 @@ public:
                                                TextureReleaseProc textureReleaseProc = nullptr,
                                                ReleaseContext releaseContext = nullptr);
 
-    /** Deprecated.
-        Creates an SkImage from YUV[A] planar textures by copying them to another caller-provided
-        texture and retaining that result texture in the SkImage. This should be preferred over
-        MakeFromYUVTexturesCopyWithExternalBackend and MakeFromNV12TexturesCopyWithExternalBackend.
-        However, this is deprecated and instead clients should make a SkSurface from
-        'rgbaResultTexture` using SkSurface::MakeFromBackendTexture, make an image from the planes
-        using MakeFromYUVATextures, and finally draw the image to the surface.
-
-        Note that the draw that converts to RGBA is not issued to the underlying API until a flush/
-        submit occurs so the YUVA textures are not safe to delete or overwrite until yuvaReleaseProc
-        is called.
-
-        The dimensions of the result RGBA texture must match the dimensions of the YUVA planar data.
-
-        @param context            GPU context
-        @param yuvaTextures       A set of textures containing YUVA data and a description of the
-                                  data and transformation to RGBA.
-        @param rgbaResultTexture  The renderable texture that will hold the result of the conversion
-                                  to RGBA and be retained in the resulting SkImage.
-        @param colorType          colorType of the result as stored in rgbaResultTexture. Must be
-                                  compatible with the texture's format.
-        @param imageColorSpace    range of colors of the resulting image after conversion to RGB;
-                                  may be nullptr
-        @param yuvaReleaseProc    called when the backend textures in 'yuvaTextures' can be released
-        @param yuvaReleaseContext state passed to yuvaReleaseProc
-        @param rgbaReleaseProc    called when the 'rgbaResultTexture' can be released
-        @param rgbaReleaseContext state passed to rgbaReleaseProc
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVATexturesCopyToExternal(
-            GrRecordingContext* context,
-            const GrYUVABackendTextures& yuvaTextures,
-            const GrBackendTexture& rgbaResultTexture,
-            SkColorType colorType,
-            sk_sp<SkColorSpace> imageColorSpace = nullptr,
-            TextureReleaseProc yuvaReleaseProc = nullptr,
-            ReleaseContext yuvaReleaseContext = nullptr,
-            TextureReleaseProc rgbaReleaseProc = nullptr,
-            ReleaseContext rgbaReleaseContext = nullptr);
-
     /**
         Deprecated. Use version that takes GrYUVABackendTextures.
 

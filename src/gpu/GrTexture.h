@@ -64,7 +64,7 @@ public:
     void addIdleProc(GrRefCntedCallback::Callback callback,
                      GrRefCntedCallback::Context context,
                      IdleState state) {
-        this->addIdleProc(GrRefCntedCallback::Make(callback, context), state);
+        this->addIdleProc(sk_make_sp<GrRefCntedCallback>(callback, context), state);
     }
 
     GrTextureType textureType() const { return fTextureType; }

@@ -177,18 +177,6 @@ bool SkYUVAPixmapInfo::isSupported(const SupportedDataTypes& supportedDataTypes)
 
 //////////////////////////////////////////////////////////////////////////////
 
-SkColorType SkYUVAPixmaps::RecommendedRGBAColorType(DataType dataType) {
-    switch (dataType) {
-        case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
-        // F16 has better GPU support than 16 bit unorm. Often "16" bit unorm values are actually
-        // lower precision.
-        case DataType::kUnorm16:        return kRGBA_F16_SkColorType;
-        case DataType::kFloat16:        return kRGBA_F16_SkColorType;
-        case DataType::kUnorm10_Unorm2: return kRGBA_1010102_SkColorType;
-    }
-    SkUNREACHABLE;
-}
-
 SkYUVAPixmaps SkYUVAPixmaps::Allocate(const SkYUVAPixmapInfo& yuvaPixmapInfo) {
     if (!yuvaPixmapInfo.isValid()) {
         return {};
@@ -235,7 +223,7 @@ SkYUVAPixmaps SkYUVAPixmaps::FromExternalMemory(const SkYUVAPixmapInfo& yuvaPixm
     }
     SkPixmap pixmaps[kMaxPlanes];
     yuvaPixmapInfo.initPixmapsFromSingleAllocation(memory, pixmaps);
-    return SkYUVAPixmaps(yuvaPixmapInfo.yuvaInfo(), yuvaPixmapInfo.dataType(), pixmaps);
+    return SkYUVAPixmaps(yuvaPixmapInfo.yuvaInfo(), pixmaps);
 }
 
 SkYUVAPixmaps SkYUVAPixmaps::FromExternalPixmaps(const SkYUVAInfo& yuvaInfo,
@@ -247,27 +235,23 @@ SkYUVAPixmaps SkYUVAPixmaps::FromExternalPixmaps(const SkYUVAInfo& yuvaInfo,
         colorTypes[i] = pixmaps[i].colorType();
         rowBytes[i] = pixmaps[i].rowBytes();
     }
-    SkYUVAPixmapInfo yuvaPixmapInfo(yuvaInfo, colorTypes, rowBytes);
-    if (!yuvaPixmapInfo.isValid()) {
+    if (!SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes).isValid()) {
         return {};
     }
-    return SkYUVAPixmaps(yuvaInfo, yuvaPixmapInfo.dataType(), pixmaps);
+    return SkYUVAPixmaps(yuvaInfo, pixmaps);
 }
 
 SkYUVAPixmaps::SkYUVAPixmaps(const SkYUVAPixmapInfo& yuvaPixmapInfo, sk_sp<SkData> data)
-        : fData(std::move(data))
-        , fYUVAInfo(yuvaPixmapInfo.yuvaInfo())
-        , fDataType(yuvaPixmapInfo.dataType()) {
+        : fYUVAInfo(yuvaPixmapInfo.yuvaInfo())
+        , fData(std::move(data)) {
     SkASSERT(yuvaPixmapInfo.isValid());
     SkASSERT(yuvaPixmapInfo.computeTotalBytes() <= fData->size());
     SkAssertResult(yuvaPixmapInfo.initPixmapsFromSingleAllocation(fData->writable_data(),
                                                                   fPlanes.data()));
 }
 
-SkYUVAPixmaps::SkYUVAPixmaps(const SkYUVAInfo& yuvaInfo,
-                             DataType dataType,
-                             const SkPixmap pixmaps[kMaxPlanes])
-        : fYUVAInfo(yuvaInfo), fDataType(dataType) {
+SkYUVAPixmaps::SkYUVAPixmaps(const SkYUVAInfo& yuvaInfo, const SkPixmap pixmaps[kMaxPlanes])
+        : fYUVAInfo(yuvaInfo) {
     std::copy_n(pixmaps, yuvaInfo.numPlanes(), fPlanes.data());
 }
 

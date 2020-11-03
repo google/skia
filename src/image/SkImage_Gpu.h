@@ -85,15 +85,11 @@ public:
                                              PromiseImageTextureContext textureContext,
                                              PromiseImageApiVersion);
 
-    static sk_sp<SkImage> ConvertYUVATexturesToRGB(
-            GrRecordingContext*,
-            SkYUVColorSpace,
-            const GrBackendTexture[],
-            const SkYUVAIndex[SkYUVAIndex::kIndexCount],
-            SkISize,
-            GrSurfaceOrigin,
-            GrRenderTargetContext*,
-            sk_sp<GrRefCntedCallback> releaseHelper = nullptr);
+    static sk_sp<SkImage> ConvertYUVATexturesToRGB(GrRecordingContext*, SkYUVColorSpace,
+                                                   const GrBackendTexture [],
+                                                   const SkYUVAIndex [4],
+                                                   SkISize, GrSurfaceOrigin,
+                                                   GrRenderTargetContext*);
 
 private:
     GrSurfaceProxyView fView;
