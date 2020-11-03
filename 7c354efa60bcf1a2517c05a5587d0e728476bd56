@@ -131,6 +131,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "52592990_1cf583e1",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T20:19:52Z",
+      "side": 1,
+      "message": "Ah, that\u0027s interesting. Yes, I think suppressing more optimization in the first compile makes sense, though I\u0027m tempted to do that in a follow-up. We currently rely on the inlining to make some effects work on the CPU backend, and I think we\u0027d trigger some errors about optimization not being applied?\n\nAlso, some settings do change from compile-to-compile. (Not for runtime effects, but in the GPU backends). We could probably do more to partition them out so these kinds of things are actually part of shader-caps.",
+      "parentUuid": "edb597f8_53000b1a",
+      "range": {
+        "startLine": 45,
+        "startChar": 68,
+        "endLine": 46,
+        "endChar": 79
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aab2c37b_d9983a0b",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -154,6 +178,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ad9264d4_a872ff48",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T20:19:52Z",
+      "side": 1,
+      "message": "Logically, yes. Expounding on my previous comment - the CPU backend doesn\u0027t support function calls, so today many samples only work due to inlining. That needs to be resolved robustly, but I\u0027d rather not break a bunch of test-cases today. I can rewrite my comment here, though - it\u0027s not that we want to do no transformation, just that we don\u0027t want to prematurely apply changes that we either don\u0027t need to (some GLSL intrinsic hacks) or don\u0027t want to (eg, introducing do-while loops).",
+      "parentUuid": "aab2c37b_d9983a0b",
+      "range": {
+        "startLine": 57,
+        "startChar": 31,
+        "endLine": 57,
+        "endChar": 74
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "873e7490_46c73810",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 8
@@ -165,6 +213,30 @@
       "writtenOn": "2020-11-03T19:43:32Z",
       "side": 1,
       "message": "It seems like it\u0027d be clearer to have a SharedCompiler object with normal member variables, wrapped with a separate class/helper that handles the locking and singleton-ness of it? Having one \"SharedCompiler\" object that you need to \"instantiate,\" but instantiation really means taking a lock and all the real members are static, is not a pattern I\u0027m familiar with. It took me a while before I understood what was going on (and had written up a handful of comments that I needed to discard)",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 46
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b524bdd1_1f4aafd5",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-03T20:19:52Z",
+      "side": 1,
+      "message": "Rewrote this a bit - I think it\u0027s less obtuse now?",
+      "parentUuid": "873e7490_46c73810",
       "range": {
         "startLine": 69,
         "startChar": 0,
