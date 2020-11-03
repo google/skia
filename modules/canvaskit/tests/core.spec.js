@@ -152,7 +152,15 @@ describe('Core canvas behavior', () => {
                 // requires 4 bytes (R, G, B, A).
                 expect(pixels.length).toEqual(512 * 512 * 4);
 
+                // Make enough space for a 5x5 8888 surface (4 bytes for R, G, B, A)
+                const rdsData = CanvasKit.Malloc(Uint8Array, 512 * 5*512 * 4);
+                const pixels2 = rdsData.toTypedArray();
+                pixels2[0] = 127;  // sentinel value, should be overwritten by readPixels.
+                img.readPixels(imageInfo, 0, 0, rdsData);
+                expect(rdsData.toTypedArray()[0]).toEqual(pixels[0]);
+
                 img.delete();
+                CanvasKit.Free(rdsData);
                 done();
             })();
         });
@@ -888,9 +896,17 @@ describe('Core canvas behavior', () => {
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
-            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
-                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, colorSpace);
+            const mObj = CanvasKit.Malloc(Uint8Array, CANVAS_WIDTH * CANVAS_HEIGHT * 4);
+            mObj.toTypedArray()[0] = 127; // sentinel value. Should be overwritten by readPixels.
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.TRANSPARENT);
+            const pixels = canvas.readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
+                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, colorSpace, null, mObj);
             expect(pixels).toBeTruthy('Could not read pixels from surface');
+            expect(pixels[0] !== 127).toBeTruthy();
+            expect(pixels[0]).toEqual(mObj.toTypedArray()[0]);
+            CanvasKit.Free(mObj);
+            surface.delete();
         });
         it('Can create a Display P3 surface', () => {
             const colorSpace = CanvasKit.ColorSpace.DISPLAY_P3;

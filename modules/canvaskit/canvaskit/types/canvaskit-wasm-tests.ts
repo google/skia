@@ -141,6 +141,9 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     const pixels = canvas.readPixels(0, 1, 2, 3); // $ExpectType Uint8Array
     const pixelsTwo = canvas.readPixels(4, 5, 6, 7, CK.AlphaType.Opaque, CK.ColorType.RGBA_1010102,
                                         CK.ColorSpace.DISPLAY_P3, 16);
+    const m = CK.Malloc(Uint8Array, 20);
+    canvas.readPixels(4, 5, 6, 7, CK.AlphaType.Opaque, CK.ColorType.RGBA_1010102,
+                                        CK.ColorSpace.DISPLAY_P3, 16, m);
     canvas.restore();
     canvas.restoreToCount(2);
     canvas.rotate(1, 2, 3);
@@ -239,6 +242,14 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
         alphaType: CK.AlphaType.Unpremul,
         colorSpace: CK.ColorSpace.SRGB,
     }, 85, 1000);
+    const m = CK.Malloc(Uint8Array, 10);
+    img.readPixels({
+        width: 79,
+        height: 205,
+        colorType: CK.ColorType.RGBA_8888,
+        alphaType: CK.AlphaType.Unpremul,
+        colorSpace: CK.ColorSpace.SRGB,
+    }, 85, 1000, m);
     img.delete();
 }
 
