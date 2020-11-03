@@ -281,6 +281,29 @@ Float32Array GetRectsForPlaceholders(para::Paragraph& self) {
     return TextBoxesToFloat32Array(boxes);
 }
 
+JSArray GetLineMetrics(para::Paragraph& self) {
+    std::vector<skia::textlayout::LineMetrics> metrics;
+    self.getLineMetrics(metrics);
+    JSArray result = emscripten::val::array();
+    for (auto metric : metrics) {
+        JSObject m = emscripten::val::object();
+        m.set("startIndex", metric.fStartIndex);
+        m.set("endIndex", metric.fEndIndex);
+        m.set("endExcludingWhitespaces", metric.fEndExcludingWhitespaces);
+        m.set("endIncludingNewline", metric.fEndIncludingNewline);
+        m.set("isHardBreak", metric.fHardBreak);
+        m.set("ascent", metric.fAscent);
+        m.set("descent", metric.fDescent);
+        m.set("height", metric.fHeight);
+        m.set("width", metric.fWidth);
+        m.set("left", metric.fLeft);
+        m.set("baseline", metric.fBaseline);
+        m.set("lineNumber", metric.fLineNumber);
+        result.call<void>("push", m);
+    }
+    return result;
+}
+
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
     class_<para::Paragraph>("Paragraph")
@@ -289,7 +312,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("getGlyphPositionAtCoordinate", &para::Paragraph::getGlyphPositionAtCoordinate)
         .function("getHeight", &para::Paragraph::getHeight)
         .function("getIdeographicBaseline", &para::Paragraph::getIdeographicBaseline)
-        .function("getLineMetrics", &para::Paragraph::getLineMetrics)
+        .function("getLineMetrics", &GetLineMetrics)
         .function("getLongestLine", &para::Paragraph::getLongestLine)
         .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
         .function("getMaxWidth", &para::Paragraph::getMaxWidth)
