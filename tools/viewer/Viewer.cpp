@@ -2451,13 +2451,13 @@ void Viewer::drawImGui() {
                             SkGetPackedB32(pixel), SkGetPackedA32(pixel));
             }
 
-            fImGuiLayer.skiaWidget(avail, [=](SkCanvas* c) {
+            fImGuiLayer.skiaWidget(avail, [=, lastImage = fLastImage](SkCanvas* c) {
                 // Translate so the region of the image that's under the mouse cursor is centered
                 // in the zoom canvas:
                 c->scale(zoomFactor, zoomFactor);
                 c->translate(avail.x * 0.5f / zoomFactor - x - 0.5f,
                              avail.y * 0.5f / zoomFactor - y - 0.5f);
-                c->drawImage(this->fLastImage, 0, 0);
+                c->drawImage(lastImage, 0, 0);
 
                 SkPaint outline;
                 outline.setStyle(SkPaint::kStroke_Style);
