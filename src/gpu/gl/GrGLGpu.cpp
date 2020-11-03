@@ -1714,7 +1714,8 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachmentForRenderTarget(const GrRender
     fStats.incStencilAttachmentCreates();
 
     return sk_sp<GrAttachment>(new GrGLAttachment(
-            this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencil, numStencilSamples, sFmt));
+            this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
+            numStencilSamples, sFmt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

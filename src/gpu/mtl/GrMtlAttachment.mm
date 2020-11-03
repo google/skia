@@ -41,7 +41,7 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
         desc.textureType = MTLTextureType2DMultisample;
     }
     return sk_sp<GrMtlAttachment>(
-            new GrMtlAttachment(gpu, dimensions, UsageFlags::kStencil,
+            new GrMtlAttachment(gpu, dimensions, UsageFlags::kStencilAttachment,
                                 [gpu->device() newTextureWithDescriptor:desc]));
 }
 

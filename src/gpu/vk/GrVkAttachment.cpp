@@ -47,7 +47,7 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeStencil(GrVkGpu* gpu,
                                                   VkFormat format) {
     VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kStencil, sampleCnt, format,
+    return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, format,
                                 vkUsageFlags, GrProtected::kNo, SkBudgeted::kYes);
 }
 
@@ -61,7 +61,7 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeMSAA(GrVkGpu* gpu,
     VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                                      VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kMSAA, numSamples, format,
+    return GrVkAttachment::Make(gpu, dimensions, UsageFlags::kColorAttachment, numSamples, format,
                                 vkUsageFlags, isProtected, SkBudgeted::kYes);
 }
 
@@ -90,9 +90,9 @@ sk_sp<GrVkAttachment> GrVkAttachment::Make(GrVkGpu* gpu,
     }
 
     GrVkImageView::Type viewType;
-    if (attachmentUsages & UsageFlags::kStencil) {
+    if (attachmentUsages & UsageFlags::kStencilAttachment) {
         // If we have stencil usage than we should have any other usages
-        SkASSERT(attachmentUsages == UsageFlags::kStencil);
+        SkASSERT(attachmentUsages == UsageFlags::kStencilAttachment);
         viewType = GrVkImageView::kStencil_Type;
     } else {
         viewType = GrVkImageView::kColor_Type;
@@ -121,9 +121,9 @@ sk_sp<GrAttachment> GrVkAttachment::MakeWrapped(
         GrWrapOwnership ownership,
         GrWrapCacheable cacheable) {
     GrVkImageView::Type viewType;
-    if (attachmentUsages & UsageFlags::kStencil) {
+    if (attachmentUsages & UsageFlags::kStencilAttachment) {
         // If we have stencil usage than we should not have any other usages
-        SkASSERT(attachmentUsages == UsageFlags::kStencil);
+        SkASSERT(attachmentUsages == UsageFlags::kStencilAttachment);
         viewType = GrVkImageView::kStencil_Type;
     } else {
         viewType = GrVkImageView::kColor_Type;

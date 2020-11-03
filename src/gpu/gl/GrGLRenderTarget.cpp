@@ -92,8 +92,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         GrGLFormat sFmt = stencil_bits_to_format(stencilBits);
 
         // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLAttachment(gpu, sbDesc, dimensions, GrAttachment::UsageFlags::kStencil,
-                                sampleCount, sFmt);
+        sb = new GrGLAttachment(gpu, sbDesc, dimensions,
+                                GrAttachment::UsageFlags::kStencilAttachment, sampleCount, sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
             new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, sb));
