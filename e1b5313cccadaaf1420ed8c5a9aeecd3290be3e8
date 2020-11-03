@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "908c605b_40b92f89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-03T18:33:00Z",
+      "side": 1,
+      "message": "This is just copy \u0026 paste, right?",
+      "revId": "e1b5313cccadaaf1420ed8c5a9aeecd3290be3e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
