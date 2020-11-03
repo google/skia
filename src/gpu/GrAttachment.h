@@ -25,8 +25,8 @@ class GrResourceKey;
 class GrAttachment : public GrSurface {
 public:
     enum class UsageFlags : uint8_t {
-        kStencil = 0x1,
-        kMSAA    = 0x2,
+        kStencilAttachment = 0x1,
+        kColorAttachment   = 0x2,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
 
@@ -77,9 +77,9 @@ private:
     const char* getResourceType() const override {
         // TODO: Once attachments can have multiple usages this needs to be updated
         switch (fSupportedUsages) {
-            case (UsageFlags::kMSAA):
+            case (UsageFlags::kColorAttachment):
                 return "MSAA";
-            case (UsageFlags::kStencil):
+            case (UsageFlags::kStencilAttachment):
                 return "Stencil";
             default:
                 SkUNREACHABLE;
