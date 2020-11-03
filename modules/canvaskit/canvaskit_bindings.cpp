@@ -1036,6 +1036,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkRect* bounds = reinterpret_cast<SkRect*>(fPtr);
             return self.saveLayer(SkCanvas::SaveLayerRec(bounds, p, backdrop, flags));
         }), allow_raw_pointers())
+        .function("saveLayerPaint", optional_override([](SkCanvas& self, const SkPaint p)->int {
+            return self.saveLayer(SkCanvas::SaveLayerRec(nullptr, &p, 0));
+        }))
         .function("scale", &SkCanvas::scale)
         .function("skew", &SkCanvas::skew)
         .function("translate", &SkCanvas::translate)
