@@ -56,6 +56,30 @@
       },
       "revId": "8e588089018e5c0322a7bf6aa69edf5941282cc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e5444fe_1863d3b4",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-03T14:10:18Z",
+      "side": 1,
+      "message": "Because a GIF SkCodec is treated differently depending on whether it comes from LibGifCodec or Wuffs.",
+      "parentUuid": "fe2fefdb_26008da1",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 6
+      },
+      "revId": "8e588089018e5c0322a7bf6aa69edf5941282cc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
