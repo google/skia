@@ -98,6 +98,14 @@ bool SkSVGAttributeParser::parseScalarToken(SkScalar* res) {
     return false;
 }
 
+bool SkSVGAttributeParser::parseInt32Token(int32_t* res) {
+    if (const char* next = SkParse::FindS32(fCurPos, res)) {
+        fCurPos = next;
+        return true;
+    }
+    return false;
+}
+
 bool SkSVGAttributeParser::parseHexToken(uint32_t* res) {
      if (const char* next = SkParse::FindHex(fCurPos, res)) {
          fCurPos = next;
@@ -280,6 +288,25 @@ bool SkSVGAttributeParser::parseNumber(SkSVGNumberType* number) {
     SkScalar s;
     if (this->parseScalarToken(&s)) {
         *number = SkSVGNumberType(s);
+        // consume trailing separators
+        this->parseSepToken();
+        return true;
+    }
+
+    return false;
+}
+
+// https://www.w3.org/TR/SVG11/types.html#DataTypeInteger
+bool SkSVGAttributeParser::parseInteger(SkSVGIntegerType* number) {
+    // consume WS
+    this->parseWSToken();
+
+    // consume optional '+'
+    this->parseExpectedStringToken("+");
+
+    SkSVGIntegerType i;
+    if (this->parseInt32Token(&i)) {
+        *number = SkSVGNumberType(i);
         // consume trailing separators
         this->parseSepToken();
         return true;
@@ -901,3 +928,33 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
     return parsedValue && this->parseEOSToken();
 }
 
+bool SkSVGAttributeParser::parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency* freq) {
+    SkSVGNumberType freqX;
+    if (!this->parseNumber(&freqX)) {
+        return false;
+    }
+
+    SkSVGNumberType freqY;
+    this->parseCommaWspToken();
+    if (this->parseNumber(&freqY)) {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqY);
+    } else {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqX);
+    }
+
+    return this->parseEOSToken();
+}
+
+bool SkSVGAttributeParser::parseFeTurbulenceType(SkSVGFeTurbulenceType* type) {
+    bool parsedValue = false;
+
+    if (this->parseExpectedStringToken("fractalNoise")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kFractalNoise);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("turbulence")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kTurbulence);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
