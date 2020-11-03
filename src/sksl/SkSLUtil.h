@@ -149,7 +149,7 @@ public:
         return fMustEnableSpecificAdvBlendEqs;
     }
 
-    bool fCanUseAnyFunctionInShader = false;
+    bool fCanUseAnyFunctionInShader = true;
     bool canUseAnyFunctionInShader() const {
         return fCanUseAnyFunctionInShader;
     }
