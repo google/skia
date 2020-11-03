@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "553bc40c_146719ec",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T21:52:53Z",
+      "side": 1,
+      "message": "Nit:\n\nMakeRasterSurface(imageinfo)\nMakeRasterDirectSurface(imageinfo, pixels, rowbytes)\n\nkinda nice to always have imageinfo as the first parameter\n\njust a suggestion",
+      "range": {
+        "startLine": 181,
+        "startChar": 28,
+        "endLine": 181,
+        "endChar": 81
+      },
+      "revId": "988a83932d84d8e920e0f358bc828ea90f6ab7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b894d0da_8ece77e6",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-03T21:52:53Z",
+      "side": 1,
+      "message": "Nit: (this is a correction on my previous comment)\n\nTechnically, we don\u0027t need the \"padding\" on the last row, just all of the other ones (this actually comes up sometimes when we create a \"subset\" of an image.\n\ncompute_min_size_needed() {\n    return (height - 1) * rowBytes + width * bytes_per_colortype;\n}\n\nNote: this assumes another requirement for Surfaces (and Images):\n      width \u003e 0 and height \u003e 0\n\nWe explicitly do not create/support zero sized images or surfaces.",
+      "range": {
+        "startLine": 68,
+        "startChar": 32,
+        "endLine": 68,
+        "endChar": 68
+      },
+      "revId": "988a83932d84d8e920e0f358bc828ea90f6ab7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
