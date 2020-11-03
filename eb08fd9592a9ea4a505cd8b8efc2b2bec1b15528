@@ -81,6 +81,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b421ee1_4d3a920b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T16:00:25Z",
+      "side": 1,
+      "message": "This is irritating that I can\u0027t reply to comments without saying \"ready for review\", so I\u0027ll just keep this active for now while we\u0027re discussing things.",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "04cb45a5_63c27fe0",
@@ -123,6 +140,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9806041f_7f74237c",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T16:00:25Z",
+      "side": 1,
+      "message": "That makes sense to me.",
+      "parentUuid": "864893f9_0877269b",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7d9b46b2_daaa43ca",
         "filename": "modules/svg/src/SkSVGFeTurbulence.cpp",
         "patchSetId": 1
@@ -134,6 +175,24 @@
       "writtenOn": "2020-11-03T13:50:30Z",
       "side": 1,
       "message": "To avoid iterating the attributes multiple times, I think we\u0027ll want to combine this with presentation attribute parsing and some form of dynamic dispatch.\n\nAlso, I can\u0027t think of specific examples, but aren\u0027t there cases where intermediate/ancestor classes have (shared) attributes that need to be parsed too?\n\nMaybe we can keep a single iterator control loop in a central place (SkSVGDom/parsing) and have a parseAttribute() virtual on SkSVGNode - then the implementation here would be something along these lines\n\nbool parseAttribute(const char attr_name[], const char attr_value[]) override {\n    // try dispatching to ancestor classes first\n    return INHERITED::parseAttribute(attr_name, attr_value)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"numOctaves\",...)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"seed\", ...)\n        || SVG_ATTR_PARSE_AND_SET(name, value, \"type\", ...);\n}\n\nwhere Node::parseAttribute handles all the common presentation attrs.",
+      "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1c18e55_5fd83f62",
+        "filename": "modules/svg/src/SkSVGFeTurbulence.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-03T16:00:25Z",
+      "side": 1,
+      "message": "Hmm, for the first part -- I think if we use your INHERITED::parseAttribute() concept there\u0027d be no need for a separate iteration to handle presentation attributes, would there? The base SkSVGNode::parseAttribute() would eventually handle fill, stroke, etc, and just set those in its fPresentationAttributes field. This way we could avoid the central iterator control loop, which sort of keeps with the bottom-up idea (attribute parse/set starts at the bottom-most level and bubbles up eventually to SkSVGNode which handles presentation attrs). I might be msising something though.\n\nI\u0027m not totally sure what you mean in the second question (ancestor classes having shared attributes).",
+      "parentUuid": "7d9b46b2_daaa43ca",
       "revId": "eb08fd9592a9ea4a505cd8b8efc2b2bec1b15528",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
