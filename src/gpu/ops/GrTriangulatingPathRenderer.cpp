@@ -59,22 +59,12 @@ static sk_sp<SkData> create_data(int numVertices, int numCountedCurves, SkScalar
     return SkData::MakeWithCopy(&info, sizeof(info));
 }
 
-// TODO: remove 'actualNumVertices' and 'actualNumCountedCurves' in a follow up CL
-bool cache_match(const SkData* data, SkScalar tol,
-                 int* actualNumVertices, int* actualNumCountedCurves) {
+bool cache_match(const SkData* data, SkScalar tol) {
     SkASSERT(data);
 
     const TessInfo* info = static_cast<const TessInfo*>(data->data());
-    if (info->fNumCountedCurves == 0 || info->fTolerance < 3.0f * tol) {
-        if (actualNumVertices) {
-            *actualNumVertices = info->fNumVertices;
-        }
-        if (actualNumCountedCurves) {
-            *actualNumCountedCurves = info->fNumCountedCurves;
-        }
-        return true;
-    }
-    return false;
+
+    return info->fNumCountedCurves == 0 || info->fTolerance < 3.0f * tol;
 }
 
 // Should 'challenger' replace 'incumbent' in the cache if there is a collision?
@@ -383,7 +373,7 @@ private:
 
         if (!fVertexData) {
             auto [cachedVerts, data] = threadSafeCache->findVertsWithData(key);
-            if (cachedVerts && cache_match(data.get(), tol, nullptr, nullptr)) {
+            if (cachedVerts && cache_match(data.get(), tol)) {
                 fVertexData = std::move(cachedVerts);
             }
         }
@@ -538,7 +528,7 @@ private:
                                                         fViewMatrix, fShape.bounds());
 
         auto [cachedVerts, data] = threadSafeViewCache->findVertsWithData(key);
-        if (cachedVerts && cache_match(data.get(), tol, nullptr, nullptr)) {
+        if (cachedVerts && cache_match(data.get(), tol)) {
             fVertexData = std::move(cachedVerts);
             return;
         }
@@ -565,7 +555,7 @@ private:
         if (tmpV != fVertexData) {
             // Someone beat us to creating the triangulation (and it is better than ours) so
             // just go ahead and use it.
-            SkASSERT(cache_match(tmpD.get(), tol, nullptr, nullptr));
+            SkASSERT(cache_match(tmpD.get(), tol));
             fVertexData = std::move(tmpV);
         } else {
             // This isn't perfect. The current triangulation is in the cache but it may have
