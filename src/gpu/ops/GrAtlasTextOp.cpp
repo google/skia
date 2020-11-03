@@ -152,9 +152,11 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
 void GrAtlasTextOp::onPrepareDraws(Target* target) {
     auto resourceProvider = target->resourceProvider();
 
-    // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
-    // TODO actually only invert if we don't have RGBA
-    SkMatrix localMatrix;
+    // If we need local coordinates, compute an inverse view matrix. If this is solid color, the
+    // processor analysis will not require local coords and the GPs will skip local coords when
+    // the matrix is identity. When the shaders require local coords, combineIfPossible requires all
+    // all geometries to have same draw matrix.
+    SkMatrix localMatrix = SkMatrix::I();
     if (this->usesLocalCoords() && !fGeoData[0].fDrawMatrix.invert(&localMatrix)) {
         return;
     }
@@ -191,7 +193,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
                                                               *target->caps().shaderCaps(),
-                                                              views, numActiveViews);
+                                                              localMatrix, views, numActiveViews);
     } else {
         auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                            : GrSamplerState::Filter::kNearest;
@@ -403,26 +405,18 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, c
     return CombineResult::kMerged;
 }
 
-static const int kDistanceAdjustLumShift = 5;
 
 // TODO trying to figure out why lcd is so whack
 GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                      const GrShaderCaps& caps,
+                                                     const SkMatrix& localMatrix,
                                                      const GrSurfaceProxyView* views,
                                                      unsigned int numActiveViews) const {
-    bool isLCD = this->isLCD();
-
-    SkMatrix localMatrix = SkMatrix::I();
-    if (this->usesLocalCoords()) {
-        // If this fails we'll just use I().
-        bool result = fGeoData[0].fDrawMatrix.invert(&localMatrix);
-        (void)result;
-    }
-
+    static constexpr int kDistanceAdjustLumShift = 5;
     auto dfAdjustTable = GrDistanceFieldAdjustTable::Get();
 
     // see if we need to create a new effect
-    if (isLCD) {
+    if (this->isLCD()) {
         float redCorrection = dfAdjustTable->getAdjustment(
                 SkColorGetR(fLuminanceColor) >> kDistanceAdjustLumShift,
                 fUseGammaCorrectDistanceTable);
