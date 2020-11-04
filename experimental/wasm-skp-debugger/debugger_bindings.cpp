@@ -312,7 +312,41 @@ class SkpDebugPlayer {
       fInspectedLayer = nodeId;
     }
 
+    // Finds a command that left the given pixel in it's current state.
+    // Note that this method may fail to find the absolute last command that leaves a pixel
+    // the given color, but there is probably only one candidate in most cases, and the log(n)
+    // makes it worth it.
+    int findCommandByPixel(SkSurface* surface, int x, int y, int commandIndex) {
+      // What color is the pixel now?
+      SkColor finalColor = evaluateCommandColor(surface, commandIndex, x, y);
+
+      int lowerBound = 0;
+      int upperBound = commandIndex;
+
+      while (upperBound - lowerBound > 1) {
+        int command = (upperBound - lowerBound) / 2 + lowerBound;
+        auto c = evaluateCommandColor(surface, command, x, y);
+        if (c == finalColor) {
+          upperBound = command;
+        } else {
+          lowerBound = command;
+        }
+      }
+      return upperBound;
+    }
+
   private:
+
+      // Helper for findCommandByPixel
+      SkColor evaluateCommandColor(SkSurface* surface, int command, int x, int y) {
+        drawTo(surface, command);
+
+        SkColor c;
+        SkImageInfo info = SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+        SkPixmap pixmap(info, &c, 4);
+        surface->readPixels(pixmap, x, y);
+        return c;
+      }
 
       // Loads a single frame (traditional) skp file from the provided data stream and returns
       // a newly allocated DebugCanvas initialized with the SkPicture that was in the file.
@@ -496,6 +530,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("draw",                 &SkpDebugPlayer::draw, allow_raw_pointers())
     .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
     .function("fileVersion",          &SkpDebugPlayer::fileVersion)
+    .function("findCommandByPixel",   &SkpDebugPlayer::findCommandByPixel, allow_raw_pointers())
     .function("getBounds",            &SkpDebugPlayer::getBounds)
     .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
