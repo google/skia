@@ -7,7 +7,12 @@
 #include "bench/Benchmark.h"
 #include "bench/ResultsWriter.h"
 #include "bench/SkSLBench.h"
+#include "include/core/SkCanvas.h"
+#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLIRGenerator.h"
+#include "src/sksl/SkSLParser.h"
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
@@ -28,11 +33,70 @@ protected:
 
 DEF_BENCH(return new SkSLCompilerStartupBench();)
 
-class SkSLBench : public Benchmark {
+class SkSLCompileBench : public Benchmark {
 public:
-    SkSLBench(SkSL::String name, const char* src)
-        : fName("sksl_" + name)
-        , fSrc(src) {}
+    SkSLCompileBench(SkSL::String name, const char* src, bool optimize, bool output)
+        : fName(SkSL::String("sksl_") + (optimize ? "optimize_" : "") + (output ? "glsl_" : "") +
+                name)
+        , fSrc(src)
+        , fOutput(output) {
+        fSettings.fOptimize = optimize;
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        if (fOutput) {
+            return backend == kGPU_Backend;
+        } else {
+            return backend == kNonRendering_Backend;
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        if (fOutput) {
+            auto context = canvas->recordingContext();
+            SkASSERT(context);
+            fSettings.fCaps = context->priv().caps()->shaderCaps();
+        }
+        for (int i = 0; i < loops; i++) {
+            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
+                                                                      SkSL::Program::kFragment_Kind,
+                                                                      fSrc,
+                                                                      fSettings);
+            if (fCompiler.errorCount()) {
+                printf("%s\n", fCompiler.errorText().c_str());
+                SK_ABORT("shader compilation failed");
+            }
+            if (fOutput) {
+                SkSL::String result;
+                SkAssertResult(fCompiler.toGLSL(*program, &result));
+            }
+        }
+    }
+
+private:
+    SkSL::String fName;
+    SkSL::String fSrc;
+    SkSL::Compiler fCompiler;
+    SkSL::Program::Settings fSettings;
+    bool fOutput;
+
+    using INHERITED = Benchmark;
+};
+
+class SkSLParseBench : public Benchmark {
+public:
+    SkSLParseBench(SkSL::String name, const char* src)
+        : fName("sksl_parse_" + name)
+        , fSrc(src) {
+        SkSL::ParsedModule module = fCompiler.moduleForProgramKind(
+                                                               SkSL::Program::Kind::kFragment_Kind);
+        fCompiler.irGenerator().setSymbolTable(module.fSymbols);
+    }
 
 protected:
     const char* onGetName() override {
@@ -45,10 +109,11 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
-            std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
-                                                                      SkSL::Program::kFragment_Kind,
-                                                                      fSrc,
-                                                                      fSettings);
+            fCompiler.irGenerator().pushSymbolTable();
+            SkSL::Parser parser(fSrc.c_str(), fSrc.length(), *fCompiler.irGenerator().symbolTable(),
+                                fCompiler);
+            parser.file();
+            fCompiler.irGenerator().popSymbolTable();
             if (fCompiler.errorCount()) {
                 printf("%s\n", fCompiler.errorText().c_str());
                 SK_ABORT("shader compilation failed");
@@ -67,7 +132,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH(return new SkSLBench("large", R"(
+static const char* LARGE = R"(
 uniform half urange_Stage1;
 uniform half4 uleftBorderColor_Stage1_c0_c0;
 uniform half4 urightBorderColor_Stage1_c0_c0;
@@ -346,9 +411,13 @@ void main()
         sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }
 }
-)");)
+)";
+DEF_BENCH(return new SkSLCompileBench("large", LARGE, /*optimize=*/false, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("large", LARGE, /*optimize=*/true, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("large", LARGE, /*optimize=*/true, /*output=*/true);)
+DEF_BENCH(return new SkSLParseBench("large", LARGE);)
 
-DEF_BENCH(return new SkSLBench("medium", R"(
+static const char* MEDIUM = R"(
     uniform half2 uDstTextureUpperLeft_Stage1;
     uniform half2 uDstTextureCoordScale_Stage1;
     uniform sampler2D uDstTextureSampler_Stage1;
@@ -413,9 +482,14 @@ DEF_BENCH(return new SkSLBench("medium", R"(
                            (half4(1.0) - outputCoverage_Stage0) * _dstColor;
         }
     }
-)"); )
+)";
+DEF_BENCH(return new SkSLCompileBench("medium", MEDIUM, /*optimize=*/false, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("medium", MEDIUM, /*optimize=*/true, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("medium", MEDIUM, /*optimize=*/true, /*output=*/true);)
+DEF_BENCH(return new SkSLParseBench("medium", MEDIUM); )
 
-DEF_BENCH(return new SkSLBench("small", R"(
+static const char* SMALL =
+R"(
     uniform float3x3 umatrix_Stage1_c0_c0;
     uniform sampler2D uTextureSampler_0_Stage1;
     noperspective in float2 vTransformedCoords_0_Stage0;
@@ -452,9 +526,17 @@ DEF_BENCH(return new SkSLBench("small", R"(
             sk_FragColor = output_Stage1 * outputCoverage_Stage0;
         }
     }
-)"); )
+)";
+DEF_BENCH(return new SkSLCompileBench("small", SMALL, /*optimize=*/false, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("small", SMALL, /*optimize=*/true, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("small", SMALL, /*optimize=*/true, /*output=*/true);)
+DEF_BENCH(return new SkSLParseBench("small", SMALL); )
 
-DEF_BENCH(return new SkSLBench("tiny", "void main() { sk_FragColor = half4(1); }"); )
+static const char* TINY = "void main() { sk_FragColor = half4(1); }";
+DEF_BENCH(return new SkSLCompileBench("tiny", TINY, /*optimize=*/false, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("tiny", TINY, /*optimize=*/true, /*output=*/false);)
+DEF_BENCH(return new SkSLCompileBench("tiny", TINY, /*optimize=*/true, /*output=*/true);)
+DEF_BENCH(return new SkSLParseBench("tiny", TINY); )
 
 #if defined(SK_BUILD_FOR_UNIX)
 
