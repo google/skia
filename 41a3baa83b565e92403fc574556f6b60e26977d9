@@ -33,6 +33,23 @@
       "message": "API LGTM",
       "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6b91bde_65c9cb04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-04T17:55:27Z",
+      "side": 1,
+      "message": "Vignesh, there\u0027s a merge conflict, so you\u0027ll need to rebase and re-upload. It\u0027s likely in RELEASE_NOTES.txt, if I had to guess.",
+      "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
