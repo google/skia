@@ -3122,6 +3122,49 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView51 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph51"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        auto unicode = SkUnicode::Make();
+
+        SkDebugf("1\n");
+        unicode->test(/*u"\u0e41\u0e2a\u0e19\u0e2a\u0e31\n"*/SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1\n"));
+        SkDebugf("2\n");
+        unicode->test(/*u"\u0e41\u0e2a\u0e19\u0e2a\u0e31"*/SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1"));
+        SkDebugf("3\n");
+        unicode->test(/*u"\u0e41\u0e2a\u0e19\u0e2a\n"*/SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\n"));
+        //unicode->test(SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1\nabc"));
+        //unicode->test("+newline", SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1\n"), "th_TH");
+        //unicode->test("+newline", SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1\n"), "th_TH_TH");
+        //unicode->test("utf8", SkString("\xE0\xB9\x81\xE0\xB8\xAA\xE0\xB8\x99\xE0\xB8\xAA\xE0\xB8\xB1"));
+
+        ParagraphStyle paragraph_style;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(16);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(u"\u0e41\u0e2a\u0e19\u0e2a\u0e31\nabc");
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3173,3 +3216,4 @@ DEF_SAMPLE(return new ParagraphView47();)
 DEF_SAMPLE(return new ParagraphView48();)
 DEF_SAMPLE(return new ParagraphView49();)
 DEF_SAMPLE(return new ParagraphView50();)
+DEF_SAMPLE(return new ParagraphView51();)

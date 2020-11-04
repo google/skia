@@ -304,7 +304,7 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractPositions
+    bool extractPositions
         (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> add) {
 
         UErrorCode status = U_ZERO_ERROR;
@@ -331,13 +331,25 @@ class SkUnicode_icu : public SkUnicode {
         auto iter = iterator.get();
         int32_t pos = ubrk_first(iter);
         while (pos != UBRK_DONE) {
-            add(pos, ubrk_getRuleStatus(iter));
+            add(pos, type == SkUnicode::BreakType::kLines ? UBRK_LINE_SOFT : ubrk_getRuleStatus(iter));
             pos = ubrk_next(iter);
+        }
+
+        if (type == SkUnicode::BreakType::kLines) {
+            // Scan the text for all hard line breaks
+            const char* end = utf8 + utf8Units;
+            const char* ch = utf8;
+            while (ch < end) {
+                auto unichar = utf8_next(&ch, end);
+                if (this->isHardLineBreak(unichar)) {
+                    add(ch - utf8, UBRK_LINE_HARD);
+                }
+            }
         }
         return true;
     }
 
-    static bool extractWhitespaces(const char utf8[],
+    bool extractWhitespaces(const char utf8[],
                                    int utf8Units,
                                    std::vector<Position>* whitespaces) {
 
@@ -347,7 +359,7 @@ class SkUnicode_icu : public SkUnicode {
         while (ch < end) {
             auto index = ch - start;
             auto unichar = utf8_next(&ch, end);
-            if (u_isWhitespace(unichar)) {
+            if (isWhitespace(unichar)) {
                 auto ending = ch - start;
                 for (auto k = index; k < ending; ++k) {
                   whitespaces->emplace_back(k);
@@ -409,6 +421,11 @@ public:
         return u_isWhitespace(utf8);
     }
 
+    bool isHardLineBreak(SkUnichar utf8) override {
+        auto property = u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
+        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
+    }
+
     SkString convertUtf16ToUtf8(const std::u16string& utf16) override {
         std::unique_ptr<char[]> utf8;
         auto utf8Units = SkUnicode_icu::utf16ToUtf8((uint16_t*)utf16.data(), utf16.size(), &utf8);
@@ -430,9 +447,9 @@ public:
                        int utf8Units,
                        std::vector<LineBreakBefore>* results) override {
 
-        return extractPositions(utf8, utf8Units, BreakType::kLines,
+        return this->extractPositions(utf8, utf8Units, BreakType::kLines,
             [results](int pos, int status) {
-                    results->emplace_back(pos,status == UBRK_LINE_HARD
+                    results->emplace_back(pos, status == UBRK_LINE_HARD
                                                         ? LineBreakType::kHardLineBreak
                                                         : LineBreakType::kSoftLineBreak);
         });
@@ -452,14 +469,14 @@ public:
 
     bool getGraphemes(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
-        return extractPositions(utf8, utf8Units, BreakType::kGraphemes,
+        return this->extractPositions(utf8, utf8Units, BreakType::kGraphemes,
             [results](int pos, int status) { results->emplace_back(pos);
         });
     }
 
     bool getWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
-        return extractWhitespaces(utf8, utf8Units, results);
+        return this->extractWhitespaces(utf8, utf8Units, results);
     }
 
     void reorderVisual(const BidiLevel runLevels[],
@@ -467,6 +484,8 @@ public:
                        int32_t logicalFromVisual[]) override {
         ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
     }
+
+    void test(SkString str) override;
 };
 
 std::unique_ptr<SkUnicode> SkUnicode::Make() {
@@ -477,4 +496,15 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
     }
     #endif
     return std::make_unique<SkUnicode_icu>();
+}
+
+void SkUnicode_icu::test(SkString str) {
+
+    std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+    if (!this->getLineBreaks(str.c_str(), str.size(), &lineBreaks)) {
+        return;
+    }
+    for (auto& lineBreak : lineBreaks) {
+        SkDebugf("%d: %s\n", lineBreak.pos, lineBreak.breakType == SkUnicode::LineBreakType::kHardLineBreak ? "hard" : "soft");
+    }
 }
