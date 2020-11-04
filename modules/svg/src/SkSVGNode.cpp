@@ -9,6 +9,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTPin.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
@@ -259,4 +260,10 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 #endif
         break;
     }
+}
+
+bool SkSVGNode::parseAndSetAttribute(const char* name, const char* value) {
+    bool consumedAttribute = false;
+    SVG_ATTR_PARSE_AND_SET(name, value, "fill", SkSVGPaint, this->setFill);
+    return consumedAttribute;
 }

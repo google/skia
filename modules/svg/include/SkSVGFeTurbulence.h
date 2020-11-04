@@ -11,12 +11,15 @@
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
+class SkDOM;
+struct SkDOMNode;
+class SkSVGAttributeParser;
+
 class SkSVGFeTurbulence : public SkSVGFe {
 public:
     ~SkSVGFeTurbulence() override = default;
-    static sk_sp<SkSVGFeTurbulence> Make() {
-        return sk_sp<SkSVGFeTurbulence>(new SkSVGFeTurbulence());
-    }
+
+    static sk_sp<SkSVGFeTurbulence> Make(const SkDOM&, const SkDOMNode*);
 
     SVG_ATTR(BaseFrequency, SkSVGFeTurbulenceBaseFrequency, SkSVGFeTurbulenceBaseFrequency({}))
     SVG_ATTR(NumOctaves, SkSVGIntegerType, SkSVGIntegerType(1))
@@ -26,13 +29,16 @@ public:
              SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::Type::kTurbulence))
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
-
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const override;
 
+    bool parseAndSetAttribute(const char*, const char*) override;
+
 private:
     SkSVGFeTurbulence() : INHERITED(SkSVGTag::kFeTurbulence) {}
+
+    static bool parse(SkSVGAttributeParser*, SkSVGFeTurbulenceBaseFrequency*);
+    static bool parse(SkSVGAttributeParser*, SkSVGFeTurbulenceType*);
 
     using INHERITED = SkSVGFe;
 };
