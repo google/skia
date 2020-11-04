@@ -179,10 +179,10 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     if (generateAdvance(glyph)) {
-        glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
+        glyph->fMaskFormat = SkGlyph::kUnknownFormat;
     } else {
         this->getMetrics(glyph);
-        SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
+        SkASSERT(glyph->fMaskFormat != SkGlyph::kUnknownFormat);
     }
 }
 
@@ -190,20 +190,20 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     bool generatingImageFromPath = fGenerateImageFromPath;
     if (!generatingImageFromPath) {
         generateMetrics(glyph);
-        SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
+        SkASSERT(glyph->fMaskFormat != SkGlyph::kUnknownFormat);
     } else {
         SkPath devPath;
         generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &devPath);
         if (!generatingImageFromPath) {
             generateMetrics(glyph);
-            SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
+            SkASSERT(glyph->fMaskFormat != SkGlyph::kUnknownFormat);
         } else {
             uint8_t originMaskFormat = glyph->fMaskFormat;
             if (!generateAdvance(glyph)) {
                 generateMetrics(glyph);
             }
 
-            if (originMaskFormat != MASK_FORMAT_UNKNOWN) {
+            if (originMaskFormat != SkGlyph::kUnknownFormat) {
                 glyph->fMaskFormat = originMaskFormat;
             } else {
                 glyph->fMaskFormat = fRec.fMaskFormat;
@@ -542,7 +542,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
 
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     const SkGlyph*  glyph = &origGlyph;
-    SkGlyph  tmpGlyph{origGlyph.getPackedID()};
+    SkGlyph  tmpGlyph{origGlyph.getPackedID(), ~0};
 
     // in case we need to call generateImage on a mask-format that is different
     // (i.e. larger) than what our caller allocated by looking at origGlyph.
