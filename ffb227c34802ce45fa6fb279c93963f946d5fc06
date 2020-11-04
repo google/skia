@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1e1eaa1_58131c6b",
+        "filename": "src/core/SkASAN.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-04T15:48:29Z",
+      "side": 1,
+      "message": "I changed these due to go/skiastyle: \"The rest of Skia (i.e. not Ganesh) tends to use #ifdef SK_MACRO for boolean flags (rather than #if).\"",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "ffb227c34802ce45fa6fb279c93963f946d5fc06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
