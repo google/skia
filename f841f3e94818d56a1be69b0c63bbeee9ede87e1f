@@ -39,6 +39,30 @@
       },
       "revId": "f841f3e94818d56a1be69b0c63bbeee9ede87e1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c7a8512_c0fe05d8",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T21:40:46Z",
+      "side": 1,
+      "message": "Agreed about the comment. Yes - the IR generator is very strict about what\u0027s allowed to be \u0027varying\u0027 (floats or vectors thereof).",
+      "parentUuid": "65e2422d_09a4fabc",
+      "range": {
+        "startLine": 135,
+        "startChar": 27,
+        "endLine": 135,
+        "endChar": 99
+      },
+      "revId": "f841f3e94818d56a1be69b0c63bbeee9ede87e1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
