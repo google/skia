@@ -48,13 +48,13 @@ std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGl
         return {*digest, 0};
     }
 
-    SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID));
-    return {this->addGlyph(glyph), sizeof(SkGlyph)};
+    size_t index = fGlyphForIndex.size();
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID, index));
+    return {this->addGlyph(glyph, index), sizeof(SkGlyph)};
 }
 
-SkGlyphDigest SkScalerCache::addGlyph(SkGlyph* glyph) {
-    size_t index = fGlyphForIndex.size();
-    SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
+SkGlyphDigest SkScalerCache::addGlyph(SkGlyph* glyph, int32_t index) {
+    SkGlyphDigest digest = SkGlyphDigest(index, *glyph);
     fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
     fGlyphForIndex.push_back(glyph);
     return digest;
@@ -123,9 +123,10 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         // Just return what we have. The invariants have already been cast in stone.
         return {fGlyphForIndex[digest->index()], 0};
     } else {
-        SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
+        int32_t index = fGlyphForIndex.size();
+        SkGlyph* glyph = fAlloc.make<SkGlyph>(toID, index);
         size_t delta = glyph->setMetricsAndImage(&fAlloc, from);
-        (void)this->addGlyph(glyph);
+        (void)this->addGlyph(glyph, index);
         return {glyph, sizeof(SkGlyph) + delta};
     }
 }
