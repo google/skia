@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 
 class SkCanvas;
 class SkMatrix;
@@ -80,6 +81,9 @@ public:
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
     bool setAttribute(const char* attributeName, const char* attributeValue);
 
+    // TODO: consolidate with existing setAttribute
+    virtual bool parseAndSetAttribute(const char* name, const char* value);
+
     void setClipPath(const SkSVGClip&);
     void setClipRule(const SkSVGFillRule&);
     void setColor(const SkSVGColorType&);
@@ -140,12 +144,22 @@ private:
 
 #undef SVG_PRES_ATTR // presentation attributes are only defined for the base class
 
-#define SVG_ATTR(attr_name, attr_type, attr_default)                      \
-    private:                                                              \
-        attr_type f##attr_name = attr_default;                            \
-    public:                                                               \
-        const attr_type& get##attr_name() const { return f##attr_name; }  \
-        void set##attr_name(const attr_type& a) { f##attr_name = a; }     \
+#define SVG_ATTR(attr_name, attr_type, attr_default)                        \
+    private:                                                                \
+        attr_type f##attr_name = attr_default;                              \
+        bool set##attr_name(                                                \
+                const SkSVGAttributeParser::ParseResult<attr_type>& pr) {   \
+            if (pr.isValid()) { this->set##attr_name(*pr); }                \
+            return pr.isValid();                                            \
+        }                                                                   \
+        bool set##attr_name(                                                \
+                SkSVGAttributeParser::ParseResult<attr_type>&& pr) {        \
+            if (pr.isValid()) { this->set##attr_name(std::move(*pr)); }     \
+            return pr.isValid();                                            \
+        }                                                                   \
+    public:                                                                 \
+        const attr_type& get##attr_name() const { return f##attr_name; }    \
+        void set##attr_name(const attr_type& a) { f##attr_name = a; }       \
         void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); }
 
 #endif // SkSVGNode_DEFINED

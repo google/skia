@@ -10,6 +10,7 @@
 
 #include "include/private/SkNoncopyable.h"
 #include "modules/svg/include/SkSVGTypes.h"
+#include "src/core/SkTLazy.h"
 
 class SkSVGAttributeParser : public SkNoncopyable {
 public:
@@ -36,14 +37,48 @@ public:
     bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
-    bool parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency*);
-    bool parseFeTurbulenceType(SkSVGFeTurbulenceType*);
-
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);
     bool parseFontStyle(SkSVGFontStyle*);
     bool parseFontWeight(SkSVGFontWeight*);
     bool parseTextAnchor(SkSVGTextAnchor*);
+
+    bool parseEOSToken();
+    bool parseCommaWspToken();
+    bool parseExpectedStringToken(const char*);
+
+    // TODO: Migrate all parse*() functions to this style (and delete the old version)
+    //      so they can be used by parse<T>():
+    bool parse(SkSVGNumberType* v) { return parseNumber(v); }
+    bool parse(SkSVGIntegerType* v) { return parseInteger(v); }
+
+    template <typename T> using ParseResult = SkTLazy<T>;
+
+    template <typename T>
+    static ParseResult<T> parse(const char* expectedName,
+                                const char* name,
+                                const char* value,
+                                bool (*parseFnc)(const char*, T*)) {
+        if (strcmp(name, expectedName) != 0) {
+            return ParseResult<T>();
+        }
+
+        T parsedValue;
+        if (parseFnc(value, &parsedValue)) {
+            return ParseResult<T>(&parsedValue);
+        }
+
+        return ParseResult<T>();
+    }
+
+    template <typename T>
+    static ParseResult<T> parse(const char* expectedName, const char* name, const char* value) {
+        const auto parseFnc = +[](const char* str, T* v) {
+            SkSVGAttributeParser parser(str);
+            return parser.parse(v);
+        };
+        return parse(expectedName, name, value, parseFnc);
+    }
 
 private:
     // Stack-only
@@ -54,10 +89,7 @@ private:
     bool advanceWhile(F func);
 
     bool parseWSToken();
-    bool parseEOSToken();
     bool parseSepToken();
-    bool parseCommaWspToken();
-    bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseInt32Token(int32_t*);
     bool parseHexToken(uint32_t*);

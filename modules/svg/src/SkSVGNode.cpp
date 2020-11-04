@@ -260,3 +260,8 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         break;
     }
 }
+
+bool SkSVGNode::parseAndSetAttribute(const char* name, const char* value) {
+    // TODO: move SkSVGNode attribute parsing (incl. presentation attributes) here.
+    return false;
+}

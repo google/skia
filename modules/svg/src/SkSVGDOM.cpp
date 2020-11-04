@@ -142,18 +142,6 @@ bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetIntegerAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                         const char* stringValue) {
-    SkSVGIntegerType number;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseInteger(&number)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGIntegerValue(number));
-    return true;
-}
-
 bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                          const char* stringValue) {
     SkSVGViewBoxType viewBox;
@@ -360,31 +348,6 @@ bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribut
     return true;
 }
 
-bool SetFeTurbulenceBaseFrequencyAttribute(const sk_sp<SkSVGNode>& node,
-                                           SkSVGAttribute attr,
-                                           const char* stringValue) {
-    SkSVGFeTurbulenceBaseFrequency baseFreq;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFeTurbulenceBaseFrequency(&baseFreq)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFeTurbulenceBaseFrequencyValue(baseFreq));
-    return true;
-}
-
-bool SetFeTurbulenceTypeAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                                  const char* stringValue) {
-    SkSVGFeTurbulenceType type;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFeTurbulenceType(&type)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFeTurbulenceTypeValue(type));
-    return true;
-}
-
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -463,8 +426,6 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "baseFrequency"      , { SkSVGAttribute::kFeTurbulenceBaseFrequency,
-                               SetFeTurbulenceBaseFrequencyAttribute }},
     { "clip-path"          , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
     { "clip-rule"          , { SkSVGAttribute::kClipRule         , SetFillRuleAttribute     }},
     { "color"              , { SkSVGAttribute::kColor            , SetColorAttribute        }},
@@ -488,8 +449,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    ,
                                SetObjectBoundingBoxUnitsAttribute }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
-    { "numOctaves"         , { SkSVGAttribute::kFeTurbulenceNumOctaves,
-                               SetIntegerAttribute }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
     { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
@@ -499,7 +458,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
-    { "seed"               , { SkSVGAttribute::kFeTurbulenceSeed , SetNumberAttribute       }},
     { "spreadMethod"       , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
     { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
@@ -515,8 +473,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
     { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetTextAnchorAttribute   }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
-    { "type"               , { SkSVGAttribute::kFeTurbulenceType ,
-                               SetFeTurbulenceTypeAttribute }},
     { "viewBox"            , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
     { "visibility"         , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},
     { "width"              , { SkSVGAttribute::kWidth            , SetLengthAttribute       }},
@@ -562,6 +518,11 @@ struct ConstructionContext {
 };
 
 bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
+    if (node->parseAndSetAttribute(name, value)) {
+        // Handled by new code path
+        return true;
+    }
+
     const int attrIndex = SkStrSearch(&gAttributeParseInfo[0].fKey,
                                       SkTo<int>(SK_ARRAY_COUNT(gAttributeParseInfo)),
                                       name, sizeof(gAttributeParseInfo[0]));

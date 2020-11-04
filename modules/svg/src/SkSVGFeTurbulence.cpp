@@ -7,36 +7,55 @@
 
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-void SkSVGFeTurbulence::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-        case SkSVGAttribute::kFeTurbulenceBaseFrequency:
-            if (const auto* f = v.as<SkSVGFeTurbulenceBaseFrequencyValue>()) {
-                this->setBaseFrequency(*f);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceNumOctaves:
-            if (const auto* n = v.as<SkSVGIntegerValue>()) {
-                this->setNumOctaves(*n);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceSeed:
-            if (const auto* s = v.as<SkSVGNumberValue>()) {
-                this->setSeed(*s);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceType:
-            if (const auto* t = v.as<SkSVGFeTurbulenceTypeValue>()) {
-                this->setTurbulenceType(*t);
-            }
-            break;
-        default:
-            this->INHERITED::onSetAttribute(attr, v);
+bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setNumOctaves(
+                   SkSVGAttributeParser::parse<SkSVGIntegerType>("numOctaves", name, value)) ||
+           this->setSeed(SkSVGAttributeParser::parse<SkSVGNumberType>("seed", name, value)) ||
+           this->setBaseFrequency(SkSVGAttributeParser::parse<SkSVGFeTurbulenceBaseFrequency>(
+                   "baseFrequency", name, value, SkSVGFeTurbulence::parse)) ||
+           this->setTurbulenceType(SkSVGAttributeParser::parse<SkSVGFeTurbulenceType>(
+                   "type", name, value, SkSVGFeTurbulence::parse));
+}
+
+bool SkSVGFeTurbulence::parse(const char* v, SkSVGFeTurbulenceBaseFrequency* freq) {
+    SkSVGAttributeParser parser(v);
+
+    SkSVGNumberType freqX;
+    if (!parser.parseNumber(&freqX)) {
+        return false;
     }
+
+    SkSVGNumberType freqY;
+    parser.parseCommaWspToken();
+    if (parser.parseNumber(&freqY)) {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqY);
+    } else {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqX);
+    }
+
+    return parser.parseEOSToken();
+}
+
+bool SkSVGFeTurbulence::parse(const char* v, SkSVGFeTurbulenceType* type) {
+    SkSVGAttributeParser parser(v);
+    bool parsedValue = false;
+
+    if (parser.parseExpectedStringToken("fractalNoise")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kFractalNoise);
+        parsedValue = true;
+    } else if (parser.parseExpectedStringToken("turbulence")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kTurbulence);
+        parsedValue = true;
+    }
+
+    return parsedValue && parser.parseEOSToken();
 }
 
 sk_sp<SkImageFilter> SkSVGFeTurbulence::onMakeImageFilter(const SkSVGRenderContext& ctx,
