@@ -16,6 +16,23 @@
       "message": "I think the unit test should all be correct...",
       "revId": "0447689c4a7d603d78fb56393c2d7057491abbd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4a326b0_6e76378e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-04T15:08:24Z",
+      "side": 1,
+      "message": "ping",
+      "revId": "0447689c4a7d603d78fb56393c2d7057491abbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
