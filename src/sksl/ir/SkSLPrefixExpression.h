@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 
@@ -40,9 +41,13 @@ public:
         return fOperand;
     }
 
-    bool isCompileTimeConstant() const override {
+    bool isNegation() const {
         return this->getOperator() == Token::Kind::TK_MINUS &&
                this->operand()->isCompileTimeConstant();
+    }
+
+    bool isCompileTimeConstant() const override {
+        return this->isNegation();
     }
 
     bool hasProperty(Property property) const override {
@@ -55,16 +60,7 @@ public:
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
-        if (this->operand()->kind() == Expression::Kind::kFloatLiteral) {
-            return std::unique_ptr<Expression>(new FloatLiteral(
-                                                     irGenerator.fContext,
-                                                     fOffset,
-                                                     -this->operand()->as<FloatLiteral>().value()));
-
-        }
-        return nullptr;
-    }
+                                                  const DefinitionMap& definitions) override;
 
     SKSL_FLOAT getFVecComponent(int index) const override {
         SkASSERT(this->getOperator() == Token::Kind::TK_MINUS);
