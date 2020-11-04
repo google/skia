@@ -63,7 +63,7 @@ void RandomScalerContext::generateMetrics(SkGlyph* glyph) {
         case 3: format = SkMask::kBW_Format; break;
     }
 
-    *glyph = fProxy->internalMakeGlyph(glyph->getPackedID(), format);
+    *glyph = fProxy->internalMakeGlyph(glyph->getPackedID(), glyph->getGlyphIndex(), format);
 
     if (fFakeIt || (glyph->getGlyphID() % 4) != 2) {
         return;

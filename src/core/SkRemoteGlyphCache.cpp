@@ -379,6 +379,7 @@ RemoteStrike::RemoteStrike(
 // be called on the GPU side.
 static void writeGlyph(const SkGlyph& glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph.getPackedID());
+    serializer->write<int32_t>(glyph.getGlyphID());
     serializer->write<float>(glyph.advanceX());
     serializer->write<float>(glyph.advanceY());
     serializer->write<uint16_t>(glyph.width());
@@ -475,7 +476,7 @@ void RemoteStrike::commonMaskLoop(
                 if (summary == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
-                    fMasksToSend.emplace_back(fContext->makeGlyph(packedID));
+                    fMasksToSend.emplace_back(fContext->makeGlyph(packedID, fMasksToSend.size()));
                     SkGlyph* glyph = &fMasksToSend.back();
 
                     MaskSummary newSummary =
@@ -508,7 +509,7 @@ void RemoteStrike::prepareForMaskDrawing(
 
             // Put the new SkGlyph in the glyphs to send.
             this->ensureScalerContext();
-            fMasksToSend.emplace_back(fContext->makeGlyph(packedID));
+            fMasksToSend.emplace_back(fContext->makeGlyph(packedID, fMasksToSend.size()));
             SkGlyph* glyph = &fMasksToSend.back();
 
             MaskSummary newSummary =
@@ -544,7 +545,8 @@ void RemoteStrike::prepareForPathDrawing(
 
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
-                    fPathsToSend.emplace_back(fContext->makeGlyph(SkPackedGlyphID{glyphID}));
+                    fPathsToSend.emplace_back(
+                            fContext->makeGlyph(SkPackedGlyphID{glyphID}, fPathsToSend.size()));
                     SkGlyph* glyph = &fPathsToSend.back();
 
                     uint16_t maxDimensionOrPath = glyph->maxDimension();
@@ -945,7 +947,9 @@ SkStrikeClientImpl::SkStrikeClientImpl(
 bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
-    glyph.init(glyphID);
+    int32_t glyphIndex;
+    if (!deserializer->read<int32_t>(&glyphIndex)) return false;
+    glyph.init(glyphID, glyphIndex);
     if (!deserializer->read<float>(&glyph->fAdvanceX)) return false;
     if (!deserializer->read<float>(&glyph->fAdvanceY)) return false;
     if (!deserializer->read<uint16_t>(&glyph->fWidth)) return false;
