@@ -38,7 +38,7 @@ public:
     enum class ResolveFlags {
         kNone = 0,
         kMSAA = 1 << 0,  // Blit and resolve an internal MSAA render buffer into the texture.
-        kMipMaps = 1 << 1,  // Regenerate all mipmap levels.
+        kMipMaps1 = 1 << 1,  // Regenerate all mipmap levels.
     };
 
     /**

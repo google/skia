@@ -152,7 +152,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         return nullptr;
     }
 
-    return this->createWrapped(std::move(tex), UseAllocator::kYes);
+    return this->createWrapped1(std::move(tex), UseAllocator::kYes);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
@@ -178,11 +178,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createWrapped(sk_sp<GrTexture> tex) {
-    return this->createWrapped(std::move(tex), UseAllocator::kYes);
+    return this->createWrapped1(std::move(tex), UseAllocator::kYes);
 }
 #endif
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrapped(sk_sp<GrTexture> tex,
+sk_sp<GrTextureProxy> GrProxyProvider::createWrapped1(sk_sp<GrTexture> tex,
                                                      UseAllocator useAllocator) {
 #ifdef SK_DEBUG
     if (tex->getUniqueKey().isValid()) {
@@ -192,10 +192,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrapped(sk_sp<GrTexture> tex,
 
     if (tex->asRenderTarget()) {
         return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), useAllocator,
-                                                                    this->isDDLProvider()));
+                                                                    this->isDDLProvider(), false));
     } else {
         return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), useAllocator,
-                                                        this->isDDLProvider()));
+                                                        this->isDDLProvider(), true));
     }
 }
 
@@ -227,7 +227,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
     SkASSERT(texture);
 
-    result = this->createWrapped(std::move(texture), useAllocator);
+    result = this->createWrapped1(std::move(texture), useAllocator);
     SkASSERT(result->getUniqueKey() == key);
     // createWrapped should've added this for us
     SkASSERT(fUniquelyKeyedProxies.find(key));
@@ -519,7 +519,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), UseAllocator::kNo,
-                                                    this->isDDLProvider()));
+                                                    this->isDDLProvider(), false));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(
@@ -554,7 +554,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), UseAllocator::kNo,
-                                                    this->isDDLProvider()));
+                                                    this->isDDLProvider(), false));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
@@ -595,7 +595,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
 
     return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), UseAllocator::kNo,
-                                                                this->isDDLProvider()));
+                                                                this->isDDLProvider(), false));
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(

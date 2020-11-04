@@ -166,7 +166,7 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
             // filter. See skbug.com/7094.
             mipMapped = GrMipmapped::kNo;
         } else if (textureProxy->mipmapsAreDirty()) {
-            resolveFlags |= GrSurfaceProxy::ResolveFlags::kMipMaps;
+            resolveFlags |= GrSurfaceProxy::ResolveFlags::kMipMaps1;
         }
     }
 

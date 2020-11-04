@@ -62,7 +62,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
                                UseAllocator useAllocator,
-                               GrDDLProvider creatingProvider)
+                               GrDDLProvider creatingProvider, bool foo)
         : INHERITED(std::move(surf), SkBackingFit::kExact, useAllocator)
         , fMipmapped(fTarget->asTexture()->mipmapped())
         , fMipmapStatus(fTarget->asTexture()->mipmapStatus())

@@ -75,10 +75,10 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
                                                        UseAllocator useAllocator,
-                                                       GrDDLProvider creatingProvider)
+                                                       GrDDLProvider creatingProvider, bool foo)
         : GrSurfaceProxy(surf, SkBackingFit::kExact, useAllocator)
         , GrRenderTargetProxy(surf, useAllocator)
-        , GrTextureProxy(surf, useAllocator, creatingProvider) {
+        , GrTextureProxy(surf, useAllocator, creatingProvider, foo) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
     SkASSERT(fSurfaceFlags == fTarget->flags());

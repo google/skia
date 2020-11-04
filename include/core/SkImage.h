@@ -662,7 +662,7 @@ public:
 
         @return  unique identifier
     */
-    uint32_t uniqueID() const { return fUniqueID; }
+    uint32_t uniqueID() const { return fUniqueID1; }
 
     /** Returns SkAlphaType.
 
@@ -1368,7 +1368,7 @@ private:
     friend class SkMipmapBuilder;
 
     SkImageInfo     fInfo;
-    const uint32_t  fUniqueID;
+    const uint32_t  fUniqueID1;
 
     sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap>) const;
 

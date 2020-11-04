@@ -35,6 +35,8 @@ public:
      */
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
+    // AFAICT this is only used to reconnect an existing texture w/ a new proxy. This isn't
+    // needed in the threadsafe cache.
     /*
      * Sets the unique key of the provided proxy to the unique key of the surface. The surface must
      * have a valid unique key.
@@ -282,8 +284,9 @@ private:
     sk_sp<GrTextureProxy> createMippedProxyFromBitmap(const SkBitmap&,
                                                       SkBudgeted);
 
-    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, UseAllocator useAllocator);
+    sk_sp<GrTextureProxy> createWrapped1(sk_sp<GrTexture> tex, UseAllocator useAllocator);
 
+#if 1
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
 
@@ -294,6 +297,7 @@ private:
     // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash fUniquelyKeyedProxies;
+#endif
 
     GrImageContext*        fImageContext;
 };

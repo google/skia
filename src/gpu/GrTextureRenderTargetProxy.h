@@ -59,7 +59,7 @@ private:
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>,
                                UseAllocator,
-                               GrDDLProvider creatingProvider);
+                               GrDDLProvider creatingProvider, bool foo);
 
     void initSurfaceFlags(const GrCaps&);
 

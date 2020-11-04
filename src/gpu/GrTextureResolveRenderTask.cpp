@@ -35,7 +35,7 @@ void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
         renderTargetProxy->markMSAAResolved();
     }
 
-    if (GrSurfaceProxy::ResolveFlags::kMipMaps & flags) {
+    if (GrSurfaceProxy::ResolveFlags::kMipMaps1 & flags) {
         GrTextureProxy* textureProxy = proxy->asTextureProxy();
         SkASSERT(GrMipmapped::kYes == textureProxy->mipmapped());
         SkASSERT(textureProxy->mipmapsAreDirty());
@@ -78,7 +78,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     // Regenerate all mipmaps back-to-back.
     for (int i = 0; i < fResolves.count(); ++i) {
         const Resolve& resolve = fResolves[i];
-        if (GrSurfaceProxy::ResolveFlags::kMipMaps & resolve.fFlags) {
+        if (GrSurfaceProxy::ResolveFlags::kMipMaps1 & resolve.fFlags) {
             // peekTexture might be null if there was an instantiation error.
             GrTexture* texture = this->target(i).proxy()->peekTexture();
             if (texture && texture->mipmapsAreDirty()) {

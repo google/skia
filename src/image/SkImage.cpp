@@ -38,7 +38,7 @@
 
 SkImage::SkImage(const SkImageInfo& info, uint32_t uniqueID)
         : fInfo(info)
-        , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID) {
+        , fUniqueID1(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID) {
     SkASSERT(info.width() > 0);
     SkASSERT(info.height() > 0);
 }

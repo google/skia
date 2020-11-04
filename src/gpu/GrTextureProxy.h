@@ -142,7 +142,7 @@ protected:
                    GrDDLProvider creatingProvider);
 
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, UseAllocator, GrDDLProvider creatingProvider);
+    GrTextureProxy(sk_sp<GrSurface>, UseAllocator, GrDDLProvider creatingProvider, bool foo);
 
     ~GrTextureProxy() override;
 
