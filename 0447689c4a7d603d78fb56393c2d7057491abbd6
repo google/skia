@@ -33,6 +33,29 @@
       "message": "ping",
       "revId": "0447689c4a7d603d78fb56393c2d7057491abbd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ff1674f_e7454cad",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-04T15:44:59Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 1035,
+        "startChar": 11,
+        "endLine": 1035,
+        "endChar": 24
+      },
+      "revId": "0447689c4a7d603d78fb56393c2d7057491abbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
