@@ -57,6 +57,30 @@
       },
       "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df6f496a_856fad4d",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-04T20:18:24Z",
+      "side": 1,
+      "message": "Good point -- ok I\u0027ll clean things up (some stuff might move around) and get this landed.",
+      "parentUuid": "7d9d6201_ab759f16",
+      "range": {
+        "startLine": 196,
+        "startChar": 15,
+        "endLine": 196,
+        "endChar": 23
+      },
+      "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
