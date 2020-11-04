@@ -16,6 +16,29 @@
       "message": "Note that the way SkRuntimeEffect scrapes program variable, this almost worked already - it iterates over global variable declarations, and looks for fragmentProcessors before checking modifiers - so any kind of global shader ended up in the correct child list. The CPU backend worked fine, and the GPU backend just needed to fix the code-gen logic to ignore the FPs when determining the index of other (non-FP) uniforms.",
       "revId": "f841f3e94818d56a1be69b0c63bbeee9ede87e1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65e2422d_09a4fabc",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-04T21:37:38Z",
+      "side": 1,
+      "message": "This confused me for a little bit because this code is used for both \"varying\"s as well as \"uniform\" (though presumably by the time we reach this point, we\u0027ve already flagged `varying fragmentProcessor` as an error?)\n\nMaybe the comment should be more generic, e.g.?\n\n   Skip over fragmentProcessors (shaders). These are indexed separately from other globals.",
+      "range": {
+        "startLine": 135,
+        "startChar": 27,
+        "endLine": 135,
+        "endChar": 99
+      },
+      "revId": "f841f3e94818d56a1be69b0c63bbeee9ede87e1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
