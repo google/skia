@@ -52,6 +52,24 @@
       "parentUuid": "d7718f5f_64e838d7",
       "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d9ec940_c19c296f",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-04T19:52:59Z",
+      "side": 1,
+      "message": "oh, no... -w for all of ANGLE when is_skia_standalone is set.",
+      "parentUuid": "f753937e_1165f528",
+      "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
