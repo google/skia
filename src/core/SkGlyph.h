@@ -15,6 +15,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkMathPriv.h"
 
 class SkArenaAlloc;
 class SkScalerContext;
@@ -230,8 +231,12 @@ struct SkGlyphPrototype;
 class SkGlyph {
 public:
     // SkGlyph() is used for testing.
-    constexpr SkGlyph() : fID{SkPackedGlyphID()} { }
-    constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
+    constexpr SkGlyph() : SkGlyph{SkPackedGlyphID(), ~0} { }
+    constexpr explicit SkGlyph(SkPackedGlyphID id, int32_t index)
+        : fMaskFormat{MASK_FORMAT_UNKNOWN}
+        , fForceBW{0}
+        , fGlyphIndex{index}
+        , fID{id} { }
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
     SkScalar advanceX() const { return fAdvanceX; }
@@ -239,6 +244,7 @@ public:
 
     SkGlyphID getGlyphID() const { return fID.glyphID(); }
     SkPackedGlyphID getPackedID() const { return fID; }
+    int32_t getGlyphIndex() const { return fGlyphIndex; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
 
@@ -396,10 +402,13 @@ private:
     // This is a combination of SkMask::Format and SkGlyph state. The SkGlyph can be in one of two
     // states, just the advances have been calculated, and all the metrics are available. The
     // illegal mask format is used to signal that only the advances are available.
-    uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
+
+    int32_t   fMaskFormat:SkNextPow2(SkMask::kCountMaskFormats);
 
     // Used by the DirectWrite scaler to track state.
-    int8_t    fForceBW = 0;
+    int32_t    fForceBW:1;
+
+    int32_t    fGlyphIndex:SkPackedGlyphID::kEndData;
 
     const SkPackedGlyphID fID;
 };

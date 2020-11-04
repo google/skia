@@ -48,7 +48,7 @@ std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGl
         return {*digest, 0};
     }
 
-    SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID, fGlyphForIndex.size());
     fScalerContext->getMetrics(glyph);
     return {this->addGlyph(glyph), sizeof(SkGlyph)};
 }
@@ -124,7 +124,7 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         // Just return what we have. The invariants have already been cast in stone.
         return {fGlyphForIndex[digest->index()], 0};
     } else {
-        SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
+        SkGlyph* glyph = fAlloc.make<SkGlyph>(toID, fGlyphForIndex.size());
         size_t delta = glyph->setMetricsAndImage(&fAlloc, from);
         (void)this->addGlyph(glyph);
         return {glyph, sizeof(SkGlyph) + delta};

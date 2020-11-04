@@ -379,6 +379,7 @@ RemoteStrike::RemoteStrike(
 // be called on the GPU side.
 static void writeGlyph(const SkGlyph& glyph, Serializer* serializer) {
     serializer->write<SkPackedGlyphID>(glyph.getPackedID());
+    serializer->write<int32_t>(glyph.getGlyphID());
     serializer->write<float>(glyph.advanceX());
     serializer->write<float>(glyph.advanceY());
     serializer->write<uint16_t>(glyph.width());
@@ -474,7 +475,7 @@ void RemoteStrike::commonMaskLoop(
                 MaskSummary* summary = fSentGlyphs.find(packedID);
                 if (summary == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
-                    fMasksToSend.emplace_back(packedID);
+                    fMasksToSend.emplace_back(packedID, fMasksToSend.size());
                     SkGlyph* glyph = &fMasksToSend.back();
 
                     // Build the glyph
@@ -508,7 +509,7 @@ void RemoteStrike::prepareForMaskDrawing(
         MaskSummary* summary = fSentGlyphs.find(packedID);
         if (summary == nullptr) {
             // Put the new SkGlyph in the glyphs to send.
-            fMasksToSend.emplace_back(packedID);
+            fMasksToSend.emplace_back(packedID, fMasksToSend.size());
             SkGlyph* glyph = &fMasksToSend.back();
 
             // Build the glyph
@@ -546,7 +547,7 @@ void RemoteStrike::prepareForPathDrawing(
                 PathSummary* summary = fSentPaths.find(glyphID);
                 if (summary == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
-                    fPathsToSend.emplace_back(SkPackedGlyphID{glyphID});
+                    fPathsToSend.emplace_back(SkPackedGlyphID{glyphID}, fPathsToSend.size());
                     SkGlyph* glyph = &fPathsToSend.back();
 
                     // Build the glyph
@@ -951,14 +952,18 @@ SkStrikeClientImpl::SkStrikeClientImpl(
 bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
-    glyph.init(glyphID);
+    int32_t glyphIndex;
+    if (!deserializer->read<int32_t>(&glyphIndex)) return false;
+    glyph.init(glyphID, glyphIndex);
     if (!deserializer->read<float>(&glyph->fAdvanceX)) return false;
     if (!deserializer->read<float>(&glyph->fAdvanceY)) return false;
     if (!deserializer->read<uint16_t>(&glyph->fWidth)) return false;
     if (!deserializer->read<uint16_t>(&glyph->fHeight)) return false;
     if (!deserializer->read<int16_t>(&glyph->fTop)) return false;
     if (!deserializer->read<int16_t>(&glyph->fLeft)) return false;
-    if (!deserializer->read<uint8_t>(&glyph->fMaskFormat)) return false;
+    uint8_t maskFormat;
+    if (!deserializer->read<uint8_t>(&maskFormat)) return false;
+    glyph->fMaskFormat = maskFormat;
     if (!SkMask::IsValidFormat(glyph->fMaskFormat)) return false;
 
     return true;
