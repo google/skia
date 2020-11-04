@@ -22,11 +22,11 @@ protected:
 
     bool onPrepareToRender(SkSVGRenderContext*) const override;
 
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
-
     void mapToParent(SkPath*) const;
 
     void mapToParent(SkRect*) const;
+
+    bool parseAndSetAttribute(const char*, const char*) override;
 
 private:
     // FIXME: should be sparse

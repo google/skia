@@ -20,11 +20,14 @@ public:
     bool parseFillRule(SkSVGFillRule*);
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
-    bool parseInteger(SkSVGIntegerType*);
+    bool parse(SkSVGNumberType* n) { return parseNumber(n); }
+    bool parse(SkSVGIntegerType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parseTransform(SkSVGTransformType*);
+    bool parse(SkSVGTransformType* t) { return parseTransform(t); }
     bool parsePaint(SkSVGPaint*);
+    bool parse(SkSVGPaint* p) { return parsePaint(p); }
     bool parseLineCap(SkSVGLineCap*);
     bool parseLineJoin(SkSVGLineJoin*);
     bool parsePoints(SkSVGPointsType*);
@@ -36,15 +39,15 @@ public:
     bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
-    bool parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency*);
-    bool parseFeTurbulenceType(SkSVGFeTurbulenceType*);
-
     bool parseFontFamily(SkSVGFontFamily*);
     bool parseFontSize(SkSVGFontSize*);
     bool parseFontStyle(SkSVGFontStyle*);
     bool parseFontWeight(SkSVGFontWeight*);
     bool parseTextAnchor(SkSVGTextAnchor*);
 
+    bool parseEOSToken();
+    bool parseCommaWspToken();
+    bool parseExpectedStringToken(const char*);
 private:
     // Stack-only
     void* operator new(size_t) = delete;
@@ -54,10 +57,7 @@ private:
     bool advanceWhile(F func);
 
     bool parseWSToken();
-    bool parseEOSToken();
     bool parseSepToken();
-    bool parseCommaWspToken();
-    bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseInt32Token(int32_t*);
     bool parseHexToken(uint32_t*);

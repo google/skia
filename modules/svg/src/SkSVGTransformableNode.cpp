@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTransformableNode.h"
 #include "modules/svg/include/SkSVGValue.h"
@@ -24,17 +25,10 @@ bool SkSVGTransformableNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
     return this->INHERITED::onPrepareToRender(ctx);
 }
 
-void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kTransform:
-        if (const auto* transform = v.as<SkSVGTransformValue>()) {
-            this->setTransform(*transform);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-        break;
-    }
+bool SkSVGTransformableNode::parseAndSetAttribute(const char* name, const char* value) {
+    bool consumedAttribute = INHERITED::parseAndSetAttribute(name, value);
+    SVG_ATTR_PARSE_AND_SET(name, value, "transform", SkSVGTransformType, this->setTransform);
+    return consumedAttribute;
 }
 
 void SkSVGTransformableNode::mapToParent(SkPath* path) const {
