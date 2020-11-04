@@ -16,6 +16,24 @@
       "message": "public_configs applies to code in this target \":angle2\" (i.e. to no code) and to direct users of \":angle2\", but not down to libEGL and libGLESv2.  For that we\u0027d need to add the flag in angle2\u0027s build files.\n\nMight be a good time to just go ahead and add -w if defined(is_skia_standalone) \u0026\u0026 is_skia_standalone \u003d\u003d true?  That way we don\u0027t have to care about warnings in ANGLE.  Wish they\u0027d done this when porting over to use their GN files...",
       "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7718f5f_64e838d7",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-04T19:46:53Z",
+      "side": 1,
+      "message": "OK--where is the right place to add that? Inside Angle\u0027s GN file?",
+      "parentUuid": "2c0ffdf0_da5eb9f7",
+      "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
