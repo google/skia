@@ -230,8 +230,10 @@ struct SkGlyphPrototype;
 class SkGlyph {
 public:
     // SkGlyph() is used for testing.
-    constexpr SkGlyph() : SkGlyph{SkPackedGlyphID()} { }
-    constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
+    constexpr SkGlyph() : SkGlyph{SkPackedGlyphID(), ~0} { }
+    constexpr explicit SkGlyph(SkPackedGlyphID id, int32_t index)
+        : fGlyphIndex{index}
+        , fID{id} { }
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
     SkScalar advanceX() const { return fAdvanceX; }
@@ -239,6 +241,7 @@ public:
 
     SkGlyphID getGlyphID() const { return fID.glyphID(); }
     SkPackedGlyphID getPackedID() const { return fID; }
+    int32_t getGlyphIndex() const { return fGlyphIndex; }
     SkFixed getSubXFixed() const { return fID.getSubXFixed(); }
     SkFixed getSubYFixed() const { return fID.getSubYFixed(); }
 
@@ -354,6 +357,7 @@ private:
     friend class TestTypeface;
 
     static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
+    static constexpr int32_t kUnknownFormat = SkMask::kCountMaskFormats;
 
     // Support horizontal and vertical skipping strike-through / underlines.
     // The caller walks the linked list looking for a match. For a horizontal underline,
@@ -400,7 +404,10 @@ private:
     SkMask::Format fMaskFormat{SkMask::kBW_Format};
 
     // Used by the DirectWrite scaler to track state.
-    int8_t    fForceBW = 0;
+    bool fForceBW{false};
+
+    // The number of bits to hold the number of all sub-position glyphs.
+    int32_t fGlyphIndex;
 
     SkPackedGlyphID fID;
 };

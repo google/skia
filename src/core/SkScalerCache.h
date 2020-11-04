@@ -122,7 +122,7 @@ private:
     std::tuple<SkGlyphDigest, size_t> digest(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     // Generate the glyph digest information and update structures to add the glyph.
-    SkGlyphDigest addGlyph(SkGlyph* glyph) SK_REQUIRES(fMu);
+    SkGlyphDigest addGlyph(SkGlyph* glyph, int32_t index) SK_REQUIRES(fMu);
 
     std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 

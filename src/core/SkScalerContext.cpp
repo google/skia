@@ -177,12 +177,13 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
     return true;
 }
 
-SkGlyph SkScalerContext::makeGlyph(SkPackedGlyphID packedID) {
-    return internalMakeGlyph(packedID, fRec.fMaskFormat);
+SkGlyph SkScalerContext::makeGlyph(SkPackedGlyphID packedID, int32_t index) {
+    return internalMakeGlyph(packedID, index, fRec.fMaskFormat);
 }
 
-SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::Format format) {
-    SkGlyph glyph{packedID};
+SkGlyph SkScalerContext::internalMakeGlyph(
+        SkPackedGlyphID packedID, int32_t index, SkMask::Format format) {
+    SkGlyph glyph{packedID, index};
     glyph.fMaskFormat = format;
     bool generatingImageFromPath = fGenerateImageFromPath;
     if (!generatingImageFromPath) {
@@ -537,7 +538,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         // need the original bounds, sans our maskfilter
         sk_sp<SkMaskFilter> mf = std::move(fMaskFilter);
-        tmpGlyph = this->internalMakeGlyph(origGlyph.getPackedID(), fRec.fMaskFormat);
+        tmpGlyph = this->internalMakeGlyph(origGlyph.getPackedID(), ~0, fRec.fMaskFormat);
         fMaskFilter = std::move(mf);
 
         // we need the prefilter bounds to be <= filter bounds
