@@ -168,6 +168,19 @@ export interface CanvasKit {
     MakeCanvasSurface(canvas: HTMLCanvasElement | string): Surface | null;
 
     /**
+     * Creates a Raster (CPU) Surface that will draw into the provided Malloc'd buffer. This allows
+     * clients to efficiently be able to read the current pixels w/o having to copy.
+     * The length of pixels must be at least height * bytesPerRow bytes big.
+     * @param ii
+     * @param pixels
+     * @param bytesPerRow - How many bytes are per row. This is at least width * bytesPerColorType. For example,
+     *                      an 8888 ColorType has 4 bytes per pixel, so a 5 pixel wide 8888 surface needs at least
+     *                      5 * 4 = 20 bytesPerRow. Some clients may have more than the usual to make the data line
+     *                      up with a particular multiple.
+     */
+    MakeRasterDirectSurface(ii: ImageInfo, pixels: MallocObj, bytesPerRow: number): Surface | null;
+
+    /**
      * Creates a CPU backed (aka raster) surface.
      * @param canvas - either the canvas element itself or a string with the DOM id of it.
      */

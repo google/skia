@@ -773,6 +773,14 @@ function surfaceTests(CK: CanvasKit) {
         enableExtensionsByDefault: 2,
     })!;
     const surfaceSeven = CK.MakeSurface(200, 200)!; // $ExpectType Surface
+    const m = CK.Malloc(Uint8Array, 5 * 5 * 4);
+    const surfaceEight = CK.MakeRasterDirectSurface({
+        width: 5,
+        height: 5,
+        colorType: CK.ColorType.RGBA_8888,
+        alphaType: CK.AlphaType.Premul,
+        colorSpace: CK.ColorSpace.SRGB,
+    }, m, 20);
 
     surfaceOne.flush();
     const canvas = surfaceTwo.getCanvas(); // $ExpectType Canvas
@@ -789,7 +797,7 @@ function surfaceTests(CK: CanvasKit) {
 
     const ctx = CK.GetWebGLContext(canvasEl); // $ExpectType number
     const grCtx = CK.MakeGrContext(ctx);
-    const surfaceEight = CK.MakeOnScreenGLSurface(grCtx, 100, 400, // $ExpectType Surface
+    const surfaceNine = CK.MakeOnScreenGLSurface(grCtx, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB)!;
 
     const rt = CK.MakeRenderTarget(grCtx, 100, 200); // $ExpectType Surface | null

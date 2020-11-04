@@ -55,6 +55,7 @@ var CanvasKit = {
   MakeParticles: function() {},
   MakeVertices: function() {},
   MakeSurface: function() {},
+  MakeRasterDirectSurface: function() {},
   MakeWebGLCanvasSurface: function() {},
   Malloc: function() {},
   MallocGlyphIDs: function() {},
