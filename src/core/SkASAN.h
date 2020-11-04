@@ -22,7 +22,7 @@
 #endif
 
 // Typically declared in LLVM's asan_interface.h.
-#if SK_SANITIZE_ADDRESS
+#ifdef SK_SANITIZE_ADDRESS
 extern "C" {
     void __asan_poison_memory_region(void const volatile *addr, size_t size);
     void __asan_unpoison_memory_region(void const volatile *addr, size_t size);
@@ -33,13 +33,13 @@ extern "C" {
 // unpoison chunks of arena memory as they are parceled out. Consider leaving gaps between blocks
 // to detect buffer overrun.
 static inline void sk_asan_poison_memory_region(void const volatile *addr, size_t size) {
-#if SK_SANITIZE_ADDRESS
+#ifdef SK_SANITIZE_ADDRESS
     __asan_poison_memory_region(addr, size);
 #endif
 }
 
 static inline void sk_asan_unpoison_memory_region(void const volatile *addr, size_t size) {
-#if SK_SANITIZE_ADDRESS
+#ifdef SK_SANITIZE_ADDRESS
     __asan_unpoison_memory_region(addr, size);
 #endif
 }

@@ -106,12 +106,14 @@ private:
     // Per-allocation overhead so that GrMemoryPool can always identify the block owning each and
     // release all occupied bytes, including any resulting from alignment padding.
     struct Header {
-#ifdef SK_DEBUG
-        int fSentinel; // known value to check for memory stomping (e.g., (CD)*)
-        int fID;       // ID that can be used to track down leaks by clients.
-#endif
         int fStart;
         int fEnd;
+#if defined(SK_DEBUG)
+        int fID;       // ID that can be used to track down leaks by clients.
+#endif
+#if defined(SK_DEBUG) || defined(SK_SANITIZE_ADDRESS)
+        int fSentinel; // set to a known value to check for memory stomping; poisoned in ASAN mode
+#endif
     };
 
     GrMemoryPool(size_t preallocSize, size_t minAllocSize);

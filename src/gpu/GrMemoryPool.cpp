@@ -8,6 +8,7 @@
 #include "src/gpu/GrMemoryPool.h"
 
 #include "include/private/SkTPin.h"
+#include "src/core/SkASAN.h"
 #include "src/gpu/ops/GrOp.h"
 
 #ifdef SK_DEBUG
@@ -69,8 +70,13 @@ void* GrMemoryPool::allocate(size_t size) {
     // Update live count within the block
     alloc.fBlock->setMetadata(alloc.fBlock->metadata() + 1);
 
-#ifdef SK_DEBUG
+#if defined(SK_SANITIZE_ADDRESS)
+    sk_asan_poison_memory_region(&header->fSentinel, sizeof(header->fSentinel));
+#elif defined(SK_DEBUG)
     header->fSentinel = GrBlockAllocator::kAssignedMarker;
+#endif
+
+#if defined(SK_DEBUG)
     header->fID = []{
         static std::atomic<int> nextID{1};
         return nextID++;
@@ -89,16 +95,20 @@ void GrMemoryPool::release(void* p) {
     // NOTE: if we needed it, (p - block) would equal the original alignedOffset value returned by
     // GrBlockAllocator::allocate()
     Header* header = reinterpret_cast<Header*>(reinterpret_cast<intptr_t>(p) - sizeof(Header));
+
+#if defined(SK_SANITIZE_ADDRESS)
+    sk_asan_unpoison_memory_region(&header->fSentinel, sizeof(header->fSentinel));
+#elif defined(SK_DEBUG)
     SkASSERT(GrBlockAllocator::kAssignedMarker == header->fSentinel);
-
-    GrBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
-
-#ifdef SK_DEBUG
     header->fSentinel = GrBlockAllocator::kFreedMarker;
+#endif
+
+#if defined(SK_DEBUG)
     fAllocatedIDs.remove(header->fID);
     fAllocationCount--;
 #endif
 
+    GrBlockAllocator::Block* block = fAllocator.owningBlock<kAlignment>(header, header->fStart);
     int alive = block->metadata();
     if (alive == 1) {
         // This was last allocation in the block, so remove it
