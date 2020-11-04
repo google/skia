@@ -125,8 +125,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
         }
 
 #ifdef SK_HAS_HEIF_LIBRARY
-        if (SkHeifCodec::IsHeif(buffer, bytesRead)) {
-            return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy, outResult);
+        SkEncodedImageFormat format;
+        if (SkHeifCodec::IsSupported(buffer, bytesRead, &format)) {
+            return SkHeifCodec::MakeFromStream(std::move(stream), selectionPolicy,
+                    format, outResult);
         }
 #endif
 
