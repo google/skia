@@ -34,6 +34,24 @@
       "parentUuid": "2c0ffdf0_da5eb9f7",
       "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f753937e_1165f528",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T19:50:01Z",
+      "side": 1,
+      "message": "I wasn\u0027t clear on that - but Mike, are you suggesting we just do -w for *all* of Skia when is_skia_standalone is set?",
+      "parentUuid": "d7718f5f_64e838d7",
+      "revId": "e68bc07ee3b4aadf13eff3f69a773fa3d898fc19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
