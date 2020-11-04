@@ -113,6 +113,7 @@ class SKUNICODE_API SkUnicode {
 
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;
+        virtual bool isHardLineBreak(SkUnichar utf8) = 0;
         virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
 
         // Methods used in SkShaper
@@ -139,6 +140,7 @@ class SKUNICODE_API SkUnicode {
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 
         static std::unique_ptr<SkUnicode> Make();
+        virtual void test(SkString str) = 0;
 };
 
 #endif // SkUnicode_DEFINED
