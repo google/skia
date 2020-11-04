@@ -9,6 +9,10 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Add support for creating SkSurfaceCharacterizations directly for use by a
+    GrVkSecondaryCBDrawContext.
+    https://review.skia.org/331877
+
   * Removed SkSurfaceProps::kLegacyFontHost_InitType, SkFontLCDConfig, and related code.
     The default pixel geometry for SkSurfaceProps is now kUnknown instead of kRGB_H.
     The removal was guarded by the SK_LEGACY_SURFACE_PROPS build flag which was later removed.
