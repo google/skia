@@ -68,6 +68,24 @@
       "parentUuid": "c6b91bde_65c9cb04",
       "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d24e6ad3_8cf26638",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14979
+      },
+      "writtenOn": "2020-11-04T22:15:37Z",
+      "side": 1,
+      "message": "The conflict was in Release notes and i have resolved it. There were no conflicts in any of the code. So i will +1 this myself and try to land it (i\u0027m not entirely certain if it will work, but let me try in any case :))",
+      "parentUuid": "e559b618_e8e8b8d4",
+      "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
