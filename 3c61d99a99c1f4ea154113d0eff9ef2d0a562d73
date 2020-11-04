@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "260567aa_13e702b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-04T14:40:40Z",
+      "side": 1,
+      "message": "Ok this seems promising.\n\n- Custom parsing so we can move specific parsing (like turbulence baseFrequency) into those .cpp files\n- For custom parsing we do have to expose things like parseCommaWspToken() but that doesn\u0027t seem all that bad\n- Inherited setting works -- base SkSVGNode will get all the presentation attributes, and intermediate classes like SkSVGTransformableNode get the intermediate attributes like transform\n- Single iteration over attributes driven by the same place in SkSVGDOM\n\nWhat do you think -- is it worth cleaning this up a bit and landing these changes as a first step? Alternatively I can probably do everything all at once without too much trouble, it\u0027ll just be a big CL. Sending this to dry run just to see if gold turns up any diffs.",
+      "revId": "3c61d99a99c1f4ea154113d0eff9ef2d0a562d73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
