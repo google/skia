@@ -38,8 +38,8 @@ namespace  {
 // |selector_matrix| and |selector_offset| are set up to select and scale the x/y displacement
 // in R/G, and the x/y coverage modulation in B/A.
 static constexpr char gDisplacementSkSL[] = R"(
-    in shader child;
-    in shader displ;
+    uniform shader child;
+    uniform shader displ;
 
     uniform half4x4 selector_matrix;
     uniform half4   selector_offset;

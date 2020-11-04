@@ -38,7 +38,7 @@ SkSLSlide::SkSLSlide() {
 
     fSkSL =
 
-        "in shader child;\n"
+        "uniform shader child;\n"
         "\n"
         "half4 main(float2 p) {\n"
         "    return sample(child, p);\n"

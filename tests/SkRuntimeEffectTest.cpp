@@ -62,16 +62,16 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("",
          "shader child;",
          "must be global");
-    test("in shader child; half4 helper(shader fp) { return sample(fp); }",
+    test("uniform shader child; half4 helper(shader fp) { return sample(fp); }",
          "half4 color = helper(child);",
          "parameter");
-    test("in shader child; shader get_child() { return child; }",
+    test("uniform shader child; shader get_child() { return child; }",
          "half4 color = sample(get_child());",
          "return");
-    test("in shader child;",
+    test("uniform shader child;",
          "half4 color = sample(shader(child));",
          "construct");
-    test("in shader child1; in shader child2;",
+    test("uniform shader child1; uniform shader child2;",
          "half4 color = sample(p.x > 10 ? child1 : child2);",
          "expression");
 
@@ -232,7 +232,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     //
 
     // Sampling a null child should return the paint color
-    effect.build("in shader child;",
+    effect.build("uniform shader child;",
                  "return sample(child);");
     effect.child("child") = nullptr;
     effect.test(0xFF00FFFF,
@@ -241,22 +241,28 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     sk_sp<SkShader> rgbwShader = make_RGBW_shader();
 
     // Sampling a simple child at our coordinates (implicitly)
-    effect.build("in shader child;",
+    effect.build("uniform shader child;",
                  "return sample(child);");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
 
     // Sampling with explicit coordinates (reflecting about the diagonal)
-    effect.build("in shader child;",
+    effect.build("uniform shader child;",
                  "return sample(child, p.yx);");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
     // Sampling with a matrix (again, reflecting about the diagonal)
-    effect.build("in shader child;",
+    effect.build("uniform shader child;",
                  "return sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1));");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
+
+    // Legacy behavior - shaders can be declared 'in' rather than 'uniform'
+    effect.build("in shader child;",
+                 "return sample(child);");
+    effect.child("child") = rgbwShader;
+    effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
 
     //
     // Helper functions

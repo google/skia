@@ -21,21 +21,21 @@
 #include <utility>
 
 const char* gNoop = R"(
-    in shader input;
+    uniform shader input;
     half4 main() {
         return sample(input);
     }
 )";
 
 const char* gLumaSrc = R"(
-    in shader input;
+    uniform shader input;
     half4 main() {
         return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
 )";
 
 const char* gLumaSrcWithCoords = R"(
-    in shader input;
+    uniform shader input;
     half4 main(float2 p) {
         return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
@@ -46,7 +46,7 @@ const char* gLumaSrcWithCoords = R"(
 
 // Simplest to run; hardest to write?
 const char* gTernary = R"(
-    in shader input;
+    uniform shader input;
     half4 main() {
         half4 color = sample(input);
         half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
@@ -60,7 +60,7 @@ const char* gTernary = R"(
 
 // Uses conditional if statements but no early return.
 const char* gIfs = R"(
-    in shader input;
+    uniform shader input;
     half4 main() {
         half4 color = sample(input);
         half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
@@ -79,7 +79,7 @@ const char* gIfs = R"(
 
 // Distilled from AOSP tone mapping shaders, more like what people tend to write.
 const char* gEarlyReturn = R"(
-    in shader input;
+    uniform shader input;
     half4 main() {
         half4 color = sample(input);
         half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));

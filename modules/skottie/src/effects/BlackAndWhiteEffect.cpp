@@ -34,7 +34,7 @@ namespace  {
 
 static sk_sp<SkRuntimeEffect> make_effect() {
     static constexpr char BLACK_AND_WHITE_EFFECT[] = R"(
-        in shader input;
+        uniform shader input;
         uniform half kR, kY, kG, kC, kB, kM;
 
         half4 main() {
