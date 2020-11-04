@@ -132,7 +132,9 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                             found = true;
                             break;
                         }
-                        if (var.modifiers().fFlags & flag) {
+                        // fragmentProcessors (shaders) may be 'uniform' but are indexed separately
+                        if (var.modifiers().fFlags & flag &&
+                            var.type().nonnullable() != *fContext.fFragmentProcessor_Type) {
                             ++index;
                         }
                     }

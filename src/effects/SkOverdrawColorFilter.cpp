@@ -18,7 +18,7 @@ sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor color
         uniform half4 color3;
         uniform half4 color4;
         uniform half4 color5;
-        in shader input;
+        uniform shader input;
 
         half4 main() {
             half4 color = sample(input);

@@ -120,9 +120,9 @@ static sk_sp<SkShader> make_threshold(SkISize size) {
 class ThresholdRT : public RuntimeShaderGM {
 public:
     ThresholdRT() : RuntimeShaderGM("threshold_rt", {256, 256}, R"(
-        in shader before_map;
-        in shader after_map;
-        in shader threshold_map;
+        uniform shader before_map;
+        uniform shader after_map;
+        uniform shader threshold_map;
 
         uniform float cutoff;
         uniform float slope;
@@ -218,8 +218,8 @@ DEF_GM(return new SpiralRT;)
 class ColorCubeRT : public RuntimeShaderGM {
 public:
     ColorCubeRT() : RuntimeShaderGM("color_cube_rt", {512, 512}, R"(
-        in shader input;
-        in shader color_cube;
+        uniform shader input;
+        uniform shader color_cube;
 
         uniform float rg_scale;
         uniform float rg_bias;
@@ -303,7 +303,7 @@ public:
     // This test also *explicitly* doesn't include coords in main's parameter list, to test that
     // runtime shaders work without them being declared (when they're not used).
     DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
-        in shader input;
+        uniform shader input;
         half4 main() {
             return sample(input);
         }

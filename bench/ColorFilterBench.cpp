@@ -128,7 +128,7 @@ private:
 };
 
 const char RuntimeNone_GPU_SRC[] = R"(
-    in shader input;
+    uniform shader input;
     half4 main() { return sample(input); }
 )";
 
@@ -138,7 +138,7 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
                  m5 , m6 , m7 , m8 , m9 ,
                  m10, m11, m12, m13, m14,
                  m15, m16, m17, m18, m19;
-    in shader input;
+    uniform shader input;
     half4 main() {
         half4 c = unpremul(sample(input));
 
