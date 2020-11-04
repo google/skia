@@ -16,6 +16,23 @@
       "message": "Talked to Brian, and we think this may have been done for perf reasons but that we should go for a revert and figure out a different way forward (and watch perf.) Especially given that our op-chaining will benefit from the RTC remembering the last ops task as it did before.\n\nBrian, any additional trybots you\u0027d recommend?",
       "revId": "092b4947012ec5353b85eacec21774c5ba927b02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96350d5e_3bbdcced",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-04T17:45:28Z",
+      "side": 1,
+      "message": "Chrome fail is unrelated",
+      "revId": "092b4947012ec5353b85eacec21774c5ba927b02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
