@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7819dd47_56bcadb6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-04T20:07:14Z",
+      "side": 1,
+      "message": "Since we don\u0027t currently have an iOS NativeFonts bot, I built Skia locally with this change and ran viewer on iOS 13.3.1 on an iPhone 8 and it does seem to work fine under the debugger. Note that the iOS Test bots will run with the native font manager anyway, so this is being tested, just wanted to have visual local confirmation first.",
+      "revId": "469890d93cc65edfd975c6a5d1f350ba3170db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
