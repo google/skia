@@ -22,6 +22,23 @@
       },
       "revId": "ffb227c34802ce45fa6fb279c93963f946d5fc06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52f75f2e_f4832fb5",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T20:50:04Z",
+      "side": 1,
+      "message": "Does this need to happen *before* we poison it? Aren\u0027t we going to trigger ASAN immediately?",
+      "revId": "ffb227c34802ce45fa6fb279c93963f946d5fc06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
