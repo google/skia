@@ -26,13 +26,16 @@ public:
              SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::Type::kTurbulence))
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
-
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const override;
 
+    bool parseAndSetAttribute(const char*, const char*) override;
+
 private:
     SkSVGFeTurbulence() : INHERITED(SkSVGTag::kFeTurbulence) {}
+
+    static bool parse(const char*, SkSVGFeTurbulenceBaseFrequency*);
+    static bool parse(const char*, SkSVGFeTurbulenceType*);
 
     using INHERITED = SkSVGFe;
 };

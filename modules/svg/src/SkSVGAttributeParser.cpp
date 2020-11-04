@@ -56,25 +56,25 @@ inline bool SkSVGAttributeParser::advanceWhile(F f) {
     return fCurPos != initial;
 }
 
-inline bool SkSVGAttributeParser::parseEOSToken() {
+bool SkSVGAttributeParser::parseEOSToken() {
     return is_eos(*fCurPos);
 }
 
-inline bool SkSVGAttributeParser::parseSepToken() {
+bool SkSVGAttributeParser::parseSepToken() {
     return this->advanceWhile(is_sep);
 }
 
-inline bool SkSVGAttributeParser::parseWSToken() {
+bool SkSVGAttributeParser::parseWSToken() {
     return this->advanceWhile(is_ws);
 }
 
-inline bool SkSVGAttributeParser::parseCommaWspToken() {
+bool SkSVGAttributeParser::parseCommaWspToken() {
     // comma-wsp:
     //     (wsp+ comma? wsp*) | (comma wsp*)
     return this->parseWSToken() || this->parseExpectedStringToken(",");
 }
 
-inline bool SkSVGAttributeParser::parseExpectedStringToken(const char* expected) {
+bool SkSVGAttributeParser::parseExpectedStringToken(const char* expected) {
     const char* c = fCurPos;
 
     while (*c && *expected && *c == *expected) {
@@ -923,37 +923,6 @@ bool SkSVGAttributeParser::parsePreserveAspectRatio(SkSVGPreserveAspectRatio* pa
         // optional scaling selector
         this->parseWSToken();
         this->parseEnumMap(gScaleMap, &par->fScale);
-    }
-
-    return parsedValue && this->parseEOSToken();
-}
-
-bool SkSVGAttributeParser::parseFeTurbulenceBaseFrequency(SkSVGFeTurbulenceBaseFrequency* freq) {
-    SkSVGNumberType freqX;
-    if (!this->parseNumber(&freqX)) {
-        return false;
-    }
-
-    SkSVGNumberType freqY;
-    this->parseCommaWspToken();
-    if (this->parseNumber(&freqY)) {
-        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqY);
-    } else {
-        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqX);
-    }
-
-    return this->parseEOSToken();
-}
-
-bool SkSVGAttributeParser::parseFeTurbulenceType(SkSVGFeTurbulenceType* type) {
-    bool parsedValue = false;
-
-    if (this->parseExpectedStringToken("fractalNoise")) {
-        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kFractalNoise);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("turbulence")) {
-        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kTurbulence);
-        parsedValue = true;
     }
 
     return parsedValue && this->parseEOSToken();
