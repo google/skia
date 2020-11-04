@@ -9,6 +9,8 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Add AVIF support to SkHeifCodec.
+
   * Add support for creating SkSurfaceCharacterizations directly for use by a
     GrVkSecondaryCBDrawContext.
     https://review.skia.org/331877
