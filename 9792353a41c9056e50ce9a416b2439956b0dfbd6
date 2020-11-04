@@ -16,6 +16,47 @@
       "message": "Patchset 7 has a template version rather than the macro-based approach, which feels a bit more C++ish. Let me know if you have an opinion",
       "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c32b4a5a_7fcc5e91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-04T19:32:24Z",
+      "side": 1,
+      "message": "Great, I was typing up that suggestion :)",
+      "parentUuid": "45bb33f3_af5c1851",
+      "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d9d6201_ab759f16",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-04T19:32:24Z",
+      "side": 1,
+      "message": "naming nit: I think parse() is clear enough given the return type.",
+      "range": {
+        "startLine": 196,
+        "startChar": 15,
+        "endLine": 196,
+        "endChar": 23
+      },
+      "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
