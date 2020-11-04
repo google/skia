@@ -88,6 +88,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLNop.h",
   "$_src/sksl/ir/SkSLNullLiteral.h",
   "$_src/sksl/ir/SkSLPostfixExpression.h",
+  "$_src/sksl/ir/SkSLPrefixExpression.cpp",
   "$_src/sksl/ir/SkSLPrefixExpression.h",
   "$_src/sksl/ir/SkSLProgram.h",
   "$_src/sksl/ir/SkSLProgramElement.h",
