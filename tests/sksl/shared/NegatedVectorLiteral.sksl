@@ -1,5 +1,9 @@
 void main() {
+    half one = 1;
+    half two = 2;
+
     sk_FragColor.r = (half4(1) == half4(-half2(-1), half2(1))) ? 1 : 0;
     sk_FragColor.g = (half4(1) == -half4(1)) ? 1 : 0;
-    sk_FragColor.b = (half4(0) == -half4(0)) ? 1 : 0;
+    sk_FragColor.b = (-half4(two) == half4(-two)) ? 1 : 0;
+    sk_FragColor.a = (-half2(-one, one + one) == -half2(one - two, two)) ? 1 : 0;
 }
