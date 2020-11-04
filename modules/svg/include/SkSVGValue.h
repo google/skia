@@ -21,15 +21,12 @@ public:
         kClip,
         kColor,
         kDashArray,
-        kFeTurbulenceBaseFrequency,
-        kFeTurbulenceType,
         kFillRule,
         kFilter,
         kFontFamily,
         kFontSize,
         kFontStyle,
         kFontWeight,
-        kInteger,
         kLength,
         kLineCap,
         kLineJoin,
@@ -97,7 +94,6 @@ using SkSVGViewBoxValue      = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue:
 using SkSVGPaintValue        = SkSVGWrapperValue<SkSVGPaint        , SkSVGValue::Type::kPaint     >;
 using SkSVGLineCapValue      = SkSVGWrapperValue<SkSVGLineCap      , SkSVGValue::Type::kLineCap   >;
 using SkSVGLineJoinValue     = SkSVGWrapperValue<SkSVGLineJoin     , SkSVGValue::Type::kLineJoin  >;
-using SkSVGIntegerValue      = SkSVGWrapperValue<SkSVGIntegerType  , SkSVGValue::Type::kInteger   >;
 using SkSVGNumberValue       = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber    >;
 using SkSVGPointsValue       = SkSVGWrapperValue<SkSVGPointsType   , SkSVGValue::Type::kPoints    >;
 using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue::Type::kString    >;
@@ -118,11 +114,5 @@ using SkSVGPreserveAspectRatioValue    = SkSVGWrapperValue<SkSVGPreserveAspectRa
 
 using SkSVGObjectBoundingBoxUnitsValue = SkSVGWrapperValue<SkSVGObjectBoundingBoxUnits,
                                                            SkSVGValue::Type::kObjectBoundingBoxUnits>;
-
-using SkSVGFeTurbulenceBaseFrequencyValue =
-        SkSVGWrapperValue<SkSVGFeTurbulenceBaseFrequency,
-                          SkSVGValue::Type::kFeTurbulenceBaseFrequency>;
-using SkSVGFeTurbulenceTypeValue =
-        SkSVGWrapperValue<SkSVGFeTurbulenceType, SkSVGValue::Type::kFeTurbulenceType>;
 
 #endif // SkSVGValue_DEFINED

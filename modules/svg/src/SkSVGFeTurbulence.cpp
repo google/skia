@@ -7,36 +7,60 @@
 
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-void SkSVGFeTurbulence::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-        case SkSVGAttribute::kFeTurbulenceBaseFrequency:
-            if (const auto* f = v.as<SkSVGFeTurbulenceBaseFrequencyValue>()) {
-                this->setBaseFrequency(*f);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceNumOctaves:
-            if (const auto* n = v.as<SkSVGIntegerValue>()) {
-                this->setNumOctaves(*n);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceSeed:
-            if (const auto* s = v.as<SkSVGNumberValue>()) {
-                this->setSeed(*s);
-            }
-            break;
-        case SkSVGAttribute::kFeTurbulenceType:
-            if (const auto* t = v.as<SkSVGFeTurbulenceTypeValue>()) {
-                this->setTurbulenceType(*t);
-            }
-            break;
-        default:
-            this->INHERITED::onSetAttribute(attr, v);
+bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value) {
+    bool consumedAttribute = INHERITED::parseAndSetAttribute(name, value);
+    SVG_ATTR_PARSE_AND_SET(name, value, "numOctaves", SkSVGIntegerType, this->setNumOctaves);
+    SVG_ATTR_PARSE_AND_SET(name, value, "seed", SkSVGNumberType, this->setSeed);
+    SVG_ATTR_PARSE_AND_SET_CUSTOM(name,
+                                  value,
+                                  "baseFrequency",
+                                  SkSVGFeTurbulenceBaseFrequency,
+                                  SkSVGFeTurbulence::parse,
+                                  this->setBaseFrequency);
+    SVG_ATTR_PARSE_AND_SET_CUSTOM(name,
+                                  value,
+                                  "type",
+                                  SkSVGFeTurbulenceType,
+                                  SkSVGFeTurbulence::parse,
+                                  this->setTurbulenceType);
+    return consumedAttribute;
+}
+
+bool SkSVGFeTurbulence::parse(SkSVGAttributeParser* parser, SkSVGFeTurbulenceBaseFrequency* freq) {
+    SkSVGNumberType freqX;
+    if (!parser->parseNumber(&freqX)) {
+        return false;
     }
+
+    SkSVGNumberType freqY;
+    parser->parseCommaWspToken();
+    if (parser->parseNumber(&freqY)) {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqY);
+    } else {
+        *freq = SkSVGFeTurbulenceBaseFrequency(freqX, freqX);
+    }
+
+    return parser->parseEOSToken();
+}
+
+bool SkSVGFeTurbulence::parse(SkSVGAttributeParser* parser, SkSVGFeTurbulenceType* type) {
+    bool parsedValue = false;
+
+    if (parser->parseExpectedStringToken("fractalNoise")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kFractalNoise);
+        parsedValue = true;
+    } else if (parser->parseExpectedStringToken("turbulence")) {
+        *type = SkSVGFeTurbulenceType(SkSVGFeTurbulenceType::kTurbulence);
+        parsedValue = true;
+    }
+
+    return parsedValue && parser->parseEOSToken();
 }
 
 sk_sp<SkImageFilter> SkSVGFeTurbulence::onMakeImageFilter(const SkSVGRenderContext& ctx,
