@@ -33,17 +33,6 @@ class GrClearOp;
 class GrGpuBuffer;
 class GrRenderTargetProxy;
 
-/** Observer is notified when a GrOpsTask is closed. */
-class GrOpsTaskClosedObserver {
-public:
-    virtual ~GrOpsTaskClosedObserver() = 0;
-    /**
-     * Called when the GrOpsTask is closed. Must not add/remove observers to 'task'.
-     * The GrOpsTask will remove all its observers after it finishes calling wasClosed().
-     */
-    virtual void wasClosed(const GrOpsTask& task) = 0;
-};
-
 class GrOpsTask : public GrRenderTask {
 private:
     using DstProxyView = GrXferProcessor::DstProxyView;
@@ -55,13 +44,6 @@ public:
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
-
-    void addClosedObserver(GrOpsTaskClosedObserver* observer) {
-        SkASSERT(observer);
-        fClosedObservers.push_back(observer);
-    }
-
-    void removeClosedObserver(GrOpsTaskClosedObserver* observer);
 
     bool isEmpty() const { return fOpChains.empty(); }
 
@@ -314,8 +296,6 @@ private:
     // into the owning DDL.
     GrRecordingContext::Arenas fArenas;
     GrAuditTrail*              fAuditTrail;
-
-    SkSTArray<2, GrOpsTaskClosedObserver*, true> fClosedObservers;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;

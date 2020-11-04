@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -35,10 +34,6 @@ static const int kMaxOpChainDistance = 10;
 ////////////////////////////////////////////////////////////////////////////////
 
 using DstProxyView = GrXferProcessor::DstProxyView;
-
-////////////////////////////////////////////////////////////////////////////////
-
-GrOpsTaskClosedObserver::~GrOpsTaskClosedObserver() = default;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -380,16 +375,6 @@ void GrOpsTask::deleteOps() {
 
 GrOpsTask::~GrOpsTask() {
     this->deleteOps();
-}
-
-void GrOpsTask::removeClosedObserver(GrOpsTaskClosedObserver* observer) {
-    SkASSERT(observer);
-    for (int i = 0; i < fClosedObservers.count(); ++i) {
-        if (fClosedObservers[i] == observer) {
-            fClosedObservers.removeShuffle(i);
-            --i;
-        }
-    }
 }
 
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
@@ -893,12 +878,6 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
 GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(
         const GrCaps& caps, SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
-    SkScopeExit triggerObservers([&] {
-        for (const auto& o : fClosedObservers) {
-            o->wasClosed(*this);
-        }
-        fClosedObservers.reset();
-    });
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = this->target(0).proxy();
         // Use the entire backing store bounds since the GPU doesn't clip automatically to the
