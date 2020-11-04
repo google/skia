@@ -9,9 +9,8 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Constructor::constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) {
+std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& irGenerator,
+                                                           const DefinitionMap& definitions) {
     if (this->arguments().size() == 1 && this->arguments()[0]->is<IntLiteral>()) {
         const Context& context = irGenerator.fContext;
         const Type& type = this->type();
