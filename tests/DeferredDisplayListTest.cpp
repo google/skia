@@ -52,12 +52,14 @@
 
 #ifdef SK_VULKAN
 #include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkSecondaryCBDrawContext.h"
 #endif
 
 class SurfaceParameters {
 public:
-    static const int kNumParams      = 12;
+    static const int kNumParams      = 13;
     static const int kFBO0Count      = 9;
+    static const int kVkSCBCount     = 12;
 
     SurfaceParameters(GrRecordingContext* rContext)
             : fBackend(rContext->backend())
@@ -73,7 +75,8 @@ public:
             , fUsesGLFBO0(false)
             , fIsTextureable(true)
             , fIsProtected(GrProtected::kNo)
-            , fVkRTSupportsInputAttachment(false) {
+            , fVkRTSupportsInputAttachment(false)
+            , fForVulkanSecondaryCommandBuffer(false) {
 #ifdef SK_VULKAN
         if (rContext->backend() == GrBackendApi::kVulkan) {
             auto vkCaps = static_cast<const GrVkCaps*>(rContext->priv().caps());
@@ -102,6 +105,9 @@ public:
     }
     void setVkRTInputAttachmentSupport(bool inputSupport) {
         fVkRTSupportsInputAttachment = inputSupport;
+    }
+    void setForVulkanSecondaryCommandBuffer(bool forVkSCB) {
+        fForVulkanSecondaryCommandBuffer = forVkSCB;
     }
 
     // Modify the SurfaceParameters in just one way. Returns false if the requested modification had
@@ -162,6 +168,15 @@ public:
                 set(fIsProtected, GrProtected(!static_cast<bool>(fIsProtected)));
             }
             break;
+        case 12:
+            if (GrBackendApi::kVulkan == fBackend) {
+                set(fForVulkanSecondaryCommandBuffer, true);
+                set(fUsesGLFBO0, false);
+                set(fShouldCreateMipMaps, false);  // needs to changed in tandem w/ textureability
+                set(fIsTextureable, false);
+                set(fVkRTSupportsInputAttachment, false);
+            }
+            break;
         }
         return changed;
     }
@@ -187,7 +202,8 @@ public:
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
                                                 fOrigin, fSurfaceProps, fShouldCreateMipMaps,
                                                 fUsesGLFBO0, fIsTextureable, fIsProtected,
-                                                fVkRTSupportsInputAttachment);
+                                                fVkRTSupportsInputAttachment,
+                                                fForVulkanSecondaryCommandBuffer);
         return c;
     }
 
@@ -235,6 +251,11 @@ public:
         }
 #endif
 
+        // We can't make SkSurfaces for vulkan secondary command buffers.
+        if (fForVulkanSecondaryCommandBuffer) {
+            return nullptr;
+        }
+
         sk_sp<SkSurface> surface;
         if (fIsTextureable) {
             surface = sk_gpu_test::MakeBackendTextureSurface(dContext,
@@ -274,6 +295,24 @@ public:
         return surface;
     }
 
+#ifdef SK_VULKAN
+    sk_sp<GrVkSecondaryCBDrawContext> makeVkSCB(GrDirectContext* dContext) {
+        const SkSurfaceCharacterization c = this->createCharacterization(dContext);
+        SkImageInfo imageInfo = SkImageInfo::Make({fWidth, fHeight},
+                                                  {fColorType, kPremul_SkAlphaType, fColorSpace});
+        GrVkDrawableInfo vkInfo;
+        // putting in a bunch of dummy values here
+        vkInfo.fSecondaryCommandBuffer = (VkCommandBuffer)1;
+        vkInfo.fColorAttachmentIndex = 0;
+        vkInfo.fCompatibleRenderPass = (VkRenderPass)1;
+        vkInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
+        vkInfo.fDrawBounds = nullptr;
+        vkInfo.fImage = (VkImage)1;
+
+        return GrVkSecondaryCBDrawContext::Make(dContext, imageInfo, vkInfo, &fSurfaceProps);
+    }
+#endif
+
 private:
     GrBackendApi        fBackend;
     bool                fCanBeProtected;
@@ -290,6 +329,7 @@ private:
     bool                fIsTextureable;
     GrProtected         fIsProtected;
     bool                fVkRTSupportsInputAttachment;
+    bool                fForVulkanSecondaryCommandBuffer;
 };
 
 // Test out operator== && operator!=
@@ -648,6 +688,25 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest, reporter, ct
 }
 #endif
 
+#ifdef SK_VULKAN
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(CharacterizationVkSCBnessTest, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+
+    SurfaceParameters params(dContext);
+    params.modify(SurfaceParameters::kVkSCBCount);
+    SkSurfaceCharacterization characterization = params.createCharacterization(dContext);
+    REPORTER_ASSERT(reporter, characterization.isValid());
+
+    sk_sp<SkDeferredDisplayList> ddl = params.createDDL(dContext);
+    REPORTER_ASSERT(reporter, ddl.get());
+
+    sk_sp<GrVkSecondaryCBDrawContext> scbDrawContext = params.makeVkSCB(dContext);
+    REPORTER_ASSERT(reporter, scbDrawContext->isCompatible(characterization));
+
+    scbDrawContext->releaseResources();
+}
+#endif
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
 
@@ -751,8 +810,8 @@ static void test_make_render_target(skiatest::Reporter* reporter,
 // should always be compatible.
 void DDLMakeRenderTargetTestImpl(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     for (int i = -1; i < SurfaceParameters::kNumParams; ++i) {
-        if (SurfaceParameters::kFBO0Count == i) {
-            // MakeRenderTarget doesn't support FBO0
+        if (i == SurfaceParameters::kFBO0Count || i == SurfaceParameters::kVkSCBCount) {
+            // MakeRenderTarget doesn't support FBO0 or vulkan secondary command buffers
             continue;
         }
 
@@ -893,8 +952,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
             [proxy, reporter, maxResourceBytes](const GrBackendFormat& backendFormat,
                                                 int width, int height,
                                                 SkColorType ct, bool willUseGLFBO0,
+                                                bool isTextureable,
                                                 GrProtected prot,
-                                                bool vkRTSupportsInputAttachment) {
+                                                bool vkRTSupportsInputAttachment,
+                                                bool forVulkanSecondaryCommandBuffer) {
         const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
 
         SkImageInfo ii = SkImageInfo::Make(width, height, ct,
@@ -903,8 +964,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
         SkSurfaceCharacterization c = proxy->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, 1,
                                                 kBottomLeft_GrSurfaceOrigin, surfaceProps, false,
-                                                willUseGLFBO0, true, prot,
-                                                vkRTSupportsInputAttachment);
+                                                willUseGLFBO0, isTextureable, prot,
+                                                vkRTSupportsInputAttachment,
+                                                forVulkanSecondaryCommandBuffer);
         REPORTER_ASSERT(reporter, !c.isValid());
     };
 
@@ -918,11 +980,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
     SkColorType kGoodCT = kRGBA_8888_SkColorType;
     SkColorType kBadCT = kUnknown_SkColorType;
 
+    static const bool kIsTextureable = true;
+    static const bool kIsNotTextureable = false;
+
     static const bool kGoodUseFBO0 = false;
     static const bool kBadUseFBO0 = true;
 
     static const bool kGoodVkInputAttachment = false;
     static const bool kBadVkInputAttachment = true;
+
+    static const bool kGoodForVkSCB = false;
+    static const bool kBadForVkSCB = true;
 
     int goodWidth = 64;
     int goodHeight = 64;
@@ -933,29 +1001,48 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
     // In each of the check_create_fails calls there is one bad parameter that should cause the
     // creation of the characterization to fail.
     check_create_fails(goodBackendFormat, goodWidth, badHeights[0], kGoodCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, goodWidth, badHeights[1], kGoodCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, badWidths[0], goodHeight, kGoodCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, badWidths[1], goodHeight, kGoodCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(badBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, goodWidth, goodHeight, kBadCT, kGoodUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     // This fails because we always try to make a characterization that is textureable and we can't
     // have UseFBO0 be true and textureable.
     check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0,
-                       GrProtected::kNo, kGoodVkInputAttachment);
+                       kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
     if (dContext->backend() == GrBackendApi::kVulkan) {
         // The bad parameter in this case is the GrProtected::kYes since none of our test contexts
         // are made protected we can't have a protected surface.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           GrProtected::kYes, kGoodVkInputAttachment);
-    } else {
+                           kIsTextureable, GrProtected::kYes, kGoodVkInputAttachment,
+                           kGoodForVkSCB);
+        // The following fails because forVulkanSecondaryCommandBuffer is true and
+        // isTextureable is true. This is not a legal combination.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           GrProtected::kNo, kBadVkInputAttachment);
+                           kIsTextureable, GrProtected::kNo, kGoodVkInputAttachment, kBadForVkSCB);
+        // The following fails because forVulkanSecondaryCommandBuffer is true and
+        // vkRTSupportsInputAttachment is true. This is not a legal combination.
+        check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
+                           kIsNotTextureable, GrProtected::kNo, kBadVkInputAttachment,
+                           kBadForVkSCB);
+        // The following fails because forVulkanSecondaryCommandBuffer is true and
+        // willUseGLFBO0 is true. This is not a legal combination.
+        check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0,
+                           kIsNotTextureable, GrProtected::kNo, kGoodVkInputAttachment,
+                           kBadForVkSCB);
+    } else {
+        // The following set vulkan only flags on non vulkan backends.
+        check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
+                           kIsTextureable, GrProtected::kNo, kBadVkInputAttachment, kGoodForVkSCB);
+        check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
+                           kIsNotTextureable, GrProtected::kNo, kGoodVkInputAttachment,
+                           kBadForVkSCB);
     }
 }
 
