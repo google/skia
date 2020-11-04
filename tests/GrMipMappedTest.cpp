@@ -420,7 +420,6 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         // Draw the dirty mipmap texture into a render target.
         auto rtc1 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
                                                        alphaType, mipmapView, Filter::kMipMap);
-        auto rtc1Task = sk_ref_sp(rtc1->testingOnly_PeekLastOpsTask());
 
         // Mipmaps should have gotten marked dirty during makeClosed, then marked clean again as
         // soon as a GrTextureResolveRenderTask was inserted. The way we know they were resolved is
@@ -435,7 +434,6 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         // Draw the now-clean mipmap texture into a second target.
         auto rtc2 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
                                                        alphaType, mipmapView, Filter::kMipMap);
-        auto rtc2Task = sk_ref_sp(rtc2->testingOnly_PeekLastOpsTask());
 
         // Make sure the mipmap texture still has the same regen task.
         REPORTER_ASSERT(reporter, mipmapProxy->getLastRenderTask() == initialMipmapRegenTask);
@@ -445,16 +443,17 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         context->flush();
 
         // Mip regen tasks don't get added as dependencies until makeClosed().
-        REPORTER_ASSERT(reporter, rtc1Task->dependsOn(initialMipmapRegenTask));
-        REPORTER_ASSERT(reporter, rtc2Task->dependsOn(initialMipmapRegenTask));
+        REPORTER_ASSERT(reporter,
+                rtc1->testingOnly_PeekLastOpsTask()->dependsOn(initialMipmapRegenTask));
+        REPORTER_ASSERT(reporter,
+                rtc2->testingOnly_PeekLastOpsTask()->dependsOn(initialMipmapRegenTask));
 
         // Render something to dirty the mips.
         mipmapRTC->clear(nullptr, {.1f,.2f,.3f,.4f}, CanClearFullscreen::kYes);
-        auto mipmapRTCTask = sk_ref_sp(mipmapRTC->testingOnly_PeekLastOpsTask());
-        REPORTER_ASSERT(reporter, mipmapRTCTask);
-
+        REPORTER_ASSERT(reporter, mipmapProxy->getLastRenderTask());
         // mipmapProxy's last render task should now just be the opsTask containing the clear.
-        REPORTER_ASSERT(reporter, mipmapRTCTask.get() == mipmapProxy->getLastRenderTask());
+        REPORTER_ASSERT(reporter,
+                mipmapRTC->testingOnly_PeekLastOpsTask() == mipmapProxy->getLastRenderTask());
 
         // Mipmaps don't get marked dirty until makeClosed().
         REPORTER_ASSERT(reporter, !mipmapProxy->mipMapsAreDirty());
@@ -469,23 +468,24 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         REPORTER_ASSERT(reporter, mipmapProxy->mipMapsAreDirty());
 
         // Since mips weren't regenerated, the last render task shouldn't have changed.
-        REPORTER_ASSERT(reporter, mipmapRTCTask.get() == mipmapProxy->getLastRenderTask());
+        REPORTER_ASSERT(reporter,
+                mipmapRTC->testingOnly_PeekLastOpsTask() == mipmapProxy->getLastRenderTask());
 
         // Draw the stil-dirty mipmap texture into a second target with mipmap filtering.
         rtc2 = draw_mipmap_into_new_render_target(context.get(), proxyProvider, colorType,
                                                   alphaType, std::move(mipmapView),
                                                   Filter::kMipMap);
-        rtc2Task = sk_ref_sp(rtc2->testingOnly_PeekLastOpsTask());
 
         // Make sure the mipmap texture now has a new last render task that regenerates the mips,
         // and that the mipmaps are now clean.
         auto mipRegenTask2 = mipmapProxy->getLastRenderTask();
         REPORTER_ASSERT(reporter, mipRegenTask2);
-        REPORTER_ASSERT(reporter, mipmapRTCTask.get() != mipRegenTask2);
+        REPORTER_ASSERT(reporter,
+                mipmapRTC->testingOnly_PeekLastOpsTask() != mipRegenTask2);
         SkASSERT(!mipmapProxy->mipMapsAreDirty());
 
         // Mip regen tasks don't get added as dependencies until makeClosed().
         context->flush();
-        REPORTER_ASSERT(reporter, rtc2Task->dependsOn(mipRegenTask2));
+        REPORTER_ASSERT(reporter, rtc2->testingOnly_PeekLastOpsTask()->dependsOn(mipRegenTask2));
     }
 }
