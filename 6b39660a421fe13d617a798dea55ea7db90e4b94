@@ -22,6 +22,30 @@
       },
       "revId": "6b39660a421fe13d617a798dea55ea7db90e4b94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78d60a0c_04049fe9",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T18:36:08Z",
+      "side": 1,
+      "message": "Yup, this could just be a separate atomic int - it\u0027s like this mostly to avoid globals with constructors (which chrome doesn\u0027t like). (It\u0027s also strictly here as a backdoor for fuzzing, where we manipulate this value to stress different code paths). Put in a comment that more clearly explains what we\u0027re doing (and why).",
+      "parentUuid": "7f60b861_da85618f",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 83
+      },
+      "revId": "6b39660a421fe13d617a798dea55ea7db90e4b94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

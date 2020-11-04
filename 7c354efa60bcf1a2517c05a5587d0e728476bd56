@@ -266,6 +266,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cbcebdd_af1d0b95",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T18:36:08Z",
+      "side": 1,
+      "message": "I added another comment here to really explain the current rationale.",
+      "parentUuid": "c3750e60_4de5dfdb",
+      "range": {
+        "startLine": 57,
+        "startChar": 31,
+        "endLine": 57,
+        "endChar": 74
+      },
+      "revId": "7c354efa60bcf1a2517c05a5587d0e728476bd56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "873e7490_46c73810",
