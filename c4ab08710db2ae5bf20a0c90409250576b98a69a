@@ -22,6 +22,30 @@
       },
       "revId": "c4ab08710db2ae5bf20a0c90409250576b98a69a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68e355aa_2d53d69c",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 1578,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-04T15:20:43Z",
+      "side": 1,
+      "message": "Sure - I had a TODO to cleanup the readPixels API (especially between an image and a canvas).",
+      "parentUuid": "4187214c_09f7a8de",
+      "range": {
+        "startLine": 1578,
+        "startChar": 65,
+        "endLine": 1578,
+        "endChar": 81
+      },
+      "revId": "c4ab08710db2ae5bf20a0c90409250576b98a69a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
