@@ -305,7 +305,7 @@ class SkUnicode_icu : public SkUnicode {
     }
 
     static bool extractPositions
-        (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> add) {
+        (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> setBreak) {
 
         UErrorCode status = U_ZERO_ERROR;
         UText sUtf8UText = UTEXT_INITIALIZER;
@@ -331,8 +331,26 @@ class SkUnicode_icu : public SkUnicode {
         auto iter = iterator.get();
         int32_t pos = ubrk_first(iter);
         while (pos != UBRK_DONE) {
-            add(pos, ubrk_getRuleStatus(iter));
+            auto status = type == SkUnicode::BreakType::kLines
+                              ? UBRK_LINE_SOFT
+                              : ubrk_getRuleStatus(iter);
+            setBreak(pos, status);
             pos = ubrk_next(iter);
+        }
+
+        if (type == SkUnicode::BreakType::kLines) {
+            // This is a workaround for https://bugs.chromium.org/p/skia/issues/detail?id=10715
+            // (ICU line break iterator does not work correctly on Thai text with new lines)
+            // So, we only use the iterator to collect soft line breaks and
+            // scan the text for all hard line breaks ourselves
+            const char* end = utf8 + utf8Units;
+            const char* ch = utf8;
+            while (ch < end) {
+                auto unichar = utf8_next(&ch, end);
+                if (isHardLineBreak(unichar)) {
+                    setBreak(ch - utf8, UBRK_LINE_HARD);
+                }
+            }
         }
         return true;
     }
@@ -409,6 +427,11 @@ public:
         return u_isWhitespace(utf8);
     }
 
+    static bool isHardLineBreak(SkUnichar utf8) {
+        auto property = u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
+        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
+    }
+
     SkString convertUtf16ToUtf8(const std::u16string& utf16) override {
         std::unique_ptr<char[]> utf8;
         auto utf8Units = SkUnicode_icu::utf16ToUtf8((uint16_t*)utf16.data(), utf16.size(), &utf8);
@@ -432,7 +455,7 @@ public:
 
         return extractPositions(utf8, utf8Units, BreakType::kLines,
             [results](int pos, int status) {
-                    results->emplace_back(pos,status == UBRK_LINE_HARD
+                    results->emplace_back(pos, status == UBRK_LINE_HARD
                                                         ? LineBreakType::kHardLineBreak
                                                         : LineBreakType::kSoftLineBreak);
         });

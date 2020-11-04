@@ -3122,6 +3122,36 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView51 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph51"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(16);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(u"\u0e41\u0e2a\u0e19\u0e2a\u0e31\nabc");
+        builder.pop();
+        auto paragraph = builder.Build();
+        paragraph->layout(1000);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3173,3 +3203,4 @@ DEF_SAMPLE(return new ParagraphView47();)
 DEF_SAMPLE(return new ParagraphView48();)
 DEF_SAMPLE(return new ParagraphView49();)
 DEF_SAMPLE(return new ParagraphView50();)
+DEF_SAMPLE(return new ParagraphView51();)
