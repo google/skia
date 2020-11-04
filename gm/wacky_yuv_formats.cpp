@@ -66,6 +66,8 @@ static const int kLabelHeight = 32;
 static const int kSubsetPadding = 8;
 static const int kPad = 1;
 
+SkString gInfoStr;
+
 enum YUVFormat {
     // 4:2:0 formats, 24 bpp
     kP016_YUVFormat, // 16-bit Y plane + 2x2 down sampled interleaved U/V plane (2 textures)
@@ -752,6 +754,9 @@ protected:
             case Type::kFromGenerator:
                 name += "_imggen";
                 break;
+            case Type::kFromTexturesCopyToExternal:
+                name += "_fromtextureswithcopy";
+                break;
         }
 
         return name;
@@ -807,8 +812,11 @@ protected:
                                                          resultBMs,
                                                          numPlanes);
                     auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
-
+                    gInfoStr = SkStringPrintf("o:%d, cs:%d, f:%d", opaque, cs, format);
+                    SkDebugf(" [create %s\n", gInfoStr.c_str());
                     fImages[opaque][cs][format] = lazyYUV->refImage(dContext, fImageType);
+                    SkDebugf(" ] create %d\n", (bool)fImages[opaque][cs][format]);
+                    gInfoStr = "";
                 }
             }
         }
@@ -850,6 +858,7 @@ protected:
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j <= kLastEnum_SkYUVColorSpace; ++j) {
                 for (int k = 0; k <= kLast_YUVFormat; ++k) {
+                    SkDebugf(" destroy o:%d, cs:%d, f:%d -- ", i, j, k);
                     fImages[i][j][k] = nullptr;
                 }
             }
@@ -904,15 +913,25 @@ protected:
                             fImages[opaque][cs][format]->makeColorSpace(fTargetColorSpace, direct);
                         canvas->drawImageRect(csImage, srcRect, dstRect, &paint, constraint);
                     } else {
+                        SkDebugf(" draw o:%d, cs:%d, f:%d\n", opaque, cs, format);
                         canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
                                               &paint, constraint);
                     }
+                    SkDebugf(" reset o:%d, cs:%d, f:%d\n", opaque, cs, format);
+                    gInfoStr = SkStringPrintf("o:%d, cs:%d, f:%d", opaque, cs, format);
+                    fImages[opaque][cs][format].reset();
                     dstRect.offset(0.f, cellHeight + kPad);
+                    if (direct) {
+                        SkDebugf(" [f+s o:%d, cs:%d, f:%d\n", opaque, cs, format);
+                        direct->flushAndSubmit(true);
+                        SkDebugf(" ]f+s\n", opaque, cs, format);
+                    }
+                    gInfoStr = "";
                 }
-
                 dstRect.offset(cellWidth + kPad, 0.f);
             }
         }
+        SkDebugf("finished drawing\n");
     }
 
 private:
@@ -943,6 +962,9 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::Type::kFromPixmaps);)
+DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
+                                    /* subset */ false,
+                                    WackyYUVFormatsGM::Type::kFromTexturesCopyToExternal);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:

@@ -21,18 +21,42 @@ struct Context {
 
 }  // anonymous namespace
 
+#include "include/core/SkString.h"
+extern SkString gInfoStr;
+
 namespace sk_gpu_test {
 
 void ManagedBackendTexture::ReleaseProc(void* ctx) {
+    if (!gInfoStr.isEmpty()) {
+        SkDebugf("  [ ReleaseProc %s %p\n", gInfoStr.c_str(), ctx);
+    }
     std::unique_ptr<Context> context(static_cast<Context*>(ctx));
+    if (!gInfoStr.isEmpty()) {
+        for (int i = 0; i < SkYUVAInfo::kMaxPlanes; ++i) {
+            if (context->fMBETs[i]) {
+                SkDebugf("   mbet %d, %p\n", i, context->fMBETs[i].get());
+            }
+        }
+        SkDebugf("   wrapped proc: %p\n", context->fWrappedProc);
+    }
     if (context->fWrappedProc) {
         context->fWrappedProc(context->fWrappedContext);
+    }
+    if (!gInfoStr.isEmpty()) {
+        SkDebugf("  ] ReleaseProc\n");
     }
 }
 
 ManagedBackendTexture::~ManagedBackendTexture() {
+    if (!gInfoStr.isEmpty()) {
+        SkDebugf("  [~ManagedBackendTexture %s, %p\n", gInfoStr.c_str(), this);
+    }
+
     if (fDContext && fTexture.isValid()) {
         fDContext->deleteBackendTexture(fTexture);
+    }
+    if (!gInfoStr.isEmpty()) {
+        SkDebugf("  ]~ManagedBackendTexture\n");
     }
 }
 
@@ -53,7 +77,7 @@ void* ManagedBackendTexture::MakeYUVAReleaseContext(
 }
 
 sk_sp<GrRefCntedCallback> ManagedBackendTexture::refCountedCallback() const {
-    return sk_make_sp<GrRefCntedCallback>(ReleaseProc, this->releaseContext());
+    return GrRefCntedCallback::Make(ReleaseProc, this->releaseContext());
 }
 
 void ManagedBackendTexture::wasAdopted() { fTexture = {}; }
