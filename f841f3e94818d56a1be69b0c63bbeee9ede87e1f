@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "546d85a0_d6cccbc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-04T20:47:54Z",
+      "side": 1,
+      "message": "Note that the way SkRuntimeEffect scrapes program variable, this almost worked already - it iterates over global variable declarations, and looks for fragmentProcessors before checking modifiers - so any kind of global shader ended up in the correct child list. The CPU backend worked fine, and the GPU backend just needed to fix the code-gen logic to ignore the FPs when determining the index of other (non-FP) uniforms.",
+      "revId": "f841f3e94818d56a1be69b0c63bbeee9ede87e1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
