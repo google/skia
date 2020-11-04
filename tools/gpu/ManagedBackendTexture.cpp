@@ -53,7 +53,7 @@ void* ManagedBackendTexture::MakeYUVAReleaseContext(
 }
 
 sk_sp<GrRefCntedCallback> ManagedBackendTexture::refCountedCallback() const {
-    return sk_make_sp<GrRefCntedCallback>(ReleaseProc, this->releaseContext());
+    return GrRefCntedCallback::Make(ReleaseProc, this->releaseContext());
 }
 
 void ManagedBackendTexture::wasAdopted() { fTexture = {}; }
