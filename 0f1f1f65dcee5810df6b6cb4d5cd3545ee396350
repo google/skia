@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b63cc81_f09016ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-04T13:43:11Z",
+      "side": 1,
+      "message": "The only catch here is moving the function hasSomeAntiAliasing to GrTextBlob.cpp as a static function.",
+      "revId": "0f1f1f65dcee5810df6b6cb4d5cd3545ee396350",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
