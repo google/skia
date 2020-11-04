@@ -16,6 +16,23 @@
       "message": "I have replaced the use of std::optional with a boolean return value + an output pointer parameter.\n\nPatchset 1 is the one that was reverted. Patchset 2 is the fix.",
       "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8b27691_ca458d18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-04T14:36:10Z",
+      "side": 1,
+      "message": "API LGTM",
+      "revId": "41a3baa83b565e92403fc574556f6b60e26977d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
