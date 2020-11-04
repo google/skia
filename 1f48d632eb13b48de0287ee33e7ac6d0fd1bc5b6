@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63056e6f_0b780c21",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-04T21:16:53Z",
+      "side": 1,
+      "message": "I moved these here from SkSVGNode but I still don\u0027t know if it\u0027s the right place for them. I figure we\u0027ll use this for a while and can move it later.",
+      "revId": "1f48d632eb13b48de0287ee33e7ac6d0fd1bc5b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
