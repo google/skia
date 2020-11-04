@@ -42,7 +42,8 @@ private:
             return SkChecksum::Mix(key.hash());
         }
     };
-    SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
+    SkTHashTable<int, SkPackedGlyphID, HashTraits> fCache;
+    std::vector<GrGlyph*> fGlyphForIndex;
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fAlloc{512};
 
