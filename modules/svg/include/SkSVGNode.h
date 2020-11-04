@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 
 class SkCanvas;
 class SkMatrix;
@@ -80,6 +81,9 @@ public:
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
     bool setAttribute(const char* attributeName, const char* attributeValue);
 
+    // TODO: consolidate with existing setAttribute
+    virtual bool parseAndSetAttribute(const char* name, const char* value);
+
     void setClipPath(const SkSVGClip&);
     void setClipRule(const SkSVGFillRule&);
     void setColor(const SkSVGColorType&);
@@ -140,12 +144,100 @@ private:
 
 #undef SVG_PRES_ATTR // presentation attributes are only defined for the base class
 
-#define SVG_ATTR(attr_name, attr_type, attr_default)                      \
-    private:                                                              \
-        attr_type f##attr_name = attr_default;                            \
-    public:                                                               \
-        const attr_type& get##attr_name() const { return f##attr_name; }  \
-        void set##attr_name(const attr_type& a) { f##attr_name = a; }     \
-        void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); }
+#define SVG_ATTR(attr_name, attr_type, attr_default)                        \
+    private:                                                                \
+        attr_type f##attr_name = attr_default;                              \
+    public:                                                                 \
+        const attr_type& get##attr_name() const { return f##attr_name; }    \
+        void set##attr_name(const attr_type& a) { f##attr_name = a; }       \
+        void set##attr_name(attr_type&& a) { f##attr_name = std::move(a); } \
+        bool set##attr_name(const ParseResult<attr_type>& pr) {             \
+            if (pr.fValid) { this->set##attr_name(pr.fValue); }             \
+            return pr.fValid;                                               \
+        }
+
+#if defined(SK_VERBOSE_SVG_PARSING)
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value) \
+    SkDebugf("could not parse '%s=\"%s\"\n", attr_name, attr_value)
+#else
+#define SVG_ATTR_PARSE_ERR(attr_name, attr_value)
+#endif
+
+/**
+ * Try to parse a named and string-valued SVG attribute into a SkSVG type, and call
+ * the given setter function if parsing succeeds.
+ */
+#define SVG_ATTR_PARSE_AND_SET_CUSTOM(attr_name, str_value, svg_name, cpp_type, parse_fnc, \
+                                      set_fnc)                                             \
+    do {                                                                                   \
+        if (consumedAttribute) {                                                           \
+            return consumedAttribute;                                                      \
+        }                                                                                  \
+        SkSVGAttributeParser parser(str_value);                                            \
+        if (strcmp(attr_name, svg_name) == 0) {                                            \
+            cpp_type parsed_value;                                                         \
+            if (parse_fnc(&parser, &parsed_value)) {                                       \
+                set_fnc(parsed_value);                                                     \
+                consumedAttribute = true;                                                  \
+            } else {                                                                       \
+                SVG_ATTR_PARSE_ERR(attr_name, str_value);                                  \
+            }                                                                              \
+        }                                                                                  \
+    } while (0)
+
+template <typename T> struct ParseResult {
+    bool fValid;
+    T fValue;
+    explicit ParseResult(bool valid) : fValid(false) {}
+    ParseResult(bool valid, const T& value) : fValid(valid), fValue(value) {}
+};
+
+template <typename T>
+ParseResult<T> tryParse(const char* name, const char* value, const char* svgName) {
+    if (strcmp(name, svgName) != 0) {
+        return ParseResult<T>{false};
+    }
+
+    T parsedValue;
+    SkSVGAttributeParser parser(value);
+    if (parser.parse(&parsedValue)) {
+        return ParseResult<T>{true, parsedValue};
+    }
+
+    return ParseResult<T>{false};
+}
+
+template <typename T>
+ParseResult<T> tryParse(const char* name,
+                        const char* value,
+                        const char* svgName,
+                        bool (*parseFnc)(const char*, T*)) {
+    if (strcmp(name, svgName) != 0) {
+        return ParseResult<T>{false};
+    }
+
+    T parsedValue;
+    if (parseFnc(value, &parsedValue)) {
+        return ParseResult<T>{true, parsedValue};
+    }
+
+    return ParseResult<T>{false};
+}
+
+/**
+ * Try to parse a named and string-valued SVG attribute into a SkSVG type, and call
+ * the given setter function if parsing succeeds.
+ *
+ * In scope, you must first define "bool consumedAttribute".  When parsing succeeds
+ * at an expansion of this macro, consumedAttribute is set to true. Each expansion
+ * short-circuits and returns true if consumedAttribute is true.
+ *
+ * Parsing assumes a function SkSVGAttributeParser::parse(cpp_type* parsedValue) is
+ * available. For custom parsing, use the _CUSTOM() version of this macro.
+ */
+#define SVG_ATTR_PARSE_AND_SET(attr_name, str_value, svg_name, cpp_type, set_fnc) \
+    SVG_ATTR_PARSE_AND_SET_CUSTOM(                                                \
+            attr_name, str_value, svg_name, cpp_type,                             \
+            [](SkSVGAttributeParser* p, cpp_type* v) { return p->parse(v); }, set_fnc)
 
 #endif // SkSVGNode_DEFINED
