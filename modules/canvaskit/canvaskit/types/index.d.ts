@@ -564,6 +564,40 @@ export interface GrDirectContext extends EmbindObject<GrDirectContext> {
 }
 
 /**
+ * See Metrics.h for more on this struct.
+ */
+export interface LineMetrics {
+    /** The index in the text buffer the line begins. */
+    startIndex: number;
+    /** The index in the text buffer the line ends. */
+    endIndex: number;
+    endExcludingWhitespaces: number;
+    endIncludingNewline: number;
+    /** True if the line ends in a hard break (e.g. newline) */
+    isHardBreak: boolean;
+    /**
+     * The final computed ascent for the line. This can be impacted by
+     * the strut, height, scaling, as well as outlying runs that are very tall.
+     */
+    ascent: number;
+    /**
+     * The final computed descent for the line. This can be impacted by
+     * the strut, height, scaling, as well as outlying runs that are very tall.
+     */
+    descent: number;
+    /** round(ascent + descent) */
+    height: number;
+    /** width of the line */
+    width: number;
+    /** The left edge of the line. The right edge can be obtained with `left + width` */
+    left: number;
+    /** The y position of the baseline for this line from the top of the paragraph. */
+    baseline: number;
+    /** Zero indexed line number. */
+    lineNumber: number;
+}
+
+/**
  * This object is a wrapper around a pointer to some memory on the WASM heap. The type of the
  * pointer was determined at creation time.
  */
@@ -615,6 +649,7 @@ export interface Paragraph extends EmbindObject<Paragraph> {
 
     getHeight(): number;
     getIdeographicBaseline(): number;
+    getLineMetrics(): LineMetrics[];
     getLongestLine(): number;
     getMaxIntrinsicWidth(): number;
     getMaxWidth(): number;

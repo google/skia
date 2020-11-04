@@ -454,6 +454,7 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
         CK.RectWidthStyle.Tight);
     const l = p.getWordBoundary(10); // $ExpectType URange
     p.layout(300);
+    const m = p.getLineMetrics(); // $ExpectType LineMetrics[]
 }
 
 function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `MakeFractalNoise`, `MakeImprovedNoise`, and `MakeTurbulence` have been added to
    `CanvasKit.Shader`.
  - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels.
+ - `getLineMetrics` to Paragraph.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
