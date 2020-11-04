@@ -1726,9 +1726,9 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       const Expression& right) const {
     // If the left side is a constant boolean literal, the right side does not need to be constant
     // for short circuit optimizations to allow the constant to be folded.
-    if (left.kind() == Expression::Kind::kBoolLiteral && !right.isCompileTimeConstant()) {
+    if (left.is<BoolLiteral>() && !right.isCompileTimeConstant()) {
         return short_circuit_boolean(fContext, left, op, right);
-    } else if (right.kind() == Expression::Kind::kBoolLiteral && !left.isCompileTimeConstant()) {
+    } else if (right.is<BoolLiteral>() && !left.isCompileTimeConstant()) {
         // There aren't side effects in SKSL within expressions, so (left OP right) is equivalent to
         // (right OP left) for short-circuit optimizations
         return short_circuit_boolean(fContext, right, op, left);
@@ -1742,8 +1742,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     // precision to calculate the results and hope the result makes sense. The plan is to move the
     // Skia caps into SkSL, so we have access to all of them including the precisions of the various
     // types, which will let us be more intelligent about this.
-    if (left.kind() == Expression::Kind::kBoolLiteral &&
-        right.kind() == Expression::Kind::kBoolLiteral) {
+    if (left.is<BoolLiteral>() && right.is<BoolLiteral>()) {
         bool leftVal  = left.as<BoolLiteral>().value();
         bool rightVal = right.as<BoolLiteral>().value();
         bool result;
@@ -1753,15 +1752,14 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::Kind::TK_LOGICALXOR: result = leftVal ^  rightVal; break;
             default: return nullptr;
         }
-        return std::unique_ptr<Expression>(new BoolLiteral(fContext, left.fOffset, result));
+        return std::make_unique<BoolLiteral>(fContext, left.fOffset, result);
     }
     #define RESULT(t, op) std::make_unique<t ## Literal>(fContext, left.fOffset, \
                                                          leftVal op rightVal)
     #define URESULT(t, op) std::make_unique<t ## Literal>(fContext, left.fOffset, \
                                                           (uint32_t) leftVal op   \
                                                           (uint32_t) rightVal)
-    if (left.kind() == Expression::Kind::kIntLiteral &&
-        right.kind() == Expression::Kind::kIntLiteral) {
+    if (left.is<IntLiteral>() && right.is<IntLiteral>()) {
         int64_t leftVal  = left.as<IntLiteral>().value();
         int64_t rightVal = right.as<IntLiteral>().value();
         switch (op) {
@@ -1814,8 +1812,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 return nullptr;
         }
     }
-    if (left.kind() == Expression::Kind::kFloatLiteral &&
-        right.kind() == Expression::Kind::kFloatLiteral) {
+    if (left.is<FloatLiteral>() && right.is<FloatLiteral>()) {
         SKSL_FLOAT leftVal  = left.as<FloatLiteral>().value();
         SKSL_FLOAT rightVal = right.as<FloatLiteral>().value();
         switch (op) {
@@ -1842,19 +1839,25 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     if (leftType.typeKind() == Type::TypeKind::kVector && leftType.componentType().isFloat() &&
         leftType == rightType) {
         ExpressionArray args;
-        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                              \
-            for (int i = 0; i < leftType.columns(); i++) {                                       \
-                SKSL_FLOAT value = left.getFVecComponent(i) op right.getFVecComponent(i);        \
-                args.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, value));  \
-            }                                                                                    \
-            return std::make_unique<Constructor>(/*offset=*/-1, &leftType, std::move(args))
+        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                             \
+            for (int i = 0; i < leftType.columns(); i++) {                                      \
+                SKSL_FLOAT value = left.getFVecComponent(i) op right.getFVecComponent(i);       \
+                args.push_back(std::make_unique<FloatLiteral>(fContext, left.fOffset, value));  \
+            }                                                                                   \
+            return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args))
         switch (op) {
             case Token::Kind::TK_EQEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                            left.compareConstant(fContext, right)));
+                if (left.kind() == right.kind()) {
+                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
+                                                         left.compareConstant(fContext, right));
+                }
+                return nullptr;
             case Token::Kind::TK_NEQ:
-                return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1,
-                                                           !left.compareConstant(fContext, right)));
+                if (left.kind() == right.kind()) {
+                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
+                                                         !left.compareConstant(fContext, right));
+                }
+                return nullptr;
             case Token::Kind::TK_PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
             case Token::Kind::TK_MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
             case Token::Kind::TK_STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
@@ -1872,16 +1875,17 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             default:
                 return nullptr;
         }
+        #undef RETURN_VEC_COMPONENTWISE_RESULT
     }
     if (leftType.typeKind() == Type::TypeKind::kMatrix &&
         rightType.typeKind() == Type::TypeKind::kMatrix &&
         left.kind() == right.kind()) {
         switch (op) {
             case Token::Kind::TK_EQEQ:
-                return std::make_unique<BoolLiteral>(fContext, /*offset=*/-1,
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
                                                      left.compareConstant(fContext, right));
             case Token::Kind::TK_NEQ:
-                return std::make_unique<BoolLiteral>(fContext, /*offset=*/-1,
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
                                                      !left.compareConstant(fContext, right));
             default:
                 return nullptr;
