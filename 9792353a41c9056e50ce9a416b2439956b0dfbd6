@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45bb33f3_af5c1851",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-04T18:42:15Z",
+      "side": 1,
+      "message": "Patchset 7 has a template version rather than the macro-based approach, which feels a bit more C++ish. Let me know if you have an opinion",
+      "revId": "9792353a41c9056e50ce9a416b2439956b0dfbd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
