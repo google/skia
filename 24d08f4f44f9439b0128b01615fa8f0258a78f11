@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11d8858c_5291a1d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T15:24:23Z",
+      "side": 1,
+      "message": "Done. I also macro-ized the bench construction to cut down on repeated code.",
+      "parentUuid": "04ce4e8f_a8745ac5",
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f78e2db0_6f8f3579",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9f0cd83_63c9683a",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T15:24:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f78e2db0_6f8f3579",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 9
+      },
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f0c1724_022a62ee",
@@ -54,6 +96,30 @@
       "writtenOn": "2020-11-05T14:55:15Z",
       "side": 1,
       "message": "We should move this to onDelayedSetup. Having extra code in Benchmark constructors can make it hard to debug other benchmarks (because one of every benchmark is constructed at startup in nanobench).",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 64
+      },
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b916212c_ea01cf50",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T15:24:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f0c1724_022a62ee",
       "range": {
         "startLine": 98,
         "startChar": 0,
