@@ -70,6 +70,30 @@
       },
       "revId": "93619448586fb9ed61341fda844fd775a68ac3f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5070d9b8_a4a3fec3",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T16:30:27Z",
+      "side": 1,
+      "message": "Ah, it\u0027s technically a warning, so it\u0027s possible you didn\u0027t notice it, but the bots won\u0027t allow warnings in.",
+      "parentUuid": "05507875_f9ac80f6",
+      "range": {
+        "startLine": 86,
+        "startChar": 91,
+        "endLine": 86,
+        "endChar": 97
+      },
+      "revId": "93619448586fb9ed61341fda844fd775a68ac3f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
