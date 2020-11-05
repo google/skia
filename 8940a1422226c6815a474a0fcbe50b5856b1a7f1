@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f83cefa5_435dc6f3",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T20:07:05Z",
+      "side": 1,
+      "message": "Brian beat me to it, but yes - ES didn\u0027t sync up GL and GLSL version numbers until 3.0.",
+      "parentUuid": "f0eb7e22_f9fbe7e1",
+      "range": {
+        "startLine": 12,
+        "startChar": 67,
+        "endLine": 12,
+        "endChar": 79
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9230c49b_7661494c",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -107,6 +131,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0810a59e_2714a19a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T20:07:05Z",
+      "side": 1,
+      "message": "Went further, put them all into arrays and a loop to add them. Rearranged them to make grouping clearer, I hope?",
+      "parentUuid": "9230c49b_7661494c",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "163a0283_9c23f838",
         "filename": "src/sksl/sksl_public.sksl",
         "patchSetId": 4
@@ -118,6 +166,30 @@
       "writtenOn": "2020-11-05T19:28:15Z",
       "side": 1,
       "message": "Should we cut a bug to attach to the TODO for the various unimplemented intrinsics?",
+      "range": {
+        "startLine": 22,
+        "startChar": 3,
+        "endLine": 22,
+        "endChar": 7
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48c65ab9_774765c3",
+        "filename": "src/sksl/sksl_public.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T20:07:05Z",
+      "side": 1,
+      "message": "Created skbug.com/10913, will tag this CL with it as well",
+      "parentUuid": "163a0283_9c23f838",
       "range": {
         "startLine": 22,
         "startChar": 3,
