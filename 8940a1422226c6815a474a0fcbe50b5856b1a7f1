@@ -33,6 +33,75 @@
       "message": "cc\u0027ing Martin for visibility",
       "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0eb7e22_f9fbe7e1",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T19:28:15Z",
+      "side": 1,
+      "message": "Not asking for a change, but: up until now I thought we were always targeting ES2 (which was limited enough)?",
+      "range": {
+        "startLine": 12,
+        "startChar": 67,
+        "endLine": 12,
+        "endChar": 79
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9230c49b_7661494c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T19:28:15Z",
+      "side": 1,
+      "message": "Random thought: how about\n\n  #define ADD_TYPE(t) addWithoutOwnership(fContext-\u003ef##t##_Type.get())\n\n  fRootSymbolTable-\u003eADD_TYPE(Float);\n  fPrivateSymbolTable-\u003eADD_TYPE(Sampler1D);",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 0
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "163a0283_9c23f838",
+        "filename": "src/sksl/sksl_public.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T19:28:15Z",
+      "side": 1,
+      "message": "Should we cut a bug to attach to the TODO for the various unimplemented intrinsics?",
+      "range": {
+        "startLine": 22,
+        "startChar": 3,
+        "endLine": 22,
+        "endChar": 7
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
