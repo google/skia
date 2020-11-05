@@ -16,6 +16,23 @@
       "message": "filters-color-01-b still not quite passing, but closer with this CL.",
       "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27009b1_9ac13607",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T18:25:30Z",
+      "side": 1,
+      "message": "This moved to the header because otherwise no definition is instantiated for parser-non-builtin types. We might have to do the same to other templated functions as well.",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
