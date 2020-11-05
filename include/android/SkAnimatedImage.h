@@ -110,11 +110,6 @@ public:
      */
     int getFrameCount() const { return fFrameCount; }
 
-    /**
-     * Return the (possibly scaled) dimensions of the image.
-     */
-    SkISize dimensions() const { return fScaledSize; }
-
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;
