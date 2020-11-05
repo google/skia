@@ -22,6 +22,30 @@
       },
       "revId": "197600dbf390b63ee9c796dd581c17940306945c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "339d3ca9_b482f13b",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T16:58:27Z",
+      "side": 1,
+      "message": "Done\n\n(At one point I had a check against INT_MIN in the IntLiteral side, but decided against it--if we want to be safe against integer overflow errors, that\u0027s a whole can of worms that we haven\u0027t even tried opening up yet. It didn\u0027t seem like this was the right place to start.)",
+      "parentUuid": "a2914515_122c002e",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "197600dbf390b63ee9c796dd581c17940306945c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
