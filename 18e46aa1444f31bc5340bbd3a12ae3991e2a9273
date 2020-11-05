@@ -46,6 +46,30 @@
       },
       "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85b312d1_b5a83259",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T21:33:05Z",
+      "side": 1,
+      "message": "... actually, now that I think about it - we\u0027re using alignas, so rather than our previous \"align to double/pointer and hope\", can\u0027t we just do:\n\nalignas(T) char fStorage[N * sizeof(T)];",
+      "parentUuid": "86293c96_34fdb78b",
+      "range": {
+        "startLine": 671,
+        "startChar": 46,
+        "endLine": 672,
+        "endChar": 95
+      },
+      "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
