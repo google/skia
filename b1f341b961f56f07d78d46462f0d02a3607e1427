@@ -22,6 +22,30 @@
       },
       "revId": "b1f341b961f56f07d78d46462f0d02a3607e1427",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3487c94f_d2077ea2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1914,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T19:47:54Z",
+      "side": 1,
+      "message": "I\u0027ll experiment and see what I can do. In general, I am loath to use macros unless there is a massive benefit--they are strongly discouraged by go/cstyle and IMO for good reason. I did originally try implementing this code using templates instead of duplication, but to my eye it felt harder to understand and was just plain wonkier than repeating the code, and it certainly didn\u0027t save any LOC.  But I\u0027ll give it another go.\n\nThis morning I actually had shower-thoughts about a templated SkSL::Literal\u003cSKSL_INT\u003e/Literal\u003cSKSL_FLOAT\u003e/Literal\u003cbool\u003e type that would just expand to IntLiteral/FloatLiteral/BoolLiteral. This would allow XxxxxLiterals to be used in templates more easily. (This thought process was based on my failed experiment yesterday with adapting that code to a template.) It doesn\u0027t seem like it\u0027d be a challenge to add this. And we already have getVecComponent\u003cT\u003e.",
+      "parentUuid": "ad104d3f_40d50229",
+      "range": {
+        "startLine": 1887,
+        "startChar": 0,
+        "endLine": 1914,
+        "endChar": 9
+      },
+      "revId": "b1f341b961f56f07d78d46462f0d02a3607e1427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
