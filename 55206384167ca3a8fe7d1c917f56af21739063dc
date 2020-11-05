@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6723f18e_4248a014",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-05T21:36:15Z",
+      "side": 1,
+      "message": "In practice this is almost always at most 1 buffer barrier and the image distribution I posted earlier. I think I must have accidently swapped these two numbers originally since 4 doesn\u0027t make sense at all for buffers. Based on offline discussion moving image barriers to be 2.",
+      "range": {
+        "startLine": 190,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 54
+      },
+      "revId": "55206384167ca3a8fe7d1c917f56af21739063dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
