@@ -420,6 +420,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
         !SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
         return nullptr;
     }
+    if (!rgbaResultTexture.isValid()) {
+        return nullptr;
+    }
     SkASSERT(numTextures == yuvaTextures.numPlanes());
     if (rgbaResultTexture.dimensions() != yuvaTextures.yuvaInfo().dimensions()) {
         return nullptr;
