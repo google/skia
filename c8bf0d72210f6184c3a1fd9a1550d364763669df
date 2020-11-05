@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab0c71a6_89759d52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T14:53:13Z",
+      "side": 1,
+      "message": "Fixed the dft issue; had dropped initializing the luminance color field 😮",
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
