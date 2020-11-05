@@ -13,10 +13,10 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTLogic.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <string.h>
+#include <algorithm>
 #include <initializer_list>
 #include <memory>
 #include <new>
@@ -70,8 +70,7 @@ public:
             that.fReserved = false;
         } else {
             this->init(that.fCount);
-            that.move(fItemArray);
-            that.fCount = 0;
+            this->moveFrom(that);
         }
     }
 
@@ -115,8 +114,7 @@ public:
         fCount = 0;
         this->checkRealloc(that.count());
         fCount = that.fCount;
-        that.move(fItemArray);
-        that.fCount = 0;
+        this->moveFrom(that);
         return *this;
     }
 
@@ -440,61 +438,6 @@ public:
     }
 
 protected:
-    /**
-     * Creates an empty array that will use the passed storage block until it
-     * is insufficiently large to hold the entire array.
-     */
-    template <int N>
-    SkTArray(SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(0, storage->get(), N);
-    }
-
-    /**
-     * Copy another array, using preallocated storage if preAllocCount >=
-     * array.count(). Otherwise storage will only be used when array shrinks
-     * to fit.
-     */
-    template <int N>
-    SkTArray(const SkTArray& array, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage->get(), N);
-        this->copy(array.fItemArray);
-    }
-
-    /**
-     * Move another array, using preallocated storage if preAllocCount >=
-     * array.count(). Otherwise storage will only be used when array shrinks
-     * to fit.
-     */
-    template <int N>
-    SkTArray(SkTArray&& array, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage->get(), N);
-        array.move(fItemArray);
-        array.fCount = 0;
-    }
-
-    /**
-     * Copy a C array, using preallocated storage if preAllocCount >=
-     * count. Otherwise storage will only be used when array shrinks
-     * to fit.
-     */
-    template <int N>
-    SkTArray(const T* array, int count, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(count, storage->get(), N);
-        this->copy(array);
-    }
-
-    /**
-     * Copy the contents of an initializer list, using preallocated storage if
-     * preAllocCount >= count. Otherwise storage will only be used when array
-     * shrinks to fit.
-     */
-    template <int N>
-    SkTArray(std::initializer_list<T> data, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(data.size(), storage->get(), N);
-        this->copy(&*data.begin());
-    }
-
-private:
     void init(int count = 0, int reserveCount = 0) {
         fCount = SkToU32(count);
         if (!count && !reserveCount) {
@@ -510,23 +453,11 @@ private:
         }
     }
 
-    void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
-        SkASSERT(count >= 0);
-        SkASSERT(preallocCount > 0);
-        SkASSERT(preallocStorage);
-        fCount = count;
-        fItemArray = nullptr;
-        fReserved = false;
-        if (count > preallocCount) {
-            fAllocCount = std::max(count, kMinHeapAllocCount);
-            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
-            fOwnMemory = true;
-        } else {
-            fAllocCount = preallocCount;
-            fItemArray = (T*)preallocStorage;
-            fOwnMemory = false;
-        }
-    }
+    /**
+     * This constructor is used by SkSTArray to defer initialization to post-SkTArray construction.
+     */
+    struct HasPreallocatedStorage {};
+    SkTArray(HasPreallocatedStorage) {}
 
     /** In the following move and copy methods, 'dst' is assumed to be uninitialized raw storage.
      *  In the following move methods, 'src' is destroyed leaving behind uninitialized raw storage.
@@ -558,9 +489,14 @@ private:
             fItemArray[i].~T();
         }
     }
+    void moveFrom(SkTArray& that) {
+        that.move(this->data());
+        that.fCount = 0;
+    }
 
     static constexpr int kMinHeapAllocCount = 8;
 
+private:
     // Helper function that makes space for n objects, adjusts the count, but does not initialize
     // the new objects.
     void* push_back_raw(int n) {
@@ -587,7 +523,6 @@ private:
             return;
         }
 
-
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
         int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
@@ -604,13 +539,13 @@ private:
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
         fReserved = false;
     }
 
+protected:
     T* fItemArray;
     uint32_t fOwnMemory  :  1;
     uint32_t fCount      : 31;
@@ -631,37 +566,74 @@ template <int N, typename T, bool MEM_MOVE = false>
 class SkSTArray : public SkTArray<T, MEM_MOVE> {
 private:
     using INHERITED = SkTArray<T, MEM_MOVE>;
+    using HasPreallocatedStorage = typename INHERITED::HasPreallocatedStorage;
 
 public:
-    SkSTArray() : INHERITED(&fStorage) {
+    /**
+     * Creates an empty array that will use the passed storage block until it is insufficiently
+     * large to hold the entire array.
+     */
+    SkSTArray() : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(0);
     }
 
-    SkSTArray(const SkSTArray& array)
-        : INHERITED(array, &fStorage) {
+    /**
+     * Creates an empty array with pre-reserved storage for `reserveCount` elements.
+     */
+    explicit SkSTArray(int reserveCount): INHERITED(HasPreallocatedStorage{}) {
+        if (reserveCount <= N) {
+            this->initWithPreallocatedStorage(0);
+        } else {
+            this->init(0, reserveCount);
+        }
     }
 
-    SkSTArray(SkSTArray&& array)
-        : INHERITED(std::move(array), &fStorage) {
+    /**
+     * Copy another array, using preallocated storage if preAllocCount >= array.count().
+     * Otherwise storage will only be used when array shrinks to fit.
+     */
+    SkSTArray(const SkSTArray& array) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(array.count());
+        this->copy(array.data());
     }
 
-    explicit SkSTArray(const INHERITED& array)
-        : INHERITED(array, &fStorage) {
+    explicit SkSTArray(const INHERITED& array) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(array.count());
+        this->copy(array.data());
     }
 
-    explicit SkSTArray(INHERITED&& array)
-        : INHERITED(std::move(array), &fStorage) {
+    /**
+     * Move another array, using preallocated storage if preAllocCount >= array.count().
+     * Otherwise storage will only be used when array shrinks to fit.
+     */
+    SkSTArray(SkSTArray&& array) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(array.count());
+        this->moveFrom(array);
     }
 
-    explicit SkSTArray(int reserveCount)
-        : INHERITED(reserveCount) {
+    explicit SkSTArray(INHERITED&& array) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(array.count());
+        this->moveFrom(array);
     }
 
-    SkSTArray(const T* array, int count)
-        : INHERITED(array, count, &fStorage) {
+    /**
+     * Copy a C array, using preallocated storage if preAllocCount >=
+     * count. Otherwise storage will only be used when array shrinks
+     * to fit.
+     */
+    SkSTArray(const T* array, int count) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(count);
+        this->copy(array);
     }
 
-    SkSTArray(std::initializer_list<T> data)
-        : INHERITED(data, &fStorage) {
+    /**
+     * Copy the contents of an initializer list, using preallocated storage if
+     * preAllocCount >= count. Otherwise storage will only be used when array
+     * shrinks to fit.
+     */
+    SkSTArray(std::initializer_list<T> data) : INHERITED(HasPreallocatedStorage{}) {
+        this->initWithPreallocatedStorage(data.size());
+        this->copy(&*data.begin());
     }
 
     SkSTArray& operator=(const SkSTArray& array) {
@@ -685,7 +657,26 @@ public:
     }
 
 private:
-    SkAlignedSTStorage<N,T> fStorage;
+    void initWithPreallocatedStorage(int count) {
+        static_assert(N > 0, "SkSTArray expects preallocated storage");
+        SkASSERT(count >= 0);
+        this->fCount = count;
+        this->fItemArray = nullptr;
+        this->fReserved = false;
+        if (count > N) {
+            this->fAllocCount = std::max(count, INHERITED::kMinHeapAllocCount);
+            this->fItemArray = (T*)sk_malloc_throw(this->fAllocCount, sizeof(T));
+            this->fOwnMemory = true;
+        } else {
+            this->fAllocCount = N;
+            this->fItemArray = (T*)fStorage;
+            this->fOwnMemory = false;
+        }
+    }
+
+    static constexpr int kStorageAlignment = (sizeof(double) >= sizeof(void*)) ? sizeof(double)
+                                                                               : sizeof(void*);
+    alignas(kStorageAlignment) char fStorage[N * sizeof(T)];
 };
 
 #endif
