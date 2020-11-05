@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c1d629c_c2f312ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T16:21:51Z",
+      "side": 1,
+      "message": "Ooh nice, this is a lot better, thanks Florin :-).",
+      "revId": "63695567ff4744860efbd79a5134ce99aaa0f858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7097cfd5_e8e4b2a0",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T16:21:51Z",
+      "side": 1,
+      "message": "I think these 3 can be private again now -- I just made them public with the last CL.",
+      "revId": "63695567ff4744860efbd79a5134ce99aaa0f858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
