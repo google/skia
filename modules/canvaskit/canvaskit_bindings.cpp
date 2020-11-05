@@ -938,11 +938,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
         .function("height",  optional_override([](SkAnimatedImage& self)->int32_t {
-            return self.dimensions().height();
+            // getBounds returns an SkRect, but internally, the width and height are ints.
+            return SkScalarFloorToInt(self.getBounds().height());
         }))
         .function("reset", &SkAnimatedImage::reset)
         .function("width",  optional_override([](SkAnimatedImage& self)->int32_t {
-            return self.dimensions().width();
+            return SkScalarFloorToInt(self.getBounds().width());
         }));
 
     class_<SkCanvas>("SkCanvas")
