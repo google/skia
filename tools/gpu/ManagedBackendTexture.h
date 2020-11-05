@@ -98,6 +98,9 @@ inline sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeWithData(GrDirect
     mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)...,
                                                     ReleaseProc,
                                                     mbet->releaseContext());
+    if (!mbet->fTexture.isValid()) {
+        return nullptr;
+    }
     return mbet;
 }
 
@@ -105,9 +108,14 @@ template <typename... Args>
 inline sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeWithoutData(
         GrDirectContext* dContext,
         Args&&... args) {
+    GrBackendTexture texture =
+            dContext->createBackendTexture(std::forward<Args>(args)...);
+    if (!texture.isValid()) {
+        return nullptr;
+    }
     sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
     mbet->fDContext = sk_ref_sp(dContext);
-    mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)...);
+    mbet->fTexture = std::move(texture);
     return mbet;
 }
 

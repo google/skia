@@ -55,6 +55,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                                          mipMapped,
                                                                          renderable,
                                                                          GrProtected::kNo);
+            if (!mbet) {
+                ERRORF(reporter, "Could not make texture.");
+                return;
+            }
 
             sk_sp<GrTextureProxy> proxy;
             sk_sp<SkImage> image;

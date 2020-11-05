@@ -1001,6 +1001,10 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
             ctx, 100, 100, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+    if (!mbet) {
+        ERRORF(reporter, "Could not make texture.");
+        return;
+    }
     GrXferProcessor::DstProxyView fakeDstProxyView;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
