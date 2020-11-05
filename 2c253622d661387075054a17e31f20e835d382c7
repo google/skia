@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22390963_6695d806",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T15:26:06Z",
+      "side": 1,
+      "message": "I agree :( I wrote two interactive samples just to help me wrap my head around what gets taken into account and be able to visualize the intermediate steps. In some sense this had to get more complicated now, because it is taking perspective into account, and has the max size safety limit. On the other hand, the types enforce a bit more safety and help with what transforms need to be applied when, although it is still a lot to keep in mind at once.",
+      "parentUuid": "bef8784a_ee2dc2f8",
+      "revId": "2c253622d661387075054a17e31f20e835d382c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c173797_816b7e06",
@@ -48,6 +66,30 @@
       "writtenOn": "2020-10-28T14:31:30Z",
       "side": 1,
       "message": "In general if a function is going to take a ref I think it\u0027s clearer to make it take sk_sp so that at the call site it\u0027s clear that the called function is retaining the object.",
+      "range": {
+        "startLine": 201,
+        "startChar": 41,
+        "endLine": 201,
+        "endChar": 73
+      },
+      "revId": "2c253622d661387075054a17e31f20e835d382c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d232a70_09f3c549",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T15:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c173797_816b7e06",
       "range": {
         "startLine": 201,
         "startChar": 41,
