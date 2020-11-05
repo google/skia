@@ -33,6 +33,24 @@
       "message": "I think these 3 can be private again now -- I just made them public with the last CL.",
       "revId": "63695567ff4744860efbd79a5134ce99aaa0f858",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b998e735_a4f3bbf7",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-05T16:27:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7097cfd5_e8e4b2a0",
+      "revId": "63695567ff4744860efbd79a5134ce99aaa0f858",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
