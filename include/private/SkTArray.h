@@ -580,7 +580,13 @@ public:
     /**
      * Creates an empty array with pre-reserved storage for `reserveCount` elements.
      */
-    explicit SkSTArray(int reserveCount) : INHERITED(reserveCount) {}
+    explicit SkSTArray(int reserveCount): INHERITED(HasPreallocatedStorage{}) {
+        if (reserveCount <= N) {
+            this->initWithPreallocatedStorage(0);
+        } else {
+            this->init(0, reserveCount);
+        }
+    }
 
     /**
      * Copy another array, using preallocated storage if preAllocCount >= array.count().
