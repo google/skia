@@ -123,7 +123,7 @@ public:
     void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
-    void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
+    void createDDLTask(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
 private:
     // This class encapsulates maintenance and manipulation of the drawing manager's DAG of

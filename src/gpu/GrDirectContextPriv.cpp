@@ -58,9 +58,9 @@ void GrDirectContextPriv::flushSurface(GrSurfaceProxy* proxy) {
     this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
 }
 
-void GrDirectContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
-                                                 GrRenderTargetProxy* newDest) {
-    fContext->drawingManager()->copyRenderTasksFromDDL(std::move(ddl), newDest);
+void GrDirectContextPriv::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
+                                        GrRenderTargetProxy* newDest) {
+    fContext->drawingManager()->createDDLTask(std::move(ddl), newDest);
 }
 
 bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
