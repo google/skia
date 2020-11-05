@@ -361,6 +361,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
         auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithData(
                 dContext, srcPixmap, GrRenderable::kNo, GrProtected::kNo);
+        if (!mbet) {
+            ERRORF(reporter, "Could not make texture.");
+            return;
+        }
         auto proxy = proxyProvider->wrapBackendTexture(mbet->texture(), kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType,
                                                        mbet->refCountedCallback());

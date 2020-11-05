@@ -31,6 +31,9 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
         src = &temp;
     }
     auto mbet = ManagedBackendTexture::MakeWithData(dContext, src, 1, renderable, GrProtected::kNo);
+    if (!mbet) {
+        return nullptr;
+    }
     return SkImage::MakeFromTexture(dContext,
                                     mbet->texture(),
                                     origin,
@@ -61,7 +64,9 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                                     mipmapped,
                                                     renderable,
                                                     GrProtected::kNo);
-
+    if (!mbet) {
+        return nullptr;
+    }
     return SkImage::MakeFromTexture(dContext,
                                     mbet->texture(),
                                     origin,

@@ -489,12 +489,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter
 
         auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
                 dContext, kSize, kSize, colorType, GrMipmapped::kNo, GrRenderable::kNo);
-        if (!mbet) {
-            ERRORF(reporter, "Could not create texture with color type %d.", colorType);
-            continue;
+        sk_sp<SkImage> img;
+        if (mbet) {
+            img = SkImage::MakeFromTexture(dContext, mbet->texture(), kTopLeft_GrSurfaceOrigin,
+                                           colorType, kOpaque_SkAlphaType, nullptr);
         }
-        auto img = SkImage::MakeFromTexture(dContext, mbet->texture(), kTopLeft_GrSurfaceOrigin,
-                                            colorType, kOpaque_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, can == SkToBool(img),
                         "colorTypeSupportedAsImage:%d, actual:%d, ct:%d", can, SkToBool(img),
                         colorType);
@@ -839,6 +838,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
                                                                     GrProtected::kNo);
     if (!mbet) {
         ERRORF(reporter, "couldn't create backend texture\n");
+        return;
     }
 
     TextureReleaseChecker releaseChecker;
