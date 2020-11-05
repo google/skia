@@ -93,6 +93,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e31ed209_d26bb7d0",
+        "filename": "modules/svg/include/SkSVGFeColorMatrix.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbaecd9b_4785b23f",
+      "range": {
+        "startLine": 14,
+        "startChar": 25,
+        "endLine": 14,
+        "endChar": 26
+      },
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36128f94_a2c56f9e",
@@ -110,6 +134,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43b13b7d_9bc6c024",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36128f94_a2c56f9e",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23866ca1_ea81fa16",
@@ -123,6 +165,30 @@
       "writtenOn": "2020-11-05T21:36:19Z",
       "side": 1,
       "message": "using SkSVGFeColorMatrixValues \u003d SkTDArray\u003cSkSVGNumberType\u003e ?\n\nWe\u0027d have to relocate the helpers, but I don\u0027t think that\u0027s problematic.",
+      "range": {
+        "startLine": 533,
+        "startChar": 6,
+        "endLine": 533,
+        "endChar": 30
+      },
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75a1ca7c_b2ebee31",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23866ca1_ea81fa16",
       "range": {
         "startLine": 533,
         "startChar": 6,
@@ -156,6 +222,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8f570ad_985c8b67",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ec01a32_95d06992",
+      "range": {
+        "startLine": 542,
+        "startChar": 11,
+        "endLine": 542,
+        "endChar": 35
+      },
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6fa40282_c1302883",
@@ -169,6 +259,24 @@
       "writtenOn": "2020-11-05T21:36:19Z",
       "side": 1,
       "message": "We have some macros for the luminance coefficients.  Looking at the spec, the matrix terms have one of two forms:\n\n K + (1-K)s \u003d\u003d K(1-s) + s\n\n or\n\n K(1-s)\n\nI think this could all be written as\n  const auto lr \u003d SK_LUM_COEFF_R * (1 - s),\n             lg \u003d SK_LUM_COEFF_G * (1 - s),\n             lb \u003d SK_LUM_COEFF_B * (1 - s);\n\n\n  return SkColorMatrix(\n      lr + s, lg    , lb    , 0, 0,\n      lr    , lg + s, lb    , 0, 0,\n      lr    , lg    , lb + s, 0, 0,\n      0     , 0     ,      0, 1, 0\n  );",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc8b3f19_b3bf74b6",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done, although I used the builtin SkColorMatrix::setSaturation instead.",
+      "parentUuid": "6fa40282_c1302883",
       "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -190,6 +298,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f2f9364_7a2b3962",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfeb81cf_a671218f",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9f6ea24_fc34c3c6",
@@ -203,6 +329,24 @@
       "writtenOn": "2020-11-05T21:36:19Z",
       "side": 1,
       "message": "return SkColorMatrix(\n  0, 0, 0, 0, 0,\n  0, 0, 0, 0, 0,\n  0, 0, 0, 0, 0,\n  SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B, 0, 0\n);",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bf74c11_20741118",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T22:16:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9f6ea24_fc34c3c6",
       "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
