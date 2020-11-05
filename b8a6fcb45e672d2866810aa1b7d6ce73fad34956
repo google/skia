@@ -39,6 +39,24 @@
       "message": "Why isn\u0027t SkTArray just SkSTArray with a zero sized storage?",
       "revId": "b8a6fcb45e672d2866810aa1b7d6ce73fad34956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18a675ad_3356d9c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T18:10:20Z",
+      "side": 1,
+      "message": "One of the use cases that causes some strange abstraction-barrier-crossing implementation choices is to have a common base type for all SkSTArray and SkTArray, to be able to work with an SkTArray* and not care whether it points to an SkTArray per se or to SkSTArray\u003c10\u003e, SkSTArray\u003c1\u003e, etc.\n\nI\u0027m not exactly sure I know enough of how that use case is used today to know whether it\u0027s something we really need to preserve, but if not, I agree there\u0027s a lot of rearranging here to make things behave a bit more normally.  Removing the inheritance there is the first step and should show all the places that\u0027d need rethinking.",
+      "parentUuid": "f4461003_775a2b72",
+      "revId": "b8a6fcb45e672d2866810aa1b7d6ce73fad34956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
