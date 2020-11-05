@@ -22,6 +22,30 @@
       },
       "revId": "87bc83eaa6988d34b123013f4af79ef261599574",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9eceb6a_365160b1",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T21:01:26Z",
+      "side": 1,
+      "message": "Good catch, done.\n\nI wonder if the field names are misleading enough to consider changing them? I feel like \"start\" and \"end\" are going to be a matching pair in most people\u0027s brains, especially if you haven\u0027t been thinking about the details of GrBlockAllocator recently. Those will be the names we gravitate to naturally. The unaligned space before start is more of an implementation detail; we can provide it, but what if we gave it the quirky name (like fPaddingBeforeStart? not sure).",
+      "parentUuid": "0830e99a_da04b535",
+      "range": {
+        "startLine": 120,
+        "startChar": 48,
+        "endLine": 120,
+        "endChar": 54
+      },
+      "revId": "87bc83eaa6988d34b123013f4af79ef261599574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
