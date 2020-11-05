@@ -306,9 +306,7 @@ DEF_TEST(TArray, reporter) {
 
     test_construction<SkTArray<int>>(reporter);
     test_construction<SkTArray<double>>(reporter);
-#ifndef __GNUC__  // TODO(skbug.com/10891): SkSTArray generates bad code in GCC -fstrict-aliasing
     test_construction<SkSTArray<1, int>>(reporter);
     test_construction<SkSTArray<5, char>>(reporter);
     test_construction<SkSTArray<10, float>>(reporter);
-#endif
 }
