@@ -4,6 +4,13 @@ angle_zlib_compression_utils_dir = "//third_party/zlib"
 # We don't have Chromium's build/ or testing/ directories.
 angle_has_build = false
 
+angle_enable_swiftshader = true
+angle_enable_vulkan = true
+angle_glslang_dir = "//third_party/externals/glslang"
+angle_spirv_headers_dir = "//third_party/externals/spirv-headers"
+angle_spirv_tools_dir = "//third_party/externals/spirv-tools"
+angle_vulkan_memory_allocator_dir = "//third_party/vulkanmemoryallocator"
+
 # Bunch of features ANGLE's build files test for that we never set.
 is_cfi = false
 is_chromecast = false

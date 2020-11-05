@@ -24,6 +24,12 @@
 #define EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE      0x3207
 #define EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE     0x3208
 #define EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE    0x320D
+#define EGL_PLATFORM_ANGLE_TYPE_VULKAN_ANGLE    0x3450
+
+
+#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE             0x3209
+#define EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE            0x3206
+#define EGL_PLATFORM_ANGLE_DEVICE_TYPE_SWIFTSHADER_ANGLE 0x3487
 
 #define EGL_CONTEXT_OPENGL_BACKWARDS_COMPATIBLE_ANGLE 0x3483
 
@@ -69,19 +75,28 @@ void* get_angle_egl_display(void* nativeDisplay, ANGLEBackend type) {
         return EGL_NO_DISPLAY;
     }
 
-    EGLint typeNum = 0;
+    EGLint angleType = 0;
+    EGLint angleDeviceType = EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE;
     switch (type) {
         case ANGLEBackend::kD3D9:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
+            angleType = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
             break;
         case ANGLEBackend::kD3D11:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
+            angleType = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
             break;
         case ANGLEBackend::kOpenGL:
-            typeNum = EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
+            angleType = EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
+            break;
+        case ANGLEBackend::kSwiftShader:
+            angleType = EGL_PLATFORM_ANGLE_TYPE_VULKAN_ANGLE;
+            angleDeviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_SWIFTSHADER_ANGLE;
             break;
     }
-    const EGLint attribs[] = { EGL_PLATFORM_ANGLE_TYPE_ANGLE, typeNum, EGL_NONE };
+    const EGLint attribs[] = {
+            EGL_PLATFORM_ANGLE_TYPE_ANGLE,        angleType,
+            EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, angleDeviceType,
+            EGL_NONE
+    };
     return eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplay, attribs);
 }
 
@@ -345,7 +360,10 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     case ANGLEBackend::kOpenGL:
         SkASSERT(strstr(renderer, "OpenGL"));
         break;
-    }
+    case ANGLEBackend::kSwiftShader:
+        SkASSERT(strstr(renderer, "SwiftShader"));
+        break;
+}
 #endif
     if (strstr(extensions, "EGL_KHR_image")) {
         fCreateImage = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");

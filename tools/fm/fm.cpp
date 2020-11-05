@@ -491,6 +491,7 @@ int main(int argc, char** argv) {
         { "angle_d3d11_es3", GrContextFactory::kANGLE_D3D11_ES3_ContextType },
         { "angle_gl_es2"   , GrContextFactory::kANGLE_GL_ES2_ContextType },
         { "angle_gl_es3"   , GrContextFactory::kANGLE_GL_ES3_ContextType },
+        { "angle_ss_es3"   , GrContextFactory::kANGLE_SwiftShader_ES3_ContextType },
         { "commandbuffer"  , GrContextFactory::kCommandBuffer_ContextType },
         { "vk"             , GrContextFactory::kVulkan_ContextType },
         { "mtl"            , GrContextFactory::kMetal_ContextType },
