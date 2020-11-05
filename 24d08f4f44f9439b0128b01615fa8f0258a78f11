@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04ce4e8f_a8745ac5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T14:58:36Z",
+      "side": 1,
+      "message": "I attached skia:10805 to this CL.\nIf you add in benches for Metal and SPIR-V then you\u0027ve implemented the whole task!",
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f78e2db0_6f8f3579",
