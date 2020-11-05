@@ -70,6 +70,30 @@
       },
       "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "542eb5ea_bf3873b1",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T21:36:12Z",
+      "side": 1,
+      "message": "Sure, no problem.",
+      "parentUuid": "85b312d1_b5a83259",
+      "range": {
+        "startLine": 671,
+        "startChar": 46,
+        "endLine": 672,
+        "endChar": 95
+      },
+      "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
