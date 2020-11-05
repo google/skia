@@ -516,6 +516,94 @@ private:
     SkString fIRI;
 };
 
+struct SkSVGFeColorMatrixType {
+    enum Type {
+        kMatrix,
+        kSaturate,
+        kHueRotate,
+        kLuminanceToAlpha,
+    };
+
+    Type fType;
+
+    SkSVGFeColorMatrixType() : fType(kMatrix) {}
+    explicit SkSVGFeColorMatrixType(Type type) : fType(type) {}
+};
+
+class SkSVGFeColorMatrixValues {
+public:
+    static constexpr int kN = 4, kM = 5;
+
+    SkSVGFeColorMatrixValues() = default;
+    explicit SkSVGFeColorMatrixValues(const SkTDArray<SkSVGNumberType>& values) : fValues(values) {}
+    explicit SkSVGFeColorMatrixValues(SkTDArray<SkSVGNumberType>&& values)
+            : fValues(std::move(values)) {}
+
+    static SkSVGFeColorMatrixValues MakeIdentity() {
+        SkTDArray<SkSVGNumberType> result;
+        result.setCount(kN * kM);
+        for (int i = 0; i < kN; i++) {
+            for (int j = 0; j < kM; j++) {
+                result[i * kM + j] = i == j ? 1 : 0;
+            }
+        }
+        return SkSVGFeColorMatrixValues(std::move(result));
+    }
+
+    static SkSVGFeColorMatrixValues MakeSaturate(SkSVGNumberType s) {
+        static constexpr SkScalar A[] = {0.213f, 0.715f, 0.072f,
+                                         0.213f, 0.715f, 0.072f,
+                                         0.213f, 0.715f, 0.072f};
+        static constexpr SkScalar B[] = { 0.787f, -0.715f, -0.072f,
+                                         -0.213f,  0.285f, -0.072f,
+                                         -0.213f, -0.715f,  0.928f};
+        SkSVGFeColorMatrixValues result = MakeIdentity();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                const int idx = i * 3 + j;
+                result.fValues[i * kM + j] = A[idx] + s * B[idx];
+            }
+        }
+        return result;
+    }
+
+    static SkSVGFeColorMatrixValues MakeHueRotate(SkSVGNumberType degrees) {
+        static constexpr SkScalar A[] = {0.213f, 0.715f, 0.072f,
+                                         0.213f, 0.715f, 0.072f,
+                                         0.213f, 0.715f, 0.072f};
+        static constexpr SkScalar B[] = { 0.787f, -0.715f, -0.072f,
+                                         -0.213f,  0.285f, -0.072f,
+                                         -0.213f, -0.715f,  0.928f};
+        static constexpr SkScalar C[] = {-0.213f, -0.715f,  0.928f,
+                                          0.143f,  0.140f, -0.283f,
+                                         -0.787f,  0.715f,  0.072f};
+        const SkScalar theta = SkDegreesToRadians(degrees);
+        const SkSVGNumberType cosTheta = SkScalarCos(theta);
+        const SkSVGNumberType sinTheta = SkScalarSin(theta);
+        SkSVGFeColorMatrixValues result = MakeIdentity();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                const int idx = i * 3 + j;
+                result.fValues[i * kM + j] = A[idx] + cosTheta * B[idx] + sinTheta * C[idx];
+            }
+        }
+        return result;
+    }
+
+    static SkSVGFeColorMatrixValues MakeLuminanceToAlpha() {
+        static constexpr SkScalar M[] = {0.0000f, 0.0000f, 0.0000f, 0.0000f, 0.0000f,
+                                         0.0000f, 0.0000f, 0.0000f, 0.0000f, 0.0000f,
+                                         0.0000f, 0.0000f, 0.0000f, 0.0000f, 0.0000f,
+                                         0.2125f, 0.7154f, 0.0721f, 0.0000f, 0.0000f};
+        return SkSVGFeColorMatrixValues(SkTDArray<SkSVGNumberType>(M, kN * kM));
+    }
+
+    const SkTDArray<SkSVGNumberType>& values() const { return fValues; }
+
+private:
+    SkTDArray<SkSVGNumberType> fValues;
+};
+
 class SkSVGFeTurbulenceBaseFrequency {
 public:
     SkSVGFeTurbulenceBaseFrequency() : fFreqX(0), fFreqY(0) {}
