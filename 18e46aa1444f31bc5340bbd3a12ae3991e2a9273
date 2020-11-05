@@ -94,6 +94,30 @@
       },
       "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1fc7746_c4af9728",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T21:43:22Z",
+      "side": 1,
+      "message": "\u003e can\u0027t we just do\n\nYes, please!\n\nMight be that the by-reference parameters and result were still tricky with std::min() / std::max(), constexpr or not?",
+      "parentUuid": "542eb5ea_bf3873b1",
+      "range": {
+        "startLine": 671,
+        "startChar": 46,
+        "endLine": 672,
+        "endChar": 95
+      },
+      "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15c25083_c9b8e3df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T21:43:22Z",
+      "side": 1,
+      "message": "Yeah, all of them, certainly.  They even mooted deprecating std::aligned_storage because it\u0027s so easy to use incorrectly and can always be replaced by an at-least-as-correct alignas()\u0027d char[].",
+      "range": {
+        "startLine": 11,
+        "startChar": 13,
+        "endLine": 13,
+        "endChar": 0
+      },
+      "revId": "6ea04ce003d914a9f02ba74c6df26da196382f00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
