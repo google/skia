@@ -40,18 +40,18 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              SkRect deviceRect,
                              const Geometry& geo,
                              GrPaint&& paint)
-         : INHERITED{ClassID()}
-         , fMaskType{maskType}
-         , fNeedsGlyphTransform{needsTransform}
-         , fLuminanceColor{0}
-         , fUseGammaCorrectDistanceTable{false}
-         , fDFGPFlags{0}
-         , fGeoDataAllocSize{kMinGeometryAllocated}
-         , fProcessors{std::move(paint)}
-         , fNumGlyphs{glyphCount} {
+        : INHERITED{ClassID()}
+        , fGeoCount(1)
+        , fGeoDataAllocSize(kMinGeometryAllocated)
+        , fProcessors(std::move(paint))
+        , fNumGlyphs(glyphCount)
+        , fDFGPFlags(0)
+        , fMaskType(static_cast<uint32_t>(maskType))
+        , fUsesLocalCoords(false)
+        , fNeedsGlyphTransform(needsTransform)
+        , fHasPerspective(needsTransform && geo.fDrawMatrix.hasPerspective())
+        , fUseGammaCorrectDistanceTable(false) {
     new (&fGeoData[0]) Geometry{geo};
-    fGeoCount = 1;
-
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
@@ -67,17 +67,18 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
                              const Geometry& geo,
                              GrPaint&& paint)
         : INHERITED{ClassID()}
-        , fMaskType{maskType}
-        , fNeedsGlyphTransform{needsTransform}
-        , fLuminanceColor{luminanceColor}
-        , fUseGammaCorrectDistanceTable{useGammaCorrectDistanceTable}
-        , fDFGPFlags{DFGPFlags}
-        , fGeoDataAllocSize{kMinGeometryAllocated}
-        , fProcessors{std::move(paint)}
-        , fNumGlyphs{glyphCount} {
+        , fGeoCount(1)
+        , fGeoDataAllocSize(kMinGeometryAllocated)
+        , fProcessors(std::move(paint))
+        , fNumGlyphs(glyphCount)
+        , fDFGPFlags(DFGPFlags)
+        , fMaskType(static_cast<uint32_t>(maskType))
+        , fUsesLocalCoords(false)
+        , fNeedsGlyphTransform(needsTransform)
+        , fHasPerspective(needsTransform && geo.fDrawMatrix.hasPerspective())
+        , fUseGammaCorrectDistanceTable(useGammaCorrectDistanceTable)
+        , fLuminanceColor(luminanceColor) {
     new (&fGeoData[0]) Geometry{geo};
-    fGeoCount = 1;
-
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
@@ -118,15 +119,15 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
         GrClampType clampType) {
     GrProcessorAnalysisCoverage coverage;
     GrProcessorAnalysisColor color;
-    if (fMaskType == MaskType::kColorBitmap) {
+    if (this->maskType() == MaskType::kColorBitmap) {
         color.setToUnknown();
     } else {
         // finalize() is called before any merging is done, so at this point there's at most one
         // Geometry with a color. Later, for non-bitmap ops, we may have mixed colors.
-        color.setToConstant(this->color());
+        color.setToConstant(fGeoData[0].fColor);
     }
 
-    switch (fMaskType) {
+    switch (this->maskType()) {
         case MaskType::kGrayscaleCoverage:
         case MaskType::kAliasedDistanceField:
         case MaskType::kGrayscaleDistanceField:
@@ -145,6 +146,9 @@ GrProcessorSet::Analysis GrAtlasTextOp::finalize(
     auto analysis = fProcessors.finalize(
             color, coverage, clip, &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps,
             clampType, &fGeoData[0].fColor);
+    // TODO(michaelludwig): Once processor analysis can be done external to op creation/finalization
+    // the atlas op metadata can be fully const. This is okay for now since finalize() happens
+    // before the op is merged, so during combineIfPossible, metadata is effectively const.
     fUsesLocalCoords = analysis.usesLocalCoords();
     return analysis;
 }
@@ -157,7 +161,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // the matrix is identity. When the shaders require local coords, combineIfPossible requires all
     // all geometries to have same draw matrix.
     SkMatrix localMatrix = SkMatrix::I();
-    if (this->usesLocalCoords() && !fGeoData[0].fDrawMatrix.invert(&localMatrix)) {
+    if (fUsesLocalCoords && !fGeoData[0].fDrawMatrix.invert(&localMatrix)) {
         return;
     }
 
@@ -189,7 +193,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     flushInfo.fPrimProcProxies = primProcProxies;
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
 
-    bool vmPerspective = fGeoData[0].fDrawMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
                                                               *target->caps().shaderCaps(),
@@ -197,9 +200,11 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     } else {
         auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                            : GrSamplerState::Filter::kNearest;
+        // Bitmap text uses a single color, combineIfPossible ensures all geometries have the same
+        // color, so we can use the first's without worry.
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                target->allocator(), *target->caps().shaderCaps(), this->color(), false, views,
-                numActiveViews, filter, maskFormat, localMatrix, vmPerspective);
+                target->allocator(), *target->caps().shaderCaps(), fGeoData[0].fColor, false, views,
+                numActiveViews, filter, maskFormat, localMatrix, fHasPerspective);
     }
 
     const int vertexStride = (int)flushInfo.fGeometryProcessor->vertexStride();
@@ -210,7 +215,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     const int maxQuadsPerBuffer = kMaxVertexBytes / quadSize;
 
     int allGlyphsCursor = 0;
-    const int allGlyphsEnd = this->numGlyphs();
+    const int allGlyphsEnd = fNumGlyphs;
     int quadCursor;
     int quadEnd;
     char* vertices;
@@ -340,45 +345,45 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
 
 GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
+
+    if (fDFGPFlags != that->fDFGPFlags ||
+        fMaskType != that->fMaskType ||
+        fUsesLocalCoords != that->fUsesLocalCoords ||
+        fNeedsGlyphTransform != that->fNeedsGlyphTransform ||
+        fHasPerspective != that->fHasPerspective ||
+        fUseGammaCorrectDistanceTable != that->fUseGammaCorrectDistanceTable) {
+        // All flags must match for an op to be combined
+        return CombineResult::kCannotCombine;
+    }
+
     if (fProcessors != that->fProcessors) {
         return CombineResult::kCannotCombine;
     }
 
-    if (fMaskType != that->fMaskType) {
-        return CombineResult::kCannotCombine;
-    }
-
-    const SkMatrix& thisFirstMatrix = fGeoData[0].fDrawMatrix;
-    const SkMatrix& thatFirstMatrix = that->fGeoData[0].fDrawMatrix;
-
-    if (this->usesLocalCoords() && !SkMatrixPriv::CheapEqual(thisFirstMatrix, thatFirstMatrix)) {
-        return CombineResult::kCannotCombine;
-    }
-
-    if (fNeedsGlyphTransform != that->fNeedsGlyphTransform) {
-        return CombineResult::kCannotCombine;
-    }
-
-    if (fNeedsGlyphTransform &&
-        (thisFirstMatrix.hasPerspective() != thatFirstMatrix.hasPerspective())) {
-        return CombineResult::kCannotCombine;
+    if (fUsesLocalCoords) {
+        // If the fragment processors use local coordinates, the GPs compute them using the inverse
+        // of the view matrix stored in a uniform, so all geometries must have the same matrix.
+        const SkMatrix& thisFirstMatrix = fGeoData[0].fDrawMatrix;
+        const SkMatrix& thatFirstMatrix = that->fGeoData[0].fDrawMatrix;
+        if (!SkMatrixPriv::CheapEqual(thisFirstMatrix, thatFirstMatrix)) {
+            return CombineResult::kCannotCombine;
+        }
     }
 
     if (this->usesDistanceFields()) {
-        if (fDFGPFlags != that->fDFGPFlags) {
-            return CombineResult::kCannotCombine;
-        }
-
+        SkASSERT(that->usesDistanceFields());
         if (fLuminanceColor != that->fLuminanceColor) {
             return CombineResult::kCannotCombine;
         }
     } else {
-        if (fMaskType == MaskType::kColorBitmap && this->color() != that->color()) {
+        if (this->maskType() == MaskType::kColorBitmap &&
+            fGeoData[0].fColor != that->fGeoData[0].fColor) {
+            // This ensures all merged bitmap color text ops have a constant color
             return CombineResult::kCannotCombine;
         }
     }
 
-    fNumGlyphs += that->numGlyphs();
+    fNumGlyphs += that->fNumGlyphs;
 
     // Reallocate space for geo data if necessary and then import that geo's data.
     int newGeoCount = that->fGeoCount + fGeoCount;
@@ -435,7 +440,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
-        if (fMaskType != MaskType::kAliasedDistanceField) {
+        if (this->maskType() != MaskType::kAliasedDistanceField) {
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,
                                                                 fLuminanceColor);
             correction = dfAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
