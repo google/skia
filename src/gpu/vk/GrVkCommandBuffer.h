@@ -187,8 +187,8 @@ private:
     float      fCachedBlendConstant[4];
 
     // Tracking of memory barriers so that we can submit them all in a batch together.
-    SkSTArray<4, VkBufferMemoryBarrier> fBufferBarriers;
-    SkSTArray<1, VkImageMemoryBarrier> fImageBarriers;
+    SkSTArray<1, VkBufferMemoryBarrier> fBufferBarriers;
+    SkSTArray<2, VkImageMemoryBarrier> fImageBarriers;
     bool fBarriersByRegion = false;
     VkPipelineStageFlags fSrcStageMask = 0;
     VkPipelineStageFlags fDstStageMask = 0;

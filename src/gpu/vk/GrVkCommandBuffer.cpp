@@ -189,7 +189,6 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
     SkASSERT(!fDstStageMask);
 }
 
-
 void GrVkCommandBuffer::bindInputBuffer(GrVkGpu* gpu, uint32_t binding,
                                         sk_sp<const GrBuffer> buffer) {
     auto* vkMeshBuffer = static_cast<const GrVkMeshBuffer*>(buffer.get());
