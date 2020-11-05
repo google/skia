@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf46b3e7_ed7ff886",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T14:26:51Z",
+      "side": 1,
+      "message": "Just realized this should be redundant with this-\u003eisNegationOfCompileTimeConstant above and can be removed",
+      "range": {
+        "startLine": 29,
+        "startChar": 47,
+        "endLine": 29,
+        "endChar": 90
+      },
+      "revId": "254f7a1be52219045dfafafbe9fe0fb9827f4b0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d4613059_bd84725d",
