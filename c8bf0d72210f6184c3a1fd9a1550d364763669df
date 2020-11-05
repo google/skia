@@ -16,6 +16,29 @@
       "message": "Fixed the dft issue; had dropped initializing the luminance color field 😮",
       "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ee182fc_053ceb51",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-05T14:58:45Z",
+      "side": 1,
+      "message": "\"does\"? (Also probably ok to use msg-less static_assert here)",
+      "range": {
+        "startLine": 198,
+        "startChar": 49,
+        "endLine": 198,
+        "endChar": 51
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
