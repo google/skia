@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0830e99a_da04b535",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T17:42:11Z",
+      "side": 1,
+      "message": "Oops, I figured out what made the bots mad. GrBlockAllocator unpoisons (offset-padding) to (end), which is the right thing to do since that\u0027s the bytes that have defined alignment position and size. In this case, padding is 0, so we should be memsetting from b.fAlignedOffset to b.fEnd.",
+      "range": {
+        "startLine": 120,
+        "startChar": 48,
+        "endLine": 120,
+        "endChar": 54
+      },
+      "revId": "87bc83eaa6988d34b123013f4af79ef261599574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
