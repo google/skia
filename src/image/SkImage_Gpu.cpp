@@ -421,7 +421,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
         return nullptr;
     }
     SkASSERT(numTextures == yuvaTextures.numPlanes());
-    if (rgbaResultTexture.dimensions() != yuvaTextures.yuvaInfo().dimensions()) {
+    if (!rgbaResultTexture.isValid() ||
+        rgbaResultTexture.dimensions() != yuvaTextures.yuvaInfo().dimensions()) {
         return nullptr;
     }
     return make_flattened_image_with_external_backend(context,
