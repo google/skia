@@ -33,15 +33,14 @@ class RectsGM : public GM {
     enum {
         kLooperColorSentinel = 0x01020304
     };
-public:
-    RectsGM() {
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFF000000);
         this->makePaints();
         this->makeMatrices();
         this->makeRects();
     }
-
-protected:
 
     SkString onShortName() override {
         return SkString("rects");

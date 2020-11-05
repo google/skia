@@ -95,8 +95,8 @@ static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkB
 }
 
 class LumaFilterGM : public skiagm::GM {
-public:
-    LumaFilterGM() {
+protected:
+    void onOnceBeforeDraw() override {
         SkColor  g1Colors[] = { kColor1, SkColorSetA(kColor1, 0x20) };
         SkColor  g2Colors[] = { kColor2, SkColorSetA(kColor2, 0x20) };
         SkPoint  g1Points[] = { { 0, 0 }, { 0,     100 } };
@@ -109,8 +109,6 @@ public:
         fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, SK_ARRAY_COUNT(g2Colors),
                                             SkTileMode::kClamp);
     }
-
-protected:
 
     SkString onShortName() override {
         return SkString("lumafilter");
