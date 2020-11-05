@@ -20,6 +20,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ff36ebd7_1181ed63",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-05T16:15:08Z",
+      "side": 1,
+      "message": "constexpr?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff4862aa_7cf3ca08",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-05T16:15:08Z",
+      "side": 1,
+      "message": "Is this used outside the class? If not let\u0027s not expose it through an API.",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 74
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9ee182fc_053ceb51",
         "filename": "src/gpu/ops/GrAtlasTextOp.h",
         "patchSetId": 5
