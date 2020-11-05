@@ -37,6 +37,8 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
+    virtual bool requiresExplicitCleanup() const { return false; }
+
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
