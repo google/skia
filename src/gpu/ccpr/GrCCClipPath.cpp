@@ -20,7 +20,7 @@ void GrCCClipPath::init(
 
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
             [this](GrResourceProvider* resourceProvider, const GrCCAtlas::LazyAtlasDesc& desc) {
-                SkASSERT(fHasAtlas);
+                SkASSERT(fHasAtlas1);
                 SkASSERT(!fHasAtlasTranslate);
 
                 GrTextureProxy* textureProxy = fAtlas ? fAtlas->textureProxy() : nullptr;
@@ -64,9 +64,9 @@ void GrCCClipPath::accountForOwnPath(GrCCPerFlushResourceSpecs* specs) const {
 void GrCCClipPath::renderPathInAtlas(GrCCPerFlushResources* resources,
                                      GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(this->isInitialized());
-    SkASSERT(!fHasAtlas);
+    SkASSERT(!fHasAtlas1);
     fAtlas = resources->renderDeviceSpacePathInAtlas(
             fAccessRect, fDeviceSpacePath, fPathDevIBounds, GrFillRuleForSkPath(fDeviceSpacePath),
             &fDevToAtlasOffset);
-    SkDEBUGCODE(fHasAtlas = true);
+    SkDEBUGCODE(fHasAtlas1 = true);
 }

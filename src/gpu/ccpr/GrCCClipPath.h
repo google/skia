@@ -75,7 +75,7 @@ private:
 
     const GrCCAtlas* fAtlas = nullptr;
     SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
-    SkDEBUGCODE(bool fHasAtlas = false;)
+    SkDEBUGCODE(bool fHasAtlas1 = false;)
     SkDEBUGCODE(bool fHasAtlasTranslate = false;)
 };
 
