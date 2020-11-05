@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c939ac30_366b74ad",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T16:47:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff36ebd7_1181ed63",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff4862aa_7cf3ca08",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "deff75d6_725ef1ee",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T16:47:06Z",
+      "side": 1,
+      "message": "This is private now",
+      "parentUuid": "ff4862aa_7cf3ca08",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 74
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ee182fc_053ceb51",
@@ -77,6 +125,30 @@
       "writtenOn": "2020-11-05T14:58:45Z",
       "side": 1,
       "message": "\"does\"? (Also probably ok to use msg-less static_assert here)",
+      "range": {
+        "startLine": 198,
+        "startChar": 49,
+        "endLine": 198,
+        "endChar": 51
+      },
+      "revId": "c8bf0d72210f6184c3a1fd9a1550d364763669df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "530a7016_30ae104a",
+        "filename": "src/gpu/ops/GrAtlasTextOp.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-05T16:47:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ee182fc_053ceb51",
       "range": {
         "startLine": 198,
         "startChar": 49,
