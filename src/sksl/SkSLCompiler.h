@@ -42,6 +42,7 @@
 #define SK_POSITION_BUILTIN                0
 
 class SkBitSet;
+class SkSLCompileBench;
 
 namespace SkSL {
 
@@ -218,13 +219,17 @@ public:
     LoadedModule loadModule(Program::Kind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
     ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
 
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
+    }
+
+    const ParsedModule& moduleForProgramKind(Program::Kind kind);
+
 private:
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadInterpreterModule();
     const ParsedModule& loadPipelineModule();
-
-    const ParsedModule& moduleForProgramKind(Program::Kind kind);
 
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
@@ -289,6 +294,7 @@ private:
     String fErrorText;
 
     friend class AutoSource;
+    friend class ::SkSLCompileBench;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
