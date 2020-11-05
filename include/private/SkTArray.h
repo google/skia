@@ -13,10 +13,10 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTLogic.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <string.h>
+#include <algorithm>
 #include <initializer_list>
 #include <memory>
 #include <new>
@@ -663,12 +663,14 @@ private:
             this->fOwnMemory = true;
         } else {
             this->fAllocCount = N;
-            this->fItemArray = (T*)fStorage.get();
+            this->fItemArray = (T*)fStorage;
             this->fOwnMemory = false;
         }
     }
 
-    SkAlignedSTStorage<N,T> fStorage;
+    static constexpr int kStorageAlignment = (sizeof(double) >= sizeof(void*)) ? sizeof(double)
+                                                                               : sizeof(void*);
+    alignas(kStorageAlignment) char fStorage[N * sizeof(T)];
 };
 
 #endif
