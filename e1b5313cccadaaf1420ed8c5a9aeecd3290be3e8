@@ -16,6 +16,24 @@
       "message": "This is just copy \u0026 paste, right?",
       "revId": "e1b5313cccadaaf1420ed8c5a9aeecd3290be3e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fdd33bf_cfc1b58c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-05T14:23:43Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "908c605b_40b92f89",
+      "revId": "e1b5313cccadaaf1420ed8c5a9aeecd3290be3e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
