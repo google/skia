@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58ac6141_31bfefb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T21:14:54Z",
+      "side": 1,
+      "message": "Are there already similar tests that SkSTArray\u003cM, T\u003e and SkSTArray\u003cN, T\u003e are compatible? (Although it seems even less likely that we\u0027d be exercising that functionality anywhere, so maybe we don\u0027t care?)",
+      "revId": "2106970b1618d7c544be738f85a632e9d9cdbf54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
