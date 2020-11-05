@@ -33,14 +33,13 @@ class CircleGM : public GM {
     enum {
         kLooperColorSentinel = 0x01020304
     };
-public:
-    CircleGM() {
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(0xFF000000);
         this->makePaints();
         this->makeMatrices();
     }
-
-protected:
 
     SkString onShortName() override {
         return SkString("circles");

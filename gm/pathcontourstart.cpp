@@ -23,8 +23,8 @@
 namespace skiagm {
 
 class ContourStartGM : public GM {
-public:
-    ContourStartGM() {
+protected:
+    void onOnceBeforeDraw() override {
         const SkScalar kMaxDashLen = 100;
         const SkScalar kDashGrowth = 1.2f;
 
@@ -46,7 +46,6 @@ public:
         fRect = SkRect::MakeLTRB(10, 10, 100, 70);
     }
 
-protected:
     SkString onShortName() override {
         return SkString("contour_start");
     }
