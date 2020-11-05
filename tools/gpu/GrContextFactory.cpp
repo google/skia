@@ -211,6 +211,11 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
                     break;
+                case kANGLE_SwiftShader_ES3_ContextType:
+                    glCtx = MakeANGLETestContext(ANGLEBackend::kSwiftShader,
+                                                 ANGLEContextVersion::kES3,
+                                                 glShareContext).release();
+                    break;
 #endif
 #ifndef SK_NO_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:

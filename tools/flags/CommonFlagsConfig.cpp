@@ -85,6 +85,7 @@ static const struct {
     { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
     { "angle_gl_es2_msaa8",    "gpu", "api=angle_gl_es2,samples=8" },
     { "angle_gl_es3_msaa8",    "gpu", "api=angle_gl_es3,samples=8" },
+    { "angle_ss_es3",          "gpu", "api=angle_ss_es3" },
     { "commandbuffer",         "gpu", "api=commandbuffer" },
     { "mock",                  "gpu", "api=mock" },
 #ifdef SK_DAWN
@@ -153,6 +154,7 @@ static const char configExtendedHelp[] =
         "\t\tangle_d3d11_es3\t\tUse OpenGL ES3 on the ANGLE Direct3D11 backend.\n"
         "\t\tangle_gl_es2\t\tUse OpenGL ES2 on the ANGLE OpenGL backend.\n"
         "\t\tangle_gl_es3\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
+        "\t\tangle_ss_es3\t\tUse OpenGL ES3 on the ANGLE SwiftShader backend.\n"
         "\t\tcommandbuffer\t\tUse command buffer.\n"
         "\t\tmock\t\t\tUse mock context.\n"
 #ifdef SK_VULKAN
@@ -271,6 +273,10 @@ static bool parse_option_gpu_api(const SkString&                      value,
     }
     if (value.equals("angle_gl_es3")) {
         *outContextType = GrContextFactory::kANGLE_GL_ES3_ContextType;
+        return true;
+    }
+    if (value.equals("angle_ss_es3")) {
+        *outContextType = GrContextFactory::kANGLE_SwiftShader_ES3_ContextType;
         return true;
     }
     if (value.equals("commandbuffer")) {
