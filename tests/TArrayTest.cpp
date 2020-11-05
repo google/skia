@@ -114,6 +114,56 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
     REPORTER_ASSERT(reporter, arrayInitializer[6] == 9);
 }
 
+template <typename STARRAY, typename TARRAY>
+static void test_skstarray_compatibility_with_sktarray(skiatest::Reporter* reporter) {
+    // Create SkTArrays to test against.
+    TARRAY tArray;
+    tArray.push_back(1);
+    tArray.push_back(2);
+    tArray.push_back(3);
+    TARRAY tArray2 = tArray;
+
+    // Copy construction from SkTArray.
+    STARRAY arrayCopy(tArray);
+    REPORTER_ASSERT(reporter, tArray.size() == 3);
+    REPORTER_ASSERT(reporter, tArray[0] == 1);
+    REPORTER_ASSERT(reporter, tArray[1] == 2);
+    REPORTER_ASSERT(reporter, tArray[2] == 3);
+    REPORTER_ASSERT(reporter, arrayCopy.size() == 3);
+    REPORTER_ASSERT(reporter, arrayCopy[0] == 1);
+    REPORTER_ASSERT(reporter, arrayCopy[1] == 2);
+    REPORTER_ASSERT(reporter, arrayCopy[2] == 3);
+
+    // Assignment from SkTArray.
+    STARRAY arrayAssignment;
+    arrayAssignment = tArray;
+    REPORTER_ASSERT(reporter, tArray.size() == 3);
+    REPORTER_ASSERT(reporter, tArray[0] == 1);
+    REPORTER_ASSERT(reporter, tArray[1] == 2);
+    REPORTER_ASSERT(reporter, tArray[2] == 3);
+    REPORTER_ASSERT(reporter, arrayAssignment.size() == 3);
+    REPORTER_ASSERT(reporter, arrayAssignment[0] == 1);
+    REPORTER_ASSERT(reporter, arrayAssignment[1] == 2);
+    REPORTER_ASSERT(reporter, arrayAssignment[2] == 3);
+
+    // Move construction from SkTArray.
+    STARRAY arrayMove(std::move(tArray));
+    REPORTER_ASSERT(reporter, tArray.empty()); // NOLINT(bugprone-use-after-move)
+    REPORTER_ASSERT(reporter, arrayMove.size() == 3);
+    REPORTER_ASSERT(reporter, arrayMove[0] == 1);
+    REPORTER_ASSERT(reporter, arrayMove[1] == 2);
+    REPORTER_ASSERT(reporter, arrayMove[2] == 3);
+
+    // Move assignment from SkTArray.
+    STARRAY arrayMoveAssign;
+    arrayMoveAssign = std::move(tArray2);
+    REPORTER_ASSERT(reporter, tArray2.empty()); // NOLINT(bugprone-use-after-move)
+    REPORTER_ASSERT(reporter, arrayMoveAssign.size() == 3);
+    REPORTER_ASSERT(reporter, arrayMoveAssign[0] == 1);
+    REPORTER_ASSERT(reporter, arrayMoveAssign[1] == 2);
+    REPORTER_ASSERT(reporter, arrayMoveAssign[2] == 3);
+}
+
 template <typename T> static void test_swap(skiatest::Reporter* reporter,
                                             SkTArray<T>* (&arrays)[4],
                                             int (&sizes)[7])
@@ -306,9 +356,11 @@ DEF_TEST(TArray, reporter) {
 
     test_construction<SkTArray<int>>(reporter);
     test_construction<SkTArray<double>>(reporter);
-#ifndef __GNUC__  // TODO(skbug.com/10891): SkSTArray generates bad code in GCC -fstrict-aliasing
     test_construction<SkSTArray<1, int>>(reporter);
     test_construction<SkSTArray<5, char>>(reporter);
     test_construction<SkSTArray<10, float>>(reporter);
-#endif
+
+    test_skstarray_compatibility_with_sktarray<SkSTArray<1, int>, SkTArray<int>>(reporter);
+    test_skstarray_compatibility_with_sktarray<SkSTArray<5, char>, SkTArray<char>>(reporter);
+    test_skstarray_compatibility_with_sktarray<SkSTArray<10, float>, SkTArray<float>>(reporter);
 }
