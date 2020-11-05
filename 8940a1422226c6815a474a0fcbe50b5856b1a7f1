@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7424f700_9246cb30",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-05T19:47:56Z",
+      "side": 1,
+      "message": "GLSL ES 1.00 is the shading language version for OpenGL ES 2.0 (confusing, I know).",
+      "parentUuid": "f0eb7e22_f9fbe7e1",
+      "range": {
+        "startLine": 12,
+        "startChar": 67,
+        "endLine": 12,
+        "endChar": 79
+      },
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9230c49b_7661494c",
