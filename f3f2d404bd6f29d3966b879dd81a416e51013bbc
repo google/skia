@@ -66,6 +66,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bff931de_0080ddab",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T20:31:59Z",
+      "side": 1,
+      "message": "You know what?  Let\u0027s double down on this idea and make them functions wherever you use them instead of putting them in SkVx.h.  I still feel uneasy about providing methods like this that strongly favor one architecture over others.  If we promote load2/load4, people will think they\u0027re a good idea to use in general, where they\u0027re really a last resort for when you can\u0027t rearrange your data, or if you want to favor ARM and don\u0027t mind handicapping all other architectures.",
+      "parentUuid": "19ccf66a_65380067",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 5
+      },
+      "revId": "f3f2d404bd6f29d3966b879dd81a416e51013bbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "82eb5503_19336789",
         "filename": "include/private/SkVx.h",
         "patchSetId": 2
