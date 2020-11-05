@@ -37,6 +37,8 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
+    virtual bool requiresExplicitCleanup() const { return false; }
+
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
@@ -129,6 +131,8 @@ protected:
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
     friend class GrDrawingManager;
+    friend class GrDDLTask; // for onIsUsed
+
 
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the

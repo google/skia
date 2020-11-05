@@ -18,6 +18,7 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
+#include "src/gpu/GrDDLTask.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -37,7 +38,6 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrTransferFromRenderTask.h"
-#include "src/gpu/GrUnrefDDLTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrSDFTOptions.h"
@@ -675,9 +675,9 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
 
     fDAG.add(ddl->fRenderTasks);
 
-    // Add a task to unref the DDL after flush.
-    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
-    unrefTask->makeClosed(*fContext->priv().caps());
+    // Add a task to handle drawing and lifetime management of the DDL.
+    GrRenderTask* ddlTask = fDAG.add(sk_make_sp<GrDDLTask>(this, sk_ref_sp(newDest), std::move(ddl)));
+    ddlTask->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());
 }
