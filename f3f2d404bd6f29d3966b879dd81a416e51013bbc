@@ -16,6 +16,75 @@
       "message": "Here\u0027s a test program I hacked together to compare disassembly between svkx Load4 and Sk4f::Load4:\n\n  // #define NX\n  #ifdef NX\n  #include \u003ccmath\u003e\n  using SkScalar \u003d float;\n  #include \"include/core/SkTypes.h\"\n  #include \"include/private/SkNx.h\"\n  using float4 \u003d Sk4f;\n  #else\n  #include \"include/private/SkVx.h\"\n  using float4 \u003d skvx::Vec\u003c4,float\u003e;\n  #endif\n  \n  #include \u003ccstdio\u003e\n  \n  \n  int main(int argc, const char** argv) {\n      float4 a,b,c,d;\n  #ifdef NX\n      float4::Load4(argv[0],\u0026a,\u0026b,\u0026c,\u0026d);\n  #else\n      float4::Load4(argv[0],a,b,c,d);\n  #endif\n      a \u003d a+b+c+d;\n      printf(\"hello world %f %f %f %f\\n\", a[0], a[1], a[2], a[3]);\n  }\n\n\nDisassembly of SkVx:\n\n0000000000000000 _main:\n       0: 55                           \tpushq\t%rbp\n       1: 48 89 e5                     \tmovq\t%rsp, %rbp\n       4: 48 8b 06                     \tmovq\t(%rsi), %rax\n       7: f3 0f 10 08                  \tmovss\t(%rax), %xmm1\n       b: f3 0f 10 50 04               \tmovss\t4(%rax), %xmm2\n      10: f3 0f 10 40 08               \tmovss\t8(%rax), %xmm0\n      15: f3 0f 10 58 0c               \tmovss\t12(%rax), %xmm3\n      1a: 66 0f 3a 21 48 10 10         \tinsertps\t$16, 16(%rax), %xmm1\n      21: 66 0f 3a 21 48 20 20         \tinsertps\t$32, 32(%rax), %xmm1\n      28: 66 0f 3a 21 48 30 30         \tinsertps\t$48, 48(%rax), %xmm1\n      2f: 66 0f 3a 21 50 14 10         \tinsertps\t$16, 20(%rax), %xmm2\n      36: 66 0f 3a 21 50 24 20         \tinsertps\t$32, 36(%rax), %xmm2\n      3d: 66 0f 3a 21 50 34 30         \tinsertps\t$48, 52(%rax), %xmm2\n      44: 66 0f 3a 21 40 18 10         \tinsertps\t$16, 24(%rax), %xmm0\n      4b: 66 0f 3a 21 40 28 20         \tinsertps\t$32, 40(%rax), %xmm0\n      52: 66 0f 3a 21 40 38 30         \tinsertps\t$48, 56(%rax), %xmm0\n      59: 0f 58 d1                     \taddps\t%xmm1, %xmm2\n      5c: 0f 58 c2                     \taddps\t%xmm2, %xmm0\n      5f: 66 0f 3a 21 58 1c 10         \tinsertps\t$16, 28(%rax), %xmm3\n      66: 66 0f 3a 21 58 2c 20         \tinsertps\t$32, 44(%rax), %xmm3\n      6d: 66 0f 3a 21 58 3c 30         \tinsertps\t$48, 60(%rax), %xmm3\n      74: 0f 58 d8                     \taddps\t%xmm0, %xmm3\n      77: 0f 57 c0                     \txorps\t%xmm0, %xmm0\n      7a: f3 0f 5a c3                  \tcvtss2sd\t%xmm3, %xmm0\n      7e: f3 0f 16 cb                  \tmovshdup\t%xmm3, %xmm1\n      82: f3 0f 5a c9                  \tcvtss2sd\t%xmm1, %xmm1\n      86: 0f 28 d3                     \tmovaps\t%xmm3, %xmm2\n      89: 66 0f 15 d3                  \tunpckhpd\t%xmm3, %xmm2\n      8d: f3 0f 5a d2                  \tcvtss2sd\t%xmm2, %xmm2\n      91: 0f c6 db e7                  \tshufps\t$231, %xmm3, %xmm3\n      95: f3 0f 5a db                  \tcvtss2sd\t%xmm3, %xmm3\n      99: 48 8d 3d 0b 00 00 00         \tleaq\t11(%rip), %rdi\n      a0: b0 04                        \tmovb\t$4, %al\n      a2: e8 00 00 00 00               \tcallq\t0 \u003c_main+0xa7\u003e\n      a7: 31 c0                        \txorl\t%eax, %eax\n      a9: 5d                           \tpopq\t%rbp\n      aa: c3                           \tretq\n\n\n\nDisassembly of Sk4f:\n\n0000000000000000 _main:\n       0: 55                           \tpushq\t%rbp\n       1: 48 89 e5                     \tmovq\t%rsp, %rbp\n       4: 48 8b 06                     \tmovq\t(%rsi), %rax\n       7: 0f 10 00                     \tmovups\t(%rax), %xmm0\n       a: 0f 10 48 10                  \tmovups\t16(%rax), %xmm1\n       e: 0f 10 58 20                  \tmovups\t32(%rax), %xmm3\n      12: 0f 10 50 30                  \tmovups\t48(%rax), %xmm2\n      16: 0f 28 e0                     \tmovaps\t%xmm0, %xmm4\n      19: 0f 14 e1                     \tunpcklps\t%xmm1, %xmm4\n      1c: 0f 28 eb                     \tmovaps\t%xmm3, %xmm5\n      1f: 0f 14 ea                     \tunpcklps\t%xmm2, %xmm5\n      22: 0f 15 c1                     \tunpckhps\t%xmm1, %xmm0\n      25: 0f 15 da                     \tunpckhps\t%xmm2, %xmm3\n      28: 0f 28 cc                     \tmovaps\t%xmm4, %xmm1\n      2b: 0f 16 cd                     \tmovlhps\t%xmm5, %xmm1\n      2e: 0f 12 ec                     \tmovhlps\t%xmm4, %xmm5\n      31: 0f 58 e9                     \taddps\t%xmm1, %xmm5\n      34: 0f 28 c8                     \tmovaps\t%xmm0, %xmm1\n      37: 0f 16 cb                     \tmovlhps\t%xmm3, %xmm1\n      3a: 0f 58 cd                     \taddps\t%xmm5, %xmm1\n      3d: 0f 12 d8                     \tmovhlps\t%xmm0, %xmm3\n      40: 0f 58 d9                     \taddps\t%xmm1, %xmm3\n      43: 0f 57 c0                     \txorps\t%xmm0, %xmm0\n      46: f3 0f 5a c3                  \tcvtss2sd\t%xmm3, %xmm0\n      4a: f3 0f 16 cb                  \tmovshdup\t%xmm3, %xmm1\n      4e: f3 0f 5a c9                  \tcvtss2sd\t%xmm1, %xmm1\n      52: 0f 28 d3                     \tmovaps\t%xmm3, %xmm2\n      55: 66 0f 15 d3                  \tunpckhpd\t%xmm3, %xmm2\n      59: f3 0f 5a d2                  \tcvtss2sd\t%xmm2, %xmm2\n      5d: 0f c6 db e7                  \tshufps\t$231, %xmm3, %xmm3\n      61: f3 0f 5a db                  \tcvtss2sd\t%xmm3, %xmm3\n      65: 48 8d 3d 0b 00 00 00         \tleaq\t11(%rip), %rdi\n      6c: b0 04                        \tmovb\t$4, %al\n      6e: e8 00 00 00 00               \tcallq\t0 \u003c_main+0x73\u003e\n      73: 31 c0                        \txorl\t%eax, %eax\n      75: 5d                           \tpopq\t%rbp\n      76: c3                           \tretq\n",
       "revId": "f3f2d404bd6f29d3966b879dd81a416e51013bbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6c8b3eb_b5a20976",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T19:48:59Z",
+      "side": 1,
+      "message": "I find this sort of code easier to read if you write this as ptr + 0*sizeof(Vec)/2, so that all analogous parts line up in columns.",
+      "range": {
+        "startLine": 92,
+        "startChar": 26,
+        "endLine": 92,
+        "endChar": 29
+      },
+      "revId": "f3f2d404bd6f29d3966b879dd81a416e51013bbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19ccf66a_65380067",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T19:48:59Z",
+      "side": 1,
+      "message": "Let\u0027s make these freestanding functions instead of methods?",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 5
+      },
+      "revId": "f3f2d404bd6f29d3966b879dd81a416e51013bbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82eb5503_19336789",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-05T19:48:59Z",
+      "side": 1,
+      "message": "similarly, I\u0027d prefer that we write\n\n   a \u003d Load(ptr + 0*sizeof(T));\n   b \u003d Load(ptr + 1*sizeof(T));\n   c \u003d Load(ptr + 2*sizeof(T));\n   d \u003d Load(ptr + 3*sizeof(T));",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 36
+      },
+      "revId": "f3f2d404bd6f29d3966b879dd81a416e51013bbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
