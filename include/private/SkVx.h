@@ -87,6 +87,16 @@ struct alignas(N*sizeof(T)) Vec {
         memcpy(&v, ptr, sizeof(Vec));
         return v;
     }
+    SKVX_ALWAYS_INLINE static void Load2(const void* v, Vec& a, Vec& b) {
+        auto ptr = (const char*)v;
+        Vec<N/2,T>::Load2(ptr, a.lo, b.lo);
+        Vec<N/2,T>::Load2(ptr + 2*sizeof(Vec)/2, a.hi, b.hi);
+    }
+    SKVX_ALWAYS_INLINE static void Load4(const void* v, Vec& a, Vec& b, Vec& c, Vec& d) {
+        auto ptr = (const char*)v;
+        Vec<N/2,T>::Load4(ptr, a.lo, b.lo, c.lo, d.lo);
+        Vec<N/2,T>::Load4(ptr + 4*sizeof(Vec)/2, a.hi, b.hi, c.hi, d.hi);
+    }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
         memcpy(ptr, this, sizeof(Vec));
     }
@@ -111,6 +121,18 @@ struct Vec<1,T> {
         Vec v;
         memcpy(&v, ptr, sizeof(Vec));
         return v;
+    }
+    SKVX_ALWAYS_INLINE static void Load2(const void* v, Vec& a, Vec& b) {
+        auto ptr = (const char*)v;
+        a = Load(ptr);
+        b = Load(ptr + sizeof(T));
+    }
+    SKVX_ALWAYS_INLINE static void Load4(const void* v, Vec& a, Vec& b, Vec& c, Vec& d) {
+        auto ptr = (const char*)v;
+        a = Load(ptr);
+        b = Load(ptr + sizeof(T));
+        c = Load(ptr + sizeof(T)*2);
+        d = Load(ptr + sizeof(T)*3);
     }
     SKVX_ALWAYS_INLINE void store(void* ptr) const {
         memcpy(ptr, this, sizeof(Vec));
@@ -667,6 +689,56 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         return cast<uint16_t>(x)
              * cast<uint16_t>(y);
     }
+#endif
+
+// Specialize strided loads for NEON.
+#if !defined(SKNX_NO_SIMD) && defined(__ARM_NEON)
+    #define IMPL_LOAD2_TRANSPOSED(N, T, VLD) \
+        template<> inline SKVX_ALWAYS_INLINE void Vec<N,T>::Load2(const void* v, Vec& a, Vec& b) { \
+            auto mat = VLD((const T*)v); \
+            a = bit_pun<Vec>(mat.val[0]); \
+            b = bit_pun<Vec>(mat.val[1]); \
+        }
+    IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32);
+    IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16);
+    IMPL_LOAD2_TRANSPOSED(8, uint8_t, vld2_u8);
+    IMPL_LOAD2_TRANSPOSED(2, int32_t, vld2_s32);
+    IMPL_LOAD2_TRANSPOSED(4, int16_t, vld2_s16);
+    IMPL_LOAD2_TRANSPOSED(8, int8_t, vld2_s8);
+    IMPL_LOAD2_TRANSPOSED(2, float, vld2_f32);
+    IMPL_LOAD2_TRANSPOSED(4, uint32_t, vld2q_u32);
+    IMPL_LOAD2_TRANSPOSED(8, uint16_t, vld2q_u16);
+    IMPL_LOAD2_TRANSPOSED(16, uint8_t, vld2q_u8);
+    IMPL_LOAD2_TRANSPOSED(4, int32_t, vld2q_s32);
+    IMPL_LOAD2_TRANSPOSED(8, int16_t, vld2q_s16);
+    IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8);
+    IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32);
+    #undef IMPL_LOAD2_TRANSPOSED
+
+    #define IMPL_LOAD4_TRANSPOSED(N, T, VLD) \
+        template<> inline SKVX_ALWAYS_INLINE void Vec<N,T>::Load4(const void* v, Vec& a, Vec& b, \
+                                                                  Vec& c, Vec& d) { \
+            auto mat = VLD((const T*)v); \
+            a = bit_pun<Vec>(mat.val[0]); \
+            b = bit_pun<Vec>(mat.val[1]); \
+            c = bit_pun<Vec>(mat.val[2]); \
+            d = bit_pun<Vec>(mat.val[3]); \
+        }
+    IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32);
+    IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16);
+    IMPL_LOAD4_TRANSPOSED(8, uint8_t, vld4_u8);
+    IMPL_LOAD4_TRANSPOSED(2, int32_t, vld4_s32);
+    IMPL_LOAD4_TRANSPOSED(4, int16_t, vld4_s16);
+    IMPL_LOAD4_TRANSPOSED(8, int8_t, vld4_s8);
+    IMPL_LOAD4_TRANSPOSED(2, float, vld4_f32);
+    IMPL_LOAD4_TRANSPOSED(4, uint32_t, vld4q_u32);
+    IMPL_LOAD4_TRANSPOSED(8, uint16_t, vld4q_u16);
+    IMPL_LOAD4_TRANSPOSED(16, uint8_t, vld4q_u8);
+    IMPL_LOAD4_TRANSPOSED(4, int32_t, vld4q_s32);
+    IMPL_LOAD4_TRANSPOSED(8, int16_t, vld4q_s16);
+    IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8);
+    IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32);
+    #undef IMPL_LOAD4_TRANSPOSED
 #endif
 
 }  // namespace skvx
