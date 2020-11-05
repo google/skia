@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad104d3f_40d50229",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1914,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T17:28:37Z",
+      "side": 1,
+      "message": "Optional: Rather than duplicating all of this code, what do you think about making this a macro so that floats and ints could share the same implementation? You\u0027d have to provide SKSL_INT/SKSL_FLOAT, IntLiteral/FloatLiteral, and getIVecComponent/getFVecComponent as parameters, but I think it might be better than just wholesale copying the implementation.",
+      "range": {
+        "startLine": 1887,
+        "startChar": 0,
+        "endLine": 1914,
+        "endChar": 9
+      },
+      "revId": "b1f341b961f56f07d78d46462f0d02a3607e1427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
