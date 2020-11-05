@@ -1836,46 +1836,82 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     const Type& leftType = left.type();
     const Type& rightType = right.type();
-    if (leftType.typeKind() == Type::TypeKind::kVector && leftType.componentType().isFloat() &&
-        leftType == rightType) {
-        ExpressionArray args;
-        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                             \
-            for (int i = 0; i < leftType.columns(); i++) {                                      \
-                SKSL_FLOAT value = left.getFVecComponent(i) op right.getFVecComponent(i);       \
-                args.push_back(std::make_unique<FloatLiteral>(fContext, left.fOffset, value));  \
-            }                                                                                   \
-            return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args))
-        switch (op) {
-            case Token::Kind::TK_EQEQ:
-                if (left.kind() == right.kind()) {
-                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                         left.compareConstant(fContext, right));
-                }
-                return nullptr;
-            case Token::Kind::TK_NEQ:
-                if (left.kind() == right.kind()) {
-                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                         !left.compareConstant(fContext, right));
-                }
-                return nullptr;
-            case Token::Kind::TK_PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
-            case Token::Kind::TK_MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
-            case Token::Kind::TK_STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
-            case Token::Kind::TK_SLASH:
-                for (int i = 0; i < leftType.columns(); i++) {
-                    SKSL_FLOAT rvalue = right.getFVecComponent(i);
-                    if (rvalue == 0.0) {
-                        fErrors.error(right.fOffset, "division by zero");
-                        return nullptr;
-                    }
-                    SKSL_FLOAT value = left.getFVecComponent(i) / rvalue;
-                    args.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, value));
-                }
-                return std::make_unique<Constructor>(/*offset=*/-1, &leftType, std::move(args));
-            default:
-                return nullptr;
+    if (leftType.typeKind() == Type::TypeKind::kVector && leftType == rightType) {
+        // Handle boolean operations: == !=
+        if (op == Token::Kind::TK_EQEQ) {
+            if (left.kind() == right.kind()) {
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
+                                                     left.compareConstant(fContext, right));
+            }
+            return nullptr;
         }
-        #undef RETURN_VEC_COMPONENTWISE_RESULT
+        if (op == Token::Kind::TK_NEQ) {
+            if (left.kind() == right.kind()) {
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
+                                                     !left.compareConstant(fContext, right));
+            }
+            return nullptr;
+        }
+
+        // Handle floating-point arithmetic: + - * /
+        ExpressionArray args;
+        if (leftType.componentType().isFloat()) {
+            #define RETURN_FLOAT_VEC_COMPONENTWISE_RESULT(op)                                      \
+                for (int i = 0; i < leftType.columns(); i++) {                                     \
+                    SKSL_FLOAT value = left.getFVecComponent(i) op right.getFVecComponent(i);      \
+                    args.push_back(std::make_unique<FloatLiteral>(fContext, left.fOffset, value)); \
+                }                                                                                  \
+                return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args))
+            switch (op) {
+                case Token::Kind::TK_PLUS:  RETURN_FLOAT_VEC_COMPONENTWISE_RESULT(+);
+                case Token::Kind::TK_MINUS: RETURN_FLOAT_VEC_COMPONENTWISE_RESULT(-);
+                case Token::Kind::TK_STAR:  RETURN_FLOAT_VEC_COMPONENTWISE_RESULT(*);
+                case Token::Kind::TK_SLASH:
+                    for (int i = 0; i < leftType.columns(); i++) {
+                        SKSL_FLOAT rvalue = right.getFVecComponent(i);
+                        if (rvalue == 0.0) {
+                            fErrors.error(right.fOffset, "division by zero");
+                            return nullptr;
+                        }
+                        SKSL_FLOAT value = left.getFVecComponent(i) / rvalue;
+                        args.push_back(std::make_unique<FloatLiteral>(fContext, left.fOffset,
+                                                                      value));
+                    }
+                    return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args));
+                default:
+                    return nullptr;
+            }
+            #undef RETURN_FLOAT_VEC_COMPONENTWISE_RESULT
+        }
+
+        // Handle integer arithmetic: + - * /
+        if (leftType.componentType().isInteger()) {
+            #define RETURN_INT_VEC_COMPONENTWISE_RESULT(op)                                       \
+                for (int i = 0; i < leftType.columns(); i++) {                                    \
+                    SKSL_INT value = left.getIVecComponent(i) op right.getIVecComponent(i);       \
+                    args.push_back(std::make_unique<IntLiteral>(fContext, left.fOffset, value));  \
+                }                                                                                 \
+                return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args))
+            switch (op) {
+                case Token::Kind::TK_PLUS:  RETURN_INT_VEC_COMPONENTWISE_RESULT(+);
+                case Token::Kind::TK_MINUS: RETURN_INT_VEC_COMPONENTWISE_RESULT(-);
+                case Token::Kind::TK_STAR:  RETURN_INT_VEC_COMPONENTWISE_RESULT(*);
+                case Token::Kind::TK_SLASH:
+                    for (int i = 0; i < leftType.columns(); i++) {
+                        SKSL_INT rvalue = right.getIVecComponent(i);
+                        if (rvalue == 0) {
+                            fErrors.error(right.fOffset, "division by zero");
+                            return nullptr;
+                        }
+                        SKSL_INT value = left.getIVecComponent(i) / rvalue;
+                        args.push_back(std::make_unique<IntLiteral>(fContext, left.fOffset, value));
+                    }
+                    return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args));
+                default:
+                    return nullptr;
+            }
+            #undef RETURN_INT_VEC_COMPONENTWISE_RESULT
+        }
     }
     if (leftType.typeKind() == Type::TypeKind::kMatrix &&
         rightType.typeKind() == Type::TypeKind::kMatrix &&
