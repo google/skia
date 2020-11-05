@@ -8,6 +8,7 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
+#include "src/gpu/GrTBlockList.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/text/GrTextBlob.h"
@@ -19,8 +20,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (int i = 0; i < fGeoCount; i++) {
-            fGeoData[i].fBlob->unref();
+        for (const auto& g : fGeometries.items()) {
+            g.fBlob->unref();
         }
     }
 
@@ -76,9 +77,6 @@ public:
 
 private:
     friend class GrOp; // for ctor
-
-    // The minimum number of Geometry we will try to allocate.
-    static constexpr auto kMinGeometryAllocated = 12;
 
     GrAtlasTextOp(MaskType maskType,
                   bool needsTransform,
@@ -181,9 +179,13 @@ private:
                                           const GrSurfaceProxyView* views,
                                           unsigned int numActiveViews) const;
 
-    SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
-    int fGeoCount;
-    int fGeoDataAllocSize;
+    // The minimum number of Geometry we will try to allocate as ops are merged together.
+    // The atlas text op holds one Geometry inline. When combined with the linear growth policy,
+    // the total number of geometries follows 6, 18, 36, 60, 90 (the deltas are 6*n).
+    static constexpr auto kMinGeometryAllocated = 6;
+
+    GrTBlockList<Geometry> fGeometries{kMinGeometryAllocated,
+                                       GrBlockAllocator::GrowthPolicy::kLinear};
 
     GrProcessorSet fProcessors;
     int fNumGlyphs; // Sum of glyphs in each geometry's subrun
