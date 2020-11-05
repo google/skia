@@ -57,6 +57,24 @@
       "parentUuid": "f4461003_775a2b72",
       "revId": "b8a6fcb45e672d2866810aa1b7d6ce73fad34956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "749c6c65_e9e5425a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T19:38:12Z",
+      "side": 1,
+      "message": "At one point I did do an experiment with a kind-of fused hybrid SkTArray + SkSTArray class called SkInlinedVector. Combining the classes allowed me to save memory by unioning `fStorage` on top of the space used by `fItemArray/fReserved/fAllocCount`, since in \"stack mode\" we don\u0027t need these things. This gave us 12 extra bytes when in stack mode \"for free.\" But it\u0027s a challenge to do this without adding complexity to very common paths like operator[]. I never got it to a point where I felt like it was ready to be full no-compromise replacement for SkTArray and eventually I moved on from the idea. But the concept has definitely got potential! I\u0027m glad to see someone else independently arrive there.",
+      "parentUuid": "18a675ad_3356d9c8",
+      "revId": "b8a6fcb45e672d2866810aa1b7d6ce73fad34956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
