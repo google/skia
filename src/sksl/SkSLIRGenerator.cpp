@@ -2989,7 +2989,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     }
 
     Parser parser(text, length, *fSymbolTable, fErrors);
-    fFile = parser.file();
+    fFile = parser.compilationUnit();
     if (fErrors.errorCount()) {
         return {};
     }
