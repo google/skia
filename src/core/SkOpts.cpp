@@ -111,6 +111,7 @@ namespace SkOpts {
     void Init_avx();
     void Init_hsw();
     void Init_skx();
+    void Init_erms();
     void Init_crc32();
 
     static void init() {
@@ -132,6 +133,8 @@ namespace SkOpts {
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SKX
             if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
         #endif
+
+        if (SkCpu::Supports(SkCpu::ERMS)) { Init_erms(); }
 
     #elif defined(SK_CPU_ARM64)
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
