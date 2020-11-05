@@ -43,10 +43,6 @@ public:
     bool parseFontWeight(SkSVGFontWeight*);
     bool parseTextAnchor(SkSVGTextAnchor*);
 
-    bool parseEOSToken();
-    bool parseCommaWspToken();
-    bool parseExpectedStringToken(const char*);
-
     // TODO: Migrate all parse*() functions to this style (and delete the old version)
     //      so they can be used by parse<T>():
     bool parse(SkSVGNumberType* v) { return parseNumber(v); }
@@ -57,27 +53,17 @@ public:
     template <typename T>
     static ParseResult<T> parse(const char* expectedName,
                                 const char* name,
-                                const char* value,
-                                bool (*parseFnc)(const char*, T*)) {
-        if (strcmp(name, expectedName) != 0) {
-            return ParseResult<T>();
+                                const char* value) {
+        ParseResult<T> result;
+
+        if (!strcmp(name, expectedName)) {
+            T parsedValue;
+            if (SkSVGAttributeParser(value).parse(&parsedValue)) {
+                result.set(std::move(parsedValue));
+            }
         }
 
-        T parsedValue;
-        if (parseFnc(value, &parsedValue)) {
-            return ParseResult<T>(&parsedValue);
-        }
-
-        return ParseResult<T>();
-    }
-
-    template <typename T>
-    static ParseResult<T> parse(const char* expectedName, const char* name, const char* value) {
-        const auto parseFnc = +[](const char* str, T* v) {
-            SkSVGAttributeParser parser(str);
-            return parser.parse(v);
-        };
-        return parse(expectedName, name, value, parseFnc);
+        return result;
     }
 
 private:
@@ -85,11 +71,17 @@ private:
     void* operator new(size_t) = delete;
     void* operator new(size_t, void*) = delete;
 
+    template <typename T>
+    bool parse(T*);
+
     template <typename F>
     bool advanceWhile(F func);
 
     bool parseWSToken();
+    bool parseEOSToken();
     bool parseSepToken();
+    bool parseCommaWspToken();
+    bool parseExpectedStringToken(const char*);
     bool parseScalarToken(SkScalar*);
     bool parseInt32Token(int32_t*);
     bool parseHexToken(uint32_t*);
