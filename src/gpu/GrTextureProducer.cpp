@@ -58,7 +58,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createBicubicFragmentPro
         const SkRect* domain,
         GrSamplerState::WrapMode wrapX,
         GrSamplerState::WrapMode wrapY,
-        SkImage::CubicResampler kernel) {
+        SkCubicResampler kernel) {
     if (!view) {
         return nullptr;
     }

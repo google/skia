@@ -14,9 +14,9 @@
 
 class FilteringBench : public Benchmark {
 public:
-    FilteringBench(SkFilterOptions options) : fOptions(options) {
+    FilteringBench(SkFilterOptions filter) : fOptions(filter) {
         fName.printf("filteroptions_sampling_%d_mipmap_%d",
-                     (int)options.fSampling, (int)options.fMipmap);
+                     (int)filter.fSampling, (int)filter.fMipmap);
     }
 
 protected:
@@ -47,10 +47,10 @@ protected:
     }
 
 private:
-    SkString        fName;
-    SkRect          fRect;
-    sk_sp<SkShader> fShader;
-    SkFilterOptions fOptions;
+    SkString          fName;
+    SkRect            fRect;
+    sk_sp<SkShader>   fShader;
+    SkSamplingOptions fOptions;
 
     using INHERITED = Benchmark;
 };

@@ -35,11 +35,11 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
     const SkRect r = SkRect::MakeIWH(img->width(), img->height());
     SkPaint paint;
 
-    SkImage::CubicResampler cubics[] = {
-        {      0, 1.0f/2 },
-        { 1.0f/3, 1.0f/3 },
+    SkCubicResampler cubic[] = {
+        SkCubicResampler{      0, 1.0f/2 },
+        SkCubicResampler{ 1.0f/3, 1.0f/3 },
     };
-    for (auto c : cubics) {
+    for (auto c : cubic) {
         paint.setShader(img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, c));
         canvas->drawRect(r, paint);
         canvas->translate(0, img->height() + 1.0f);

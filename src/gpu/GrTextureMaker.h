@@ -27,7 +27,7 @@ public:
             const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
             GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler) override;
+            SkCubicResampler) override;
 
 protected:
     GrTextureMaker(GrRecordingContext* context, const GrImageInfo& info)
