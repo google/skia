@@ -153,7 +153,6 @@ private:
     SkScalar fMaxMinScale{-SK_ScalarMax};
     SkScalar fMinMaxScale{SK_ScalarMax};
 
-    bool fSomeGlyphsExcluded{false};
     SkTInternalLList<GrSubRun> fSubRunList;
     SkArenaAlloc fAlloc;
 };
@@ -254,18 +253,13 @@ public:
 
 // -- GrGlyphVector --------------------------------------------------------------------------------
 class GrGlyphVector {
-public:
     union Variant {
         // Initially, filled with packed id, but changed to GrGlyph* in the onPrepare stage.
         SkPackedGlyphID packedGlyphID;
         GrGlyph* grGlyph;
-        // Add ctors to help SkArenaAlloc create arrays.
-        Variant() : grGlyph{nullptr} {}
-        Variant(SkPackedGlyphID id) : packedGlyphID{id} {}
     };
 
-    GrGlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs);
-
+public:
     static GrGlyphVector Make(
             const SkStrikeSpec& spec, SkSpan<SkGlyphVariant> glyphs, SkArenaAlloc* alloc);
     SkSpan<const GrGlyph*> glyphs() const;
@@ -286,6 +280,8 @@ public:
     }
 
 private:
+    GrGlyphVector(const SkStrikeSpec& spec, SkSpan<Variant> glyphs);
+
     const SkStrikeSpec fStrikeSpec;
     SkSpan<Variant> fGlyphs;
     sk_sp<GrTextStrike> fStrike{nullptr};
@@ -296,15 +292,14 @@ private:
 // -- GrDirectMaskSubRun ---------------------------------------------------------------------------
 class GrDirectMaskSubRun final : public GrAtlasSubRun {
 public:
-    using DevicePosition = skvx::Vec<2, int16_t>;
+    using VertexData = SkIPoint;
 
     GrDirectMaskSubRun(GrMaskFormat format,
                        SkPoint residual,
                        GrTextBlob* blob,
                        const SkRect& bounds,
-                       SkSpan<const DevicePosition> devicePositions,
-                       GrGlyphVector glyphs,
-                       bool glyphsOutOfBounds);
+                       SkSpan<const VertexData> vertexData,
+                       GrGlyphVector glyphs);
 
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           const SkStrikeSpec& strikeSpec,
@@ -348,8 +343,7 @@ private:
     GrTextBlob* const fBlob;
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
-    const SkSpan<const DevicePosition> fLeftTopDevicePos;
-    const bool fSomeGlyphsExcluded;
+    const SkSpan<const VertexData> fVertexData;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
