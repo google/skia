@@ -8,8 +8,6 @@
 #include "src/gpu/GrBlockAllocator.h"
 #include "tests/Test.h"
 
-#include <cstring>
-
 using Block = GrBlockAllocator::Block;
 using GrowthPolicy = GrBlockAllocator::GrowthPolicy;
 
@@ -97,8 +95,7 @@ DEF_TEST(GrBlockAllocatorAlloc, r) {
     auto validate_ptr = [&](int align, int size,
                             GrBlockAllocator::ByteRange br,
                             GrBlockAllocator::ByteRange* prevBR) {
-        void* voidPtr = br.fBlock->ptr(br.fAlignedOffset);
-        uintptr_t pt = reinterpret_cast<uintptr_t>(voidPtr);
+        uintptr_t pt = reinterpret_cast<uintptr_t>(br.fBlock->ptr(br.fAlignedOffset));
         // Matches the requested align
         REPORTER_ASSERT(r, pt % align == 0);
         // And large enough
@@ -115,9 +112,6 @@ DEF_TEST(GrBlockAllocatorAlloc, r) {
                     reinterpret_cast<uintptr_t>(prevBR->fBlock->ptr(prevBR->fEnd - 1));
             REPORTER_ASSERT(r, pt > prevEnd);
         }
-
-        // And make sure the byte range is safe to write into
-        std::memset(voidPtr, 0xFF, br.fEnd - br.fStart);
     };
 
     auto p1 = pool->allocate<1>(14);
@@ -175,12 +169,10 @@ DEF_TEST(GrBlockAllocatorResize, r) {
     SkDEBUGCODE(pool->validate();)
 
     // Fixed resize from 16 to 32
-    GrBlockAllocator::ByteRange p = pool->allocate<4>(16);
+    auto p = pool->allocate<4>(16);
     REPORTER_ASSERT(r, p.fBlock->avail<4>() > 16);
     REPORTER_ASSERT(r, p.fBlock->resize(p.fStart, p.fEnd, 16));
     p.fEnd += 16;
-
-    std::memset(p.fBlock->ptr(p.fStart), 0x11, p.fEnd - p.fStart);
 
     // Subsequent allocation is 32 bytes ahead of 'p' now, and 'p' cannot be resized further.
     auto pNext = pool->allocate<4>(16);
@@ -195,8 +187,6 @@ DEF_TEST(GrBlockAllocatorResize, r) {
     REPORTER_ASSERT(r, p.fBlock->resize(p.fStart, p.fEnd, fillBlock));
     p.fEnd += fillBlock;
 
-    std::memset(p.fBlock->ptr(p.fStart), 0x22, p.fEnd - p.fStart);
-
     // Confirm that resizing when there's not enough room fails
     REPORTER_ASSERT(r, p.fBlock->avail<4>() < fillBlock);
     REPORTER_ASSERT(r, !p.fBlock->resize(p.fStart, p.fEnd, fillBlock));
@@ -206,8 +196,6 @@ DEF_TEST(GrBlockAllocatorResize, r) {
     REPORTER_ASSERT(r, p.fBlock->resize(p.fStart, p.fEnd, shrinkTo32));
     p.fEnd += shrinkTo32;
     REPORTER_ASSERT(r, p.fEnd - p.fStart == 32);
-
-    std::memset(p.fBlock->ptr(p.fStart), 0x33, p.fEnd - p.fStart);
 
     pNext = pool->allocate<4>(16);
     REPORTER_ASSERT(r, reinterpret_cast<uintptr_t>(pNext.fBlock->ptr(pNext.fAlignedOffset)) -
