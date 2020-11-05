@@ -50,12 +50,11 @@ static sk_sp<SkShader> make_shader(SkBlendMode mode) {
 }
 
 class ComposeShaderGM : public skiagm::GM {
-public:
-    ComposeShaderGM() {
+protected:
+    void onOnceBeforeDraw() override {
         fShader = make_shader(SkBlendMode::kDstIn);
     }
 
-protected:
     SkString onShortName() override {
         return SkString("composeshader");
     }
