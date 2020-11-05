@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a1535b0_bfa05978",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-05T18:16:42Z",
+      "side": 1,
+      "message": "filters-color-01-b still not quite passing, but closer with this CL.",
+      "revId": "bebae4723acc0bc030f2e05c52629702511f9a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
