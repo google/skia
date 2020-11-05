@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2914515_122c002e",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T16:54:07Z",
+      "side": 1,
+      "message": "Don\u0027t need this, right?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "197600dbf390b63ee9c796dd581c17940306945c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
