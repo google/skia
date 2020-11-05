@@ -19,7 +19,7 @@ public:
 
 #if SK_SUPPORT_GPU
     int numRenderTasks() const {
-        return fDDL->fRenderTasks.count();
+        return fDDL->fRenderTasks1.count();
     }
 
     GrRenderTargetProxy* targetProxy() const {
@@ -32,6 +32,10 @@ public:
 
     const SkTArray<GrRecordingContext::ProgramData>& programData() const {
         return fDDL->programData();
+    }
+
+    const SkTArray<sk_sp<GrRenderTask>>& renderTasks1() const {
+        return fDDL->fRenderTasks1;
     }
 #endif
 
