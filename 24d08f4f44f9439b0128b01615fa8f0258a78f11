@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f78e2db0_6f8f3579",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T14:55:15Z",
+      "side": 1,
+      "message": "This is going to be a little odd - the _glsl_ benches are going to run on different bots (the -GPU- ones) vs. the remaining benches. They\u0027re also going to run for multiple configs (gl, glmsaa, even vk or mtl). What if we stick to non-rendering_backend all the time, and just use default constructed GrShaderCaps?",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 9
+      },
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f0c1724_022a62ee",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T14:55:15Z",
+      "side": 1,
+      "message": "We should move this to onDelayedSetup. Having extra code in Benchmark constructors can make it hard to debug other benchmarks (because one of every benchmark is constructed at startup in nanobench).",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 64
+      },
+      "revId": "24d08f4f44f9439b0128b01615fa8f0258a78f11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
