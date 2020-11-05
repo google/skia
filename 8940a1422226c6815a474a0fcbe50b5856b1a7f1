@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aeb35203_f370f1e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-05T18:03:49Z",
+      "side": 1,
+      "message": "This essentially implements the re-organization described here: https://docs.google.com/document/d/1eOaw74wk15odh0ON0Oot3tTVyxHNYfLz3evS5WgOiSY/edit#heading\u003dh.azgy2wyahn0j\n\nThe next (follow-up) step is to fill out the remaining ES 1.00 intrinsics (or at least those included in the current Flutter shader spec), and test all of sksl_public.sksl on GPU, ByteCode interpreter, and SkVM. Some of the intrinsics there now already don\u0027t work on one or both of the CPU implementations.",
+      "revId": "8940a1422226c6815a474a0fcbe50b5856b1a7f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
