@@ -50,7 +50,7 @@ int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType)
     return this->caps()->maxRenderTargetSampleCount(format);
 }
 
-void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting) {
+void GrRecordingContext::setupDrawingManager(bool reduceOpsTaskSplitting) {
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -66,7 +66,6 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
 
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
-                                               sortOpsTasks,
                                                reduceOpsTaskSplitting));
 }
 

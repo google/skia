@@ -43,11 +43,6 @@
 #include "src/gpu/text/GrSDFTOptions.h"
 #include "src/image/SkSurface_Gpu.h"
 
-GrDrawingManager::RenderTaskDAG::RenderTaskDAG(bool sortRenderTasks)
-        : fSortRenderTasks(sortRenderTasks) {}
-
-GrDrawingManager::RenderTaskDAG::~RenderTaskDAG() {}
-
 void GrDrawingManager::RenderTaskDAG::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
     idArray->reset(fRenderTasks.count());
     for (int i = 0; i < fRenderTasks.count(); ++i) {
@@ -111,10 +106,9 @@ void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* render
 }
 
 void GrDrawingManager::RenderTaskDAG::prepForFlush() {
-    if (fSortRenderTasks) {
-        SkDEBUGCODE(bool result =) SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(
-                &fRenderTasks);
-        SkASSERT(result);
+    if (!SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fRenderTasks)) {
+        SkDEBUGFAIL("Render task topo sort failed.");
+        return;
     }
 
 #ifdef SK_DEBUG
@@ -146,11 +140,9 @@ void GrDrawingManager::RenderTaskDAG::closeAll(const GrCaps* caps) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
-                                   bool sortRenderTasks,
                                    bool reduceOpsTaskSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
-        , fDAG(sortRenderTasks)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushing(false)
@@ -684,7 +676,7 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
 
 #ifdef SK_DEBUG
 void GrDrawingManager::validate() const {
-    if (fDAG.sortingRenderTasks() && fReduceOpsTaskSplitting) {
+    if (fReduceOpsTaskSplitting) {
         SkASSERT(!fActiveOpsTask);
     } else {
         if (fActiveOpsTask) {
@@ -711,7 +703,7 @@ void GrDrawingManager::validate() const {
 #endif
 
 void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) {
-    if (target && fDAG.sortingRenderTasks() && fReduceOpsTaskSplitting) {
+    if (target && fReduceOpsTaskSplitting) {
         // In this case we need to close all the renderTasks that rely on the current contents of
         // 'target'. That is bc we're going to update the content of the proxy so they need to be
         // split in case they use both the old and new content. (This is a bit of an overkill: they
@@ -746,7 +738,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     if (managedOpsTask) {
         fDAG.add(opsTask);
 
-        if (!fDAG.sortingRenderTasks() || !fReduceOpsTaskSplitting) {
+        if (!fReduceOpsTaskSplitting) {
             fActiveOpsTask = opsTask.get();
         }
     }

@@ -130,12 +130,7 @@ private:
     // renderTasks.
     class RenderTaskDAG {
     public:
-        RenderTaskDAG(bool sortRenderTasks);
-        ~RenderTaskDAG();
-
-        // Currently, when explicitly allocating resources, this call will topologically sort the
-        // GrRenderTasks.
-        // MDB TODO: remove once incremental GrRenderTask sorting is enabled
+        // This call will topologically sort the GrRenderTasks.
         void prepForFlush();
 
         void closeAll(const GrCaps* caps);
@@ -167,16 +162,12 @@ private:
 
         void swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks);
 
-        bool sortingRenderTasks() const { return fSortRenderTasks; }
-
     private:
         SkTArray<sk_sp<GrRenderTask>> fRenderTasks;
-        bool                          fSortRenderTasks;
     };
 
     GrDrawingManager(GrRecordingContext*,
                      const GrPathRendererChain::Options&,
-                     bool sortRenderTasks,
                      bool reduceOpsTaskSplitting);
 
     bool wasAbandoned() const;

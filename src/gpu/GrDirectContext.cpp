@@ -219,7 +219,7 @@ bool GrDirectContext::init() {
         reduceOpsTaskSplitting = true;
     }
 
-    this->setupDrawingManager(true, reduceOpsTaskSplitting);
+    this->setupDrawingManager(reduceOpsTaskSplitting);
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||

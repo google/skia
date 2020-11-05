@@ -37,9 +37,8 @@ private:
             return false;
         }
 
-        // DDL contexts/drawing managers always sort the oplists and attempt to reduce opsTask
-        // splitting.
-        this->setupDrawingManager(true, true);
+        // DDL contexts/drawing managers always attempt to reduce opsTask splitting.
+        this->setupDrawingManager(/* reduceOpsTaskSplitting */true);
 
         return true;
     }
