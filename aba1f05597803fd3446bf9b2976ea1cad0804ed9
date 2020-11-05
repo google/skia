@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e95868dd_aa7182ba",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T16:04:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f84e1d9_08ece965",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be102059_a53cbf43",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e88c0b4_dc306622",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T16:04:06Z",
+      "side": 1,
+      "message": "compilationUnit()\u0027s probably better.",
+      "parentUuid": "be102059_a53cbf43",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 26
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba231ede_860da683",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-05T15:28:59Z",
       "side": 1,
       "message": "tiny nit--this could be even more const:\n\n   static constexpr char name ## _SRC[] \u003d text;",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76fa57c0_a76c229f",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-05T16:04:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba231ede_860da683",
       "range": {
         "startLine": 152,
         "startChar": 0,
