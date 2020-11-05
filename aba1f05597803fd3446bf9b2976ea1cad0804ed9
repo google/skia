@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f84e1d9_08ece965",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T15:28:59Z",
+      "side": 1,
+      "message": "Tiny nit--this can be simplified to:\n\n    SK_ABORT(\"%s\\nshader compilation failed\", fCompiler.errorText().c_str());",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 0
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be102059_a53cbf43",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T15:28:59Z",
+      "side": 1,
+      "message": "tiny nit: This function is very weirdly named IMO",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 131,
+        "endChar": 26
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba231ede_860da683",
+        "filename": "bench/SkSLBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T15:28:59Z",
+      "side": 1,
+      "message": "tiny nit--this could be even more const:\n\n   static constexpr char name ## _SRC[] \u003d text;",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 43
+      },
+      "revId": "aba1f05597803fd3446bf9b2976ea1cad0804ed9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
