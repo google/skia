@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e11d1d0d_c8cd0448",
+        "filename": "src/sksl/ir/SkSLPrefixExpression.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T01:56:00Z",
+      "side": 1,
+      "message": "Constructor already referenced PrefixExpression, so now that I wanted PrefixExpression to also reference Constructor, it made sense to move it out of the header.",
+      "range": {
+        "startLine": 62,
+        "startChar": 92,
+        "endLine": 62,
+        "endChar": 93
+      },
+      "revId": "0e7ccb6544ceb773671b2862545327ca51edae35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
