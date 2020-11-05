@@ -93,7 +93,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createBicubicFragm
         const SkRect* domain,
         GrSamplerState::WrapMode wrapX,
         GrSamplerState::WrapMode wrapY,
-        SkImage::CubicResampler kernel) {
+        SkCubicResampler kernel) {
     const auto& caps = *fImage->context()->priv().caps();
     GrSamplerState samplerState(wrapX, wrapY, GrSamplerState::Filter::kNearest);
     auto fp = GrYUVtoRGBEffect::Make(fImage->fViews, fImage->fYUVAIndices, fImage->fYUVColorSpace,

@@ -80,7 +80,7 @@ public:
             const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
             GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler kernel) = 0;
+            SkCubicResampler kernel) = 0;
 
     /**
      * Returns a texture view, possibly with MIP maps. The request for MIP maps may not be honored
@@ -119,7 +119,7 @@ protected:
             const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
             GrSamplerState::WrapMode wrapY,
-            SkImage::CubicResampler kernel);
+            SkCubicResampler kernel);
 
     GrRecordingContext* context() const { return fContext; }
 
