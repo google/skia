@@ -1232,22 +1232,26 @@ export interface Canvas extends EmbindObject<Canvas> {
     markCTM(marker: string): void;
 
     /**
-     * Copies the given rectangle of pixels into a new Uint8Array and returns it. If alphaType,
-     * colorType, and colorSpace are provided, those will describe the output format.
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param alphaType - defaults to Unpremul
-     * @param colorType - defaults to RGBA_8888
-     * @param colorSpace - defaults to SRGB
-     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing access to the
-     *               pixels without allocating a new TypedArray.
-     * @param dstRowBytes
+     * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not
+     * exceed the size indicated by imageInfo. See SkCanvas.h for more on the caveats.
+     *
+     * If dest is not provided, we allocate memory equal to the provided height * the provided
+     * bytesPerRow to fill the data with.
+     *
+     * This is generally a very expensive call for the GPU backend.
+     *
+     * @param srcX
+     * @param srcY
+     * @param imageInfo - describes the destination format of the pixels.
+     * @param bytesPerRow - number of bytes per row. Depends on destination ColorType. For example,
+     *        it must be at least 4 * width for the 8888 color type.
+     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing
+     *        access to the pixels without allocating a new TypedArray.
+     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested.
+     *          null will be returned on any error.
      */
-    readPixels(x: number, y: number, w: number, h: number, alphaType?: AlphaType,
-               colorType?: ColorType, colorSpace?: ColorSpace, dstRowBytes?: number,
-               dest?: MallocObj): Uint8Array;
+    readPixels(srcX: number, srcY: number, imageInfo: ImageInfo, bytesPerRow: number,
+               dest?: MallocObj): Uint8Array | Float32Array | null;
 
     /**
      * Removes changes to the current matrix and clip since Canvas state was
@@ -1564,18 +1568,24 @@ export interface Image extends EmbindObject<Image> {
 
     /**
      * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not
-     * exceed the size indicated by imageInfo. See Image.h for more on the caveats.
+     * exceed the size indicated by imageInfo. See SkImage.h for more on the caveats.
      *
-     * @param imageInfo - describes the destination format of the pixels.
+     * If dest is not provided, we allocate memory equal to the provided height * the provided
+     * bytesPerRow to fill the data with.
+     *
      * @param srcX
      * @param srcY
-     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing access to the
-     *               pixels without allocating a new TypedArray.
-     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested. null will be returned
-     *          on any error.
+     * @param imageInfo - describes the destination format of the pixels.
+     * @param bytesPerRow - number of bytes per row. Depends on destination ColorType. For example,
+     *        it must be at least 4 * width for the 8888 color type.
+     * @param dest - If provided, the pixels will be copied into the allocated buffer allowing
+     *        access to the pixels without allocating a new TypedArray.
+     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested.
+     *          null will be returned on any error.
      *
      */
-    readPixels(imageInfo: ImageInfo, srcX: number, srcY: number, dest?: MallocObj): Uint8Array | Float32Array | null;
+    readPixels(srcX: number, srcY: number, imageInfo: ImageInfo, bytesPerRow: number,
+               dest?: MallocObj): Uint8Array | Float32Array | null;
 
     /**
      * Return the width in pixels of the image.

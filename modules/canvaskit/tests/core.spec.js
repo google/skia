@@ -146,8 +146,9 @@ describe('Core canvas behavior', () => {
                     width: img.width(),
                     height: img.height(),
                 };
+                const rowBytes = 4 * img.width();
 
-                const pixels = img.readPixels(imageInfo, 0, 0);
+                const pixels = img.readPixels(0, 0, imageInfo, rowBytes);
                 // We know the image is 512 by 512 pixels in size, each pixel
                 // requires 4 bytes (R, G, B, A).
                 expect(pixels.length).toEqual(512 * 512 * 4);
@@ -156,7 +157,7 @@ describe('Core canvas behavior', () => {
                 const rdsData = CanvasKit.Malloc(Uint8Array, 512 * 5*512 * 4);
                 const pixels2 = rdsData.toTypedArray();
                 pixels2[0] = 127;  // sentinel value, should be overwritten by readPixels.
-                img.readPixels(imageInfo, 0, 0, rdsData);
+                img.readPixels(0, 0, imageInfo, rowBytes, rdsData);
                 expect(rdsData.toTypedArray()[0]).toEqual(pixels[0]);
 
                 img.delete();
@@ -900,15 +901,20 @@ describe('Core canvas behavior', () => {
             mObj.toTypedArray()[0] = 127; // sentinel value. Should be overwritten by readPixels.
             const canvas = surface.getCanvas();
             canvas.clear(CanvasKit.TRANSPARENT);
-            const pixels = canvas.readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
-                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, colorSpace, null, mObj);
+            const pixels = canvas.readPixels(0, 0, {
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                colorType: CanvasKit.ColorType.RGBA_8888,
+                alphaType: CanvasKit.AlphaType.Unpremul,
+                colorSpace: colorSpace
+            }, 4 * CANVAS_WIDTH, mObj);
             expect(pixels).toBeTruthy('Could not read pixels from surface');
             expect(pixels[0] !== 127).toBeTruthy();
             expect(pixels[0]).toEqual(mObj.toTypedArray()[0]);
             CanvasKit.Free(mObj);
             surface.delete();
         });
-        it('Can create a Display P3 surface', () => {
+        fit('Can create a Display P3 surface', () => {
             const colorSpace = CanvasKit.ColorSpace.DISPLAY_P3;
             const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.DISPLAY_P3);
             expect(surface).toBeTruthy('Could not make surface');
@@ -922,8 +928,13 @@ describe('Core canvas behavior', () => {
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
-            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
-                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            const pixels = surface.getCanvas().readPixels(0, 0, {
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                colorType: CanvasKit.ColorType.RGBA_F16,
+                alphaType: CanvasKit.AlphaType.Unpremul,
+                colorSpace: colorSpace
+            }, 8 * CANVAS_WIDTH);
             expect(pixels).toBeTruthy('Could not read pixels from surface');
         });
         it('Can create an Adobe RGB surface', () => {
@@ -940,8 +951,13 @@ describe('Core canvas behavior', () => {
             expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
-            const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
-                CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_F16, colorSpace);
+            const pixels = surface.getCanvas().readPixels(0, 0, {
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                colorType: CanvasKit.ColorType.RGBA_F16,
+                alphaType: CanvasKit.AlphaType.Unpremul,
+                colorSpace: colorSpace
+            }, 8 * CANVAS_WIDTH);
             expect(pixels).toBeTruthy('Could not read pixels from surface');
         });
 

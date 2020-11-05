@@ -718,7 +718,13 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this.getImageData = function(x, y, w, h) {
-    var pixels = this._canvas.readPixels(x, y, w, h);
+    var pixels = this._canvas.readPixels(x, y, {
+        width: w,
+        height: h,
+        colorType: CanvasKit.ColorType.RGBA_8888,
+        alphaType: CanvasKit.AlphaType.Unpremul,
+        colorSpace: CanvasKit.ColorSpace.SRGB,
+    }, 4 * w);
     if (!pixels) {
       return null;
     }
@@ -727,7 +733,7 @@ function CanvasRenderingContext2D(skcanvas) {
     return new ImageData(
       new Uint8ClampedArray(pixels.buffer),
       w, h);
-  }
+  };
 
   this.getLineDash = function() {
     return this._lineDashList.slice();
