@@ -22,6 +22,30 @@
       },
       "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86293c96_34fdb78b",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 672,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-05T21:22:30Z",
+      "side": 1,
+      "message": "I actally wrote it this way at first and it failed on some of the CQ bots.\nI remember Ethan had a similar issue when he was using max() for the size of IRNode data.\nI suspect the particular C++14 standard library that we are stuck with doesn\u0027t implement constexpr max (or doesn\u0027t implement it properly).",
+      "parentUuid": "92826d2f_dddbde5b",
+      "range": {
+        "startLine": 671,
+        "startChar": 46,
+        "endLine": 672,
+        "endChar": 95
+      },
+      "revId": "18e46aa1444f31bc5340bbd3a12ae3991e2a9273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
