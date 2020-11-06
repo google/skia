@@ -22,6 +22,30 @@
       },
       "revId": "1529fcbb39c9efdce8aa932f052b79f187e36ead",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c76b37d_2c161516",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T16:19:46Z",
+      "side": 1,
+      "message": "Derp, changed the wrong side of the subtraction. Thanks for catching it.",
+      "parentUuid": "0cc456da_599c6b18",
+      "range": {
+        "startLine": 120,
+        "startChar": 61,
+        "endLine": 120,
+        "endChar": 90
+      },
+      "revId": "1529fcbb39c9efdce8aa932f052b79f187e36ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
