@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3f9f456_651a15ae",
+        "filename": "src/gpu/GrDDLContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T18:46:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98a363c8_bc8232c3",
+      "revId": "f20d8f97dd3c06f9efe8fbb34ec476a499c13949",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1172e5b8_4c708794",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-11-06T18:35:37Z",
       "side": 1,
       "message": "For the tri-valued context options we usually do the dance:\n\nfoo \u003d defaultValue;\nif (option \u003d\u003d kYes) \n  foo \u003d true;\nelse if (option \u003d\u003d kNo)\n  foo \u003d false;",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 5
+      },
+      "revId": "f20d8f97dd3c06f9efe8fbb34ec476a499c13949",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "753232f4_4c4797b9",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T18:46:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1172e5b8_4c708794",
       "range": {
         "startLine": 70,
         "startChar": 0,
