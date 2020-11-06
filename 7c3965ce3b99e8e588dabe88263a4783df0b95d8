@@ -16,6 +16,24 @@
       "message": "Is it true that the GPU can\u0027t perform CubicResampling on a mip-level? Just trying to make the struct a little simpler / orthogonal...",
       "revId": "7c3965ce3b99e8e588dabe88263a4783df0b95d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bda07fb_fec8c0fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-06T16:12:54Z",
+      "side": 1,
+      "message": "There\u0027s no technical reason we can\u0027t. Our effect just isn\u0027t configured to take sampling state. But what we can\u0027t do (on all GPUs, anyway) is perform bicubic on two levels and linearly filter between them. Or four level levels and do cubic across the levels.",
+      "parentUuid": "1af69d04_0ad10c9c",
+      "revId": "7c3965ce3b99e8e588dabe88263a4783df0b95d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
