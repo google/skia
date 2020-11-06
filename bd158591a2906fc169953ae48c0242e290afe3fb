@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "587ef750_88d5a7aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-06T16:01:46Z",
+      "side": 1,
+      "message": "This got reverted with the CL breaking the positioning on Android. I\u0027m putting this in before the position fix so it wont have to be reverted.",
+      "revId": "bd158591a2906fc169953ae48c0242e290afe3fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
