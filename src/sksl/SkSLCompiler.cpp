@@ -61,6 +61,7 @@
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
 #include "src/sksl/generated/sksl_interp.dehydrated.sksl"
 #include "src/sksl/generated/sksl_pipeline.dehydrated.sksl"
+#include "src/sksl/generated/sksl_public.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
 
 #define MODULE_DATA(name) MakeModuleData(SKSL_INCLUDE_sksl_##name,\
@@ -89,142 +90,93 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
+    fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
     fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, *this);
-#define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f##t##_Type.get())
-    ADD_TYPE(Void);
-    ADD_TYPE(Float);
-    ADD_TYPE(Float2);
-    ADD_TYPE(Float3);
-    ADD_TYPE(Float4);
-    ADD_TYPE(Half);
-    ADD_TYPE(Half2);
-    ADD_TYPE(Half3);
-    ADD_TYPE(Half4);
-    ADD_TYPE(Int);
-    ADD_TYPE(Int2);
-    ADD_TYPE(Int3);
-    ADD_TYPE(Int4);
-    ADD_TYPE(UInt);
-    ADD_TYPE(UInt2);
-    ADD_TYPE(UInt3);
-    ADD_TYPE(UInt4);
-    ADD_TYPE(Short);
-    ADD_TYPE(Short2);
-    ADD_TYPE(Short3);
-    ADD_TYPE(Short4);
-    ADD_TYPE(UShort);
-    ADD_TYPE(UShort2);
-    ADD_TYPE(UShort3);
-    ADD_TYPE(UShort4);
-    ADD_TYPE(Byte);
-    ADD_TYPE(Byte2);
-    ADD_TYPE(Byte3);
-    ADD_TYPE(Byte4);
-    ADD_TYPE(UByte);
-    ADD_TYPE(UByte2);
-    ADD_TYPE(UByte3);
-    ADD_TYPE(UByte4);
-    ADD_TYPE(Bool);
-    ADD_TYPE(Bool2);
-    ADD_TYPE(Bool3);
-    ADD_TYPE(Bool4);
-    ADD_TYPE(Float2x2);
-    ADD_TYPE(Float2x3);
-    ADD_TYPE(Float2x4);
-    ADD_TYPE(Float3x2);
-    ADD_TYPE(Float3x3);
-    ADD_TYPE(Float3x4);
-    ADD_TYPE(Float4x2);
-    ADD_TYPE(Float4x3);
-    ADD_TYPE(Float4x4);
-    ADD_TYPE(Half2x2);
-    ADD_TYPE(Half2x3);
-    ADD_TYPE(Half2x4);
-    ADD_TYPE(Half3x2);
-    ADD_TYPE(Half3x3);
-    ADD_TYPE(Half3x4);
-    ADD_TYPE(Half4x2);
-    ADD_TYPE(Half4x3);
-    ADD_TYPE(Half4x4);
-    ADD_TYPE(GenType);
-    ADD_TYPE(GenHType);
-    ADD_TYPE(GenIType);
-    ADD_TYPE(GenUType);
-    ADD_TYPE(GenBType);
-    ADD_TYPE(Mat);
-    ADD_TYPE(Vec);
-    ADD_TYPE(GVec);
-    ADD_TYPE(GVec2);
-    ADD_TYPE(GVec3);
-    ADD_TYPE(GVec4);
-    ADD_TYPE(HVec);
-    ADD_TYPE(IVec);
-    ADD_TYPE(UVec);
-    ADD_TYPE(SVec);
-    ADD_TYPE(USVec);
-    ADD_TYPE(ByteVec);
-    ADD_TYPE(UByteVec);
-    ADD_TYPE(BVec);
 
-    ADD_TYPE(Sampler1D);
-    ADD_TYPE(Sampler2D);
-    ADD_TYPE(Sampler3D);
-    ADD_TYPE(SamplerExternalOES);
-    ADD_TYPE(SamplerCube);
-    ADD_TYPE(Sampler2DRect);
-    ADD_TYPE(Sampler1DArray);
-    ADD_TYPE(Sampler2DArray);
-    ADD_TYPE(SamplerCubeArray);
-    ADD_TYPE(SamplerBuffer);
-    ADD_TYPE(Sampler2DMS);
-    ADD_TYPE(Sampler2DMSArray);
+#define TYPE(t) fContext->f##t##_Type.get()
 
-    ADD_TYPE(ISampler2D);
+    const SkSL::Symbol* rootTypes[] = {
+        TYPE(Void),
 
-    ADD_TYPE(Image2D);
-    ADD_TYPE(IImage2D);
+        TYPE( Float), TYPE( Float2), TYPE( Float3), TYPE( Float4),
+        TYPE(  Half), TYPE(  Half2), TYPE(  Half3), TYPE(  Half4),
+        TYPE(   Int), TYPE(   Int2), TYPE(   Int3), TYPE(   Int4),
+        TYPE(  UInt), TYPE(  UInt2), TYPE(  UInt3), TYPE(  UInt4),
+        TYPE( Short), TYPE( Short2), TYPE( Short3), TYPE( Short4),
+        TYPE(UShort), TYPE(UShort2), TYPE(UShort3), TYPE(UShort4),
+        TYPE(  Byte), TYPE(  Byte2), TYPE(  Byte3), TYPE(  Byte4),
+        TYPE( UByte), TYPE( UByte2), TYPE( UByte3), TYPE( UByte4),
+        TYPE(  Bool), TYPE(  Bool2), TYPE(  Bool3), TYPE(  Bool4),
 
-    ADD_TYPE(SubpassInput);
-    ADD_TYPE(SubpassInputMS);
+        TYPE(Float2x2), TYPE(Float2x3), TYPE(Float2x4),
+        TYPE(Float3x2), TYPE(Float3x3), TYPE(Float3x4),
+        TYPE(Float4x2), TYPE(Float4x3), TYPE(Float4x4),
 
-    ADD_TYPE(GSampler1D);
-    ADD_TYPE(GSampler2D);
-    ADD_TYPE(GSampler3D);
-    ADD_TYPE(GSamplerCube);
-    ADD_TYPE(GSampler2DRect);
-    ADD_TYPE(GSampler1DArray);
-    ADD_TYPE(GSampler2DArray);
-    ADD_TYPE(GSamplerCubeArray);
-    ADD_TYPE(GSamplerBuffer);
-    ADD_TYPE(GSampler2DMS);
-    ADD_TYPE(GSampler2DMSArray);
+        TYPE(Half2x2),  TYPE(Half2x3),  TYPE(Half2x4),
+        TYPE(Half3x2),  TYPE(Half3x3),  TYPE(Half3x4),
+        TYPE(Half4x2),  TYPE(Half4x3),  TYPE(Half4x4),
 
-    ADD_TYPE(Sampler1DShadow);
-    ADD_TYPE(Sampler2DShadow);
-    ADD_TYPE(SamplerCubeShadow);
-    ADD_TYPE(Sampler2DRectShadow);
-    ADD_TYPE(Sampler1DArrayShadow);
-    ADD_TYPE(Sampler2DArrayShadow);
-    ADD_TYPE(SamplerCubeArrayShadow);
-    ADD_TYPE(GSampler2DArrayShadow);
-    ADD_TYPE(GSamplerCubeArrayShadow);
-    ADD_TYPE(FragmentProcessor);
-    ADD_TYPE(Sampler);
-    ADD_TYPE(Texture2D);
+        TYPE(GenType), TYPE(GenHType), TYPE(GenIType), TYPE(GenUType), TYPE(GenBType),
+        TYPE(Mat), TYPE(Vec),
+        TYPE(GVec), TYPE(GVec2), TYPE(GVec3), TYPE(GVec4),
+        TYPE(HVec), TYPE(IVec), TYPE(UVec), TYPE(SVec), TYPE(USVec),
+        TYPE(ByteVec), TYPE(UByteVec), TYPE(BVec),
+
+        TYPE(FragmentProcessor),
+    };
+
+    const SkSL::Symbol* privateTypes[] = {
+        TYPE(Sampler1D), TYPE(Sampler2D), TYPE(Sampler3D),
+        TYPE(SamplerExternalOES),
+        TYPE(SamplerCube),
+        TYPE(Sampler2DRect),
+        TYPE(Sampler1DArray), TYPE(Sampler2DArray), TYPE(SamplerCubeArray),
+        TYPE(SamplerBuffer),
+        TYPE(Sampler2DMS), TYPE(Sampler2DMSArray),
+
+        TYPE(ISampler2D),
+        TYPE(Image2D), TYPE(IImage2D),
+        TYPE(SubpassInput), TYPE(SubpassInputMS),
+
+        TYPE(GSampler1D), TYPE(GSampler2D), TYPE(GSampler3D),
+        TYPE(GSamplerCube),
+        TYPE(GSampler2DRect),
+        TYPE(GSampler1DArray), TYPE(GSampler2DArray), TYPE(GSamplerCubeArray),
+        TYPE(GSamplerBuffer),
+        TYPE(GSampler2DMS), TYPE(GSampler2DMSArray),
+
+        TYPE(Sampler1DShadow), TYPE(Sampler2DShadow), TYPE(SamplerCubeShadow),
+        TYPE(Sampler2DRectShadow),
+        TYPE(Sampler1DArrayShadow), TYPE(Sampler2DArrayShadow), TYPE(SamplerCubeArrayShadow),
+
+        TYPE(GSampler2DArrayShadow), TYPE(GSamplerCubeArrayShadow),
+        TYPE(Sampler),
+        TYPE(Texture2D),
+    };
+
+    for (const SkSL::Symbol* type : rootTypes) {
+        fRootSymbolTable->addWithoutOwnership(type);
+    }
+    for (const SkSL::Symbol* type : privateTypes) {
+        fPrivateSymbolTable->addWithoutOwnership(type);
+    }
+
+#undef TYPE
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    StringFragment skCapsName("sk_Caps");
-    fRootSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
-                                                     fIRGenerator->fModifiers->handle(Modifiers()),
-                                                     skCapsName,
-                                                     fContext->fSkCaps_Type.get(),
-                                                     /*builtin=*/false,
-                                                     Variable::Storage::kGlobal));
+    fPrivateSymbolTable->add(
+            std::make_unique<Variable>(/*offset=*/-1,
+                                       fIRGenerator->fModifiers->handle(Modifiers()),
+                                       "sk_Caps",
+                                       fContext->fSkCaps_Type.get(),
+                                       /*builtin=*/false,
+                                       Variable::Storage::kGlobal));
 
     fRootModule = {fRootSymbolTable, /*fIntrinsics=*/nullptr};
+    fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
 
-    fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fRootModule);
+    fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
     fVertexModule = this->parseModule(Program::kVertex_Kind, MODULE_DATA(vert), fGPUModule);
     fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag), fGPUModule);
 }
@@ -246,10 +198,17 @@ const ParsedModule& Compiler::loadFPModule() {
     return fFPModule;
 }
 
+const ParsedModule& Compiler::loadPublicModule() {
+    if (!fPublicModule.fSymbols) {
+        fPublicModule = this->parseModule(Program::kGeneric_Kind, MODULE_DATA(public), fRootModule);
+    }
+    return fPublicModule;
+}
+
 const ParsedModule& Compiler::loadPipelineModule() {
     if (!fPipelineModule.fSymbols) {
-        fPipelineModule =
-                this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline), fGPUModule);
+        fPipelineModule = this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline),
+                                            this->loadPublicModule());
 
         // Add some aliases to the pipeline module so that it's friendlier, and more like GLSL
         fPipelineModule.fSymbols->addAlias("shader", fContext->fFragmentProcessor_Type.get());
@@ -283,8 +242,8 @@ const ParsedModule& Compiler::loadPipelineModule() {
 
 const ParsedModule& Compiler::loadInterpreterModule() {
     if (!fInterpreterModule.fSymbols) {
-        fInterpreterModule =
-                this->parseModule(Program::kGeneric_Kind, MODULE_DATA(interp), fRootModule);
+        fInterpreterModule = this->parseModule(Program::kGeneric_Kind, MODULE_DATA(interp),
+                                               this->loadPublicModule());
     }
     return fInterpreterModule;
 }
@@ -305,7 +264,13 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
                                   ModuleData data,
                                   std::shared_ptr<SymbolTable> base) {
     if (!base) {
-        base = fRootSymbolTable;
+        // NOTE: This is a workaround. The only time 'base' is null is when dehydrating includes.
+        // In that case, skslc doesn't know which module it's preparing, nor what the correct base
+        // module is. We can't use 'Root', because many GPU intrinsics reference private types,
+        // like samplers or textures. Today, 'Private' does contain the union of all known types,
+        // so this is safe. If we ever have types that only exist in 'Public' (for example), this
+        // logic needs to be smarter (by choosing the correct base for the module we're compiling).
+        base = fPrivateSymbolTable;
     }
 
 #if defined(SKSL_STANDALONE)
