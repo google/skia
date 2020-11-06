@@ -200,6 +200,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "996c4b17_037a258f",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T17:57:04Z",
+      "side": 1,
+      "message": "Hah! Talk about fiddly, some of the bots are complaining about `value_type`. \n\n ../../../../../../skia/tests/TArrayTest.cpp(98,17): error: member \u0027value_type\u0027 found in multiple base classes of different types\n     typename T::value_type data[3] \u003d { 7, 8, 9 };",
+      "parentUuid": "48446d6b_11d1b065",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
