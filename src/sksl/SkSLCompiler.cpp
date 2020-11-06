@@ -1655,7 +1655,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoSource as(this, program.fSource.get());
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
-    if (result) {
+    if (result && program.fSettings.fValidateSPIRV) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
         SkASSERT(0 == data.size() % 4);

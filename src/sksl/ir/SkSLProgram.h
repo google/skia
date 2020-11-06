@@ -144,6 +144,9 @@ struct Program {
         // If true, implicit conversions to lower precision numeric types are allowed
         // (eg, float to half)
         bool fAllowNarrowingConversions = false;
+        // If true, then Debug code will run SPIR-V output through the validator to ensure its
+        // correctness
+        bool fValidateSPIRV = true;
     };
 
     struct Inputs {
