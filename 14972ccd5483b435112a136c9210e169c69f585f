@@ -120,6 +120,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "22404d40_a99d0aef",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T19:06:35Z",
+      "side": 1,
+      "message": "I think my original point was more trying to convey \"it\u0027s hard to know whether always adding the cast is MORE or LESS bug-prone\". The claim in the comment is that always adding half4(.....) reduces bug exposure, but it is technically asking the optimizer to do extra work, and it might expose some weird edge-case optimization bug. It\u0027s not a big deal, I\u0027m just gun-shy I think.",
+      "parentUuid": "3351c7e4_6066657f",
+      "range": {
+        "startLine": 200,
+        "startChar": 42,
+        "endLine": 201,
+        "endChar": 23
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9962ddd4_bc992888",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 1
