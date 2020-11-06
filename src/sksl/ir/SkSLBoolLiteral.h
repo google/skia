@@ -14,13 +14,18 @@
 namespace SkSL {
 
 /**
- * Represents 'true' or 'false'.
+ * Represents 'true' or 'false'. These are generally referred to as BoolLiteral, but Literal<bool>
+ * is also available for use with template code.
  */
-class BoolLiteral final : public Expression {
+template <typename T> class Literal;
+using BoolLiteral = Literal<bool>;
+
+template <>
+class Literal<bool> final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
-    BoolLiteral(const Context& context, int offset, bool value)
+    Literal(const Context& context, int offset, bool value)
         : INHERITED(offset, kExpressionKind, context.fBool_Type.get())
         , fValue(value) {}
 
@@ -46,11 +51,11 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, this->value(), &this->type()));
+        return std::unique_ptr<BoolLiteral>(new BoolLiteral(fOffset, this->value(), &this->type()));
     }
 
 private:
-    BoolLiteral(int offset, bool value, const Type* type)
+    Literal(int offset, bool value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 
