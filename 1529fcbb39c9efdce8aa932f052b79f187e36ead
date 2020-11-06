@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cc456da_599c6b18",
+        "filename": "tests/GrBlockAllocatorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-06T16:18:43Z",
+      "side": 1,
+      "message": "Should this be \u0027br.fEnd - br.fAlignedOffset\u0027?\n\nWe may have been passing ASAN artificially if (aligned offset - start) \u003d\u003d 0",
+      "range": {
+        "startLine": 120,
+        "startChar": 61,
+        "endLine": 120,
+        "endChar": 90
+      },
+      "revId": "1529fcbb39c9efdce8aa932f052b79f187e36ead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
