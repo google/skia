@@ -38,6 +38,10 @@ class FunctionCall;
 struct ParsedModule;
 struct Swizzle;
 
+namespace skslcode {
+    class DSL;
+}
+
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
  */
@@ -135,7 +139,7 @@ public:
 
     const Context& fContext;
 
-private:
+//private:
     /**
      * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
      */
@@ -179,6 +183,10 @@ private:
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
     std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
+    std::unique_ptr<Expression> convertBinaryExpression(int offset,
+                                                        std::unique_ptr<Expression> left,
+                                                        Token::Kind op,
+                                                        std::unique_ptr<Expression> right);
     std::unique_ptr<Extension> convertExtension(int offset, StringFragment name);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
@@ -200,8 +208,7 @@ private:
                                                  StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               StringFragment fields);
+    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base, String fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);
@@ -250,6 +257,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class skslcode::DSL;
 };
 
 }  // namespace SkSL

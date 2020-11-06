@@ -62,6 +62,10 @@ struct ParsedModule {
     std::shared_ptr<IRIntrinsicMap> fIntrinsics;
 };
 
+namespace skslcode {
+    class DSL;
+}
+
 /**
  * Main compiler entry point. This is a traditional compiler design which first parses the .sksl
  * file into an abstract syntax tree (a tree of ASTNodes), then performs semantic analysis to
@@ -218,7 +222,7 @@ public:
     LoadedModule loadModule(Program::Kind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
     ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
 
-private:
+//private:
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
@@ -295,6 +299,7 @@ private:
     String fErrorText;
 
     friend class AutoSource;
+    friend class skslcode::DSL;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU

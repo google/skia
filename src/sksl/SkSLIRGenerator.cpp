@@ -1914,6 +1914,13 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!right) {
         return nullptr;
     }
+    return this->convertBinaryExpression(expression.fOffset, std::move(left), op, std::move(right));
+}
+
+std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(int offset,
+                                                                std::unique_ptr<Expression> left,
+                                                                Token::Kind op,
+                                                                std::unique_ptr<Expression> right) {
     const Type* leftType;
     const Type* rightType;
     const Type* resultType;
@@ -1931,10 +1938,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     }
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
-        fErrors.error(expression.fOffset, String("type mismatch: '") +
-                                          Compiler::OperatorName(expression.getToken().fKind) +
-                                          "' cannot operate on '" + left->type().displayName() +
-                                          "', '" + right->type().displayName() + "'");
+        fErrors.error(offset, String("type mismatch: '") +
+                                     Compiler::OperatorName(op) + "' cannot operate on '" +
+                                     left->type().displayName() + "', '" +
+                                     right->type().displayName() + "'");
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
@@ -1951,8 +1958,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     }
     std::unique_ptr<Expression> result = this->constantFold(*left, op, *right);
     if (!result) {
-        result = std::make_unique<BinaryExpression>(expression.fOffset, std::move(left), op,
-                                                    std::move(right), resultType);
+        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                                    resultType);
     }
     return result;
 }
@@ -2486,7 +2493,7 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 // secondary swizzle to put them back into the right order, so in this case we end up with
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        StringFragment fields) {
+                                                        String fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
     if (baseType.typeKind() != Type::TypeKind::kVector && !baseType.isNumber()) {
@@ -2494,13 +2501,13 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
 
-    if (fields.fLength > 4) {
+    if (fields.length() > 4) {
         fErrors.error(offset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
     }
 
     ComponentArray maskComponents;
-    for (size_t i = 0; i < fields.fLength; i++) {
+    for (size_t i = 0; i < fields.length(); i++) {
         switch (fields[i]) {
             case '0':
             case '1':
@@ -2566,7 +2573,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     }
 
     // If we have processed the entire swizzle, we're done.
-    if (maskComponents.size() == fields.fLength) {
+    if (maskComponents.size() == fields.length()) {
         return expr;
     }
 
@@ -2594,7 +2601,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     int constantFieldIdx = maskComponents.size();
     int constantZeroIdx = -1, constantOneIdx = -1;
 
-    for (size_t i = 0; i < fields.fLength; i++) {
+    for (size_t i = 0; i < fields.length(); i++) {
         switch (fields[i]) {
             case '0':
                 if (constantZeroIdx == -1) {
