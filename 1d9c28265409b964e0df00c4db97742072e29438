@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2954ab4c_b2b64877",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "810eddf7_a4ad3879",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 5
+      },
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d56c4eb8_76caa4fc",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-06T15:08:24Z",
       "side": 1,
       "message": "This should only execute a portion of the tasks",
+      "range": {
+        "startLine": 357,
+        "startChar": 0,
+        "endLine": 357,
+        "endChar": 43
+      },
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d61ed19b_7ebefc90",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d56c4eb8_76caa4fc",
       "range": {
         "startLine": 357,
         "startChar": 0,
@@ -64,6 +112,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dd45d1a_a025508e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47221558_8c931dd7",
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d591083_2b7170da",
@@ -77,6 +143,30 @@
       "writtenOn": "2020-11-06T15:08:24Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 459,
+        "startChar": 52,
+        "endLine": 459,
+        "endChar": 59
+      },
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c21f3cc_59bbf1df",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d591083_2b7170da",
       "range": {
         "startLine": 459,
         "startChar": 52,
@@ -110,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f840a8b4_d975d71c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Surprisingly, yes, because the `sk_sp\u003cGrRenderTask\u003e` can\u0027t compare against the derived `GrOpsTask*`",
+      "parentUuid": "8ef24c61_7ccb3ad3",
+      "range": {
+        "startLine": 662,
+        "startChar": 52,
+        "endLine": 662,
+        "endChar": 58
+      },
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62664336_c2ad4b13",
@@ -123,6 +237,24 @@
       "writtenOn": "2020-11-06T15:08:24Z",
       "side": 1,
       "message": "Do we ever use this return value any more?",
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb5d4dc6_cef38bc4",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Yes in a few places.",
+      "parentUuid": "62664336_c2ad4b13",
       "revId": "1d9c28265409b964e0df00c4db97742072e29438",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -144,6 +276,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39a1c04a_bd6c1e49",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5687ba2b_92de7c10",
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69b50150_43066d8e",
@@ -157,6 +307,30 @@
       "writtenOn": "2020-11-06T15:08:24Z",
       "side": 1,
       "message": "I probably would keep this as \u0027fRenderTasks\u0027",
+      "range": {
+        "startLine": 181,
+        "startChar": 38,
+        "endLine": 181,
+        "endChar": 45
+      },
+      "revId": "1d9c28265409b964e0df00c4db97742072e29438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db57580e_8cd74cd7",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T19:50:57Z",
+      "side": 1,
+      "message": "I ended up keeping fDAG. It\u0027s still the DAG after all. Cool?",
+      "parentUuid": "69b50150_43066d8e",
       "range": {
         "startLine": 181,
         "startChar": 38,
