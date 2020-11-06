@@ -166,6 +166,21 @@ void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& s) {
     INHERITED::writeIfStatement(s);
 }
 
+void PipelineStageCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
+    this->write("return");
+    if (r.expression()) {
+        this->write(" ");
+        if (fCastReturnsToHalf) {
+            this->write("half4(");
+        }
+        this->writeExpression(*r.expression(), kTopLevel_Precedence);
+        if (fCastReturnsToHalf) {
+            this->write(")");
+        }
+    }
+    this->write(";");
+}
+
 void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     if (s.isStatic()) {
         this->write("@");
@@ -179,10 +194,17 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     if (f.declaration().name() == "main") {
+        // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
+        // our code in the processor, the surrounding code is going to expect half4, so we
+        // explicitly cast any returns (from main) to half4. This is only strictly necessary
+        // if the return type is float4 - injecting it unconditionally reduces the risk of an
+        // obscure bug.
+        fCastReturnsToHalf = true;
         for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
             this->writeStatement(*stmt);
             this->writeLine();
         }
+        fCastReturnsToHalf = false;
         fOut = oldOut;
         this->write(fFunctionHeader);
         this->write(buffer.str());

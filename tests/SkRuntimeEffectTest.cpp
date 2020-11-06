@@ -106,10 +106,8 @@ public:
     TestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
             : fReporter(r), fSurface(std::move(surface)) {}
 
-    void build(const char* header, const char* body) {
-        SkString src = SkStringPrintf("%s half4 main(float2 p) { %s }",
-                                      header, body);
-        auto[effect, errorText] = SkRuntimeEffect::Make(src);
+    void build(const char* src) {
+        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(src));
         if (!effect) {
             REPORT_FAILURE(fReporter, "effect",
                            SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
@@ -201,12 +199,11 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     using float4 = std::array<float, 4>;
 
     // Local coords
-    effect.build("", "return half4(half2(p - 0.5), 0, 1);");
+    effect.build("half4 main(float2 p) { return half4(half2(p - 0.5), 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
     // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
-    effect.build("uniform float4 gColor;",
-                 "return half4(gColor);");
+    effect.build("uniform float4 gColor; half4 main() { return half4(gColor); }");
     effect.uniform("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
     effect.test(0xFFBF4000);
     effect.uniform("gColor") = float4{ 1.0f, 0.0f, 0.0f, 0.498f };
@@ -215,16 +212,22 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
     // Since the surface is 2x2, we should see (0,0), (1,0), (0,1), (1,1). Multiply by 0.498 to
     // make sure we're not saturating unexpectedly.
-    effect.build("", "return half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
+    effect.build("half4 main() { return half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1); }");
     effect.test(0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F,
                 [](SkCanvas* canvas, SkPaint*) { canvas->rotate(45.0f); });
 
     // Runtime effects should use relaxed precision rules by default
-    effect.build("", "return float4(p - 0.5, 0, 1);");
+    effect.build("half4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
     // ... and support GLSL type names
-    effect.build("", "return vec4(p - 0.5, 0, 1);");
+    effect.build("half4 main(float2 p) { return vec4(p - 0.5, 0, 1); }");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+
+    // ... and support *returning* float4 (aka vec4), not just half4
+    effect.build("float4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+    effect.build("vec4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
     //
@@ -232,8 +235,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     //
 
     // Sampling a null child should return the paint color
-    effect.build("uniform shader child;",
-                 "return sample(child);");
+    effect.build("uniform shader child;"
+                 "half4 main() { return sample(child); }");
     effect.child("child") = nullptr;
     effect.test(0xFF00FFFF,
                 [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
@@ -241,26 +244,26 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     sk_sp<SkShader> rgbwShader = make_RGBW_shader();
 
     // Sampling a simple child at our coordinates (implicitly)
-    effect.build("uniform shader child;",
-                 "return sample(child);");
+    effect.build("uniform shader child;"
+                 "half4 main() { return sample(child); }");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
 
     // Sampling with explicit coordinates (reflecting about the diagonal)
-    effect.build("uniform shader child;",
-                 "return sample(child, p.yx);");
+    effect.build("uniform shader child;"
+                 "half4 main(float2 p) { return sample(child, p.yx); }");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
     // Sampling with a matrix (again, reflecting about the diagonal)
-    effect.build("uniform shader child;",
-                 "return sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1));");
+    effect.build("uniform shader child;"
+                 "half4 main() { return sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1)); }");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
     // Legacy behavior - shaders can be declared 'in' rather than 'uniform'
-    effect.build("in shader child;",
-                 "return sample(child);");
+    effect.build("in shader child;"
+                 "half4 main() { return sample(child); }");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
 
@@ -269,9 +272,8 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     //
 
     // Test case for inlining in the pipeline-stage and fragment-shader passes (skbug.com/10526):
-    effect.build("float2 helper(float2 x) { return x + 1; }",
-                 "float2 v = helper(p);"
-                 "return half4(half2(v), 0, 1);");
+    effect.build("float2 helper(float2 x) { return x + 1; }"
+                 "half4 main(float2 p) { float2 v = helper(p); return half4(half2(v), 0, 1); }");
     effect.test(0xFF00FFFF);
 }
 

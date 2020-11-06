@@ -950,13 +950,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (funcData.fName == "main") {
         switch (fKind) {
             case Program::kPipelineStage_Kind: {
-                // half4 main()  -or-  half4 main(float2)
-                bool valid = (*returnType == *fContext.fHalf4_Type) &&
-                             ((parameters.size() == 0) ||
-                              (parameters.size() == 1 && paramIsCoords(0)));
-                if (!valid) {
-                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
-                                             "half4 main() or half4 main(float2)");
+                // (half4|float4) main()  -or-  (half4|float4) main(float2)
+                if (*returnType != *fContext.fHalf4_Type && *returnType != *fContext.fFloat4_Type) {
+                    fErrors.error(f.fOffset, "'main' must return: 'vec4', 'float4', or 'half4'");
+                    return;
+                }
+                if (!(parameters.size() == 0 || (parameters.size() == 1 && paramIsCoords(0)))) {
+                    fErrors.error(f.fOffset, "'main' parameters must be: (), (vec2), or (float2)");
                     return;
                 }
                 break;
