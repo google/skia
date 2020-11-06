@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82640534_dece8931",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T15:06:40Z",
+      "side": 1,
+      "message": "Think we can do this without adding the moveFrom() helper?   Between std::move() and the various SkTArray::move() methods, I\u0027m getting overload confusion from all the \"move\".",
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f9e3b5d_0d5f280e",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T15:06:40Z",
+      "side": 1,
+      "message": "I found this tricky to parse.  Is this correct?\n\n  // SkSTArray uses this no-op constructor and\n  // initializes its inherited SkTArray fields itself.",
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68e01ccb_0d64fdbd",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T15:06:40Z",
+      "side": 1,
+      "message": "Have we considered Herb\u0027s approach to inherit privately from the storage then publicly from SkTArray?  That\u0027d make the storage fully initialized before the SkTArray constructor, and we could pass a storage pointer to that constructor instead of having to use a HasPreallocatedStorage-style implementation.  I\u0027m particularly interested in whether we can restore private visibility to more of SkTArray, especially its data fields.",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
