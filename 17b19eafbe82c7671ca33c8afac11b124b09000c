@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f2745d6_b4150687",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-06T20:22:59Z",
+      "side": 1,
+      "message": "In the old code wouldn\u0027t this return early if numProxies \u003d\u003d 0 ?",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 5
+      },
+      "revId": "17b19eafbe82c7671ca33c8afac11b124b09000c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8d1aec8_2aa04ff9",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-06T20:22:59Z",
+      "side": 1,
+      "message": "Why not have this instance match the others ?",
+      "revId": "17b19eafbe82c7671ca33c8afac11b124b09000c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
