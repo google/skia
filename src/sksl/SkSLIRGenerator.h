@@ -133,6 +133,17 @@ public:
 
     const Program::Settings* settings() const { return fSettings; }
 
+    std::shared_ptr<SymbolTable>& symbolTable() {
+        return fSymbolTable;
+    }
+
+    void setSymbolTable(std::shared_ptr<SymbolTable>& symbolTable) {
+        fSymbolTable = symbolTable;
+    }
+
+    void pushSymbolTable();
+    void popSymbolTable();
+
     const Context& fContext;
 
 private:
@@ -140,9 +151,6 @@ private:
      * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
      */
     std::unique_ptr<ModifiersPool> releaseModifiers();
-
-    void pushSymbolTable();
-    void popSymbolTable();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
     StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
@@ -242,7 +250,7 @@ private:
     int fRTAdjustFieldIndex;
     bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
-    bool fIsBuiltinCode;
+    bool fIsBuiltinCode = false;
     std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class AutoSymbolTable;
