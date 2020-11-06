@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "29c94170_1e7345cf",
+        "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-06T16:02:17Z",
+      "side": 1,
+      "message": "In general we cannot depend in inputs being valid - if this gets deployed in any user-facing environment, just assume a fuzzer at the other end of the input stream 😊\n\n(actually I think we might even have a fuzzer for SVG, need to check)\n\nIf e.g. type\u003d\"matrix\" \u0026 values\u003d\"1 2 3\" I don\u0027t think we reject/validate in any way - so SkColorMatrix ends up reading beyond the allocated array (which may crash or not crash, or leak sensitive information etc).",
+      "parentUuid": "72ce5e14_806f290e",
+      "revId": "d9413b861ac1cef983592762b777faf4d2499196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8fd637be_f028ff01",
         "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
         "patchSetId": 6
