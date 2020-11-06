@@ -46,6 +46,30 @@
       },
       "revId": "6ab77b410a2e9d5df1e5dc48267d4988afb05e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c387db0e_f91e61ae",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-06T17:01:19Z",
+      "side": 1,
+      "message": "If the pointer is omitted, I don\u0027t think we need the rowBytes either.\n\nImageInfo -- good for us to allocate memory\nImageInfo+pointer+rowBytes -- good for them to allocate memory",
+      "parentUuid": "76784510_37ee2dc6",
+      "range": {
+        "startLine": 1253,
+        "startChar": 54,
+        "endLine": 1254,
+        "endChar": 31
+      },
+      "revId": "6ab77b410a2e9d5df1e5dc48267d4988afb05e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
