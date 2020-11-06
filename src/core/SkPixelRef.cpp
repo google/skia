@@ -20,7 +20,7 @@ uint32_t SkNextID::ImageID() {
 
     uint32_t id;
     do {
-        id = nextID.fetch_add(2);
+        id = nextID.fetch_add(2, std::memory_order_relaxed);
     } while (id == 0);
     return id;
 }

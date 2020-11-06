@@ -136,7 +136,7 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
 uint32_t SkSurface_Base::newGenerationID() {
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     static std::atomic<uint32_t> nextID{1};
-    return nextID++;
+    return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
 static SkSurface_Base* asSB(SkSurface* surface) {

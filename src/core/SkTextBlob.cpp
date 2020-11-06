@@ -136,7 +136,7 @@ static int32_t next_id() {
     static std::atomic<int32_t> nextID{1};
     int32_t id;
     do {
-        id = nextID++;
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == SK_InvalidGenID);
     return id;
 }

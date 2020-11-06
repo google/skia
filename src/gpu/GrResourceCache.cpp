@@ -36,7 +36,7 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage);
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
     static std::atomic<int32_t> nextType{INHERITED::kInvalidDomain + 1};
 
-    int32_t type = nextType++;
+    int32_t type = nextType.fetch_add(1, std::memory_order_relaxed);
     if (type > SkTo<int32_t>(UINT16_MAX)) {
         SK_ABORT("Too many Resource Types");
     }
@@ -47,7 +47,7 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
 GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
     static std::atomic<int32_t> nextDomain{INHERITED::kInvalidDomain + 1};
 
-    int32_t domain = nextDomain++;
+    int32_t domain = nextDomain.fetch_add(1, std::memory_order_relaxed);
     if (domain > SkTo<int32_t>(UINT16_MAX)) {
         SK_ABORT("Too many GrUniqueKey Domains");
     }

@@ -15,7 +15,7 @@ std::atomic<uint32_t> SkPromiseImageTexture::gUniqueID{1};
 SkPromiseImageTexture::SkPromiseImageTexture(const GrBackendTexture& backendTexture) {
     SkASSERT(backendTexture.isValid());
     fBackendTexture = backendTexture;
-    fUniqueID = gUniqueID++;
+    fUniqueID = gUniqueID.fetch_add(1, std::memory_order_relaxed);
 }
 
 SkPromiseImageTexture::~SkPromiseImageTexture() {
