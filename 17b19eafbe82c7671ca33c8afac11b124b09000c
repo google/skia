@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fed67c99_59151fa7",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T20:40:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f081a8bd_69c0c84b",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 5
+      },
+      "revId": "17b19eafbe82c7671ca33c8afac11b124b09000c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c8d1aec8_2aa04ff9",
