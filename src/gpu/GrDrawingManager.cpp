@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrDrawingManager.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "include/core/SkDeferredDisplayList.h"
@@ -43,100 +44,6 @@
 #include "src/gpu/text/GrSDFTOptions.h"
 #include "src/image/SkSurface_Gpu.h"
 
-void GrDrawingManager::RenderTaskDAG::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-    idArray->reset(fRenderTasks.count());
-    for (int i = 0; i < fRenderTasks.count(); ++i) {
-        if (fRenderTasks[i]) {
-            (*idArray)[i] = fRenderTasks[i]->uniqueID();
-        }
-    }
-}
-
-void GrDrawingManager::RenderTaskDAG::reset() {
-    fRenderTasks.reset();
-}
-
-void GrDrawingManager::RenderTaskDAG::rawRemoveRenderTasks(int startIndex, int stopIndex) {
-    for (int i = startIndex; i < stopIndex; ++i) {
-        fRenderTasks[i] = nullptr;
-    }
-}
-
-bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
-    for (const auto& task : fRenderTasks) {
-        if (task && task->isUsed(proxy)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
-    if (renderTask) {
-        return fRenderTasks.emplace_back(std::move(renderTask)).get();
-    }
-    return nullptr;
-}
-
-GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask> renderTask) {
-    SkASSERT(!fRenderTasks.empty());
-    if (renderTask) {
-        // Release 'fRenderTasks.back()' and grab the raw pointer, in case the SkTArray grows
-        // and reallocates during emplace_back.
-        fRenderTasks.emplace_back(fRenderTasks.back().release());
-        return (fRenderTasks[fRenderTasks.count() - 2] = std::move(renderTask)).get();
-    }
-    return nullptr;
-}
-
-void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
-#ifdef SK_DEBUG
-    for (auto& renderTask : renderTasks) {
-        SkASSERT(renderTask->unique());
-    }
-#endif
-
-    fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
-}
-
-void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks) {
-    SkASSERT(renderTasks->empty());
-    renderTasks->swap(fRenderTasks);
-}
-
-void GrDrawingManager::RenderTaskDAG::prepForFlush() {
-    if (!SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fRenderTasks)) {
-        SkDEBUGFAIL("Render task topo sort failed.");
-        return;
-    }
-
-#ifdef SK_DEBUG
-    // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
-    // share the same backing GrSurfaceProxy it means the opsTask was artificially split.
-    if (fRenderTasks.count()) {
-        GrOpsTask* prevOpsTask = fRenderTasks[0]->asOpsTask();
-        for (int i = 1; i < fRenderTasks.count(); ++i) {
-            GrOpsTask* curOpsTask = fRenderTasks[i]->asOpsTask();
-
-            if (prevOpsTask && curOpsTask) {
-                SkASSERT(prevOpsTask->target(0).proxy() != curOpsTask->target(0).proxy());
-            }
-
-            prevOpsTask = curOpsTask;
-        }
-    }
-#endif
-}
-
-void GrDrawingManager::RenderTaskDAG::closeAll(const GrCaps* caps) {
-    for (auto& task : fRenderTasks) {
-        if (task) {
-            task->makeClosed(*caps);
-        }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
@@ -149,8 +56,8 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
         , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
 
 GrDrawingManager::~GrDrawingManager() {
-    fDAG.closeAll(fContext->priv().caps());
-    this->removeRenderTasks(0, fDAG.numRenderTasks());
+    this->closeAllTasks();
+    this->removeRenderTasks(0, fTasks.count());
 }
 
 bool GrDrawingManager::wasAbandoned() const {
@@ -197,7 +104,10 @@ bool GrDrawingManager::flush(
         access == SkSurface::BackendSurfaceAccess::kNoAccess && !newState) {
         bool canSkip = numProxies > 0;
         for (int i = 0; i < numProxies && canSkip; ++i) {
-            canSkip = !fDAG.isUsed(proxies[i]) && !this->isDDLTarget(proxies[i]);
+            bool used = std::any_of(fTasks.begin(), fTasks.end(), [&](auto& task) {
+                return task && task->isUsed(proxies[i]);
+            });
+            canSkip = !used && !this->isDDLTarget(proxies[i]);
         }
         if (canSkip) {
             if (info.fSubmittedProc) {
@@ -232,10 +142,10 @@ bool GrDrawingManager::flush(
     // to flush mid-draw. In that case, the SkGpuDevice's opsTasks won't be closed but need to be
     // flushed anyway. Closing such opsTasks here will mean new ones will be created to replace them
     // if the SkGpuDevice(s) write to them again.
-    fDAG.closeAll(fContext->priv().caps());
+    this->closeAllTasks();
     fActiveOpsTask = nullptr;
 
-    fDAG.prepForFlush();
+    this->sortTasks();
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
         // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
@@ -250,7 +160,12 @@ bool GrDrawingManager::flush(
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        fDAG.gatherIDs(&fFlushingRenderTaskIDs);
+        fFlushingRenderTaskIDs.reset(fTasks.count());
+        for (int i = 0; i < fTasks.count(); i++) {
+            if (fTasks[i]) {
+                fFlushingRenderTaskIDs[i] = fTasks[i]->uniqueID();
+            }
+        }
 
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs.begin(),
@@ -285,9 +200,9 @@ bool GrDrawingManager::flush(
     for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
         SkDEBUGCODE(onFlushRenderTask->dump(/* printDependencies */ true);)
     }
-    SkDEBUGCODE(SkDebugf("Normal renderTasks (%d):\n", fDAG.numRenderTasks()));
-    for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
-        SkDEBUGCODE(fDAG.renderTask(i)->dump(/* printDependencies */ true);)
+    SkDEBUGCODE(SkDebugf("Normal renderTasks (%d):\n", fTasks.count()));
+    for (const auto& task : fTasks) {
+        SkDEBUGCODE(task->dump(/* printDependencies */ true);)
     }
 #endif
 
@@ -295,10 +210,10 @@ bool GrDrawingManager::flush(
     bool flushed = false;
 
     {
-        GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fDAG.numRenderTasks()));
-        for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
-            if (fDAG.renderTask(i)) {
-                fDAG.renderTask(i)->gatherProxyIntervals(&alloc);
+        GrResourceAllocator alloc(resourceProvider SkDEBUGCODE(, fTasks.count()));
+        for (int i = 0; i < fTasks.count(); ++i) {
+            if (fTasks[i]) {
+                fTasks[i]->gatherProxyIntervals(&alloc);
             }
             alloc.markEndOfOpsTask(i);
         }
@@ -309,7 +224,7 @@ bool GrDrawingManager::flush(
         while (alloc.assign(&startIndex, &stopIndex, &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
-                    GrRenderTask* renderTask = fDAG.renderTask(i);
+                    GrRenderTask* renderTask = fTasks[i].get();
                     if (!renderTask) {
                         continue;
                     }
@@ -332,14 +247,14 @@ bool GrDrawingManager::flush(
     }
 
 #ifdef SK_DEBUG
-    for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
+    for (const auto& task : fTasks) {
         // All render tasks should have been cleared out by now – we only reset the array below to
         // reclaim storage.
-        SkASSERT(!fDAG.renderTask(i));
+        SkASSERT(!task);
     }
 #endif
     fLastRenderTasks.reset();
-    fDAG.reset();
+    fTasks.reset();
     this->clearDDLTargets();
 
 #ifdef SK_DEBUG
@@ -387,14 +302,14 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
 
 bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlushState* flushState,
                                           int* numRenderTasksExecuted) {
-    SkASSERT(startIndex <= stopIndex && stopIndex <= fDAG.numRenderTasks());
+    SkASSERT(startIndex <= stopIndex && stopIndex <= fTasks.count());
 
 #if GR_FLUSH_TIME_OP_SPEW
     SkDebugf("Flushing opsTask: %d to %d out of [%d, %d]\n",
-                            startIndex, stopIndex, 0, fDAG.numRenderTasks());
-    for (int i = startIndex; i < stopIndex; ++i) {
-        if (fDAG.renderTask(i)) {
-            fDAG.renderTask(i)->dump(true);
+                            startIndex, stopIndex, 0, fTasks.count());
+    for (const auto& task : fTasks) {
+        if (task) {
+            task->dump(true);
         }
     }
 #endif
@@ -402,7 +317,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     bool anyRenderTasksExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* renderTask = fDAG.renderTask(i);
+        GrRenderTask* renderTask = fTasks[i].get();
         if (!renderTask || !renderTask->isInstantiated()) {
              continue;
         }
@@ -439,8 +354,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     fOnFlushRenderTasks.reset();
 
     // Execute the normal op lists.
-    for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* renderTask = fDAG.renderTask(i);
+    for (const auto& renderTask : fTasks) {
         if (!renderTask || !renderTask->isInstantiated()) {
             continue;
         }
@@ -470,7 +384,7 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
 
 void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
     for (int i = startIndex; i < stopIndex; ++i) {
-        GrRenderTask* task = fDAG.renderTask(i);
+        GrRenderTask* task = fTasks[i].get();
         if (!task) {
             continue;
         }
@@ -479,8 +393,65 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
             task->endFlush(this);
         }
         task->disown(this);
+        fTasks[i] = nullptr;
     }
-    fDAG.rawRemoveRenderTasks(startIndex, stopIndex);
+}
+
+void GrDrawingManager::sortTasks() {
+    if (!SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fTasks)) {
+        SkDEBUGFAIL("Render task topo sort failed.");
+        return;
+    }
+
+#ifdef SK_DEBUG
+    // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
+    // share the same backing GrSurfaceProxy it means the opsTask was artificially split.
+    if (!fTasks.empty()) {
+        GrOpsTask* prevOpsTask = fTasks[0]->asOpsTask();
+        for (int i = 1; i < fTasks.count(); ++i) {
+            GrOpsTask* curOpsTask = fTasks[i]->asOpsTask();
+
+            if (prevOpsTask && curOpsTask) {
+                SkASSERT(prevOpsTask->target(0).proxy() != curOpsTask->target(0).proxy());
+            }
+
+            prevOpsTask = curOpsTask;
+        }
+    }
+#endif
+}
+
+void GrDrawingManager::closeAllTasks() {
+    const GrCaps& caps = *fContext->priv().caps();
+    for (auto& task : fTasks) {
+        if (task) {
+            task->makeClosed(caps);
+        }
+    }
+}
+
+GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
+    SkASSERT(!fTasks.empty());
+    SkASSERT(task && task->unique());
+    // Release 'fTasks.back()' and grab the raw pointer, in case the SkTArray grows
+    // and reallocates during emplace_back.
+    fTasks.emplace_back(fTasks.back().release());
+    return (fTasks[fTasks.count() - 2] = std::move(task)).get();
+}
+
+GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
+    SkASSERT(task && task->unique());
+    return fTasks.push_back(std::move(task)).get();
+}
+
+GrRenderTask* GrDrawingManager::appendTasks(SkSpan<const sk_sp<GrRenderTask>> tasks) {
+#ifdef SK_DEBUG
+    for (const auto& task : tasks) {
+        SkASSERT(task && task->unique());
+    }
+#endif
+    fTasks.push_back_n(tasks.count(), tasks.begin())->get();
+    return fTasks.back().get();
 }
 
 static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
@@ -606,11 +577,11 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 
     // no renderTask should receive a new command after this
-    fDAG.closeAll(fContext->priv().caps());
+    this->closeAllTasks();
     fActiveOpsTask = nullptr;
 
-    fDAG.swap(&ddl->fRenderTasks);
-    SkASSERT(!fDAG.numRenderTasks());
+    fTasks.swap(ddl->fRenderTasks);
+    SkASSERT(fTasks.empty());
 
     for (auto& renderTask : ddl->fRenderTasks) {
         renderTask->disown(this);
@@ -665,11 +636,11 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
         ccpr->mergePendingPaths(ddl->fPendingPaths);
     }
 
-    fDAG.add(ddl->fRenderTasks);
+    this->appendTasks(ddl->fRenderTasks);
 
     // Add a task to unref the DDL after flush.
-    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
-    unrefTask->makeClosed(*fContext->priv().caps());
+    this->appendTask(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    fTasks.back()->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());
 }
@@ -680,23 +651,23 @@ void GrDrawingManager::validate() const {
         SkASSERT(!fActiveOpsTask);
     } else {
         if (fActiveOpsTask) {
-            SkASSERT(!fDAG.empty());
+            SkASSERT(!fTasks.empty());
             SkASSERT(!fActiveOpsTask->isClosed());
-            SkASSERT(fActiveOpsTask == fDAG.back());
+            SkASSERT(fActiveOpsTask == fTasks.back().get());
         }
 
-        for (int i = 0; i < fDAG.numRenderTasks(); ++i) {
-            if (fActiveOpsTask != fDAG.renderTask(i)) {
+        for (int i = 0; i < fTasks.count(); ++i) {
+            if (fActiveOpsTask != fTasks[i].get()) {
                 // The resolveTask associated with the activeTask remains open for as long as the
                 // activeTask does.
                 bool isActiveResolveTask =
-                        fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG.renderTask(i);
-                SkASSERT(isActiveResolveTask || fDAG.renderTask(i)->isClosed());
+                    fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fTasks[i].get();
+                SkASSERT(isActiveResolveTask || fTasks[i]->isClosed());
             }
         }
 
-        if (!fDAG.empty() && !fDAG.back()->isClosed()) {
-            SkASSERT(fActiveOpsTask == fDAG.back());
+        if (!fTasks.empty() && !fTasks.back()->isClosed()) {
+            SkASSERT(fActiveOpsTask == fTasks.back().get());
         }
     }
 }
@@ -736,7 +707,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
 
     if (managedOpsTask) {
-        fDAG.add(opsTask);
+        fTasks.push_back(opsTask);
 
         if (!fReduceOpsTaskSplitting) {
             fActiveOpsTask = opsTask.get();
@@ -757,8 +728,8 @@ GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const 
     // Add the new textureResolveTask before the fActiveOpsTask (if not in
     // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
-    return static_cast<GrTextureResolveRenderTask*>(fDAG.addBeforeLast(
-            sk_make_sp<GrTextureResolveRenderTask>()));
+    GrRenderTask* task = this->insertTaskBeforeLast(sk_make_sp<GrTextureResolveRenderTask>());
+    return static_cast<GrTextureResolveRenderTask*>(task);
 }
 
 void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
@@ -799,11 +770,11 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             }
             this->setLastRenderTask(proxy.get(), waitTask.get());
         }
-        fDAG.add(waitTask);
+        fTasks.push_back(waitTask);
     } else {
         if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
             SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
-            fDAG.addBeforeLast(waitTask);
+            this->insertTaskBeforeLast(waitTask);
             // In this case we keep the current renderTask open but just insert the new waitTask
             // before it in the list. The waitTask will never need to trigger any resolves or mip
             // map generation which is the main advantage of going through the proxy version.
@@ -829,7 +800,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             }
             this->setLastRenderTask(proxy.get(), waitTask.get());
             this->closeRenderTasksForNewRenderTask(proxy.get());
-            fDAG.add(waitTask);
+            fTasks.push_back(waitTask);
         }
     }
     waitTask->makeClosed(caps);
@@ -848,9 +819,10 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // This copies from srcProxy to dstBuffer so it doesn't have a real target.
     this->closeRenderTasksForNewRenderTask(nullptr);
 
-    GrRenderTask* task = fDAG.add(sk_make_sp<GrTransferFromRenderTask>(
+    fTasks.push_back(sk_make_sp<GrTransferFromRenderTask>(
             srcProxy, srcRect, surfaceColorType, dstColorType,
             std::move(dstBuffer), dstOffset));
+    GrRenderTask* task = fTasks.back().get();
 
     const GrCaps& caps = *fContext->priv().caps();
 
@@ -878,9 +850,9 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
 
     GrSurfaceProxy* srcProxy = srcView.proxy();
 
-    GrRenderTask* task =
-            fDAG.add(GrCopyRenderTask::Make(this, std::move(srcView), srcRect, std::move(dstView),
+    fTasks.push_back(GrCopyRenderTask::Make(this, std::move(srcView), srcRect, std::move(dstView),
                                             dstPoint, &caps));
+    GrRenderTask* task = fTasks.back().get();
     if (!task) {
         return false;
     }
