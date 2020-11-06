@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b28e4fa_98017a66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-06T16:49:12Z",
+      "side": 1,
+      "message": "FYI: I got confused by back-to-back reverts here, and accidentally re-added your reverted note. This is just me re-removing it.",
+      "revId": "fddf680ad3c869e7cd7ac31823a789f26bca39b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
