@@ -33,6 +33,23 @@
       "message": "If all you care about is the warning, I\u0027d be happy to land something that switches these to explicit std::memory_order_seq_cst right away.  Come to think of it, why don\u0027t we do that first, and then look at relaxing anything as follow ups?",
       "revId": "76ad64a0a015c10f9df569879eda0e8bf749fc6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8fe65f6_36ad5a2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T23:46:10Z",
+      "side": 1,
+      "message": "Oddly, it seems we increment these ids so often and therefore execute so many barriers to TSAN (it also emits actual barriers like MFENCE which is the perf warning, but I\u0027m more interested in the TSAN bits here) that I can imagine these fences potentially covering other possible races. Looking through here I don\u0027t see anywhere the returned value indicates that anything can be inferred (in most cases we create the id before the object is created, so the existence of an id doesn\u0027t even imply the existence of an object). As a result, I\u0027m actually more concerned about this uncovering different latent bugs elsewhere than this change breaking any of the code which deals with ids.\n\nIn any event, I kicked off some TSAN bots just to look.",
+      "revId": "76ad64a0a015c10f9df569879eda0e8bf749fc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
