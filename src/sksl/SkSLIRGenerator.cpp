@@ -1721,6 +1721,57 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
     }
 }
 
+template <typename T>
+std::unique_ptr<Expression> IRGenerator::constantFoldVector(const Expression& left,
+                                                            Token::Kind op,
+                                                            const Expression& right) const {
+    SkASSERT(left.type() == right.type());
+    const Type& type = left.type();
+
+    // Handle boolean operations: == !=
+    if (op == Token::Kind::TK_EQEQ || op == Token::Kind::TK_NEQ) {
+        if (left.kind() == right.kind()) {
+            bool result = left.compareConstant(fContext, right) ^ (op == Token::Kind::TK_NEQ);
+            return std::make_unique<BoolLiteral>(fContext, left.fOffset, result);
+        }
+        return nullptr;
+    }
+
+    // Handle floating-point arithmetic: + - * /
+    const auto vectorComponentwiseFold = [&](auto foldFn) -> std::unique_ptr<Constructor> {
+        ExpressionArray args;
+        for (int i = 0; i < type.columns(); i++) {
+            T value = foldFn(left.getVecComponent<T>(i), right.getVecComponent<T>(i));
+            args.push_back(std::make_unique<Literal<T>>(fContext, left.fOffset, value));
+        }
+        return std::make_unique<Constructor>(left.fOffset, &type, std::move(args));
+    };
+
+    const auto isVectorDivisionByZero = [&]() -> bool {
+        for (int i = 0; i < type.columns(); i++) {
+            if (right.getVecComponent<T>(i) == 0) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    switch (op) {
+        case Token::Kind::TK_PLUS:  return vectorComponentwiseFold([](T a, T b) { return a + b; });
+        case Token::Kind::TK_MINUS: return vectorComponentwiseFold([](T a, T b) { return a - b; });
+        case Token::Kind::TK_STAR:  return vectorComponentwiseFold([](T a, T b) { return a * b; });
+        case Token::Kind::TK_SLASH: {
+            if (isVectorDivisionByZero()) {
+                fErrors.error(right.fOffset, "division by zero");
+                return nullptr;
+            }
+            return vectorComponentwiseFold([](T a, T b) { return a / b; });
+        }
+        default:
+            return nullptr;
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
                                                       const Expression& right) const {
@@ -1836,46 +1887,12 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     const Type& leftType = left.type();
     const Type& rightType = right.type();
-    if (leftType.typeKind() == Type::TypeKind::kVector && leftType.componentType().isFloat() &&
-        leftType == rightType) {
-        ExpressionArray args;
-        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                             \
-            for (int i = 0; i < leftType.columns(); i++) {                                      \
-                SKSL_FLOAT value = left.getFVecComponent(i) op right.getFVecComponent(i);       \
-                args.push_back(std::make_unique<FloatLiteral>(fContext, left.fOffset, value));  \
-            }                                                                                   \
-            return std::make_unique<Constructor>(left.fOffset, &leftType, std::move(args))
-        switch (op) {
-            case Token::Kind::TK_EQEQ:
-                if (left.kind() == right.kind()) {
-                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                         left.compareConstant(fContext, right));
-                }
-                return nullptr;
-            case Token::Kind::TK_NEQ:
-                if (left.kind() == right.kind()) {
-                    return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                         !left.compareConstant(fContext, right));
-                }
-                return nullptr;
-            case Token::Kind::TK_PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
-            case Token::Kind::TK_MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
-            case Token::Kind::TK_STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
-            case Token::Kind::TK_SLASH:
-                for (int i = 0; i < leftType.columns(); i++) {
-                    SKSL_FLOAT rvalue = right.getFVecComponent(i);
-                    if (rvalue == 0.0) {
-                        fErrors.error(right.fOffset, "division by zero");
-                        return nullptr;
-                    }
-                    SKSL_FLOAT value = left.getFVecComponent(i) / rvalue;
-                    args.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, value));
-                }
-                return std::make_unique<Constructor>(/*offset=*/-1, &leftType, std::move(args));
-            default:
-                return nullptr;
+    if (leftType.typeKind() == Type::TypeKind::kVector && leftType == rightType) {
+        if (leftType.componentType().isFloat()) {
+            return constantFoldVector<SKSL_FLOAT>(left, op, right);
+        } else if (leftType.componentType().isInteger()) {
+            return constantFoldVector<SKSL_INT>(left, op, right);
         }
-        #undef RETURN_VEC_COMPONENTWISE_RESULT
     }
     if (leftType.typeKind() == Type::TypeKind::kMatrix &&
         rightType.typeKind() == Type::TypeKind::kMatrix &&
