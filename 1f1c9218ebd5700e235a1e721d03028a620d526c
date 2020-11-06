@@ -56,6 +56,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79858f38_faf4f147",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T15:10:54Z",
+      "side": 1,
+      "message": "I haven\u0027t experimented with this approach, since I was replacing the storage entirely with a simple char[] (not something I can subclass from), but I can give it a shot if you think it\u0027s technically superior. To be clear, you\u0027re suggesting trying it this way?\n\n   class SkSTArray : public SkTArray\u003cT, MEM_MOVE\u003e, SkAlignedSTStorage\u003cN, T\u003e {",
+      "parentUuid": "68e01ccb_0d64fdbd",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
