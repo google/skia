@@ -104,6 +104,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6de82a7_161e3ec8",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T15:21:14Z",
+      "side": 1,
+      "message": "Yeah, Herb\u0027s suggestion was to inherit privately from the storage, then publicly from SkTArray.\n\nI would hate to have to go back to SkAlignedSTStorage given how much a pain that\u0027s been.  I think it can all be as simple as this?\n\n   template \u003cint N, typename T, bool MEM_MOVE \u003d false\u003e\n   class alignas(T) SkSTArray : private std::array\u003cchar,N*sizeof(T)\u003e, public SkTArray\u003cT,MEM_MOVE\u003e {\n       ...\n   };",
+      "parentUuid": "c883756c_428ca14f",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
