@@ -16,6 +16,24 @@
       "message": "Isn\u0027t 2^16 an interesting number here, along a 2^6 to push the blob partially in and partially out of the 2^16 range?",
       "revId": "42655007b0a6bbf5a7e2d8a47fb72ef46346c00a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "059f0243_3abb0be0",
+        "filename": "tests/GrTextBlobTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-06T15:49:14Z",
+      "side": 1,
+      "message": "2^16 is kind of interesting, but 10^6 does everything that 2^16 does.",
+      "parentUuid": "b9d95c83_723cd4c5",
+      "revId": "42655007b0a6bbf5a7e2d8a47fb72ef46346c00a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
