@@ -171,6 +171,10 @@ private:
                                      ExpressionArray arguments);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
+    template <typename T>
+    std::unique_ptr<Expression> constantFoldVector(const Expression& left,
+                                                   Token::Kind op,
+                                                   const Expression& right) const;
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Expression> convertNumberConstructor(int offset,
