@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "72c40059_5aefe4b8",
+        "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-06T16:12:04Z",
+      "side": 1,
+      "message": "Gotcha, ok. Is the strategy to combine asserts + gracefully handling errors for non-debug builds, or just asserts?",
+      "parentUuid": "29c94170_1e7345cf",
+      "revId": "d9413b861ac1cef983592762b777faf4d2499196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8fd637be_f028ff01",
         "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
         "patchSetId": 6
