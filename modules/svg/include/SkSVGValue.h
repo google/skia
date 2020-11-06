@@ -18,31 +18,19 @@
 class SkSVGValue : public SkNoncopyable {
 public:
     enum class Type {
-        kClip,
         kColor,
-        kDashArray,
-        kFillRule,
         kFilter,
-        kFontFamily,
-        kFontSize,
-        kFontStyle,
-        kFontWeight,
         kLength,
-        kLineCap,
-        kLineJoin,
         kNumber,
         kObjectBoundingBoxUnits,
-        kPaint,
         kPath,
         kPoints,
         kPreserveAspectRatio,
         kSpreadMethod,
         kStopColor,
         kString,
-        kTextAnchor,
         kTransform,
         kViewBox,
-        kVisibility,
     };
 
     Type type() const { return fType; }
@@ -83,31 +71,18 @@ private:
     using INHERITED = SkSVGValue;
 };
 
-using SkSVGClipValue         = SkSVGWrapperValue<SkSVGClip         , SkSVGValue::Type::kClip      >;
 using SkSVGColorValue        = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor     >;
-using SkSVGFillRuleValue     = SkSVGWrapperValue<SkSVGFillRule     , SkSVGValue::Type::kFillRule  >;
 using SkSVGFilterValue       = SkSVGWrapperValue<SkSVGFilterType   , SkSVGValue::Type::kFilter    >;
 using SkSVGLengthValue       = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength    >;
 using SkSVGPathValue         = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath      >;
 using SkSVGTransformValue    = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform >;
 using SkSVGViewBoxValue      = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue::Type::kViewBox   >;
-using SkSVGPaintValue        = SkSVGWrapperValue<SkSVGPaint        , SkSVGValue::Type::kPaint     >;
-using SkSVGLineCapValue      = SkSVGWrapperValue<SkSVGLineCap      , SkSVGValue::Type::kLineCap   >;
-using SkSVGLineJoinValue     = SkSVGWrapperValue<SkSVGLineJoin     , SkSVGValue::Type::kLineJoin  >;
 using SkSVGNumberValue       = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber    >;
 using SkSVGPointsValue       = SkSVGWrapperValue<SkSVGPointsType   , SkSVGValue::Type::kPoints    >;
 using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue::Type::kString    >;
 using SkSVGSpreadMethodValue = SkSVGWrapperValue<SkSVGSpreadMethod ,
                                                  SkSVGValue::Type::kSpreadMethod>;
 using SkSVGStopColorValue    = SkSVGWrapperValue<SkSVGStopColor    , SkSVGValue::Type::kStopColor >;
-using SkSVGVisibilityValue   = SkSVGWrapperValue<SkSVGVisibility   , SkSVGValue::Type::kVisibility>;
-using SkSVGDashArrayValue    = SkSVGWrapperValue<SkSVGDashArray    , SkSVGValue::Type::kDashArray >;
-
-using SkSVGFontFamilyValue   = SkSVGWrapperValue<SkSVGFontFamily   , SkSVGValue::Type::kFontFamily>;
-using SkSVGFontSizeValue     = SkSVGWrapperValue<SkSVGFontSize     , SkSVGValue::Type::kFontSize  >;
-using SkSVGFontStyleValue    = SkSVGWrapperValue<SkSVGFontStyle    , SkSVGValue::Type::kFontStyle >;
-using SkSVGFontWeightValue   = SkSVGWrapperValue<SkSVGFontWeight   , SkSVGValue::Type::kFontWeight>;
-using SkSVGTextAnchorValue   = SkSVGWrapperValue<SkSVGTextAnchor   , SkSVGValue::Type::kTextAnchor>;
 
 using SkSVGPreserveAspectRatioValue    = SkSVGWrapperValue<SkSVGPreserveAspectRatio,
                                                            SkSVGValue::Type::kPreserveAspectRatio>;

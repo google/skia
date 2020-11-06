@@ -14,7 +14,6 @@
 class SkSVGRenderContext;
 
 enum class SkSVGAttribute {
-    kClipPath,
     kClipRule,
     kColor,
     kCx, // <circle>, <ellipse>, <radialGradient>: center x position

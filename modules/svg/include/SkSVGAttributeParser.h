@@ -17,31 +17,18 @@ public:
     SkSVGAttributeParser(const char[]);
 
     bool parseColor(SkSVGColorType*);
-    bool parseClipPath(SkSVGClip*);
-    bool parseFillRule(SkSVGFillRule*);
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
     bool parseInteger(SkSVGIntegerType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parseTransform(SkSVGTransformType*);
-    bool parsePaint(SkSVGPaint*);
-    bool parseLineCap(SkSVGLineCap*);
-    bool parseLineJoin(SkSVGLineJoin*);
     bool parsePoints(SkSVGPointsType*);
     bool parseIRI(SkSVGStringType*);
     bool parseSpreadMethod(SkSVGSpreadMethod*);
     bool parseStopColor(SkSVGStopColor*);
     bool parseObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits*);
-    bool parseVisibility(SkSVGVisibility*);
-    bool parseDashArray(SkSVGDashArray*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
-
-    bool parseFontFamily(SkSVGFontFamily*);
-    bool parseFontSize(SkSVGFontSize*);
-    bool parseFontStyle(SkSVGFontStyle*);
-    bool parseFontWeight(SkSVGFontWeight*);
-    bool parseTextAnchor(SkSVGTextAnchor*);
 
     // TODO: Migrate all parse*() functions to this style (and delete the old version)
     //      so they can be used by parse<T>():

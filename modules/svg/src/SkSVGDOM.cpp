@@ -39,18 +39,6 @@
 
 namespace {
 
-bool SetPaintAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                       const char* stringValue) {
-    SkSVGPaint paint;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parsePaint(&paint)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGPaintValue(paint));
-    return true;
-}
-
 bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
     SkSVGColorType color;
@@ -74,19 +62,6 @@ bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     node->setAttribute(attr, SkSVGStringValue(iri));
     return true;
 }
-
-bool SetClipPathAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                          const char* stringValue) {
-    SkSVGClip clip;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseClipPath(&clip)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGClipValue(clip));
-    return true;
-}
-
 
 bool SetPathDataAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                           const char* stringValue) {
@@ -155,30 +130,6 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetLineCapAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                         const char* stringValue) {
-    SkSVGLineCap lineCap;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseLineCap(&lineCap)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGLineCapValue(lineCap));
-    return true;
-}
-
-bool SetLineJoinAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                          const char* stringValue) {
-    SkSVGLineJoin lineJoin;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseLineJoin(&lineJoin)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGLineJoinValue(lineJoin));
-    return true;
-}
-
 bool SetSpreadMethodAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                              const char* stringValue) {
     SkSVGSpreadMethod spread;
@@ -228,18 +179,6 @@ bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                          const char* stringValue) {
-    SkSVGFillRule fillRule;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFillRule(&fillRule)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFillRuleValue(fillRule));
-    return true;
-}
-
 bool SetFilterAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
     SkSVGFilterType filter;
@@ -249,91 +188,6 @@ bool SetFilterAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGFilterValue(filter));
-    return true;
-}
-
-bool SetVisibilityAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                            const char* stringValue) {
-    SkSVGVisibility visibility;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseVisibility(&visibility)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGVisibilityValue(visibility));
-    return true;
-}
-
-bool SetDashArrayAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                           const char* stringValue) {
-    SkSVGDashArray dashArray;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseDashArray(&dashArray)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGDashArrayValue(dashArray));
-    return true;
-}
-
-bool SetFontFamilyAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                            const char* stringValue) {
-    SkSVGFontFamily family;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFontFamily(&family)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFontFamilyValue(family));
-    return true;
-}
-
-bool SetFontSizeAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                          const char* stringValue) {
-    SkSVGFontSize size;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFontSize(&size)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFontSizeValue(size));
-    return true;
-}
-
-bool SetFontStyleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                           const char* stringValue) {
-    SkSVGFontStyle style;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFontStyle(&style)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFontStyleValue(style));
-    return true;
-}
-
-bool SetFontWeightAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                            const char* stringValue) {
-    SkSVGFontWeight weight;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFontWeight(&weight)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFontWeightValue(weight));
-    return true;
-}
-
-bool SetTextAnchorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                            const char* stringValue) {
-    SkSVGTextAnchor anchor;
-    SkSVGAttributeParser parser(stringValue);
-
-    if (!parser.parseTextAnchor(&anchor)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGTextAnchorValue(anchor));
     return true;
 }
 
@@ -427,22 +281,14 @@ struct AttrParseInfo {
 };
 
 SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
-    { "clip-path"          , { SkSVGAttribute::kClipPath         , SetClipPathAttribute     }},
-    { "clip-rule"          , { SkSVGAttribute::kClipRule         , SetFillRuleAttribute     }},
     { "color"              , { SkSVGAttribute::kColor            , SetColorAttribute        }},
     { "cx"                 , { SkSVGAttribute::kCx               , SetLengthAttribute       }},
     { "cy"                 , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
     { "d"                  , { SkSVGAttribute::kD                , SetPathDataAttribute     }},
-    { "fill"               , { SkSVGAttribute::kFill             , SetPaintAttribute        }},
     { "fill-opacity"       , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
-    { "fill-rule"          , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
     { "filter"             , { SkSVGAttribute::kFilter           , SetFilterAttribute       }},
     { "filterUnits"        , { SkSVGAttribute::kFilterUnits      ,
                                SetObjectBoundingBoxUnitsAttribute }},
-    { "font-family"        , { SkSVGAttribute::kFontFamily       , SetFontFamilyAttribute   }},
-    { "font-size"          , { SkSVGAttribute::kFontSize         , SetFontSizeAttribute     }},
-    { "font-style"         , { SkSVGAttribute::kFontStyle        , SetFontStyleAttribute    }},
-    { "font-weight"        , { SkSVGAttribute::kFontWeight       , SetFontWeightAttribute   }},
     // focal point x & y
     { "fx"                 , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"                 , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
@@ -462,20 +308,14 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "spreadMethod"       , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
     { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
-    { "stroke"             , { SkSVGAttribute::kStroke           , SetPaintAttribute        }},
-    { "stroke-dasharray"   , { SkSVGAttribute::kStrokeDashArray  , SetDashArrayAttribute    }},
     { "stroke-dashoffset"  , { SkSVGAttribute::kStrokeDashOffset , SetLengthAttribute       }},
-    { "stroke-linecap"     , { SkSVGAttribute::kStrokeLineCap    , SetLineCapAttribute      }},
-    { "stroke-linejoin"    , { SkSVGAttribute::kStrokeLineJoin   , SetLineJoinAttribute     }},
     { "stroke-miterlimit"  , { SkSVGAttribute::kStrokeMiterLimit , SetNumberAttribute       }},
     { "stroke-opacity"     , { SkSVGAttribute::kStrokeOpacity    , SetNumberAttribute       }},
     { "stroke-width"       , { SkSVGAttribute::kStrokeWidth      , SetLengthAttribute       }},
     { "style"              , { SkSVGAttribute::kUnknown          , SetStyleAttributes       }},
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
-    { "text-anchor"        , { SkSVGAttribute::kTextAnchor       , SetTextAnchorAttribute   }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
     { "viewBox"            , { SkSVGAttribute::kViewBox          , SetViewBoxAttribute      }},
-    { "visibility"         , { SkSVGAttribute::kVisibility       , SetVisibilityAttribute   }},
     { "width"              , { SkSVGAttribute::kWidth            , SetLengthAttribute       }},
     { "x"                  , { SkSVGAttribute::kX                , SetLengthAttribute       }},
     { "x1"                 , { SkSVGAttribute::kX1               , SetLengthAttribute       }},
