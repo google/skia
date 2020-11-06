@@ -8,6 +8,7 @@
 #ifndef SkSVGFilter_DEFINED
 #define SkSVGFilter_DEFINED
 
+#include "include/effects/SkImageFilters.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
 #include "modules/svg/include/SkSVGTypes.h"
 

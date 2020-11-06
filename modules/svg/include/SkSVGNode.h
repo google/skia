@@ -26,6 +26,7 @@ enum class SkSVGTag {
     kDefs,
     kEllipse,
     kFeColorMatrix,
+    kFeComposite,
     kFeTurbulence,
     kFilter,
     kG,
@@ -146,7 +147,7 @@ private:
 #undef SVG_PRES_ATTR // presentation attributes are only defined for the base class
 
 #define SVG_ATTR(attr_name, attr_type, attr_default)                        \
-    private:                                                                \
+    protected:                                                              \
         attr_type f##attr_name = attr_default;                              \
         bool set##attr_name(                                                \
                 const SkSVGAttributeParser::ParseResult<attr_type>& pr) {   \

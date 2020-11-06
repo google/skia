@@ -6,10 +6,48 @@
  */
 
 #include "include/effects/SkImageFilters.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 
 sk_sp<SkImageFilter> SkSVGFe::makeImageFilter(const SkSVGRenderContext& ctx,
-                                              SkSVGFilterContext* fctx) const {
-    return this->onMakeImageFilter(ctx, *fctx);
+                                              const SkSVGFilterContext& fctx) const {
+    return this->onMakeImageFilter(ctx, fctx);
+}
+
+bool SkSVGFe::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setInput(SkSVGAttributeParser::parse<SkSVGFeInputType>("in", name, value)) ||
+           this->setResult(SkSVGAttributeParser::parse<SkSVGFeResultType>("result", name, value));
+}
+
+template <> bool SkSVGAttributeParser::parse(SkSVGFeInputType* type) {
+    static constexpr std::tuple<const char*, SkSVGFeInputType::Type> gTypeMap[] = {
+            {"SourceGraphic", SkSVGFeInputType::Type::kSourceGraphic},
+            {"SourceAlpha", SkSVGFeInputType::Type::kSourceAlpha},
+            {"BackgroundImage", SkSVGFeInputType::Type::kBackgroundImage},
+            {"BackgroundAlpha", SkSVGFeInputType::Type::kBackgroundAlpha},
+            {"FillPaint", SkSVGFeInputType::Type::kFillPaint},
+            {"StrokePaint", SkSVGFeInputType::Type::kStrokePaint},
+    };
+
+    SkSVGFeInputType::Type t;
+    if (this->parseEnumMap(gTypeMap, &t)) {
+        *type = SkSVGFeInputType(t);
+        return true;
+    } else if (!this->parseEOSToken()) {
+        *type = SkSVGFeInputType(SkSVGStringType(fCurPos));
+        fCurPos += type->id().size();
+    }
+
+    return this->parseEOSToken();
+}
+
+template <> bool SkSVGAttributeParser::parse(SkSVGFeResultType* result) {
+    if (this->parseEOSToken()) {
+        return false;
+    }
+    *result = SkSVGFeResultType(SkSVGStringType(fCurPos));
+    fCurPos += result->id().size();
+    return this->parseEOSToken();
 }
