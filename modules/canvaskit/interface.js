@@ -920,22 +920,17 @@ CanvasKit.onRuntimeInitialized = function() {
     return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
   };
 
-  CanvasKit.Image.prototype.readPixels = function(imageInfo, srcX, srcY, destMallocObj) {
-    var rowBytes;
-    // Important to use ['string'] notation here, otherwise the closure compiler will
-    // minify away the colorType.
-    switch (imageInfo['colorType']) {
-      case CanvasKit.ColorType.RGBA_8888:
-        rowBytes = imageInfo.width * 4; // 1 byte per channel == 4 bytes per pixel in 8888
-        break;
-      case CanvasKit.ColorType.RGBA_F32:
-        rowBytes = imageInfo.width * 16; // 4 bytes per channel == 16 bytes per pixel in F32
-        break;
-      default:
-        Debug('Colortype not yet supported');
-        return;
+  function readPixels(source, srcX, srcY, imageInfo, destMallocObj, bytesPerRow) {
+    if (!bytesPerRow) {
+      bytesPerRow = 4 * imageInfo['width'];
+      if (imageInfo['colorType'] === CanvasKit.ColorType.RGBA_F16) {
+        bytesPerRow *= 2;
+      }
+      else if (imageInfo['colorType'] === CanvasKit.ColorType.RGBA_F32) {
+        bytesPerRow *= 4;
+      }
     }
-    var pBytes = rowBytes * imageInfo.height;
+    var pBytes = bytesPerRow * imageInfo.height;
     var pPtr;
     if (destMallocObj) {
       pPtr = destMallocObj['byteOffset'];
@@ -943,7 +938,7 @@ CanvasKit.onRuntimeInitialized = function() {
       pPtr = CanvasKit._malloc(pBytes);
     }
 
-    if (!this._readPixels(imageInfo, pPtr, rowBytes, srcX, srcY)) {
+    if (!source._readPixels(imageInfo, pPtr, bytesPerRow, srcX, srcY)) {
       Debug('Could not read pixels with the given inputs');
       if (!destMallocObj) {
         CanvasKit._free(pPtr);
@@ -961,16 +956,25 @@ CanvasKit.onRuntimeInitialized = function() {
     var retVal = null;
     switch (imageInfo['colorType']) {
       case CanvasKit.ColorType.RGBA_8888:
+      case CanvasKit.ColorType.RGBA_F16: // there is no half-float JS type, so we return raw bytes.
         retVal = new Uint8Array(CanvasKit.HEAPU8.buffer, pPtr, pBytes).slice();
         break;
       case CanvasKit.ColorType.RGBA_F32:
         retVal = new Float32Array(CanvasKit.HEAPU8.buffer, pPtr, pBytes).slice();
         break;
+      default:
+        Debug('ColorType not yet supported');
+        return null;
     }
 
     // Free the allocated pixels in the WASM memory
     CanvasKit._free(pPtr);
     return retVal;
+  }
+
+  CanvasKit.Image.prototype.readPixels = function(srcX, srcY, imageInfo, destMallocObj,
+                                                  bytesPerRow) {
+    return readPixels(this, srcX, srcY, imageInfo, destMallocObj, bytesPerRow);
   };
 
   // Accepts an array of four numbers in the range of 0-1 representing a 4f color
@@ -1176,52 +1180,9 @@ CanvasKit.onRuntimeInitialized = function() {
     return rv;
   };
 
-  // TODO(kjlubick) align this API with Image.readPixels
-  CanvasKit.Canvas.prototype.readPixels = function(x, y, w, h, alphaType,
-                                                   colorType, colorSpace, dstRowBytes,
-                                                   destMallocObj) {
-    // supply defaults (which are compatible with HTMLCanvas's getImageData)
-    alphaType = alphaType || CanvasKit.AlphaType.Unpremul;
-    colorType = colorType || CanvasKit.ColorType.RGBA_8888;
-    colorSpace = colorSpace || CanvasKit.ColorSpace.SRGB;
-    var pixBytes = 4;
-    if (colorType === CanvasKit.ColorType.RGBA_F16) {
-      pixBytes = 8;
-    }
-    dstRowBytes = dstRowBytes || (pixBytes * w);
-
-    var len = h * dstRowBytes;
-    var pPtr;
-    if (destMallocObj) {
-      pPtr = destMallocObj['byteOffset'];
-    } else {
-      pPtr = CanvasKit._malloc(len);
-    }
-
-    var ok = this._readPixels({
-      'width': w,
-      'height': h,
-      'colorType': colorType,
-      'alphaType': alphaType,
-      'colorSpace': colorSpace,
-    }, pPtr, dstRowBytes, x, y);
-    if (!ok) {
-      if (!destMallocObj) {
-        CanvasKit._free(pPtr);
-      }
-      return null;
-    }
-
-    // If the user provided us a buffer to copy into, we don't need to allocate a new TypedArray.
-    if (destMallocObj) {
-      return destMallocObj['toTypedArray'](); // Return the typed array wrapper w/o allocating.
-    }
-
-    // The first typed array is just a view into memory. Because we will
-    // be free-ing that, we call slice to make a persistent copy.
-    var pixels = new Uint8Array(CanvasKit.HEAPU8.buffer, pPtr, len).slice();
-    CanvasKit._free(pPtr);
-    return pixels;
+  CanvasKit.Canvas.prototype.readPixels = function(srcX, srcY, imageInfo, destMallocObj,
+                                                   bytesPerRow) {
+    return readPixels(this, srcX, srcY, imageInfo, destMallocObj, bytesPerRow);
   };
 
   CanvasKit.Canvas.prototype.saveLayer = function(paint, boundsRect, backdrop, flags) {
@@ -1372,7 +1333,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.Shader.Lerp = CanvasKit.Shader.MakeLerp;
 
   CanvasKit.Shader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
-    colorSpace = colorSpace || null
+    colorSpace = colorSpace || null;
     var cPtrInfo = copyFlexibleColorArray(colors);
     var posPtr = copy1dArray(pos, 'HEAPF32');
     flags = flags || 0;

@@ -138,12 +138,21 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     const matrThree = canvas.getTotalMatrix(); // $ExpectType number[]
     const surface = canvas.makeSurface(imageInfo); // $ExpectType Surface | null
     canvas.markCTM('more ctm');
-    const pixels = canvas.readPixels(0, 1, 2, 3); // $ExpectType Uint8Array
-    const pixelsTwo = canvas.readPixels(4, 5, 6, 7, CK.AlphaType.Opaque, CK.ColorType.RGBA_1010102,
-                                        CK.ColorSpace.DISPLAY_P3, 16);
-    const m = CK.Malloc(Uint8Array, 20);
-    canvas.readPixels(4, 5, 6, 7, CK.AlphaType.Opaque, CK.ColorType.RGBA_1010102,
-                                        CK.ColorSpace.DISPLAY_P3, 16, m);
+    const pixels = canvas.readPixels(85, 1000, {// $Uint8Array | Float32Array | null
+        width: 79,
+        height: 205,
+        colorType: CK.ColorType.RGBA_8888,
+        alphaType: CK.AlphaType.Unpremul,
+        colorSpace: CK.ColorSpace.SRGB,
+    });
+    const m = CK.Malloc(Uint8Array, 10);
+    img.readPixels(85, 1000, {
+        width: 79,
+        height: 205,
+        colorType: CK.ColorType.RGBA_8888,
+        alphaType: CK.AlphaType.Unpremul,
+        colorSpace: CK.ColorSpace.SRGB,
+    }, m, 4 * 85);
     canvas.restore();
     canvas.restoreToCount(2);
     canvas.rotate(1, 2, 3);
@@ -235,21 +244,21 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const h = img.height();
     const w = img.width();
     const shader = img.makeShader(CK.TileMode.Decal, CK.TileMode.Repeat); // $ExpectType Shader
-    const pixels = img.readPixels({
+    const pixels = img.readPixels(85, 1000, {// $Uint8Array | Float32Array | null
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
         alphaType: CK.AlphaType.Unpremul,
         colorSpace: CK.ColorSpace.SRGB,
-    }, 85, 1000);
+    });
     const m = CK.Malloc(Uint8Array, 10);
-    img.readPixels({
+    img.readPixels(85, 1000, {
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
         alphaType: CK.AlphaType.Unpremul,
         colorSpace: CK.ColorSpace.SRGB,
-    }, 85, 1000, m);
+    }, m, 4 * 85);
     img.delete();
 }
 

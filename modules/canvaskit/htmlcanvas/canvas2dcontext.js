@@ -48,7 +48,7 @@ function CanvasRenderingContext2D(skcanvas) {
     });
     // Don't delete this._canvas as it will be disposed
     // by the surface of which it is based.
-  }
+  };
 
   // This always accepts DOMMatrix/SVGMatrix or any other
   // object that has properties a,b,c,d,e,f defined.
@@ -491,29 +491,29 @@ function CanvasRenderingContext2D(skcanvas) {
 
   this.arc = function(x, y, radius, startAngle, endAngle, ccw) {
     arc(this._currentPath, x, y, radius, startAngle, endAngle, ccw);
-  }
+  };
 
   this.arcTo = function(x1, y1, x2, y2, radius) {
     arcTo(this._currentPath, x1, y1, x2, y2, radius);
-  }
+  };
 
   // As per the spec this doesn't begin any paths, it only
   // clears out any previous paths.
   this.beginPath = function() {
     this._currentPath.delete();
     this._currentPath = new CanvasKit.Path();
-  }
+  };
 
   this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
     bezierCurveTo(this._currentPath, cp1x, cp1y, cp2x, cp2y, x, y);
-  }
+  };
 
   this.clearRect = function(x, y, width, height) {
     this._paint.setStyle(CanvasKit.PaintStyle.Fill);
     this._paint.setBlendMode(CanvasKit.BlendMode.Clear);
     this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), this._paint);
     this._paint.setBlendMode(this._globalCompositeOperation);
-  }
+  };
 
   this.clip = function(path, fillRule) {
     if (typeof path === 'string') {
@@ -535,11 +535,11 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     this._canvas.clipPath(clip, CanvasKit.ClipOp.Intersect, true);
     clip.delete();
-  }
+  };
 
   this.closePath = function() {
     closePath(this._currentPath);
-  }
+  };
 
   this.createImageData = function() {
     // either takes in 1 or 2 arguments:
@@ -559,7 +559,7 @@ function CanvasRenderingContext2D(skcanvas) {
     } else {
       throw 'createImageData expects 1 or 2 arguments, got '+arguments.length;
     }
-  }
+  };
 
   this.createLinearGradient = function(x1, y1, x2, y2) {
     if (!allAreFinite(arguments)) {
@@ -568,13 +568,13 @@ function CanvasRenderingContext2D(skcanvas) {
     var lcg = new LinearCanvasGradient(x1, y1, x2, y2);
     this._toCleanUp.push(lcg);
     return lcg;
-  }
+  };
 
   this.createPattern = function(image, repetition) {
     var cp = new CanvasPattern(image, repetition);
     this._toCleanUp.push(cp);
     return cp;
-  }
+  };
 
   this.createRadialGradient = function(x1, y1, r1, x2, y2, r2) {
     if (!allAreFinite(arguments)) {
@@ -583,7 +583,7 @@ function CanvasRenderingContext2D(skcanvas) {
     var rcg = new RadialCanvasGradient(x1, y1, r1, x2, y2, r2);
     this._toCleanUp.push(rcg);
     return rcg;
-  }
+  };
 
   this._imagePaint = function() {
     var iPaint = this._fillPaint();
@@ -593,7 +593,7 @@ function CanvasRenderingContext2D(skcanvas) {
       iPaint.setFilterQuality(this._imageFilterQuality);
     }
     return iPaint;
-  }
+  };
 
   this.drawImage = function(img) {
     // 3 potential sets of arguments
@@ -618,13 +618,13 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.drawImageRect(img, srcRect, destRect, iPaint, false);
 
     iPaint.dispose();
-  }
+  };
 
   this.ellipse = function(x, y, radiusX, radiusY, rotation,
                           startAngle, endAngle, ccw) {
     ellipse(this._currentPath, x, y, radiusX, radiusY, rotation,
             startAngle, endAngle, ccw);
-  }
+  };
 
   // A helper to copy the current paint, ready for filling
   // This applies the global alpha.
@@ -646,9 +646,9 @@ function CanvasRenderingContext2D(skcanvas) {
       // here. In any case, we have .dispose() to make _fillPaint behave
       // like _strokePaint and _shadowPaint.
       this.delete();
-    }
+    };
     return paint;
-  }
+  };
 
   this.fill = function(path, fillRule) {
     if (typeof path === 'string') {
@@ -681,7 +681,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     this._canvas.drawPath(path, fillPaint);
     fillPaint.dispose();
-  }
+  };
 
   this.fillRect = function(x, y, width, height) {
     var fillPaint = this._fillPaint();
@@ -697,7 +697,7 @@ function CanvasRenderingContext2D(skcanvas) {
 
     this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), fillPaint);
     fillPaint.dispose();
-  }
+  };
 
   this.fillText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
@@ -715,10 +715,16 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.drawTextBlob(blob, x, y, fillPaint);
     blob.delete();
     fillPaint.dispose();
-  }
+  };
 
   this.getImageData = function(x, y, w, h) {
-    var pixels = this._canvas.readPixels(x, y, w, h);
+    var pixels = this._canvas.readPixels(x, y, {
+        'width': w,
+        'height': h,
+        'colorType': CanvasKit.ColorType.RGBA_8888,
+        'alphaType': CanvasKit.AlphaType.Unpremul,
+        'colorSpace': CanvasKit.ColorSpace.SRGB,
+    });
     if (!pixels) {
       return null;
     }
@@ -727,17 +733,17 @@ function CanvasRenderingContext2D(skcanvas) {
     return new ImageData(
       new Uint8ClampedArray(pixels.buffer),
       w, h);
-  }
+  };
 
   this.getLineDash = function() {
     return this._lineDashList.slice();
-  }
+  };
 
   this._mapToLocalCoordinates = function(pts) {
     var inverted = CanvasKit.Matrix.invert(this._currentTransform);
     CanvasKit.Matrix.mapPoints(inverted, pts);
     return pts;
-  }
+  };
 
   this.isPointInPath = function(x, y, fillmode) {
     var args = arguments;
@@ -766,7 +772,7 @@ function CanvasRenderingContext2D(skcanvas) {
                                   CanvasKit.FillType.Winding :
                                   CanvasKit.FillType.EvenOdd);
     return path.contains(x, y);
-  }
+  };
 
   this.isPointInStroke = function(x, y) {
     var args = arguments;
@@ -795,22 +801,22 @@ function CanvasRenderingContext2D(skcanvas) {
     var retVal = temp.contains(x, y);
     temp.delete();
     return retVal;
-  }
+  };
 
   this.lineTo = function(x, y) {
     lineTo(this._currentPath, x, y);
-  }
+  };
 
   this.measureText = function(text) {
     return {
       width: this._font.measureText(text),
       // TODO other measurements?
     }
-  }
+  };
 
   this.moveTo = function(x, y) {
     moveTo(this._currentPath, x, y);
-  }
+  };
 
   this.putImageData = function(imageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight) {
     if (!allAreFinite([x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight])) {
@@ -859,15 +865,15 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.drawImageRect(img, src, dst, null, false);
     this._canvas.restore();
     img.delete();
-  }
+  };
 
   this.quadraticCurveTo = function(cpx, cpy, x, y) {
     quadraticCurveTo(this._currentPath, cpx, cpy, x, y);
-  }
+  };
 
   this.rect = function(x, y, width, height) {
     rect(this._currentPath, x, y, width, height);
-  }
+  };
 
   this.resetTransform = function() {
     // Apply the current transform to the path and then reset
@@ -877,7 +883,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.concat(inverted);
     // This should be identity, modulo floating point drift.
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   this.restore = function() {
     var newState = this._canvasStateStack.pop();
@@ -915,7 +921,7 @@ function CanvasRenderingContext2D(skcanvas) {
     // restores the clip and ctm
     this._canvas.restore();
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   this.rotate = function(radians) {
     if (!isFinite(radians)) {
@@ -927,7 +933,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._currentPath.transform(inverted);
     this._canvas.rotate(radiansToDegrees(radians), 0, 0);
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   this.save = function() {
     if (this._fillStyle._copy) {
@@ -965,7 +971,7 @@ function CanvasRenderingContext2D(skcanvas) {
     });
     // Saves the clip
     this._canvas.save();
-  }
+  };
 
   this.scale = function(sx, sy) {
     if (!allAreFinite(arguments)) {
@@ -977,7 +983,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._currentPath.transform(inverted);
     this._canvas.scale(sx, sy);
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   this.setLineDash = function(dashes) {
     for (var i = 0; i < dashes.length; i++) {
@@ -992,7 +998,7 @@ function CanvasRenderingContext2D(skcanvas) {
       Array.prototype.push.apply(dashes, dashes);
     }
     this._lineDashList = dashes;
-  }
+  };
 
   this.setTransform = function(a, b, c, d, e, f) {
     if (!(allAreFinite(arguments))) {
@@ -1000,7 +1006,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     this.resetTransform();
     this.transform(a, b, c, d, e, f);
-  }
+  };
 
   // We need to apply the shadowOffsets on the device coordinates, so we undo
   // the CTM, apply the offsets, then re-apply the CTM.
@@ -1009,7 +1015,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.concat(inverted);
     this._canvas.concat(CanvasKit.Matrix.translated(this._shadowOffsetX, this._shadowOffsetY));
     this._canvas.concat(this._currentTransform);
-  }
+  };
 
   // Returns the shadow paint for the current settings or null if there
   // should be no shadow. This ends up being a copy of the given
@@ -1040,7 +1046,7 @@ function CanvasRenderingContext2D(skcanvas) {
       this.delete();
     };
     return shadowPaint;
-  }
+  };
 
   // A helper to get a copy of the current paint, ready for stroking.
   // This applies the global alpha and the dashedness.
@@ -1067,9 +1073,9 @@ function CanvasRenderingContext2D(skcanvas) {
     paint.dispose = function() {
       dashedEffect && dashedEffect.delete();
       this.delete();
-    }
+    };
     return paint;
-  }
+  };
 
   this.stroke = function(path) {
     path = path ? path._getPath() : this._currentPath;
@@ -1086,7 +1092,7 @@ function CanvasRenderingContext2D(skcanvas) {
 
     this._canvas.drawPath(path, strokePaint);
     strokePaint.dispose();
-  }
+  };
 
   this.strokeRect = function(x, y, width, height) {
     var strokePaint = this._strokePaint();
@@ -1101,7 +1107,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     this._canvas.drawRect(CanvasKit.XYWHRect(x, y, width, height), strokePaint);
     strokePaint.dispose();
-  }
+  };
 
   this.strokeText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
@@ -1119,7 +1125,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._canvas.drawTextBlob(blob, x, y, strokePaint);
     blob.delete();
     strokePaint.dispose();
-  }
+  };
 
   this.translate = function(dx, dy) {
     if (!allAreFinite(arguments)) {
@@ -1131,7 +1137,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._currentPath.transform(inverted);
     this._canvas.translate(dx, dy);
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   this.transform = function(a, b, c, d, e, f) {
     var newTransform = [a, c, e,
@@ -1143,7 +1149,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._currentPath.transform(inverted);
     this._canvas.concat(newTransform);
     this._currentTransform = this._canvas.getTotalMatrix();
-  }
+  };
 
   // Not supported operations (e.g. for Web only)
   this.addHitRegion = function() {};
