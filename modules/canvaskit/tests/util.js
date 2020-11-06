@@ -18,7 +18,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
     }
     it('draws gm '+name, (done) => {
         const surface = CanvasKit.MakeCanvasSurface('test');
-        expect(surface).toBeTruthy('Could not make surface')
+        expect(surface).toBeTruthy('Could not make surface');
         if (!surface) {
             done();
             return;
@@ -186,7 +186,16 @@ function reportSurface(surface, testname, done) {
     // data. So, we copy it out and draw it to a normal canvas to take a picture.
     // To be consistent across CPU and GPU, we just do it for all configurations
     // (even though the CPU canvas shows up after flush just fine).
-    let pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    let pixels = surface.getCanvas().readPixels(0, 0, {
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+        colorType: CanvasKit.ColorType.RGBA_8888,
+        alphaType: CanvasKit.AlphaType.Unpremul,
+        colorSpace: CanvasKit.ColorSpace.SRGB,
+    });
+    if (!pixels) {
+        throw 'Could not get pixels for test '+testname;
+    }
     pixels = new Uint8ClampedArray(pixels.buffer);
     const imageData = new ImageData(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
 
