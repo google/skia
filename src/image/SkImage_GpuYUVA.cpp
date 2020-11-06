@@ -134,7 +134,7 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const 
 
     GrSurfaceProxy* proxies[4] = {fViews[0].proxy(), fViews[1].proxy(), fViews[2].proxy(),
                                   fViews[3].proxy()};
-    int numProxies = fNumViews;
+    size_t numProxies = fNumViews;
     if (fRGBView.proxy()) {
         // Either we've already flushed the flattening draw or the flattening is unflushed. In the
         // latter case it should still be ok to just pass fRGBView proxy because it in turn depends
@@ -142,7 +142,7 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const 
         proxies[0] = fRGBView.proxy();
         numProxies = 1;
     }
-    return dContext->priv().flushSurfaces(proxies, numProxies, info);
+    return dContext->priv().flushSurfaces({proxies, numProxies}, info);
 }
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
