@@ -14,19 +14,24 @@
 namespace SkSL {
 
 /**
- * A literal integer.
+ * A literal integer. These are generally referred to as IntLiteral, but Literal<SKSL_INT> is
+ * also available for use with template code.
  */
-class IntLiteral final : public Expression {
+template <typename T> class Literal;
+using IntLiteral = Literal<SKSL_INT>;
+
+template <>
+class Literal<SKSL_INT> final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kIntLiteral;
 
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
-    IntLiteral(const Context& context, int offset, int64_t value)
+    Literal(const Context& context, int offset, int64_t value)
         : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
         , fValue(value) {}
 
-    IntLiteral(int offset, int64_t value, const Type* type = nullptr)
+    Literal(int offset, int64_t value, const Type* type = nullptr)
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 
@@ -63,7 +68,7 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IntLiteral(fOffset, this->value(), &this->type()));
+        return std::make_unique<IntLiteral>(fOffset, this->value(), &this->type());
     }
 
 private:
