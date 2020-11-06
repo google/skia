@@ -65,10 +65,6 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     this->onSetAttribute(attr, v);
 }
 
-void SkSVGNode::setClipPath(const SkSVGClip& clip) {
-    fPresentationAttributes.fClipPath.set(clip);
-}
-
 template <typename T>
 void SetInheritedByDefault(SkTLazy<T>& presentation_attribute, const T& value) {
     if (value.type() != T::Type::kInherit) {
@@ -80,37 +76,17 @@ void SetInheritedByDefault(SkTLazy<T>& presentation_attribute, const T& value) {
     }
 }
 
-void SkSVGNode::setClipRule(const SkSVGFillRule& clipRule) {
-    SetInheritedByDefault(fPresentationAttributes.fClipRule, clipRule);
-}
-
 void SkSVGNode::setColor(const SkSVGColorType& color) {
     // TODO: Color should be inherited by default
     fPresentationAttributes.fColor.set(color);
-}
-
-void SkSVGNode::setFill(const SkSVGPaint& svgPaint) {
-    SetInheritedByDefault(fPresentationAttributes.fFill, svgPaint);
 }
 
 void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fFillOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
 
-void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
-    SetInheritedByDefault(fPresentationAttributes.fFillRule, fillRule);
-}
-
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
-}
-
-void SkSVGNode::setStroke(const SkSVGPaint& svgPaint) {
-    SetInheritedByDefault(fPresentationAttributes.fStroke, svgPaint);
-}
-
-void SkSVGNode::setStrokeDashArray(const SkSVGDashArray& dashArray) {
-    SetInheritedByDefault(fPresentationAttributes.fStrokeDashArray, dashArray);
 }
 
 void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
@@ -121,14 +97,6 @@ void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fStrokeOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
 }
 
-void SkSVGNode::setStrokeLineCap(const SkSVGLineCap& lc) {
-    SetInheritedByDefault(fPresentationAttributes.fStrokeLineCap, lc);
-}
-
-void SkSVGNode::setStrokeLineJoin(const SkSVGLineJoin& lj) {
-    SetInheritedByDefault(fPresentationAttributes.fStrokeLineJoin, lj);
-}
-
 void SkSVGNode::setStrokeMiterLimit(const SkSVGNumberType& ml) {
     fPresentationAttributes.fStrokeMiterLimit.set(ml);
 }
@@ -137,30 +105,11 @@ void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
     fPresentationAttributes.fStrokeWidth.set(strokeWidth);
 }
 
-void SkSVGNode::setVisibility(const SkSVGVisibility& visibility) {
-    SetInheritedByDefault(fPresentationAttributes.fVisibility, visibility);
-}
-
 void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
-    case SkSVGAttribute::kClipPath:
-        if (const SkSVGClipValue* clip = v.as<SkSVGClipValue>()) {
-            this->setClipPath(*clip);
-        }
-        break;
-    case SkSVGAttribute::kClipRule:
-        if (const SkSVGFillRuleValue* clipRule = v.as<SkSVGFillRuleValue>()) {
-            this->setClipRule(*clipRule);
-        }
-        break;
     case SkSVGAttribute::kColor:
         if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
             this->setColor(*color);
-        }
-        break;
-    case SkSVGAttribute::kFill:
-        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
-            this->setFill(*paint);
         }
         break;
     case SkSVGAttribute::kFillOpacity:
@@ -168,49 +117,14 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setFillOpacity(*opacity);
         }
         break;
-    case SkSVGAttribute::kFillRule:
-        if (const SkSVGFillRuleValue* fillRule = v.as<SkSVGFillRuleValue>()) {
-            this->setFillRule(*fillRule);
-        }
-        break;
     case SkSVGAttribute::kFilter:
         if (const SkSVGFilterValue* filter = v.as<SkSVGFilterValue>()) {
             this->setFilter(*filter);
         }
         break;
-    case SkSVGAttribute::kFontFamily:
-        if (const SkSVGFontFamilyValue* family = v.as<SkSVGFontFamilyValue>()) {
-            this->setFontFamily(*family);
-        }
-        break;
-    case SkSVGAttribute::kFontSize:
-        if (const SkSVGFontSizeValue* size = v.as<SkSVGFontSizeValue>()) {
-            this->setFontSize(*size);
-        }
-        break;
-    case SkSVGAttribute::kFontStyle:
-        if (const SkSVGFontStyleValue* style = v.as<SkSVGFontStyleValue>()) {
-            this->setFontStyle(*style);
-        }
-        break;
-    case SkSVGAttribute::kFontWeight:
-        if (const SkSVGFontWeightValue* style = v.as<SkSVGFontWeightValue>()) {
-            this->setFontWeight(*style);
-        }
-        break;
     case SkSVGAttribute::kOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setOpacity(*opacity);
-        }
-        break;
-    case SkSVGAttribute::kStroke:
-        if (const SkSVGPaintValue* paint = v.as<SkSVGPaintValue>()) {
-            this->setStroke(*paint);
-        }
-        break;
-    case SkSVGAttribute::kStrokeDashArray:
-        if (const SkSVGDashArrayValue* dashArray = v.as<SkSVGDashArrayValue>()) {
-            this->setStrokeDashArray(*dashArray);
         }
         break;
     case SkSVGAttribute::kStrokeDashOffset:
@@ -223,16 +137,6 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setStrokeOpacity(*opacity);
         }
         break;
-    case SkSVGAttribute::kStrokeLineCap:
-        if (const SkSVGLineCapValue* lineCap = v.as<SkSVGLineCapValue>()) {
-            this->setStrokeLineCap(*lineCap);
-        }
-        break;
-    case SkSVGAttribute::kStrokeLineJoin:
-        if (const SkSVGLineJoinValue* lineJoin = v.as<SkSVGLineJoinValue>()) {
-            this->setStrokeLineJoin(*lineJoin);
-        }
-        break;
     case SkSVGAttribute::kStrokeMiterLimit:
         if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
             this->setStrokeMiterLimit(*miterLimit);
@@ -243,16 +147,6 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setStrokeWidth(*strokeWidth);
         }
         break;
-    case SkSVGAttribute::kTextAnchor:
-        if (const SkSVGTextAnchorValue* anchor = v.as<SkSVGTextAnchorValue>()) {
-            this->setTextAnchor(*anchor);
-        }
-        break;
-    case SkSVGAttribute::kVisibility:
-        if (const SkSVGVisibilityValue* visibility = v.as<SkSVGVisibilityValue>()) {
-            this->setVisibility(*visibility);
-        }
-        break;
     default:
 #if defined(SK_VERBOSE_SVG_PARSING)
         SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
@@ -261,7 +155,27 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     }
 }
 
-bool SkSVGNode::parseAndSetAttribute(const char* name, const char* value) {
-    // TODO: move SkSVGNode attribute parsing (incl. presentation attributes) here.
-    return false;
+bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
+    return this->setClipPath(SkSVGAttributeParser::parse<SkSVGClip>     ("clip-path"       , n, v))
+        || this->setClipRule(SkSVGAttributeParser::parse<SkSVGFillRule> ("clip-rule"       , n, v))
+        || this->setFill    (SkSVGAttributeParser::parse<SkSVGPaint>    ("fill"            , n, v))
+        || this->setFillRule(SkSVGAttributeParser::parse<SkSVGFillRule> ("fill-rule"       , n, v))
+        || this->setFontFamily
+                          (SkSVGAttributeParser::parse<SkSVGFontFamily> ("font-family"     , n, v))
+        || this->setFontSize(SkSVGAttributeParser::parse<SkSVGFontSize> ("font-size"       , n, v))
+        || this->setFontStyle
+                            (SkSVGAttributeParser::parse<SkSVGFontStyle>("font-style"      , n, v))
+        || this->setFontWeight
+                           (SkSVGAttributeParser::parse<SkSVGFontWeight>("font-weight"     , n, v))
+        || this->setStroke  (SkSVGAttributeParser::parse<SkSVGPaint>    ("stroke"          , n, v))
+        || this->setStrokeDashArray
+                            (SkSVGAttributeParser::parse<SkSVGDashArray>("stroke-dasharray", n, v))
+        || this->setStrokeLineCap
+                            (SkSVGAttributeParser::parse<SkSVGLineCap>  ("stroke-linecap"  , n ,v))
+        || this->setStrokeLineJoin
+                            (SkSVGAttributeParser::parse<SkSVGLineJoin> ("stroke-linejoin" , n ,v))
+        || this->setTextAnchor
+                           (SkSVGAttributeParser::parse<SkSVGTextAnchor>("text-anchor"     , n, v))
+        || this->setVisibility
+                           (SkSVGAttributeParser::parse<SkSVGVisibility>("visibility"      , n, v));
 }
