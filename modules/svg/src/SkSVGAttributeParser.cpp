@@ -494,7 +494,8 @@ bool SkSVGAttributeParser::parseTransform(SkSVGTransformType* t) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#SpecifyingPaint
-bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
     SkSVGColorType c;
     SkSVGStringType iri;
     bool parsedValue = false;
@@ -518,7 +519,8 @@ bool SkSVGAttributeParser::parsePaint(SkSVGPaint* paint) {
 }
 
 // https://www.w3.org/TR/SVG11/masking.html#ClipPathProperty
-bool SkSVGAttributeParser::parseClipPath(SkSVGClip* clip) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGClip* clip) {
     SkSVGStringType iri;
     bool parsedValue = false;
 
@@ -537,7 +539,8 @@ bool SkSVGAttributeParser::parseClipPath(SkSVGClip* clip) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#StrokeLinecapProperty
-bool SkSVGAttributeParser::parseLineCap(SkSVGLineCap* cap) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGLineCap* cap) {
     static const struct {
         SkSVGLineCap::Type fType;
         const char*        fName;
@@ -561,7 +564,8 @@ bool SkSVGAttributeParser::parseLineCap(SkSVGLineCap* cap) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#StrokeLinejoinProperty
-bool SkSVGAttributeParser::parseLineJoin(SkSVGLineJoin* join) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGLineJoin* join) {
     static const struct {
         SkSVGLineJoin::Type fType;
         const char*         fName;
@@ -689,7 +693,8 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#FillRuleProperty
-bool SkSVGAttributeParser::parseFillRule(SkSVGFillRule* fillRule) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFillRule* fillRule) {
     static const struct {
         SkSVGFillRule::Type fType;
         const char*         fName;
@@ -731,7 +736,8 @@ bool SkSVGAttributeParser::parseFilter(SkSVGFilterType* filter) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#VisibilityProperty
-bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGVisibility* visibility) {
     static const struct {
         SkSVGVisibility::Type fType;
         const char*           fName;
@@ -755,7 +761,8 @@ bool SkSVGAttributeParser::parseVisibility(SkSVGVisibility* visibility) {
 }
 
 // https://www.w3.org/TR/SVG11/painting.html#StrokeDasharrayProperty
-bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGDashArray* dashArray) {
     bool parsedValue = false;
     if (this->parseExpectedStringToken("none")) {
         *dashArray = SkSVGDashArray(SkSVGDashArray::Type::kNone);
@@ -785,7 +792,8 @@ bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
 }
 
 // https://www.w3.org/TR/SVG11/text.html#FontFamilyProperty
-bool SkSVGAttributeParser::parseFontFamily(SkSVGFontFamily* family) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFontFamily* family) {
     bool parsedValue = false;
     if (this->parseExpectedStringToken("inherit")) {
         *family = SkSVGFontFamily();
@@ -805,7 +813,8 @@ bool SkSVGAttributeParser::parseFontFamily(SkSVGFontFamily* family) {
 }
 
 // https://www.w3.org/TR/SVG11/text.html#FontSizeProperty
-bool SkSVGAttributeParser::parseFontSize(SkSVGFontSize* size) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFontSize* size) {
     bool parsedValue = false;
     if (this->parseExpectedStringToken("inherit")) {
         *size = SkSVGFontSize();
@@ -822,7 +831,8 @@ bool SkSVGAttributeParser::parseFontSize(SkSVGFontSize* size) {
 }
 
 // https://www.w3.org/TR/SVG11/text.html#FontStyleProperty
-bool SkSVGAttributeParser::parseFontStyle(SkSVGFontStyle* style) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFontStyle* style) {
     static constexpr std::tuple<const char*, SkSVGFontStyle::Type> gStyleMap[] = {
         { "normal" , SkSVGFontStyle::Type::kNormal  },
         { "italic" , SkSVGFontStyle::Type::kItalic  },
@@ -842,7 +852,8 @@ bool SkSVGAttributeParser::parseFontStyle(SkSVGFontStyle* style) {
 }
 
 // https://www.w3.org/TR/SVG11/text.html#FontWeightProperty
-bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFontWeight* weight) {
     static constexpr std::tuple<const char*, SkSVGFontWeight::Type> gWeightMap[] = {
         { "normal" , SkSVGFontWeight::Type::kNormal  },
         { "bold"   , SkSVGFontWeight::Type::kBold    },
@@ -872,7 +883,8 @@ bool SkSVGAttributeParser::parseFontWeight(SkSVGFontWeight* weight) {
 }
 
 // https://www.w3.org/TR/SVG11/text.html#TextAnchorProperty
-bool SkSVGAttributeParser::parseTextAnchor(SkSVGTextAnchor* anchor) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGTextAnchor* anchor) {
     static constexpr std::tuple<const char*, SkSVGTextAnchor::Type> gAnchorMap[] = {
         { "start"  , SkSVGTextAnchor::Type::kStart  },
         { "middle" , SkSVGTextAnchor::Type::kMiddle },
