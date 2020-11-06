@@ -39,11 +39,8 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in bool Flag; layout(when=Flag) uniform float Input;", "", "when");
     test("layout(tracked) uniform float Input;", "", "tracked");
 
-    // GLSL types like sampler2D and texture2D are not allowed anywhere:
-    test("uniform sampler2D s;", "", "no type named 'sampler2D'");
-    test("uniform texture2D s;", "", "no type named 'texture2D'");
-
-    // Runtime SkSL supports a limited set of uniform types. No bool, or int, for example:
+    // Runtime SkSL supports a limited set of uniform types. No samplers, bool, or int, for example:
+    test("uniform sampler2D s;", "", "uniform");
     test("uniform bool b;", "", "uniform");
     test("uniform int i;", "", "uniform");
 
@@ -77,9 +74,6 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("uniform shader child1; uniform shader child2;",
          "half4 color = sample(p.x > 10 ? child1 : child2);",
          "expression");
-
-    // sk_Caps is an internal system. It should not be visible to runtime effects
-    test("", "if (sk_Caps.integerSupport) { p = p.yx; }", "unknown identifier 'sk_Caps'");
 
     // Errors that aren't caught until later in the compilation process (during optimize())
     test("", "return half4(1);", "unreachable");
