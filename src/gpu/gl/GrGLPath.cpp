@@ -287,25 +287,19 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
         }
 
         // applyPathEffectToPath could have generated an empty path
-        if (skPath->isEmpty())
-        {
+        if (skPath->isEmpty()) {
             InitPathObjectEmptyPath(gpu, fPathID);
             fShouldStroke = false;
             fShouldFill = false;
-        }
-        else        
-        {
+        } else {
             bool didInit = false;
-            if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap)
-            {
+            if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap) {
                 // Skia stroking and NVPR stroking differ with respect to stroking
                 // end caps of empty subpaths.
                 // Convert stroke to fill if path contains empty subpaths.
                 didInit = InitPathObjectPathDataCheckingDegenerates(gpu, fPathID, *skPath);
-                if (!didInit)
-                {
-                    if (!tmpPath.isValid())
-                    {
+                if (!didInit) {
+                    if (!tmpPath.isValid()) {
                         tmpPath.init();
                     }
                     SkAssertResult(stroke.applyToPath(tmpPath.get(), *skPath));
@@ -314,8 +308,7 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
                 }
             }
 
-            if (!didInit)
-            {
+            if (!didInit) {
                 InitPathObjectPathData(gpu, fPathID, *skPath);
             }
 
@@ -327,8 +320,7 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
             fBounds = skPath->getBounds();
             SkScalar radius = stroke.getInflationRadius();
             fBounds.outset(radius, radius);
-            if (fShouldStroke)
-            {
+            if (fShouldStroke) {
                 InitPathObjectStroke(gpu, fPathID, stroke);
             }
         }
