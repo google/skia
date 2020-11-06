@@ -950,10 +950,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (funcData.fName == "main") {
         switch (fKind) {
             case Program::kPipelineStage_Kind: {
-                // half4 main()  -or-  half4 main(float2)
-                bool valid = (*returnType == *fContext.fHalf4_Type) &&
-                             ((parameters.size() == 0) ||
-                              (parameters.size() == 1 && paramIsCoords(0)));
+                // (half4|float4) main()  -or-  (half4|float4) main(float2)
+                bool valid =
+                        ((*returnType == *fContext.fHalf4_Type) ||
+                         (*returnType == *fContext.fFloat4_Type)) &&
+                        ((parameters.size() == 0) || (parameters.size() == 1 && paramIsCoords(0)));
                 if (!valid) {
                     fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
                                              "half4 main() or half4 main(float2)");
