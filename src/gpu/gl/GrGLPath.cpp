@@ -286,36 +286,43 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
             stroke = style.strokeRec();
         }
 
-        bool didInit = false;
-        if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap) {
-            // Skia stroking and NVPR stroking differ with respect to stroking
-            // end caps of empty subpaths.
-            // Convert stroke to fill if path contains empty subpaths.
-            didInit = InitPathObjectPathDataCheckingDegenerates(gpu, fPathID, *skPath);
-            if (!didInit) {
-                if (!tmpPath.isValid()) {
-                    tmpPath.init();
+        // applyPathEffectToPath could have generated an empty path
+        if (skPath->isEmpty()) {
+            InitPathObjectEmptyPath(gpu, fPathID);
+            fShouldStroke = false;
+            fShouldFill = false;
+        } else {
+            bool didInit = false;
+            if (stroke.needToApply() && stroke.getCap() != SkPaint::kButt_Cap) {
+                // Skia stroking and NVPR stroking differ with respect to stroking
+                // end caps of empty subpaths.
+                // Convert stroke to fill if path contains empty subpaths.
+                didInit = InitPathObjectPathDataCheckingDegenerates(gpu, fPathID, *skPath);
+                if (!didInit) {
+                    if (!tmpPath.isValid()) {
+                        tmpPath.init();
+                    }
+                    SkAssertResult(stroke.applyToPath(tmpPath.get(), *skPath));
+                    skPath = tmpPath.get();
+                    stroke.setFillStyle();
                 }
-                SkAssertResult(stroke.applyToPath(tmpPath.get(), *skPath));
-                skPath = tmpPath.get();
-                stroke.setFillStyle();
             }
-        }
 
-        if (!didInit) {
-            InitPathObjectPathData(gpu, fPathID, *skPath);
-        }
+            if (!didInit) {
+                InitPathObjectPathData(gpu, fPathID, *skPath);
+            }
 
-        fShouldStroke = stroke.needToApply();
-        fShouldFill = stroke.isFillStyle() ||
+            fShouldStroke = stroke.needToApply();
+            fShouldFill = stroke.isFillStyle() ||
                 stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
 
-        fFillType = convert_skpath_filltype(skPath->getFillType());
-        fBounds = skPath->getBounds();
-        SkScalar radius = stroke.getInflationRadius();
-        fBounds.outset(radius, radius);
-        if (fShouldStroke) {
-            InitPathObjectStroke(gpu, fPathID, stroke);
+            fFillType = convert_skpath_filltype(skPath->getFillType());
+            fBounds = skPath->getBounds();
+            SkScalar radius = stroke.getInflationRadius();
+            fBounds.outset(radius, radius);
+            if (fShouldStroke) {
+                InitPathObjectStroke(gpu, fPathID, stroke);
+            }
         }
     }
 

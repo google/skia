@@ -600,6 +600,28 @@ DEF_SIMPLE_GM(thin_aa_dash_lines, canvas, 330, 110) {
     }
 }
 
+DEF_SIMPLE_GM(path_effect_empty_result, canvas, 100, 100) {
+    SkPaint p;
+    p.setStroke(true);
+    p.setStrokeWidth(1);
+
+    SkPath path;
+    float r = 70;
+    float l = 70;
+    float t = 70;
+    float b = 70;
+    path.moveTo(l, t);
+    path.lineTo(r, t);
+    path.lineTo(r, b);
+    path.lineTo(l, b);
+    path.close();
+
+    float dashes[] = {2.f, 2.f};
+    p.setPathEffect(SkDashPathEffect::Make(dashes, 2, 0.f));
+
+    canvas->drawPath(path, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DashingGM;)
