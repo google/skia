@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2764bae9_e43ca4bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-06T18:35:57Z",
+      "side": 1,
+      "message": "Always a good feeling to remove 3x more code than adding!",
+      "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8ceaa8d_ad56ef7f",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-06T18:35:57Z",
+      "side": 1,
+      "message": "Just a sanity check, the value pointed at by the SkTLazy is being moved, not pr itself, which means calling pr.isValid() afterwards is ok -- right?",
+      "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "84fc412b_f4bf6889",
@@ -20,6 +54,47 @@
         "endLine": 99,
         "endChar": 44
       },
+      "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e5ee74d_c27e7bfc",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-06T18:35:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "84fc412b_f4bf6889",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2eb6a82_986c59ae",
+        "filename": "modules/svg/src/SkSVGNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-06T18:35:57Z",
+      "side": 1,
+      "message": "This is unreachable now",
       "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
