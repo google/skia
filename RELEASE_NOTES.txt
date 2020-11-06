@@ -9,10 +9,6 @@ Milestone 88
 
   * <insert new release notes here>
 
-  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
-    and quality is highest if user bounds are provided to saveLayer.
-    https://review.skia.org/328376
-
   * Add AVIF support to SkHeifCodec.
 
   * Add support for creating SkSurfaceCharacterizations directly for use by a
