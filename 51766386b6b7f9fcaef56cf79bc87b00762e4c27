@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "88960beb_62ea9ab1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-06T15:01:15Z",
+      "side": 1,
+      "message": "The other thing is you have to update the AUTHORS file:\n\nThe email kcbanner@gmail.com is not in Skia\u0027s AUTHORS file.\nIssue owner, this CL must include an addition to the Skia AUTHORS file.\n",
+      "revId": "51766386b6b7f9fcaef56cf79bc87b00762e4c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c3044aa_2a0738fa",
