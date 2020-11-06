@@ -142,7 +142,7 @@ GrSemaphoresSubmitted SkImage_GpuYUVA::onFlush(GrDirectContext* dContext, const 
         proxies[0] = fRGBView.proxy();
         numProxies = 1;
     }
-    return dContext->priv().flushSurfaces(proxies, numProxies, info);
+    return dContext->priv().flushSurfaces(proxies, info);
 }
 
 GrTextureProxy* SkImage_GpuYUVA::peekProxy() const { return fRGBView.asTextureProxy(); }
