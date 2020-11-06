@@ -16,6 +16,24 @@
       "message": "Wow, this is tricky to understand.\n\nI have a different test case, and a slightly simpler fix here\nhttps://skia-review.googlesource.com/c/skia/+/331776\n\nI think this CL is not wrong, but I was trying to make it clearer what exactly was going on.",
       "revId": "3d2b9f006b5e4f3fec0e77eedfce1a88412636ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0212dd99_1e2a51f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-11-06T02:10:41Z",
+      "side": 1,
+      "message": "So what is the correct next-action from me here?\nAbandon this change?\nMay I help making yours applied faster?",
+      "parentUuid": "03dd1d14_282e7671",
+      "revId": "3d2b9f006b5e4f3fec0e77eedfce1a88412636ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
