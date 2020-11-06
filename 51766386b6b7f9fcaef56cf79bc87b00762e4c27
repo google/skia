@@ -16,6 +16,46 @@
       "message": "There is an assert that fires if an empty path is drawn, and path effects can result in a zero-length path, that triggers the assert. I added a test case that triggers this using a dash effect. I confirmed the test triggers the assert without the GrGLPath change applied.\n\nhttps://bugs.chromium.org/p/skia/issues/detail?id\u003d10909#c1",
       "revId": "51766386b6b7f9fcaef56cf79bc87b00762e4c27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "295130f2_ec4982dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-06T14:09:23Z",
+      "side": 1,
+      "message": "Looks like the right fix to me! I triggered our test bots. One minor request inline.",
+      "revId": "51766386b6b7f9fcaef56cf79bc87b00762e4c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c3044aa_2a0738fa",
+        "filename": "gm/dashing.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-06T14:09:23Z",
+      "side": 1,
+      "message": "Minor style nits: 4 spaces instead of tabs and the opening { goes on the prev line.",
+      "range": {
+        "startLine": 604,
+        "startChar": 0,
+        "endLine": 624,
+        "endChar": 1
+      },
+      "revId": "51766386b6b7f9fcaef56cf79bc87b00762e4c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
