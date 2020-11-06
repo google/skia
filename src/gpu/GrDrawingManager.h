@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrHashMapWithCache.h"
@@ -97,17 +98,10 @@ public:
 
     static bool ProgramUnitTest(GrDirectContext*, int maxStages, int maxLevels);
 
-    GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy* proxies[],
-                                        int cnt,
-                                        SkSurface::BackendSurfaceAccess access,
-                                        const GrFlushInfo& info,
+    GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>,
+                                        SkSurface::BackendSurfaceAccess,
+                                        const GrFlushInfo&,
                                         const GrBackendSurfaceMutableState* newState);
-    GrSemaphoresSubmitted flushSurface(GrSurfaceProxy* proxy,
-                                       SkSurface::BackendSurfaceAccess access,
-                                       const GrFlushInfo& info,
-                                       const GrBackendSurfaceMutableState* newState) {
-        return this->flushSurfaces(&proxy, 1, access, info, newState);
-    }
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
@@ -183,8 +177,7 @@ private:
 
     void removeRenderTasks(int startIndex, int stopIndex);
 
-    bool flush(GrSurfaceProxy* proxies[],
-               int numProxies,
+    bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,
                const GrFlushInfo&,
                const GrBackendSurfaceMutableState* newState);

@@ -39,23 +39,24 @@ void GrDirectContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFl
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
+GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(SkSpan<GrSurfaceProxy*> proxies,
                                                          const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     RETURN_VALUE_IF_ABANDONED(GrSemaphoresSubmitted::kNo)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", fContext);
-    SkASSERT(numProxies >= 0);
-    SkASSERT(!numProxies || proxies);
-    for (int i = 0; i < numProxies; ++i) {
-        SkASSERT(proxies[i]);
-        ASSERT_OWNED_PROXY(proxies[i]);
+#ifdef SK_DEBUG
+    for (GrSurfaceProxy* proxy : proxies) {
+        SkASSERT(proxy);
+        ASSERT_OWNED_PROXY(proxy);
     }
+#endif
     return fContext->drawingManager()->flushSurfaces(
-            proxies, numProxies, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+            proxies, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
 void GrDirectContextPriv::flushSurface(GrSurfaceProxy* proxy) {
-    this->flushSurfaces(proxy ? &proxy : nullptr, proxy ? 1 : 0, {});
+    size_t size = proxy ? 1 : 0;
+    this->flushSurfaces({&proxy, size}, {});
 }
 
 void GrDirectContextPriv::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
