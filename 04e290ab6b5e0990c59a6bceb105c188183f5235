@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "55b91536_447f8c72",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T19:59:36Z",
+      "side": 1,
+      "message": "Right before the \u0027Change-id\u0027 line should add a line like\n\n    Bug: skia:10899",
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "54f9deac_15e4ed3d",
