@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "079390e4_5666100a",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T18:07:20Z",
+      "side": 1,
+      "message": "Removing this alignas causes SkSTArray of small objects to fail to compile saying that the alignment requirements aren\u0027t met.",
+      "range": {
+        "startLine": 637,
+        "startChar": 17,
+        "endLine": 637,
+        "endChar": 31
+      },
+      "revId": "7bee5f2b66cfaa2b66e4a64659b5da1674f654d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
