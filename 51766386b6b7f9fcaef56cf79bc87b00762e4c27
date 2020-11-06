@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7759d11a_26e6f509",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15089
+      },
+      "writtenOn": "2020-11-06T03:45:48Z",
+      "side": 1,
+      "message": "There is an assert that fires if an empty path is drawn, and path effects can result in a zero-length path, that triggers the assert. I added a test case that triggers this using a dash effect. I confirmed the test triggers the assert without the GrGLPath change applied.\n\nhttps://bugs.chromium.org/p/skia/issues/detail?id\u003d10909#c1",
+      "revId": "51766386b6b7f9fcaef56cf79bc87b00762e4c27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
