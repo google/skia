@@ -152,6 +152,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "029e78c2_947d605e",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T15:27:37Z",
+      "side": 1,
+      "message": "You need to call data() and then you\u0027ll be fine.  Don\u0027t take the address of the std::array itself.",
+      "parentUuid": "b7e32983_13f81a6f",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
