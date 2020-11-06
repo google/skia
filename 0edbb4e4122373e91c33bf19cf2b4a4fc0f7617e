@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "218cae19_2607113d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b98809bb_85c1e675",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "949bff6c_1e686731",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-06T16:13:26Z",
       "side": 1,
       "message": "If nothing outside is using this is there a reason to make it a public virtual here? Seems this can just be a helper in the ICU implementation. If there is actually something that wants it, that\u0027s fine, but it\u0027s easier to expose things later than to take them away or fix them up later when there is an actual user.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba3ddc09_277f045e",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "949bff6c_1e686731",
       "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d539750_4b5f3b48",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4f32d32_25c31e3a",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86b1cd65_1d87c9e9",
@@ -65,6 +119,24 @@
       "writtenOn": "2020-11-06T16:13:26Z",
       "side": 1,
       "message": "We should have a big comment here about why this is re-doing work we would expect the break iterator to do, with a link to the bug.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed1ae95d_e502aae0",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86b1cd65_1d87c9e9",
       "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -92,6 +164,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb791c13_4d4f25d7",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3636b594_5cf04688",
+      "range": {
+        "startLine": 346,
+        "startChar": 20,
+        "endLine": 346,
+        "endChar": 23
+      },
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "def3c9b5_aeb8edd1",
@@ -105,6 +201,24 @@
       "writtenOn": "2020-11-06T16:13:26Z",
       "side": 1,
       "message": "This is a separate change. The only way the extra overhead of doing this seems worth it is if it is even possible to inherit from this class and override isWhitespace. However, I\u0027m not sure that we ever want to do that and the user cannot. I would be in favor of marking SkUnicode_icu \u0027final\u0027 to make this more obvious.\n\nThis would also mean extractWhitespaces and extractPositions can stay \u0027static\u0027.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5354976c_82370e53",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-06T18:12:32Z",
+      "side": 1,
+      "message": "It is a separate change, I agree. I could argue that we should externalise isWhitespace and isHardLineBreak but now here.",
+      "parentUuid": "def3c9b5_aeb8edd1",
       "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
