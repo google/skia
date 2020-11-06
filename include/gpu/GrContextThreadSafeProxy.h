@@ -59,7 +59,8 @@ public:
      *  @param origin                          The origin of the SkSurface that the DDL created with
      *                                         this characterization will be replayed into
      *  @param surfaceProps                    The surface properties of the SkSurface that the DDL
-     *                                         created with this characterization will be replayed into
+     *                                         created with this characterization will be replayed
+     *                                         into
      *  @param isMipMapped                     Will the surface the DDL will be replayed into have
      *                                         space allocated for mipmaps?
      *  @param willUseGLFBO0                   Will the surface the DDL will be replayed into be
