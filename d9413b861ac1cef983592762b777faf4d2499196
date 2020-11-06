@@ -74,6 +74,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4bff4e75_d3c46d68",
+        "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-06T16:23:23Z",
+      "side": 1,
+      "message": "I would say we have to handle anything that is sourced from .svg gracefully (we cannot assert anything about third-party data).\n\nthird party inputs (SVG files) -\u003e untrusted\nembedding client code (calling into our APIs) -\u003e trusted\n\nSo I don\u0027t think we need to be as careful about DOM API calls, same as we don\u0027t defend against clients passing garbage to Skia.  But the SVG inputs are potentially outside the client\u0027s control and requiring them to validate is unfeasible.",
+      "parentUuid": "72c40059_5aefe4b8",
+      "revId": "d9413b861ac1cef983592762b777faf4d2499196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8fd637be_f028ff01",
         "filename": "modules/svg/src/SkSVGFeColorMatrix.cpp",
         "patchSetId": 6
