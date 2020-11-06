@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18eb570a_7ba2e795",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T20:46:38Z",
+      "side": 1,
+      "message": "There\u0027s a warning in clang for this since 2018 https://reviews.llvm.org/rC341860 but:\n\n- In a plain old Xcode 12.1 project, there\u0027s an option in the project UI to enable the warning, but it still never fires.\n- In our BUILD.gn, it looks to me like we are Weverything minus some exceptions, of which this isn\u0027t one.\n\nIf the latter is wrong, how do we enable it?",
+      "revId": "35b4f345015aa42605a915d7c24671c690007bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
