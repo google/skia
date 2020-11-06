@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e829913_e396ddd1",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-06T16:19:42Z",
+      "side": 1,
+      "message": "nit(nit):\n\nThe recent direct-raster-surface took: ImageInfo, pointer, rowBytes (just like C++)\n\nThis is taking: ImageInfo, rowBytes, pointer (unlike C++)\n\nCan CK pick a single order for all occurrences where this occurs? No biggie, but seems easy to be consistent (i.e. predictable)\n\n*really* the CPP side has consolidated around a struct that holds exactly all 3 of these:\n\nSkPixmap\n   - imageinfo\n   - pointer\n   - rowBytes\n\nSo whereever we can (modulo some legacy sites) we like to take/return a Pixmap.",
+      "range": {
+        "startLine": 1253,
+        "startChar": 54,
+        "endLine": 1254,
+        "endChar": 31
+      },
+      "revId": "6ab77b410a2e9d5df1e5dc48267d4988afb05e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
