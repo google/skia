@@ -1291,22 +1291,18 @@ void GrD3DGpu::addBufferResourceBarriers(GrD3DBuffer* buffer,
 
 
 void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
-        GrSurfaceProxy* proxies[],
-        int numProxies,
+        SkSpan<GrSurfaceProxy*> proxies,
         SkSurface::BackendSurfaceAccess access,
         const GrBackendSurfaceMutableState* newState) {
-    SkASSERT(numProxies >= 0);
-    SkASSERT(!numProxies || proxies);
-
     // prepare proxies by transitioning to PRESENT renderState
-    if (numProxies && access == SkSurface::BackendSurfaceAccess::kPresent) {
+    if (!proxies.empty() && access == SkSurface::BackendSurfaceAccess::kPresent) {
         GrD3DTextureResource* resource;
-        for (int i = 0; i < numProxies; ++i) {
-            SkASSERT(proxies[i]->isInstantiated());
-            if (GrTexture* tex = proxies[i]->peekTexture()) {
+        for (GrSurfaceProxy* proxy : proxies) {
+            SkASSERT(proxy->isInstantiated());
+            if (GrTexture* tex = proxy->peekTexture()) {
                 resource = static_cast<GrD3DTexture*>(tex);
             } else {
-                GrRenderTarget* rt = proxies[i]->peekRenderTarget();
+                GrRenderTarget* rt = proxy->peekRenderTarget();
                 SkASSERT(rt);
                 resource = static_cast<GrD3DRenderTarget*>(rt);
             }
