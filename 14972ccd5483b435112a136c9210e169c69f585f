@@ -3,6 +3,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c18a2a71_0a442a86",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T16:01:44Z",
+      "side": 1,
+      "message": "This error message will be misleading for Runtime Effects users.",
+      "range": {
+        "startLine": 960,
+        "startChar": 46,
+        "endLine": 960,
+        "endChar": 80
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce97159e_7f126129",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T16:01:44Z",
+      "side": 1,
+      "message": "Should we skip this if the expression\u0027s type is already half4?",
+      "range": {
+        "startLine": 173,
+        "startChar": 12,
+        "endLine": 173,
+        "endChar": 30
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9427bd49_a72d2c59",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T16:01:44Z",
+      "side": 1,
+      "message": "Not sure why or how this could be true. (I typed the previous note above before seeing this comment.)",
+      "range": {
+        "startLine": 200,
+        "startChar": 42,
+        "endLine": 201,
+        "endChar": 23
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9962ddd4_bc992888",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 1
