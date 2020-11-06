@@ -25,6 +25,10 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
         return nullptr;
     }
 
+    if (!requestedInfo.bounds().contains(cropRect)) {
+        return nullptr;
+    }
+
     auto scaledSize = requestedInfo.dimensions();
     auto decodeInfo = requestedInfo;
     if (codec->getEncodedFormat() != SkEncodedImageFormat::kWEBP
