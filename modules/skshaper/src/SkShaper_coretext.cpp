@@ -20,6 +20,7 @@
 
 #include "include/ports/SkTypeface_mac.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/utils/SkUTF.h"
 #include "src/utils/mac/SkCGBase.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
@@ -144,6 +145,56 @@ static SkFont run_to_font(CTRunRef run, const SkFont& orig) {
     return font;
 }
 
+namespace {
+class UTF16ToUTF8IndicesMap {
+public:
+    bool buildMap(const char* utf8, size_t size) {
+        utf16ToUtf8Indices.clear();
+
+        if (size == 0) {
+            return true;
+        }
+
+        if (!SkTFitsIn<int32_t>(size)) {
+            SkDEBUGF("UTF16ToUTF8IndicesMap: text too long");
+            return false;
+        }
+
+        auto utf16Size = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, size);
+        if (utf16Size < 0) {
+            SkDEBUGF("UTF16ToUTF8IndicesMap: Invalid utf8 input");
+            return false;
+        }
+
+        // utf16Size+1 to also store the size
+        utf16ToUtf8Indices = std::vector<size_t>(utf16Size + 1);
+        auto utf16 = utf16ToUtf8Indices.begin();
+        auto utf8Begin = utf8, utf8End = utf8 + size;
+        while (utf8Begin < utf8End) {
+            *utf16 = utf8Begin - utf8;
+            utf16 += SkUTF::ToUTF16(SkUTF::NextUTF8(&utf8Begin, utf8End), nullptr);
+        }
+        *utf16 = size;
+
+        return true;
+    }
+
+    size_t mapIndex(size_t index) const {
+        SkASSERT(index < utf16ToUtf8Indices.size());
+        return utf16ToUtf8Indices[index];
+    }
+
+private:
+    std::vector<size_t> utf16ToUtf8Indices;
+};
+
+SkShaper::RunHandler::Range mapUTF16CFRange(const UTF16ToUTF8IndicesMap& indicesMap, const CFRange& range) {
+    auto start = indicesMap.mapIndex(range.location);
+    auto size = indicesMap.mapIndex(range.location + range.length) - start;
+    return {start, size};
+}
+} // namespace
+
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
@@ -155,6 +206,11 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
                                     kCFStringEncodingUTF8, false));
+
+    UTF16ToUTF8IndicesMap utf8IndicesMap;
+    if (!utf8IndicesMap.buildMap(utf8, utf8Bytes)) {
+        return;
+    }
 
     SkUniqueCFRef<CTFontRef> ctfont = create_ctfont_from_font(font);
 
@@ -189,6 +245,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
         }
         handler->beginLine();
         fontStorage.clear();
+        fontStorage.reserve(runCount); // ensure the refs won't get invalidated
         infos.clear();
         for (CFIndex j = 0; j < runCount; ++j) {
             CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(run_array, j);
@@ -212,7 +269,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                 0,                  // need fBidiLevel
                 {adv, 0},
                 (size_t)runGlyphs,
-                {(size_t)range.location, (size_t)range.length},
+                mapUTF16CFRange(utf8IndicesMap, range),
             });
             handler->runInfo(infos.back());
         }
@@ -247,7 +304,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                     buffer.offsets[k] = {0, 0}; // offset relative to the origin for this glyph
                 }
                 if (buffer.clusters) {
-                    buffer.clusters[k] = indices[k];
+                    buffer.clusters[k] = utf8IndicesMap.mapIndex(indices[k]);
                 }
             }
             handler->commitRunBuffer(info);
