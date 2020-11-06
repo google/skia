@@ -79,7 +79,7 @@ void* GrMemoryPool::allocate(size_t size) {
 #if defined(SK_DEBUG)
     header->fID = []{
         static std::atomic<int> nextID{1};
-        return nextID++;
+        return nextID.fetch_add(1, std::memory_order_relaxed);
     }();
 
     // You can set a breakpoint here when a leaked ID is allocated to see the stack frame.

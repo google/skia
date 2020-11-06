@@ -59,7 +59,7 @@ SkTypefaceCache& SkTypefaceCache::Get() {
 
 SkFontID SkTypefaceCache::NewFontID() {
     static std::atomic<int32_t> nextID{1};
-    return nextID++;
+    return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
 static SkMutex& typeface_cache_mutex() {
