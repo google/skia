@@ -208,15 +208,7 @@ bool GrDrawingManager::flush(
     }
 
     auto direct = fContext->asDirectContext();
-    if (!direct) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        return false; // Can't flush while DDL recording
-    }
+    SkASSERT(direct);
     direct->priv().clientMappedBufferManager()->process();
 
     GrGpu* gpu = direct->priv().getGpu();
@@ -534,16 +526,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
     SkASSERT(!numProxies || proxies);
 
     auto direct = fContext->asDirectContext();
-    if (!direct) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        return GrSemaphoresSubmitted::kNo; // Can't flush while DDL recording
-    }
-
+    SkASSERT(direct);
     GrGpu* gpu = direct->priv().getGpu();
     // We have a non abandoned and direct GrContext. It must have a GrGpu.
     SkASSERT(gpu);
