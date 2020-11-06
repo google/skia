@@ -13,6 +13,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
@@ -40,22 +41,6 @@ class GrContextThreadSafeProxy;
 class GrYUVABackendTextures;
 
 struct SkYUVAIndex;
-
-enum class SkSamplingMode {
-    kNearest,   // single sample point (nearest neighbor)
-    kLinear,    // interporate between 2x2 sample points (bilinear interpolation)
-};
-
-enum class SkMipmapMode {
-    kNone,      // ignore mipmap levels, sample from the "base"
-    kNearest,   // sample from the nearest level
-    kLinear,    // interpolate between the two nearest levels
-};
-
-struct SkFilterOptions {
-    SkSamplingMode  fSampling;
-    SkMipmapMode    fMipmap;
-};
 
 class SkMipmapBuilder {
 public:
@@ -731,36 +716,10 @@ public:
     /**
      *  Make a shader with the specified tiling and mipmap sampling.
      */
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkFilterOptions&,
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions&,
                                const SkMatrix* localMatrix = nullptr) const;
 
-    /*
-     *  Specify B and C (each between 0...1) to create a shader that applies the corresponding
-     *  cubic reconstruction filter to the image.
-     *
-     *  Example values:
-     *      B = 1/3, C = 1/3        "Mitchell" filter
-     *      B = 0,   C = 1/2        "Catmull-Rom" filter
-     *
-     *  See "Reconstruction Filters in Computer Graphics"
-     *          Don P. Mitchell
-     *          Arun N. Netravali
-     *          1988
-     *  https://www.cs.utexas.edu/~fussell/courses/cs384g-fall2013/lectures/mitchell/Mitchell.pdf
-     *
-     *  Desmos worksheet https://www.desmos.com/calculator/aghdpicrvr
-     *  Nice overview https://entropymine.com/imageworsener/bicubic/
-     */
-    struct CubicResampler {
-        float B, C;
-    };
-
-    /**
-     *  Make a shader with the specified tiling and CubicResampler parameters.
-     *  Returns nullptr if the resampler values are outside of [0...1]
-     */
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, CubicResampler,
-                                      const SkMatrix* localMatrix = nullptr) const;
+    using CubicResampler = SkCubicResampler;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits

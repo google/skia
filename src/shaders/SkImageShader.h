@@ -42,13 +42,7 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
-                                const SkFilterOptions&,
-                                const SkMatrix* localMatrix);
-
-    static sk_sp<SkShader> Make(sk_sp<SkImage>,
-                                SkTileMode tmx,
-                                SkTileMode tmy,
-                                SkImage::CubicResampler,
+                                const SkSamplingOptions&,
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
@@ -71,12 +65,7 @@ private:
     SkImageShader(sk_sp<SkImage>,
                   SkTileMode tmx,
                   SkTileMode tmy,
-                  const SkFilterOptions&,
-                  const SkMatrix* localMatrix);
-    SkImageShader(sk_sp<SkImage>,
-                  SkTileMode tmx,
-                  SkTileMode tmy,
-                  SkImage::CubicResampler,
+                  const SkSamplingOptions&,
                   const SkMatrix* localMatrix);
 
     void flatten(SkWriteBuffer&) const override;
@@ -114,7 +103,7 @@ private:
     // only use this if fFilterEnum == kUseFilterOptions
     SkFilterOptions  fFilterOptions;
     // only use this if fFilterEnum == kUseCubicResampler or kHigh
-    SkImage::CubicResampler fCubic = {1/3.0f, 1/3.0f};  // Default to Mitchell-Netravali.
+    SkCubicResampler fCubic = {1/3.0f, 1/3.0f};  // Default to Mitchell-Netravali.
 
     friend class SkShaderBase;
     using INHERITED = SkShaderBase;
