@@ -14,6 +14,7 @@
 #include "include/core/SkPixelRef.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkPixmapPriv.h"
 
 #include <limits.h>
 #include <utility>
@@ -60,34 +61,51 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
         return nullptr;
     }
 
-    SkASSERT(image->fSimple);
+    SkASSERT(image->simple());
     return image;
 }
 
 SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize scaledSize,
         SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
     : fCodec(std::move(codec))
-    , fScaledSize(scaledSize)
     , fDecodeInfo(decodeInfo)
     , fCropRect(cropRect)
     , fPostProcess(std::move(postProcess))
     , fFrameCount(fCodec->codec()->getFrameCount())
-    , fSimple(fScaledSize == fDecodeInfo.dimensions() && !fPostProcess
-              && fCropRect == fDecodeInfo.bounds())
     , fFinished(false)
     , fRepetitionCount(fCodec->codec()->getRepetitionCount())
     , fRepetitionsCompleted(0)
 {
+    // For simplicity in decoding and compositing frames, decode directly to a size and
+    // orientation that fCodec can do directly, and then use fMatrix to handle crop (along with a
+    // clip), orientation, and scaling outside of fCodec. The matrices are computed individually
+    // and applied in the following order:
+    //      [crop] X [origin] X [scale]
+    const auto origin = fCodec->codec()->getOrigin();
+    if (fCodec->fOrientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kRespect
+            && origin != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
+        // The origin is applied after scaling, so use scaledSize, which is the final scaled size.
+        fMatrix = SkEncodedOriginToMatrix(origin, scaledSize.width(), scaledSize.height());
+
+        fCodec = SkAndroidCodec::MakeFromCodec(std::move(fCodec->fCodec),
+                SkAndroidCodec::ExifOrientationBehavior::kIgnore);
+        if (SkPixmapPriv::ShouldSwapWidthHeight(origin)) {
+            // The client asked for sizes post-rotation. Swap back to the pre-rotation sizes to pass
+            // to fCodec and for the scale matrix computation.
+            fDecodeInfo = SkPixmapPriv::SwapWidthHeight(fDecodeInfo);
+            scaledSize = { scaledSize.height(), scaledSize.width() };
+        }
+    }
     if (!fDecodingFrame.fBitmap.tryAllocPixels(fDecodeInfo)) {
         return;
     }
 
-    if (!fSimple) {
-        fMatrix = SkMatrix::Translate(-fCropRect.fLeft, -fCropRect.fTop);
-        float scaleX = (float) fScaledSize.width()  / fDecodeInfo.width();
-        float scaleY = (float) fScaledSize.height() / fDecodeInfo.height();
+    if (scaledSize != fDecodeInfo.dimensions()) {
+        float scaleX = (float) scaledSize.width()  / fDecodeInfo.width();
+        float scaleY = (float) scaledSize.height() / fDecodeInfo.height();
         fMatrix.preConcat(SkMatrix::Scale(scaleX, scaleY));
     }
+    fMatrix.postConcat(SkMatrix::Translate(-fCropRect.fLeft, -fCropRect.fTop));
     this->decodeNextFrame();
 }
 
@@ -320,13 +338,9 @@ int SkAnimatedImage::decodeNextFrame() {
 }
 
 void SkAnimatedImage::onDraw(SkCanvas* canvas) {
-    // This SkBitmap may be reused later to decode the following frame. But Frame::init
-    // lazily copies the pixel ref if it has any other references. So it is safe to not
-    // do a deep copy here.
-    auto image = SkMakeImageFromRasterBitmap(fDisplayFrame.fBitmap,
-                                             kNever_SkCopyPixelsMode);
+    auto image = this->getCurrentFrameSimple();
 
-    if (fSimple) {
+    if (this->simple()) {
         canvas->drawImage(image, 0, 0);
         return;
     }
@@ -335,6 +349,7 @@ void SkAnimatedImage::onDraw(SkCanvas* canvas) {
     if (fPostProcess) {
         canvas->saveLayer(&bounds, nullptr);
     }
+    canvas->clipRect(bounds);
     {
         SkAutoCanvasRestore acr(canvas, fPostProcess != nullptr);
         canvas->concat(fMatrix);
@@ -352,10 +367,29 @@ void SkAnimatedImage::setRepetitionCount(int newCount) {
     fRepetitionCount = newCount;
 }
 
-sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
+sk_sp<SkImage> SkAnimatedImage::getCurrentFrameSimple() {
     // This SkBitmap may be reused later to decode the following frame. But Frame::init
     // lazily copies the pixel ref if it has any other references. So it is safe to not
     // do a deep copy here.
     return SkMakeImageFromRasterBitmap(fDisplayFrame.fBitmap,
                                        kNever_SkCopyPixelsMode);
+}
+
+sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
+    if (this->simple()) return this->getCurrentFrameSimple();
+
+    auto imageInfo = fDisplayFrame.fBitmap.info().makeDimensions(fCropRect.size());
+    if (fPostProcess) {
+        // Defensively use premul in case the post process adds alpha.
+        imageInfo = imageInfo.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(imageInfo)) {
+        return nullptr;
+    }
+
+    SkCanvas canvas(dst);
+    this->draw(&canvas);
+    return SkMakeImageFromRasterBitmap(dst, kNever_SkCopyPixelsMode);
 }
