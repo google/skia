@@ -224,6 +224,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c573c117_0bbda047",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T18:21:13Z",
+      "side": 1,
+      "message": "Looks like it\u0027s passing now, including in GCC, so that\u0027s good news. \n\nAlso tried a different spin on the approach at http://review.skia.org/332752. I don\u0027t have a particular preference about which way we do it. It\u0027s just a variation on the theme.",
+      "parentUuid": "996c4b17_037a258f",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
