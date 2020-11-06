@@ -40,7 +40,8 @@ $genHType sqrt($genHType x);
 // 8.3 : Common Functions
 $genType  abs($genType  x);
 $genHType abs($genHType x);
-// TODO: sign(x)
+$genType  sign($genType  x);
+$genHType sign($genHType x);
 $genType  floor($genType  x);
 $genHType floor($genHType x);
 $genType  ceil($genType  x);
