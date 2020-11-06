@@ -20,6 +20,7 @@
 
 #include "include/ports/SkTypeface_mac.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/utils/SkUTF.h"
 #include "src/utils/mac/SkCGBase.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
@@ -144,6 +145,80 @@ static SkFont run_to_font(CTRunRef run, const SkFont& orig) {
     return font;
 }
 
+namespace {
+class UTF16ToUTF8IndicesMap {
+public:
+    /** Sets the source text. utf8 must remain valid for the lifetime of the object.
+     * @return true if successful
+     */
+    bool setUTF8(const char* utf8, size_t size) {
+        SkASSERT(utf8 != nullptr);
+        clear();
+
+        if (!SkTFitsIn<int32_t>(size)) {
+            SkDEBUGF("UTF16ToUTF8IndicesMap: text too long");
+            return false;
+        }
+
+        auto utf16Size = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, size);
+        if (utf16Size < 0) {
+            SkDEBUGF("UTF16ToUTF8IndicesMap: Invalid utf8 input");
+            return false;
+        }
+
+        fUtf8 = utf8;
+        fUtf8Size = size;
+        fUtf16Size = utf16Size;
+        fNeedsToBuildMap = true;
+
+        return true;
+    }
+
+    size_t mapIndex(size_t index) const {
+        buildMapIfNeeded();
+        SkASSERT(index < fUtf16ToUtf8Indices.size());
+        return fUtf16ToUtf8Indices[index];
+    }
+private:
+    void clear() {
+        fUtf8 = nullptr;
+        fUtf8Size = 0;
+        fUtf16Size = 0;
+        fNeedsToBuildMap = false;
+        fUtf16ToUtf8Indices.clear();
+    }
+
+    void buildMapIfNeeded() const {
+        if (!fNeedsToBuildMap) {
+            return;
+        }
+        fNeedsToBuildMap = false;
+
+        // utf16Size+1 to also store the size
+        fUtf16ToUtf8Indices = std::vector<size_t>(fUtf16Size + 1);
+        auto utf16 = fUtf16ToUtf8Indices.begin();
+        auto utf8Begin = fUtf8, utf8End = fUtf8 + fUtf8Size;
+        while (utf8Begin < utf8End) {
+            *utf16 = utf8Begin - fUtf8;
+            utf16 += SkUTF::ToUTF16(SkUTF::NextUTF8(&utf8Begin, utf8End), nullptr);
+        }
+        *utf16 = fUtf8Size;
+    }
+
+    const char* fUtf8 = nullptr;
+    size_t fUtf8Size = 0;
+    size_t fUtf16Size = 0;
+    mutable bool fNeedsToBuildMap = false;
+    mutable std::vector<size_t> fUtf16ToUtf8Indices;
+};
+
+SkShaper::RunHandler::Range mapUTF16CFRange(const UTF16ToUTF8IndicesMap& indicesMap, const CFRange& range) {
+    auto start = indicesMap.mapIndex(range.location);
+    auto size = indicesMap.mapIndex(range.location + range.length) - start;
+    return {start, size};
+}
+} // namespace
+
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
@@ -155,6 +230,11 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
                                     kCFStringEncodingUTF8, false));
+
+    UTF16ToUTF8IndicesMap utf8IndicesMap;
+    if (!utf8IndicesMap.setUTF8(utf8, utf8Bytes)) {
+        return;
+    }
 
     SkUniqueCFRef<CTFontRef> ctfont = create_ctfont_from_font(font);
 
@@ -189,6 +269,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
         }
         handler->beginLine();
         fontStorage.clear();
+        fontStorage.reserve(runCount); // ensure the refs won't get invalidated
         infos.clear();
         for (CFIndex j = 0; j < runCount; ++j) {
             CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(run_array, j);
@@ -212,7 +293,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                 0,                  // need fBidiLevel
                 {adv, 0},
                 (size_t)runGlyphs,
-                {(size_t)range.location, (size_t)range.length},
+                mapUTF16CFRange(utf8IndicesMap, range),
             });
             handler->runInfo(infos.back());
         }
@@ -247,7 +328,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                     buffer.offsets[k] = {0, 0}; // offset relative to the origin for this glyph
                 }
                 if (buffer.clusters) {
-                    buffer.clusters[k] = indices[k];
+                    buffer.clusters[k] = utf8IndicesMap.mapIndex(indices[k]);
                 }
             }
             handler->commitRunBuffer(info);
