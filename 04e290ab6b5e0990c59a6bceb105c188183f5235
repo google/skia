@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1dbd391a_9775cb82",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9458
+      },
+      "writtenOn": "2020-11-06T21:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55b91536_447f8c72",
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "54f9deac_15e4ed3d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-06T19:53:46Z",
       "side": 1,
       "message": "Thanks for doing this, just a few naming and organizational things.",
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9713e7fe_f86962e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9458
+      },
+      "writtenOn": "2020-11-06T21:14:00Z",
+      "side": 1,
+      "message": "Thank you for the review!",
+      "parentUuid": "54f9deac_15e4ed3d",
       "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -58,6 +94,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "60f32e2f_e12501e0",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9458
+      },
+      "writtenOn": "2020-11-06T21:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09821c26_2796b758",
+      "range": {
+        "startLine": 151,
+        "startChar": 9,
+        "endLine": 151,
+        "endChar": 17
+      },
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d161ea4_d807c71f",
@@ -71,6 +131,30 @@
       "writtenOn": "2020-11-06T19:53:46Z",
       "side": 1,
       "message": "This looks a lot like a \u0027this\u0027 parameter. This method should probably just be on UTF16ToUTF8IndicesMap.",
+      "range": {
+        "startLine": 191,
+        "startChar": 44,
+        "endLine": 191,
+        "endChar": 83
+      },
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3d72bd6_13039d0a",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 9458
+      },
+      "writtenOn": "2020-11-06T21:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d161ea4_d807c71f",
       "range": {
         "startLine": 191,
         "startChar": 44,
