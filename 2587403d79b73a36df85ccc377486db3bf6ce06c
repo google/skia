@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a12bf6e5_e974c949",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-06T14:32:44Z",
+      "side": 1,
+      "message": "Had to fix caps to add derivative support, turn off SPIR-V validation, and add some layout settings to make Metal happy.",
+      "revId": "2587403d79b73a36df85ccc377486db3bf6ce06c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
