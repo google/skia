@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84fc412b_f4bf6889",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-06T18:25:30Z",
+      "side": 1,
+      "message": "These primitive types currently lack support for \"inherited\" and don\u0027t work with the existing macros.  Deferring for now.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "27d0fb5ec82ebd24b21c969944d9a1048f8a8344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
