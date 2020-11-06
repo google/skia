@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1868eb8c_6beac614",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T22:36:19Z",
+      "side": 1,
+      "message": "I think this looks okay, but seqcst is a very safe forgiving default.  If we weaken these we kind of need to make certain that it\u0027s safe, especially if we\u0027re going to relaxed.  Are you aware of what you need to be looking for here, and have you looked?",
+      "revId": "76ad64a0a015c10f9df569879eda0e8bf749fc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
