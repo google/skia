@@ -81,6 +81,24 @@
       "parentUuid": "c8d1aec8_2aa04ff9",
       "revId": "17b19eafbe82c7671ca33c8afac11b124b09000c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a2d3b75_69b14262",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-06T20:35:26Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "c8149432_d7a80e34",
+      "revId": "17b19eafbe82c7671ca33c8afac11b124b09000c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
