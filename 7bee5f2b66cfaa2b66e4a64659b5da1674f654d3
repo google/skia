@@ -22,6 +22,30 @@
       },
       "revId": "7bee5f2b66cfaa2b66e4a64659b5da1674f654d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d7f85e3_46f4df91",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T22:54:41Z",
+      "side": 1,
+      "message": "Yeah, that makes sense.  You can\u0027t use alignas() to decrease alignment, and it looks like it\u0027s a loud ill-formed program rather than just silently doing nothing.",
+      "parentUuid": "079390e4_5666100a",
+      "range": {
+        "startLine": 637,
+        "startChar": 17,
+        "endLine": 637,
+        "endChar": 31
+      },
+      "revId": "7bee5f2b66cfaa2b66e4a64659b5da1674f654d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

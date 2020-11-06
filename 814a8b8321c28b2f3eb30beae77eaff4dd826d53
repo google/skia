@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb0536a9_9015221d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T22:54:41Z",
+      "side": 1,
+      "message": "I\u0027ll take a pass on this and see where I end up.  I don\u0027t want to keep forcing you to play guess what I\u0027m thinking.",
+      "revId": "814a8b8321c28b2f3eb30beae77eaff4dd826d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5691c062_050fe27c",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-06T22:54:41Z",
+      "side": 1,
+      "message": "I didn\u0027t realized we\u0027d have to do this even with private inheritance.  Guess it\u0027s easier to use an array of char after all?",
+      "range": {
+        "startLine": 644,
+        "startChar": 0,
+        "endLine": 657,
+        "endChar": 41
+      },
+      "revId": "814a8b8321c28b2f3eb30beae77eaff4dd826d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
