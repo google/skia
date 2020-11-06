@@ -439,22 +439,22 @@ public:
         return fAllocCount;
     }
 
-protected:
     /**
-     * A block of preallocated storage, passed in from SkSTArray.
+     * A block of preallocated storage; for internal use by SkSTArray.
      */
     template <int N>
     struct PreallocatedStorage {
-        std::array<char, N * sizeof(T)>* fArray;
+        std::array<char, N * sizeof(T)> fArray;
     };
 
+protected:
     /**
      * Creates an empty array that will use the passed storage block until it
      * is insufficiently large to hold the entire array.
      */
     template <int N>
-    SkTArray(PreallocatedStorage<N> storage) {
-        this->initWithPreallocatedStorage(0, storage.fArray->data(), N);
+    SkTArray(PreallocatedStorage<N>* storage) {
+        this->initWithPreallocatedStorage(0, storage->fArray.data(), N);
     }
 
     /**
@@ -463,8 +463,8 @@ protected:
      * to fit.
      */
     template <int N>
-    SkTArray(const SkTArray& array, PreallocatedStorage<N> storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage.fArray->data(), N);
+    SkTArray(const SkTArray& array, PreallocatedStorage<N>* storage) {
+        this->initWithPreallocatedStorage(array.fCount, storage->fArray.data(), N);
         this->copy(array.fItemArray);
     }
 
@@ -474,8 +474,8 @@ protected:
      * to fit.
      */
     template <int N>
-    SkTArray(SkTArray&& array, PreallocatedStorage<N> storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage.fArray->data(), N);
+    SkTArray(SkTArray&& array, PreallocatedStorage<N>* storage) {
+        this->initWithPreallocatedStorage(array.fCount, storage->fArray.data(), N);
         array.move(fItemArray);
         array.fCount = 0;
     }
@@ -486,8 +486,8 @@ protected:
      * to fit.
      */
     template <int N>
-    SkTArray(const T* array, int count, PreallocatedStorage<N> storage) {
-        this->initWithPreallocatedStorage(count, storage.fArray->data(), N);
+    SkTArray(const T* array, int count, PreallocatedStorage<N>* storage) {
+        this->initWithPreallocatedStorage(count, storage->fArray.data(), N);
         this->copy(array);
     }
 
@@ -497,8 +497,8 @@ protected:
      * shrinks to fit.
      */
     template <int N>
-    SkTArray(std::initializer_list<T> data, PreallocatedStorage<N> storage) {
-        this->initWithPreallocatedStorage(data.size(), storage.fArray->data(), N);
+    SkTArray(std::initializer_list<T> data, PreallocatedStorage<N>* storage) {
+        this->initWithPreallocatedStorage(data.size(), storage->fArray.data(), N);
         this->copy(&*data.begin());
     }
 
@@ -634,8 +634,9 @@ template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHea
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
 template <int N, typename T, bool MEM_MOVE = false>
-class alignas(T) alignas(void*) SkSTArray : private std::array<char, N * sizeof(T)>,
-                                            public SkTArray<T, MEM_MOVE> {
+class alignas(T) alignas(void*) SkSTArray
+        : private SkTArray<T, MEM_MOVE>::template PreallocatedStorage<N>
+        , public SkTArray<T, MEM_MOVE> {
 private:
     using INHERITED = SkTArray<T, MEM_MOVE>;
     using PreallocatedStorage = typename INHERITED::template PreallocatedStorage<N>;
@@ -657,28 +658,28 @@ public:
     using typename INHERITED::value_type;
 
     SkSTArray()
-        : INHERITED(PreallocatedStorage{this}) {}
+        : INHERITED(static_cast<PreallocatedStorage*>(this)) {}
 
     SkSTArray(const SkSTArray& array)
-        : INHERITED(array, PreallocatedStorage{this}) {}
+        : INHERITED(array, static_cast<PreallocatedStorage*>(this)) {}
 
     SkSTArray(SkSTArray&& array)
-        : INHERITED(std::move(array), PreallocatedStorage{this}) {}
+        : INHERITED(std::move(array), static_cast<PreallocatedStorage*>(this)) {}
 
     explicit SkSTArray(const INHERITED& array)
-        : INHERITED(array, PreallocatedStorage{this}) {}
+        : INHERITED(array, static_cast<PreallocatedStorage*>(this)) {}
 
     explicit SkSTArray(INHERITED&& array)
-        : INHERITED(std::move(array), PreallocatedStorage{this}) {}
+        : INHERITED(std::move(array), static_cast<PreallocatedStorage*>(this)) {}
 
     explicit SkSTArray(int reserveCount)
         : INHERITED(reserveCount) {}
 
     SkSTArray(const T* array, int count)
-        : INHERITED(array, count, PreallocatedStorage{this}) {}
+        : INHERITED(array, count, static_cast<PreallocatedStorage*>(this)) {}
 
     SkSTArray(std::initializer_list<T> data)
-        : INHERITED(data, PreallocatedStorage{this}) {}
+        : INHERITED(data, static_cast<PreallocatedStorage*>(this)) {}
 
     SkSTArray& operator=(const SkSTArray& array) {
         INHERITED::operator=(array);
