@@ -1229,7 +1229,8 @@ GrSemaphoresSubmitted GrSurfaceContext::flush(SkSurface::BackendSurfaceAccess ac
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
 
-    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), access, info, newState);
+    GrSurfaceProxy* proxy = this->asSurfaceProxy();
+    return this->drawingManager()->flushSurfaces({&proxy, 1}, access, info, newState);
 }
 
 GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorType dstCT,
