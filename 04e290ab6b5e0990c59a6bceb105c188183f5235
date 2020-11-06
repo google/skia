@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f9deac_15e4ed3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T19:53:46Z",
+      "side": 1,
+      "message": "Thanks for doing this, just a few naming and organizational things.",
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09821c26_2796b758",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T19:53:46Z",
+      "side": 1,
+      "message": "I think this is more like \u0027setUTF8\u0027. The code here incidentally builds a map, but there is no particular reason the building of the map couldn\u0027t be deferred (for example to first use or something).\n\nIn the future it would be nice for this sort of thing to be \u0027static std::optional\u003cUTF16ToUTF8IndicesMap\u003e Make(...)\u0027, the constructor private, and this class explicitly move-able. Unfortunately we can\u0027t currently use std::optional here since Skia is currently limited to c++14 the library (can use c++17 the language though).",
+      "range": {
+        "startLine": 151,
+        "startChar": 9,
+        "endLine": 151,
+        "endChar": 17
+      },
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d161ea4_d807c71f",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T19:53:46Z",
+      "side": 1,
+      "message": "This looks a lot like a \u0027this\u0027 parameter. This method should probably just be on UTF16ToUTF8IndicesMap.",
+      "range": {
+        "startLine": 191,
+        "startChar": 44,
+        "endLine": 191,
+        "endChar": 83
+      },
+      "revId": "04e290ab6b5e0990c59a6bceb105c188183f5235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
