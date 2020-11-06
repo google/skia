@@ -128,6 +128,30 @@
       },
       "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7e32983_13f81a6f",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-06T15:25:40Z",
+      "side": 1,
+      "message": "OK, I\u0027ll give it a go. It *seems like* std::array\u003cchar\u003e gets the same type-punning exceptions as a raw char[], but I am not 100% sure. (cppreference on array\u003c\u003e: \"This container is an aggregate type with the same semantics as a struct holding a C-style array T[N] as its only non-static data member.\")",
+      "parentUuid": "f6de82a7_161e3ec8",
+      "range": {
+        "startLine": 566,
+        "startChar": 16,
+        "endLine": 566,
+        "endChar": 24
+      },
+      "revId": "1f1c9218ebd5700e235a1e721d03028a620d526c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
