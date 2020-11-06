@@ -22,6 +22,30 @@
       },
       "revId": "6ab77b410a2e9d5df1e5dc48267d4988afb05e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76784510_37ee2dc6",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-06T16:57:51Z",
+      "side": 1,
+      "message": "In JS, optional parameters (pointer) generally go last so they can be omitted instead of having to say null. As such, I\u0027ve structured the APIs to put those optional params (like pointer) last.",
+      "parentUuid": "8e829913_e396ddd1",
+      "range": {
+        "startLine": 1253,
+        "startChar": 54,
+        "endLine": 1254,
+        "endChar": 31
+      },
+      "revId": "6ab77b410a2e9d5df1e5dc48267d4988afb05e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
