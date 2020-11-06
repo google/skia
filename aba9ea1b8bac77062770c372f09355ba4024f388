@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b03511f7_689a8882",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-06T19:30:04Z",
+      "side": 1,
+      "message": "now that this is no longer a private class it should be moved into the SkottieAnimation.java file that the old interface lived in.",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76a1272e_8a2453f4",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-06T19:30:04Z",
+      "side": 1,
+      "message": "When moving this class to its own file drop the private modifier and it will become package protected",
+      "range": {
+        "startLine": 304,
+        "startChar": 8,
+        "endLine": 304,
+        "endChar": 15
+      },
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "556e71b5_c2b75137",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-06T19:30:04Z",
+      "side": 1,
+      "message": "I know you have to override this, but do we see a case where we ever want to support this?  If so, I suggest that we create a \"cloned\" animator that applies a custom TimeInterpolator that scales the actual animation duration to match this newly set duration.  My preference however, would be to continue returning null for the time being.",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15163e7e_966259f5",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-06T19:30:04Z",
+      "side": 1,
+      "message": "Do you intend to implement this?",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
