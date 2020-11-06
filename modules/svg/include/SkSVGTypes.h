@@ -516,6 +516,15 @@ private:
     SkString fIRI;
 };
 
+enum class SkSVGFeColorMatrixType {
+    kMatrix,
+    kSaturate,
+    kHueRotate,
+    kLuminanceToAlpha,
+};
+
+using SkSVGFeColorMatrixValues = SkTDArray<SkSVGNumberType>;
+
 class SkSVGFeTurbulenceBaseFrequency {
 public:
     SkSVGFeTurbulenceBaseFrequency() : fFreqX(0), fFreqY(0) {}

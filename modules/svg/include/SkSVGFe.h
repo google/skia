@@ -18,7 +18,7 @@ public:
     ~SkSVGFe() override = default;
 
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
-        return node->tag() == SkSVGTag::kFeTurbulence;
+        return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix;
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,

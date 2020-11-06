@@ -106,7 +106,15 @@ private:
     bool parseParenthesized(const char* prefix, Func, T* result);
 
     template <typename T, typename TArray>
-    bool parseEnumMap(const TArray& arr, T* result);
+    bool parseEnumMap(const TArray& arr, T* result) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(arr); ++i) {
+            if (this->parseExpectedStringToken(std::get<0>(arr[i]))) {
+                *result = std::get<1>(arr[i]);
+                return true;
+            }
+        }
+        return false;
+    }
 
     // The current position in the input string.
     const char* fCurPos;
