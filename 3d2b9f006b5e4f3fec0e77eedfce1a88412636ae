@@ -34,6 +34,24 @@
       "parentUuid": "03dd1d14_282e7671",
       "revId": "3d2b9f006b5e4f3fec0e77eedfce1a88412636ae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "073075da_7bb389ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-06T16:48:39Z",
+      "side": 1,
+      "message": "My variant (inspired by yours) just has clearer comments (to me at least), which I felt were needed. We can try to merge them into your CL, or we can land mine.\n\nI don\u0027t want to take this away from you per-se, but I did find this area (of my code) confusing, so I want to take this opportunity to somewhat clarify it.",
+      "parentUuid": "0212dd99_1e2a51f8",
+      "revId": "3d2b9f006b5e4f3fec0e77eedfce1a88412636ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
