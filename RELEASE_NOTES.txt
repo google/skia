@@ -9,9 +9,8 @@ Milestone 88
 
   * <insert new release notes here>
 
-  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
-    and quality is highest if user bounds are provided to saveLayer.
-    https://review.skia.org/328376
+  * Limit the types and intrinsics supported in SkRuntimeEffect to GLSL ES 1.00
+    https://review.skia.org/332597
 
   * Add AVIF support to SkHeifCodec.
 
