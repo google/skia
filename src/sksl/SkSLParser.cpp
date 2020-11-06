@@ -138,7 +138,7 @@ Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorRepor
     } while (false)
 
 /* (directive | section | declaration)* END_OF_FILE */
-std::unique_ptr<ASTFile> Parser::file() {
+std::unique_ptr<ASTFile> Parser::compilationUnit() {
     fFile = std::make_unique<ASTFile>();
     CREATE_NODE(result, 0, ASTNode::Kind::kFile);
     fFile->fRoot = result;

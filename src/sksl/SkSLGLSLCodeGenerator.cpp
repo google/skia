@@ -1485,8 +1485,10 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 }
 
 void GLSLCodeGenerator::writeHeader() {
-    this->write(fProgram.fCaps->versionDeclString());
-    this->writeLine();
+    if (fProgram.fCaps->versionDeclString()) {
+        this->write(fProgram.fCaps->versionDeclString());
+        this->writeLine();
+    }
 }
 
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
