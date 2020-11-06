@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b98809bb_85c1e675",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "Should put the \u0027Bug: skia:xxx\u0027 line here.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "949bff6c_1e686731",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "If nothing outside is using this is there a reason to make it a public virtual here? Seems this can just be a helper in the ICU implementation. If there is actually something that wants it, that\u0027s fine, but it\u0027s easier to expose things later than to take them away or fix them up later when there is an actual user.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4f32d32_25c31e3a",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "nit: Should probably break this up onto at least two lines, it\u0027s a bit visually long see what\u0027s gong on.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86b1cd65_1d87c9e9",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "We should have a big comment here about why this is re-doing work we would expect the break iterator to do, with a link to the bug.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3636b594_5cf04688",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "Is this really \u0027add\u0027 or should it instead be called \u0027setBreak\u0027? Before this change it didn\u0027t really make a difference since any location was only touched once, but now this may be changing an existing setting.",
+      "range": {
+        "startLine": 346,
+        "startChar": 20,
+        "endLine": 346,
+        "endChar": 23
+      },
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "def3c9b5_aeb8edd1",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T16:13:26Z",
+      "side": 1,
+      "message": "This is a separate change. The only way the extra overhead of doing this seems worth it is if it is even possible to inherit from this class and override isWhitespace. However, I\u0027m not sure that we ever want to do that and the user cannot. I would be in favor of marking SkUnicode_icu \u0027final\u0027 to make this more obvious.\n\nThis would also mean extractWhitespaces and extractPositions can stay \u0027static\u0027.",
+      "revId": "0edbb4e4122373e91c33bf19cf2b4a4fc0f7617e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
