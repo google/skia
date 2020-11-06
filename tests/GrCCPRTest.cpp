@@ -323,8 +323,7 @@ protected:
         int lastCopyAtlasID() const { return fLastCopyAtlasID; }
         int lastRenderedAtlasID() const { return fLastRenderedAtlasID; }
 
-        void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                      int numOpsTaskIDs) override {
+        void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t>) override {
             fLastRenderedAtlasID = fLastCopyAtlasID = 0;
 
             const GrCCPerFlushResources* resources = fCCPR->testingOnly_getCurrentFlushResources();
@@ -340,7 +339,7 @@ protected:
             }
         }
 
-        void postFlush(GrDeferredUploadToken, const uint32_t*, int) override {}
+        void postFlush(GrDeferredUploadToken, SkSpan<const uint32_t>) override {}
 
     private:
         sk_sp<GrCoverageCountingPathRenderer> fCCPR;

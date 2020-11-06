@@ -245,8 +245,7 @@ bool GrDrawingManager::flush(
         fDAG.gatherIDs(&fFlushingRenderTaskIDs);
 
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-            onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs.begin(),
-                                      fFlushingRenderTaskIDs.count());
+            onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs);
         }
         for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
             onFlushRenderTask->makeClosed(*fContext->priv().caps());
@@ -351,8 +350,7 @@ bool GrDrawingManager::flush(
         flushed = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingRenderTaskIDs.begin(),
-                                   fFlushingRenderTaskIDs.count());
+        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingRenderTaskIDs);
         flushed = true;
     }
     if (flushed) {

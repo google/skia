@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -31,19 +32,18 @@ public:
 
     /*
      * The preFlush callback allows subsystems (e.g., text, path renderers) to create atlases
-     * for a specific flush. All the GrOpsTask IDs required for the flush are passed into the
+     * for a specific flush. All the GrRenderTask IDs required for the flush are passed into the
      * callback.
      */
-    virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                          int numOpsTaskIDs) = 0;
+    virtual void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> renderTaskIDs) = 0;
 
     /**
-     * Called once flushing is complete and all opsTasks indicated by preFlush have been executed
+     * Called once flushing is complete and all renderTasks indicated by preFlush have been executed
      * and released. startTokenForNextFlush can be used to track resources used in the current
      * flush.
      */
     virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                           const uint32_t* opsTaskIDs, int numOpsTaskIDs) {}
+                           SkSpan<const uint32_t> renderTaskIDs) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources.
