@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9962ddd4_bc992888",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-06T15:46:21Z",
+      "side": 1,
+      "message": "To be able to test the new functionality, I simplified this test helper. It turns out that it wasn\u0027t saving that much typing, and the updated version makes all of the tests easier to reason about when you read them.",
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
