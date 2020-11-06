@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb87a2c3_fe0d0b5e",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-06T23:22:17Z",
+      "side": 1,
+      "message": "Sorry if it sounded like I wanted you to do this (note that if this is kept it would also need to be called in \u0027mapRange\u0027 as well). I would prefer this code to just be in \u0027setUTF8\u0027 and done eagerly. There doesn\u0027t seem to a good reason to have the extra overhead of doing this lazily since it is always used. I was just pointing out that from a users point of view \u0027setUTF8\u0027 was a better name since it stated what the user would use it for instead of naming the method for what it did internally.",
+      "revId": "5b3859e3c0065ee4e86658c55478b48aec2c0c7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
