@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "200d128e_3f6f1664",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-06T18:23:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c18a2a71_0a442a86",
+      "range": {
+        "startLine": 960,
+        "startChar": 46,
+        "endLine": 960,
+        "endChar": 80
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce97159e_7f126129",
@@ -60,6 +84,30 @@
       "writtenOn": "2020-11-06T16:01:44Z",
       "side": 1,
       "message": "Not sure why or how this could be true. (I typed the previous note above before seeing this comment.)",
+      "range": {
+        "startLine": 200,
+        "startChar": 42,
+        "endLine": 201,
+        "endChar": 23
+      },
+      "revId": "14972ccd5483b435112a136c9210e169c69f585f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3351c7e4_6066657f",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-06T18:23:51Z",
+      "side": 1,
+      "message": "I agree it\u0027s unlikely. I originally wrote this with the condition here, but given that we\u0027re applying this fix textually, I\u0027d rather be testing this code-path all the time. (Perhaps a change to main\u0027s signature somehow makes this incorrect in some scenarios)...",
+      "parentUuid": "9427bd49_a72d2c59",
       "range": {
         "startLine": 200,
         "startChar": 42,
