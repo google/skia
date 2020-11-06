@@ -1052,7 +1052,7 @@ uint32_t SkClipStack::GetNextGenID() {
 
     uint32_t id;
     do {
-        id = nextID++;
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id < kFirstUnreservedGenID);
     return id;
 }

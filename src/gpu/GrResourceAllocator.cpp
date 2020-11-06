@@ -22,7 +22,7 @@
         static std::atomic<uint32_t> nextID{1};
         uint32_t id;
         do {
-            id = nextID++;
+            id = nextID.fetch_add(1, std::memory_order_relaxed);
         } while (id == SK_InvalidUniqueID);
         return id;
     }

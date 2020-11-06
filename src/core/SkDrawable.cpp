@@ -14,7 +14,7 @@ static int32_t next_generation_id() {
 
     int32_t id;
     do {
-        id = nextID++;
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == 0);
     return id;
 }

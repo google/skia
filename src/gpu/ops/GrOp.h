@@ -354,10 +354,10 @@ private:
 #endif
 
     static uint32_t GenID(std::atomic<uint32_t>* idCounter) {
-        uint32_t id = (*idCounter)++;
+        uint32_t id = idCounter->fetch_add(1, std::memory_order_relaxed);
         if (id == 0) {
             SK_ABORT("This should never wrap as it should only be called once for each GrOp "
-                   "subclass.");
+                     "subclass.");
         }
         return id;
     }
@@ -378,7 +378,7 @@ private:
         SkDEBUGCODE(kUninitialized_BoundsFlag   = 0x4)
     };
 
-    Owner                             fNextInChain{nullptr};
+    Owner                               fNextInChain{nullptr};
     GrOp*                               fPrevInChain = nullptr;
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;

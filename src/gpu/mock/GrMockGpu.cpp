@@ -19,7 +19,7 @@ int GrMockGpu::NextInternalTextureID() {
     static std::atomic<int> nextID{1};
     int id;
     do {
-        id = nextID.fetch_add(1);
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (0 == id);  // Reserve 0 for an invalid ID.
     return id;
 }
@@ -28,21 +28,21 @@ int GrMockGpu::NextExternalTextureID() {
     // We use negative ints for the "testing only external textures" so they can easily be
     // identified when debugging.
     static std::atomic<int> nextID{-1};
-    return nextID--;
+    return nextID.fetch_add(-1, std::memory_order_relaxed);
 }
 
 int GrMockGpu::NextInternalRenderTargetID() {
     // We start off with large numbers to differentiate from texture IDs, even though they're
     // technically in a different space.
     static std::atomic<int> nextID{SK_MaxS32};
-    return nextID--;
+    return nextID.fetch_add(-1, std::memory_order_relaxed);
 }
 
 int GrMockGpu::NextExternalRenderTargetID() {
     // We use large negative ints for the "testing only external render targets" so they can easily
     // be identified when debugging.
     static std::atomic<int> nextID{SK_MinS32};
-    return nextID++;
+    return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
 sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,

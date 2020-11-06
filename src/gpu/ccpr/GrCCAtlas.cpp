@@ -61,7 +61,7 @@ void GrCCAtlas::setEndStencilResolveInstance(int idx) {
 
 static uint32_t next_atlas_unique_id() {
     static std::atomic<uint32_t> nextID;
-    return nextID++;
+    return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
 sk_sp<GrCCCachedAtlas> GrCCAtlas::refOrMakeCachedAtlas(GrOnFlushResourceProvider* onFlushRP) {
