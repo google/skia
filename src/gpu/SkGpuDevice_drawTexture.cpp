@@ -680,7 +680,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
                           aaFlags, SkCanvas::kStrict_SrcRectConstraint, sampler, false);
 }
 
-void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
+void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect& srcRect, const SkRect* dstRect,
                                 const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                                 const SkMatrix* preViewMatrix, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
@@ -688,7 +688,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     SkRect dst;
     SkMatrix srcToDst;
     ImageDrawMode mode = optimize_sample_area(SkISize::Make(image->width(), image->height()),
-                                              srcRect, dstRect, dstClip, &src, &dst, &srcToDst);
+                                              &srcRect, dstRect, dstClip, &src, &dst, &srcToDst);
     if (mode == ImageDrawMode::kSkip) {
         return;
     }
@@ -818,7 +818,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             }
             // Always send GrAA::kYes to preserve seaming across tiling in MSAA
             this->drawImageQuad(
-                    set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
+                    set[i].fImage.get(), set[i].fSrcRect, &set[i].fDstRect,
                     set[i].fHasClip ? dstClips + dstClipIndex : nullptr, GrAA::kYes,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
@@ -898,7 +898,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
             this->drawImageQuad(
-                    image, &set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
+                    image, set[i].fSrcRect, &set[i].fDstRect, clip, GrAA::kYes,
                     SkToGrQuadAAFlags(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     *entryPaint, constraint);

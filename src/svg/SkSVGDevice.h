@@ -24,7 +24,7 @@ protected:
     void drawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count,
                     const SkPoint[], const SkPaint& paint) override;
-    void drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                        const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) override;
     void drawRect(const SkRect& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;

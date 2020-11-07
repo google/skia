@@ -169,7 +169,7 @@ void SkBaseDevice::drawImageNine(const SkImage* image, const SkIRect& center,
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+        this->drawImageRect(image, srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 }
 
@@ -196,7 +196,7 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
                    this->drawRect(dstR, paintCopy);
               }
         } else {
-            this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+            this->drawImageRect(image, srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
         }
     }
 }
@@ -301,7 +301,7 @@ void SkBaseDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], in
             this->clipPath(clipPath, SkClipOp::kIntersect, entryPaint.isAntiAlias());
             clipIndex += 4;
         }
-        this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
+        this->drawImageRect(images[i].fImage.get(), images[i].fSrcRect, images[i].fDstRect,
                             entryPaint, constraint);
         if (needsRestore) {
             this->restoreLocal(baseLocalToDevice);

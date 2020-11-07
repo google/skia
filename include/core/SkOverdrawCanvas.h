@@ -38,8 +38,8 @@ public:
                      int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
-    void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
-                         SrcRectConstraint) override;
+    void onDrawImageRect2(const SkImage*, const SkRect&, const SkRect&, const SkPaint*,
+                          SrcRectConstraint) override;
     void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const Lattice&, const SkRect&, const SkPaint*) override;
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
