@@ -740,16 +740,14 @@ GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const 
 }
 
 void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
-                                         std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
-                                         int numSemaphores) {
+                                         SkTArray<std::unique_ptr<GrSemaphore>> semaphores) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     const GrCaps& caps = *fContext->priv().caps();
 
     sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
-                                                                    std::move(semaphores),
-                                                                    numSemaphores);
+                                                                    std::move(semaphores));
     if (fReduceOpsTaskSplitting) {
         GrRenderTask* lastTask = this->getLastRenderTask(proxy.get());
         if (lastTask && !lastTask->isClosed()) {
