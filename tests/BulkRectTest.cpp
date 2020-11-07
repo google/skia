@@ -56,7 +56,8 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
 
     std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext);
 
-    auto quads = new GrRenderTargetContext::QuadSetEntry[requestedTotNumQuads];
+    SkTArray<GrRenderTargetContext::QuadSetEntry> quads;
+    quads.resize(requestedTotNumQuads);
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         quads[i].fRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
@@ -69,7 +70,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
     GrFillRectOp::AddFillRectOps(rtc.get(), nullptr, dContext, std::move(paint), overallAA,
-                                 SkMatrix::I(), quads, requestedTotNumQuads);
+                                 SkMatrix::I(), quads);
 
     GrOpsTask* opsTask = rtc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
@@ -87,8 +88,6 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
     dContext->flushAndSubmit();
-
-    delete[] quads;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -113,7 +112,8 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                         GrSwizzle::RGBA());
     }
 
-    auto set = new GrRenderTargetContext::TextureSetEntry[requestedTotNumQuads];
+    SkTArray<GrRenderTargetContext::TextureSetEntry> set;
+    set.resize(requestedTotNumQuads);
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         if (!allUniqueProxies) {
@@ -164,8 +164,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                       nullptr,
                                       dContext,
                                       set,
-                                      requestedTotNumQuads,
-                                      requestedTotNumQuads,  // We alternate so proxyCnt == cnt
+                                      set.count(),  // We alternate so proxyCnt == cnt
                                       GrSamplerState::Filter::kNearest,
                                       GrSamplerState::MipmapMode::kNone,
                                       GrTextureOp::Saturate::kYes,
@@ -204,8 +203,6 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
     REPORTER_ASSERT(reporter, requestedTotNumQuads == actualTotNumQuads);
 
     dContext->flushAndSubmit();
-
-    delete[] set;
 }
 
 //-------------------------------------------------------------------------------------------------

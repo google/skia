@@ -858,12 +858,11 @@ void GrRenderTargetContext::drawRect(const GrClip* clip,
 }
 
 void GrRenderTargetContext::drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa,
-                                        const SkMatrix& viewMatrix, const QuadSetEntry quads[],
-                                        int cnt) {
+                                        const SkMatrix& viewMatrix,
+                                        SkSpan<const QuadSetEntry> quads) {
     GrAAType aaType = this->chooseAAType(aa);
 
-    GrFillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
-                                 quads, cnt);
+    GrFillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix, quads);
 }
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
@@ -988,8 +987,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
 }
 
 void GrRenderTargetContext::drawTextureSet(const GrClip* clip,
-                                           TextureSetEntry set[],
-                                           int cnt,
+                                           SkSpan<TextureSetEntry> set,
                                            int proxyRunCnt,
                                            GrSamplerState::Filter filter,
                                            GrSamplerState::MipmapMode mm,
@@ -1010,7 +1008,7 @@ void GrRenderTargetContext::drawTextureSet(const GrClip* clip,
     auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
     auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                       : GrTextureOp::Saturate::kNo;
-    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, mm, saturate,
+    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, proxyRunCnt, filter, mm, saturate,
                                   mode, aaType, constraint, viewMatrix, std::move(texXform));
 }
 

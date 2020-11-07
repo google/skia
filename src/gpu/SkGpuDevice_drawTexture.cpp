@@ -844,8 +844,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
             fRenderTargetContext->drawTextureSet(this->clip(),
-                                                 textures.get() + base,
-                                                 n,
+                                                 {&textures[base], SkToSizeT(n)},
                                                  p,
                                                  filter,
                                                  GrSamplerState::MipmapMode::kNone,

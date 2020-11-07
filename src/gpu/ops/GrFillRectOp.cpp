@@ -480,12 +480,11 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
                                  GrPaint&& paint,
                                  GrAAType aaType,
                                  const SkMatrix& viewMatrix,
-                                 const GrRenderTargetContext::QuadSetEntry quads[],
-                                 int cnt,
+                                 SkSpan<const GrRenderTargetContext::QuadSetEntry> quads,
                                  const GrUserStencilSettings* stencilSettings,
                                  int* numConsumed) {
     // First make a draw op for the first quad in the set
-    SkASSERT(cnt > 0);
+    SkASSERT(!quads.empty());
 
     DrawQuad quad{GrQuad::MakeFromRect(quads[0].fRect, viewMatrix),
                   GrQuad::MakeFromRect(quads[0].fRect, quads[0].fLocalMatrix),
@@ -497,7 +496,7 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
 
     *numConsumed = 1;
     // Accumulate remaining quads similar to onCombineIfPossible() without creating an op
-    for (int i = 1; i < cnt; ++i) {
+    for (int i = 1; i < quads.count(); ++i) {
         quad = {GrQuad::MakeFromRect(quads[i].fRect, viewMatrix),
                 GrQuad::MakeFromRect(quads[i].fRect, quads[i].fLocalMatrix),
                 quads[i].fAAFlags};
@@ -522,17 +521,16 @@ void GrFillRectOp::AddFillRectOps(GrRenderTargetContext* rtc,
                                   GrPaint&& paint,
                                   GrAAType aaType,
                                   const SkMatrix& viewMatrix,
-                                  const GrRenderTargetContext::QuadSetEntry quads[],
-                                  int cnt,
+                                  SkSpan<const GrRenderTargetContext::QuadSetEntry> quads,
                                   const GrUserStencilSettings* stencilSettings) {
 
     int offset = 0;
-    int numLeft = cnt;
+    int numLeft = quads.count();
     while (numLeft) {
         int numConsumed = 0;
 
         GrOp::Owner op = MakeOp(context, GrPaint::Clone(paint), aaType, viewMatrix,
-                                &quads[offset], numLeft, stencilSettings,
+                                quads.subspan(offset, numLeft), stencilSettings,
                                 &numConsumed);
 
         offset += numConsumed;
@@ -541,7 +539,7 @@ void GrFillRectOp::AddFillRectOps(GrRenderTargetContext* rtc,
         rtc->addDrawOp(clip, std::move(op));
     }
 
-    SkASSERT(offset == cnt);
+    SkASSERT(offset == quads.count());
 }
 
 #if GR_TEST_UTILS
