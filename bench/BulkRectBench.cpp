@@ -149,7 +149,7 @@ protected:
         SkSimpleMatrixProvider matrixProvider(view);
         GrPaint grPaint;
         SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
-        rtc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
+        rtc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch);
     }
 
     void drawSolidColorsRef(SkCanvas* canvas) const {

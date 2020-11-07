@@ -9,6 +9,7 @@
 #define GrFillRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -54,8 +55,7 @@ public:
                                GrPaint&&,
                                GrAAType,
                                const SkMatrix& viewMatrix,
-                               const GrRenderTargetContext::QuadSetEntry quads[],
-                               int quadCount,
+                               SkSpan<const GrRenderTargetContext::QuadSetEntry> quads,
                                const GrUserStencilSettings* = nullptr);
 
 #if GR_TEST_UTILS
@@ -69,8 +69,7 @@ private:
                               GrPaint&&,
                               GrAAType,
                               const SkMatrix& viewMatrix,
-                              const GrRenderTargetContext::QuadSetEntry quads[],
-                              int quadCount,
+                              SkSpan<const GrRenderTargetContext::QuadSetEntry> quads,
                               const GrUserStencilSettings*,
                               int* numConsumed);
 };
