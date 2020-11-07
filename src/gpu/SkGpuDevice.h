@@ -133,8 +133,7 @@ public:
     void flush() override;
     GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
                                 const GrBackendSurfaceMutableState*);
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait);
+    bool wait(SkSpan<const GrBackendSemaphore> waitSemaphores, bool deleteSemaphoresAfterWait);
 
     bool onAccessPixels(SkPixmap*) override;
 

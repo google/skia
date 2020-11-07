@@ -12,6 +12,7 @@
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkSpan.h"
 #include "src/core/SkSurfacePriv.h"
 
 class SkSurface_Base : public SkSurface {
@@ -118,7 +119,7 @@ public:
      * commands on the gpu. Any previously submitting commands will not be blocked by these
      * semaphores.
      */
-    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+    virtual bool onWait(SkSpan<const GrBackendSemaphore> waitSemaphores,
                         bool deleteSemaphoresAfterWait) {
         return false;
     }

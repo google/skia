@@ -14,11 +14,9 @@
 class GrWaitRenderTask final : public GrRenderTask {
 public:
     GrWaitRenderTask(GrSurfaceProxyView surfaceView,
-                     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
-                     int numSemaphores)
+                     SkTArray<std::unique_ptr<GrSemaphore>> semaphores)
             : GrRenderTask()
             , fSemaphores(std::move(semaphores))
-            , fNumSemaphores(numSemaphores)
             , fWaitedOn(std::move(surfaceView)) {}
 
 private:
@@ -41,8 +39,7 @@ private:
     // No non-dst proxies.
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
 #endif
-    std::unique_ptr<std::unique_ptr<GrSemaphore>[]> fSemaphores;
-    int fNumSemaphores;
+    SkTArray<std::unique_ptr<GrSemaphore>> fSemaphores;
 
     // This field is separate from the main "targets" field on GrRenderTask because this task
     // does not actually write to the surface and so should not participate in the normal

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkSpan.h"
 
 class GrBackendSemaphore;
 class GrRecordingContext;
@@ -82,13 +83,11 @@ public:
         knows that Skia has finished waiting on them. This can be done by using finishedProcs
         on flush calls.
 
-        @param numSemaphores               size of waitSemaphores array
-        @param waitSemaphores              array of semaphore containers
+        @param waitSemaphores              semaphores to wait on
         @paramm deleteSemaphoresAfterWait  who owns and should delete the semaphores
         @return                            true if GPU is waiting on semaphores
     */
-    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
-                     bool deleteSemaphoresAfterWait = true);
+    bool wait(SkSpan<const GrBackendSemaphore> waitSemaphores, bool deleteSemaphoresAfterWait = true);
 
     // This call will release all resources held by the draw context. The client must call
     // releaseResources() before deleting the drawing context. However, the resources also include

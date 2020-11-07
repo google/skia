@@ -327,7 +327,8 @@ GrSemaphoresSubmitted SkSurface::flush(const GrFlushInfo& info,
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                      bool deleteSemaphoresAfterWait) {
-    return asSB(this)->onWait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
+    return asSB(this)->onWait({waitSemaphores, SkToSizeT(numSemaphores)},
+                              deleteSemaphoresAfterWait);
 }
 
 bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const {
