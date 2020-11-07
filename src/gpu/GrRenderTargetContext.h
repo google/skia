@@ -15,6 +15,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -262,7 +263,7 @@ public:
 
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     void drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
-                     const QuadSetEntry[], int cnt);
+                     SkSpan<const QuadSetEntry>);
 
     /**
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
@@ -342,8 +343,7 @@ public:
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
     void drawTextureSet(const GrClip*,
-                        TextureSetEntry[],
-                        int cnt,
+                        SkSpan<TextureSetEntry>,
                         int proxyRunCnt,
                         GrSamplerState::Filter,
                         GrSamplerState::MipmapMode,

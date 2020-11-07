@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkSpan.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplerState.h"
@@ -54,13 +55,12 @@ public:
                             const SkRect* subset = nullptr);
 
     // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
-    // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
-    // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
+    // supported, or if the blend mode is not src-over.
+    // 'proxyRunCnt' <= entry count and represents the number of proxy switches within the array.
     static void AddTextureSetOps(GrRenderTargetContext*,
                                  const GrClip* clip,
                                  GrRecordingContext*,
-                                 GrRenderTargetContext::TextureSetEntry[],
-                                 int cnt,
+                                 SkSpan<GrRenderTargetContext::TextureSetEntry>,
                                  int proxyRunCnt,
                                  GrSamplerState::Filter,
                                  GrSamplerState::MipmapMode,
