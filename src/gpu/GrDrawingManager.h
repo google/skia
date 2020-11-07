@@ -60,8 +60,7 @@ public:
     // only guarantee is that future work to the passed in proxy will wait on the semaphores to be
     // signaled.
     void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
-                           std::unique_ptr<std::unique_ptr<GrSemaphore>[]>,
-                           int numSemaphores);
+                           SkTArray<std::unique_ptr<GrSemaphore>>);
 
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
     // is used to support the asynchronous readback API. The srcRect is the region of the srcProxy

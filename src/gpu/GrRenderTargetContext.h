@@ -564,7 +564,7 @@ public:
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
      */
-    bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+    bool waitOnSemaphores(SkSpan<const GrBackendSemaphore> waitSemaphores,
                           bool deleteSemaphoresAfterWait);
 
     int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }

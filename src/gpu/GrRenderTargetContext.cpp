@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrRenderTargetContext.h"
 
+#include <algorithm>
+
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
@@ -1638,8 +1640,7 @@ void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHand
     this->addOp(std::move(op));
 }
 
-bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
-                                             const GrBackendSemaphore waitSemaphores[],
+bool GrRenderTargetContext::waitOnSemaphores(SkSpan<const GrBackendSemaphore> waitSemaphores,
                                              bool deleteSemaphoresAfterWait) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
@@ -1648,7 +1649,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (numSemaphores && !this->caps()->semaphoreSupport()) {
+    if (!waitSemaphores.empty() && !this->caps()->semaphoreSupport()) {
         return false;
     }
 
@@ -1662,14 +1663,14 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
     GrWrapOwnership ownership =
             deleteSemaphoresAfterWait ? kAdopt_GrWrapOwnership : kBorrow_GrWrapOwnership;
 
-    std::unique_ptr<std::unique_ptr<GrSemaphore>[]> grSemaphores(
-            new std::unique_ptr<GrSemaphore>[numSemaphores]);
-    for (int i = 0; i < numSemaphores; ++i) {
-        grSemaphores[i] = resourceProvider->wrapBackendSemaphore(
-                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
-    }
-    this->drawingManager()->newWaitRenderTask(this->asSurfaceProxyRef(), std::move(grSemaphores),
-                                              numSemaphores);
+    SkTArray<std::unique_ptr<GrSemaphore>> grSemaphores;
+    grSemaphores.reset(waitSemaphores.count());
+    std::transform(waitSemaphores.begin(), waitSemaphores.end(), grSemaphores.begin(),
+                   [&](const GrBackendSemaphore& semaphore) {
+        return resourceProvider->wrapBackendSemaphore(semaphore,
+                  GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
+    });
+    this->drawingManager()->newWaitRenderTask(this->asSurfaceProxyRef(), std::move(grSemaphores));
     return true;
 }
 

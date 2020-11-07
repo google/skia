@@ -204,9 +204,9 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const 
     return fDevice->flush(access, info, newState);
 }
 
-bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+bool SkSurface_Gpu::onWait(SkSpan<const GrBackendSemaphore> waitSemaphores,
                            bool deleteSemaphoresAfterWait) {
-    return fDevice->wait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);
+    return fDevice->wait(waitSemaphores, deleteSemaphoresAfterWait);
 }
 
 bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) const {
