@@ -310,7 +310,7 @@ private:
 class DrawImageRectCommand : public DrawCommand {
 public:
     DrawImageRectCommand(const SkImage*              image,
-                         const SkRect*               src,
+                         const SkRect&               src,
                          const SkRect&               dst,
                          const SkPaint*              paint,
                          SkCanvas::SrcRectConstraint constraint);
@@ -321,7 +321,7 @@ public:
 
 private:
     sk_sp<const SkImage>        fImage;
-    SkTLazy<SkRect>             fSrc;
+    SkRect                      fSrc;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
@@ -337,7 +337,7 @@ public:
     DrawImageRectLayerCommand(DebugLayerManager*          layerManager,
                               const int                   nodeId,
                               const int                   frame,
-                              const SkRect*               src,
+                              const SkRect&               src,
                               const SkRect&               dst,
                               const SkPaint*              paint,
                               SkCanvas::SrcRectConstraint constraint);
@@ -349,7 +349,7 @@ private:
     DebugLayerManager*          fLayerManager;
     int                         fNodeId;
     int                         fFrame;
-    SkTLazy<SkRect>             fSrc;
+    SkRect                      fSrc;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
     SkCanvas::SrcRectConstraint fConstraint;

@@ -2444,10 +2444,12 @@ public:
     virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
     SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
+#if 0
     // TEMP helpers until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                               const SkPaint* paint,
                               SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+#endif
 
     /**
      *  Returns the global clip as a region. If the clip contains AA, then only the bounds
@@ -2520,8 +2522,12 @@ protected:
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);
+#endif
+    virtual void onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                                  const SkPaint* paint, SrcRectConstraint);
     virtual void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                  const SkPaint* paint);
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,

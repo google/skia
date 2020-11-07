@@ -45,8 +45,11 @@ protected:
 
     void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy,
                      const SkPaint* paint) override = 0;
-    void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                         const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) override = 0;
+#if 0
+    // expose after SK_SUPPORT_LEGACY_ONDRAWIMAGERECT is not needed
+    void onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                         const SkPaint* paint, SkCanvas::SrcRectConstraint) override = 0;
+#endif
     void onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                          const SkPaint* paint) override = 0;
     void onDrawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,

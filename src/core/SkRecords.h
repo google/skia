@@ -252,7 +252,7 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
-        Optional<SkRect> src;
+        SkRect src;
         SkRect dst;
         SkCanvas::SrcRectConstraint constraint);
 RECORD(DrawImageNine, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
