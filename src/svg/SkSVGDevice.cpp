@@ -949,7 +949,7 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 }
 
-void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                 const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
     // TODO: support gpu images
@@ -959,15 +959,13 @@ void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
 
     SkClipStack* cs = &this->cs();
     SkClipStack::AutoRestore ar(cs, false);
-    if (src && *src != SkRect::Make(bm.bounds())) {
+    if (src != SkRect::Make(bm.bounds())) {
         cs->save();
         cs->clipRect(dst, this->localToDevice(), kIntersect_SkClipOp, paint.isAntiAlias());
     }
 
     SkMatrix adjustedMatrix;
-    adjustedMatrix.setRectToRect(src ? *src : SkRect::Make(bm.bounds()),
-                                 dst,
-                                 SkMatrix::kFill_ScaleToFit);
+    adjustedMatrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     adjustedMatrix.postConcat(this->localToDevice());
 
     drawBitmapCommon(MxCp(&adjustedMatrix, cs), bm, paint);

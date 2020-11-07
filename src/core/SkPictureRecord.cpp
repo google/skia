@@ -561,19 +561,17 @@ void SkPictureRecord::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                      const SkPaint* paint, SrcRectConstraint constraint) {
+void SkPictureRecord::onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                                       const SkPaint* paint, SrcRectConstraint constraint) {
     // id + paint_index + image_index + bool_for_src + constraint
     size_t size = 5 * kUInt32Size;
-    if (src) {
-        size += sizeof(*src);   // + rect
-    }
-    size += sizeof(dst);        // + rect
+    size += sizeof(src);    // src
+    size += sizeof(dst);    // dst
 
     size_t initialOffset = this->addDraw(DRAW_IMAGE_RECT, &size);
     this->addPaintPtr(paint);
     this->addImage(image);
-    this->addRectPtr(src);  // may be null
+    this->addRectPtr(&src);  // used to be optional (prior to 11/7/2020
     this->addRect(dst);
     this->addInt(constraint);
     this->validate(initialOffset, size);
