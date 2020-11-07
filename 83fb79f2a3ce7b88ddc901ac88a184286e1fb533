@@ -16,6 +16,24 @@
       "message": "Oh!  Welcome new contributor!  The bots would like you to add your name to the AUTHORS file,\n\n  The email martin@scenegroup.co is not in Skia\u0027s AUTHORS file.\n  Issue owner, this CL must include an addition to the Skia AUTHORS file.\n",
       "revId": "83fb79f2a3ce7b88ddc901ac88a184286e1fb533",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c22522e6_7a30db8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9458
+      },
+      "writtenOn": "2020-11-07T00:17:40Z",
+      "side": 1,
+      "message": "Hi! Thank you for pointing that out! My email previously ended with @mainframe.co.uk. I\u0027ve now updated the AUTHORS file to include the new one.",
+      "parentUuid": "14bfbafc_6524ed59",
+      "revId": "83fb79f2a3ce7b88ddc901ac88a184286e1fb533",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
