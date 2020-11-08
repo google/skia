@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25fe79f7_dc9440c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-11-08T04:06:43Z",
+      "side": 1,
+      "message": "Small typos in comments.",
+      "revId": "96a70bf748212bf349d410e504e7fd2ddc8a3b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0081c67f_c3e1e1ca",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 5744,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-11-08T04:06:43Z",
+      "side": 1,
+      "message": "\"it\u0027s\" -\u003e \"its\"",
+      "revId": "96a70bf748212bf349d410e504e7fd2ddc8a3b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd5381a8_1d758420",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 5750,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-11-08T04:06:43Z",
+      "side": 1,
+      "message": "\"path.ineTo(...)\" -\u003e \"path.lineTo(...)\"",
+      "revId": "96a70bf748212bf349d410e504e7fd2ddc8a3b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f40915a_30ec6354",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 5785,
+      "author": {
+        "id": 15009
+      },
+      "writtenOn": "2020-11-08T04:06:43Z",
+      "side": 1,
+      "message": "\"it\u0027s\" -\u003e \"its\"",
+      "revId": "96a70bf748212bf349d410e504e7fd2ddc8a3b3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
