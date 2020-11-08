@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d72046d5_d6105655",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-08T00:49:49Z",
+      "side": 1,
+      "message": "delete?",
+      "revId": "37e905cb88af8c9e4fd26b9fef479d64ca78f89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89a284a8_607eed92",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2454,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-08T00:49:49Z",
+      "side": 1,
+      "message": "also delete?",
+      "range": {
+        "startLine": 2449,
+        "startChar": 0,
+        "endLine": 2454,
+        "endChar": 6
+      },
+      "revId": "37e905cb88af8c9e4fd26b9fef479d64ca78f89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f10039ab_ab37db92",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2531,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-08T00:49:49Z",
+      "side": 1,
+      "message": "Is the plan to rename back to onDrawImageRect eventually?  If so, it may be a tricky process (requiring another round of guards etc).\n\nCan we just name it onDrawImageRect upfront?  I think virtual overloading should work, but don\u0027t quote me on it...",
+      "range": {
+        "startLine": 2531,
+        "startChar": 17,
+        "endLine": 2531,
+        "endChar": 33
+      },
+      "revId": "37e905cb88af8c9e4fd26b9fef479d64ca78f89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
