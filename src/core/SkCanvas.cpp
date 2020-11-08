@@ -2002,7 +2002,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
-    this->onDrawImageRect(image, &src, dst, paint, constraint);
+    this->onDrawImageRect(image, src, dst, paint, constraint);
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
@@ -2126,16 +2126,6 @@ void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* valu
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (key) {
         this->onDrawAnnotation(rect, key, value);
-    }
-}
-
-void SkCanvas::legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, SrcRectConstraint constraint) {
-    if (src) {
-        this->drawImageRect(image, *src, dst, paint, constraint);
-    } else {
-        this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()),
-                            dst, paint, constraint);
     }
 }
 
@@ -2517,16 +2507,28 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             skif::Mapping mapping(layerToDevice, SkMatrix::Translate(-x, -y));
             iter.fDevice->drawFilteredImage(mapping, special.get(), filter.get(), pnt);
         } else {
-            iter.fDevice->drawImageRect(
-                    image, nullptr, SkRect::MakeXYWH(x, y, image->width(), image->height()), pnt,
-                    kStrict_SrcRectConstraint);
+            // TODO: do we need "strict" if src == bounds?
+            iter.fDevice->drawImageRect(image, SkRect::Make(image->bounds()),
+                                        SkRect::MakeXYWH(x, y, image->width(), image->height()),
+                                        pnt, kStrict_SrcRectConstraint);
         }
     }
 
     DRAW_END
 }
 
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+                               const SkPaint* paint, SrcRectConstraint constraint) {
+    if (!image) {
+        return;
+    }
+    SkRect s = src ? *src : SkRect::MakeIWH(image->width(), image->height());
+    this->onDrawImageRect(image, s, dst, paint, constraint);
+}
+#endif
+
+void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
     SkPaint realPaint;
     paint = init_image_paint(&realPaint, paint);

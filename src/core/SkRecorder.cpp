@@ -190,9 +190,9 @@ void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
     this->append<SkRecords::DrawImage>(this->copy(paint), sk_ref_sp(image), left, top);
 }
 
-void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint) {
-    this->append<SkRecords::DrawImageRect>(this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);
+    this->append<SkRecords::DrawImageRect>(this->copy(paint), sk_ref_sp(image), src, dst, constraint);
 }
 
 void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,

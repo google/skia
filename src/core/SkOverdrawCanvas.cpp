@@ -157,7 +157,7 @@ void SkOverdrawCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y,
     fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), fPaint);
 }
 
-void SkOverdrawCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkOverdrawCanvas::onDrawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                        const SkPaint*, SrcRectConstraint) {
     fList[0]->onDrawRect(dst, fPaint);
 }

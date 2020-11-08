@@ -256,11 +256,11 @@ void SkNWayCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top
     }
 }
 
-void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                    const SkPaint* paint, SrcRectConstraint constraint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->legacy_drawImageRect(image, src, dst, paint, constraint);
+        iter->drawImageRect(image, src, dst, paint, constraint);
     }
 }
 

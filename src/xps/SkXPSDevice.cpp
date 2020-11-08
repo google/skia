@@ -2001,7 +2001,7 @@ void SkXPSDevice::drawOval( const SkRect& o, const SkPaint& p) {
 }
 
 void SkXPSDevice::drawImageRect(const SkImage* image,
-                                const SkRect* src,
+                                const SkRect& src,
                                 const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
@@ -2012,12 +2012,12 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
     }
 
     SkRect bitmapBounds = SkRect::Make(bitmap.bounds());
-    SkRect srcBounds = src ? *src : bitmapBounds;
-    SkMatrix matrix = SkMatrix::MakeRectToRect(srcBounds, dst, SkMatrix::kFill_ScaleToFit);
+    SkMatrix matrix = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     SkRect actualDst;
-    if (!src || bitmapBounds.contains(*src)) {
+    if (bitmapBounds.contains(src)) {
         actualDst = dst;
     } else {
+        SkRect srcBounds = src;
         if (!srcBounds.intersect(bitmapBounds)) {
             return;
         }

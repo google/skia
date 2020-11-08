@@ -422,7 +422,7 @@ static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& pain
 }
 
 void SkBitmapDevice::drawImageRect(const SkImage* image,
-                                   const SkRect* src, const SkRect& dst,
+                                   const SkRect& srcRect, const SkRect& dst,
                                    const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(dst.isFinite());
     SkASSERT(dst.isSorted());
@@ -435,17 +435,15 @@ void SkBitmapDevice::drawImageRect(const SkImage* image,
     }
 
     SkMatrix    matrix;
-    SkRect      bitmapBounds, tmpSrc, tmpDst;
+    SkRect      bitmapBounds, tmpDst;
     SkBitmap    tmpBitmap;
 
     bitmapBounds.setIWH(bitmap.width(), bitmap.height());
 
+    SkRect tmpSrc = srcRect;
+    const SkRect* src = (srcRect == bitmapBounds) ? nullptr : &srcRect;
+
     // Compute matrix from the two rectangles
-    if (src) {
-        tmpSrc = *src;
-    } else {
-        tmpSrc = bitmapBounds;
-    }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
     const SkRect* dstPtr = &dst;

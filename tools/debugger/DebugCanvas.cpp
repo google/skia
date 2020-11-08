@@ -412,7 +412,7 @@ void DebugCanvas::onDrawImageLattice(const SkImage* image,
 }
 
 void DebugCanvas::onDrawImageRect(const SkImage*    image,
-                                  const SkRect*     src,
+                                  const SkRect&     src,
                                   const SkRect&     dst,
                                   const SkPaint*    paint,
                                   SrcRectConstraint constraint) {

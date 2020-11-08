@@ -109,7 +109,7 @@ public:
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
                    const SkColor[], int count, SkBlendMode, const SkPaint&) override;
 
-    void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
+    void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
     void drawImageNine(const SkImage* image, const SkIRect& center,
                        const SkRect& dst, const SkPaint& paint) override;
@@ -208,7 +208,7 @@ private:
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
-    void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
+    void drawImageQuad(const SkImage*, const SkRect& src, const SkRect* dst,
                        const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                        const SkMatrix* preViewMatrix, const SkPaint&, SkCanvas::SrcRectConstraint);
 

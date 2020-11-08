@@ -176,7 +176,7 @@ protected:
                             const SkRect&  dst,
                             const SkPaint* paint) override;
     void onDrawImageRect(const SkImage*,
-                         const SkRect* src,
+                         const SkRect& src,
                          const SkRect& dst,
                          const SkPaint*,
                          SrcRectConstraint) override;
