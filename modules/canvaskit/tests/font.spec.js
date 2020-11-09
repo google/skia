@@ -272,7 +272,7 @@ describe('Font Behavior', () => {
         fontProvider.delete();
     });
 
-    gm('various_font_formats', (canvas, fetchedByteBuffers) => {
+    pause_gm('various_font_formats', (canvas, fetchedByteBuffers) => {
         const fontMgr = CanvasKit.FontMgr.RefDefault();
         const fontPaint = new CanvasKit.Paint();
         fontPaint.setAntiAlias(true);
@@ -286,7 +286,6 @@ describe('Font Behavior', () => {
             buffer: fetchedByteBuffers[0],
             y: 90,
         },{
-            // Not currently supported by Skia
             type: '.woff font',
             buffer: fetchedByteBuffers[1],
             y: 120,
