@@ -367,6 +367,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         GrRecordingContext* context,
         SkYUVColorSpace yuvColorSpace,
@@ -379,24 +380,21 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         sk_sp<SkColorSpace> imageColorSpace,
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
-        PromiseImageTextureDoneProc promiseDoneProc,
-        PromiseImageTextureContext textureContexts[],
-        PromiseImageApiVersion version) {
+        PromiseImageTextureContext textureContexts[]) {
     int numTextures;
     bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
 
-    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
-    // even if creation of the SkImage fails. Once we call MakePromiseImageLazyProxy it takes
-    // responsibility for calling the done proc.
-    if (!promiseDoneProc) {
+    // Our contract is that we will always call the release proc even on failure.
+    // We use the helper to convey the context, so we need to ensure make doesn't fail.
+    textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
+    sk_sp<GrRefCntedCallback> releaseHelpers[4];
+    for (int i = 0; i < numTextures; ++i) {
+        releaseHelpers[i] = GrRefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
+    }
+
+    if (!context) {
         return nullptr;
     }
-    int proxiesCreated = 0;
-    SkScopeExit callDone([promiseDoneProc, textureContexts, numTextures, &proxiesCreated]() {
-        for (int i = proxiesCreated; i < numTextures; ++i) {
-            promiseDoneProc(textureContexts[i]);
-        }
-    });
 
     if (!valid) {
         return nullptr;
@@ -433,11 +431,12 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     // Get lazy proxies
     GrSurfaceProxyView views[4];
     for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
-        auto proxy = MakePromiseImageLazyProxy(
-                context, yuvaSizes[texIdx].width(), yuvaSizes[texIdx].height(),
-                yuvaFormats[texIdx], GrMipmapped::kNo, textureFulfillProc, textureReleaseProc,
-                promiseDoneProc, textureContexts[texIdx], version);
-        ++proxiesCreated;
+        auto proxy = MakePromiseImageLazyProxy(context,
+                                               yuvaSizes[texIdx],
+                                               yuvaFormats[texIdx],
+                                               GrMipmapped::kNo,
+                                               textureFulfillProc,
+                                               std::move(releaseHelpers[texIdx]));
         if (!proxy) {
             return nullptr;
         }

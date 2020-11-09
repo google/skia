@@ -22,20 +22,15 @@ using namespace sk_gpu_test;
 struct PromiseTextureChecker {
     // shared indicates whether the backend texture is used to fulfill more than one promise
     // image.
-    explicit PromiseTextureChecker(const GrBackendTexture& tex, skiatest::Reporter* reporter,
+    explicit PromiseTextureChecker(const GrBackendTexture& tex,
+                                   skiatest::Reporter* reporter,
                                    bool shared)
-            : fTexture(SkPromiseImageTexture::Make(tex))
-            , fReporter(reporter)
-            , fShared(shared)
-            , fFulfillCount(0)
-            , fReleaseCount(0)
-            , fDoneCount(0) {}
+            : fTexture(SkPromiseImageTexture::Make(tex)), fReporter(reporter), fShared(shared) {}
     sk_sp<SkPromiseImageTexture> fTexture;
     skiatest::Reporter* fReporter;
     bool fShared;
-    int fFulfillCount;
-    int fReleaseCount;
-    int fDoneCount;
+    int fFulfillCount = 0;
+    int fReleaseCount = 0;
 
     /**
      * Releases the SkPromiseImageTexture. Used to test that cached GrTexture representations
@@ -52,27 +47,10 @@ struct PromiseTextureChecker {
         checker->fFulfillCount++;
         return checker->fTexture;
     }
-    static void Release(void* self) {
-        auto checker = static_cast<PromiseTextureChecker*>(self);
-        checker->fReleaseCount++;
-        if (!checker->fShared) {
-            // This is only used in a single threaded fashion with a single promise image. So
-            // every fulfill should be balanced by a release before the next fulfill.
-            REPORTER_ASSERT(checker->fReporter, checker->fReleaseCount == checker->fFulfillCount);
-        }
-    }
-    static void Done(void* self) {
-        static_cast<PromiseTextureChecker*>(self)->fDoneCount++;
-    }
+    static void Release(void* self) { static_cast<PromiseTextureChecker*>(self)->fReleaseCount++; }
 };
 
 enum class ReleaseBalanceExpectation {
-    kBalanced,
-    kAllUnbalanced,
-    kUnbalancedByOne,
-};
-
-enum class DoneBalanceExpectation {
     kBalanced,
     kAllUnbalanced,
     kUnknown,
@@ -83,13 +61,11 @@ enum class DoneBalanceExpectation {
 static void check_fulfill_and_release_cnts(skiatest::Reporter* reporter,
                                            const PromiseTextureChecker& promiseChecker,
                                            int expectedFulfillCnt,
-                                           ReleaseBalanceExpectation releaseBalanceExpecation,
-                                           DoneBalanceExpectation doneBalanceExpecation) {
+                                           ReleaseBalanceExpectation releaseBalanceExpecation) {
     REPORTER_ASSERT(reporter, promiseChecker.fFulfillCount == expectedFulfillCnt);
     if (!expectedFulfillCnt) {
         // Release and Done should only ever be called after Fulfill.
         REPORTER_ASSERT(reporter, !promiseChecker.fReleaseCount);
-        REPORTER_ASSERT(reporter, !promiseChecker.fDoneCount);
         return;
     }
     int releaseDiff = promiseChecker.fFulfillCount - promiseChecker.fReleaseCount;
@@ -100,26 +76,15 @@ static void check_fulfill_and_release_cnts(skiatest::Reporter* reporter,
         case ReleaseBalanceExpectation::kAllUnbalanced:
             REPORTER_ASSERT(reporter, releaseDiff == promiseChecker.fFulfillCount);
             break;
+        case ReleaseBalanceExpectation::kUnknown:
+            REPORTER_ASSERT(reporter,
+                            releaseDiff >= 0 && releaseDiff <= promiseChecker.fFulfillCount);
+            break;
         case ReleaseBalanceExpectation::kUnbalancedByOne:
             REPORTER_ASSERT(reporter, releaseDiff == 1);
             break;
-    }
-    int doneDiff = promiseChecker.fFulfillCount - promiseChecker.fDoneCount;
-    switch (doneBalanceExpecation) {
-        case DoneBalanceExpectation::kBalanced:
-            REPORTER_ASSERT(reporter, !doneDiff);
-            break;
-        case DoneBalanceExpectation::kAllUnbalanced:
-            REPORTER_ASSERT(reporter, doneDiff == promiseChecker.fFulfillCount);
-            break;
-        case DoneBalanceExpectation::kUnknown:
-            REPORTER_ASSERT(reporter, doneDiff >= 0 && doneDiff <= promiseChecker.fFulfillCount);
-            break;
-        case DoneBalanceExpectation::kUnbalancedByOne:
-            REPORTER_ASSERT(reporter, doneDiff == 1);
-            break;
-        case DoneBalanceExpectation::kBalancedOrOffByOne:
-            REPORTER_ASSERT(reporter, doneDiff == 0 || doneDiff == 1);
+        case ReleaseBalanceExpectation::kBalancedOrOffByOne:
+            REPORTER_ASSERT(reporter, releaseDiff == 0 || releaseDiff == 1);
             break;
     }
 }
@@ -127,39 +92,36 @@ static void check_fulfill_and_release_cnts(skiatest::Reporter* reporter,
 static void check_unfulfilled(const PromiseTextureChecker& promiseChecker,
                               skiatest::Reporter* reporter) {
     check_fulfill_and_release_cnts(reporter, promiseChecker, 0,
-                                   ReleaseBalanceExpectation::kBalanced,
-                                   DoneBalanceExpectation::kBalanced);
+                                   ReleaseBalanceExpectation::kBalanced);
 }
 
 static void check_only_fulfilled(skiatest::Reporter* reporter,
                                  const PromiseTextureChecker& promiseChecker,
                                  int expectedFulfillCnt = 1) {
     check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
-                                   ReleaseBalanceExpectation::kAllUnbalanced,
-                                   DoneBalanceExpectation::kAllUnbalanced);
+                                   ReleaseBalanceExpectation::kAllUnbalanced);
 }
 
 static void check_all_flushed_but_not_synced(skiatest::Reporter* reporter,
                                              const PromiseTextureChecker& promiseChecker,
                                              GrBackendApi api,
                                              int expectedFulfillCnt = 1) {
-    DoneBalanceExpectation doneBalanceExpectation = DoneBalanceExpectation::kBalanced;
+    ReleaseBalanceExpectation releaseBalanceExpectation = ReleaseBalanceExpectation::kBalanced;
     // On Vulkan and D3D Done isn't guaranteed to be called until a sync has occurred.
     if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDirect3D) {
-        doneBalanceExpectation = expectedFulfillCnt == 1
-                                         ? DoneBalanceExpectation::kBalancedOrOffByOne
-                                         : DoneBalanceExpectation::kUnknown;
+        releaseBalanceExpectation = expectedFulfillCnt == 1
+                                            ? ReleaseBalanceExpectation::kBalancedOrOffByOne
+                                            : ReleaseBalanceExpectation::kUnknown;
     }
     check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
-                                   ReleaseBalanceExpectation::kBalanced, doneBalanceExpectation);
+                                   releaseBalanceExpectation);
 }
 
 static void check_all_done(skiatest::Reporter* reporter,
                            const PromiseTextureChecker& promiseChecker,
                            int expectedFulfillCnt = 1) {
     check_fulfill_and_release_cnts(reporter, promiseChecker, expectedFulfillCnt,
-                                   ReleaseBalanceExpectation::kBalanced,
-                                   DoneBalanceExpectation::kBalanced);
+                                   ReleaseBalanceExpectation::kBalanced);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
@@ -179,17 +141,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(
-            SkImage_Gpu::MakePromiseTexture(
-                    ctx, backendFormat, kWidth, kHeight,
-                    GrMipmapped::kNo, texOrigin,
-                    kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                    nullptr,
-                    PromiseTextureChecker::Fulfill,
-                    PromiseTextureChecker::Release,
-                    PromiseTextureChecker::Done,
-                    &promiseChecker,
-                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(ctx,
+                                                          backendFormat,
+                                                          {kWidth, kHeight},
+                                                          GrMipmapped::kNo,
+                                                          texOrigin,
+                                                          kRGBA_8888_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr,
+                                                          PromiseTextureChecker::Fulfill,
+                                                          PromiseTextureChecker::Release,
+                                                          &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
@@ -287,21 +249,17 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
-            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-                    ctx,
-                    mbet->texture().getBackendFormat(),
-                    kWidth,
-                    kHeight,
-                    GrMipmapped::kNo,
-                    kTopLeft_GrSurfaceOrigin,
-                    kAlpha_8_SkColorType,
-                    kPremul_SkAlphaType,
-                    /*color space*/ nullptr,
-                    PromiseTextureChecker::Fulfill,
-                    PromiseTextureChecker::Release,
-                    PromiseTextureChecker::Done,
-                    &promiseChecker,
-                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(ctx,
+                                                                 mbet->texture().getBackendFormat(),
+                                                                 {kWidth, kHeight},
+                                                                 GrMipmapped::kNo,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kAlpha_8_SkColorType,
+                                                                 kPremul_SkAlphaType,
+                                                                 /*color space*/ nullptr,
+                                                                 PromiseTextureChecker::Fulfill,
+                                                                 PromiseTextureChecker::Release,
+                                                                 &promiseChecker));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -335,12 +293,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
-    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-            dContext, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
-            kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
-            PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-            PromiseTextureChecker::Done, &promiseChecker,
-            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(dContext,
+                                                         backendTex.getBackendFormat(),
+                                                         {kWidth, kHeight},
+                                                         GrMipmapped::kNo,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kAlpha_8_SkColorType,
+                                                         kPremul_SkAlphaType,
+                                                         nullptr,
+                                                         PromiseTextureChecker::Fulfill,
+                                                         PromiseTextureChecker::Release,
+                                                         &promiseChecker));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
@@ -401,7 +364,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     struct Counts {
         int fFulfillCount = 0;
         int fReleaseCount = 0;
-        int fDoneCount = 0;
     } counts;
     auto fulfill = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
@@ -410,14 +372,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     auto release = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
-    auto done = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
-        ++static_cast<Counts*>(ctx)->fDoneCount;
-    };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(
-            dContext, backendFormat, kWidth, kHeight, GrMipmapped::kNo, texOrigin,
-            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr, fulfill, release, done, &counts,
-            SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
+    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(dContext,
+                                                          backendFormat,
+                                                          {kWidth, kHeight},
+                                                          GrMipmapped::kNo,
+                                                          texOrigin,
+                                                          kRGBA_8888_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr,
+                                                          fulfill,
+                                                          release,
+                                                          &counts));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
@@ -437,5 +403,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     // We should only call each callback once and we should have made all the calls by this point.
     REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
     REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);
-    REPORTER_ASSERT(reporter, counts.fDoneCount == 1);
 }

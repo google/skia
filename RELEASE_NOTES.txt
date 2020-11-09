@@ -7,7 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 88
 ------------
 
-  * <insert new release notes here>
+  * Simplified SkDeferredDisplayListRecorder promise image API. Removed "release"
+    callback and renamed "done" callback to "release". The new "release" proc can
+    be null.
+    https://review.skia.org/331836
 
   * Limit the types and intrinsics supported in SkRuntimeEffect to GLSL ES 1.00
     https://review.skia.org/332597

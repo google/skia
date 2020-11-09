@@ -40,31 +40,21 @@ public:
                                     GrBackendTexture*,
                                     SkImage::BackendTextureReleaseProc*);
 
-    /** See addIdleProc. */
-    enum class IdleState {
-        kFlushed,
-        kFinished
-    };
     /**
-     * Installs a proc on this texture. It will be called when the texture becomes "idle". There
-     * are two types of idle states as indicated by IdleState. For managed backends (e.g. GL where
-     * a driver typically handles CPU/GPU synchronization of resource access) there is no difference
-     * between the two. They both mean "all work related to the resource has been flushed to the
-     * backend API and the texture is not owned outside the resource cache".
-     *
-     * If the API is unmanaged (e.g. Vulkan) then kFinished has the additional constraint that the
-     * work flushed to the GPU is finished.
+     * Installs a proc on this texture. It will be called when the texture becomes "idle". "Idle"
+     * means, accounting only for Skia's use of the texture, it is safe to delete in the underlying
+     * API. This is used to implement release procs for promise image textures because we cache
+     * the GrTexture object and thus can't rely on it's destructor to trigger a normal release proc.
      */
-    virtual void addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState) {
+    virtual void addIdleProc(sk_sp<GrRefCntedCallback> idleProc) {
         // This is the default implementation for the managed case where the IdleState can be
-        // ignored. Unmanaged backends, e.g. Vulkan, must override this to consider IdleState.
+        // ignored. Unmanaged backends, e.g. Vulkan, must override this to detect when the GPU
+        // is finished accessing the texture.
         fIdleProcs.push_back(std::move(idleProc));
     }
     /** Helper version of addIdleProc that creates the ref-counted wrapper. */
-    void addIdleProc(GrRefCntedCallback::Callback callback,
-                     GrRefCntedCallback::Context context,
-                     IdleState state) {
-        this->addIdleProc(GrRefCntedCallback::Make(callback, context), state);
+    void addIdleProc(GrRefCntedCallback::Callback callback, GrRefCntedCallback::Context context) {
+        this->addIdleProc(GrRefCntedCallback::Make(callback, context));
     }
 
     GrTextureType textureType() const { return fTextureType; }

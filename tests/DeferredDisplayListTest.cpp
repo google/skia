@@ -896,8 +896,6 @@ static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
     SkASSERT(0);
     return nullptr;
 }
-static void dummy_release_proc(void*) { SkASSERT(0); }
-static void dummy_done_proc(void*) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
@@ -930,15 +928,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> image = recorder.makePromiseTexture(
-                format, 32, 32, GrMipmapped::kNo,
+                format,
+                32, 32,
+                GrMipmapped::kNo,
                 kTopLeft_GrSurfaceOrigin,
                 kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType, nullptr,
-                dummy_fulfill_proc,
-                dummy_release_proc,
-                dummy_done_proc,
+                kPremul_SkAlphaType,
                 nullptr,
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+                dummy_fulfill_proc,
+                /*release proc*/ nullptr,
+                nullptr);
         REPORTER_ASSERT(reporter, !image);
     }
 }
@@ -1053,7 +1052,6 @@ struct FulfillInfo {
     sk_sp<SkPromiseImageTexture> fTex;
     bool fFulfilled = false;
     bool fReleased  = false;
-    bool fDone      = false;
 };
 
 static sk_sp<SkPromiseImageTexture> tracking_fulfill_proc(void* context) {
@@ -1065,11 +1063,6 @@ static sk_sp<SkPromiseImageTexture> tracking_fulfill_proc(void* context) {
 static void tracking_release_proc(void* context) {
     FulfillInfo* info = (FulfillInfo*) context;
     info->fReleased = true;
-}
-
-static void tracking_done_proc(void* context) {
-    FulfillInfo* info = (FulfillInfo*) context;
-    info->fDone = true;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
@@ -1100,15 +1093,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> promiseImage = recorder.makePromiseTexture(
-                format, 32, 32, GrMipmapped::kNo,
-                kTopLeft_GrSurfaceOrigin,
-                kRGBA_8888_SkColorType,
-                kPremul_SkAlphaType, nullptr,
-                tracking_fulfill_proc,
-                tracking_release_proc,
-                tracking_done_proc,
-                &fulfillInfo,
-                SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+                format, 32, 32, GrMipmapped::kNo, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
+                kPremul_SkAlphaType, nullptr, tracking_fulfill_proc, tracking_release_proc,
+                &fulfillInfo);
 
         SkCanvas* canvas = recorder.getCanvas();
 
@@ -1126,7 +1113,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     context->submit();
 
     REPORTER_ASSERT(reporter, fulfillInfo.fFulfilled);
-    REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
 
     if (GrBackendApi::kVulkan == context->backend() ||
         GrBackendApi::kMetal  == context->backend()) {
@@ -1136,7 +1122,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
         context->submit(true);
     }
 
-    REPORTER_ASSERT(reporter, fulfillInfo.fDone);
+    REPORTER_ASSERT(reporter, fulfillInfo.fReleased);
 
     REPORTER_ASSERT(reporter, fulfillInfo.fTex->unique());
     fulfillInfo.fTex.reset();
@@ -1217,15 +1203,16 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
             GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
 
             sk_sp<SkImage> image = recorder.makePromiseTexture(
-                    format, 32, 32, mipMapped,
+                    format,
+                    32, 32,
+                    mipMapped,
                     kTopLeft_GrSurfaceOrigin,
                     kRGBA_8888_SkColorType,
-                    kPremul_SkAlphaType, nullptr,
-                    dummy_fulfill_proc,
-                    dummy_release_proc,
-                    dummy_done_proc,
+                    kPremul_SkAlphaType,
                     nullptr,
-                    SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
+                    dummy_fulfill_proc,
+                    /*release proc*/ nullptr,
+                    nullptr);
             if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
