@@ -7,6 +7,8 @@
 
 package org.skia.skottie;
 
+import android.animation.Animator;
+import android.animation.TimeInterpolator;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Animatable;
 import android.opengl.GLUtils;
@@ -71,7 +73,7 @@ class SkottieRunner {
      * TextureView is tracked internally for SurfaceTexture state.
      */
     public SkottieAnimation createAnimation(TextureView view, InputStream is, int backgroundColor, int repeatCount) {
-        return new SkottieAnimationImpl(view, is, backgroundColor, repeatCount);
+        return new SkottieAnimation(view, is, backgroundColor, repeatCount);
     }
 
     /**
@@ -80,7 +82,7 @@ class SkottieRunner {
      * updateAnimationSurface.
      */
     public SkottieAnimation createAnimation(SurfaceTexture surfaceTexture, InputStream is) {
-        return new SkottieAnimationImpl(surfaceTexture, is);
+        return new SkottieAnimation(surfaceTexture, is);
     }
 
     /**
@@ -88,7 +90,7 @@ class SkottieRunner {
      * State is controlled internally by SurfaceHolder.
      */
     public SkottieAnimation createAnimation(SurfaceView view, InputStream is, int backgroundColor, int repeatCount) {
-        return new SkottieAnimationImpl(view, is, backgroundColor, repeatCount);
+        return new SkottieAnimation(view, is, backgroundColor, repeatCount);
     }
 
     /**
@@ -99,8 +101,8 @@ class SkottieRunner {
                                        int width, int height) {
         try {
             runOnGLThread(() -> {
-                ((SkottieAnimationImpl) animation).setSurfaceTexture(surfaceTexture);
-                ((SkottieAnimationImpl) animation).updateSurface(width, height);
+                ((SkottieAnimation) animation).setSurfaceTexture(surfaceTexture);
+                ((SkottieAnimation) animation).updateSurface(width, height);
             });
         }
         catch (Throwable t) {
@@ -280,7 +282,7 @@ class SkottieRunner {
         }
     }
 
-    private class SkottieAnimationImpl implements SkottieAnimation, Choreographer.FrameCallback,
+    public class SkottieAnimation extends Animator implements Choreographer.FrameCallback,
             TextureView.SurfaceTextureListener, SurfaceHolder.Callback {
         boolean mIsRunning = false;
         SurfaceTexture mSurfaceTexture;
@@ -299,13 +301,12 @@ class SkottieRunner {
         private float mProgress; // animation progress in the range of 0.0f to 1.0f
         private long mAnimationStartTime; // time in System.nanoTime units, when started
 
-        SkottieAnimationImpl(SurfaceTexture surfaceTexture, InputStream is) {
+        private SkottieAnimation(SurfaceTexture surfaceTexture, InputStream is) {
             if (init(is)) {
                 mSurfaceTexture = surfaceTexture;
             }
         }
-
-        SkottieAnimationImpl(TextureView view, InputStream is, int backgroundColor, int repeatCount) {
+        private SkottieAnimation(TextureView view, InputStream is, int backgroundColor, int repeatCount) {
             if (init(is)) {
                 mSurfaceTexture = view.getSurfaceTexture();
             }
@@ -315,7 +316,7 @@ class SkottieRunner {
             mRepeatCounter = mRepeatCount;
         }
 
-        SkottieAnimationImpl(SurfaceView view, InputStream is, int backgroundColor, int repeatCount) {
+        private SkottieAnimation(SurfaceView view, InputStream is, int backgroundColor, int repeatCount) {
             if (init(is)) {
                 mSurfaceHolder = view.getHolder();
             }
@@ -372,7 +373,7 @@ class SkottieRunner {
         @Override
         protected void finalize() throws Throwable {
             try {
-                stop();
+                end();
                 nDeleteProxy(mNativeProxy);
                 mNativeProxy = 0;
             } finally {
@@ -406,10 +407,13 @@ class SkottieRunner {
                 Log.e(LOG_TAG, "start failed", t);
                 throw new RuntimeException(t);
             }
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationStart(this);
+            }
         }
 
         @Override
-        public void stop() {
+        public void end() {
             try {
                 runOnGLThread(() -> {
                     mIsRunning = false;
@@ -425,6 +429,9 @@ class SkottieRunner {
             catch (Throwable t) {
                 Log.e(LOG_TAG, "stop failed", t);
                 throw new RuntimeException(t);
+            }
+            for (AnimatorListener l : this.getListeners()) {
+                l.onAnimationEnd(this);
             }
         }
 
@@ -460,6 +467,23 @@ class SkottieRunner {
             }
         }
 
+        // TODO: add support for start delay
+        @Override
+        public long getStartDelay() {
+            return 0;
+        }
+
+        // TODO: add support for start delay
+        @Override
+        public void setStartDelay(long startDelay) {
+
+        }
+
+        @Override
+        public Animator setDuration(long duration) {
+            return null;
+        }
+
         @Override
         public boolean isRunning() {
             return mIsRunning;
@@ -471,6 +495,20 @@ class SkottieRunner {
         }
 
         @Override
+        public long getTotalDuration() {
+            if (mRepeatCount == -1) {
+                return DURATION_INFINITE;
+            }
+            // TODO: add start delay when implemented
+            return mDuration * (1 + mRepeatCount);
+        }
+
+        // TODO: support TimeInterpolators
+        @Override
+        public void setInterpolator(TimeInterpolator value) {
+
+        }
+
         public void setProgress(float progress) {
             try {
                 runOnGLThread(() -> {
@@ -488,7 +526,6 @@ class SkottieRunner {
             }
         }
 
-        @Override
         public float getProgress() {
             return mProgress;
         }

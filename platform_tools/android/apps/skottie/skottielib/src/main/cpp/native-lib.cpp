@@ -114,7 +114,7 @@ struct SkottieAnimation {
 
 extern "C" JNIEXPORT jlong
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nCreateProxy(JNIEnv *env,
+Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nCreateProxy(JNIEnv *env,
                                                                            jobject clazz,
                                                                            jlong runner,
                                                                            jobject bufferObj) {
@@ -163,7 +163,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nCreateProxy(JNIEn
 
 extern "C" JNIEXPORT void
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDeleteProxy(JNIEnv *env, jclass clazz,
+Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDeleteProxy(JNIEnv *env, jclass clazz,
                                                                        jlong nativeProxy) {
     if (!nativeProxy) {
         return;
@@ -174,7 +174,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDeleteProxy(JNIEn
 
 extern "C" JNIEXPORT bool
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv *env, jclass clazz,
+Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
                                                                      jlong nativeProxy, jint width,
                                                                      jint height,
                                                                      jboolean wideColorGamut,
@@ -234,7 +234,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
 
 extern "C" JNIEXPORT jlong
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nGetDuration(JNIEnv *env,
+Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nGetDuration(JNIEnv *env,
                                                                            jclass clazz,
                                                                            jlong nativeProxy) {
     if (!nativeProxy) {
