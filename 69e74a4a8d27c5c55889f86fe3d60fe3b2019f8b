@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "41da948f_48a66d1f",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T19:31:43Z",
+      "side": 1,
+      "message": "It can go idle and the client is free to delete the underlying texture while SkPromiseImageTexture is alive. If the client never uses SkPromiseImageTexture to fulfill again then we never access the GrTexture again (as it has no scratch key and it\u0027s unique key is only used when a fulfill occurs) but it\u0027ll stay in GrResourceCache until SkPromiseImageTexture is deleted, which sends a message to the cache that removes the unique key. Once the unique key is removed the GrTexture has no refs and also no keys so it is deleted.",
+      "parentUuid": "24abea9c_519f6a4d",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 99
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dddd3b2_3ae47712",
         "filename": "src/gpu/GrTexture.h",
         "patchSetId": 8
