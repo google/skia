@@ -46,6 +46,30 @@
       },
       "revId": "339f0ee2a60a09676345ede93322b20836948293",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b02090e6_0ef1acd7",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T22:22:27Z",
+      "side": 1,
+      "message": "Oof, I didn\u0027t even notice it until now, but even this suggestion makes the case for why I think we should never ever use these types.  The suggestion itself has a bug!\n\nAs written,\n\n   std::aligned_storage\u003csizeof(T), alignof(T)\u003e fStorage[N]\n\nisn\u0027t going to make an array big or aligned enough.  It needs to be\n\n   std::aligned_storage_t\u003csizeof(T), alignof(T)\u003e fStorage[N]\n\nBut still, much simpler and clearer to write \n\n    alignas(T) char fStorage[N*sizeof(T)]",
+      "parentUuid": "c76ad3e4_9d88db82",
+      "range": {
+        "startLine": 428,
+        "startChar": 4,
+        "endLine": 428,
+        "endChar": 42
+      },
+      "revId": "339f0ee2a60a09676345ede93322b20836948293",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
