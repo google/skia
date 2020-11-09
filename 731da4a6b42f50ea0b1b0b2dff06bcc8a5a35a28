@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b00858a2_1e1692df",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T21:30:26Z",
+      "side": 1,
+      "message": "Sweet, I didn\u0027t realize `iterator_list::begin` returned a raw pointer and not an iterator. Saved a \u0026*",
+      "range": {
+        "startLine": 89,
+        "startChar": 19,
+        "endLine": 89,
+        "endChar": 31
+      },
+      "revId": "731da4a6b42f50ea0b1b0b2dff06bcc8a5a35a28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9b7c820_f9e8938b",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T21:30:26Z",
+      "side": 1,
+      "message": "Does this actually do anything different than the original form? I think I prefer the original version if there isn\u0027t an actual change of behavior here. This feels like a readability hit.\n\n(Same nit on L625)",
+      "range": {
+        "startLine": 617,
+        "startChar": 8,
+        "endLine": 617,
+        "endChar": 61
+      },
+      "revId": "731da4a6b42f50ea0b1b0b2dff06bcc8a5a35a28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
