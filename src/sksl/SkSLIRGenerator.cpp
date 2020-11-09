@@ -120,6 +120,15 @@ public:
     bool fOldCanInline;
 };
 
+template <typename... Args>
+std::unique_ptr<Type> IRGenerator::makeType(Args&&... args) {
+    std::unique_ptr<Type> type = std::make_unique<Type>(std::forward<Args>(args)...);
+    if (type->isTooComplex()) {
+        fErrors.error(type->fOffset, "type '" + type->name() + "' is too complex");
+    }
+    return type;
+}
+
 IRGenerator::IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter)
         : fContext(*context)
         , fInliner(inliner)
@@ -407,10 +416,10 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                     return {};
                 }
                 type = fSymbolTable->takeOwnershipOfSymbol(
-                        std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
+                        this->makeType(name, Type::TypeKind::kArray, *type, (int)count));
                 sizes.push_back(std::move(size));
             } else {
-                type = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                type = fSymbolTable->takeOwnershipOfSymbol(this->makeType(
                         type->name() + "[]", Type::TypeKind::kArray, *type, Type::kUnsizedArray));
                 sizes.push_back(nullptr);
             }
@@ -918,7 +927,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             int size = (param.begin() + j)->getInt();
             String name = type->name() + "[" + to_string(size) + "]";
             type = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(std::move(name), Type::TypeKind::kArray, *type, size));
+                    this->makeType(std::move(name), Type::TypeKind::kArray, *type, size));
         }
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
@@ -1139,7 +1148,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
         }
     }
     const Type* type =
-            old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
+            old->takeOwnershipOfSymbol(this->makeType(intf.fOffset, id.fTypeName, fields));
     ExpressionArray sizes;
     sizes.reserve_back(id.fSizeCount);
     for (size_t i = 0; i < id.fSizeCount; ++i) {
@@ -1163,11 +1172,11 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 return nullptr;
             }
             type = symbols->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
+                    this->makeType(name, Type::TypeKind::kArray, *type, (int)count));
             sizes.push_back(std::move(converted));
         } else {
             String name = String(type->name()) + "[]";
-            type = symbols->takeOwnershipOfSymbol(std::make_unique<Type>(
+            type = symbols->takeOwnershipOfSymbol(this->makeType(
                     name, Type::TypeKind::kArray, *type, Type::kUnsizedArray));
             sizes.push_back(nullptr);
         }
@@ -1260,22 +1269,22 @@ void IRGenerator::convertEnum(const ASTNode& e) {
 
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     ASTNode::TypeData td = type.getTypeData();
-    const Symbol* result = (*fSymbolTable)[td.fName];
-    if (result && result->is<Type>()) {
+    const Symbol* symbol = (*fSymbolTable)[td.fName];
+    if (symbol && symbol->is<Type>()) {
+        const Type* result = &symbol->as<Type>();
         if (td.fIsNullable) {
-            if (result->as<Type>() == *fContext.fFragmentProcessor_Type) {
+            if (*result == *fContext.fFragmentProcessor_Type) {
                 if (type.begin() != type.end()) {
                     fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
                                                 "an array");
                 }
-                result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                        String(result->name()) + "?", Type::TypeKind::kNullable,
-                               result->as<Type>()));
+                result = fSymbolTable->takeOwnershipOfSymbol(this->makeType(
+                        String(result->name()) + "?", Type::TypeKind::kNullable, *result));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
             }
         }
-        if (result->as<Type>() == *fContext.fVoid_Type) {
+        if (*result == *fContext.fVoid_Type) {
             if (!allowVoid) {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
                 return nullptr;
@@ -1293,10 +1302,10 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
             }
             name += "]";
             result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kArray, result->as<Type>(),
-                                           size ? size.getInt() : Type::kUnsizedArray));
+                    this->makeType(name, Type::TypeKind::kArray, *result,
+                                   size ? size.getInt() : Type::kUnsizedArray));
         }
-        return &result->as<Type>();
+        return result;
     }
     fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
     return nullptr;
@@ -2446,8 +2455,8 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
             const Type& oldType = base->as<TypeReference>().value();
             SKSL_INT size = index.getInt();
             const Type* newType = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(oldType.name() + "[" + to_string(size) + "]",
-                                           Type::TypeKind::kArray, oldType, size));
+                    this->makeType(oldType.name() + "[" + to_string(size) + "]",
+                                   Type::TypeKind::kArray, oldType, size));
             return std::make_unique<TypeReference>(fContext, base->fOffset, newType);
 
         } else {
@@ -2742,7 +2751,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
         return this->convertIndex(std::move(base), *(iter++));
     } else if (base->kind() == Expression::Kind::kTypeReference) {
         const Type& oldType = base->as<TypeReference>().value();
-        const Type* newType = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+        const Type* newType = fSymbolTable->takeOwnershipOfSymbol(this->makeType(
                 oldType.name() + "[]", Type::TypeKind::kArray, oldType, Type::kUnsizedArray));
         return std::make_unique<TypeReference>(fContext, base->fOffset, newType);
     }

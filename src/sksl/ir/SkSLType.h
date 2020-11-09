@@ -409,6 +409,26 @@ public:
     }
 
     /**
+     * Checks whether or not the struct nesting depth of this type exceeds a maximum limit.
+     * Extremely deep nesting is dangerous because it risks a stack overflow whenever we introspect
+     * the type, and deeply nested types ought to be unnecessary in any typical shader.
+     */
+    bool isTooDeeplyNested(int limit = 10) const {
+        if (limit <= 0) {
+            return true;
+        }
+
+        if (this->typeKind() == Type::TypeKind::kStruct) {
+            for (const Field& f : this->fields()) {
+                if (f.fType->isTooComplex(limit - 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
      * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
      */
