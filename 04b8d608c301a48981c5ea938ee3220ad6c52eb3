@@ -22,6 +22,30 @@
       },
       "revId": "04b8d608c301a48981c5ea938ee3220ad6c52eb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba37d6b3_4aa23ebf",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T17:36:15Z",
+      "side": 1,
+      "message": "Sure, done, static_cast sounds fine to me.  But I don\u0027t really follow your concern; these casts do exactly what static_cast does.",
+      "parentUuid": "654d6677_3cc2080f",
+      "range": {
+        "startLine": 637,
+        "startChar": 39,
+        "endLine": 637,
+        "endChar": 49
+      },
+      "revId": "04b8d608c301a48981c5ea938ee3220ad6c52eb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
