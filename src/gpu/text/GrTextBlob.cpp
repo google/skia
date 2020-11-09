@@ -93,11 +93,11 @@ SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
 // The 99% case. No clip. Non-color only.
 void direct_2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
                GrColor color,
-               SkIPoint deviceOrigin) {
+               SkIPoint integralOriginOffset) {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkScalar dl = leftTop.x() + deviceOrigin.x(),
-                 dt = leftTop.y() + deviceOrigin.y(),
+        SkScalar dl = leftTop.x() + integralOriginOffset.x(),
+                 dt = leftTop.y() + integralOriginOffset.y(),
                  dr = dl + (ar - al),
                  db = dt + (ab - at);
 
@@ -117,13 +117,13 @@ auto ltbr(const Rect& r) {
 template<typename Quad, typename VertexData>
 void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                            GrColor color,
-                           SkIPoint deviceOrigin,
+                           SkIPoint integralOriginOffset,
                            SkIRect* clip = nullptr) {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         uint16_t w = ar - al,
                  h = ab - at;
-        auto[l, t] = leftTop + deviceOrigin;
+        auto[l, t] = leftTop + integralOriginOffset;
         if (clip == nullptr) {
             auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
             quad[0] = {{dl, dt}, color, {al, at}};  // L,T
@@ -556,7 +556,7 @@ private:
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
     const GrMaskFormat fMaskFormat;
-    const SkPoint fResidual;
+    const SkPoint fInitialMappedOrigin;
     GrTextBlob* const fBlob;
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
     const SkRect fVertexBounds;
@@ -574,7 +574,7 @@ DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
                                    SkSpan<const VertexData> vertexData,
                                    GlyphVector glyphs)
         : fMaskFormat{format}
-        , fResidual{residual}
+        , fInitialMappedOrigin{residual}
         , fBlob{blob}
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
@@ -724,39 +724,37 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, Gr
                          fVertexData.subspan(offset, count));
     };
 
-    SkMatrix matrix = drawMatrix;
-    matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    SkPoint o = matrix.mapXY(0, 0) + fResidual;
-    SkIPoint originInDeviceSpace = {SkScalarRoundToInt(o.x()), SkScalarRoundToInt(o.y())};
+    SkPoint originOffset = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y()) - fInitialMappedOrigin;
+    SkIPoint integralOriginOffset =
+            {SkScalarRoundToInt(originOffset.x()), SkScalarRoundToInt(originOffset.y())};
 
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
+            direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
         }
     }
-
 }
 
 SkRect DirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
     SkRect outBounds = fVertexBounds;
 
-    SkPoint offset = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y());
+    SkPoint offset = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y()) - fInitialMappedOrigin;
     // The vertex bounds are already {0, 0} based, so just add the new origin offset.
     outBounds.offset(offset);
 
