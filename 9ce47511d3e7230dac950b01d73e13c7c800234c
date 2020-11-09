@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d93affd_2c05782d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-09T14:22:40Z",
+      "side": 1,
+      "message": "I think I like this version better. Less churn, and (maybe) easier to reason about?",
+      "revId": "9ce47511d3e7230dac950b01d73e13c7c800234c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
