@@ -143,6 +143,7 @@ private:
     const sk_sp<SkPicture>          fPostProcess;
     const int                       fFrameCount;
     SkMatrix                        fMatrix;
+    int                             fSampleSize;
 
     bool                            fFinished;
     int                             fCurrentFrameDuration;
@@ -152,9 +153,8 @@ private:
     int                             fRepetitionCount;
     int                             fRepetitionsCompleted;
 
-    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>, SkISize scaledSize,
-            SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess);
-    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>);
+    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>, const SkImageInfo& requestedInfo,
+            SkIRect cropRect, sk_sp<SkPicture> postProcess);
 
     int computeNextFrame(int current, bool* animationEnded);
     double finish();
