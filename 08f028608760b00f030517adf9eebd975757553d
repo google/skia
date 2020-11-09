@@ -114,6 +114,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "62b90d0e_cb8250a0",
+        "filename": "src/gpu/GrDDLTask.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T20:02:32Z",
+      "side": 1,
+      "message": "okay can you add a comment here describing that.",
+      "parentUuid": "03ffd8d5_ad0b352b",
+      "range": {
+        "startLine": 50,
+        "startChar": 18,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dc6a406b_d80ec048",
         "filename": "src/gpu/GrRenderTask.h",
         "patchSetId": 14
@@ -149,6 +173,30 @@
       "side": 1,
       "message": "I believe we can remove the GrDDLTask friending pretty easily but let me do that in a follow up CL since it just a lot of shuffling from private to protected.",
       "parentUuid": "dc6a406b_d80ec048",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 68
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dc46803_6a0a1540",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T20:02:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f220933a_d1c28d8b",
       "range": {
         "startLine": 135,
         "startChar": 4,
@@ -196,6 +244,30 @@
       "side": 1,
       "message": "Doable but I don\u0027t think it will buy us all that much since the ddlTask needs the onIsUsed call.",
       "parentUuid": "55391b1a_2103b794",
+      "range": {
+        "startLine": 149,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 5
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a65c14d_dd65fb89",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T20:02:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cd4f80ca_faf3dbb2",
       "range": {
         "startLine": 149,
         "startChar": 4,
