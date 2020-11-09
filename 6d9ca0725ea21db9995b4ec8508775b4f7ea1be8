@@ -22,6 +22,30 @@
       },
       "revId": "6d9ca0725ea21db9995b4ec8508775b4f7ea1be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dff4e17_8345b284",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T17:17:02Z",
+      "side": 1,
+      "message": "oh sure, we can cast it.  done.",
+      "parentUuid": "1d9cdfc8_5f6465ca",
+      "range": {
+        "startLine": 641,
+        "startChar": 38,
+        "endLine": 641,
+        "endChar": 42
+      },
+      "revId": "6d9ca0725ea21db9995b4ec8508775b4f7ea1be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
