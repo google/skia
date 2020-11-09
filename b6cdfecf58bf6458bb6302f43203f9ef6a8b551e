@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cd451b0_4226d19f",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-09T20:31:20Z",
+      "side": 1,
+      "message": "Presubmit frowns upon not using a mirror here. I was going to suggest jut using whatever Chromium uses, but it looks like the insanely just checked the code in instead of tracking upstream.",
+      "range": {
+        "startLine": 11,
+        "startChar": 53,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "b6cdfecf58bf6458bb6302f43203f9ef6a8b551e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "892142d0_850d208a",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-09T20:31:20Z",
+      "side": 1,
+      "message": "So just always do it? I figured you would add this behind a flag or something.",
+      "range": {
+        "startLine": 176,
+        "startChar": 52,
+        "endLine": 176,
+        "endChar": 80
+      },
+      "revId": "b6cdfecf58bf6458bb6302f43203f9ef6a8b551e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
