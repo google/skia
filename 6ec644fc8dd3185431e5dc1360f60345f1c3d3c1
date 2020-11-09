@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47298fa6_1c535536",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T22:10:13Z",
+      "side": 1,
+      "message": "This change looks like an improvement to me. I agree that it\u0027s much easier to read now.",
+      "revId": "6ec644fc8dd3185431e5dc1360f60345f1c3d3c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba15871b_04b81f1d",
+        "filename": "bench/GrMemoryPoolBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T22:10:13Z",
+      "side": 1,
+      "message": "Are the static asserts even necessary now? They feel unnecessary if we trust that the compiler is sane. (Also L29)",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 63
+      },
+      "revId": "6ec644fc8dd3185431e5dc1360f60345f1c3d3c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
