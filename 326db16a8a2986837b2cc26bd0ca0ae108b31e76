@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "901f6b70_cc924e57",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T17:01:09Z",
+      "side": 1,
+      "message": "Feel free to ignore, but maybe fail if they\u0027re not 0 until it\u0027s supported?",
+      "range": {
+        "startLine": 1014,
+        "startChar": 0,
+        "endLine": 1016,
+        "endChar": 32
+      },
+      "revId": "326db16a8a2986837b2cc26bd0ca0ae108b31e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d327aa4_21aa2d0d",
+        "filename": "tools/DDLTileHelper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T17:01:09Z",
+      "side": 1,
+      "message": "Clever to use an irect for the four pad values, but maybe call this (and the member) something like \"paddingOutsets\" or something like that to make it more obvious that this isn\u0027t a normal SkIRect?",
+      "range": {
+        "startLine": 39,
+        "startChar": 18,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "326db16a8a2986837b2cc26bd0ca0ae108b31e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
