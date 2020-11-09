@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e52feb87_d9232213",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T18:59:57Z",
+      "side": 1,
+      "message": "Your description is correct. We keep the GrTexture alive (so that it can be reused if the same SkPromiseImageTexture is used to fulfill another SkImage). Since the GrTexture is still alive its release proc is not triggered by ~GrSurface. (FWIW GrResourceCache does not have refs to GrGpuResources, it just decides when to delete them and never deletes them when something else has a ref to them.)\n\nThe GrTexture drops its idle proc helpers when the cache calls \"willRemoveLastRef()\". In GL that will the only ref to the helper and will trigger the call. In other backends additional refs are attached to command buffers referring to the texture, so those have to complete as well.\n\nI\u0027m not sure we need this complexity but I want to explore removing GrTexture caching for promise images separately from this API change.",
+      "parentUuid": "9162c61b_3f6430ca",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 99
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dddd3b2_3ae47712",
         "filename": "src/gpu/GrTexture.h",
         "patchSetId": 8
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-09T18:38:47Z",
       "side": 1,
       "message": "update comment",
+      "range": {
+        "startLine": 50,
+        "startChar": 77,
+        "endLine": 50,
+        "endChar": 86
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f78d905d_68e8b9bb",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T18:59:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dddd3b2_3ae47712",
       "range": {
         "startLine": 50,
         "startChar": 77,
