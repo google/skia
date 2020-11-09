@@ -22,6 +22,30 @@
       },
       "revId": "339f0ee2a60a09676345ede93322b20836948293",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c76ad3e4_9d88db82",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T21:33:32Z",
+      "side": 1,
+      "message": "Yes, I ruled it out summarily.  It\u0027s really hard to work with correctly.  I don\u0027t think we should use it in Skia ever anywhere.",
+      "parentUuid": "12667207_ee60fe5c",
+      "range": {
+        "startLine": 428,
+        "startChar": 4,
+        "endLine": 428,
+        "endChar": 42
+      },
+      "revId": "339f0ee2a60a09676345ede93322b20836948293",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
