@@ -197,6 +197,24 @@
       "parentUuid": "d1b51c6e_d62d55cc",
       "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ab963ac_160e50a6",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T17:22:25Z",
+      "side": 1,
+      "message": "Oh cool, then I was wrong - for some reason I assumed this works the same as paint resource IRIs, which are not restricted.\n\nThen we certainly don\u0027t need to perform any recursive resolution, nice.\n\nI still think a map would make sense due to the lookup-by-id semantics.  The global order is not important, only the relative order (input resolved before client) - which would be signaled by the presence of the result in the map.\n\nLeaving it up to you though.",
+      "parentUuid": "bdebe6f3_1119d832",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
