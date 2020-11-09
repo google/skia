@@ -610,7 +610,10 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         options.fSampleSize = sampleSize;
         SkCodec::Result result =
                 codec->getAndroidPixels(scaledInfo, pixels.get(), rowBytes, &options);
-        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+        if (result != SkCodec::kSuccess) {
+            ERRORF(r, "Failed to decode %s with sample size %i; error: %s", path, sampleSize,
+                    SkCodec::ResultToString(result));
+        }
     }
 }
 
