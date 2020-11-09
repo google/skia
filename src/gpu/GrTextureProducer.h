@@ -124,7 +124,7 @@ protected:
     GrRecordingContext* context() const { return fContext; }
 
 private:
-    virtual GrSurfaceProxyView onView(GrMipmapped) = 0;
+    virtual GrSurfaceProxyView onView1(GrMipmapped) = 0;
 
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;

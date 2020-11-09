@@ -40,7 +40,7 @@ private:
      */
     virtual GrSurfaceProxyView refOriginalTextureProxyView(GrMipmapped) = 0;
 
-    GrSurfaceProxyView onView(GrMipmapped) final;
+    GrSurfaceProxyView onView1(GrMipmapped) final;
 
     using INHERITED = GrTextureProducer;
 };

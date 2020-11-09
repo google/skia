@@ -14,7 +14,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 
-GrSurfaceProxyView GrTextureMaker::onView(GrMipmapped mipMapped) {
+GrSurfaceProxyView GrTextureMaker::onView1(GrMipmapped mipMapped) {
     if (this->width() > this->context()->priv().caps()->maxTextureSize() ||
         this->height() > this->context()->priv().caps()->maxTextureSize()) {
         return {};

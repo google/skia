@@ -93,7 +93,7 @@ GrSurfaceProxyView GrTextureProducer::view(GrMipmapped mipMapped) {
             mipMapped = GrMipmapped::kNo;
         }
     }
-    auto result = this->onView(mipMapped);
+    auto result = this->onView1(mipMapped);
     // Check to make sure if we requested MIPs that the returned texture has MIP maps or the format
     // is not copyable.
     SkASSERT(!result || mipMapped == GrMipmapped::kNo ||

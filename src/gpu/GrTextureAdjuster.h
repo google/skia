@@ -37,7 +37,7 @@ public:
             SkImage::CubicResampler) override;
 
 private:
-    GrSurfaceProxyView onView(GrMipmapped) override;
+    GrSurfaceProxyView onView1(GrMipmapped) override;
 
     GrSurfaceProxyView makeMippedCopy();
 
