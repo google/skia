@@ -15,7 +15,7 @@
 namespace SkSL {
 
 VariableReference::VariableReference(int offset, const Variable* variable, RefKind refKind)
-    : INHERITED(offset, kExpressionKind, &variable->type())
+    : INHERITED(offset, &variable->type())
     , fVariable(variable)
     , fRefKind(refKind) {
     SkASSERT(this->variable());

@@ -30,12 +30,16 @@ public:
     FunctionDeclaration(int offset, ModifiersPool::Handle modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type* returnType,
                         bool builtin)
-    : INHERITED(offset, kSymbolKind, name, /*type=*/nullptr)
+    : INHERITED(offset, name, /*type=*/nullptr)
     , fDefinition(nullptr)
     , fModifiersHandle(modifiers)
     , fParameters(std::move(parameters))
     , fReturnType(returnType)
     , fBuiltin(builtin) {}
+
+    Kind kind() const override final {
+        return kSymbolKind;
+    }
 
     const Modifiers& modifiers() const {
         return *fModifiersHandle;

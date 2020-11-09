@@ -31,22 +31,18 @@ public:
         kLast = kVariable
     };
 
-    Symbol(int offset, Kind kind, StringFragment name, const Type* type = nullptr)
-        : INHERITED(offset, (int) kind)
+    Symbol(int offset, StringFragment name, const Type* type = nullptr)
+        : INHERITED(offset)
         , fName(name)
-        , fType(type) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
+        , fType(type) {}
 
     ~Symbol() override {}
+
+    virtual Kind kind() const = 0;
 
     const Type& type() const {
         SkASSERT(fType);
         return *fType;
-    }
-
-    Kind kind() const {
-        return (Kind) fKind;
     }
 
     StringFragment name() const {

@@ -72,6 +72,10 @@ public:
         const Type* fType;
     };
 
+    Kind kind() const override final {
+        return kSymbolKind;
+    }
+
     enum class TypeKind {
         kArray,
         kEnum,
@@ -99,20 +103,20 @@ public:
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(const char* name)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kOther)
     , fNumberKind(NumberKind::kNonnumeric) {}
 
     // Create an "other" (special) type that supports field access.
     Type(const char* name, std::vector<Field> fields)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kOther)
     , fNumberKind(NumberKind::kNonnumeric)
     , fFields(std::move(fields)) {}
 
     // Create a simple type.
     Type(String name, TypeKind kind)
-    : INHERITED(-1, kSymbolKind, "")
+    : INHERITED(/*offset=*/-1, "")
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(NumberKind::kNonnumeric) {
@@ -121,14 +125,14 @@ public:
 
     // Create a generic type which maps to the listed types.
     Type(const char* name, std::vector<const Type*> types)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kGeneric)
     , fNumberKind(NumberKind::kNonnumeric)
     , fCoercibleTypes(std::move(types)) {}
 
     // Create a struct type with the given fields.
     Type(int offset, String name, std::vector<Field> fields)
-    : INHERITED(offset, kSymbolKind, "")
+    : INHERITED(offset, "")
     , fNameString(std::move(name))
     , fTypeKind(TypeKind::kStruct)
     , fNumberKind(NumberKind::kNonnumeric)
@@ -138,7 +142,7 @@ public:
 
     // Create a scalar type.
     Type(const char* name, NumberKind numberKind, int priority, bool highPrecision = false)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kScalar)
     , fNumberKind(numberKind)
     , fPriority(priority)
@@ -151,7 +155,7 @@ public:
          NumberKind numberKind,
          int priority,
          std::vector<const Type*> coercibleTypes)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kScalar)
     , fNumberKind(numberKind)
     , fPriority(priority)
@@ -161,7 +165,7 @@ public:
 
     // Create a nullable type.
     Type(String name, TypeKind kind, const Type& componentType)
-    : INHERITED(-1, kSymbolKind, "")
+    : INHERITED(/*offset=*/-1, "")
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(NumberKind::kNonnumeric)
@@ -180,7 +184,7 @@ public:
 
     // Create a vector or array type.
     Type(String name, TypeKind kind, const Type& componentType, int columns)
-    : INHERITED(-1, kSymbolKind, "")
+    : INHERITED(/*offset=*/-1, "")
     , fNameString(std::move(name))
     , fTypeKind(kind)
     , fNumberKind(NumberKind::kNonnumeric)
@@ -194,7 +198,7 @@ public:
 
     // Create a matrix type.
     Type(const char* name, const Type& componentType, int columns, int rows)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kMatrix)
     , fNumberKind(NumberKind::kNonnumeric)
     , fComponentType(&componentType)
@@ -205,7 +209,7 @@ public:
     // Create a texture type.
     Type(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
          bool isSampled)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kTexture)
     , fNumberKind(NumberKind::kNonnumeric)
     , fDimensions(dimensions)
@@ -216,7 +220,7 @@ public:
 
     // Create a sampler type.
     Type(const char* name, const Type& textureType)
-    : INHERITED(-1, kSymbolKind, name)
+    : INHERITED(/*offset=*/-1, name)
     , fTypeKind(TypeKind::kSampler)
     , fNumberKind(NumberKind::kNonnumeric)
     , fDimensions(textureType.dimensions())

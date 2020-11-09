@@ -21,9 +21,13 @@ struct WhileStatement final : public Statement {
 
     WhileStatement(int offset, std::unique_ptr<Expression> test,
                    std::unique_ptr<Statement> statement)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(offset)
         , fTest(std::move(test))
         , fStatement(std::move(statement)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Expression>& test() {
         return fTest;

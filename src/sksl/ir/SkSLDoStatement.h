@@ -22,9 +22,13 @@ public:
 
     DoStatement(int offset, std::unique_ptr<Statement> statement,
                 std::unique_ptr<Expression> test)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(offset)
         , fStatement(std::move(statement))
         , fTest(std::move(test)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Statement>& statement() {
         return fStatement;

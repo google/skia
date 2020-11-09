@@ -38,11 +38,15 @@ public:
 
     Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
              bool builtin, Storage storage, const Expression* initialValue = nullptr)
-    : INHERITED(offset, kSymbolKind, name, type)
+    : INHERITED(offset, name, type)
     , fInitialValue(initialValue)
     , fModifiersHandle(modifiers)
     , fStorage(storage)
     , fBuiltin(builtin) {}
+
+    Kind kind() const override final {
+        return kSymbolKind;
+    }
 
     const Modifiers& modifiers() const {
         return *fModifiersHandle;

@@ -24,9 +24,13 @@ public:
     static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
+        : INHERITED(operand->fOffset, &operand->type())
         , fOperator(op)
         , fOperand(std::move(operand)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     Token::Kind getOperator() const {
         return fOperator;

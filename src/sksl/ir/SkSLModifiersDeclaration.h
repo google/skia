@@ -23,8 +23,12 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kModifiers;
 
     ModifiersDeclaration(ModifiersPool::Handle modifiers)
-        : INHERITED(-1, kProgramElementKind)
+        : INHERITED(/*offset=*/-1)
         , fModifiersHandle(modifiers) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const Modifiers& modifiers() const {
         return *fModifiersHandle;

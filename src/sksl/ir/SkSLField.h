@@ -26,10 +26,14 @@ public:
     static constexpr Kind kSymbolKind = Kind::kField;
 
     Field(int offset, const Variable* owner, int fieldIndex)
-        : INHERITED(offset, kSymbolKind, owner->type().fields()[fieldIndex].fName,
+        : INHERITED(offset, owner->type().fields()[fieldIndex].fName,
                     owner->type().fields()[fieldIndex].fType)
         , fOwner(owner)
         , fFieldIndex(fieldIndex) {}
+
+    Kind kind() const override final {
+        return kSymbolKind;
+    }
 
     int fieldIndex() const {
         return fFieldIndex;

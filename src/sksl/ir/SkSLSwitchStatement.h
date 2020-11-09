@@ -26,11 +26,15 @@ public:
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(offset)
         , fIsStatic(isStatic)
         , fValue(std::move(value))
         , fCases(std::move(cases))
         , fSymbols(std::move(symbols)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Expression>& value() {
         return fValue;

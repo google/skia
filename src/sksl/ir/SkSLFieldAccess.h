@@ -31,10 +31,14 @@ public:
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = OwnerKind::kDefault)
-    : INHERITED(base->fOffset, kExpressionKind, base->type().fields()[fieldIndex].fType)
+    : INHERITED(base->fOffset, base->type().fields()[fieldIndex].fType)
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind)
     , fBase(std::move(base)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     std::unique_ptr<Expression>& base() {
         return fBase;

@@ -30,12 +30,16 @@ public:
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
                    ExpressionArray sizes, std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset)
     , fVariable(var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))
     , fTypeOwner(std::move(typeOwner)) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const Variable& variable() const {
         return *fVariable;

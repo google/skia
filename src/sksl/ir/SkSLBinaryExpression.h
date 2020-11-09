@@ -52,12 +52,16 @@ public:
 
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
                      std::unique_ptr<Expression> right, const Type* type)
-    : INHERITED(offset, kExpressionKind, type)
+    : INHERITED(offset, type)
     , fLeft(std::move(left))
     , fOperator(op)
     , fRight(std::move(right)) {
         // If we are assigning to a VariableReference, ensure that it is set to Write or ReadWrite
         SkASSERT(!Compiler::IsAssignment(op) || check_ref(*this->left()));
+    }
+
+    Kind kind() const override final {
+        return kExpressionKind;
     }
 
     std::unique_ptr<Expression>& left() {

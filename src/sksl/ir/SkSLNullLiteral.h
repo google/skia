@@ -21,10 +21,14 @@ public:
     static constexpr Kind kExpressionKind = Kind::kNullLiteral;
 
     NullLiteral(const Context& context, int offset)
-    : INHERITED(offset, kExpressionKind, context.fNull_Type.get()) {}
+    : INHERITED(offset, context.fNull_Type.get()) {}
 
     NullLiteral(int offset, const Type* type)
-    : INHERITED(offset, kExpressionKind, type) {}
+    : INHERITED(offset, type) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     String description() const override {
         return "null";

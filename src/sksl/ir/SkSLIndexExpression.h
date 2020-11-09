@@ -46,9 +46,13 @@ struct IndexExpression final : public Expression {
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-        : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type()))
+        : INHERITED(base->fOffset, &index_type(context, base->type()))
         , fBase(std::move(base))
         , fIndex(std::move(index)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     std::unique_ptr<Expression>& base() {
         return fBase;
@@ -85,7 +89,7 @@ struct IndexExpression final : public Expression {
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
-        : INHERITED(base->fOffset, Kind::kIndex, type)
+        : INHERITED(base->fOffset, type)
         , fBase(std::move(base))
         , fIndex(std::move(index)) {}
 

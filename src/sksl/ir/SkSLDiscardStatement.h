@@ -21,7 +21,11 @@ public:
     static constexpr Kind kStatementKind = Kind::kDiscard;
 
     DiscardStatement(int offset)
-    : INHERITED(offset, kStatementKind) {}
+    : INHERITED(offset) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Statement> clone() const override {
         return std::unique_ptr<Statement>(new DiscardStatement(fOffset));

@@ -27,12 +27,16 @@ public:
                        const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body,
                        std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
-        : INHERITED(offset, kProgramElementKind)
+        : INHERITED(offset)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body))
         , fReferencedIntrinsics(std::move(referencedIntrinsics))
         , fSource(nullptr) {}
+
+    ProgramElement::Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;

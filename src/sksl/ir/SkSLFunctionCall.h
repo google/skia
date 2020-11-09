@@ -23,11 +23,15 @@ public:
 
     FunctionCall(int offset, const Type* type, const FunctionDeclaration* function,
                  ExpressionArray arguments)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(offset, type)
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
     ~FunctionCall() override {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     const FunctionDeclaration& function() const {
         return fFunction;

@@ -22,9 +22,13 @@ public:
     static constexpr Kind kExpressionKind = Kind::kPostfix;
 
     PostfixExpression(std::unique_ptr<Expression> operand, Token::Kind op)
-        : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
+        : INHERITED(operand->fOffset, &operand->type())
         , fOperand(std::move(operand))
         , fOperator(op) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     Token::Kind getOperator() const {
         return fOperator;

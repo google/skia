@@ -23,9 +23,13 @@ public:
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
     ExternalFunctionCall(int offset, const ExternalValue* function, ExpressionArray arguments)
-        : INHERITED(offset, kExpressionKind, &function->callReturnType())
+        : INHERITED(offset, &function->callReturnType())
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     ExpressionArray& arguments() {
         return fArguments;

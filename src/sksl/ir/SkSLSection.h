@@ -20,10 +20,14 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kSection;
 
     Section(int offset, String name, String arg, String text)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset)
     , fName(std::move(name))
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const String& name() const {
         return fName;

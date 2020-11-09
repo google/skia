@@ -66,11 +66,8 @@ public:
     }
 
 protected:
-    IRNode(int offset, int kind)
-        : fOffset(offset)
-        , fKind(kind) {}
-
-    int fKind;
+    IRNode(int offset)
+        : fOffset(offset) {}
 };
 
 }  // namespace SkSL

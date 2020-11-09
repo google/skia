@@ -22,10 +22,14 @@ public:
 
     Block(int offset, StatementArray statements,
           const std::shared_ptr<SymbolTable> symbols = nullptr, bool isScope = true)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset)
     , fChildren(std::move(statements))
     , fSymbolTable(std::move(symbols))
     , fIsScope(isScope) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     const StatementArray& children() const {
         return fChildren;

@@ -22,9 +22,13 @@ public:
 
     // null value implies "default" case
     SwitchCase(int offset, std::unique_ptr<Expression> value, StatementArray statements)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(offset)
         , fValue(std::move(value))
         , fStatements(std::move(statements)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Expression>& value() {
         return fValue;

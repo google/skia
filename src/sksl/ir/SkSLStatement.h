@@ -39,14 +39,10 @@ public:
         kLast = kWhile
     };
 
-    Statement(int offset, Kind kind)
-    : INHERITED(offset, (int) kind) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
+    Statement(int offset)
+    : INHERITED(offset) {}
 
-    Kind kind() const {
-        return (Kind) fKind;
-    }
+    virtual Kind kind() const = 0;
 
     /**
      *  Use is<T> to check the type of a statement.
@@ -54,7 +50,7 @@ public:
      */
     template <typename T>
     bool is() const {
-        return this->fKind == T::kStatementKind;
+        return this->kind() == T::kStatementKind;
     }
 
     /**

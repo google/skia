@@ -22,11 +22,15 @@ public:
 
     TernaryExpression(int offset, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-        : INHERITED(offset, kExpressionKind, &ifTrue->type())
+        : INHERITED(offset, &ifTrue->type())
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse)) {
         SkASSERT(this->ifTrue()->type() == this->ifFalse()->type());
+    }
+
+    Kind kind() const override final {
+        return kExpressionKind;
     }
 
     std::unique_ptr<Expression>& test() {

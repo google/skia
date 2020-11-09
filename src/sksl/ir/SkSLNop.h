@@ -20,8 +20,11 @@ class Nop final : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kNop;
 
-    Nop()
-    : INHERITED(-1, kStatementKind) {}
+    Nop() : INHERITED(/*offset=*/-1) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     bool isEmpty() const override {
         return true;

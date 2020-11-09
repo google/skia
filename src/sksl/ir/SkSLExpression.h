@@ -58,15 +58,11 @@ public:
         kContainsRTAdjust
     };
 
-    Expression(int offset, Kind kind, const Type* type)
-        : INHERITED(offset, (int) kind)
-        , fType(type) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
+    Expression(int offset, const Type* type)
+        : INHERITED(offset)
+        , fType(type) {}
 
-    Kind kind() const {
-        return (Kind) fKind;
-    }
+    virtual Kind kind() const = 0;
 
     virtual const Type& type() const {
         return *fType;

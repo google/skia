@@ -42,6 +42,10 @@ public:
     VariableReference(const VariableReference&) = delete;
     VariableReference& operator=(const VariableReference&) = delete;
 
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
+
     const Variable* variable() const {
         return fVariable;
     }

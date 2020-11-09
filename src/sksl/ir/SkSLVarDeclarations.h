@@ -28,11 +28,15 @@ public:
                    const Type* baseType,
                    ExpressionArray sizes,
                    std::unique_ptr<Expression> value)
-            : INHERITED(var->fOffset, kStatementKind)
+            : INHERITED(var->fOffset)
             , fVar(var)
             , fBaseType(*baseType)
             , fSizes(std::move(sizes))
             , fValue(std::move(value)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     const Type& baseType() const {
         return fBaseType;
@@ -109,9 +113,13 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(int offset, std::unique_ptr<Statement> decl)
-            : INHERITED(offset, kProgramElementKind)
+            : INHERITED(offset)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
+    }
+
+    Kind kind() const override final {
+        return kProgramElementKind;
     }
 
     std::unique_ptr<Statement>& declaration() {

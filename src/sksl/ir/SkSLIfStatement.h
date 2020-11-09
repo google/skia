@@ -22,11 +22,15 @@ public:
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-        : INHERITED(offset, kStatementKind)
+        : INHERITED(offset)
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse))
         , fIsStatic(isStatic) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     bool isStatic() const {
         return fIsStatic;

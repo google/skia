@@ -22,8 +22,12 @@ public:
     static constexpr Kind kExpressionKind = Kind::kSetting;
 
     Setting(int offset, String name, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(offset, type)
         , fName(std::move(name)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;

@@ -31,8 +31,12 @@ public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
     Constructor(int offset, const Type* type, ExpressionArray arguments)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(offset, type)
         , fArguments(std::move(arguments)) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     ExpressionArray& arguments() {
         return fArguments;

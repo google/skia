@@ -21,8 +21,12 @@ public:
     static constexpr Kind kExpressionKind = Kind::kExternalValue;
 
     ExternalValueReference(int offset, const ExternalValue* ev)
-        : INHERITED(offset, kExpressionKind, &ev->type())
+        : INHERITED(offset, &ev->type())
         , fValue(*ev) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     const ExternalValue& value() const {
         return fValue;

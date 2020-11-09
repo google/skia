@@ -28,12 +28,16 @@ public:
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
     Literal(const Context& context, int offset, int64_t value)
-        : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
+        : INHERITED(offset, context.fInt_Type.get())
         , fValue(value) {}
 
     Literal(int offset, int64_t value, const Type* type = nullptr)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(offset, type)
         , fValue(value) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     int64_t value() const {
         return fValue;

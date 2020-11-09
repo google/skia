@@ -20,7 +20,11 @@ public:
     static constexpr Kind kSymbolKind = Kind::kExternal;
 
     ExternalValue(const char* name, const Type& type)
-        : INHERITED(-1, kSymbolKind, name, &type) {}
+        : INHERITED(/*offset=*/-1, name, &type) {}
+
+    Kind kind() const override final {
+        return kSymbolKind;
+    }
 
     virtual bool canRead() const {
         return false;

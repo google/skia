@@ -26,8 +26,12 @@ public:
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     Literal(const Context& context, int offset, bool value)
-        : INHERITED(offset, kExpressionKind, context.fBool_Type.get())
+        : INHERITED(offset, context.fBool_Type.get())
         , fValue(value) {}
+
+    Kind kind() const override final {
+        return kExpressionKind;
+    }
 
     bool value() const {
         return fValue;
@@ -56,7 +60,7 @@ public:
 
 private:
     Literal(int offset, bool value, const Type* type)
-        : INHERITED(offset, kExpressionKind, type)
+        : INHERITED(offset, type)
         , fValue(value) {}
 
     bool fValue;

@@ -20,8 +20,12 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kExtension;
 
     Extension(int offset, String name)
-        : INHERITED(offset, kProgramElementKind)
+        : INHERITED(offset)
         , fName(std::move(name)) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const String& name() const {
         return fName;

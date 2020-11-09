@@ -24,9 +24,13 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kFunctionPrototype;
 
     FunctionPrototype(int offset, const FunctionDeclaration* declaration, bool builtin)
-            : INHERITED(offset, kProgramElementKind)
+            : INHERITED(offset)
             , fDeclaration(declaration)
             , fBuiltin(builtin) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;

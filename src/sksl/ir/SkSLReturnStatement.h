@@ -21,11 +21,15 @@ public:
     static constexpr Kind kStatementKind = Kind::kReturn;
 
     ReturnStatement(int offset)
-        : INHERITED(offset, kStatementKind) {}
+        : INHERITED(offset) {}
 
     ReturnStatement(std::unique_ptr<Expression> expression)
-        : INHERITED(expression->fOffset, kStatementKind)
+        : INHERITED(expression->fOffset)
         , fExpression(std::move(expression)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Expression>& expression() {
         return fExpression;

@@ -24,11 +24,15 @@ struct Swizzle final : public Expression {
 
     Swizzle(const Context& context, std::unique_ptr<Expression> base,
             const ComponentArray& components)
-            : INHERITED(base->fOffset, kExpressionKind,
+            : INHERITED(base->fOffset,
                         &base->type().componentType().toCompound(context, components.size(), 1))
             , fBase(std::move(base))
             , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
+    }
+
+    Kind kind() const override final {
+        return kExpressionKind;
     }
 
     std::unique_ptr<Expression>& base() {
@@ -85,7 +89,7 @@ struct Swizzle final : public Expression {
 
 private:
     Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
-        : INHERITED(base->fOffset, kExpressionKind, type)
+        : INHERITED(base->fOffset, type)
         , fBase(std::move(base))
         , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);

@@ -26,11 +26,15 @@ public:
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isSharedWithCpp, bool isBuiltin = true)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset)
     , fTypeName(typeName)
     , fSymbols(std::move(symbols))
     , fIsSharedWithCpp(isSharedWithCpp)
     , fIsBuiltin(isBuiltin) {}
+
+    Kind kind() const override final {
+        return kProgramElementKind;
+    }
 
     StringFragment typeName() const {
         return fTypeName;

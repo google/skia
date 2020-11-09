@@ -354,7 +354,11 @@ private:
         static constexpr Kind kExpressionKind = Kind::kDefined;
 
         Defined(const Type* type)
-        : INHERITED(-1, kExpressionKind, type) {}
+        : INHERITED(/*offset=*/-1, type) {}
+
+        Kind kind() const override final {
+            return kExpressionKind;
+        }
 
         bool hasProperty(Property property) const override {
             return false;

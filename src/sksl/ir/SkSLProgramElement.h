@@ -33,14 +33,10 @@ public:
         kLast = kGlobalVar
     };
 
-    ProgramElement(int offset, Kind kind)
-        : INHERITED(offset, (int) kind) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
+    ProgramElement(int offset)
+        : INHERITED(offset) {}
 
-    Kind kind() const {
-        return (Kind) fKind;
-    }
+    virtual Kind kind() const = 0;
 
     /**
      *  Use is<T> to check the type of a program element.

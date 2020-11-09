@@ -24,12 +24,16 @@ public:
     ForStatement(int offset, std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset)
     , fSymbolTable(std::move(symbols))
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
+
+    Kind kind() const override final {
+        return kStatementKind;
+    }
 
     std::unique_ptr<Statement>& initializer() {
         return fInitializer;
