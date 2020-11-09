@@ -85,6 +85,23 @@
       "message": "sgtm!",
       "revId": "76ad64a0a015c10f9df569879eda0e8bf749fc6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c76da8f_9578677c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-09T15:15:33Z",
+      "side": 1,
+      "message": "After staring at the code for a while I don\u0027t see anywhere where the value of the id implies anything about any other bit of memory or that some other bit of memory if accessible. For example, we don\u0027t ever seem to assume that because id N is available that some object is accessible (the only map from id to object is the cache and that already needed to be thread safe) or some other object is accessible (the existence of id N doesn\u0027t give us access to id N-1).\n\nSo I say ship it, since if there are any issues which are going to result from this I\u0027m not going to find them by inspection.",
+      "revId": "76ad64a0a015c10f9df569879eda0e8bf749fc6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
