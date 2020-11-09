@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f8018aa_3e393048",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T17:45:54Z",
+      "side": 1,
+      "message": "Is __GNUC__ defined on Clang?",
+      "revId": "8a7f9a45328b158e1838b82adecfd7f67955766e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
