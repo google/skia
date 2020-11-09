@@ -337,7 +337,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                                alignof(GrTextureAdjuster      ),
                                                alignof(GrImageTextureMaker    ),
                                                alignof(GrBitmapTextureMaker   )});
-    std::aligned_storage_t<kSize, kAlign> storage;
+    alignas(kAlign) char storage[kSize];
     GrTextureProducer* producer = nullptr;
     SkScopeExit destroyProducer([&producer]{ if (producer) { producer->~GrTextureProducer(); } });
 
