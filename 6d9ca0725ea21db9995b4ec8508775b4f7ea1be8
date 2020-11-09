@@ -46,6 +46,30 @@
       },
       "revId": "6d9ca0725ea21db9995b4ec8508775b4f7ea1be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69139deb_8e4cd182",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-09T17:29:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1dff4e17_8345b284",
+      "range": {
+        "startLine": 641,
+        "startChar": 38,
+        "endLine": 641,
+        "endChar": 42
+      },
+      "revId": "6d9ca0725ea21db9995b4ec8508775b4f7ea1be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
