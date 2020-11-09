@@ -75,6 +75,8 @@ SkPoint SkDrawableGlyphBuffer::startGPUDevice(
     fInputSize = source.size();
     fDrawableSize = 0;
 
+    // Build up the mapping from source space to device space. Add the rounding constant
+    // halfSampleFreq so we just need to floor to get the device result.
     SkMatrix device = viewMatrix;
     SkPoint halfSampleFreq = roundingSpec.halfAxisSampleFreq;
     device.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
@@ -87,19 +89,19 @@ SkPoint SkDrawableGlyphBuffer::startGPUDevice(
         return {SkScalarFloorToScalar(pt.x()), SkScalarFloorToScalar(pt.y())};
     };
 
-    // q = [Q](0,0,1) = [R][V][O](0,0,1).
-    SkPoint q = device.mapXY(0, 0);
-    SkPoint qFloor = floor(q);
+    // Map the origin from source space to device space without the halfSampleFreq offset.
+    SkPoint originMappedToDevice = viewMatrix.mapXY(origin.x(), origin.y());
 
     for (auto [packedGlyphID, glyphID, pos]
             : SkMakeZip(fMultiBuffer.get(), source.get<0>(), fPositions.get())) {
         packedGlyphID = SkPackedGlyphID{glyphID, pos, roundingSpec.ignorePositionFieldMask};
-        pos = floor(pos - qFloor);
+        // Store rounded device coords back in pos.
+        pos = floor(pos);
     }
 
     SkDEBUGCODE(fPhase = kInput);
-    // Return the residual = Floor(q) - q + (rx,ry,0).
-    return qFloor - q + roundingSpec.halfAxisSampleFreq;
+    // Return the origin mapped through the initial matrix.
+    return originMappedToDevice;
 }
 
 
