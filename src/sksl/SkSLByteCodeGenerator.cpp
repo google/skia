@@ -48,6 +48,8 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
     // You can probably copy the declarations from sksl_gpu.sksl.
     , fIntrinsics {
         { "abs",       ByteCodeInstruction::kAbs },
+        { "acos",      ByteCodeInstruction::kACos },
+        { "asin",      ByteCodeInstruction::kASin },
         { "atan",      ByteCodeInstruction::kATan },
         { "ceil",      ByteCodeInstruction::kCeil },
         { "clamp",     SpecialIntrinsic::kClamp },
@@ -280,6 +282,8 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VEC_UNARY(kConvertUtoF)
 
         VEC_UNARY(kAbs)
+        VEC_UNARY(kACos)
+        VEC_UNARY(kASin)
         VEC_UNARY(kATan)
         VEC_UNARY(kCeil)
         VEC_UNARY(kCos)
