@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `getLineMetrics` to Paragraph.
  - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass 
    the paint.
+ - Support for .woff and .woff2 fonts.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
