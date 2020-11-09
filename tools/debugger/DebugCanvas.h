@@ -175,11 +175,11 @@ protected:
                             const Lattice& lattice,
                             const SkRect&  dst,
                             const SkPaint* paint) override;
-    void onDrawImageRect(const SkImage*,
-                         const SkRect* src,
-                         const SkRect& dst,
-                         const SkPaint*,
-                         SrcRectConstraint) override;
+    void onDrawImageRect2(const SkImage*,
+                          const SkRect& src,
+                          const SkRect& dst,
+                          const SkPaint*,
+                          SrcRectConstraint) override;
     void onDrawImageNine(const SkImage*,
                          const SkIRect& center,
                          const SkRect&  dst,

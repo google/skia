@@ -89,7 +89,7 @@ protected:
                   const SkPaint& paint,
                   bool pathIsMutable = false) override;
     void drawImageRect(const SkImage*,
-                       const SkRect* srcOrNull, const SkRect& dst,
+                       const SkRect& src, const SkRect& dst,
                        const SkPaint& paint,
                        SkCanvas::SrcRectConstraint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;

@@ -791,7 +791,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
     this->INHERITED::drawDevice(device, paint);
 }
 
-void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                                 const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
     GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;

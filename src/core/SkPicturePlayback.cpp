@@ -383,7 +383,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->optionalPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
             SkRect storage;
-            const SkRect* src = get_rect_ptr(reader, &storage);   // may be null
+            const SkRect* srcPtr = get_rect_ptr(reader, &storage);   // may be null
             SkRect dst;
             reader->readRect(&dst);     // required
             // DRAW_IMAGE_RECT_STRICT assumes this constraint, and doesn't store it
@@ -395,7 +395,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
+            if (image) {
+                SkRect src;
+                if (srcPtr) {
+                    src = *srcPtr;
+                } else {
+                    src = SkRect::Make(image->bounds());
+                }
+                canvas->drawImageRect(image, src, dst, paint, constraint);
+            }
         } break;
         case DRAW_OVAL: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);

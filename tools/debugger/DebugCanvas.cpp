@@ -411,11 +411,11 @@ void DebugCanvas::onDrawImageLattice(const SkImage* image,
     this->addDrawCommand(new DrawImageLatticeCommand(image, lattice, dst, paint));
 }
 
-void DebugCanvas::onDrawImageRect(const SkImage*    image,
-                                  const SkRect*     src,
-                                  const SkRect&     dst,
-                                  const SkPaint*    paint,
-                                  SrcRectConstraint constraint) {
+void DebugCanvas::onDrawImageRect2(const SkImage*    image,
+                                   const SkRect&     src,
+                                   const SkRect&     dst,
+                                   const SkPaint*    paint,
+                                   SrcRectConstraint constraint) {
     if (fnextDrawImageRectLayerId != -1 && fLayerManager) {
         // This drawImageRect command would have drawn the offscreen buffer for a layer.
         // On Android, we recorded an SkPicture of the commands that drew to the layer.
