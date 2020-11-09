@@ -46,6 +46,29 @@
       },
       "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21f513ae_f75c61cf",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T18:40:38Z",
+      "side": 1,
+      "message": "optional/food for thought: do you think a static helper function inside SkOSFileIterData would make sense to wrap the raw casts? Don\u0027t feel strongly about it either way, just seemed like it might be more readable.\n\n    SkOSFileIterData\u0026 self \u003d SkOSFileIterData::FromStorage(fSelf)?",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 73
+      },
+      "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
