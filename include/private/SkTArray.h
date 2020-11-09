@@ -653,8 +653,8 @@ public:
         : STORAGE{}, INHERITED(std::move(array), static_cast<STORAGE*>(this)) {
     }
 
-    explicit SkSTArray(int reserveCount)
-        : STORAGE{}, INHERITED(reserveCount) {
+    explicit SkSTArray(int reserveCount) : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {
+        this->reserve_back(reserveCount);
     }
 
     SkSTArray(const T* array, int count)
