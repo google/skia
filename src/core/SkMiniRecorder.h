@@ -52,7 +52,7 @@ private:
         Max<sizeof(SkRecords::DrawPath),
         Max<sizeof(SkRecords::DrawRect),
             sizeof(SkRecords::DrawTextBlob)>::val>::val;
-    SkAlignedSStorage<kInlineStorage> fBuffer;
+    alignas(void*) alignas(double) char fBuffer[kInlineStorage];
 };
 
 #endif//SkMiniRecorder_DEFINED
