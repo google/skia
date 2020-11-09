@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "652b87fd_a1b06eaa",
+        "filename": "src/core/SkOSFile.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-09T18:29:59Z",
+      "side": 1,
+      "message": "that is wacky cool",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 39
+      },
+      "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
