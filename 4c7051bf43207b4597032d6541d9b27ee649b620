@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35b39fc7_783fe7ae",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-09T17:39:28Z",
+      "side": 1,
+      "message": "Release",
+      "range": {
+        "startLine": 72,
+        "startChar": 32,
+        "endLine": 72,
+        "endChar": 36
+      },
+      "revId": "4c7051bf43207b4597032d6541d9b27ee649b620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ec4072d_d32356d3",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-09T17:39:28Z",
+      "side": 1,
+      "message": "but ?\nAlso, why not just always call the release proc even if the \u0027yuvaIndices\u0027 are invalid ?",
+      "range": {
+        "startLine": 125,
+        "startChar": 36,
+        "endLine": 125,
+        "endChar": 39
+      },
+      "revId": "4c7051bf43207b4597032d6541d9b27ee649b620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77adb58c_301b1b53",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-09T17:39:28Z",
+      "side": 1,
+      "message": "typo\nAlso do you want a comma in front of \u0027accounting\u0027 ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 13,
+        "endLine": 45,
+        "endChar": 25
+      },
+      "revId": "4c7051bf43207b4597032d6541d9b27ee649b620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88b78434_86bb53f6",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-09T17:39:28Z",
+      "side": 1,
+      "message": "Update comment",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 51,
+        "endChar": 94
+      },
+      "revId": "4c7051bf43207b4597032d6541d9b27ee649b620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
