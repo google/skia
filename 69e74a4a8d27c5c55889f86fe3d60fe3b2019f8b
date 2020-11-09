@@ -120,6 +120,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2651adbe_4a2f2eed",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-09T20:44:59Z",
+      "side": 1,
+      "message": "I think the fragility is that maybe in the future we make a change that uses the GrTexture when the underlying texture may have been deleted. From the client perspective I\u0027m not sure it really is any different than the general disconnect between GrBackendTexture lifetime and the actual texture\u0027s lifetime. There is definitely extra complexity related to this. Hopefully we can remove it.\n\nSuggested comment updates have been made.",
+      "parentUuid": "57a5fcd3_3b3e8d0f",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 99
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8dddd3b2_3ae47712",
