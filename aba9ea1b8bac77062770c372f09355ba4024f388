@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36454c11_4439929c",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-09T19:25:04Z",
+      "side": 1,
+      "message": "Been trying to move the inner class out from under SkottieRunner but it\u0027s going to be a lot of changes. I\u0027m splitting off that refactor to another CL.",
+      "parentUuid": "b03511f7_689a8882",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76a1272e_8a2453f4",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-11-06T19:30:04Z",
       "side": 1,
       "message": "When moving this class to its own file drop the private modifier and it will become package protected",
+      "range": {
+        "startLine": 304,
+        "startChar": 8,
+        "endLine": 304,
+        "endChar": 15
+      },
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c416c960_1f785c49",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-09T19:25:04Z",
+      "side": 1,
+      "message": "See my other comment on the refactor.",
+      "parentUuid": "76a1272e_8a2453f4",
       "range": {
         "startLine": 304,
         "startChar": 8,
@@ -58,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4310874e_1d64ed96",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-09T19:25:04Z",
+      "side": 1,
+      "message": "Good to keep in mind, I was wondering that myself. Will look into implementing it.",
+      "parentUuid": "556e71b5_c2b75137",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15163e7e_966259f5",
@@ -71,6 +131,24 @@
       "writtenOn": "2020-11-06T19:30:04Z",
       "side": 1,
       "message": "Do you intend to implement this?",
+      "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fe91ebe_89bfba34",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-09T19:25:04Z",
+      "side": 1,
+      "message": "Ideally yes, want to get the refactor through first. I\u0027ll add a TODO here as well.",
+      "parentUuid": "15163e7e_966259f5",
       "revId": "aba9ea1b8bac77062770c372f09355ba4024f388",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
