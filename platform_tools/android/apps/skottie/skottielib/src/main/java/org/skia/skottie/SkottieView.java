@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import org.skia.skottie.SkottieRunner.SkottieAnimation;
 import org.skia.skottielib.R;
 
 public class SkottieView extends FrameLayout {
@@ -141,7 +142,7 @@ public class SkottieView extends FrameLayout {
     }
 
     public void stop() {
-        mAnimation.stop();
+        mAnimation.end();
     }
 
     public float getProgress() {
