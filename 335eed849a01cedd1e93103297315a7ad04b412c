@@ -69,6 +69,30 @@
       },
       "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "662eef0f_6241256c",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T18:41:25Z",
+      "side": 1,
+      "message": "I think that would make things less clear, personally.",
+      "parentUuid": "21f513ae_f75c61cf",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 73
+      },
+      "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
