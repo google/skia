@@ -22,6 +22,30 @@
       },
       "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd0f55c9_a21bb1ca",
+        "filename": "src/core/SkOSFile.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T18:33:58Z",
+      "side": 1,
+      "message": "Yeah... you can do so much with alignas() that these helper types really only obscure in comparison.  You can see the alignment now here at the declaration rather than having to look up the comments on SkAlignedSStorage.",
+      "parentUuid": "652b87fd_a1b06eaa",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 39
+      },
+      "revId": "335eed849a01cedd1e93103297315a7ad04b412c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
