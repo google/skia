@@ -269,6 +269,16 @@ bool SkSVGAttributeParser::parseFuncIRI(SkSVGStringType* iri) {
     }, iri);
 }
 
+template <>
+bool SkSVGAttributeParser::parse(SkSVGStringType* result) {
+    if (this->parseEOSToken()) {
+        return false;
+    }
+    *result = SkSVGStringType(fCurPos);
+    fCurPos += result->size();
+    return this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG11/types.html#DataTypeNumber
 bool SkSVGAttributeParser::parseNumber(SkSVGNumberType* number) {
     // consume WS

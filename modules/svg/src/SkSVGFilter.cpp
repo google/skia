@@ -72,10 +72,13 @@ sk_sp<SkImageFilter> SkSVGFilter::buildFilterDAG(const SkSVGRenderContext& ctx) 
         }
 
         const auto& feNode = static_cast<const SkSVGFe&>(*child);
-        sk_sp<SkImageFilter> imageFilter = feNode.makeImageFilter(ctx, &fctx);
-        if (imageFilter) {
-            // TODO: there are specific composition rules that need to be followed
-            filter = SkImageFilters::Compose(imageFilter, filter);
+        const auto& feResultType = feNode.getResult();
+
+        // TODO: there are specific composition rules that need to be followed
+        filter = feNode.makeImageFilter(ctx, fctx);
+
+        if (!feResultType.isEmpty()) {
+            fctx.registerResult(feResultType, filter);
         }
     }
 
