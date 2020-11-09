@@ -159,7 +159,6 @@ private:
     std::unique_ptr<Statement> convertStatement(const ASTNode& statement);
     std::unique_ptr<Expression> convertExpression(const ASTNode& expression);
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
-
     const Type* convertType(const ASTNode& type, bool allowVoid = false);
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
@@ -227,6 +226,7 @@ private:
     bool getConstantInt(const Expression& value, int64_t* out);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void cloneBuiltinVariables();
+    template <typename... Args> std::unique_ptr<Type> makeType(Args&&... args);
 
     Program::Inputs fInputs;
     const Program::Settings* fSettings = nullptr;

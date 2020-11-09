@@ -106,6 +106,15 @@ void Parser::InitLayoutMap() {
     #undef TOKEN
 }
 
+template <typename... Args>
+std::unique_ptr<Type> Parser::makeType(Args&&... args) {
+    std::unique_ptr<Type> type = std::make_unique<Type>(std::forward<Args>(args)...);
+    if (type->isTooComplex()) {
+        this->error(type->fOffset, "type '" + type->name() + "' is too complex");
+    }
+    return type;
+}
+
 Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
 : fText(text)
 , fPushback(Token::Kind::TK_INVALID, -1, -1)
@@ -357,7 +366,7 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(std::make_unique<Type>(this->text(name), Type::TypeKind::kEnum));
+    fSymbols.add(this->makeType(this->text(name), Type::TypeKind::kEnum));
     CREATE_NODE(result, name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -527,8 +536,7 @@ ASTNode::ID Parser::structDeclaration() {
                 uint64_t columns = size.getInt();
                 String typeName = type->name() + "[" + to_string(columns) + "]";
                 type = fSymbols.takeOwnershipOfSymbol(
-                        std::make_unique<Type>(typeName, Type::TypeKind::kArray, *type,
-                                               (int)columns));
+                        this->makeType(typeName, Type::TypeKind::kArray, *type, (int)columns));
             }
 
             fields.push_back(Type::Field(modifiers, vd.fName, type));
@@ -540,7 +548,7 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(std::make_unique<Type>(name.fOffset, this->text(name), fields));
+    fSymbols.add(this->makeType(name.fOffset, this->text(name), fields));
     RETURN_NODE(name.fOffset, ASTNode::Kind::kType,
                 ASTNode::TypeData(this->text(name), true, false));
 }

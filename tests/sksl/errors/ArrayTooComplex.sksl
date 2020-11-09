@@ -1,0 +1,5 @@
+in float var_ok[1][2][3][4][5][6][7][8][9];
+void param_ok(float a[1][2][3][4][5][6][7][8][9]) {}
+
+in float var_too_complex[1][2][3][4][5][6][7][8][9][10];
+void param_too_complex(int a[1][2][3][4][5][6][7][8][9][10]) {}

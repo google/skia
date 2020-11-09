@@ -270,6 +270,9 @@ private:
 
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
+    // Like std::make_unique<Type>, but also reports an error if the type is too complex.
+    template <typename... Args> std::unique_ptr<Type> makeType(Args&&... args);
+
     const char* fText;
     Lexer fLexer;
     YY_BUFFER_STATE fBuffer;
