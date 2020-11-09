@@ -98,6 +98,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "57a5fcd3_3b3e8d0f",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T19:50:45Z",
+      "side": 1,
+      "message": "Okay so the client is in charge of knowing that if it deletes the backend texture that it must no use same SkPromiseImageTexture again. I guess this is fine, just from the clients POV seems a little fragile since there isn\u0027t necessarily a direct connection between the PromiseReleaseProc (i.e. our idle proc) and the SkPromiseImageTexture.\n\nMaybe we can update the comment in SkPromiseImageTexture to describe these connections a bit more. Current it says:\n\n\"Once an instance is returned from a PromiseImageTextureFulfillProc it must remain valid until the corresponding PromiseImageTextureReleaseProc is called.\"\n\nMaybe update this to replace \"it\" with \"the GrBackendTexture\".\n\nThen add something like:\n\nIf PromiseImageTextureReleaseProc is called and the client decides to delete the underlying backend API texture, then they should release their ref to the corresponding SkPromiseImageTexture.",
+      "parentUuid": "41da948f_48a66d1f",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 99
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dddd3b2_3ae47712",
         "filename": "src/gpu/GrTexture.h",
         "patchSetId": 8
