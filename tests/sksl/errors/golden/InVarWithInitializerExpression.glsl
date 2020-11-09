@@ -1,3 +1,4 @@
+### Compilation failed:
 
-in float x = 1.0;
-in float z = y = 1.0;
+error: 1: 'in' variables cannot use initializer expressions
+1 error
