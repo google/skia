@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed257566_e5871dec",
+        "filename": "modules/svg/include/SkSVGFe.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-09T16:38:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2919b4bd_7b02f442",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 18
+      },
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "817b2f96_69638125",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-09T15:33:51Z",
       "side": 1,
       "message": "In2",
+      "range": {
+        "startLine": 22,
+        "startChar": 13,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6bbf204_3abcd4cf",
+        "filename": "modules/svg/include/SkSVGFeComposite.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-09T16:38:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "817b2f96_69638125",
       "range": {
         "startLine": 22,
         "startChar": 13,
@@ -98,6 +146,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aacbc8c0_769d7442",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-09T16:38:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35def997_8176e579",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1b51c6e_d62d55cc",
@@ -111,6 +177,24 @@
       "writtenOn": "2020-11-09T15:33:51Z",
       "side": 1,
       "message": "This assumes only back-references are valid (the target fe has already been resolved).  That\u0027s not necessarily the case.  I think for the general case we\u0027ll need a recursive approach to resolve in dependency order.\n\nIt\u0027s ok to start with this though, maybe add a todo.",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdebe6f3_1119d832",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-09T16:38:13Z",
+      "side": 1,
+      "message": "Hmm, I was reading the spec a bit differently I think. Here\u0027s the spec on the \"result\" property:\n\n\u003e If supplied, then graphics that result from processing this filter primitive can be referenced by an ‘in’ attribute on a subsequent filter primitive within the same ‘filter’ element. If no value is provided, the output will only be available for re-use as the implicit input into the next filter primitive if that filter primitive provides no value for its ‘in’ attribute.\n\nAnd then separately the spec for the \"in\" property:\n\n\u003e If the value for ‘result’ appears multiple times within a given ‘filter’ element, then a reference to that result will use the closest preceding filter primitive with the given value for attribute ‘result’. Forward references to results are an error.\n\nTogether I was taking this to mean the filter DAG has some ordering (thus the std::vector and the reverse-search).",
+      "parentUuid": "d1b51c6e_d62d55cc",
       "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
