@@ -159,17 +159,17 @@ private:
 
 // -- GrSubRun -------------------------------------------------------------------------------------
 // There are several types of subrun, which can be broken into two broad classes:
-//   * GrPathRun - handle very large single color glyphs using paths to render the glyph.
+//   * PathSubRun - handle very large single color glyphs using paths to render the glyph.
 //   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
 //     There are three different ways GrAtlasSubRun is specialized.
-//      * GrDirectMaskSubRun - this is by far the most common type of subrun. The mask pixels are
+//      * DirectMaskSubRun - this is by far the most common type of subrun. The mask pixels are
 //        in 1:1 correspondence with the pixels on the device. The destination rectangles in this
 //        subrun are in device space. This subrun handles color glyphs.
-//      * GrTransformedMaskSubRun - handles glyph where the image in the atlas needs to be
+//      * TransformedMaskSubRun - handles glyph where the image in the atlas needs to be
 //        transformed to the screen. It is usually used for large color glyph which can't be
 //        drawn with paths or scaled distance fields. The destination rectangles are in source
 //        space.
-//      * GrSDFTSubRun - scaled distance field text handles largish single color glyphs that still
+//      * SDFTSubRun - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct subruns, and path subruns. The destination
 //        rectangles are in source space.
 class GrSubRun {
