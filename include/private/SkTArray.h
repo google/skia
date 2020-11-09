@@ -628,40 +628,41 @@ template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHea
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
 template <int N, typename T, bool MEM_MOVE = false>
-class SkSTArray : public SkTArray<T, MEM_MOVE> {
+class SkSTArray : private SkAlignedSTStorage<N,T>, public SkTArray<T, MEM_MOVE> {
 private:
+    using STORAGE   = SkAlignedSTStorage<N,T>;
     using INHERITED = SkTArray<T, MEM_MOVE>;
 
 public:
-    SkSTArray() : INHERITED(&fStorage) {
+    SkSTArray() : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {
     }
 
     SkSTArray(const SkSTArray& array)
-        : INHERITED(array, &fStorage) {
+        : STORAGE{}, INHERITED(array, static_cast<STORAGE*>(this)) {
     }
 
     SkSTArray(SkSTArray&& array)
-        : INHERITED(std::move(array), &fStorage) {
+        : STORAGE{}, INHERITED(std::move(array), static_cast<STORAGE*>(this)) {
     }
 
     explicit SkSTArray(const INHERITED& array)
-        : INHERITED(array, &fStorage) {
+        : STORAGE{}, INHERITED(array, static_cast<STORAGE*>(this)) {
     }
 
     explicit SkSTArray(INHERITED&& array)
-        : INHERITED(std::move(array), &fStorage) {
+        : STORAGE{}, INHERITED(std::move(array), static_cast<STORAGE*>(this)) {
     }
 
     explicit SkSTArray(int reserveCount)
-        : INHERITED(reserveCount) {
+        : STORAGE{}, INHERITED(reserveCount) {
     }
 
     SkSTArray(const T* array, int count)
-        : INHERITED(array, count, &fStorage) {
+        : STORAGE{}, INHERITED(array, count, static_cast<STORAGE*>(this)) {
     }
 
     SkSTArray(std::initializer_list<T> data)
-        : INHERITED(data, &fStorage) {
+        : STORAGE{}, INHERITED(data, static_cast<STORAGE*>(this)) {
     }
 
     SkSTArray& operator=(const SkSTArray& array) {
@@ -683,9 +684,6 @@ public:
         INHERITED::operator=(std::move(array));
         return *this;
     }
-
-private:
-    SkAlignedSTStorage<N,T> fStorage;
 };
 
 #endif
