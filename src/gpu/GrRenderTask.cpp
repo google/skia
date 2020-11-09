@@ -257,19 +257,16 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
-    // Some renderTasks (e.g. GrTransferFromRenderTask) don't have any targets.
-    if (0 == this->numTargets()) {
-        return true;
-    }
-    GrSurfaceProxy* proxy = this->target(0).proxy();
+    for (const GrSurfaceProxyView& target : fTargets) {
+        GrSurfaceProxy* proxy = target.proxy();
+        if (!proxy->isInstantiated()) {
+            return false;
+        }
 
-    if (!proxy->isInstantiated()) {
-        return false;
-    }
-
-    GrSurface* surface = proxy->peekSurface();
-    if (surface->wasDestroyed()) {
-        return false;
+        GrSurface* surface = proxy->peekSurface();
+        if (surface->wasDestroyed()) {
+            return false;
+        }
     }
 
     return true;
@@ -291,10 +288,9 @@ void GrRenderTask::dump(bool printDependencies) const {
 
     if (!fTargets.empty()) {
         SkDebugf("Targets: \n");
-        for (int i = 0; i < fTargets.count(); ++i) {
-            GrSurfaceProxy* proxy = fTargets[i].proxy();
-            SkDebugf("[%d]: proxyID: %d - surfaceID: %d\n",
-                     i,
+        for (const GrSurfaceProxyView& target : fTargets) {
+            GrSurfaceProxy* proxy = target.proxy();
+            SkDebugf("proxyID: %d - surfaceID: %d\n",
                      proxy ? proxy->uniqueID().asUInt() : -1,
                      proxy && proxy->peekSurface()
                             ? proxy->peekSurface()->uniqueID().asUInt()
