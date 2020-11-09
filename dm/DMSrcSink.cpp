@@ -436,6 +436,13 @@ Result CodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
 
     // Try to scale the image if it is desired
     SkISize size = codec->getScaledDimensions(fScale);
+
+    std::unique_ptr<SkAndroidCodec> androidCodec;
+    if (1.0f != fScale && fMode == kAnimated_Mode) {
+        androidCodec = SkAndroidCodec::MakeFromData(encoded);
+        size = androidCodec->getSampledDimensions(1 / fScale);
+    }
+
     if (size == decodeInfo.dimensions() && 1.0f != fScale) {
         return Result::Skip("Test without scaling is uninteresting.");
     }
@@ -467,7 +474,16 @@ Result CodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
 
     switch (fMode) {
         case kAnimated_Mode: {
-            std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
+            SkAndroidCodec::AndroidOptions androidOptions;
+            if (fScale != 1.0f) {
+                SkASSERT(androidCodec);
+                androidOptions.fSampleSize = 1 / fScale;
+                auto dims = androidCodec->getSampledDimensions(androidOptions.fSampleSize);
+                decodeInfo = decodeInfo.makeDimensions(dims);
+            }
+
+            std::vector<SkCodec::FrameInfo> frameInfos = androidCodec
+                    ? androidCodec->codec()->getFrameInfo() : codec->getFrameInfo();
             if (frameInfos.size() <= 1) {
                 return Result::Fatal("%s is not an animated image.", fPath.c_str());
             }
@@ -482,19 +498,21 @@ Result CodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
             SkAutoMalloc priorFramePixels;
             int cachedFrame = SkCodec::kNoFrame;
             for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
-                options.fFrameIndex = i;
+                androidOptions.fFrameIndex = i;
                 // Check for a prior frame
                 const int reqFrame = frameInfos[i].fRequiredFrame;
                 if (reqFrame != SkCodec::kNoFrame && reqFrame == cachedFrame
                         && priorFramePixels.get()) {
                     // Copy into pixels
                     memcpy(pixels.get(), priorFramePixels.get(), safeSize);
-                    options.fPriorFrame = reqFrame;
+                    androidOptions.fPriorFrame = reqFrame;
                 } else {
-                    options.fPriorFrame = SkCodec::kNoFrame;
+                    androidOptions.fPriorFrame = SkCodec::kNoFrame;
                 }
-                SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
-                                                          rowBytes, &options);
+                SkCodec::Result result = androidCodec
+                        ? androidCodec->getAndroidPixels(decodeInfo, pixels.get(), rowBytes,
+                                                         &androidOptions)
+                        : codec->getPixels(decodeInfo, pixels.get(), rowBytes, &androidOptions);
                 if (SkCodec::kInvalidInput == result && i > 0) {
                     // Some of our test images have truncated later frames. Treat that
                     // the same as incomplete.
@@ -759,30 +777,33 @@ SkISize CodecSrc::size() const {
         return {0, 0};
     }
 
-    auto imageSize = codec->getScaledDimensions(fScale);
-    if (fMode == kAnimated_Mode) {
-        // We'll draw one of each frame, so make it big enough to hold them all
-        // in a grid. The grid will be roughly square, with "factor" frames per
-        // row and up to "factor" rows.
-        const size_t count = codec->getFrameInfo().size();
-        const float root = sqrt((float) count);
-        const int factor = sk_float_ceil2int(root);
-        imageSize.fWidth  = imageSize.fWidth  * factor;
-        imageSize.fHeight = imageSize.fHeight * sk_float_ceil2int((float) count / (float) factor);
+    if (fMode != kAnimated_Mode) {
+        return codec->getScaledDimensions(fScale);
     }
+
+    // We'll draw one of each frame, so make it big enough to hold them all
+    // in a grid. The grid will be roughly square, with "factor" frames per
+    // row and up to "factor" rows.
+    const size_t count = codec->getFrameInfo().size();
+    const float root = sqrt((float) count);
+    const int factor = sk_float_ceil2int(root);
+
+    auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+    auto imageSize = androidCodec->getSampledDimensions(1 / fScale);
+    imageSize.fWidth  = imageSize.fWidth  * factor;
+    imageSize.fHeight = imageSize.fHeight * sk_float_ceil2int((float) count / (float) factor);
     return imageSize;
 }
 
 Name CodecSrc::name() const {
+    Name name = SkOSPath::Basename(fPath.c_str());
+    if (fMode == kAnimated_Mode) {
+        name.append("_animated");
+    }
     if (1.0f == fScale) {
-        Name name = SkOSPath::Basename(fPath.c_str());
-        if (fMode == kAnimated_Mode) {
-            name.append("_animated");
-        }
         return name;
     }
-    SkASSERT(fMode != kAnimated_Mode);
-    return get_scaled_name(fPath, fScale);
+    return get_scaled_name(name.c_str(), fScale);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
