@@ -39,7 +39,7 @@ public:
 
     void textureParamsModified() override {}
 
-    void addIdleProc(sk_sp<GrRefCntedCallback>, IdleState) override;
+    void addIdleProc(sk_sp<GrRefCntedCallback>) override;
     void callIdleProcsOnBehalfOfResource() override;
 
 protected:
