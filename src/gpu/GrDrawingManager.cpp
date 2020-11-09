@@ -464,8 +464,10 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
         if (!task) {
             continue;
         }
-        if (!task->unique()) {
-            // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
+        if (!task->unique() || task->requiresExplicitCleanup()) {
+            // TODO: Eventually uniqueness should be guaranteed: http://skbug.com/7111
+            // DDLs, however, will always require an explicit notification for when they
+            // can clean up resources.
             task->endFlush(this);
         }
         task->disown(this);
@@ -609,7 +611,8 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
-                                              GrRenderTargetProxy* newDest) {
+                                              GrRenderTargetProxy* newDest,
+                                              int xOffset, int yOffset) {
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
@@ -643,10 +646,11 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
         ccpr->mergePendingPaths(ddl->fPendingPaths);
     }
 
-    fDAG.add(ddl->fRenderTasks);
-
     // Add a task to unref the DDL after flush.
-    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(this,
+                                                                  sk_ref_sp(newDest),
+                                                                  std::move(ddl),
+                                                                  xOffset, yOffset));
     unrefTask->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());

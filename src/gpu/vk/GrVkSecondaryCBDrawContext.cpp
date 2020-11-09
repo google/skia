@@ -181,7 +181,7 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
         return false;
     }
 
-    direct->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
+    direct->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy(), 0, 0);
     return true;
 }
 
