@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "24abea9c_519f6a4d",
+        "filename": "src/gpu/GrTexture.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T19:08:35Z",
+      "side": 1,
+      "message": "And just to document everything here. Can a GrTexture go \"idle\" in cache if the SkPromiseImageTexture is still alive? In other words the unique key connected to the SkPromiseImageTexture hasn\u0027t been invalidated yet?\n\nSince once we call the idle proc we are telling the client it is okay (from Skia\u0027s POV) to delete the backend object, I guess I just really want to confirm that calling it means not only is Skia done using it but, the SkPromiseImageTexture must be gone as well. Otherwise we may end up trying to use a cached thing that has been deleted?\n\nIf all the above is true, why can\u0027t we just delete the texture from the cache at this point? Doesn\u0027t seem like we should be able to reuse the texture again after calling the idle proc since we don\u0027t know if the client deleted the object or not.",
+      "parentUuid": "e52feb87_d9232213",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 99
+      },
+      "revId": "69e74a4a8d27c5c55889f86fe3d60fe3b2019f8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dddd3b2_3ae47712",
         "filename": "src/gpu/GrTexture.h",
         "patchSetId": 8
