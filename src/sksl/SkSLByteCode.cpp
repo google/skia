@@ -53,6 +53,8 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kAddF, "addf")
         DISASSEMBLE_COUNT(kAddI, "addi")
         DISASSEMBLE_COUNT(kAndB, "andb")
+        DISASSEMBLE_COUNT(kACos, "acos")
+        DISASSEMBLE_COUNT(kASin, "asin")
         DISASSEMBLE_COUNT(kATan, "atan")
         case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
         case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
@@ -482,6 +484,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_UNARY_FN(kConvertStoF, skvx::cast<float>, fSigned)
             VECTOR_UNARY_FN(kConvertUtoF, skvx::cast<float>, fUnsigned)
 
+            VECTOR_UNARY_FN(kACos, [](auto x) { return skvx::map(acosf, x); }, fFloat)
             VECTOR_UNARY_FN(kCos, [](auto x) { return skvx::map(cosf, x); }, fFloat)
 
             VECTOR_BINARY_MASKED_OP(kDivideS, fSigned, /)
@@ -746,6 +749,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp[0] = sp[0].fUnsigned >> READ8();
                 continue;
 
+            VECTOR_UNARY_FN(kASin, [](auto x) { return skvx::map(asinf, x); }, fFloat)
             VECTOR_UNARY_FN(kSin, [](auto x) { return skvx::map(sinf, x); }, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
 

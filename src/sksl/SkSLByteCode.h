@@ -26,6 +26,8 @@ enum class ByteCodeInstruction : uint8_t {
     kAddF,  // N
     kAddI,  // N
     kAndB,  // N
+    kACos,  // N
+    kASin,  // N
     kATan,  // N
     kBranch,
     // Followed by a byte indicating the index of the function to call
