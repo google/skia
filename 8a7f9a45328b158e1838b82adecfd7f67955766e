@@ -52,6 +52,24 @@
       "parentUuid": "c0a4756d_b2111c4b",
       "revId": "8a7f9a45328b158e1838b82adecfd7f67955766e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "412bef72_0ab7f257",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-09T17:50:25Z",
+      "side": 1,
+      "message": "No #ifdef works, but this does\n\n    #if defined(__GNUC__) \u0026\u0026 !defined(__clang__)",
+      "parentUuid": "bd9debc9_c7f6eb39",
+      "revId": "8a7f9a45328b158e1838b82adecfd7f67955766e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
