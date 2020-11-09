@@ -572,12 +572,16 @@ static skvm::Color program_fn(skvm::Builder* p,
                 break;
 
             case Inst::kAbs:   unary(skvm::abs);         break;
+            case Inst::kACos:  unary(skvm::approx_acos); break;
+            case Inst::kASin:  unary(skvm::approx_asin); break;
             case Inst::kATan:  unary(skvm::approx_atan); break;
             case Inst::kCeil:  unary(skvm::ceil);        break;
+            case Inst::kCos:   unary(skvm::approx_cos);  break;
             case Inst::kFloor: unary(skvm::floor);       break;
             case Inst::kFract: unary(skvm::fract);       break;
             case Inst::kSqrt:  unary(skvm::sqrt);        break;
             case Inst::kSin:   unary(skvm::approx_sin);  break;
+            case Inst::kTan:   unary(skvm::approx_tan);  break;
 
             case Inst::kMatrixMultiply: {
                 // Computes M = A*B (all stored column major)
