@@ -72,6 +72,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/ArgumentCountMismatch.sksl",
   "$_tests/sksl/errors/ArgumentMismatch.sksl",
   "$_tests/sksl/errors/ArgumentModifiers.sksl",
+  "$_tests/sksl/errors/ArrayTooManyDimensions.sksl",
   "$_tests/sksl/errors/AssignmentTypeMismatch.sksl",
   "$_tests/sksl/errors/BadCaps.sksl",
   "$_tests/sksl/errors/BadFieldAccess.sksl",
