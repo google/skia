@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e00a2dc_0d81f16d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-09T19:22:24Z",
+      "side": 1,
+      "message": "FWIW here is the actual list of member dependencies:\n\nGrDrawingManager:\n  handleInternalAllocationFailure, gatherProxyIntervals, \n  isUsed, TopoSortTraits, isInstantiated, fTextureResolveTask, closeThoseWhoDependOnMe, addDependency\n\nGrDDLTask:\n  handleInternalAllocationFailure, gatherProxyIntervals\n  Flags::kClosed_Flag, setFlag, onIsUsed",
+      "revId": "fc966db35938b2a373258712d2c53bec66697d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
