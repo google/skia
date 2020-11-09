@@ -72,8 +72,7 @@ public:
      */
     static sk_sp<SkImage> MakePromiseTexture(GrRecordingContext*,
                                              const GrBackendFormat& backendFormat,
-                                             int width,
-                                             int height,
+                                             SkISize dimensions,
                                              GrMipmapped mipMapped,
                                              GrSurfaceOrigin origin,
                                              SkColorType colorType,
@@ -81,9 +80,7 @@ public:
                                              sk_sp<SkColorSpace> colorSpace,
                                              PromiseImageTextureFulfillProc textureFulfillProc,
                                              PromiseImageTextureReleaseProc textureReleaseProc,
-                                             PromiseImageTextureDoneProc textureDoneProc,
-                                             PromiseImageTextureContext textureContext,
-                                             PromiseImageApiVersion);
+                                             PromiseImageTextureContext textureContext);
 
     static sk_sp<SkImage> ConvertYUVATexturesToRGB(
             GrRecordingContext*,
