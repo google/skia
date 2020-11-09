@@ -34,6 +34,24 @@
       "parentUuid": "4f8018aa_3e393048",
       "revId": "8a7f9a45328b158e1838b82adecfd7f67955766e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd9debc9_c7f6eb39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T17:49:18Z",
+      "side": 1,
+      "message": "For future reference what #ifdef should we use to target GCC?",
+      "parentUuid": "c0a4756d_b2111c4b",
+      "revId": "8a7f9a45328b158e1838b82adecfd7f67955766e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
