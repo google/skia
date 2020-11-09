@@ -24,6 +24,7 @@
 
 #include <vector>
 
+class SkAndroidCodec;
 class SkColorSpace;
 class SkData;
 class SkFrameHolder;
@@ -854,6 +855,10 @@ private:
 
     bool                               fStartedIncrementalDecode;
 
+    // Allows SkAndroidCodec to call handleFrameIndex (potentially decoding a prior frame and
+    // clearing to transparent) without SkCodec calling it, too.
+    bool                               fAndroidCodecHandlesFrameIndex;
+
     bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha, bool srcIsOpaque);
 
     /**
@@ -878,8 +883,15 @@ private:
 
     /**
      *  Check for a valid Options.fFrameIndex, and decode prior frames if necessary.
+     *
+     *  If androidCodec is not null, that means this SkCodec is owned by an SkAndroidCodec. In that
+     *  case, the Options will be treated as an AndroidOptions, and SkAndroidCodec will be used to
+     *  decode a prior frame, if a prior frame is needed. When such an owned SkCodec calls
+     *  handleFrameIndex, it will immediately return kSuccess, since SkAndroidCodec already handled
+     *  it.
      */
-    Result handleFrameIndex(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&);
+    Result handleFrameIndex(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&,
+            SkAndroidCodec* androidCodec = nullptr);
 
     // Methods for scanline decoding.
     virtual Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
