@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d9cdfc8_5f6465ca",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-09T17:13:01Z",
+      "side": 1,
+      "message": "is there a syntax so this reads more like this_as_aligned_storage, just to make it clearer to humans what is being passed? (just asking out of ignorance)",
+      "range": {
+        "startLine": 641,
+        "startChar": 38,
+        "endLine": 641,
+        "endChar": 42
+      },
+      "revId": "6d9ca0725ea21db9995b4ec8508775b4f7ea1be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
