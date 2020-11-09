@@ -16,6 +16,98 @@
       "message": "ping",
       "revId": "08f028608760b00f030517adf9eebd975757553d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d9925ff_24ef8ec2",
+        "filename": "src/gpu/GrDDLTask.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T18:17:09Z",
+      "side": 1,
+      "message": "can this assert go up one level of the for loop?",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 39
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05a4cc07_89d378ec",
+        "filename": "src/gpu/GrDDLTask.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T18:17:09Z",
+      "side": 1,
+      "message": "why not just call the isUsed here (then friend not needed for the call)",
+      "range": {
+        "startLine": 50,
+        "startChar": 18,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc6a406b_d80ec048",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T18:17:09Z",
+      "side": 1,
+      "message": "I\u0027m not a huge fan of these friend classes here. From what I can tell GrDrawingManager is really the only class doing stuff with GrRenderTasks. Now we do have some stuff with DDLs to move them around I guess, but do we really need to block our internal DDL code from these functions.\n\nRegardless isUsed and gatherProxyIntervals are both const functions so I see no harm in making them public. Then we at least don\u0027t need GrDDLTask to be a friend.",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 68
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55391b1a_2103b794",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-09T18:17:09Z",
+      "side": 1,
+      "message": "Is there a good reason for this to be private? Seems like a fairly harmless query if public.",
+      "range": {
+        "startLine": 149,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 5
+      },
+      "revId": "08f028608760b00f030517adf9eebd975757553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
