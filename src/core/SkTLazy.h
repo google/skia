@@ -111,8 +111,8 @@ public:
     T* getMaybeNull() const { return fPtr; }
 
 private:
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type fStorage;
-    T*                                                         fPtr{nullptr}; // nullptr or fStorage
+    alignas(T) char fStorage[sizeof(T)];
+    T*              fPtr{nullptr}; // nullptr or fStorage
 };
 
 /**

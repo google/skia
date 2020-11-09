@@ -100,7 +100,7 @@ private:
               + 32;   // slop for occasional small extras
 
     SkDescriptor*   fDesc{nullptr};
-    std::aligned_storage<kStorageSize, alignof(uint32_t)>::type fStorage;
+    alignas(uint32_t) char fStorage[kStorageSize];
 };
 
 #endif  //SkDescriptor_DEFINED
