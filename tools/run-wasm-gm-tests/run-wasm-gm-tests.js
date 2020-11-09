@@ -62,6 +62,11 @@ const opts = [
     description: 'Number of seconds to allow test to run.',
     type: Number,
   },
+  {
+    name: 'manual_mode',
+    description: 'If set, tests will not run automatically.',
+    type: Boolean,
+  }
 ];
 
 const usage = [
@@ -175,7 +180,7 @@ app.post('/write_png', (req, res) => {
   const newFile = path.join(options.output, md5 + '.png');
   fs.writeFileSync(newFile, data, {
     encoding: 'binary',
-  })
+  });
   res.sendStatus(200);
 });
 
@@ -229,6 +234,15 @@ async function driveBrowser() {
       timeout: 60000,
       waitUntil: 'networkidle0'
     });
+
+    if (options.manual_mode) {
+      console.log('Manual mode detected. Will hang');
+      // Wait a very long time, with the web server running.
+      await page.waitForFunction(`window._abort_manual_mode`, {
+        timeout: 1000000000,
+        polling: 1000,
+      });
+    }
 
     // Page is mostly loaded, wait for test harness page to report itself ready. Some resources
     // may still be loading.
