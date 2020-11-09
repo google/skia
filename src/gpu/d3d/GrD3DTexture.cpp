@@ -148,11 +148,9 @@ GrD3DGpu* GrD3DTexture::getD3DGpu() const {
     return static_cast<GrD3DGpu*>(this->getGpu());
 }
 
-void GrD3DTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState type) {
-    INHERITED::addIdleProc(idleProc, type);
-    if (type == IdleState::kFinished) {
-        this->addResourceIdleProc(this, std::move(idleProc));
-    }
+void GrD3DTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc) {
+    INHERITED::addIdleProc(idleProc);
+    this->addResourceIdleProc(this, std::move(idleProc));
 }
 
 void GrD3DTexture::callIdleProcsOnBehalfOfResource() {
