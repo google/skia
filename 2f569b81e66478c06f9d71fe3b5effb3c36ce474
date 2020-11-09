@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efb03815_2a8c83c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-09T20:21:17Z",
+      "side": 1,
+      "message": "It does seem nice to be able to follow this without needing to understand all the subtle quirks being removed.",
+      "revId": "2f569b81e66478c06f9d71fe3b5effb3c36ce474",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
