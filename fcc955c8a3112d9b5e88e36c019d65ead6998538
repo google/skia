@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e91facb_235259a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "Neat!  Some nits.",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2919b4bd_7b02f442",
+        "filename": "modules/svg/include/SkSVGFe.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "Let\u0027s keep the name aligned with SVG: \"In\"",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 18
+      },
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "817b2f96_69638125",
+        "filename": "modules/svg/include/SkSVGFeComposite.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "In2",
+      "range": {
+        "startLine": 22,
+        "startChar": 13,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09d025c0_68b8370a",
+        "filename": "modules/svg/include/SkSVGFilterContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "Would it make more sense to use a SkTHashMap or unordered_map \u003cid, IF\u003e instead?\n\nI think it would simplify lookup (and make more efficient in the general case).",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35def997_8176e579",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "Wonder if we can get away with using SkSVGStringType instead.\n\nAFAICT \"none\" is not a real/meaningful value - could we rely on an empty string instead?",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1b51c6e_d62d55cc",
+        "filename": "modules/svg/src/SkSVGFilterContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-09T15:33:51Z",
+      "side": 1,
+      "message": "This assumes only back-references are valid (the target fe has already been resolved).  That\u0027s not necessarily the case.  I think for the general case we\u0027ll need a recursive approach to resolve in dependency order.\n\nIt\u0027s ok to start with this though, maybe add a todo.",
+      "revId": "fcc955c8a3112d9b5e88e36c019d65ead6998538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
