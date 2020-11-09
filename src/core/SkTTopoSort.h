@@ -13,7 +13,7 @@
 
 #ifdef SK_DEBUG
 template <typename T, typename Traits = T>
-void SkTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
+void SkTTopoSort_CheckAllUnmarked(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(!Traits::WasOutput(graph[i].get()));
@@ -21,7 +21,7 @@ void SkTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
 }
 
 template <typename T, typename Traits = T>
-void SkTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
+void SkTTopoSort_CleanExit(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(Traits::WasOutput(graph[i].get()));
@@ -32,7 +32,7 @@ void SkTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
 // Recursively visit a node and all the other nodes it depends on.
 // Return false if there is a loop.
 template <typename T, typename Traits = T>
-bool SkTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
+bool SkTTopoSort_Visit(T* node, SkTArray<std::unique_ptr<T>>* result) {
     if (Traits::IsTempMarked(node)) {
         // There is a loop.
         return false;
@@ -79,8 +79,8 @@ bool SkTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
 // node and all the nodes on which it depends. This could be used to partially
 // flush a GrRenderTask DAG.
 template <typename T, typename Traits = T>
-bool SkTTopoSort(SkTArray<sk_sp<T>>* graph) {
-    SkTArray<sk_sp<T>> result;
+bool SkTTopoSort(SkTArray<std::unique_ptr<T>>* graph) {
+    SkTArray<std::unique_ptr<T>> result;
 
 #ifdef SK_DEBUG
     SkTTopoSort_CheckAllUnmarked<T, Traits>(*graph);

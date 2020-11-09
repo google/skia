@@ -150,14 +150,14 @@ private:
         GrRenderTask* back() { return fRenderTasks.back().get(); }
         const GrRenderTask* back() const { return fRenderTasks.back().get(); }
 
-        GrRenderTask* add(sk_sp<GrRenderTask>);
-        GrRenderTask* addBeforeLast(sk_sp<GrRenderTask>);
-        void add(const SkTArray<sk_sp<GrRenderTask>>&);
+        GrRenderTask* add(std::unique_ptr<GrRenderTask>);
+        GrRenderTask* addBeforeLast(std::unique_ptr<GrRenderTask>);
+        void add(const SkTArray<std::unique_ptr<GrRenderTask>>&);
 
-        void swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks);
+        void swap(SkTArray<std::unique_ptr<GrRenderTask>>* renderTasks);
 
     private:
-        SkTArray<sk_sp<GrRenderTask>> fRenderTasks;
+        SkTArray<unique_ptr<GrRenderTask>> fRenderTasks;
     };
 
     GrDrawingManager(GrRecordingContext*,

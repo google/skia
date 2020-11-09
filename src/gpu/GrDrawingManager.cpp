@@ -73,14 +73,14 @@ bool GrDrawingManager::RenderTaskDAG::isUsed(GrSurfaceProxy* proxy) const {
     return false;
 }
 
-GrRenderTask* GrDrawingManager::RenderTaskDAG::add(sk_sp<GrRenderTask> renderTask) {
+GrRenderTask* GrDrawingManager::RenderTaskDAG::add(std::unique_ptr<GrRenderTask> renderTask) {
     if (renderTask) {
         return fRenderTasks.emplace_back(std::move(renderTask)).get();
     }
     return nullptr;
 }
 
-GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask> renderTask) {
+GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(std::unique_ptr<GrRenderTask> renderTask) {
     SkASSERT(!fRenderTasks.empty());
     if (renderTask) {
         // Release 'fRenderTasks.back()' and grab the raw pointer, in case the SkTArray grows
@@ -91,7 +91,7 @@ GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask>
     return nullptr;
 }
 
-void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
+void GrDrawingManager::RenderTaskDAG::add(const SkTArray<std::unique_ptr<GrRenderTask>>& renderTasks) {
 #ifdef SK_DEBUG
     for (auto& renderTask : renderTasks) {
         SkASSERT(renderTask->unique());
@@ -101,7 +101,7 @@ void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& r
     fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
 }
 
-void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks) {
+void GrDrawingManager::RenderTaskDAG::swap(SkTArray<std::unique_ptr<GrRenderTask>>* renderTasks) {
     SkASSERT(renderTasks->empty());
     renderTasks->swap(fRenderTasks);
 }
@@ -646,7 +646,7 @@ void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>
     fDAG.add(ddl->fRenderTasks);
 
     // Add a task to unref the DDL after flush.
-    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    GrRenderTask* unrefTask = fDAG.add(new GrUnrefDDLTask(std::move(ddl)));
     unrefTask->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());
@@ -826,9 +826,9 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // This copies from srcProxy to dstBuffer so it doesn't have a real target.
     this->closeRenderTasksForNewRenderTask(nullptr);
 
-    GrRenderTask* task = fDAG.add(sk_make_sp<GrTransferFromRenderTask>(
-            srcProxy, srcRect, surfaceColorType, dstColorType,
-            std::move(dstBuffer), dstOffset));
+    GrRenderTask* task = fDAG.add(new GrTransferFromRenderTask(
+                                        srcProxy, srcRect, surfaceColorType, dstColorType,
+                                        std::move(dstBuffer), dstOffset));
 
     const GrCaps& caps = *fContext->priv().caps();
 
