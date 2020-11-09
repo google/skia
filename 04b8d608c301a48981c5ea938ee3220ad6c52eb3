@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "654d6677_3cc2080f",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-09T17:25:41Z",
+      "side": 1,
+      "message": "Would you be OK to use static_cast here? C-style casts on multiply-inherited classes are super dicey (although in this case you\u0027d be OK since STORAGE is the first thing, that\u0027s still cutting it too close for my taste)",
+      "range": {
+        "startLine": 637,
+        "startChar": 39,
+        "endLine": 637,
+        "endChar": 49
+      },
+      "revId": "04b8d608c301a48981c5ea938ee3220ad6c52eb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
