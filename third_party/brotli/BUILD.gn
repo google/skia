@@ -1,0 +1,23 @@
+# Copyright 2020 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("brotli") {
+  public_include_dirs = [ "../externals/brotli/c/include" ]
+
+  # The only consumer of brotli is freetype and it only needs to decode brotli.
+  sources = [
+    "../externals/brotli/c/common/constants.c",
+    "../externals/brotli/c/common/context.c",
+    "../externals/brotli/c/common/dictionary.c",
+    "../externals/brotli/c/common/platform.c",
+    "../externals/brotli/c/common/transform.c",
+    "../externals/brotli/c/dec/bit_reader.c",
+    "../externals/brotli/c/dec/decode.c",
+    "../externals/brotli/c/dec/huffman.c",
+    "../externals/brotli/c/dec/state.c",
+  ]
+}

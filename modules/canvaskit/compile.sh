@@ -173,7 +173,7 @@ if [[ $@ == *no_canvas* ]]; then
   HTML_CANVAS_API=""
 fi
 
-GN_FONT="skia_enable_fontmgr_custom_directory=false "
+GN_FONT="skia_enable_fontmgr_custom_directory=false skia_use_freetype_woff2=true "
 FONT_CFLAGS=""
 BUILTIN_FONT=""
 FONT_JS="--pre-js $BASE_DIR/font.js"
