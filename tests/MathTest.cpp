@@ -21,6 +21,7 @@
 #include <cinttypes>
 
 static void test_clz(skiatest::Reporter* reporter) {
+    static_assert(SkCLZ_portable(7) == 29);
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));
     REPORTER_ASSERT(reporter, 31 == SkCLZ(1));
     REPORTER_ASSERT(reporter, 1 == SkCLZ(1 << 30));
@@ -40,6 +41,7 @@ static void test_clz(skiatest::Reporter* reporter) {
 }
 
 static void test_ctz(skiatest::Reporter* reporter) {
+    static_assert(SkCTZ_portable(8) == 3);
     REPORTER_ASSERT(reporter, 32 == SkCTZ(0));
     REPORTER_ASSERT(reporter, 0 == SkCTZ(1));
     REPORTER_ASSERT(reporter, 30 == SkCTZ(1 << 30));
