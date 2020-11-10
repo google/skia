@@ -158,6 +158,7 @@ sksl_glsl_tests = [
 sksl_shared_tests = [
   "$_tests/sksl/shared/ArrayConstructors.sksl",
   "$_tests/sksl/shared/ArrayIndexTypes.sksl",
+  "$_tests/sksl/shared/ArrayMaxDimensions.sksl",
   "$_tests/sksl/shared/ArrayTypes.sksl",
   "$_tests/sksl/shared/Assignment.sksl",
   "$_tests/sksl/shared/BoolFolding.sksl",

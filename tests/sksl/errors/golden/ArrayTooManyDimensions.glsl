@@ -1,2 +1,4 @@
+### Compilation failed:
 
-in int ar[1][2][3][4][5][6][7][8][9];
+error: 1: array has too many dimensions
+1 error
