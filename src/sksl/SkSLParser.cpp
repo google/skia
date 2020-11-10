@@ -21,7 +21,8 @@
 
 namespace SkSL {
 
-#define MAX_PARSE_DEPTH 50
+static constexpr int kMaxParseDepth = 50;
+static constexpr int kMaxArrayDimensionality = 8;
 
 class AutoDepth {
 public:
@@ -36,7 +37,7 @@ public:
     bool increase() {
         ++fDepth;
         ++fParser->fDepth;
-        if (fParser->fDepth > MAX_PARSE_DEPTH) {
+        if (fParser->fDepth > kMaxParseDepth) {
             fParser->error(fParser->peek(), String("exceeded max parse depth"));
             return false;
         }
@@ -582,6 +583,10 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
             }
         }
         ++vd.fSizeCount;
+        if (vd.fSizeCount > kMaxArrayDimensionality) {
+            this->error(this->peek(), "array has too many dimensions");
+            return ASTNode::ID::Invalid();
+        }
     }
     getNode(currentVar).setVarData(vd);
     if (this->checkNext(Token::Kind::TK_EQ)) {
