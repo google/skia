@@ -1,0 +1,11 @@
+int intMin         = -2147483648;
+int intMinMinusOne = -2147483649;
+int intMax         = 2147483647;
+int intMaxPlusOne  = 2147483648;
+
+void main() {
+    sk_FragColor.x = half(intMin);
+    sk_FragColor.x = half(intMax);
+    sk_FragColor.x = half(intMinMinusOne);
+    sk_FragColor.x = half(intMaxPlusOne);
+}
