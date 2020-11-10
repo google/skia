@@ -34,6 +34,24 @@
       "parentUuid": "41ae7018_83d59c24",
       "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1008b1f9_31ec98ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T21:52:40Z",
+      "side": 1,
+      "message": "Thinking about it some more, I don\u0027t see a problem with the rounding up to kMinHeapAllocCount (that\u0027s free real estate) but the 50% growth factor is definitely not the caller\u0027s intent.\n\nJust now, I\u0027ve half-put-together a CL that turns off the 50% growth factor if you\u0027re constructing or reserve_back\u0027ing, but leaves it on for mutating operations like push_back/pop_back/etc. It\u0027s just an extra arg:\n\n    void checkRealloc(int delta, bool addExtraSpace \u003d true) {\n\nIt leaves the kMinHeapAllocCount rounding-up alone since that\u0027s zero cost.\n\nWhat do you think about this idea? I expect that between this CL and my described change, we\u0027d have everything sorted out.",
+      "parentUuid": "0efd82b5_dec8de9b",
+      "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
