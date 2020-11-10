@@ -152,7 +152,6 @@ private:
 
         GrRenderTask* add(sk_sp<GrRenderTask>);
         GrRenderTask* addBeforeLast(sk_sp<GrRenderTask>);
-        void add(const SkTArray<sk_sp<GrRenderTask>>&);
 
         void swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks);
 

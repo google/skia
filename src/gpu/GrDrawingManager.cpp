@@ -91,16 +91,6 @@ GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask>
     return nullptr;
 }
 
-void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
-#ifdef SK_DEBUG
-    for (auto& renderTask : renderTasks) {
-        SkASSERT(renderTask->unique());
-    }
-#endif
-
-    fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
-}
-
 void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks) {
     SkASSERT(renderTasks->empty());
     renderTasks->swap(fRenderTasks);
