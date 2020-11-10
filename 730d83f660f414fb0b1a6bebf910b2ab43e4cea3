@@ -106,6 +106,24 @@
       "parentUuid": "b7fbaeb7_dd4881e4",
       "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5e13d04_6bc28ae7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:21:24Z",
+      "side": 1,
+      "message": "Yeah.  What I think kMinHeapAllocCount is really doing here is confusing things by trying to avoid a branch to handle the initial capacity\u003d0 case.  Things might read a little easier with an if-statement.",
+      "parentUuid": "afc057b5_286bd0ee",
+      "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
