@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bb7b7e0_25855dcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-10T17:07:01Z",
+      "side": 1,
+      "message": "Derek, this is a similar CL to the one that we reverted last week. I\u0027m submitting this, and letting it simmer. If it causes Android any problems, please revert it.",
+      "revId": "c5bfdcee250367eaaef114e2de4602d95fead5d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
