@@ -16,6 +16,24 @@
       "message": "Hmm. It looks like lzcnt and friends are only available on x64. I\u0027m curious how this is working on ARM64 (though it did build correctly on the previous PS).",
       "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bc3521e_941bcb2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T21:17:22Z",
+      "side": 1,
+      "message": "Yeah... I\u0027m not sure why we\u0027re mentioning or reading that doc.  We\u0027re not using lzcnt() here.",
+      "parentUuid": "be3113cd_cb29c0c7",
+      "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
