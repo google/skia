@@ -1,3 +1,7 @@
+float arr(float v[2][3]) {
+    return v[0][0] * v[1][2];
+}
+
 float foo(float v[2]) {
     return v[0] * v[1];
 }
@@ -7,7 +11,10 @@ void bar(inout float x) {
     y[0] = x;
     y[1] = x * 2;
     z = foo(y);
-    x = z;
+    float a[2][3];
+    a[0][0] = 123;
+    a[1][2] = 456;
+    x = z + arr(a);
 }
 
 void main() {
