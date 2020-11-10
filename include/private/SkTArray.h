@@ -605,8 +605,11 @@ public:
     SkSTArray(std::initializer_list<T> data)
         : SkSTArray(data.begin(), data.size()) {}
 
-    explicit SkSTArray(int reserveCount)
-        : STORAGE{}, INHERITED(reserveCount) {}  // TODO: use STORAGE?
+    explicit SkSTArray(int reserveCount) : SkSTArray() {
+        SkASSERT(this->capacity() == N);
+        this->reserve_back(reserveCount);
+        SkASSERT(this->capacity() >= reserveCount);
+    }
 
     SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
     explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }

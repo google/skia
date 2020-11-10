@@ -68,7 +68,11 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
     // Single integer: Creates an empty array that will preallocate space for reserveCount elements.
     T arrayReserve(15);
     REPORTER_ASSERT(reporter, arrayReserve.empty());
-    REPORTER_ASSERT(reporter, arrayReserve.capacity() == 15);
+    if (arrayNoArgs.capacity() > 0) {
+        REPORTER_ASSERT(reporter, arrayReserve.capacity() >= 15);
+    } else {
+        REPORTER_ASSERT(reporter, arrayReserve.capacity() == 15);
+    }
 
     // Another array, const&: Copies one array to another.
     T arrayInitial;
