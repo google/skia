@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6263be30_44e13e98",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T20:34:43Z",
+      "side": 0,
+      "message": "Why cripple SkCLZ / SkCTZ on those old MSVCs?  Can\u0027t we just call the _portable versions of these functions in constexpr situations?",
+      "revId": "a695d62772e142801ec78d6bd208d31db62b6934",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

@@ -16,6 +16,23 @@
       "message": "Is there a reference for this? I can\u0027t find any mention of it being supported here: https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view\u003dmsvc-160\n",
       "revId": "d9d9159415dbd8c869471d033c558e60aafe3dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca205da6_ed0da11a",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T20:34:43Z",
+      "side": 1,
+      "message": "I know you\u0027re not changing this, but what the heck are we doing letting people inject their own versions of SkCLZ / SkCTZ?",
+      "revId": "d9d9159415dbd8c869471d033c558e60aafe3dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
