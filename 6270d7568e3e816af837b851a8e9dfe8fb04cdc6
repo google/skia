@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c542728e_92661970",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-10T15:38:32Z",
+      "side": 1,
+      "message": "I like this idea. But as discussed offline, it looks like there isn\u0027t a \"MockContext\", but rather a GrDirectContext whose backend is mock objects. We can leave as-is for now.",
+      "parentUuid": "cc1a5759_a090497f",
+      "revId": "6270d7568e3e816af837b851a8e9dfe8fb04cdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0867ac6_52c6193b",
@@ -55,6 +73,30 @@
       "side": 1,
       "message": "It is probably the most appropriate name though.",
       "parentUuid": "e0867ac6_52c6193b",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 20
+      },
+      "revId": "6270d7568e3e816af837b851a8e9dfe8fb04cdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0ef97cf_802d1073",
+        "filename": "src/gpu/mock/GrMockOpTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-10T15:38:32Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "6314a225_ccda6f18",
       "range": {
         "startLine": 17,
         "startChar": 6,
