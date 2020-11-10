@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fbc8d9c_f68cb32b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-10T19:33:05Z",
+      "side": 1,
+      "message": "Is this for Android or iOS? I\u0027m not sure the \"tap to reset\" feature is in iOS.",
+      "revId": "eab9b01e9173d4d8aa4cdc20963fc472dc01494c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
