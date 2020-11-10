@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bfe2975_03a07bf6",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T15:25:08Z",
+      "side": 1,
+      "message": "From what I\u0027ve seen on https://skia-review.googlesource.com/c/skia/+/333478, I think we\u0027ll need to do something like\n\n   ~AllSubRuns() \u003d delete;  // So MSVC knows _we_ know we can\u0027t make one.",
+      "revId": "c1bf4eb694c2b502c5ce9be308ecca9de62ef3ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
