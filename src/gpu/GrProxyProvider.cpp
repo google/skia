@@ -683,7 +683,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
     SkASSERT((dimensions.fWidth <= 0 && dimensions.fHeight <= 0) ||
              (dimensions.fWidth >  0 && dimensions.fHeight >  0));
 
-    if (!format.isValid()) {
+    if (!format.isValid() || format.backend() != fImageContext->backend()) {
         return nullptr;
     }
 
