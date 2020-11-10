@@ -34,6 +34,24 @@
       "parentUuid": "938c3149_bba7e290",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b72ca48a_9b49d1f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-10T17:24:01Z",
+      "side": 1,
+      "message": "Ah. \"apply the update\" -- I guess B is some delta applied to A? Can the delta be rotated? (I hadn\u0027t thought about this aspect).",
+      "parentUuid": "5acbeffa_66d9321e",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
