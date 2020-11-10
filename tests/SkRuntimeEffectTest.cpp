@@ -21,69 +21,71 @@
 #include <thread>
 
 DEF_TEST(SkRuntimeEffectInvalid, r) {
-    auto test = [r](const char* hdr, const char* body, const char* expected) {
-        SkString src = SkStringPrintf("%s half4 main(float2 p) { %s return half4(0); }",
-                                      hdr, body);
-        auto[effect, errorText] = SkRuntimeEffect::Make(src);
+    auto test = [r](const char* src, const char* expected) {
+        auto[effect, errorText] = SkRuntimeEffect::Make(SkString(src));
         REPORTER_ASSERT(r, !effect);
         REPORTER_ASSERT(r, errorText.contains(expected),
                         "Expected error message to contain \"%s\". Actual message: \"%s\"",
                         expected, errorText.c_str());
     };
 
+#define EMPTY_MAIN "half4 main() { return half4(0); }"
+
     // Features that are only allowed in .fp files (key, in uniform, ctype, when, tracked).
     // Ensure that these fail, and the error messages contain the relevant keyword.
-    test("layout(key) in bool Input;", "", "key");
-    test("in uniform float Input;", "", "in uniform");
-    test("layout(ctype=SkRect) float4 Input;", "", "ctype");
-    test("in bool Flag; layout(when=Flag) uniform float Input;", "", "when");
-    test("layout(tracked) uniform float Input;", "", "tracked");
+    test("layout(key) in bool Input;"                           EMPTY_MAIN, "key");
+    test("in uniform float Input;"                              EMPTY_MAIN, "in uniform");
+    test("layout(ctype=SkRect) float4 Input;"                   EMPTY_MAIN, "ctype");
+    test("in bool Flag; layout(when=Flag) uniform float Input;" EMPTY_MAIN, "when");
+    test("layout(tracked) uniform float Input;"                 EMPTY_MAIN, "tracked");
 
     // GLSL types like sampler2D and texture2D are not allowed anywhere:
-    test("uniform sampler2D s;", "", "no type named 'sampler2D'");
-    test("uniform texture2D s;", "", "no type named 'texture2D'");
+    test("uniform sampler2D s;" EMPTY_MAIN, "no type named 'sampler2D'");
+    test("uniform texture2D s;" EMPTY_MAIN, "no type named 'texture2D'");
 
     // Runtime SkSL supports a limited set of uniform types. No bool, or int, for example:
-    test("uniform bool b;", "", "uniform");
-    test("uniform int i;", "", "uniform");
+    test("uniform bool b;" EMPTY_MAIN, "uniform");
+    test("uniform int i;"  EMPTY_MAIN, "uniform");
 
     // 'in' variables aren't allowed at all:
-    test("in bool b;", "", "'in'");
-    test("in float f;", "", "'in'");
-    test("in float2 v;", "", "'in'");
-    test("in half3x3 m;", "", "'in'");
+    test("in bool b;"    EMPTY_MAIN, "'in'");
+    test("in float f;"   EMPTY_MAIN, "'in'");
+    test("in float2 v;"  EMPTY_MAIN, "'in'");
+    test("in half3x3 m;" EMPTY_MAIN, "'in'");
 
     // 'marker' is only permitted on float4x4 uniforms
-    test("layout(marker=local_to_world) uniform float3x3 localToWorld;", "", "float4x4");
+    test("layout(marker=local_to_world) uniform float3x3 localToWorld;" EMPTY_MAIN, "float4x4");
 
-    test("float missing();", "p.x = missing();", "undefined function");
+    test("half4 missing(); half4 main() { return missing(); }", "undefined function");
 
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
-    test("//", "", "main");
+    test("", "main");
 
     // Various places that shaders (fragmentProcessors) should not be allowed
-    test("",
-         "shader child;",
+    test("half4 main() { shader child; return sample(child); }",
          "must be global");
-    test("uniform shader child; half4 helper(shader fp) { return sample(fp); }",
-         "half4 color = helper(child);",
+    test("uniform shader child; half4 helper(shader fp) { return sample(fp); }"
+         "half4 main() { return helper(child); }",
          "parameter");
-    test("uniform shader child; shader get_child() { return child; }",
-         "half4 color = sample(get_child());",
+    test("uniform shader child; shader get_child() { return child; }"
+         "half4 main() { return sample(get_child()); }",
          "return");
-    test("uniform shader child;",
-         "half4 color = sample(shader(child));",
+    test("uniform shader child;"
+         "half4 main() { return sample(shader(child)); }",
          "construct");
-    test("uniform shader child1; uniform shader child2;",
-         "half4 color = sample(p.x > 10 ? child1 : child2);",
+    test("uniform shader child1; uniform shader child2;"
+         "half4 main(float2 p) { return sample(p.x > 10 ? child1 : child2); }",
          "expression");
 
     // sk_Caps is an internal system. It should not be visible to runtime effects
-    test("", "if (sk_Caps.integerSupport) { p = p.yx; }", "unknown identifier 'sk_Caps'");
+    test("half4 main() { return sk_Caps.integerSupport ? half4(1) : half4(0); }",
+         "unknown identifier 'sk_Caps'");
 
     // Errors that aren't caught until later in the compilation process (during optimize())
-    test("", "return half4(1);", "unreachable");
-    test("half badFunc() { }", "", "without returning");
+    test("half4 main() { return half4(1); return half4(0); }", "unreachable");
+    test("half4 badFunc() {}"
+         "half4 main() { return badFunc(); }",
+         "without returning");
 }
 
 DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
