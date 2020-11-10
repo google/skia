@@ -12,10 +12,6 @@ Milestone 88
     be null.
     https://review.skia.org/331836
 
-  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
-    and quality is highest if user bounds are provided to saveLayer.
-    https://review.skia.org/333123
-
   * Limit the types and intrinsics supported in SkRuntimeEffect to GLSL ES 1.00
     https://review.skia.org/332597
 
