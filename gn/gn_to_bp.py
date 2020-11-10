@@ -119,6 +119,7 @@ cc_library_static {
         ],
       },
       windows: {
+        enabled: true,
         cflags: [
           "-mssse3",
           "-Wno-unknown-pragmas",
@@ -205,7 +206,6 @@ cc_defaults {
         ],
       },
       windows: {
-        enabled: true,
         host_ldlibs: [
             "-lgdi32",
             "-loleaut32",
@@ -238,6 +238,11 @@ cc_defaults {
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
     ],
+    target: {
+      windows: {
+        enabled: true,
+      },
+    },
 }
 
 cc_test {
