@@ -82,6 +82,10 @@ private:
         }
 
         auto dContext = GrAsDirectContext(rContext);
+        if (!dContext) {
+            *errorMsg = "Requires a direct context.";
+            return skiagm::DrawResult::kSkip;
+        }
 
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
