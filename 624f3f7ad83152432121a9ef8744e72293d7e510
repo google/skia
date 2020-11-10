@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36dd022a_83e321b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T17:52:56Z",
+      "side": 1,
+      "message": "Adding this weeks robocop in case Android has problems with disappearing text again. 😊",
+      "revId": "624f3f7ad83152432121a9ef8744e72293d7e510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
