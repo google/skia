@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a2781c7_6150e6ea",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-10T14:13:41Z",
+      "side": 1,
+      "message": "Done. Apparently the power to create this existed in me this whole time.",
+      "parentUuid": "2cd451b0_4226d19f",
+      "range": {
+        "startLine": 11,
+        "startChar": 53,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "b6cdfecf58bf6458bb6302f43203f9ef6a8b551e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "892142d0_850d208a",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-09T20:31:20Z",
       "side": 1,
       "message": "So just always do it? I figured you would add this behind a flag or something.",
+      "range": {
+        "startLine": 176,
+        "startChar": 52,
+        "endLine": 176,
+        "endChar": 80
+      },
+      "revId": "b6cdfecf58bf6458bb6302f43203f9ef6a8b551e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bf08257_6e1f9d9d",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-10T14:13:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "892142d0_850d208a",
       "range": {
         "startLine": 176,
         "startChar": 52,
