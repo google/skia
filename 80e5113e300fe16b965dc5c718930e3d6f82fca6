@@ -16,6 +16,24 @@
       "message": "I feel like we should be able to do this without a new constructor, i.e. we should be able to get to this same size and reservation count using existing constructors and SkTArray\u0027s public API.  Any idea where this has gone astray?\n\n    explicit SkSTArray(int reserveCount) : SkSTArray() {\n        SkASSERT(this-\u003ecapacity() \u003d\u003d N);              // Passing.\n        if (int extra \u003d reserveCount - N; extra \u003e 0) {\n            this-\u003ereserve_back(extra);\n        }\n        SkASSERT(this-\u003ecapacity() \u003e\u003d reserveCount);   // Failing!\n    }\n\nIf that doesn\u0027t work correctly, I\u0027m worried that we\u0027ll fall into a similar situation when people use reserve_back() themselves.",
       "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9141bb92_4e3ce666",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T15:43:29Z",
+      "side": 1,
+      "message": "There is probably a bug with reserve_back, agreed. We could easily write some additional tests and sort out the root problem in separate CLs. It hasn\u0027t been forefront on my radar since you had been pretty busy in here yesterday and I didn\u0027t want to work on something you might decide to tackle yourself.\n\nIs there a problem with having a dedicated constructor? IMO a dedicated constructor is going to be lighter weight than initializing it one way and then using checkRealloc to change it a moment later.",
+      "parentUuid": "8d5bcd09_c2d50e5a",
+      "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
