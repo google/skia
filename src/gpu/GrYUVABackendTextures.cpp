@@ -19,6 +19,56 @@ static int num_channels(const GrBackendFormat& format) {
     }
 }
 
+GrYUVABackendTextureInfo::GrYUVABackendTextureInfo(const SkYUVAInfo& yuvaInfo,
+                                                   const GrBackendFormat formats[kMaxPlanes],
+                                                   GrMipmapped mipmapped,
+                                                   GrSurfaceOrigin origin)
+        : fYUVAInfo(yuvaInfo), fMipmapped(mipmapped), fTextureOrigin(origin) {
+    if (!yuvaInfo.isValid()) {
+        *this = {};
+        SkASSERT(!this->isValid());
+        return;
+    }
+    int n = yuvaInfo.numPlanes();
+    for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
+        if (!formats[i].isValid() || formats[i].backend() != formats[0].backend()) {
+            *this = {};
+            SkASSERT(!this->isValid());
+            return;
+        }
+        int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
+        SkASSERT(numRequiredChannels > 0);
+        int numActualChannels = num_channels(formats[i]);
+        if (numActualChannels < numRequiredChannels) {
+            *this = {};
+            SkASSERT(!this->isValid());
+        }
+        fPlaneFormats[i] = formats[i];
+    }
+    SkASSERT(this->isValid());
+}
+
+bool GrYUVABackendTextureInfo::operator==(const GrYUVABackendTextureInfo& that) const {
+    if (fYUVAInfo != that.fYUVAInfo ||
+        fMipmapped != that.fMipmapped ||
+        fTextureOrigin != that.fTextureOrigin) {
+        return false;
+    }
+    int n = fYUVAInfo.numPlanes();
+    return std::equal(fPlaneFormats, fPlaneFormats + n, that.fPlaneFormats);
+}
+
+bool GrYUVABackendTextureInfo::toYUVAIndices(SkYUVAIndex indices[SkYUVAIndex::kIndexCount]) const {
+    SkASSERT(indices);
+    uint32_t channelFlags[] = {fPlaneFormats[0].channelMask(),
+                               fPlaneFormats[1].channelMask(),
+                               fPlaneFormats[2].channelMask(),
+                               fPlaneFormats[3].channelMask()};
+    return fYUVAInfo.toYUVAIndices(channelFlags, indices);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrYUVABackendTextures::GrYUVABackendTextures(
         const SkYUVAInfo& yuvaInfo,
         const GrBackendTexture textures[SkYUVAInfo::kMaxPlanes],
