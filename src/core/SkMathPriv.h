@@ -144,22 +144,7 @@ constexpr int SkCLZ_portable(uint32_t x) {
 }
 
 #ifndef SkCLZ
-    #if defined(SK_BUILD_FOR_WIN)
-        #include <intrin.h>
-
-        constexpr int SkCLZ(uint32_t mask) {
-            if (mask) {
-                unsigned long index = 0;
-                _BitScanReverse(&index, mask);
-                // Suppress this bogus /analyze warning. The check for non-zero
-                // guarantees that _BitScanReverse will succeed.
-                #pragma warning(suppress : 6102) // Using 'index' from failed function call
-                return index ^ 0x1F;
-            } else {
-                return 32;
-            }
-        }
-    #elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
+    #if defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__) || _MSC_VER >= 1923
         constexpr int SkCLZ(uint32_t mask) {
             // __builtin_clz(0) is undefined, so we have to detect that case.
             return mask ? __builtin_clz(mask) : 32;
@@ -178,31 +163,16 @@ constexpr int SkCTZ_portable(uint32_t x) {
 }
 
 #ifndef SkCTZ
-    #if defined(SK_BUILD_FOR_WIN)
-    #include <intrin.h>
-
-    constexpr int SkCTZ(uint32_t mask) {
-        if (mask) {
-            unsigned long index = 0;
-            _BitScanForward(&index, mask);
-            // Suppress this bogus /analyze warning. The check for non-zero
-            // guarantees that _BitScanReverse will succeed.
-            #pragma warning(suppress : 6102) // Using 'index' from failed function call
-            return index;
-        } else {
-            return 32;
+    #if defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__) || _MSC_VER >= 1923
+        constexpr int SkCTZ(uint32_t mask) {
+            // __builtin_ctz(0) is undefined, so we have to detect that case.
+            return mask ? __builtin_ctz(mask) : 32;
         }
-    }
-#elif defined(SK_CPU_ARM32) || defined(__GNUC__) || defined(__clang__)
-    constexpr int SkCTZ(uint32_t mask) {
-        // __builtin_ctz(0) is undefined, so we have to detect that case.
-        return mask ? __builtin_ctz(mask) : 32;
-    }
-#else
-    constexpr int SkCTZ(uint32_t mask) {
-        return SkCTZ_portable(mask);
-    }
-#endif
+    #else
+        constexpr int SkCTZ(uint32_t mask) {
+            return SkCTZ_portable(mask);
+        }
+    #endif
 #endif
 
 /**
