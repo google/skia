@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d5bcd09_c2d50e5a",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T15:38:04Z",
+      "side": 1,
+      "message": "I feel like we should be able to do this without a new constructor, i.e. we should be able to get to this same size and reservation count using existing constructors and SkTArray\u0027s public API.  Any idea where this has gone astray?\n\n    explicit SkSTArray(int reserveCount) : SkSTArray() {\n        SkASSERT(this-\u003ecapacity() \u003d\u003d N);              // Passing.\n        if (int extra \u003d reserveCount - N; extra \u003e 0) {\n            this-\u003ereserve_back(extra);\n        }\n        SkASSERT(this-\u003ecapacity() \u003e\u003d reserveCount);   // Failing!\n    }\n\nIf that doesn\u0027t work correctly, I\u0027m worried that we\u0027ll fall into a similar situation when people use reserve_back() themselves.",
+      "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
