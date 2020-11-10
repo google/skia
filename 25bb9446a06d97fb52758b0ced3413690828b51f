@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a5e2f23_d959dede",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-10T18:45:36Z",
+      "side": 1,
+      "message": "I think we would normally use SkFontMgr::matchFamilyStyle(), but that seems to produce significant diffs vs. the current code path (SkTypeface::MakeFromName internally calls legacyMakeTypeface).  Preserving the existing behavior for now.",
+      "revId": "25bb9446a06d97fb52758b0ced3413690828b51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be5029db_ebb2838c",
+        "filename": "modules/svg/utils/SvgTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-10T18:45:36Z",
+      "side": 1,
+      "message": "Not really different from not specifying a fontmgr - added just to exercise/illustrate the API.",
+      "revId": "25bb9446a06d97fb52758b0ced3413690828b51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
