@@ -13,9 +13,12 @@
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
                      sk_sp<GrRenderTargetProxy> ddlTarget,
-                     sk_sp<const SkDeferredDisplayList> ddl)
+                     sk_sp<const SkDeferredDisplayList> ddl,
+                     int xOffset, int yOffset)
         : fDDL(std::move(ddl))
-        , fDDLTarget(std::move(ddlTarget)) {
+        , fDDLTarget(std::move(ddlTarget))
+        , fXOffset(xOffset)
+        , fYOffset(yOffset) {
     for (auto& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
