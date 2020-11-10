@@ -8,6 +8,7 @@
 #ifndef SkSVGRenderContext_DEFINED
 #define SkSVGRenderContext_DEFINED
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
@@ -58,8 +59,9 @@ struct SkSVGPresentationContext {
 
 class SkSVGRenderContext {
 public:
-    SkSVGRenderContext(SkCanvas*, const SkSVGIDMapper&, const SkSVGLengthContext&,
-                       const SkSVGPresentationContext&, const SkSVGNode*);
+    SkSVGRenderContext(SkCanvas*, const sk_sp<SkFontMgr>&, const SkSVGIDMapper&,
+                       const SkSVGLengthContext&, const SkSVGPresentationContext&,
+                       const SkSVGNode*);
     SkSVGRenderContext(const SkSVGRenderContext&);
     SkSVGRenderContext(const SkSVGRenderContext&, SkCanvas*);
     SkSVGRenderContext(const SkSVGRenderContext&, const SkSVGNode*);
@@ -123,6 +125,10 @@ public:
     // The node being rendered (may be null).
     const SkSVGNode* node() const { return fNode; }
 
+    sk_sp<SkFontMgr> fontMgr() const {
+        return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
+    }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
@@ -134,6 +140,7 @@ private:
     void applyClip(const SkSVGClip&);
     void updatePaintsWithCurrentColor(const SkSVGPresentationAttributes&);
 
+    const sk_sp<SkFontMgr>&                       fFontMgr;
     const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;
     SkTCopyOnFirstWrite<SkSVGPresentationContext> fPresentationContext;

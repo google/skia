@@ -33,13 +33,7 @@ protected:
             return;
         }
 
-        SkDOM xmlDom;
-        if (!xmlDom.build(svgStream)) {
-            SkDebugf("XML parsing failed: \"path\"\n", fPath.c_str());
-            return;
-        }
-
-        fDom = SkSVGDOM::MakeFromDOM(xmlDom);
+        fDom = SkSVGDOM::MakeFromStream(svgStream);
         if (fDom) {
             fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
         }
