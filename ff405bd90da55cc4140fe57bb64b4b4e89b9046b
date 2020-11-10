@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1870137_e5c8bcf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T16:23:36Z",
+      "side": 1,
+      "message": "I\u0027m not super happy with the SVG_LAZY_ATTR and SkSVGIRI additions, so let me know if you have any ideas there to improve things.",
+      "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
