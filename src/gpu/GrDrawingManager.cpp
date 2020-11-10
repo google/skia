@@ -45,7 +45,7 @@
 #include "src/image/SkSurface_Gpu.h"
 
 void GrDrawingManager::RenderTaskDAG::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-    idArray->reset(fRenderTasks.count());
+    idArray->reserve_back(fRenderTasks.count());
     for (int i = 0; i < fRenderTasks.count(); ++i) {
         if (fRenderTasks[i]) {
             fRenderTasks[i]->gatherIDs(idArray);
@@ -933,4 +933,3 @@ void GrDrawingManager::flushIfNecessary() {
         resourceCache->purgeAsNeeded();
     }
 }
-
