@@ -52,6 +52,24 @@
       "parentUuid": "9141bb92_4e3ce666",
       "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0606b830_6e5b9622",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T15:47:59Z",
+      "side": 1,
+      "message": "AFAICS reserve_back being possibly broken is totally orthogonal? I don\u0027t follow your take here. If we are very concerned about bugs, we should add tests to TArrayTest. That\u0027s how I shook out the GCC bug, and that\u0027s the only reason we know reserve_back might not be doing what we want.",
+      "parentUuid": "573a666f_78152f7c",
+      "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
