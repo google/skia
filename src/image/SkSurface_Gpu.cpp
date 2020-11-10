@@ -355,7 +355,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
-bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
+bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offset) {
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
@@ -367,7 +367,7 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, 
         return false;
     }
 
-    direct->priv().createDDLTask(std::move(ddl), rtc->asRenderTargetProxy());
+    direct->priv().createDDLTask(std::move(ddl), rtc->asRenderTargetProxy(), offset);
     return true;
 }
 
