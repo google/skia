@@ -105,6 +105,24 @@
       "parentUuid": "462bc221_fbb09d92",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a6f0177_68eda587",
+        "filename": "src/utils/SkAnimCodecPlayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T19:33:08Z",
+      "side": 1,
+      "message": "I think my concern here is the same on that Mike raised in that SkImage::MakeFromPicture is going to make a copy into some offscreen texture/buffer before drawing it to the destination.  Returning the rotation matrix to the caller makes them responsible for applying the rotation and avoid any extra copies.",
+      "parentUuid": "00f7d7a9_b4d971ca",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
