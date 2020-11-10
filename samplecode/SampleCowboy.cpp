@@ -47,13 +47,7 @@ private:
         }
         SkMemoryStream svgStream(std::move(data));
 
-        SkDOM xmlDom;
-        if (!xmlDom.build(svgStream)) {
-            SkDebugf("XML parsing failed: \"%s\"\n", fResource);
-            return;
-        }
-
-        fDom = SkSVGDOM::MakeFromDOM(xmlDom);
+        fDom = SkSVGDOM::MakeFromStream(svgStream);
         if (fDom) {
             fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
         }
