@@ -189,28 +189,11 @@ static SkScalar center(float pos0, float pos1) {
     return (pos0 + pos1) * 0.5f;
 }
 
-static const float MAX_ZOOM_SCALE = 4;
-static const float MIN_ZOOM_SCALE = 0.25f;
-
-float TouchGesture::limitTotalZoom(float scale) const {
-    // this query works 'cause we know that we're square-scale w/ no skew/rotation
-    const float curr = SkScalarToFloat(fGlobalM[0]);
-
-    if (scale > 1 && curr * scale > MAX_ZOOM_SCALE) {
-        scale = MAX_ZOOM_SCALE / curr;
-    } else if (scale < 1 && curr * scale < MIN_ZOOM_SCALE) {
-        scale = MIN_ZOOM_SCALE / curr;
-    }
-    return scale;
-}
-
 void TouchGesture::startZoom() {
     fState = kZoom_State;
 }
 
 void TouchGesture::updateZoom(float scale, float startX, float startY, float lastX, float lastY) {
-    scale = this->limitTotalZoom(scale);
-
     fLocalM.setTranslate(-startX, -startY);
     fLocalM.postScale(scale, scale);
     fLocalM.postTranslate(lastX, lastY);
