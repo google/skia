@@ -69,3 +69,23 @@ DEF_TEST(GrPathUtils_findCubicConvex180Chops, r) {
     float T[2];
     REPORTER_ASSERT(r, GrPathUtils::findCubicConvex180Chops(quad, T) == 0);
 }
+
+DEF_TEST(GrPathUtils_convertToCubic, r) {
+    SkPoint cubic[4];
+    GrPathUtils::convertLineToCubic({0,0}, {3,6}, cubic);
+    REPORTER_ASSERT(r, cubic[0] == SkPoint::Make(0,0));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[1].fX, 1));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[1].fY, 2));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[2].fX, 2));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[2].fY, 4));
+    REPORTER_ASSERT(r, cubic[3] == SkPoint::Make(3,6));
+
+    SkPoint quad[3] = {{0,0}, {3,3}, {6,0}};
+    GrPathUtils::convertQuadToCubic(quad, cubic);
+    REPORTER_ASSERT(r, cubic[0] == SkPoint::Make(0,0));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[1].fX, 2));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[1].fY, 2));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[2].fX, 4));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic[2].fY, 2));
+    REPORTER_ASSERT(r, cubic[3] == SkPoint::Make(6,0));
+}

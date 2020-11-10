@@ -9,6 +9,7 @@
 #define GrDirectContextPriv_DEFINED
 
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkSpan.h"
 
 class GrAtlasManager;
 class GrBackendFormat;
@@ -80,7 +81,7 @@ public:
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
-    GrSemaphoresSubmitted flushSurfaces(GrSurfaceProxy*[], int numProxies, const GrFlushInfo&);
+    GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>, const GrFlushInfo&);
 
     /** Version of above that flushes for a single proxy and uses a default GrFlushInfo. Null is
      * allowed. */

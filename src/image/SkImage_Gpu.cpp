@@ -78,7 +78,7 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFl
     }
 
     GrSurfaceProxy* p[1] = {fView.proxy()};
-    return dContext->priv().flushSurfaces(p, 1, info);
+    return dContext->priv().flushSurfaces(p, info);
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
@@ -550,8 +550,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
 
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
                                                const GrBackendFormat& backendFormat,
-                                               int width,
-                                               int height,
+                                               SkISize dimensions,
                                                GrMipmapped mipMapped,
                                                GrSurfaceOrigin origin,
                                                SkColorType colorType,
@@ -559,18 +558,12 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
                                                sk_sp<SkColorSpace> colorSpace,
                                                PromiseImageTextureFulfillProc textureFulfillProc,
                                                PromiseImageTextureReleaseProc textureReleaseProc,
-                                               PromiseImageTextureDoneProc textureDoneProc,
-                                               PromiseImageTextureContext textureContext,
-                                               PromiseImageApiVersion version) {
-    // The contract here is that if 'promiseDoneProc' is passed in it should always be called,
-    // even if creation of the SkImage fails. Once we call MakePromiseImageLazyProxy it takes
-    // responsibility for calling the done proc.
-    if (!textureDoneProc) {
-        return nullptr;
-    }
-    SkScopeExit callDone([textureDoneProc, textureContext]() { textureDoneProc(textureContext); });
-
-    SkImageInfo info = SkImageInfo::Make(width, height, colorType, alphaType, colorSpace);
+                                               PromiseImageTextureContext textureContext) {
+    // Our contract is that we will always call the release proc even on failure.
+    // We use the helper to convey the context, so we need to ensure make doesn't fail.
+    textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
+    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, textureContext);
+    SkImageInfo info = SkImageInfo::Make(dimensions, colorType, alphaType, colorSpace);
     if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
@@ -579,7 +572,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (width <= 0 || height <= 0) {
+    if (dimensions.isEmpty()) {
         return nullptr;
     }
 
@@ -594,10 +587,12 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
         return nullptr;
     }
 
-    callDone.clear();
-    auto proxy = MakePromiseImageLazyProxy(context, width, height, backendFormat,
-                                           mipMapped, textureFulfillProc, textureReleaseProc,
-                                           textureDoneProc, textureContext, version);
+    auto proxy = MakePromiseImageLazyProxy(context,
+                                           dimensions,
+                                           backendFormat,
+                                           mipMapped,
+                                           textureFulfillProc,
+                                           std::move(releaseHelper));
     if (!proxy) {
         return nullptr;
     }
@@ -749,7 +744,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
     surfaceContext.writePixels(dContext, srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
 
     GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
-    drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);
+    drawingManager->flush(p, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);
 
     return image;
 }

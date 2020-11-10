@@ -91,7 +91,7 @@ public:
      * Consumes a complete .sksl file and returns the parse tree. Errors are reported via the
      * ErrorReporter; the return value may contain some declarations even when errors have occurred.
      */
-    std::unique_ptr<ASTFile> file();
+    std::unique_ptr<ASTFile> compilationUnit();
 
     StringFragment text(Token token);
 

@@ -42,6 +42,7 @@
 #define SK_POSITION_BUILTIN                0
 
 class SkBitSet;
+class SkSLCompileBench;
 
 namespace SkSL {
 
@@ -218,13 +219,18 @@ public:
     LoadedModule loadModule(Program::Kind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
     ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
 
+    IRGenerator& irGenerator() {
+        return *fIRGenerator;
+    }
+
+    const ParsedModule& moduleForProgramKind(Program::Kind kind);
+
 private:
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
+    const ParsedModule& loadPublicModule();
     const ParsedModule& loadInterpreterModule();
     const ParsedModule& loadPipelineModule();
-
-    const ParsedModule& moduleForProgramKind(Program::Kind kind);
 
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
@@ -266,15 +272,20 @@ private:
     const ShaderCapsClass* fCaps = nullptr;
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
+    std::shared_ptr<SymbolTable> fPrivateSymbolTable;
 
-    ParsedModule fRootModule;
-    ParsedModule fGPUModule;
-    ParsedModule fInterpreterModule;
-    ParsedModule fVertexModule;
-    ParsedModule fFragmentModule;
-    ParsedModule fGeometryModule;
-    ParsedModule fPipelineModule;
-    ParsedModule fFPModule;
+    ParsedModule fRootModule;         // Core types
+
+    ParsedModule fPrivateModule;      // [Root] + Internal types
+    ParsedModule fGPUModule;          // [Private] + GPU intrinsics, helper functions
+    ParsedModule fVertexModule;       // [GPU] + Vertex stage decls
+    ParsedModule fFragmentModule;     // [GPU] + Fragment stage decls
+    ParsedModule fGeometryModule;     // [GPU] + Geometry stage decls
+    ParsedModule fFPModule;           // [GPU] + FP features
+
+    ParsedModule fPublicModule;       // [Root] + Public features
+    ParsedModule fInterpreterModule;  // [Public] + Interpreter-only decls
+    ParsedModule fPipelineModule;     // [Public] + Runtime effect decls
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes
     std::vector<std::unique_ptr<ModifiersPool>> fModifiers;
@@ -289,6 +300,7 @@ private:
     String fErrorText;
 
     friend class AutoSource;
+    friend class ::SkSLCompileBench;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU

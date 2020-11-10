@@ -133,6 +133,17 @@ public:
 
     const Program::Settings* settings() const { return fSettings; }
 
+    std::shared_ptr<SymbolTable>& symbolTable() {
+        return fSymbolTable;
+    }
+
+    void setSymbolTable(std::shared_ptr<SymbolTable>& symbolTable) {
+        fSymbolTable = symbolTable;
+    }
+
+    void pushSymbolTable();
+    void popSymbolTable();
+
     const Context& fContext;
 
 private:
@@ -140,9 +151,6 @@ private:
      * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
      */
     std::unique_ptr<ModifiersPool> releaseModifiers();
-
-    void pushSymbolTable();
-    void popSymbolTable();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
     StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
@@ -163,6 +171,10 @@ private:
                                      ExpressionArray arguments);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
+    template <typename T>
+    std::unique_ptr<Expression> constantFoldVector(const Expression& left,
+                                                   Token::Kind op,
+                                                   const Expression& right) const;
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Expression> convertNumberConstructor(int offset,
@@ -242,7 +254,7 @@ private:
     int fRTAdjustFieldIndex;
     bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
-    bool fIsBuiltinCode;
+    bool fIsBuiltinCode = false;
     std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class AutoSymbolTable;

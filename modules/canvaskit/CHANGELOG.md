@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
  - `CanvasKit.MakePathFromOp` was renamed to `CanvasKit.Path.MakeFromOp`
+ - The API for `Canvas.readPixels` and `Image.readPixels` has been reworked to more accurately
+   reflect the C++ backend and each other. bytesPerRow is now a required parameter. They take an
+   ImageInfo object to specify the output format. Additionally they take an optional malloc'd
+   object as the last parameter. If provided, the data will be copied into there instead of
+   allocating a new buffer.
 
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.6 when testing and deploying to npm.
@@ -24,8 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.Shader.Blend`, `...Color`, and `...Lerp` have been renamed to
    `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to align with naming conventions.
    The old names will be removed in an upcoming release.
- - `readPixels` now takes a malloc'd object as the last parameter. If provided, the data will be 
-    copied into there instead of allocating a new buffer.
 
 ### Removed
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
