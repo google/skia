@@ -325,8 +325,9 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 
     // Commit initial values to the paint cache.
     SkCanvas fakeCanvas(0, 0);
-    SkSVGRenderContext fake(&fakeCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
-                             *this, nullptr);
+    SkSVGRenderContext fake(&fakeCanvas, nullptr, SkSVGIDMapper(),
+                            SkSVGLengthContext(SkSize::Make(0, 0)),
+                            *this, nullptr);
 
     commitToPaint<SkSVGAttribute::kFill>(fInherited, fake, this);
     commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, fake, this);
@@ -339,11 +340,13 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 }
 
 SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
+                                       const sk_sp<SkFontMgr>& fmgr,
                                        const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
                                        const SkSVGPresentationContext& pctx,
                                        const SkSVGNode* node)
-    : fIDMapper(mapper)
+    : fFontMgr(fmgr)
+    , fIDMapper(mapper)
     , fLengthContext(lctx)
     , fPresentationContext(pctx)
     , fCanvas(canvas)
@@ -352,6 +355,7 @@ SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
     : SkSVGRenderContext(other.fCanvas,
+                         other.fFontMgr,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
@@ -359,6 +363,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
     : SkSVGRenderContext(canvas,
+                         other.fFontMgr,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
@@ -366,6 +371,7 @@ SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const SkSVGNode* node)
     : SkSVGRenderContext(other.fCanvas,
+                         other.fFontMgr,
                          other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext,
