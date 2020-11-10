@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d451e1e_a488c81a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "If you\u0027re adding Auto-Submit mechanically to all these CLs, can you please stop, at least when you send them to me and one or more other people?  I don\u0027t like the idea of them landing before everyone\u0027s had a chance to think about the CL and comment.",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98df9229_f26a69ed",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "Thanks, this feels really good to me now.",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01dd061_3edc1f90",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "It\u0027s pretty interesting that you\u0027ve found all these other places to pass `false`, not just for reserve_back().  Were these all doing over-sized copies before?",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d710788b_b3c51fb5",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "Wanna add enum private to SkTArray for readability?  Even just\n\n   enum ExpectedGrowth { EXACT_FIT, GROWING, SHRINKING/*do we need this one?*/ };\n\ncould let us write things like\n\n   this-\u003echeckRealloc(that.count(), EXACT_FIT);",
+      "range": {
+        "startLine": 99,
+        "startChar": 41,
+        "endLine": 99,
+        "endChar": 64
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3271b65_cf91696b",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "Might be nice now to drop the `\u003d 0`?",
+      "range": {
+        "startLine": 460,
+        "startChar": 8,
+        "endLine": 460,
+        "endChar": 30
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72679765_241793d9",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "This is all tangential.\n\nI\u0027m kind of interested to see if in follow ups it makes sense to get rid of this field entirely.\n\nI think it\u0027s our solution to not immediately resizing down doing something like\n\n    SkTArray foo;\n    foo.reserve_back(lots);\n    foo.push_back(...);\n    // At this point foo.count() is 1, likely well enough less than `lots` that we\u0027d shrink,\n    // not seeing the future push_back() calls about to come.\n    foo.push_back(...);\n    ...\n\nbut I kind of think you don\u0027t need to track that bit if you just make growing ops only check to grow up,\nshrinking ops only check to shrink down.",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae35c504_f77a73d9",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "let\u0027s try pushing this through to the callers and removing the default?",
+      "range": {
+        "startLine": 533,
+        "startChar": 38,
+        "endLine": 533,
+        "endChar": 58
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3cf5150_103c7449",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "Lets hold off on this malloc()-aware reasoning for a follow up?  If we land this these 20 lines or so are going to read bizarrely... why apply kMinHeapAllocCount over here but kMallocRoundUp over here when both sides of the if-statement round up to a minimum count to allocate on the heap using malloc?\n\nIt really seems like we want one or the other but definitely not both of the round-to-something bits for any allocation we do, independent of addExtraSpace.",
+      "range": {
+        "startLine": 558,
+        "startChar": 0,
+        "endLine": 567,
+        "endChar": 9
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2e95280_92ab26d0",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T23:34:26Z",
+      "side": 1,
+      "message": "This chunk is more pithily, `SkSTArray()`.\n:)",
+      "range": {
+        "startLine": 618,
+        "startChar": 43,
+        "endLine": 618,
+        "endChar": 92
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
