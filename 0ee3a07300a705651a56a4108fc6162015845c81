@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be3113cd_cb29c0c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-10T21:12:39Z",
+      "side": 1,
+      "message": "Hmm. It looks like lzcnt and friends are only available on x64. I\u0027m curious how this is working on ARM64 (though it did build correctly on the previous PS).",
+      "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
