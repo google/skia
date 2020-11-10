@@ -613,8 +613,9 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                     GrRenderTargetProxy* newDest) {
-    SkDEBUGCODE(this->validate());
+                                     GrRenderTargetProxy* newDest,
+                                     int xOffset, int yOffset) {
+   SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
         // This is  a temporary fix for the partial-MDB world. In that world we're not
@@ -650,7 +651,8 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     // Add a task to handle drawing and lifetime management of the DDL.
     SkDEBUGCODE(auto ddlTask =) fDAG.add(sk_make_sp<GrDDLTask>(this,
                                                                sk_ref_sp(newDest),
-                                                               std::move(ddl)));
+                                                               std::move(ddl),
+                                                               xOffset, yOffset));
     SkASSERT(ddlTask->isClosed());
 
     SkDEBUGCODE(this->validate());

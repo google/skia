@@ -136,7 +136,6 @@ private:
     friend class GrDrawingManager;
     friend class GrDDLTask; // for onIsUsed and gatherProxyIntervals
 
-
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the
     // drawingManager calls isInstantiated.
@@ -210,7 +209,6 @@ private:
             return renderTask->fDependencies[index];
         }
     };
-
 
     virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
     virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
