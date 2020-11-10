@@ -446,6 +446,18 @@ protected:
     }
 
     /**
+     * Creates an empty array with pre-reserved storage for `reserveCount` elements.
+     */
+    template <int N>
+    SkTArray(int reserveCount, SkAlignedSTStorage<N,T>* storage) {
+        if (reserveCount <= N) {
+            this->initWithPreallocatedStorage(0, storage->get(), N);
+        } else {
+            this->init(0, reserveCount);
+        }
+    }
+
+    /**
      * Copy a C array, using preallocated storage if preAllocCount >=
      * count. Otherwise storage will only be used when array shrinks
      * to fit.
@@ -549,7 +561,6 @@ private:
             return;
         }
 
-
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
         int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
@@ -566,7 +577,6 @@ private:
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
@@ -606,7 +616,7 @@ public:
         : SkSTArray(data.begin(), data.size()) {}
 
     explicit SkSTArray(int reserveCount)
-        : STORAGE{}, INHERITED(reserveCount) {}  // TODO: use STORAGE?
+        : STORAGE{}, INHERITED(reserveCount, static_cast<STORAGE*>(this)) {}
 
     SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
     explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }
