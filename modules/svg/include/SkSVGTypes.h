@@ -65,11 +65,36 @@ struct SkSVGIRI {
     SkSVGStringType fIRI;
 };
 
+class SkSVGColor {
+public:
+    enum class Type {
+        kColor,
+        kCurrentColor,
+        kICCColor,
+        kInherit,
+    };
+
+    SkSVGColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+
+    bool operator==(const SkSVGColor& other) const {
+        return fType == other.fType && fColor == other.fColor;
+    }
+    bool operator!=(const SkSVGColor& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+
+private:
+    Type fType;
+    SkSVGColorType fColor;
+};
+
 class SkSVGPaint {
 public:
     enum class Type {
         kNone,
-        kCurrentColor,
         kColor,
         kInherit,
         kIRI,
@@ -77,7 +102,7 @@ public:
 
     SkSVGPaint() : fType(Type::kInherit), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit SkSVGPaint(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    explicit SkSVGPaint(const SkSVGColor& c) : fType(Type::kColor), fColor(c) {}
     explicit SkSVGPaint(const SkString& iri)
         : fType(Type::kIRI), fColor(SK_ColorBLACK), fIRI(iri) {}
 
@@ -90,15 +115,15 @@ public:
     bool operator!=(const SkSVGPaint& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
-    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+    const SkSVGColor& color() const { SkASSERT(fType == Type::kColor); return fColor; }
     const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:
     Type fType;
 
     // Logical union.
-    SkSVGColorType fColor;
-    SkString       fIRI;
+    SkSVGColor fColor;
+    SkString   fIRI;
 };
 
 class SkSVGClip {
@@ -282,35 +307,6 @@ public:
 private:
     Type fType;
     SkTDArray<SkSVGLength> fDashArray;
-};
-
-class SkSVGStopColor {
-public:
-    enum class Type {
-        kColor,
-        kCurrentColor,
-        kICCColor,
-        kInherit,
-    };
-
-    SkSVGStopColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
-    explicit SkSVGStopColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit SkSVGStopColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
-
-    SkSVGStopColor(const SkSVGStopColor&)            = default;
-    SkSVGStopColor& operator=(const SkSVGStopColor&) = default;
-
-    bool operator==(const SkSVGStopColor& other) const {
-        return fType == other.fType && fColor == other.fColor;
-    }
-    bool operator!=(const SkSVGStopColor& other) const { return !(*this == other); }
-
-    Type type() const { return fType; }
-    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
-
-private:
-    Type fType;
-    SkSVGColorType fColor;
 };
 
 class SkSVGObjectBoundingBoxUnits {

@@ -224,7 +224,8 @@ bool SkSVGAttributeParser::parseRGBColorToken(SkColor* c) {
 // https://www.w3.org/TR/SVG11/types.html#DataTypeColor
 // And https://www.w3.org/TR/CSS2/syndata.html#color-units for the alternative
 // forms supported by SVG (e.g. RGB percentages).
-bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGColorType* color) {
     SkColor c;
 
     // consume preceding whitespace
@@ -241,6 +242,24 @@ bool SkSVGAttributeParser::parseColor(SkSVGColorType* color) {
         this->parseWSToken();
     }
 
+    return parsedValue && this->parseEOSToken();
+}
+
+// https://www.w3.org/TR/SVG11/types.html#InterfaceSVGColor
+template <>
+bool SkSVGAttributeParser::parse(SkSVGColor* color) {
+    SkSVGColorType c;
+    bool parsedValue = false;
+    if (this->parse(&c)) {
+        *color = SkSVGColor(c);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("currentColor")) {
+        *color = SkSVGColor(SkSVGColor::Type::kCurrentColor);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("inherit")) {
+        *color = SkSVGColor(SkSVGColor::Type::kInherit);
+        parsedValue = true;
+    }
     return parsedValue && this->parseEOSToken();
 }
 
@@ -503,17 +522,14 @@ bool SkSVGAttributeParser::parse(SkSVGTransformType* t) {
 // https://www.w3.org/TR/SVG11/painting.html#SpecifyingPaint
 template <>
 bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
-    SkSVGColorType c;
+    SkSVGColor c;
     SkSVGStringType iri;
     bool parsedValue = false;
-    if (this->parseColor(&c)) {
+    if (this->parse(&c)) {
         *paint = SkSVGPaint(c);
         parsedValue = true;
     } else if (this->parseExpectedStringToken("none")) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kNone);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("currentColor")) {
-        *paint = SkSVGPaint(SkSVGPaint::Type::kCurrentColor);
         parsedValue = true;
     } else if (this->parseExpectedStringToken("inherit")) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kInherit);
@@ -592,23 +608,6 @@ bool SkSVGAttributeParser::parse(SkSVGLineJoin* join) {
         }
     }
 
-    return parsedValue && this->parseEOSToken();
-}
-
-// https://www.w3.org/TR/SVG11/pservers.html#StopElement
-bool SkSVGAttributeParser::parseStopColor(SkSVGStopColor* stopColor) {
-    SkSVGColorType c;
-    bool parsedValue = false;
-    if (this->parseColor(&c)) {
-        *stopColor = SkSVGStopColor(c);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("currentColor")) {
-        *stopColor = SkSVGStopColor(SkSVGStopColor::Type::kCurrentColor);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("inherit")) {
-        *stopColor = SkSVGStopColor(SkSVGStopColor::Type::kInherit);
-        parsedValue = true;
-    }
     return parsedValue && this->parseEOSToken();
 }
 

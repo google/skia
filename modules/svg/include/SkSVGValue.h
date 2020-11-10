@@ -26,7 +26,6 @@ public:
         kPath,
         kPoints,
         kPreserveAspectRatio,
-        kStopColor,
         kString,
         kTransform,
         kViewBox,
@@ -79,7 +78,6 @@ using SkSVGViewBoxValue      = SkSVGWrapperValue<SkSVGViewBoxType  , SkSVGValue:
 using SkSVGNumberValue       = SkSVGWrapperValue<SkSVGNumberType   , SkSVGValue::Type::kNumber    >;
 using SkSVGPointsValue       = SkSVGWrapperValue<SkSVGPointsType   , SkSVGValue::Type::kPoints    >;
 using SkSVGStringValue       = SkSVGWrapperValue<SkSVGStringType   , SkSVGValue::Type::kString    >;
-using SkSVGStopColorValue    = SkSVGWrapperValue<SkSVGStopColor    , SkSVGValue::Type::kStopColor >;
 
 using SkSVGPreserveAspectRatioValue    = SkSVGWrapperValue<SkSVGPreserveAspectRatio,
                                                            SkSVGValue::Type::kPreserveAspectRatio>;

@@ -42,13 +42,12 @@ namespace {
 
 bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                        const char* stringValue) {
-    SkSVGColorType color;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseColor(&color)) {
+    auto parseResult = SkSVGAttributeParser::parse<SkSVGColorType>(stringValue);
+    if (!parseResult.isValid()) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGColorValue(color));
+    node->setAttribute(attr, SkSVGColorValue(*parseResult));
     return true;
 }
 
@@ -125,18 +124,6 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGViewBoxValue(viewBox));
-    return true;
-}
-
-bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                           const char* stringValue) {
-    SkSVGStopColor stopColor;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseStopColor(&stopColor)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGStopColorValue(stopColor));
     return true;
 }
 
@@ -278,7 +265,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "fx"                 , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"                 , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
-    { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
     { "patternTransform"   , { SkSVGAttribute::kPatternTransform , SetTransformAttribute    }},
     { "points"             , { SkSVGAttribute::kPoints           , SetPointsAttribute       }},
@@ -287,8 +273,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
-    { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
-    { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
     { "stroke-dashoffset"  , { SkSVGAttribute::kStrokeDashOffset , SetLengthAttribute       }},
     { "stroke-miterlimit"  , { SkSVGAttribute::kStrokeMiterLimit , SetNumberAttribute       }},
     { "stroke-opacity"     , { SkSVGAttribute::kStrokeOpacity    , SetNumberAttribute       }},

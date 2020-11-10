@@ -12,36 +12,10 @@
 
 SkSVGStop::SkSVGStop() : INHERITED(SkSVGTag::kStop) {}
 
-void SkSVGStop::setOffset(const SkSVGLength& offset) {
-    fOffset = offset;
-}
-
-void SkSVGStop::setStopColor(const SkSVGStopColor& color) {
-    fStopColor = color;
-}
-
-void SkSVGStop::setStopOpacity(const SkSVGNumberType& opacity) {
-    fStopOpacity = SkTPin<SkScalar>(opacity, 0, 1);
-}
-
-void SkSVGStop::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kOffset:
-        if (const auto* offset = v.as<SkSVGLengthValue>()) {
-            this->setOffset(*offset);
-        }
-        break;
-    case SkSVGAttribute::kStopColor:
-        if (const auto* color = v.as<SkSVGStopColorValue>()) {
-            this->setStopColor(*color);
-        }
-        break;
-    case SkSVGAttribute::kStopOpacity:
-        if (const auto* opacity = v.as<SkSVGNumberValue>()) {
-            this->setStopOpacity(*opacity);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGStop::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setOffset(SkSVGAttributeParser::parse<SkSVGLength>("offset", name, value)) ||
+           this->setStopColor(SkSVGAttributeParser::parse<SkSVGColor>("stop-color", name, value)) ||
+           this->setStopOpacity(
+                   SkSVGAttributeParser::parse<SkSVGNumberType>("stop-opacity", name, value));
 }

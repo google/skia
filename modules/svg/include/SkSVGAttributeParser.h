@@ -16,13 +16,11 @@ class SkSVGAttributeParser : public SkNoncopyable {
 public:
     SkSVGAttributeParser(const char[]);
 
-    bool parseColor(SkSVGColorType*);
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
     bool parseInteger(SkSVGIntegerType*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parsePoints(SkSVGPointsType*);
-    bool parseStopColor(SkSVGStopColor*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
     // TODO: Migrate all parse*() functions to this style (and delete the old version)

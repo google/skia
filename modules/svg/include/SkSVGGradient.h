@@ -42,7 +42,6 @@ private:
     using StopPositionArray = SkSTArray<2, SkScalar, true>;
     using    StopColorArray = SkSTArray<2,  SkColor, true>;
     void collectColorStops(const SkSVGRenderContext&, StopPositionArray*, StopColorArray*) const;
-    SkColor resolveStopColor(const SkSVGRenderContext&, const SkSVGStop&) const;
 
     using INHERITED = SkSVGHiddenContainer;
 };
