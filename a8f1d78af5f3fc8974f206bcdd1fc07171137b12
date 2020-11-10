@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "585f56da_4ce8b713",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T20:58:34Z",
+      "side": 1,
+      "message": "sorry if I was confusing.  Given the name fAndroidCodecHandlesFrameIndex it seemed that it was indicating that AndroidCodec would never want to execute the code in this method.  As written it executes this method once and all other invocations then return kSuccess.",
+      "parentUuid": "c011bf52_6d56f427",
+      "range": {
+        "startLine": 279,
+        "startChar": 6,
+        "endLine": 279,
+        "endChar": 10
+      },
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "59fb9314_eb0a3c13",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 4
@@ -79,6 +103,24 @@
       "side": 1,
       "message": "Yes, this should be a part of this CL. Without it, we fail the Codec_Dimensions test. That test reuses an SkJpegCodec (and other formats). For formats that still use scanline decoding (e.g. Jpeg), we attempt to use incremental decoding first. When that returns unimplemented, we set fNeedsRewind to false, so that when onStartScanlineDecode calls rewindIfNeeded, it doesn\u0027t think it needs to rewind.\n\nBut the key change here is that now that we call SkAndroidCodec-\u003ehandleFrameIndex-\u003erewindIfNeeded, onStartScanlineDecode-\u003ehandleFrameIndex skips rewindIfNeeded, so fNeedsRewind is not reset to true. But maybe this should be\n\n  if (fAndroidCodecHandlesFrameIndex) {\n    fNeedsRewind \u003d true;\n  }\n\n? It\u0027s safe to set it to true even if !fAndroidCodecHandlesFrameIndex, so perhaps I just need a better comment here?",
       "parentUuid": "59fb9314_eb0a3c13",
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3566a1a3_b58d7853",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T20:58:34Z",
+      "side": 1,
+      "message": "I would just add a more descriptive comment instead of the extra condition, but I\u0027m fine either way.",
+      "parentUuid": "581795fe_2701d0db",
       "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
