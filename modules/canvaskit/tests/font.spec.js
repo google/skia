@@ -286,12 +286,10 @@ describe('Font Behavior', () => {
             buffer: fetchedByteBuffers[0],
             y: 90,
         },{
-            // Not currently supported by Skia
             type: '.woff font',
             buffer: fetchedByteBuffers[1],
             y: 120,
         },{
-            // Not currently supported by Skia
             type: '.woff2 font',
             buffer: fetchedByteBuffers[2],
             y: 150,
