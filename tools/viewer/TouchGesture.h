@@ -89,7 +89,6 @@ private:
     int findRec(void* owner) const;
     void appendNewRec(void* owner, float x, float y);
     float computePinch(const Rec&, const Rec&);
-    float limitTotalZoom(float scale) const;
     bool handleDblTap(float, float);
 };
 
