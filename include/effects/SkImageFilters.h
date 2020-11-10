@@ -312,9 +312,16 @@ public:
      *  Like Image() and Picture(), this is a leaf filter that can be used to introduce inputs to
      *  a complex filter graph, but should generally be combined with a filter that as at least
      *  one null input to use the implicit source image.
-     *  @param shader The shader that
+     *  @param shader The shader that fills the result image
      */
-    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect = {});
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect = {}) {
+        return Shader(std::move(shader), kNone_SkFilterQuality, cropRect);
+    }
+    // As above, but the filter quality defines what is used in image shaders that defer to the
+    // quality stored on an SkPaint. NOTE: this default behavior is deprecated, so prefer creating
+    // image shaders with explicit sampling parameters and call the 2-arg Shader() factory instead.
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, SkFilterQuality filterQuality,
+                                       const CropRect& cropRect = {});
 
     /**
      *  Create a tile image filter.
