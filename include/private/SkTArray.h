@@ -45,7 +45,7 @@ public:
      * Creates an empty array that will preallocate space for reserveCount
      * elements.
      */
-    explicit SkTArray(int reserveCount) { this->init(0, reserveCount); }
+    explicit SkTArray(int reserveCount) : SkTArray() { this->reserve_back(reserveCount); }
 
     /**
      * Copies one array to another. The new array will be heap allocated.
@@ -96,7 +96,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(that.count());
+        this->checkRealloc(that.count(), /*addExtraSpace=*/false);
         fCount = that.fCount;
         this->copy(that.fItemArray);
         return *this;
@@ -109,7 +109,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(that.count());
+        this->checkRealloc(that.count(), /*addExtraSpace=*/false);
         fCount = that.fCount;
         that.move(fItemArray);
         that.fCount = 0;
@@ -143,7 +143,7 @@ public:
         }
         // Set fCount to 0 before calling checkRealloc so that no elements are moved.
         fCount = 0;
-        this->checkRealloc(n);
+        this->checkRealloc(n, /*addExtraSpace=*/false);
         fCount = n;
         for (int i = 0; i < this->count(); ++i) {
             new (fItemArray + i) T;
@@ -159,7 +159,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(count);
+        this->checkRealloc(count, /*addExtraSpace=*/false);
         fCount = count;
         this->copy(array);
         fReserved = false;
@@ -173,7 +173,7 @@ public:
     void reserve_back(int n) {
         SkASSERT(n >= 0);
         if (n > 0) {
-            this->checkRealloc(n);
+            this->checkRealloc(n, /*addExtraSpace=*/false);
             fReserved = fOwnMemory;
         } else {
             fReserved = false;
@@ -457,19 +457,17 @@ protected:
     }
 
 private:
-    void init(int count = 0, int reserveCount = 0) {
+    void init(int count = 0) {
         fCount = SkToU32(count);
-        if (!count && !reserveCount) {
+        if (!count) {
             fAllocCount = 0;
             fItemArray = nullptr;
-            fOwnMemory = true;
-            fReserved = false;
         } else {
-            fAllocCount = SkToU32(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
+            fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
-            fOwnMemory = true;
-            fReserved = reserveCount > 0;
         }
+        fOwnMemory = true;
+        fReserved = false;
     }
 
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
@@ -532,7 +530,7 @@ private:
         return ptr;
     }
 
-    void checkRealloc(int delta) {
+    void checkRealloc(int delta, bool addExtraSpace = true) {
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
         SkASSERT(-delta <= this->count());
@@ -549,12 +547,25 @@ private:
             return;
         }
 
+        int64_t newAllocCount = newCount;
+        if (addExtraSpace) {
+            // Whether we're growing or shrinking, leave at least 50% extra space for future growth.
+            newAllocCount += ((newCount + 1) >> 1);
+            // Align the new allocation count to kMinHeapAllocCount.
+            static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
+            newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
+        } else {
+            // Round up the allocation to consume any allocator slack. Specifically, we assume
+            // malloc always rounds up to at least the next 8 byte boundary, so might as well put
+            // that space in our capacity instead of letting it go to waste.
+            constexpr int kMallocRoundUp = 8;
+            if (sizeof(T) < kMallocRoundUp) {
+                newAllocCount *= sizeof(T);
+                newAllocCount = (newAllocCount + (kMallocRoundUp - 1)) & ~(kMallocRoundUp - 1);
+                newAllocCount /= sizeof(T);
+            }
+        }
 
-        // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
-        int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
-        // Align the new allocation count to kMinHeapAllocCount.
-        static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
-        newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
         // At small sizes the old and new alloc count can both be kMinHeapAllocCount.
         if (newAllocCount == fAllocCount) {
             return;
@@ -566,7 +577,6 @@ private:
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
@@ -605,8 +615,9 @@ public:
     SkSTArray(std::initializer_list<T> data)
         : SkSTArray(data.begin(), data.size()) {}
 
-    explicit SkSTArray(int reserveCount)
-        : STORAGE{}, INHERITED(reserveCount) {}  // TODO: use STORAGE?
+    explicit SkSTArray(int reserveCount) : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {
+        this->reserve_back(reserveCount);
+    }
 
     SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
     explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }

@@ -60,6 +60,15 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     // { 0, 3, 2 }
 }
 
+static constexpr int round_up_buffer_size(int size) {
+    // This value is an implementation detail in SkTArray; if it changes, this will need to change
+    // to match.
+    constexpr int kMallocRoundUp = 8;
+    return (size + (kMallocRoundUp - 1)) & ~(kMallocRoundUp - 1);
+}
+
+#include <iostream>
+
 template <typename T> static void test_construction(skiatest::Reporter* reporter) {
     // No arguments: Creates an empty array with no initial storage.
     T arrayNoArgs;
@@ -67,8 +76,10 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
 
     // Single integer: Creates an empty array that will preallocate space for reserveCount elements.
     T arrayReserve(15);
+    const int expectedCapacity = round_up_buffer_size(15 * sizeof(typename T::value_type));
+    const int actualCapacity = arrayReserve.capacity() * sizeof(typename T::value_type);
     REPORTER_ASSERT(reporter, arrayReserve.empty());
-    REPORTER_ASSERT(reporter, arrayReserve.capacity() == 15);
+    REPORTER_ASSERT(reporter, expectedCapacity == actualCapacity);
 
     // Another array, const&: Copies one array to another.
     T arrayInitial;
