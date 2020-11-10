@@ -17,6 +17,7 @@
 class GrBackendFormat;
 class GrBackendTexture;
 class GrRecordingContext;
+class GrYUVABackendTextureInfo;
 class SkCanvas;
 class SkImage;
 class SkPromiseImageTexture;
@@ -115,6 +116,24 @@ public:
                                       PromiseImageTextureContext textureContext);
 
     /**
+        This entry point operates like 'makePromiseTexture' but it is used to construct a SkImage
+        from YUV[A] data. The source data may be planar (i.e. spread across multiple textures). In
+        the extreme Y, U, V, and A are all in different planes and thus the image is specified by
+        four textures. 'yuvaBackendTextureInfo' describes the planar arrangement, texture formats,
+        conversion to RGB, and origin of the textures. Separate 'textureFulfillProc' and
+        'textureReleaseProc' calls are made for each texture but each texture has its own
+        PromiseImageTextureContext. If 'yuvaBackendTextureinfo' is not valid then no release proc
+        calls are made. Otherwise, the calls will be made even on failure. 'textureContexts' has one
+        entry for each of the up to four textures, as indicated by 'yuvaBackendTextureinfo'.
+     */
+    sk_sp<SkImage> makeYUVAPromiseTexture(const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
+                                          sk_sp<SkColorSpace> imageColorSpace,
+                                          PromiseImageTextureFulfillProc textureFulfillProc,
+                                          PromiseImageTextureReleaseProc textureReleaseProc,
+                                          PromiseImageTextureContext textureContexts[]);
+
+    /** Deprecated. Use GrYUVABackendTextureInfo version instead.
+
         This entry point operates like 'makePromiseTexture' but it is used to construct a SkImage
         from YUV[A] data. The source data may be planar (i.e. spread across multiple textures). In
         the extreme Y, U, V, and A are all in different planes and thus the image is specified by
