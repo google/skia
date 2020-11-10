@@ -66,8 +66,27 @@ ImGuiLayer::~ImGuiLayer() {
     ImGui::DestroyContext();
 }
 
+#if defined(SK_BUILD_FOR_UNIX)
+static const char* get_clipboard_text(void* user_data) {
+    Window* w = (Window*)user_data;
+    return w->getClipboardText();
+}
+
+static void set_clipboard_text(void* user_data, const char* text) {
+    Window* w = (Window*)user_data;
+    w->setClipboardText(text);
+}
+#endif
+
 void ImGuiLayer::onAttach(Window* window) {
     fWindow = window;
+
+#if defined(SK_BUILD_FOR_UNIX)
+    ImGuiIO& io = ImGui::GetIO();
+    io.ClipboardUserData = fWindow;
+    io.GetClipboardTextFn = get_clipboard_text;
+    io.SetClipboardTextFn = set_clipboard_text;
+#endif
 }
 
 bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {

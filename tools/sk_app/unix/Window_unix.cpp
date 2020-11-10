@@ -23,6 +23,7 @@
 extern "C" {
     #include "tools/sk_app/unix/keysym2ucs.h"
 }
+#include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
 
@@ -215,12 +216,12 @@ static skui::Key get_key(KeySym keysym) {
         { XK_Control_R, skui::Key::kCtrl     },
         { XK_Alt_L,     skui::Key::kOption   },
         { XK_Alt_R,     skui::Key::kOption   },
-        { 'A',          skui::Key::kA        },
-        { 'C',          skui::Key::kC        },
-        { 'V',          skui::Key::kV        },
-        { 'X',          skui::Key::kX        },
-        { 'Y',          skui::Key::kY        },
-        { 'Z',          skui::Key::kZ        },
+        { 'a',          skui::Key::kA        },
+        { 'c',          skui::Key::kC        },
+        { 'v',          skui::Key::kV        },
+        { 'x',          skui::Key::kX        },
+        { 'y',          skui::Key::kY        },
+        { 'z',          skui::Key::kZ        },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
         if (gPair[i].fXK == keysym) {
@@ -318,6 +319,43 @@ bool Window_unix::handleEvent(const XEvent& event) {
                                get_modifiers(event));
         } break;
 
+        case SelectionClear: {
+            // Lost selection ownership
+            fClipboardText.clear();
+        } break;
+
+        case SelectionRequest: {
+            Atom UTF8      = XInternAtom(fDisplay, "UTF8_STRING", 0),
+                 CLIPBOARD = XInternAtom(fDisplay, "CLIPBOARD", 0);
+
+            const XSelectionRequestEvent* xsr = &event.xselectionrequest;
+
+            XSelectionEvent xsel = {};
+            xsel.type      = SelectionNotify;
+            xsel.requestor = xsr->requestor;
+            xsel.selection = xsr->selection;
+            xsel.target    = xsr->target;
+            xsel.property  = xsr->property;
+            xsel.time      = xsr->time;
+
+            if (xsr->selection != CLIPBOARD) {
+                // A request for a different kind of selection. This shouldn't happen.
+                break;
+            }
+
+            if (fClipboardText.empty() || xsr->target != UTF8 || xsr->property == None) {
+                // We can't fulfill this request. Deny it.
+                xsel.property = None;
+                XSendEvent(fDisplay, xsr->requestor, True, NoEventMask, (XEvent*)&xsel);
+            } else {
+                // We can fulfill this request! Update the contents of the CLIPBOARD property,
+                // and let the requestor know.
+                XChangeProperty(fDisplay, xsr->requestor, xsr->property, UTF8, /*format=*/8,
+                                PropModeReplace, (unsigned char*)fClipboardText.data(),
+                                fClipboardText.length());
+                XSendEvent(fDisplay, xsr->requestor, True, NoEventMask, (XEvent*)&xsel);
+            }
+        } break;
 
         default:
             // these events should be handled in the main event loop
@@ -416,6 +454,49 @@ void Window_unix::setRequestedDisplayParams(const DisplayParams& params, bool al
 #endif
 
     INHERITED::setRequestedDisplayParams(params, allowReattach);
+}
+
+const char* Window_unix::getClipboardText() {
+    Atom UTF8      = XInternAtom(fDisplay, "UTF8_STRING", 0),
+         CLIPBOARD = XInternAtom(fDisplay, "CLIPBOARD", 0),
+         XSEL_DATA = XInternAtom(fDisplay, "XSEL_DATA", 0);
+
+    // Ask for a UTF8 copy of the CLIPBOARD...
+    XEvent event;
+    XConvertSelection(fDisplay, CLIPBOARD, UTF8, XSEL_DATA, fWindow, CurrentTime);
+    XSync(fDisplay, 0);
+    XNextEvent(fDisplay, &event);
+    if (event.type == SelectionNotify &&
+            event.xselection.selection == CLIPBOARD &&
+            event.xselection.property != None) {
+
+        // We got a response
+        Atom type;
+        int format;
+        unsigned long nitems, bytes_after;
+        char* data;
+
+        // Fetch the CLIPBOARD property
+        XSelectionEvent xsel = event.xselection;
+        XGetWindowProperty(xsel.display, xsel.requestor, xsel.property, /*offset=*/0,
+                           /*length=*/~0L, /*delete=*/False, AnyPropertyType, &type, &format,
+                           &nitems, &bytes_after, (unsigned char**)&data);
+        SkASSERT(bytes_after == 0);
+        if (type == UTF8) {
+            fClipboardText.assign(data, nitems);
+        }
+        XFree(data);
+        XDeleteProperty(xsel.display, xsel.requestor, xsel.property);
+    }
+    return fClipboardText.c_str();
+}
+
+void Window_unix::setClipboardText(const char* text) {
+    fClipboardText.assign(text);
+
+    // Take ownership of the CLIPBOARD
+    Atom CLIPBOARD = XInternAtom(fDisplay, "CLIPBOARD", 0);
+    XSetSelectionOwner(fDisplay, CLIPBOARD, fWindow, CurrentTime);
 }
 
 }   // namespace sk_app
