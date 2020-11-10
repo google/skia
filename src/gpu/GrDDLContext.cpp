@@ -32,18 +32,6 @@ public:
     }
 
 private:
-    bool init() override {
-        if (!INHERITED::init()) {
-            return false;
-        }
-
-        // DDL contexts/drawing managers always sort the oplists and attempt to reduce opsTask
-        // splitting.
-        this->setupDrawingManager(true, true);
-
-        return true;
-    }
-
     // Add to the set of unique program infos required by this DDL
     void recordProgramInfo(const GrProgramInfo* programInfo) final {
         if (!programInfo) {

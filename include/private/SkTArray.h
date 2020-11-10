@@ -50,10 +50,8 @@ public:
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
-    SkTArray(const SkTArray& that) {
-        this->init(that.fCount);
-        this->copy(that.fItemArray);
-    }
+    SkTArray(const SkTArray& that)
+        : SkTArray(that.fItemArray, that.fCount) {}
 
     SkTArray(SkTArray&& that) {
         if (that.fOwnMemory) {
@@ -87,10 +85,8 @@ public:
     /**
      * Creates a SkTArray by copying contents of an initializer list.
      */
-    SkTArray(std::initializer_list<T> data) {
-        this->init(data.size());
-        this->copy(&*data.begin());
-    }
+    SkTArray(std::initializer_list<T> data)
+        : SkTArray(data.begin(), data.size()) {}
 
     SkTArray& operator=(const SkTArray& that) {
         if (this == &that) {
@@ -450,29 +446,6 @@ protected:
     }
 
     /**
-     * Copy another array, using preallocated storage if preAllocCount >=
-     * array.count(). Otherwise storage will only be used when array shrinks
-     * to fit.
-     */
-    template <int N>
-    SkTArray(const SkTArray& array, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage->get(), N);
-        this->copy(array.fItemArray);
-    }
-
-    /**
-     * Move another array, using preallocated storage if preAllocCount >=
-     * array.count(). Otherwise storage will only be used when array shrinks
-     * to fit.
-     */
-    template <int N>
-    SkTArray(SkTArray&& array, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(array.fCount, storage->get(), N);
-        array.move(fItemArray);
-        array.fCount = 0;
-    }
-
-    /**
      * Copy a C array, using preallocated storage if preAllocCount >=
      * count. Otherwise storage will only be used when array shrinks
      * to fit.
@@ -481,17 +454,6 @@ protected:
     SkTArray(const T* array, int count, SkAlignedSTStorage<N,T>* storage) {
         this->initWithPreallocatedStorage(count, storage->get(), N);
         this->copy(array);
-    }
-
-    /**
-     * Copy the contents of an initializer list, using preallocated storage if
-     * preAllocCount >= count. Otherwise storage will only be used when array
-     * shrinks to fit.
-     */
-    template <int N>
-    SkTArray(std::initializer_list<T> data, SkAlignedSTStorage<N,T>* storage) {
-        this->initWithPreallocatedStorage(data.size(), storage->get(), N);
-        this->copy(&*data.begin());
     }
 
 private:
@@ -628,64 +590,46 @@ template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHea
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
 template <int N, typename T, bool MEM_MOVE = false>
-class SkSTArray : public SkTArray<T, MEM_MOVE> {
+class SkSTArray : private SkAlignedSTStorage<N,T>, public SkTArray<T, MEM_MOVE> {
 private:
+    using STORAGE   = SkAlignedSTStorage<N,T>;
     using INHERITED = SkTArray<T, MEM_MOVE>;
 
 public:
-    SkSTArray() : INHERITED(&fStorage) {
-    }
-
-    SkSTArray(const SkSTArray& array)
-        : INHERITED(array, &fStorage) {
-    }
-
-    SkSTArray(SkSTArray&& array)
-        : INHERITED(std::move(array), &fStorage) {
-    }
-
-    explicit SkSTArray(const INHERITED& array)
-        : INHERITED(array, &fStorage) {
-    }
-
-    explicit SkSTArray(INHERITED&& array)
-        : INHERITED(std::move(array), &fStorage) {
-    }
-
-    explicit SkSTArray(int reserveCount)
-        : INHERITED(reserveCount) {
-    }
+    SkSTArray()
+        : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {}
 
     SkSTArray(const T* array, int count)
-        : INHERITED(array, count, &fStorage) {
-    }
+        : STORAGE{}, INHERITED(array, count, static_cast<STORAGE*>(this)) {}
 
     SkSTArray(std::initializer_list<T> data)
-        : INHERITED(data, &fStorage) {
-    }
+        : SkSTArray(data.begin(), data.size()) {}
 
-    SkSTArray& operator=(const SkSTArray& array) {
-        INHERITED::operator=(array);
+    explicit SkSTArray(int reserveCount)
+        : STORAGE{}, INHERITED(reserveCount) {}  // TODO: use STORAGE?
+
+    SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
+    explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }
+    SkSTArray         (      SkSTArray&& that) : SkSTArray() { *this = std::move(that); }
+    explicit SkSTArray(      INHERITED&& that) : SkSTArray() { *this = std::move(that); }
+
+    SkSTArray& operator=(const SkSTArray& that) {
+        INHERITED::operator=(that);
+        return *this;
+    }
+    SkSTArray& operator=(const INHERITED& that) {
+        INHERITED::operator=(that);
         return *this;
     }
 
-    SkSTArray& operator=(SkSTArray&& array) {
-        INHERITED::operator=(std::move(array));
+    SkSTArray& operator=(SkSTArray&& that) {
+        INHERITED::operator=(std::move(that));
         return *this;
     }
-
-    SkSTArray& operator=(const INHERITED& array) {
-        INHERITED::operator=(array);
+    SkSTArray& operator=(INHERITED&& that) {
+        INHERITED::operator=(std::move(that));
         return *this;
     }
-
-    SkSTArray& operator=(INHERITED&& array) {
-        INHERITED::operator=(std::move(array));
-        return *this;
-    }
-
-private:
-    SkAlignedSTStorage<N,T> fStorage;
 };
 
 #endif

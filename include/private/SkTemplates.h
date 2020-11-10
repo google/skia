@@ -409,36 +409,7 @@ T* SkInPlaceNewCheck(void* storage, size_t size, Args&&... args) {
     return (sizeof(T) <= size) ? new (storage) T(std::forward<Args>(args)...)
                                : new T(std::forward<Args>(args)...);
 }
-/**
- * Reserves memory that is aligned on double and pointer boundaries.
- * Hopefully this is sufficient for all practical purposes.
- */
-template <size_t N> class SkAlignedSStorage {
-public:
-    SkAlignedSStorage() {}
-    SkAlignedSStorage(SkAlignedSStorage&&) = delete;
-    SkAlignedSStorage(const SkAlignedSStorage&) = delete;
-    SkAlignedSStorage& operator=(SkAlignedSStorage&&) = delete;
-    SkAlignedSStorage& operator=(const SkAlignedSStorage&) = delete;
 
-    size_t size() const { return N; }
-    void* get() { return fData; }
-    const void* get() const { return fData; }
-
-private:
-    union {
-        void*   fPtr;
-        double  fDouble;
-        char    fData[N];
-    };
-};
-
-/**
- * Reserves memory that is aligned on double and pointer boundaries.
- * Hopefully this is sufficient for all practical purposes. Otherwise,
- * we have to do some arcane trickery to determine alignment of non-POD
- * types. Lifetime of the memory is the lifetime of the object.
- */
 template <int N, typename T> class SkAlignedSTStorage {
 public:
     SkAlignedSTStorage() {}
@@ -449,12 +420,12 @@ public:
 
     /**
      * Returns void* because this object does not initialize the
-     * memory. Use placement new for types that require a cons.
+     * memory. Use placement new for types that require a constructor.
      */
-    void* get() { return fStorage.get(); }
-    const void* get() const { return fStorage.get(); }
+    void* get() { return fStorage; }
+    const void* get() const { return fStorage; }
 private:
-    SkAlignedSStorage<sizeof(T)*N> fStorage;
+    alignas(T) char fStorage[sizeof(T)*N];
 };
 
 using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;

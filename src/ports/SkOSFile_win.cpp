@@ -190,15 +190,15 @@ static uint16_t* concat_to_16(const char src[], const char suffix[]) {
     return dst;
 }
 
-SkOSFile::Iter::Iter() { new (fSelf.get()) SkOSFileIterData; }
+SkOSFile::Iter::Iter() { new (fSelf) SkOSFileIterData; }
 
 SkOSFile::Iter::Iter(const char path[], const char suffix[]) {
-    new (fSelf.get()) SkOSFileIterData;
+    new (fSelf) SkOSFileIterData;
     this->reset(path, suffix);
 }
 
 SkOSFile::Iter::~Iter() {
-    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    SkOSFileIterData& self = *reinterpret_cast<SkOSFileIterData*>(fSelf);
     sk_free(self.fPath16);
     if (self.fHandle) {
         ::FindClose(self.fHandle);
@@ -207,7 +207,7 @@ SkOSFile::Iter::~Iter() {
 }
 
 void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
-    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    SkOSFileIterData& self = *reinterpret_cast<SkOSFileIterData*>(fSelf);
     if (self.fHandle) {
         ::FindClose(self.fHandle);
         self.fHandle = 0;
@@ -262,7 +262,7 @@ static bool get_the_file(HANDLE handle, SkString* name, WIN32_FIND_DATAW* dataPt
 }
 
 bool SkOSFile::Iter::next(SkString* name, bool getDir) {
-    SkOSFileIterData& self = *static_cast<SkOSFileIterData*>(fSelf.get());
+    SkOSFileIterData& self = *reinterpret_cast<SkOSFileIterData*>(fSelf);
     WIN32_FIND_DATAW    data;
     WIN32_FIND_DATAW*   dataPtr = nullptr;
 

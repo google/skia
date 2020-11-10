@@ -50,7 +50,11 @@ int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType)
     return this->caps()->maxRenderTargetSampleCount(format);
 }
 
-void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting) {
+bool GrRecordingContext::init() {
+    if (!INHERITED::init()) {
+        return false;
+    }
+
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -64,10 +68,16 @@ void GrRecordingContext::setupDrawingManager(bool sortOpsTasks, bool reduceOpsTa
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
+    bool reduceOpsTaskSplitting = false;
+    if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = true;
+    } else if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = false;
+    }
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
-                                               sortOpsTasks,
                                                reduceOpsTaskSplitting));
+    return true;
 }
 
 void GrRecordingContext::abandonContext() {

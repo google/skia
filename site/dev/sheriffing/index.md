@@ -40,9 +40,8 @@ Below is a brief summary of what the sheriff does for each task:
 
 <a name="triage"></a>
 ### Triage
-You should triage the Chrome bugs that are created during the week.
-[Generate](https://bugs.chromium.org/p/chromium/issues/list?sort=-modified%20pri&q=component%3AInternals%3ESkia%20status%3AUntriaged%2CUnconfirmed%2CAvailable&can=2)
-a list of bugs for Skia, and assign bugs to members of the Skia team.
+You should triage bugs that show up under "Untriaged Bugs" on the [status page](https://status.skia.org).
+For a more detailed view of bugs see [Skia Bugs Central](https://bugs-central.skia.org/).
 
 <a name="blamer"></a>
 ### Blamer

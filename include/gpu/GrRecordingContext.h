@@ -128,7 +128,8 @@ protected:
     };
 
     GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
-    void setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting);
+
+    bool init() override;
 
     void abandonContext() override;
 

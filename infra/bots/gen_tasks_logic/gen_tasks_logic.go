@@ -1789,10 +1789,11 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--tryjob_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
 			// TODO(kjlubick, nifong) Make these not hard coded if we change the configs we test on.
 			"--webgl_version", "2", // 0 means CPU ; this flag controls cpu_or_gpu and extra_config
-			"--gold_key", "browser:Chrome",
 			"--gold_key", "alpha_type:Premul",
 			"--gold_key", "arch:wasm",
+			"--gold_key", "browser:Chrome",
 			"--gold_key", "color_depth:8888",
+			"--gold_key", "config:gles",
 			"--gold_key", "configuration:Release",
 			"--gold_key", "cpu_or_gpu_value:QuadroP400",
 			"--gold_key", "model:Golo",

@@ -47,6 +47,11 @@ declare_args() {
   link_pool_depth = -1
 }
 
+declare_args() {
+  host_link = host_cxx
+  target_link = target_cxx
+}
+
 # For 'shell' see https://ninja-build.org/manual.html#ref_rule_command
 if (host_os == "win") {
   shell = "cmd.exe /c "
@@ -234,6 +239,7 @@ template("gcc_like_toolchain") {
     ar = invoker.ar
     cc = invoker.cc
     cxx = invoker.cxx
+    link = invoker.link
     lib_switch = "-l"
     lib_dir_switch = "-L"
 
@@ -330,7 +336,7 @@ template("gcc_like_toolchain") {
         _end_group = ""
       }
 
-      command = "$cxx -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
+      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
       outputs = [ "{{root_out_dir}}/$soname" ]
       output_prefix = "lib"
       default_output_extension = ".so"
@@ -357,7 +363,7 @@ template("gcc_like_toolchain") {
         _start_group = ""
         _end_group = ""
       }
-      command = "$cxx {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} -o $exe_name"
+      command = "$link {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} -o $exe_name"
 
       outputs = [ "$exe_name" ]
       description = "link {{output}}"
@@ -402,6 +408,7 @@ gcc_like_toolchain("gcc_like") {
   ar = target_ar
   cc = target_cc
   cxx = target_cxx
+  link = target_link
 }
 
 gcc_like_toolchain("gcc_like_host") {
@@ -410,4 +417,5 @@ gcc_like_toolchain("gcc_like_host") {
   ar = host_ar
   cc = host_cc
   cxx = host_cxx
+  link = host_link
 }

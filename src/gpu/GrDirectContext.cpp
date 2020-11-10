@@ -48,12 +48,6 @@
 #   endif
 #endif
 
-#ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
-static const bool kDefaultReduceOpsTaskSplitting = false;
-#else
-static const bool kDefaultReduceOpsTaskSplitting = false;
-#endif
-
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
@@ -211,15 +205,6 @@ bool GrDirectContext::init() {
     if (!fShaderErrorHandler) {
         fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
-
-    bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
-    if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
-        reduceOpsTaskSplitting = false;
-    } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
-        reduceOpsTaskSplitting = true;
-    }
-
-    this->setupDrawingManager(true, reduceOpsTaskSplitting);
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
@@ -381,7 +366,7 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
     }
 
     bool flushed = this->drawingManager()->flush(
-            nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+            {}, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 
     if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;

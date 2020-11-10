@@ -131,7 +131,7 @@ inline void convertLineToCubic(SkPoint startPt, SkPoint endPt, SkPoint out[4]) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(startPt);
     float2 p1 = bit_pun<float2>(endPt);
-    float2 v = (p0 - p1) * (1/3.f);
+    float2 v = (p1 - p0) * (1/3.f);
     out[0] = bit_pun<SkPoint>(p0);
     out[1] = bit_pun<SkPoint>(p0 + v);
     out[2] = bit_pun<SkPoint>(p1 - v);
