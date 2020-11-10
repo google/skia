@@ -38,7 +38,11 @@ public:
     // JSON-formatted UI state for Android. Do nothing by default
     virtual void setUIState(const char*) {}
 
-    // Shedules an invalidation event for window if one is not currently pending.
+    // Interface to the system clipboard. Only implemented on UNIX.
+    virtual const char* getClipboardText() { return nullptr; }
+    virtual void        setClipboardText(const char*) {}
+
+    // Schedules an invalidation event for window if one is not currently pending.
     // Make sure that either onPaint or markInvalReceived is called when the client window consumes
     // the the inval event. They unset fIsContentInvalided which allow future onInval.
     void inval();
