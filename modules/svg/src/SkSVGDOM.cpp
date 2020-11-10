@@ -54,13 +54,12 @@ bool SetColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 
 bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                       const char* stringValue) {
-    SkSVGStringType iri;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseIRI(&iri)) {
+    auto parseResult = SkSVGAttributeParser::parse<SkSVGIRI>(stringValue);
+    if (!parseResult.isValid()) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGStringValue(iri));
+    node->setAttribute(attr, SkSVGStringValue(parseResult->fIRI));
     return true;
 }
 
@@ -85,25 +84,23 @@ bool SetStringAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 
 bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
-    SkSVGTransformType transform;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseTransform(&transform)) {
+    auto parseResult = SkSVGAttributeParser::parse<SkSVGTransformType>(stringValue);
+    if (!parseResult.isValid()) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGTransformValue(transform));
+    node->setAttribute(attr, SkSVGTransformValue(*parseResult));
     return true;
 }
 
 bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
-    SkSVGLength length;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseLength(&length)) {
+    auto parseResult = SkSVGAttributeParser::parse<SkSVGLength>(stringValue);
+    if (!parseResult.isValid()) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGLengthValue(length));
+    node->setAttribute(attr, SkSVGLengthValue(*parseResult));
     return true;
 }
 
@@ -131,18 +128,6 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetSpreadMethodAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                             const char* stringValue) {
-    SkSVGSpreadMethod spread;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseSpreadMethod(&spread)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGSpreadMethodValue(spread));
-    return true;
-}
-
 bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
     SkSVGStopColor stopColor;
@@ -158,13 +143,12 @@ bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 bool SetObjectBoundingBoxUnitsAttribute(const sk_sp<SkSVGNode>& node,
                                         SkSVGAttribute attr,
                                         const char* stringValue) {
-    SkSVGObjectBoundingBoxUnits objectBoundingBoxUnits;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseObjectBoundingBoxUnits(&objectBoundingBoxUnits)) {
+    auto parseResult = SkSVGAttributeParser::parse<SkSVGObjectBoundingBoxUnits>(stringValue);
+    if (!parseResult.isValid()) {
         return false;
     }
 
-    node->setAttribute(attr, SkSVGObjectBoundingBoxUnitsValue(objectBoundingBoxUnits));
+    node->setAttribute(attr, SkSVGObjectBoundingBoxUnitsValue(*parseResult));
     return true;
 }
 
@@ -293,9 +277,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     // focal point x & y
     { "fx"                 , { SkSVGAttribute::kFx               , SetLengthAttribute       }},
     { "fy"                 , { SkSVGAttribute::kFy               , SetLengthAttribute       }},
-    { "gradientTransform"  , { SkSVGAttribute::kGradientTransform, SetTransformAttribute    }},
-    { "gradientUnits"      , { SkSVGAttribute::kGradientUnits    ,
-                               SetObjectBoundingBoxUnitsAttribute }},
     { "height"             , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"             , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},
     { "opacity"            , { SkSVGAttribute::kOpacity          , SetNumberAttribute       }},
@@ -306,7 +287,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
-    { "spreadMethod"       , { SkSVGAttribute::kSpreadMethod     , SetSpreadMethodAttribute }},
     { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
     { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
     { "stroke-dashoffset"  , { SkSVGAttribute::kStrokeDashOffset , SetLengthAttribute       }},

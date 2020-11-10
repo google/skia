@@ -61,6 +61,10 @@ private:
     Unit     fUnit;
 };
 
+struct SkSVGIRI {
+    SkSVGStringType fIRI;
+};
+
 class SkSVGPaint {
 public:
     enum class Type {

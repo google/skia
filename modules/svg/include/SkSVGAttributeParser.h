@@ -20,14 +20,9 @@ public:
     bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
     bool parseInteger(SkSVGIntegerType*);
-    bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);
-    bool parseTransform(SkSVGTransformType*);
     bool parsePoints(SkSVGPointsType*);
-    bool parseIRI(SkSVGStringType*);
-    bool parseSpreadMethod(SkSVGSpreadMethod*);
     bool parseStopColor(SkSVGStopColor*);
-    bool parseObjectBoundingBoxUnits(SkSVGObjectBoundingBoxUnits*);
     bool parsePreserveAspectRatio(SkSVGPreserveAspectRatio*);
 
     // TODO: Migrate all parse*() functions to this style (and delete the old version)
@@ -37,21 +32,26 @@ public:
 
     template <typename T> using ParseResult = SkTLazy<T>;
 
+    template <typename T> static ParseResult<T> parse(const char* value) {
+        ParseResult<T> result;
+        T parsedValue;
+        if (SkSVGAttributeParser(value).parse(&parsedValue)) {
+            result.set(std::move(parsedValue));
+        }
+        return result;
+    }
+
     template <typename T>
     static ParseResult<T> parse(const char* expectedName,
                                 const char* name,
                                 const char* value) {
-        ParseResult<T> result;
-
         if (!strcmp(name, expectedName)) {
-            T parsedValue;
-            if (SkSVGAttributeParser(value).parse(&parsedValue)) {
-                result.set(std::move(parsedValue));
-            }
+            return parse<T>(value);
         }
 
-        return result;
+        return ParseResult<T>();
     }
+
 
 private:
     // Stack-only
