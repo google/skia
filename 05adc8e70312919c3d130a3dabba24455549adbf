@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a10f3ab_6830130d",
+        "filename": "include/gpu/GrYUVABackendTextures.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-10T19:10:25Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 36,
+        "startChar": 10,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "05adc8e70312919c3d130a3dabba24455549adbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d041a5a_b7c4e060",
+        "filename": "src/gpu/GrYUVABackendTextures.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-10T19:10:25Z",
+      "side": 1,
+      "message": "\"*this \u003d {};\" here ?",
+      "revId": "05adc8e70312919c3d130a3dabba24455549adbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
