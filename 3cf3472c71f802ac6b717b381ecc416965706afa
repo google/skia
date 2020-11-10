@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a543d7b4_bcd748de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-10T16:59:37Z",
+      "side": 1,
+      "message": "Can we also remove the skips in dm_flags.go, too? Anything that returns kSkip will not cause a bot to go red.",
+      "revId": "3cf3472c71f802ac6b717b381ecc416965706afa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
