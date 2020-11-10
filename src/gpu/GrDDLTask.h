@@ -22,7 +22,8 @@ class GrDDLTask final : public GrRenderTask {
 public:
     GrDDLTask(GrDrawingManager*,
               sk_sp<GrRenderTargetProxy> ddlTarget,
-              sk_sp<const SkDeferredDisplayList>);
+              sk_sp<const SkDeferredDisplayList>,
+              int xOffset, int yOffset);
 
     ~GrDDLTask() override;
 
@@ -35,7 +36,7 @@ public:
     void disown(GrDrawingManager*) override;
 
 private:
-    bool onIsUsed(GrSurfaceProxy* proxy) const override;
+    bool onIsUsed(GrSurfaceProxy*) const override;
 
     void handleInternalAllocationFailure() override;
 
@@ -65,6 +66,8 @@ private:
 
     sk_sp<const SkDeferredDisplayList> fDDL;
     sk_sp<GrRenderTargetProxy>         fDDLTarget;
+    int fXOffset;
+    int fYOffset;
 
     typedef GrRenderTask INHERITED;
 };
