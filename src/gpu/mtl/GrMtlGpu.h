@@ -28,6 +28,7 @@ class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
+class GrMtlBinaryArchive;
 class GrMtlCommandBuffer;
 
 namespace SkSL {
@@ -84,6 +85,7 @@ public:
                        const SkIPoint& dstPoint) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
+    GrMtlBinaryArchive* binaryArchive() const { return fBinaryArchive.get(); }
 
     void submit(GrOpsRenderPass* renderPass) override;
 
@@ -282,6 +284,7 @@ private:
     SkDeque fOutstandingCommandBuffers;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
+    std::unique_ptr<GrMtlBinaryArchive> fBinaryArchive;
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
