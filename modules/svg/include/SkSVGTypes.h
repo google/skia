@@ -61,6 +61,18 @@ private:
     Unit     fUnit;
 };
 
+class SkSVGIRI {
+public:
+    SkSVGIRI() = default;
+    explicit SkSVGIRI(const SkString& iri) : fIRI(iri) {}
+    explicit SkSVGIRI(SkString&& iri) : fIRI(std::move(iri)) {}
+
+    const SkString& iri() const { return fIRI; }
+
+private:
+    SkString fIRI;
+};
+
 class SkSVGPaint {
 public:
     enum class Type {
