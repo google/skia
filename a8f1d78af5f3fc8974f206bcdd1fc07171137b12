@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "242e6fb5_c8db32e1",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T19:18:56Z",
+      "side": 1,
+      "message": "do you want this to be an \"else if\" so that the first time you pass in an androidCodec it runs through the entire function?",
+      "range": {
+        "startLine": 279,
+        "startChar": 6,
+        "endLine": 279,
+        "endChar": 10
+      },
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59fb9314_eb0a3c13",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T19:18:56Z",
+      "side": 1,
+      "message": "should this be part of this CL?  Seems like it is tackling a different problem.",
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
