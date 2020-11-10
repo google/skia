@@ -34,6 +34,24 @@
       "parentUuid": "8d5bcd09_c2d50e5a",
       "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "573a666f_78152f7c",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-10T15:44:35Z",
+      "side": 1,
+      "message": "Yes, the problem with a dedicated constructor is that it masks bugs like this.",
+      "parentUuid": "9141bb92_4e3ce666",
+      "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
