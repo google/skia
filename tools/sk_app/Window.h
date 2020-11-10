@@ -38,6 +38,9 @@ public:
     // JSON-formatted UI state for Android. Do nothing by default
     virtual void setUIState(const char*) {}
 
+    virtual const char* getClipboardText() { return nullptr; }
+    virtual void        setClipboardText(const char*) {}
+
     // Shedules an invalidation event for window if one is not currently pending.
     // Make sure that either onPaint or markInvalReceived is called when the client window consumes
     // the the inval event. They unset fIsContentInvalided which allow future onInval.
