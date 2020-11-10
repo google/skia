@@ -12,47 +12,12 @@
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 
-void SkSVGLinearGradient::setX1(const SkSVGLength& x1) {
-    fX1 = x1;
-}
-
-void SkSVGLinearGradient::setY1(const SkSVGLength& y1) {
-    fY1 = y1;
-}
-
-void SkSVGLinearGradient::setX2(const SkSVGLength& x2) {
-    fX2 = x2;
-}
-
-void SkSVGLinearGradient::setY2(const SkSVGLength& y2) {
-    fY2 = y2;
-}
-
-void SkSVGLinearGradient::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kX1:
-        if (const auto* x1 = v.as<SkSVGLengthValue>()) {
-            this->setX1(*x1);
-        }
-        break;
-    case SkSVGAttribute::kY1:
-        if (const auto* y1 = v.as<SkSVGLengthValue>()) {
-            this->setY1(*y1);
-        }
-        break;
-    case SkSVGAttribute::kX2:
-        if (const auto* x2 = v.as<SkSVGLengthValue>()) {
-            this->setX2(*x2);
-        }
-        break;
-    case SkSVGAttribute::kY2:
-        if (const auto* y2 = v.as<SkSVGLengthValue>()) {
-            this->setY2(*y2);
-        }
-        break;
-    default:
-        this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGLinearGradient::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setX1(SkSVGAttributeParser::parse<SkSVGLength>("x1", name, value)) ||
+           this->setY1(SkSVGAttributeParser::parse<SkSVGLength>("y1", name, value)) ||
+           this->setX2(SkSVGAttributeParser::parse<SkSVGLength>("x2", name, value)) ||
+           this->setY2(SkSVGAttributeParser::parse<SkSVGLength>("y2", name, value));
 }
 
 sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
@@ -60,7 +25,7 @@ sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
                                                   int count, SkTileMode tm,
                                                   const SkMatrix& localMatrix) const {
     const SkSVGLengthContext lctx =
-            fGradientUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
+            this->getGradientUnits().type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox
                     ? SkSVGLengthContext({1, 1})
                     : ctx.lengthContext();
 
