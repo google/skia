@@ -1,0 +1,9 @@
+struct S1 { int x; };
+struct S2 { S1 x; };
+struct S3 { S2 x; };
+struct S4 { S3 x; };
+struct S5 { S4 x; };
+struct S6 { S5 x; };
+struct S7 { S6 x; };
+struct S8 { S7 x; };
+struct too_deep { S8 x; };
