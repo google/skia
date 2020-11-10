@@ -52,6 +52,23 @@
       "parentUuid": "5acbeffa_66d9321e",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "462bc221_fbb09d92",
+        "filename": "src/utils/SkAnimCodecPlayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T18:28:40Z",
+      "side": 1,
+      "message": "so we need to make a copy of the frame in order to \"reorient\" it.  Is there any option where we return the rotation matrix?",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
