@@ -1,0 +1,11 @@
+uint uintMin         = 0;
+uint uintMinMinusOne = -1;
+uint uintMax         = 4294967295;
+uint uintMaxPlusOne  = 4294967296;
+
+void main() {
+    sk_FragColor.x = half(uintMin);
+    sk_FragColor.x = half(uintMinMinusOne);
+    sk_FragColor.x = half(uintMax);
+    sk_FragColor.x = half(uintMaxPlusOne);
+}
