@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9cecba0_b7f46a6e",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T20:52:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "915a2dd0_294be911",
+      "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be18e1e0_f979e7c1",
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "Oh, I actually meant to prune that from the public API (questionable value, only used internally).\n\nAlso, since we\u0027re only accepting \u003csvg\u003e roots now, might as well store the typed node in fRoot.\n\nDone, PTAL.",
       "parentUuid": "be18e1e0_f979e7c1",
+      "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8447ec41_5582b9fd",
+        "filename": "modules/svg/src/SkSVGDOM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T20:52:17Z",
+      "side": 1,
+      "message": "LGTM",
+      "parentUuid": "a3bc1f38_9fa5a1e5",
       "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
