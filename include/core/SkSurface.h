@@ -1007,18 +1007,25 @@ public:
     */
     bool characterize(SkSurfaceCharacterization* characterization) const;
 
-    /** Draws deferred display list created using SkDeferredDisplayListRecorder.
-        Has no effect and returns false if SkSurfaceCharacterization stored in
-        deferredDisplayList is not compatible with SkSurface.
+    /** Draws the deferred display list created via a SkDeferredDisplayListRecorder.
+        If the deferred display list is not compatible with this SkSurface, the draw is skipped
+        and false is return.
 
-        raster surface returns false.
+        The xOffset and yOffset parameters are experimental and, if not both zero, will cause
+        the draw to be ignored.
+        When implemented, if xOffset or yOffset are non-zero, the DDL will be drawn offset by that
+        amount into the surface.
 
         @param deferredDisplayList  drawing commands
+        @param xOffset              x-offset at which to draw the DDL
+        @param yOffset              y-offset at which to draw the DDL
         @return                     false if deferredDisplayList is not compatible
 
         example: https://fiddle.skia.org/c/@Surface_draw_2
     */
-    bool draw(sk_sp<const SkDeferredDisplayList> deferredDisplayList);
+    bool draw(sk_sp<const SkDeferredDisplayList> deferredDisplayList,
+              int xOffset = 0,
+              int yOffset = 0);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);

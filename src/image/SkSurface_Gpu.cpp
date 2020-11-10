@@ -355,7 +355,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.surfaceProps() == rtc->surfaceProps();
 }
 
-bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl) {
+bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
     if (!ddl || !this->isCompatible(ddl->characterization())) {
         return false;
     }
