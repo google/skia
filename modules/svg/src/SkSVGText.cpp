@@ -62,8 +62,11 @@ SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
             ctx.lengthContext().resolve(ctx.presentationContext().fInherited.fFontSize->size(),
                                         SkSVGLengthContext::LengthType::kVertical);
 
-    // TODO: allow clients to pass an external fontmgr.
-    SkFont font(SkTypeface::MakeFromName(family.c_str(), style), size);
+    // TODO: we likely want matchFamilyStyle here, but switching away from legacyMakeTypeface
+    // changes all the results when using the default fontmgr.
+    auto tf = ctx.fontMgr()->legacyMakeTypeface(family.c_str(), style);
+
+    SkFont font(std::move(tf), size);
     font.setHinting(SkFontHinting::kNone);
     font.setSubpixel(true);
     font.setLinearMetrics(true);

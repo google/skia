@@ -39,7 +39,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto svg_dom = SkSVGDOM::MakeFromStream(in);
+
+    auto svg_dom = SkSVGDOM::Builder()
+                        .setFontManager(SkFontMgr::RefDefault())
+                        .make(in);
     if (!svg_dom) {
         std::cerr << "Could not parse " << FLAGS_input[0] << "\n";
         return 1;
