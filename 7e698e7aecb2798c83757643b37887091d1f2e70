@@ -46,6 +46,30 @@
       },
       "revId": "7e698e7aecb2798c83757643b37887091d1f2e70",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad42dbf9_d0c84fb4",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-10T21:00:12Z",
+      "side": 1,
+      "message": "It is fine as is.  I just need to read the code more closely next time. :)",
+      "parentUuid": "e4f63169_e1268e9b",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 83,
+        "endChar": 30
+      },
+      "revId": "7e698e7aecb2798c83757643b37887091d1f2e70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
