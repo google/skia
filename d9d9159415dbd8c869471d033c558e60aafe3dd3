@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "729b7a0e_fe824a39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-10T20:27:02Z",
+      "side": 1,
+      "message": "Is there a reference for this? I can\u0027t find any mention of it being supported here: https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view\u003dmsvc-160\n",
+      "revId": "d9d9159415dbd8c869471d033c558e60aafe3dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
