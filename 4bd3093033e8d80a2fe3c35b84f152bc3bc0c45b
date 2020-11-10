@@ -16,6 +16,47 @@
       "message": "Another way to address this would be to add an \"internalsAccess\" or \"dagAccess\" helper similar to GrGpuResource\u0027s cacheAccess.",
       "revId": "4bd3093033e8d80a2fe3c35b84f152bc3bc0c45b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "168ffbac_ff0c96aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-10T15:20:35Z",
+      "side": 1,
+      "message": "I don\u0027t think you need DagAccess for this change. But maybe something like that would work for removing the friending of GrDrawingManager since most of the remaining hidden functions for GrDrawingManager are all around dag management.",
+      "parentUuid": "e50e69fc_93c34520",
+      "revId": "4bd3093033e8d80a2fe3c35b84f152bc3bc0c45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f7f7e3d_da449297",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-10T15:20:35Z",
+      "side": 1,
+      "message": "Think about this a little, it is weird for us to put an onFoo virtual in public. I am wondering if these should actually just be different named functions. Like instead of onIsUsed call this:\n\nvirtual bool isUsedAsNonTargetProxy(GrSurfaceProxy*) const \u003d 0;\n\nThat way it can be clear that it actually does a specific task and isn\u0027t just the \"on\" version of isUsed.",
+      "range": {
+        "startLine": 111,
+        "startChar": 4,
+        "endLine": 111,
+        "endChar": 53
+      },
+      "revId": "4bd3093033e8d80a2fe3c35b84f152bc3bc0c45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
