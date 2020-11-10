@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "993846a2_110cf962",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T18:14:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4da14270_91c04854",
+      "range": {
+        "startLine": 184,
+        "startChar": 8,
+        "endLine": 184,
+        "endChar": 21
+      },
+      "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f71284e4_77836c19",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-10T17:57:11Z",
       "side": 1,
       "message": "Bummer that we need a type just to discriminate for parsing...\n\nWould a simple struct work instead?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 5
+      },
+      "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf6274f7_c83c6e46",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T18:14:35Z",
+      "side": 1,
+      "message": "Done, also removes the need for the explicit constructors (since we can just set the string field directly).",
+      "parentUuid": "f71284e4_77836c19",
       "range": {
         "startLine": 64,
         "startChar": 0,
