@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "247633b3_bfe7a162",
+        "filename": "src/gpu/vk/GrVkSecondaryCBDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-10T21:45:07Z",
+      "side": 1,
+      "message": "personally find this easier to read as {0, 0} but I think we have both types of precedents",
+      "range": {
+        "startLine": 184,
+        "startChar": 77,
+        "endLine": 184,
+        "endChar": 85
+      },
+      "revId": "1943817179f72249f8fdea7bfdcaea701598a54e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
