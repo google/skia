@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60b71565_a9919541",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T19:13:59Z",
+      "side": 1,
+      "message": "Two maybe-nits, LGTM though",
+      "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "812c58d5_04000f6b",
+        "filename": "modules/svg/include/SkSVGRenderContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T19:13:59Z",
+      "side": 1,
+      "message": "Could this just be a sk_sp\u003cSkFontMgr\u003e instead of a ref?",
+      "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be18e1e0_f979e7c1",
+        "filename": "modules/svg/src/SkSVGDOM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T19:13:59Z",
+      "side": 1,
+      "message": "Any reason not to say `fContainerSize \u003d this-\u003eintrinsicSize();` ?",
+      "revId": "a0701893aa55bc776a6f5bbf170e7357d8f8ecbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

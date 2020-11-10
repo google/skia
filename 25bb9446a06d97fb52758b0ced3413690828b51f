@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad4c7a50_16b2692a",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T19:13:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6a5e2f23_d959dede",
+      "revId": "25bb9446a06d97fb52758b0ced3413690828b51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be5029db_ebb2838c",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-10T18:45:36Z",
       "side": 1,
       "message": "Not really different from not specifying a fontmgr - added just to exercise/illustrate the API.",
+      "revId": "25bb9446a06d97fb52758b0ced3413690828b51f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0b01cd0_af7d58dc",
+        "filename": "modules/svg/utils/SvgTool.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-10T19:13:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "be5029db_ebb2838c",
       "revId": "25bb9446a06d97fb52758b0ced3413690828b51f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
