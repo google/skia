@@ -40,6 +40,7 @@ static void test_clz(skiatest::Reporter* reporter) {
 }
 
 static void test_ctz(skiatest::Reporter* reporter) {
+    static_assert(SkCTZ_portable(8) == 3);
     REPORTER_ASSERT(reporter, 32 == SkCTZ(0));
     REPORTER_ASSERT(reporter, 0 == SkCTZ(1));
     REPORTER_ASSERT(reporter, 30 == SkCTZ(1 << 30));
