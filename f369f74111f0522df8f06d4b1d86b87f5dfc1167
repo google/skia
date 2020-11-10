@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "938c3149_bba7e290",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-10T16:57:37Z",
+      "side": 1,
+      "message": "PictureImage is not free to draw, as we will *always* first apply-the-picture to another buffer, so that we have resolved pixels (and then try to cache that). Seems like just \"fixing\" the pixels at decode time is just as cheap or cheaper. Was there another consideration for taking this deferred/picture approach?",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
