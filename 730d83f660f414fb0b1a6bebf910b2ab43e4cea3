@@ -52,6 +52,24 @@
       "parentUuid": "0efd82b5_dec8de9b",
       "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01b504f0_50da99d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T22:25:42Z",
+      "side": 1,
+      "message": "Hit an interesting snag while implementing this--SkTArray(int reserveSize) was NOT rounding up the reserve size to kMinHeapAllocCount! So to get consistent results, I\u0027ve also had to replace its implementation with\n\n    explicit SkTArray(int reserveCount) : SkTArray() { this-\u003ereserve_back(reserveCount); }\n\nI am 100% on board with your goal of removing these constructors and just requiring explicit reserve_back calls, BTW.",
+      "parentUuid": "1008b1f9_31ec98ba",
+      "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
