@@ -914,7 +914,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (!type) {
             return;
         }
-        for (int j = (int) pd.fSizeCount; j >= 1; j--) {
+        for (int j = 1; j <= (int) pd.fSizeCount; j++) {
             int size = (param.begin() + j)->getInt();
             String name = type->name() + "[" + to_string(size) + "]";
             type = fSymbolTable->takeOwnershipOfSymbol(
