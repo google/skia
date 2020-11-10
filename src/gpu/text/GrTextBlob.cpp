@@ -1335,17 +1335,20 @@ void* GrTextBlob::operator new(size_t, void* p) { return p; }
 GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkMatrix& drawMatrix) {
-    // The difference in alignment from the storage of VertexData to SubRun;
-    using AllSubRuns = std::aligned_union_t<1,
-            DirectMaskSubRun,
-            TransformedMaskSubRun,
-            SDFTSubRun,
-            PathSubRun>;
+    // Unions used to calculate the inline size of the arena alloc.
+    union AllSubRuns {
+        DirectMaskSubRun dummy0;
+        TransformedMaskSubRun dummy1;
+        SDFTSubRun dummy2;
+        PathSubRun dummy3;
+    };
+    union AllVertexData {
+        DirectMaskSubRun::VertexData dummy0;
+        TransformedMaskSubRun::VertexData dummy1;
+        SDFTSubRun::VertexData dummy2;
+    };
 
-    using AllVertexData = std::aligned_union<1,
-            DirectMaskSubRun::VertexData,
-            TransformedMaskSubRun::VertexData,
-            SDFTSubRun::VertexData>;
+    // The difference in alignment from the storage of VertexData to SubRun;
     constexpr size_t alignDiff = alignof(AllSubRuns) - alignof(AllVertexData);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
