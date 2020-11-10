@@ -16,6 +16,24 @@
       "message": "PictureImage is not free to draw, as we will *always* first apply-the-picture to another buffer, so that we have resolved pixels (and then try to cache that). Seems like just \"fixing\" the pixels at decode time is just as cheap or cheaper. Was there another consideration for taking this deferred/picture approach?",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5acbeffa_66d9321e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-10T17:16:15Z",
+      "side": 1,
+      "message": "Yes. Let\u0027s say we have an image with a non-default orientation, we want to decode frame B, and B depends on A. If A is already stored, and we\u0027ve fixed its pixels, we need to unfix them in order to apply the update from B, then re-fix the final output.\n\nI was thinking the PictureImage would be a simpler fix for what is likely an uncommon case, but perhaps doing the unfix is not so bad?",
+      "parentUuid": "938c3149_bba7e290",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
