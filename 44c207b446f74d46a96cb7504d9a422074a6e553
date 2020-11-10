@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a7e6ee_59facba5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T03:36:47Z",
+      "side": 1,
+      "message": "After experimenting for a while, I came back to this approach. It was cleaner to do everything at the AST stage and I think it will give equally valid results.",
+      "revId": "44c207b446f74d46a96cb7504d9a422074a6e553",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
