@@ -17,7 +17,68 @@ struct SkYUVASizeInfo;
 struct SkYUVAIndex;
 
 /**
- * A set of GrBackendTextures that hold the planar data for a SkYUVAInfo.
+ * A description of a set GrBackendTextures that hold the planar data described by a SkYUVAInfo.
+ */
+class SK_API GrYUVABackendTextureInfo {
+public:
+    static constexpr auto kMaxPlanes = SkYUVAInfo::kMaxPlanes;
+
+    using PlanarConfig = SkYUVAInfo::PlanarConfig;
+
+    /** Default GrYUVABackendTextureInfo is invalid. */
+    GrYUVABackendTextureInfo() = default;
+
+    /**
+     * Initializes a GrYUVABackendTextureInfo to describe a set of textures that can store the
+     * planes indicated by the SkYUVAInfo. The texture dimensions are taken from the SkYUVAInfo's
+     * plane dimensions. All the described textures share a common origin. The planar image this
+     * describes will be mip mapped if all the textures are individually mip mapped as indicated
+     * by GrMipmapped. This will produce an invalid result (return false from isValid()) if the
+     * passed formats' channels don't agree with SkYUVAInfo.
+     */
+    GrYUVABackendTextureInfo(const SkYUVAInfo&,
+                             const GrBackendFormat[kMaxPlanes],
+                             GrMipmapped,
+                             GrSurfaceOrigin);
+
+    GrYUVABackendTextureInfo(const GrYUVABackendTextureInfo&) = default;
+
+    GrYUVABackendTextureInfo& operator=(const GrYUVABackendTextureInfo&) = default;
+
+    bool operator==(const GrYUVABackendTextureInfo&) const;
+    bool operator!=(const GrYUVABackendTextureInfo& that) const { return !(*this == that); }
+
+    const SkYUVAInfo& yuvaInfo() const { return fYUVAInfo; }
+
+    SkYUVColorSpace yuvColorSpace() const { return fYUVAInfo.yuvColorSpace(); }
+
+    GrMipmapped mipmapped() const { return fMipmapped; }
+
+    GrSurfaceOrigin textureOrigin() const { return fTextureOrigin; }
+
+    /** The number of SkPixmap planes, 0 if this GrYUVABackendTextureInfo is invalid. */
+    int numPlanes() const { return fYUVAInfo.numPlanes(); }
+
+    /** Format of the ith plane, or invalid format if i >= numPlanes() */
+    const GrBackendFormat& planeFormat(int i) const { return fPlaneFormats[i]; }
+
+    /**
+     * Returns true if this has been configured with a valid SkYUVAInfo with compatible texture
+     * formats.
+     */
+    bool isValid() const { return fYUVAInfo.isValid(); }
+
+    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+
+private:
+    SkYUVAInfo fYUVAInfo;
+    GrBackendFormat fPlaneFormats[kMaxPlanes];
+    GrMipmapped fMipmapped = GrMipmapped::kNo;
+    GrSurfaceOrigin fTextureOrigin = kTopLeft_GrSurfaceOrigin;
+};
+
+/**
+ * A set of GrBackendTextures that hold the planar data for an image described a SkYUVAInfo.
  */
 class SK_API GrYUVABackendTextures {
 public:

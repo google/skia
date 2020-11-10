@@ -9,8 +9,10 @@ Milestone 88
 
   * Simplified SkDeferredDisplayListRecorder promise image API. Removed "release"
     callback and renamed "done" callback to "release". The new "release" proc can
-    be null.
+    be null. Added a new SkYUVAInfo-based factory for YUVA promise texture images
+    and deprecated the old SkYUVAIndex-based one.
     https://review.skia.org/331836
+    https://review.skia.org/333519
 
   * Limit the types and intrinsics supported in SkRuntimeEffect to GLSL ES 1.00
     https://review.skia.org/332597

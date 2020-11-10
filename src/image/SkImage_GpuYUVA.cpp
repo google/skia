@@ -400,10 +400,6 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         return nullptr;
     }
 
-    if (!context) {
-        return nullptr;
-    }
-
     if (imageWidth <= 0 || imageHeight <= 0) {
         return nullptr;
     }

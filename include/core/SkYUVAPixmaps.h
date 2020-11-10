@@ -120,7 +120,7 @@ public:
     SkYUVColorSpace yuvColorSpace() const { return fYUVAInfo.yuvColorSpace(); }
 
     /** The number of SkPixmap planes, 0 if this SkYUVAPixmapInfo is invalid. */
-    int numPlanes() const { return this->isValid() ? fYUVAInfo.numPlanes() : 0; }
+    int numPlanes() const { return fYUVAInfo.numPlanes(); }
 
     /** The per-YUV[A] channel data type. */
     DataType dataType() const { return fDataType; }
