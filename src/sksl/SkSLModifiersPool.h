@@ -8,7 +8,11 @@
 #ifndef SKSL_MODIFIERSPOOL
 #define SKSL_MODIFIERSPOOL
 
+#include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLModifiers.h"
+
 #include <unordered_map>
+#include <vector>
 
 namespace SkSL {
 

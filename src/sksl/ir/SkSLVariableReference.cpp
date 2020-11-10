@@ -36,6 +36,8 @@ bool VariableReference::isConstantOrUniform() const {
 }
 
 String VariableReference::description() const {
+    printf("VARIABLE: %p\n", this->variable());
+    printf("VARIABLE: %s\n", String(this->variable()->name()).c_str());
     return this->variable()->name();
 }
 
