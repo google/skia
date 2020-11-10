@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc1a5759_a090497f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-10T13:25:31Z",
+      "side": 1,
+      "message": "I don\u0027t know if it would be worth making it so you get the MockDrawOpTarget from the MockContext.",
+      "revId": "6270d7568e3e816af837b851a8e9dfe8fb04cdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0867ac6_52c6193b",
@@ -14,6 +31,30 @@
       "writtenOn": "2020-11-09T21:14:48Z",
       "side": 1,
       "message": "I don\u0027t love the name though.. Thoughts?",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 20
+      },
+      "revId": "6270d7568e3e816af837b851a8e9dfe8fb04cdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6314a225_ccda6f18",
+        "filename": "src/gpu/mock/GrMockOpTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-10T13:25:31Z",
+      "side": 1,
+      "message": "It is probably the most appropriate name though.",
+      "parentUuid": "e0867ac6_52c6193b",
       "range": {
         "startLine": 17,
         "startChar": 6,
