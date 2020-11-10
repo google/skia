@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0443e40_95c49d04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-10T20:02:20Z",
+      "side": 1,
+      "message": "Confirmed here: https://android-build.googleplex.com/builds/forrest/run/L62000000740322978 that the previous Android unit test failures now pass.",
+      "revId": "7712db9c246b79267c23793c591b9896f950358e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
