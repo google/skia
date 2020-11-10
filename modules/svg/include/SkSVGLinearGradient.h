@@ -18,24 +18,19 @@ public:
         return sk_sp<SkSVGLinearGradient>(new SkSVGLinearGradient());
     }
 
-    void setX1(const SkSVGLength&);
-    void setY1(const SkSVGLength&);
-    void setX2(const SkSVGLength&);
-    void setY2(const SkSVGLength&);
+    SVG_ATTR(X1, SkSVGLength, SkSVGLength(0  , SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(Y1, SkSVGLength, SkSVGLength(0  , SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(X2, SkSVGLength, SkSVGLength(100, SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(Y2, SkSVGLength, SkSVGLength(0  , SkSVGLength::Unit::kPercentage))
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                  const SkColor*, const SkScalar*, int count,
                                  SkTileMode, const SkMatrix&) const override;
 private:
     SkSVGLinearGradient();
-
-    SkSVGLength fX1 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
-    SkSVGLength fY1 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
-    SkSVGLength fX2 = SkSVGLength(100, SkSVGLength::Unit::kPercentage);
-    SkSVGLength fY2 = SkSVGLength(0  , SkSVGLength::Unit::kPercentage);
 
     using INHERITED = SkSVGGradient;
 };

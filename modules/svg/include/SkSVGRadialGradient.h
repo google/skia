@@ -18,14 +18,14 @@ public:
         return sk_sp<SkSVGRadialGradient>(new SkSVGRadialGradient());
     }
 
-    void setCx(const SkSVGLength&);
-    void setCy(const SkSVGLength&);
-    void setR(const SkSVGLength&);
-    void setFx(const SkSVGLength&);
-    void setFy(const SkSVGLength&);
+    SVG_ATTR(Cx, SkSVGLength, SkSVGLength(50, SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(Cy, SkSVGLength, SkSVGLength(50, SkSVGLength::Unit::kPercentage))
+    SVG_ATTR(R,  SkSVGLength, SkSVGLength(50, SkSVGLength::Unit::kPercentage))
+    SVG_OPTIONAL_ATTR(Fx, SkSVGLength)
+    SVG_OPTIONAL_ATTR(Fy, SkSVGLength)
 
 protected:
-    void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
+    bool parseAndSetAttribute(const char*, const char*) override;
 
     sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                  const SkColor*, const SkScalar*, int count,
@@ -33,14 +33,7 @@ protected:
 private:
     SkSVGRadialGradient();
 
-    SkSVGLength fCx = SkSVGLength(50, SkSVGLength::Unit::kPercentage);
-    SkSVGLength fCy = SkSVGLength(50, SkSVGLength::Unit::kPercentage);
-    SkSVGLength fR  = SkSVGLength(50, SkSVGLength::Unit::kPercentage);
-    SkTLazy<SkSVGLength> fFx;
-    SkTLazy<SkSVGLength> fFy;
-
-
-   using INHERITED = SkSVGGradient;
+    using INHERITED = SkSVGGradient;
 };
 
 #endif // SkSVGRadialGradient_DEFINED
