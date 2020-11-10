@@ -8,6 +8,7 @@
 #ifndef GrDDLTask_DEFINED
 #define GrDDLTask_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "src/gpu/GrRenderTask.h"
 
 class GrRenderTargetProxy;
@@ -22,7 +23,8 @@ class GrDDLTask final : public GrRenderTask {
 public:
     GrDDLTask(GrDrawingManager*,
               sk_sp<GrRenderTargetProxy> ddlTarget,
-              sk_sp<const SkDeferredDisplayList>);
+              sk_sp<const SkDeferredDisplayList>,
+              SkIPoint offset);
 
     ~GrDDLTask() override;
 
@@ -35,7 +37,7 @@ public:
     void disown(GrDrawingManager*) override;
 
 private:
-    bool onIsUsed(GrSurfaceProxy* proxy) const override;
+    bool onIsUsed(GrSurfaceProxy*) const override;
 
     void handleInternalAllocationFailure() override;
 
@@ -65,6 +67,7 @@ private:
 
     sk_sp<const SkDeferredDisplayList> fDDL;
     sk_sp<GrRenderTargetProxy>         fDDLTarget;
+    SkIPoint                           fOffset;
 
     typedef GrRenderTask INHERITED;
 };
