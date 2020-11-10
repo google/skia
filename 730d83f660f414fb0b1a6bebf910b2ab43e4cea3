@@ -70,6 +70,24 @@
       "parentUuid": "1008b1f9_31ec98ba",
       "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7fbaeb7_dd4881e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T22:33:38Z",
+      "side": 1,
+      "message": "Oh, huh, I misunderstood kMinHeapAllocCount entirely. It\u0027s rounding up the number of T\u0027s we allocate, not rounding up the number of bytes. That feels a lot less compelling. I\u0027m going to change it to claim the free real estate but not grow past that, when addExtraSpace is off.",
+      "parentUuid": "01b504f0_50da99d3",
+      "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
