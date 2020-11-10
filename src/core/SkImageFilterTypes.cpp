@@ -30,7 +30,7 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                               const skif::ParameterSpace<SkPoint>& representativePoint) {
     SkMatrix remainder, layer;
     SkSize scale;
-    if (!filter || ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
+    if (ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
         // It doesn't matter what type of matrix ctm is, we can have layer space be equivalent to
         // device space.
         remainder = SkMatrix::I();
@@ -57,16 +57,6 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
         layer = SkMatrix::Scale(scale, scale);
     }
     return Mapping(remainder, layer);
-}
-
-bool Mapping::adjustLayerSpace(const SkMatrix& layer) {
-    SkMatrix invLayer;
-    if (!layer.invert(&invLayer)) {
-        return false;
-    }
-    fParamToLayerMatrix.postConcat(layer);
-    fLayerToDevMatrix.preConcat(invLayer);
-    return true;
 }
 
 // Instantiate map specializations for the 6 geometric types used during filtering
