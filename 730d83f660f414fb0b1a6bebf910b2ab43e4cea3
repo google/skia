@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41ae7018_83d59c24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T21:14:12Z",
+      "side": 1,
+      "message": "I don\u0027t agree with changing the test comparison from \"\u003d\u003d 15\" to \"\u003e\u003d 15\". I don\u0027t think overallocating for reserve_back on an empty container is a good idea; capacity shouldn\u0027t factor in to the math (particularly the built-in stack capacity).\n\n`SkSTArray\u003c10, char\u003e x; x.reserve_back(500);` ought to reserve 500 bytes, not some arbitrary amount larger than 500 bytes.",
+      "revId": "730d83f660f414fb0b1a6bebf910b2ab43e4cea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
