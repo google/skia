@@ -37,6 +37,9 @@ public:
     const SkTArray<sk_sp<GrRenderTask>>& renderTasks() const {
         return fDDL->fRenderTasks;
     }
+
+    int width() const { return fDDL->fCharacterization.width(); }
+    int height() const { return fDDL->fCharacterization.height(); }
 #endif
 
 private:

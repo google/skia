@@ -13,9 +13,12 @@
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
                      sk_sp<GrRenderTargetProxy> ddlTarget,
-                     sk_sp<const SkDeferredDisplayList> ddl)
+                     sk_sp<const SkDeferredDisplayList> ddl,
+                     int xOffset, int yOffset)
         : fDDL(std::move(ddl))
-        , fDDLTarget(std::move(ddlTarget)) {
+        , fDDLTarget(std::move(ddlTarget))
+        , fXOffset(xOffset)
+        , fYOffset(yOffset) {
     for (auto& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
@@ -94,6 +97,9 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
 }
 
 bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
+    flushState->gpu()->setViewport(fXOffset, fYOffset,
+                                   fDDL->priv().width(), fDDL->priv().height());
+
     bool anyCommandsIssued = false;
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->execute(flushState)) {
@@ -101,5 +107,8 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
         }
     }
 
+    flushState->gpu()->setViewport(0, 0,
+                                   fDDLTarget->backingStoreDimensions().width(),
+                                   fDDLTarget->backingStoreDimensions().height());
     return anyCommandsIssued;
 }
