@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e50e69fc_93c34520",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-10T14:38:20Z",
+      "side": 1,
+      "message": "Another way to address this would be to add an \"internalsAccess\" or \"dagAccess\" helper similar to GrGpuResource\u0027s cacheAccess.",
+      "revId": "4bd3093033e8d80a2fe3c35b84f152bc3bc0c45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
