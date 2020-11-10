@@ -16,6 +16,52 @@
       "message": "I\u0027m not super happy with the SVG_LAZY_ATTR and SkSVGIRI additions, so let me know if you have any ideas there to improve things.",
       "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4da14270_91c04854",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-10T17:57:11Z",
+      "side": 1,
+      "message": "SVG_OPTIONAL_ATTR?  The \"lazy\" bit smells like an implementation detail.",
+      "range": {
+        "startLine": 184,
+        "startChar": 8,
+        "endLine": 184,
+        "endChar": 21
+      },
+      "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f71284e4_77836c19",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-10T17:57:11Z",
+      "side": 1,
+      "message": "Bummer that we need a type just to discriminate for parsing...\n\nWould a simple struct work instead?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 5
+      },
+      "revId": "ff405bd90da55cc4140fe57bb64b4b4e89b9046b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
