@@ -8,6 +8,7 @@
 #ifndef SkSVGDOM_DEFINED
 #define SkSVGDOM_DEFINED
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkTemplates.h"
@@ -17,18 +18,29 @@ class SkCanvas;
 class SkDOM;
 class SkStream;
 class SkSVGNode;
+class SkSVGSVG;
 
 class SkSVGDOM : public SkRefCnt {
 public:
-    SkSVGDOM();
+    class Builder final {
+    public:
+        /**
+         * Specify a font manager for loading SVG fonts.
+         */
+        Builder& setFontManager(sk_sp<SkFontMgr>);
 
-    static sk_sp<SkSVGDOM> MakeFromDOM(const SkDOM&);
-    static sk_sp<SkSVGDOM> MakeFromStream(SkStream&);
+        sk_sp<SkSVGDOM> make(SkStream&) const;
+
+    private:
+        sk_sp<SkFontMgr> fFontMgr;
+    };
+
+    static sk_sp<SkSVGDOM> MakeFromStream(SkStream& str) {
+        return Builder().make(str);
+    }
 
     const SkSize& containerSize() const;
     void setContainerSize(const SkSize&);
-
-    void setRoot(sk_sp<SkSVGNode>);
 
     // Returns the node with the given id, or nullptr if not found.
     sk_sp<SkSVGNode>* findNodeById(const char* id);
@@ -36,13 +48,13 @@ public:
     void render(SkCanvas*) const;
 
 private:
-    SkSize intrinsicSize() const;
+    SkSVGDOM(sk_sp<SkSVGSVG>, sk_sp<SkFontMgr>, SkSVGIDMapper&&);
 
-    SkSize           fContainerSize;
-    sk_sp<SkSVGNode> fRoot;
-    SkSVGIDMapper    fIDMapper;
+    const sk_sp<SkSVGSVG>  fRoot;
+    const sk_sp<SkFontMgr> fFontMgr;
+    const SkSVGIDMapper    fIDMapper;
 
-    using INHERITED = SkRefCnt;
+    SkSize                 fContainerSize;
 };
 
 #endif // SkSVGDOM_DEFINED
