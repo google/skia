@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7f9b8517_843bf0c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-10T19:06:07Z",
+      "side": 1,
+      "message": "\u003e Ah. \"apply the update\" -- I guess B is some delta applied to A?\n\nYes. Typically B will be a rectangle that blends with A (although APNG, which we don\u0027t currently support, and WebP have an option that essentially says to use SkBlendMode::kSrc). It\u0027s also possible that A is a subset delta that depends on another frame, and if it\u0027s marked kRestoreBGColor, we need to erase its delta to transparent black before we blend B.\n\nThinking on this some more, instead of \"unfixing\" A, we could just decode the rectangle for B into zeroed memory and draw it through the matrix into the already-fixed A. (For the kRestoreBGColor case, we would need to run A\u0027s rectangle through the matrix before erase, too.)\n\n\u003e Can the delta be rotated? (I hadn\u0027t thought about this aspect).\n\nI\u0027m not aware of a case where the delta would be rotated relative to other frames.",
+      "parentUuid": "b72ca48a_9b49d1f3",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "462bc221_fbb09d92",
         "filename": "src/utils/SkAnimCodecPlayer.cpp",
         "patchSetId": 2
@@ -67,6 +85,24 @@
       "writtenOn": "2020-11-10T18:28:40Z",
       "side": 1,
       "message": "so we need to make a copy of the frame in order to \"reorient\" it.  Is there any option where we return the rotation matrix?",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00f7d7a9_b4d971ca",
+        "filename": "src/utils/SkAnimCodecPlayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-10T19:06:07Z",
+      "side": 1,
+      "message": "Currently, no. Do you think there should be? I guess that would allow them to use the raw pixels (avoid copying) without the overhead of PictureImage?",
+      "parentUuid": "462bc221_fbb09d92",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
