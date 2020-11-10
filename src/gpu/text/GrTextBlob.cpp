@@ -1336,16 +1336,19 @@ GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkMatrix& drawMatrix) {
     // The difference in alignment from the storage of VertexData to SubRun;
-    using AllSubRuns = std::aligned_union_t<1,
-            DirectMaskSubRun,
-            TransformedMaskSubRun,
-            SDFTSubRun,
-            PathSubRun>;
+    union AllSubRuns {
+        ~AllSubRuns() = delete;  // MSVC warns this is implicit if we don't write it explicitly.
+        DirectMaskSubRun      d;
+        TransformedMaskSubRun t;
+        SDFTSubRun            s;
+        PathSubRun            p;
+    };
+    union AllVertexData {
+        DirectMaskSubRun     ::VertexData d;
+        TransformedMaskSubRun::VertexData t;
+        SDFTSubRun           ::VertexData s;
+    };
 
-    using AllVertexData = std::aligned_union<1,
-            DirectMaskSubRun::VertexData,
-            TransformedMaskSubRun::VertexData,
-            SDFTSubRun::VertexData>;
     constexpr size_t alignDiff = alignof(AllSubRuns) - alignof(AllVertexData);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
