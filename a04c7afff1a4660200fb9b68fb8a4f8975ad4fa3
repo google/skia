@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4921bb08_4c15844e",
+        "filename": "tests/sksl/shared/StructMaxDepth.sksl",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-10T14:09:37Z",
+      "side": 1,
+      "message": "What about enforcing a combined limit on type complexity, rather than the orthogonal limits? I guess you\u0027re saying here that we still fail gracefully in this case (with a parse depth error)?",
+      "revId": "a04c7afff1a4660200fb9b68fb8a4f8975ad4fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
