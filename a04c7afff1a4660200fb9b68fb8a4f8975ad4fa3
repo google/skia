@@ -16,6 +16,24 @@
       "message": "What about enforcing a combined limit on type complexity, rather than the orthogonal limits? I guess you\u0027re saying here that we still fail gracefully in this case (with a parse depth error)?",
       "revId": "a04c7afff1a4660200fb9b68fb8a4f8975ad4fa3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d18e0a3d_bb016697",
+        "filename": "tests/sksl/shared/StructMaxDepth.sksl",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T15:12:43Z",
+      "side": 1,
+      "message": "I actually implemented this approach at http://review.skia.org/333278 but decided not to proceed with it and did this instead.\n\nChecking a type\u0027s complexity every time the IR Generator assembled an array type felt really bulky and needlessly heavyweight, and the practical difference between that implementation and this one was just a tighter limit. Having a tighter limit didn\u0027t actually add any value AFAICS--the only real goal is to prevent a stack overflow. (Also, by the time we\u0027ve reached the IR Generator, structs have mostly melted away into the symbol table, so the IR Generation stage couldn\u0027t actually report a struct\u0027s overage at the definition site; you had to do it when the type was used in the IR.)\n\nAlso, when I learned that WebGL enforces a struct nesting depth, that helped steer my decision to keep array depth and struct depth as separately enforced limits.",
+      "parentUuid": "4921bb08_4c15844e",
+      "revId": "a04c7afff1a4660200fb9b68fb8a4f8975ad4fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
