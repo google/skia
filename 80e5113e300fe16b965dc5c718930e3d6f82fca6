@@ -87,6 +87,24 @@
       "parentUuid": "573a666f_78152f7c",
       "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06a755f9_c53ac867",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-10T16:57:06Z",
+      "side": 1,
+      "message": "(I\u0027ve filed https://crbug.com/skia/10930 to track the reserve_back issue.)",
+      "parentUuid": "0606b830_6e5b9622",
+      "revId": "80e5113e300fe16b965dc5c718930e3d6f82fca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
