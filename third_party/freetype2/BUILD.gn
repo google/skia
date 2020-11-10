@@ -7,6 +7,7 @@ declare_args() {
   # TODO: build from source all the time for testing?
   skia_use_system_freetype2 =
       (is_official_build || !(is_android || sanitize == "MSAN")) && !is_fuchsia
+  skia_use_freetype_woff2 = false
 }
 
 import("../third_party.gni")
@@ -35,6 +36,11 @@ if (skia_use_system_freetype2) {
         "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
         "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
       ]
+    }
+
+    if (skia_use_freetype_woff2) {
+      deps += [ "//third_party/brotli" ]
+      defines += [ "FT_CONFIG_OPTION_USE_BROTLI" ]
     }
 
     sources = [

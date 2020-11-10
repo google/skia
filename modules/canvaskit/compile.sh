@@ -174,12 +174,14 @@ if [[ $@ == *no_canvas* ]]; then
 fi
 
 GN_FONT="skia_enable_fontmgr_custom_directory=false "
+WOFF2_FONT="skia_use_freetype_woff2=true"
 FONT_CFLAGS=""
 BUILTIN_FONT=""
 FONT_JS="--pre-js $BASE_DIR/font.js"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
   FONT_CFLAGS="-DSK_NO_FONTS"
+  WOFF2_FONT=""
   FONT_JS=""
   GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
@@ -194,6 +196,10 @@ else
       --align 4
   BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
   GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=false"
+fi
+
+if [[ $@ == *no_woff2* ]]; then
+  WOFF2_FONT="skia_use_freetype_woff2=false"
 fi
 
 if [[ $@ == *no_alias_font* ]]; then
@@ -306,6 +312,7 @@ echo "Compiling bitcode"
   ${GN_SHAPER} \
   ${GN_GPU} \
   ${GN_FONT} \
+  ${WOFF2_FONT} \
   ${GN_PARTICLES} \
   ${GN_VIEWER} \
   \
