@@ -34,6 +34,24 @@
       "parentUuid": "4921bb08_4c15844e",
       "revId": "a04c7afff1a4660200fb9b68fb8a4f8975ad4fa3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a720c05_b896f7ec",
+        "filename": "tests/sksl/shared/StructMaxDepth.sksl",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-10T15:17:58Z",
+      "side": 1,
+      "message": "Makes sense. Thanks for the explanation!",
+      "parentUuid": "d18e0a3d_bb016697",
+      "revId": "a04c7afff1a4660200fb9b68fb8a4f8975ad4fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
