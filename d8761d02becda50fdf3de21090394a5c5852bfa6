@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28a1ccf3_62e9045d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 15269
+      },
+      "writtenOn": "2020-11-11T22:55:46Z",
+      "side": 1,
+      "message": "\u003e Disable the libhwui Windows build until then.\n\nEven if we do enable Windows for libhwui again at some point I\u0027d argue it should be done with an explicit setting there instead of putting it back in skia_deps. I think an xxx_deps-style defaults should only provide deps and nothing else - that\u0027s why I opted to fix it in external/skia rather than with an override in hwui.\n\nThat said I don\u0027t think it\u0027s imperative to clarify that detail here. This looks good, thanks!",
+      "parentUuid": "ab9ec257_3b830bc2",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 54
+      },
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "43312440_c178e5a2",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-11T15:10:42Z",
       "side": 1,
       "message": "It\u0027s not in AOSP (yet), but there is another target that depends on skia_deps [1]. Should we add windows:enabled there, or is it correct that this will disable its windows build?\n\n[1] https://source.corp.google.com/android/frameworks/native/services/surfaceflinger/Android.bp;l\u003d18?q\u003dskia_deps\u0026ct\u003dos\u0026sq\u003dpackage:%5Eandroid$%20-file:external%2Fskqp%20-file:external%2Fqt",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 70
+      },
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6437cd49_91209362",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 15269
+      },
+      "writtenOn": "2020-11-11T22:55:46Z",
+      "side": 1,
+      "message": "Missed that one. I don\u0027t know for certain, but an educated guess is that the Windows variant is unintentional there (as I thought it was for libhwui). Windows to my knowledge might only be enabled for either NDK or Android Studio, and it\u0027s not NDK. Also, since https://r.android.com/1495316 passes presubmit it\u0027s unlikely there\u0027s a Windows dependency on it.\n\nIn any case, if it does turn out to be used it\u0027s easy enough to flip the flag back on there.",
+      "parentUuid": "43312440_c178e5a2",
       "range": {
         "startLine": 13,
         "startChar": 0,
