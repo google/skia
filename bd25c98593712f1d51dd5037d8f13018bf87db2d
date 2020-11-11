@@ -295,6 +295,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5105bd3b_8f40b6a7",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T15:58:50Z",
+      "side": 1,
+      "message": "+1 to abandoning 333876, I don\u0027t think it\u0027s worth it. It removes a slightly-useful feature and provides very little in return.\n\nWhen I was new on the team I was on team \"delete SkTArray\" but honestly I haven\u0027t yet seen a replacement class that I would consider as a worthy successor. Using SkSTArray in SkSL has been quite beneficial for performance, and the ability to commingle SkTArray and SkSTArray is super powerful and I wouldn\u0027t want to sacrifice it. vector\u003cT\u003e doesn\u0027t have an SkSTArray equivalent at all; even if you implemented your own allocator to do something similar, that alters the type to vector\u003cT, MyAlloc\u003cT\u003e\u003e, so it\u0027s not transparently substitutable with vector\u003cT\u003e\u0026 in code (unless you template everything?). absl::InlinedVector\u003cT\u003e is great, but it doesn\u0027t even try to play nice with vector\u003cT\u003e\u0026.",
+      "parentUuid": "cc615391_66c212fc",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
