@@ -15,6 +15,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkMathPriv.h"
 
 class SkArenaAlloc;
 class SkScalerContext;
@@ -229,7 +230,7 @@ struct SkGlyphPrototype;
 class SkGlyph {
 public:
     // SkGlyph() is used for testing.
-    constexpr SkGlyph() : fID{SkPackedGlyphID()} { }
+    constexpr SkGlyph() : SkGlyph{SkPackedGlyphID()} { }
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
@@ -300,7 +301,7 @@ public:
 
     // Format
     bool isColor() const { return fMaskFormat == SkMask::kARGB32_Format; }
-    SkMask::Format maskFormat() const { return static_cast<SkMask::Format>(fMaskFormat); }
+    SkMask::Format maskFormat() const { return fMaskFormat; }
     size_t formatAlignment() const;
 
     // Bounds
@@ -396,7 +397,7 @@ private:
     float     fAdvanceX = 0,
               fAdvanceY = 0;
 
-    uint8_t   fMaskFormat = 0;
+    SkMask::Format fMaskFormat{SkMask::kBW_Format};
 
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;
