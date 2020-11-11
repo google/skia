@@ -44,6 +44,11 @@
 class SkBitSet;
 class SkSLCompileBench;
 
+namespace skslcode {
+    class DSL;
+    class DSLWriter;
+}
+
 namespace SkSL {
 
 class ByteCode;
@@ -301,6 +306,8 @@ private:
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
+    friend class ::skslcode::DSL;
+    friend class ::skslcode::DSLWriter;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
