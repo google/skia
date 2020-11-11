@@ -120,46 +120,6 @@ public:
     void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
 private:
-    // This class encapsulates maintenance and manipulation of the drawing manager's DAG of
-    // renderTasks.
-    class RenderTaskDAG {
-    public:
-        // This call will topologically sort the GrRenderTasks.
-        void prepForFlush();
-
-        void closeAll(const GrCaps* caps);
-
-        void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
-
-        void reset();
-
-        // This call forceably removes GrRenderTasks from the DAG. It is problematic bc it
-        // just removes the GrRenderTasks but doesn't cleanup any referring pointers (i.e.
-        // dependency pointers in the DAG). It works right now bc it is only called after the
-        // topological sort is complete (so the dangling pointers aren't used).
-        void rawRemoveRenderTasks(int startIndex, int stopIndex);
-
-        bool empty() const { return fRenderTasks.empty(); }
-        int numRenderTasks() const { return fRenderTasks.count(); }
-
-        bool isUsed(GrSurfaceProxy*) const;
-
-        GrRenderTask* renderTask(int index) { return fRenderTasks[index].get(); }
-        const GrRenderTask* renderTask(int index) const { return fRenderTasks[index].get(); }
-
-        GrRenderTask* back() { return fRenderTasks.back().get(); }
-        const GrRenderTask* back() const { return fRenderTasks.back().get(); }
-
-        GrRenderTask* add(sk_sp<GrRenderTask>);
-        GrRenderTask* addBeforeLast(sk_sp<GrRenderTask>);
-        void add(const SkTArray<sk_sp<GrRenderTask>>&);
-
-        void swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks);
-
-    private:
-        SkTArray<sk_sp<GrRenderTask>> fRenderTasks;
-    };
-
     GrDrawingManager(GrRecordingContext*,
                      const GrPathRendererChain::Options&,
                      bool reduceOpsTaskSplitting);
@@ -176,6 +136,14 @@ private:
                             int* numRenderTasksExecuted);
 
     void removeRenderTasks(int startIndex, int stopIndex);
+
+    void sortTasks();
+
+    void closeAllTasks();
+
+    GrRenderTask* appendTask(sk_sp<GrRenderTask>);
+    void appendTasks(SkSpan<const sk_sp<GrRenderTask>>);
+    GrRenderTask* insertTaskBeforeLast(sk_sp<GrRenderTask>);
 
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,
@@ -202,7 +170,7 @@ private:
     // flushes.
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
-    RenderTaskDAG                     fDAG;
+    SkTArray<sk_sp<GrRenderTask>>     fDAG;
     GrOpsTask*                        fActiveOpsTask = nullptr;
     // These are the IDs of the opsTask currently being flushed (in internalFlush)
     SkSTArray<8, uint32_t, true>      fFlushingRenderTaskIDs;
