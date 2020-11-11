@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2d250a8_5827d1d5",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T17:31:45Z",
+      "side": 1,
+      "message": "I\u0027ll just say it, these are bad and we should feel bad for having them on the Skia cpp side as well. These do no shaping and if we were shaping there is no way it would be exposed like this.\n\nLooking at the referenced issue, it appears that some think this is like Cavas2D\u0027s measureText which does do shaping. That interface is also stupidly inefficient since it must shape everything and then throw away the result and return a single number. I\u0027m generally against anything that takes codepoints that isn\u0027t a shaper, but these are especially misleading.",
+      "range": {
+        "startLine": 1444,
+        "startChar": 0,
+        "endLine": 1464,
+        "endChar": 64
+      },
+      "revId": "7c23d3c1e6a53d3fd63fa57359f762a79d9fa31c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
