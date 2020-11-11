@@ -16,7 +16,7 @@ CanvasKit._extraInitializations.push(function() {
     } else {
       this._drawShapedText(str, x, y, paint);
     }
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -122,7 +122,37 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(strPtr);
     CanvasKit._free(widthPtr);
     return retVal;
-  }
+  };
+
+  CanvasKit.Font.prototype.measureWidth = function(str) {
+    // Add 1 for the null terminator allocation
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes);
+
+    // Subtract 1 from the actual byte length because we don't want to count the null terminator.
+    var width = this._measureText(strPtr, strBytes - 1, nullptr, null);
+    CanvasKit._free(strPtr);
+    return width;
+  };
+
+  CanvasKit.Font.prototype.measureWidthBounds = function(str, paint) {
+        // Add 1 for the null terminator allocation
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes);
+
+    // Subtract 1 from the actual byte length because we don't want to count the null terminator.
+    var width = this._measureText(strPtr, strBytes - 1, _scratchRectPtr, paint || null);
+    CanvasKit._free(strPtr);
+    return {
+      'width': width,
+      'bounds': _scratchRect['toTypedArray']().slice(), // return a copy of the bounds
+    };
+  };
+
+  // TODO(kjlubick) remove deprecated API
+  CanvasKit.Font.prototype.measureText = CanvasKit.Font.prototype.measureWidth;
 
   // arguments should all be arrayBuffers or be an array of arrayBuffers.
   CanvasKit.FontMgr.FromData = function() {
@@ -154,7 +184,7 @@ CanvasKit._extraInitializations.push(function() {
     CanvasKit._free(datasPtr);
     CanvasKit._free(sizesPtr);
     return fm;
-  }
+  };
 
   // fontData should be an arrayBuffer
   CanvasKit.FontMgr.prototype.MakeTypefaceFromData = function(fontData) {
@@ -169,7 +199,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return font;
-  }
+  };
 
   // Clients can pass in a Float32Array with length 4 to this and the results
   // will be copied into that array. Otherwise, a new TypedArray will be allocated
@@ -182,7 +212,7 @@ CanvasKit._extraInitializations.push(function() {
       return optionalOutputArray;
     }
     return ta.slice();
-  }
+  };
 
   CanvasKit.TextBlob.MakeOnPath = function(str, path, font, initialOffset) {
     if (!str || !str.length) {
@@ -239,7 +269,7 @@ CanvasKit._extraInitializations.push(function() {
     rsx.delete();
     meas.delete();
     return retVal;
-  }
+  };
 
   CanvasKit.TextBlob.MakeFromRSXform = function(str, rsxBuilderOrArray, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
@@ -264,7 +294,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -287,7 +317,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
@@ -302,7 +332,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   CanvasKit.TextBlob.MakeFromText = function(str, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
@@ -320,7 +350,7 @@ CanvasKit._extraInitializations.push(function() {
       return null;
     }
     return blob;
-  }
+  };
 
   // A helper to return the right type for GlyphIDs stored internally. When that changes, this
   // will also be changed, which will help avoid future breakages.

@@ -1117,10 +1117,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkScalar* outputWidths = reinterpret_cast<SkScalar*>(wPtr);
             self.getWidthsBounds(glyphs, numGlyphs, outputWidths, outputRects, paint);
         }), allow_raw_pointers())
-        .function("_getGlyphIDs", optional_override([](SkFont& self, uintptr_t /* char* */ sptr,
+        .function("_getGlyphIDs", optional_override([](SkFont& self, uintptr_t /* char* */ sPtr,
                                                        size_t strLen, size_t expectedCodePoints,
                                                        uintptr_t /* SkGlyphID* */ iPtr) -> int {
-            char* str = reinterpret_cast<char*>(sptr);
+            char* str = reinterpret_cast<char*>(sPtr);
             SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
 
             int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
@@ -1150,12 +1150,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             delete[] glyphStorage;
             return true;
         }))
-        .function("measureText", optional_override([](SkFont& self, std::string text) {
-            // TODO(kjlubick): This does not work well for non-ascii
-            // Need to maybe add a helper in interface.js that supports UTF-8
-            // Otherwise, go with std::wstring and set UTF-32 encoding.
-            return self.measureText(text.c_str(), text.length(), SkTextEncoding::kUTF8);
-        }))
+        .function("_measureText", optional_override([](SkFont& self,
+                                                       uintptr_t /* char* */ sPtr, size_t strLen,
+                                                       uintptr_t /* SkRect* */ bPtr,
+                                                       SkPaint* paint) -> SkScalar {
+            char* str = reinterpret_cast<char*>(sPtr);
+            SkRect* bounds = reinterpret_cast<SkRect*>(bPtr);
+
+            return self.measureText(str, strLen, SkTextEncoding::kUTF8, bounds, paint);
+        }), allow_raw_pointers())
         .function("setEdging", &SkFont::setEdging)
         .function("setEmbeddedBitmaps", &SkFont::setEmbeddedBitmaps)
         .function("setHinting", &SkFont::setHinting)

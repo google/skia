@@ -325,7 +325,6 @@ var CanvasKit = {
     getSize: function() {},
     getSkewX: function() {},
     getTypeface: function() {},
-    measureText: function() {},
     setHinting: function() {},
     setLinearMetrics: function() {},
     setScaleX: function() {},
@@ -339,12 +338,15 @@ var CanvasKit = {
       getGlyphIDs: function() {},
       getGlyphWidths: function() {},
       getWidths: function() {},
+      measureWidth: function() {},
+      measureWidthBounds: function() {},
     },
 
     // private API (from C++ bindings)
     _getGlyphIDs: function() {},
     _getGlyphWidthBounds: function() {},
     _getWidths: function() {},
+    _measureText: function() {},
   },
 
   FontMgr: {
