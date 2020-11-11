@@ -52,6 +52,24 @@
       "parentUuid": "0bc3521e_941bcb2c",
       "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17a66410_768ab7f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-11T18:27:03Z",
+      "side": 1,
+      "message": "It\u0027s funny, I found the same behavior for __builtin_launder, which is at least mentioned here: https://devblogs.microsoft.com/cppblog/announcing-msvc-conforms-to-the-c-standard/.  I\u0027m not sure if all this new Clang compatibility is intentional or accidental.\n\nThere are some wild ideas in https://stackoverflow.com/questions/8936549/constexpr-overloading if we\u0027d like to try \"overloading on constexpr\", which is not directly possible but if you read the thread you\u0027ll see you can hack it a few ways anyway.\n\nIf that\u0027s all not too crazy, that\u0027s fine with me, but what I\u0027d lean to here is the simple thing.  For as many Foo as needed, keep SkFoo and SkFoo_portable in parallel, and only mark the _portable ones as constexpr, treating constexpr like an unknown CPU architecture.",
+      "parentUuid": "6fa5d447_eaabb801",
+      "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
