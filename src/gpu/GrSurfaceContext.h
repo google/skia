@@ -162,7 +162,7 @@ public:
      * After this returns any pending surface IO will be issued to the backend 3D API and
      * if the surface has MSAA it will be resolved.
      */
-    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access,
+    GrSemaphoresSubmitted flush1(SkSurface::BackendSurfaceAccess access,
                                 const GrFlushInfo&,
                                 const GrBackendSurfaceMutableState*);
 

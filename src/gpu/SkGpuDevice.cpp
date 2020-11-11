@@ -1033,10 +1033,13 @@ void SkGpuDevice::flush() {
         return;
     }
 
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+    direct->flushSurface1(fRenderTargetContext->asSurfaceProxy(), SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+
+//    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
     direct->submit();
 }
 
+#if 0
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
                                          const GrFlushInfo& info,
                                          const GrBackendSurfaceMutableState* newState) {
@@ -1044,6 +1047,7 @@ GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
 
     return fRenderTargetContext->flush(access, info, newState);
 }
+#endif
 
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                        bool deleteSemaphoresAfterWait) {
