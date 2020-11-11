@@ -16,6 +16,23 @@
       "message": "X11 selections are 🤯\n\nThis is probably wrong in multiple ways, but from what I\u0027ve read, so is every other program\u0027s attempt to implement the protocol.",
       "revId": "4e16c544c10d5246c340159412074ee6942dbabe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a4e5d9a_37b4393a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-11T16:11:09Z",
+      "side": 1,
+      "message": "rs lgtm",
+      "revId": "4e16c544c10d5246c340159412074ee6942dbabe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
