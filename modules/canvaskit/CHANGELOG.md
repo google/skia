@@ -40,6 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
  - `new CanvasKit.Path(path)` in favor of existing `path.copy()`.
  - Unused internal APIs (_getRasterN32PremulSurface, Drawable)
+ - `measureText` from the CanvasContext2D emulation layer du to deprecation of measureText.
+
+### Deprecated
+ - `Font.getWidths` in favor of `Font.getGlyphIDs` and `Font.getGlyphWidths`.
+ - `Font.measureText` in favor of the Paragraph APIs (which actually do shaping).
 
 ### Type Changes (index.d.ts)
  - Return value for MakeFromCmds correctly reflects the possibility of null.
