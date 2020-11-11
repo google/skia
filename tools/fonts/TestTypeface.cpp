@@ -175,7 +175,7 @@ protected:
     void generateMetrics(SkGlyph* glyph) override {
         glyph->zeroMetrics();
         this->generateAdvance(glyph);
-        // Always generates from paths, so SkScalerContext::getMetrics will figure the bounds.
+        // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
     }
 
     void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }

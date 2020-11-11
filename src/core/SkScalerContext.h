@@ -284,7 +284,7 @@ public:
     bool isVertical() const { return false; }
 
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
-    void        getMetrics(SkGlyph*);
+    SkGlyph     makeGlyph(SkPackedGlyphID);
     void        getImage(const SkGlyph&);
     bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkFontMetrics*);
@@ -371,7 +371,7 @@ protected:
     /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
      *  as well as fAdvanceX and fAdvanceY if not already set.
      *
-     *  TODO: fMaskFormat is set by getMetrics later; cannot be set here.
+     *  TODO: fMaskFormat is set by internalMakeGlyph later; cannot be set here.
      */
     virtual void generateMetrics(SkGlyph* glyph) = 0;
 
@@ -421,6 +421,7 @@ private:
 
     /** Returns false if the glyph has no path at all. */
     bool internalGetPath(SkPackedGlyphID id, SkPath* devPath);
+    SkGlyph internalMakeGlyph(SkPackedGlyphID packedID, SkMask::Format format);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

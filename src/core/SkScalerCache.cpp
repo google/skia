@@ -48,8 +48,7 @@ std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGl
         return {*digest, 0};
     }
 
-    SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
-    fScalerContext->getMetrics(glyph);
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID));
     return {this->addGlyph(glyph), sizeof(SkGlyph)};
 }
 
