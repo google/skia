@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4d69174e_6dd0c8a7",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T20:35:16Z",
+      "side": 1,
+      "message": "\u003e Given the name fAndroidCodecHandlesFrameIndex it seemed that it was indicating that AndroidCodec would never want to execute the code in this method.\n\nfAndroidCodecHandlesFrameIndex is meant to indicate that the bulk of the method is always executed by SkAndroidCodec, and not by its SkCodec, which returns kSuccess immediately.\n\n\u003e As written it executes this method once and all other invocations then return kSuccess.\n\nI don\u0027t think that\u0027s true. It depends on the caller. If the caller passes an androidCodec, it will execute the method. If the caller passes null, and fAndroidCodecHandlesFrameIndex is true (which is the case when an owned SkCodec calls it), it returns kSuccess. The stack should look something like this:\n\n  SkCodec (standalone)\n    getPixels\n      handleFrameIndex (androidCodec \u003d nullptr)\n        bulk of this method is executed bc fAndroidCodecHandlesFrameIndex \u003d false\n\n  SkAndroidCodec\n    getAndroidPixels\n      handleFrameIndex (androidCodec \u003d this SkAndroidCodec)\n        getAndroidPixels // possibly - to decode prior frame\n          handleFrameIndex (androidCodec \u003d this SkAndroidCodec again)\n          SkCodec-\u003egetPixels\n            handleFrameIndex (androidCodec \u003d nullptr)\n              return kSuccess bc fAndroidCodecHandlesFrameIndex \u003d true\n      SkCodec-\u003egetPixels\n        handleFrameIndex (androidCodec \u003d nullptr)\n          return kSuccess bc fAndroidCodecHandlesFrameIndex \u003d true",
+      "parentUuid": "585f56da_4ce8b713",
+      "range": {
+        "startLine": 279,
+        "startChar": 6,
+        "endLine": 279,
+        "endChar": 10
+      },
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "59fb9314_eb0a3c13",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 4
@@ -121,6 +145,24 @@
       "side": 1,
       "message": "I would just add a more descriptive comment instead of the extra condition, but I\u0027m fine either way.",
       "parentUuid": "581795fe_2701d0db",
+      "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da2a62e3_60ac6500",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T20:35:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3566a1a3_b58d7853",
       "revId": "a8f1d78af5f3fc8974f206bcdd1fc07171137b12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
