@@ -367,7 +367,7 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, 
         return false;
     }
 
-    direct->priv().createDDLTask(std::move(ddl), rtc->asRenderTargetProxy());
+    direct->priv().copyRenderTasksFromDDL(std::move(ddl), rtc->asRenderTargetProxy());
     return true;
 }
 
