@@ -303,8 +303,13 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         const char* cluster = text.begin() + clusterIndex(i);
         SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
         bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
+        // TODO: This is a temp change to match space handiling in LibTxt
+        // (all spaces are resolved with the main font)
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+        bool isWhitespace8 = false; // fParagraph->getUnicode()->isWhitespace(codepoint);
+#else
         bool isWhitespace8 = fParagraph->getUnicode()->isWhitespace(codepoint);
-
+#endif
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];
         if (glyph == 0 && !isControl8) { // Unresolved glyph and not control codepoint
