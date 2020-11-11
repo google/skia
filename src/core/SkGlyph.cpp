@@ -19,7 +19,7 @@ SkMask SkGlyph::mask() const {
     mask.fImage = (uint8_t*)fImage;
     mask.fBounds.setXYWH(fLeft, fTop, fWidth, fHeight);
     mask.fRowBytes = this->rowBytes();
-    mask.fFormat = static_cast<SkMask::Format>(fMaskFormat);
+    mask.fFormat = fMaskFormat;
     return mask;
 }
 
@@ -124,7 +124,7 @@ size_t SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
 }
 
 size_t SkGlyph::rowBytes() const {
-    return format_rowbytes(fWidth, (SkMask::Format)fMaskFormat);
+    return format_rowbytes(fWidth, fMaskFormat);
 }
 
 size_t SkGlyph::rowBytesUsingFormat(SkMask::Format format) const {
