@@ -8,12 +8,12 @@
 #ifndef SkFrameHolder_DEFINED
 #define SkFrameHolder_DEFINED
 
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/codec/SkCodecAnimationPriv.h"
 
 /**
  *  Base class for a single frame of an animated image.
@@ -29,7 +29,7 @@ public:
         , fRequiredFrame(kUninitialized)
         , fDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep)
         , fDuration(0)
-        , fBlend(SkCodecAnimation::Blend::kPriorFrame)
+        , fBlend(SkCodecAnimation::Blend::kSrcOver)
     {
         fRect.setEmpty();
     }
@@ -141,6 +141,11 @@ public:
     SkCodecAnimation::Blend getBlend() const {
         return fBlend;
     }
+
+    /**
+     * Fill in the FrameInfo with details from this object.
+     */
+    void fillIn(SkCodec::FrameInfo*, bool fullyReceived) const;
 
 protected:
     virtual SkEncodedInfo::Alpha onReportedAlpha() const = 0;
