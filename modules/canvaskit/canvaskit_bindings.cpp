@@ -1152,7 +1152,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return true;
         }))
         .function("measureText", optional_override([](SkFont& self, std::string text) {
-            // TODO(kjlubick): This does not work well for non-ascii
+            // TODO(kjlubick): Remove this API
             // Need to maybe add a helper in interface.js that supports UTF-8
             // Otherwise, go with std::wstring and set UTF-32 encoding.
             return self.measureText(text.c_str(), text.length(), SkTextEncoding::kUTF8);
