@@ -808,10 +808,7 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.measureText = function(text) {
-    return {
-      width: this._font.measureText(text),
-      // TODO other measurements?
-    }
+    throw new Error('Clients wishing to properly measure text should use the Paragraph API').
   };
 
   this.moveTo = function(x, y) {
