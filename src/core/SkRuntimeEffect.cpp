@@ -583,6 +583,8 @@ static skvm::Color program_fn(skvm::Builder* p,
             case Inst::kSin:   unary(skvm::approx_sin);  break;
             case Inst::kTan:   unary(skvm::approx_tan);  break;
 
+            case Inst::kATan2: binary(skvm::approx_atan2); break;
+
             case Inst::kMatrixMultiply: {
                 // Computes M = A*B (all stored column major)
                 int aCols = u8(),

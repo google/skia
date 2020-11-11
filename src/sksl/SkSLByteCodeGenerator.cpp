@@ -50,7 +50,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "abs",       ByteCodeInstruction::kAbs },
         { "acos",      ByteCodeInstruction::kACos },
         { "asin",      ByteCodeInstruction::kASin },
-        { "atan",      ByteCodeInstruction::kATan },
+        { "atan",      SpecialIntrinsic::kATan },
         { "ceil",      ByteCodeInstruction::kCeil },
         { "clamp",     SpecialIntrinsic::kClamp },
         { "cos",       ByteCodeInstruction::kCos },
@@ -315,6 +315,8 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
 
         case ByteCodeInstruction::kAddI: return -count;
         case ByteCodeInstruction::kAddF: return -count;
+
+        case ByteCodeInstruction::kATan2: return -count;
 
         case ByteCodeInstruction::kCompareIEQ:   return -count;
         case ByteCodeInstruction::kCompareFEQ:   return -count;
@@ -1140,6 +1142,13 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 for (int i = count-1; i --> 0;) {
                     this->write(ByteCodeInstruction::kOrB, 1);
                 }
+            } break;
+
+            case SpecialIntrinsic::kATan: {
+                // GLSL uses "atan" for both 'atan' and 'atan2'
+                SkASSERT(nargs == 1 || (nargs == 2 && count == SlotCount(args[1]->type())));
+                this->write(nargs == 1 ? ByteCodeInstruction::kATan : ByteCodeInstruction::kATan2,
+                            count);
             } break;
 
             case SpecialIntrinsic::kDot: {
