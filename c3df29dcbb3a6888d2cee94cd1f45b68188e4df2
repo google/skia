@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8da8a7e_f2c73b4f",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T17:22:41Z",
+      "side": 1,
+      "message": "(Note: this file doesn\u0027t use `this-\u003e` style.)",
+      "range": {
+        "startLine": 25,
+        "startChar": 12,
+        "endLine": 25,
+        "endChar": 17
+      },
+      "revId": "c3df29dcbb3a6888d2cee94cd1f45b68188e4df2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
