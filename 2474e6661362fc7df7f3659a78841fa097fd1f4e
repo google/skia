@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50aa22ee_ce53fc7b",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T21:47:17Z",
+      "side": 1,
+      "message": "I think this was referring to SkFont::getMetrics just above. Should put this back.",
+      "revId": "2474e6661362fc7df7f3659a78841fa097fd1f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e1602af_545307f2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T21:47:17Z",
+      "side": 1,
+      "message": "Seems like this comment should be moved and modified? Or maybe combined with the next comment? Or maybe just remove the next comment (to match the change below).",
+      "revId": "2474e6661362fc7df7f3659a78841fa097fd1f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
