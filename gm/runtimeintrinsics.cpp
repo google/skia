@@ -24,12 +24,24 @@ static constexpr int kBoxSize     = 100;
 static constexpr int kPadding     = 5;
 static constexpr int kLabelHeight = 15;
 
+/*
+  Test cases are inserted into the middle of this shader. The pasted expression is expected to
+  produce a single float. It can reference:
+
+    'x'  : float  in [xMin, xMax]
+    'p'  : float2 in [xMin, xMax] (helpful for intrinsics with a mix of scalar/vector params)
+    'v1' : float2(1)
+    'v2' : float2(2)
+*/
 static SkString make_unary_sksl_1d(const char* fn) {
     return SkStringPrintf(
             "uniform float xScale; uniform float xBias;"
             "uniform float yScale; uniform float yBias;"
             "half4 main(float2 p) {"
-            "    float x = p.x * xScale + xBias;"
+            "    float2 v1 = float2(1);"
+            "    float2 v2 = float2(2);"
+            "    p = p * xScale + xBias;"
+            "    float x = p.x;"
             "    float y = %s  * yScale + yBias;"
             "    return y.xxx1;"
             "}",
@@ -169,4 +181,47 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_exponential,
 
     do_unary(canvas,        "sqrt(x)", 0.0f, 25.0f, 0.0f, 5.0f); col(canvas);
     do_unary(canvas, "inversesqrt(x)", 0.0f, 25.0f, 0.2f, 4.0f); row(canvas);
+}
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.3
+DEF_SIMPLE_GM_BG(runtime_intrinsics_common,
+                 canvas,
+                 columns_to_width(6),
+                 rows_to_height(6),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    do_unary(canvas, "abs(x)",  -10.0f, 10.0f, 0.0f, 10.0f); col(canvas);
+    do_unary(canvas, "sign(x)",  -1.0f,  1.0f, -1.5f, 1.5f); row(canvas);
+
+    do_unary(canvas, "floor(x)", -3.0f, 3.0f, -4.0f, 4.0f); col(canvas);
+    do_unary(canvas, "ceil(x)",  -3.0f, 3.0f, -4.0f, 4.0f); col(canvas);
+    do_unary(canvas, "fract(x)", -3.0f, 3.0f,  0.0f, 1.0f); col(canvas);
+    do_unary(canvas, "mod(x, 2)",    -4.0f, 4.0f, -2.0f, 2.0f); col(canvas);
+    do_unary(canvas, "mod(p, -2).x", -4.0f, 4.0f, -2.0f, 2.0f); col(canvas);
+    do_unary(canvas, "mod(p, v2).x", -4.0f, 4.0f, -2.0f, 2.0f); row(canvas);
+
+    do_unary(canvas, "min(x, 1)",    0.0f, 2.0f, 0.0f, 2.0f); col(canvas);
+    do_unary(canvas, "min(p, 1).x",  0.0f, 2.0f, 0.0f, 2.0f); col(canvas);
+    do_unary(canvas, "min(p, v1).x", 0.0f, 2.0f, 0.0f, 2.0f); col(canvas);
+    do_unary(canvas, "max(x, 1)",    0.0f, 2.0f, 0.0f, 2.0f); col(canvas);
+    do_unary(canvas, "max(p, 1).x",  0.0f, 2.0f, 0.0f, 2.0f); col(canvas);
+    do_unary(canvas, "max(p, v1).x", 0.0f, 2.0f, 0.0f, 2.0f); row(canvas);
+
+    do_unary(canvas, "clamp(x, 1, 2)",     0.0f, 3.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "clamp(p, 1, 2).x",   0.0f, 3.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "clamp(p, v1, v2).x", 0.0f, 3.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "saturate(x)", -1.0f, 2.0f, -0.5f, 1.5f); row(canvas);
+
+    do_unary(canvas, "mix(1, 2, x)",     -1.0f, 2.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "mix(v1, v2, x).x", -1.0f, 2.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "mix(v1, v2, p).x", -1.0f, 2.0f, 0.0f, 3.0f); row(canvas);
+
+    do_unary(canvas, "step(1, x)",    0.0f, 2.0f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "step(1, p).x",  0.0f, 2.0f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "step(v1, p).x", 0.0f, 2.0f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "smoothstep(1, 2, x)",     0.5f, 2.5f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "smoothstep(1, 2, p).x",   0.5f, 2.5f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "smoothstep(v1, v2, p).x", 0.5f, 2.5f, -0.5f, 1.5f); row(canvas);
 }
