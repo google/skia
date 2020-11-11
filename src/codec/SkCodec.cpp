@@ -765,6 +765,20 @@ const char* SkCodec::ResultToString(Result result) {
     }
 }
 
+void SkFrame::fillIn(SkCodec::FrameInfo* frameInfo, bool fullyReceived) const {
+    SkASSERT(frameInfo);
+
+    frameInfo->fRequiredFrame = fRequiredFrame;
+    frameInfo->fDuration = fDuration;
+    frameInfo->fFullyReceived = fullyReceived;
+    frameInfo->fAlphaType = fHasAlpha ? kUnpremul_SkAlphaType
+                                      : kOpaque_SkAlphaType;
+    frameInfo->fHasAlphaWithinBounds = this->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
+    frameInfo->fDisposalMethod = fDisposalMethod;
+    frameInfo->fBlend = fBlend;
+    frameInfo->fFrameRect = fRect;
+}
+
 static bool independent(const SkFrame& frame) {
     return frame.getRequiredFrame() == SkCodec::kNoFrame;
 }
@@ -828,7 +842,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     }
 
 
-    const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kPriorFrame;
+    const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kSrcOver;
     if ((!reportsAlpha || !blendWithPrevFrame) && frameRect == screenRect) {
         frame->setHasAlpha(reportsAlpha);
         frame->setRequiredFrame(SkCodec::kNoFrame);  // IND2

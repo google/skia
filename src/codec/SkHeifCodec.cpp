@@ -348,11 +348,7 @@ bool SkHeifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
     }
 
     if (frameInfo) {
-        frameInfo->fRequiredFrame = SkCodec::kNoFrame;
-        frameInfo->fDuration = frame->getDuration();
-        frameInfo->fFullyReceived = true;
-        frameInfo->fAlphaType = kOpaque_SkAlphaType;
-        frameInfo->fDisposalMethod = SkCodecAnimation::DisposalMethod::kKeep;
+        frame->fillIn(frameInfo, true);
     }
 
     return true;

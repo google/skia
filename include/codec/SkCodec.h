@@ -645,9 +645,32 @@ public:
         SkAlphaType fAlphaType;
 
         /**
+         *  Whether the updated rectangle contains alpha.
+         *
+         *  This is conservative; it will still be set to true if e.g. a color
+         *  index-based frame has a color with alpha but does not use it. In
+         *  addition, it may be set to true, even if the final frame, after
+         *  blending, is opaque.
+         */
+        bool fHasAlphaWithinBounds;
+
+        /**
          *  How this frame should be modified before decoding the next one.
          */
         SkCodecAnimation::DisposalMethod fDisposalMethod;
+
+        /**
+         *  How this frame should blend with the prior frame.
+         */
+        SkCodecAnimation::Blend fBlend;
+
+        /**
+         *  The rectangle updated by this frame.
+         *
+         *  It may be empty, if the frame does not change the image. It will
+         *  always be contained by SkCodec::dimensions().
+         */
+        SkIRect fFrameRect;
     };
 
     /**

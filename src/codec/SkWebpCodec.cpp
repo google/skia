@@ -12,7 +12,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/codec/SkCodecAnimationPriv.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSampler.h"
@@ -266,7 +265,7 @@ int SkWebpCodec::onGetFrameCount() {
                 SkCodecAnimation::DisposalMethod::kKeep);
         frame->setDuration(iter.duration);
         if (WEBP_MUX_BLEND != iter.blend_method) {
-            frame->setBlend(SkCodecAnimation::Blend::kBG);
+            frame->setBlend(SkCodecAnimation::Blend::kSrc);
         }
         fFrameHolder.setAlphaAndRequiredFrame(frame);
     }
@@ -295,14 +294,9 @@ bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
     }
 
     if (frameInfo) {
-        frameInfo->fRequiredFrame = frame->getRequiredFrame();
-        frameInfo->fDuration = frame->getDuration();
         // libwebp only reports fully received frames for an
         // animated image.
-        frameInfo->fFullyReceived = true;
-        frameInfo->fAlphaType = frame->hasAlpha() ? kUnpremul_SkAlphaType
-                                                  : kOpaque_SkAlphaType;
-        frameInfo->fDisposalMethod = frame->getDisposalMethod();
+        frame->fillIn(frameInfo, true);
     }
 
     return true;

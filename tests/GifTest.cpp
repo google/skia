@@ -601,3 +601,46 @@ DEF_TEST(Codec_AnimatedTransparentGif, r) {
         }
     }
 }
+
+// This test verifies that a GIF frame outside the image dimensions is handled
+// as desired:
+// - The image reports a size of 0 x 0, but the first frame is 100 x 90. The
+// image (or "canvas") is expanded to fit the first frame. The first frame is red.
+// - The second frame is a green 75 x 75 rectangle, reporting its x-offset and
+// y-offset to be 105, placing it off screen. The decoder interprets this as no
+// change from the first frame.
+DEF_TEST(Codec_xOffsetTooBig, r) {
+    const char* path = "images/xOffsetTooBig.gif";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "failed to find %s", path);
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        ERRORF(r, "Could not create codec from %s", path);
+        return;
+    }
+
+    REPORTER_ASSERT(r, codec->getFrameCount() == 2);
+
+    auto info = codec->getInfo();
+    REPORTER_ASSERT(r, info.width() == 100 && info.height() == 90);
+
+    SkBitmap bm;
+    bm.allocPixels(info);
+    for (int i = 0; i < 2; i++) {
+        SkCodec::FrameInfo frameInfo;
+        REPORTER_ASSERT(r, codec->getFrameInfo(i, &frameInfo));
+
+        SkIRect expectedRect = i == 0 ? SkIRect{0, 0, 100, 90} : SkIRect{100, 90, 100, 90};
+        REPORTER_ASSERT(r, expectedRect == frameInfo.fFrameRect);
+
+        SkCodec::Options options;
+        options.fFrameIndex = i;
+        REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getPixels(bm.pixmap(), &options));
+
+        REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorRED);
+    }
+}
