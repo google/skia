@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Expose more info in SkCodec::FrameInfo
+    https://review.skia.org/339857
+
   * Added dither control to the SkImageFilters::Shader factory.
     https://review.skia.org/338156
 

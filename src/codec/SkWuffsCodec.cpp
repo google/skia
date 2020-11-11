@@ -156,7 +156,6 @@ class SkWuffsFrame final : public SkFrame {
 public:
     SkWuffsFrame(wuffs_base__frame_config* fc);
 
-    SkCodec::FrameInfo frameInfo(bool fullyReceived) const;
     uint64_t           ioPosition() const;
 
     // SkFrame overrides.
@@ -332,18 +331,8 @@ SkWuffsFrame::SkWuffsFrame(wuffs_base__frame_config* fc)
     this->setXYWH(r.min_incl_x, r.min_incl_y, r.width(), r.height());
     this->setDisposalMethod(wuffs_disposal_to_skia_disposal(fc->disposal()));
     this->setDuration(fc->duration() / WUFFS_BASE__FLICKS_PER_MILLISECOND);
-    this->setBlend(fc->overwrite_instead_of_blend() ? SkCodecAnimation::Blend::kBG
-                                                    : SkCodecAnimation::Blend::kPriorFrame);
-}
-
-SkCodec::FrameInfo SkWuffsFrame::frameInfo(bool fullyReceived) const {
-    SkCodec::FrameInfo ret;
-    ret.fRequiredFrame = getRequiredFrame();
-    ret.fDuration = getDuration();
-    ret.fFullyReceived = fullyReceived;
-    ret.fAlphaType = hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
-    ret.fDisposalMethod = getDisposalMethod();
-    return ret;
+    this->setBlend(fc->overwrite_instead_of_blend() ? SkCodecAnimation::Blend::kSrc
+                                                    : SkCodecAnimation::Blend::kSrcOver);
 }
 
 uint64_t SkWuffsFrame::ioPosition() const {
@@ -854,7 +843,7 @@ bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
         return false;
     }
     if (frameInfo) {
-        *frameInfo = f->frameInfo(static_cast<uint64_t>(i) < this->fNumFullyReceivedFrames);
+        f->fillIn(frameInfo, static_cast<uint64_t>(i) < this->fNumFullyReceivedFrames);
     }
     return true;
 }
