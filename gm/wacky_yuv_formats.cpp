@@ -123,51 +123,63 @@ public:
             case kP016F_YUVFormat:
             case kNV12_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_UV_420;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_UV;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_UV_A_4204;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_UV_A;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 }
                 break;
             case kY416_YUVFormat:
             case kY410_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kUYV_444;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kUYV;
+                    fSubsampling = SkYUVAInfo::Subsampling::k444;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kUYVA_4444;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kUYVA;
+                    fSubsampling = SkYUVAInfo::Subsampling::k444;
                 }
                 break;
             case kAYUV_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kYUV_444;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kYUV;
+                    fSubsampling = SkYUVAInfo::Subsampling::k444;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kYUVA_4444;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kYUVA;
+                    fSubsampling = SkYUVAInfo::Subsampling::k444;
                 }
                 break;
             case kNV21_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_VU_420;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_VU;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_VU_A_4204;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_VU_A;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 }
                 break;
             case kI420_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_420;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_U_V;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_A_4204;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_U_V_A;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 }
                 break;
             case kYV12_YUVFormat:
                 if (opaque) {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_V_U_420;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_V_U;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 } else {
-                    fPlanarConfig = SkYUVAInfo::PlanarConfig::kY_V_U_A_4204;
+                    fPlaneConfig = SkYUVAInfo::PlaneConfig::kY_V_U_A;
+                    fSubsampling = SkYUVAInfo::Subsampling::k420;
                 }
                 break;
         }
     }
 
-    int numPlanes() const { return SkYUVAInfo::NumPlanes(fPlanarConfig); }
+    int numPlanes() const { return SkYUVAInfo::NumPlanes(fPlaneConfig); }
 
     SkYUVAPixmaps makeYUVAPixmaps(SkISize dimensions,
                                   SkYUVColorSpace yuvColorSpace,
@@ -175,14 +187,15 @@ public:
                                   int numBitmaps) const;
 
 private:
-    SkYUVAInfo::PlanarConfig fPlanarConfig;
+    SkYUVAInfo::PlaneConfig fPlaneConfig;
+    SkYUVAInfo::Subsampling fSubsampling;
 };
 
 SkYUVAPixmaps YUVAPlanarConfig::makeYUVAPixmaps(SkISize dimensions,
                                                 SkYUVColorSpace yuvColorSpace,
                                                 const SkBitmap bitmaps[],
                                                 int numBitmaps) const {
-    SkYUVAInfo info(dimensions, fPlanarConfig, yuvColorSpace);
+    SkYUVAInfo info(dimensions, fPlaneConfig, fSubsampling, yuvColorSpace);
     SkPixmap pmaps[SkYUVAInfo::kMaxPlanes];
     int n = info.numPlanes();
     if (numBitmaps < n) {
@@ -1198,7 +1211,10 @@ protected:
         for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
                         kBT2020_SkYUVColorSpace}) {
             split_into_yuv(fOrig.get(), cs, fPM);
-            SkYUVAInfo yuvaInfo(fOrig->dimensions(), SkYUVAInfo::PlanarConfig::kY_U_V_444, cs);
+            SkYUVAInfo yuvaInfo(fOrig->dimensions(),
+                                SkYUVAInfo::PlaneConfig::kY_U_V,
+                                SkYUVAInfo::Subsampling::k444,
+                                cs);
             auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, fPM);
             auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
                                                     yuvaPixmaps,
