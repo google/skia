@@ -34,6 +34,24 @@
       "parentUuid": "be3113cd_cb29c0c7",
       "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fa5d447_eaabb801",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-11T18:05:02Z",
+      "side": 1,
+      "message": "Yeah, I can\u0027t find *any* documentation about the fact that MSVC now supports __builtin_clz, but it does - as long as you compile with /std:c++17 or higher. At /std::c++14, it reports an unknown identifier. And no includes are needed - it\u0027s not actually declared anywhere (eg intrin.h). Hmm.",
+      "parentUuid": "0bc3521e_941bcb2c",
+      "revId": "0ee3a07300a705651a56a4108fc6162015845c81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
