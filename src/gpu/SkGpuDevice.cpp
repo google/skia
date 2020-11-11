@@ -33,6 +33,7 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -1033,16 +1034,8 @@ void SkGpuDevice::flush() {
         return;
     }
 
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+    direct->priv().flushSurface(fRenderTargetContext->asSurfaceProxy());
     direct->submit();
-}
-
-GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
-                                         const GrFlushInfo& info,
-                                         const GrBackendSurfaceMutableState* newState) {
-    ASSERT_SINGLE_OWNER
-
-    return fRenderTargetContext->flush(access, info, newState);
 }
 
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
