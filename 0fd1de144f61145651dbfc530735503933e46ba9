@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f72fdfa6_d107dac7",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-11T14:57:55Z",
+      "side": 1,
+      "message": "yeah... we\u0027re not really deprecating this if we\u0027re adding new features that support it.  why aren\u0027t we following our own advice here and creating image shaders with explicit sampling parameters and calling the 2-arg Shader() factory instead?",
+      "range": {
+        "startLine": 321,
+        "startChar": 43,
+        "endLine": 322,
+        "endChar": 99
+      },
+      "revId": "0fd1de144f61145651dbfc530735503933e46ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ede10ad7_7a681c52",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 2
