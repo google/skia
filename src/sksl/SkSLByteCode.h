@@ -132,8 +132,10 @@ enum class ByteCodeInstruction : uint8_t {
     kShiftLeft,
     kShiftRightS,
     kShiftRightU,
+    kSign,  // N
     kSin,   // N
     kSqrt,  // N
+    kStep,  // N
     kStore,                // N, slot
     kStoreGlobal,          // N, slot
     // Indirect stores get the slot to store from the top of the stack

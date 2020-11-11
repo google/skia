@@ -571,6 +571,18 @@ static skvm::Color program_fn(skvm::Builder* p,
                 ternary([](skvm::F32 x, skvm::F32 y, skvm::F32 t) { return skvm::lerp(x, y, t); });
                 break;
 
+            case Inst::kSign:
+                unary([p](skvm::F32 x) {
+                    return select(x < 0, -1.0f, select(x > 0, 1.0f, p->splat(0.0f)));
+                });
+                break;
+
+            case Inst::kStep:
+                binary([p](skvm::F32 edge, skvm::F32 x) {
+                    return select(x < edge, 0.0f, p->splat(1.0f));
+                });
+                break;
+
             case Inst::kAbs:   unary(skvm::abs);         break;
             case Inst::kACos:  unary(skvm::approx_acos); break;
             case Inst::kASin:  unary(skvm::approx_asin); break;

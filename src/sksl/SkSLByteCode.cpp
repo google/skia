@@ -162,8 +162,10 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kShiftLeft: printf("shl %d", READ8()); break;
         case ByteCodeInstruction::kShiftRightS: printf("shrs %d", READ8()); break;
         case ByteCodeInstruction::kShiftRightU: printf("shru %d", READ8()); break;
+        DISASSEMBLE_COUNT(kSign, "sign")
         DISASSEMBLE_COUNT(kSin, "sin")
         DISASSEMBLE_COUNT(kSqrt, "sqrt")
+        DISASSEMBLE_COUNT(kStep, "step")
         DISASSEMBLE_COUNT_SLOT(kStore, "store")
         DISASSEMBLE_COUNT_SLOT(kStoreGlobal, "storeglobal")
         DISASSEMBLE_COUNT(kStoreExtended, "storeextended")
@@ -265,6 +267,10 @@ struct StackFrame {
 
 static F32 VecMod(F32 a, F32 b) {
     return a - skvx::trunc(a / b) * b;
+}
+
+static float Signum(float x) {
+    return (x > 0) - (x < 0);
 }
 
 #define spf(index)  sp[index].fFloat
@@ -765,6 +771,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_UNARY_FN(kSin, [](auto x) { return skvx::map(sinf, x); }, fFloat)
             VECTOR_UNARY_FN(kInvSqrt, [](auto x) { return 1.0f / skvx::sqrt(x); }, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
+            VECTOR_UNARY_FN(kSign, [](auto x) { return skvx::map(Signum, x); }, fFloat)
+            VECTOR_BINARY_FN(kStep, fFloat, [](auto edge, auto x) {
+                return skvx::if_then_else(x < edge, F32(0.0f), F32(1.0f));
+            })
 
             case ByteCodeInstruction::kStore: {
                 int count = READ8(),
