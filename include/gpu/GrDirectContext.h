@@ -15,6 +15,8 @@
 // We shouldn't need this but currently Android is relying on this being include transitively.
 #include "include/core/SkUnPreMultiply.h"
 
+#include "include/core/SkSurface.h"
+
 class GrAtlasManager;
 class GrBackendSemaphore;
 class GrClientMappedBufferManager;
