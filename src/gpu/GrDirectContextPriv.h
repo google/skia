@@ -81,11 +81,19 @@ public:
      * GrContext will detect when it must perform a resolve before reading pixels back from the
      * surface or using it as a texture.
      */
-    GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>, const GrFlushInfo&);
+    GrSemaphoresSubmitted flushSurfaces(
+                    SkSpan<GrSurfaceProxy*>,
+                    SkSurface::BackendSurfaceAccess = SkSurface::BackendSurfaceAccess::kNoAccess,
+                    const GrFlushInfo& = {},
+                    const GrBackendSurfaceMutableState* newState = nullptr);
 
     /** Version of above that flushes for a single proxy and uses a default GrFlushInfo. Null is
      * allowed. */
-    void flushSurface(GrSurfaceProxy*);
+    GrSemaphoresSubmitted flushSurface(
+                    GrSurfaceProxy*,
+                    SkSurface::BackendSurfaceAccess = SkSurface::BackendSurfaceAccess::kNoAccess,
+                    const GrFlushInfo& = {},
+                    const GrBackendSurfaceMutableState* newState = nullptr);
 
     /**
      * Returns true if createPMToUPMEffect and createUPMToPMEffect will succeed. In other words,

@@ -757,7 +757,8 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+
+    dContext->priv().flushSurface(this->asSurfaceProxy());
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
@@ -1025,7 +1026,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+    dContext->priv().flushSurface(this->asSurfaceProxy());
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
@@ -1211,26 +1212,6 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
     }
     SkASSERT(tempA);
     return tempA;
-}
-
-GrSemaphoresSubmitted GrSurfaceContext::flush(SkSurface::BackendSurfaceAccess access,
-                                              const GrFlushInfo& info,
-                                              const GrBackendSurfaceMutableState* newState) {
-    ASSERT_SINGLE_OWNER
-    if (fContext->abandoned()) {
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        return GrSemaphoresSubmitted::kNo;
-    }
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
-
-    GrSurfaceProxy* proxies[1] = {this->asSurfaceProxy()};
-    return this->drawingManager()->flushSurfaces(proxies, access, info, newState);
 }
 
 GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorType dstCT,
