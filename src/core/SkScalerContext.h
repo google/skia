@@ -280,9 +280,6 @@ public:
         return SkToBool(fRec.fFlags & kLinearMetrics_Flag);
     }
 
-    // DEPRECATED
-    bool isVertical() const { return false; }
-
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     SkGlyph     makeGlyph(SkPackedGlyphID);
     void        getImage(const SkGlyph&);
