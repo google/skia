@@ -1859,19 +1859,22 @@ Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
 }
 
 Position Compiler::position(int offset) {
-    SkASSERT(fSource);
-    int line = 1;
-    int column = 1;
-    for (int i = 0; i < offset; i++) {
-        if ((*fSource)[i] == '\n') {
-            ++line;
-            column = 1;
+    if (fSource) {
+        int line = 1;
+        int column = 1;
+        for (int i = 0; i < offset; i++) {
+            if ((*fSource)[i] == '\n') {
+                ++line;
+                column = 1;
+            }
+            else {
+                ++column;
+            }
         }
-        else {
-            ++column;
-        }
+        return Position(line, column);
+    } else {
+        return Position(-1, -1);
     }
-    return Position(line, column);
 }
 
 void Compiler::error(int offset, String msg) {
