@@ -78,7 +78,7 @@ GrSemaphoresSubmitted SkImage_Gpu::onFlush(GrDirectContext* dContext, const GrFl
     }
 
     GrSurfaceProxy* p[1] = {fView.proxy()};
-    return dContext->priv().flushSurfaces(p, info);
+    return dContext->priv().flushSurfaces(p,  SkSurface::BackendSurfaceAccess::kNoAccess, info);
 }
 
 sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
