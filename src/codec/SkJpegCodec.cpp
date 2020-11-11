@@ -796,24 +796,25 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
     SkASSERT(hSampY == dinfo->max_h_samp_factor);
     SkASSERT(vSampY == dinfo->max_v_samp_factor);
 
-    SkYUVAInfo::PlanarConfig tempPlanarConfig;
+    SkYUVAInfo::Subsampling tempSubsampling;
     if        (1 == hSampY && 1 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_444;
+        tempSubsampling = SkYUVAInfo::Subsampling::k444;
     } else if (2 == hSampY && 1 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_422;
+        tempSubsampling = SkYUVAInfo::Subsampling::k422;
     } else if (2 == hSampY && 2 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_420;
+        tempSubsampling = SkYUVAInfo::Subsampling::k420;
     } else if (1 == hSampY && 2 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_440;
+        tempSubsampling = SkYUVAInfo::Subsampling::k440;
     } else if (4 == hSampY && 1 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_411;
+        tempSubsampling = SkYUVAInfo::Subsampling::k411;
     } else if (4 == hSampY && 2 == vSampY) {
-        tempPlanarConfig = SkYUVAInfo::PlanarConfig::kY_U_V_410;
+        tempSubsampling = SkYUVAInfo::Subsampling::k410;
     } else {
         return false;
     }
     if (supportedDataTypes &&
-        !supportedDataTypes->supported(tempPlanarConfig, SkYUVAPixmapInfo::DataType::kUnorm8)) {
+        !supportedDataTypes->supported(SkYUVAInfo::PlaneConfig::kY_U_V,
+                                       SkYUVAPixmapInfo::DataType::kUnorm8)) {
         return false;
     }
     if (yuvaPixmapInfo) {
@@ -824,7 +825,8 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
             rowBytes[i] = dinfo->comp_info[i].width_in_blocks * DCTSIZE;
         }
         SkYUVAInfo yuvaInfo(codec.dimensions(),
-                            tempPlanarConfig,
+                            SkYUVAInfo::PlaneConfig::kY_U_V,
+                            tempSubsampling,
                             kJPEG_Full_SkYUVColorSpace,
                             codec.getOrigin(),
                             SkYUVAInfo::Siting::kCentered,

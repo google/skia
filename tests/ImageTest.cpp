@@ -1372,7 +1372,10 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
 static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
     SkAutoPixmapStorage pm;
     pm.alloc(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
-    SkYUVAInfo yuvaInfo({1, 1}, SkYUVAInfo::PlanarConfig::kY_U_V_444, kJPEG_Full_SkYUVColorSpace);
+    SkYUVAInfo yuvaInfo({1, 1},
+                        SkYUVAInfo::PlaneConfig::kY_U_V,
+                        SkYUVAInfo::Subsampling::k444,
+                        kJPEG_Full_SkYUVColorSpace);
     const SkPixmap pmaps[] = {pm, pm, pm};
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pmaps);
 
