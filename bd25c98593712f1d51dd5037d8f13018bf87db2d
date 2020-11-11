@@ -391,6 +391,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2556dea4_bde523b8",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T16:15:58Z",
+      "side": 1,
+      "message": "Best of luck to you! Willing to collaborate or not-collaborate as you prefer, I assume you will make good choices.",
+      "parentUuid": "2ab0d589_cfc500f0",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
