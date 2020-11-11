@@ -141,6 +141,24 @@
       "parentUuid": "7a6f0177_68eda587",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7904036e_4e43c8b0",
+        "filename": "src/utils/SkAnimCodecPlayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-11T21:39:58Z",
+      "side": 1,
+      "message": "I\u0027m ok with leaving this as-is with the extra copy for now.  I\u0027m not keen on exposing the rotation matrix in the API.  I\u0027m not sure of the difficulty, but I would rather advocate for a special SkImage type that just applies the rotation at draw time (though that may cause havok with other fields on the paint).",
+      "parentUuid": "ab2ad972_a8073360",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
