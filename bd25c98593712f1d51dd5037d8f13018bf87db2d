@@ -319,6 +319,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05fb59bb_d8f79797",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-11T16:02:33Z",
+      "side": 1,
+      "message": "OK.  I haven\u0027t given up, but I\u0027ll try not to bother you about it.",
+      "parentUuid": "5105bd3b_8f40b6a7",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
