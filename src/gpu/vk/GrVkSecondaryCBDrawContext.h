@@ -65,9 +65,11 @@ public:
 
     SkCanvas* getCanvas();
 
+#if 0
     // Records all the draws to the imported secondary command buffer and sets any dependent
     // offscreen draws to the GPU.
     void flush();
+#endif
 
     /** Inserts a list of GPU semaphores that Skia will have the driver wait on before executing
         commands for this secondary CB. The wait semaphores will get added to the VkCommandBuffer

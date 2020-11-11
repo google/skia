@@ -757,7 +757,9 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+
+    dContext->internalFlush({}, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+//    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
 }
 
 void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
@@ -1025,7 +1027,8 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
     GrFlushInfo flushInfo;
     flushInfo.fFinishedContext = finishContext;
     flushInfo.fFinishedProc = finishCallback;
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+//    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
+    dContext->internalFlush({}, SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo, nullptr);
 }
 
 bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
@@ -1213,6 +1216,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
     return tempA;
 }
 
+#if 0
 GrSemaphoresSubmitted GrSurfaceContext::flush(SkSurface::BackendSurfaceAccess access,
                                               const GrFlushInfo& info,
                                               const GrBackendSurfaceMutableState* newState) {
@@ -1232,6 +1236,7 @@ GrSemaphoresSubmitted GrSurfaceContext::flush(SkSurface::BackendSurfaceAccess ac
     GrSurfaceProxy* proxies[1] = {this->asSurfaceProxy()};
     return this->drawingManager()->flushSurfaces(proxies, access, info, newState);
 }
+#endif
 
 GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorType dstCT,
                                                                        const SkIRect& rect) {

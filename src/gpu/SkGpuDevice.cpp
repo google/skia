@@ -1028,15 +1028,16 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::flush() {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
         return;
     }
 
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
-    direct->submit();
+    dContext->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+    dContext->submit();
 }
 
+#if 0
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
                                          const GrFlushInfo& info,
                                          const GrBackendSurfaceMutableState* newState) {
@@ -1044,6 +1045,7 @@ GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
 
     return fRenderTargetContext->flush(access, info, newState);
 }
+#endif
 
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                        bool deleteSemaphoresAfterWait) {

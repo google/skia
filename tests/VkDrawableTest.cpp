@@ -160,7 +160,7 @@ public:
         SkIRect srcRect = SkIRect::MakeWH(td->fWidth/4, td->fHeight);
         canvas->drawImageRect(surf->makeImageSnapshot(), srcRect, dstRect, &paint);
 
-        td->fDrawContext->flush();
+        td->fDContext->flush();
     }
 
     // Helper function to test waiting for the imported secondary command buffer to be submitted on
