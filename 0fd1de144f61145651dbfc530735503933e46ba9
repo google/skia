@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4e2d446d_70db05c9",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-11T16:07:01Z",
+      "side": 1,
+      "message": "It\u0027s chrome that needs to be migrated unfortunately, not our own code. Chrome definitely should be updated to using explicit sampling parameters, but that\u0027s a non-trivial adventure.",
+      "parentUuid": "f72fdfa6_d107dac7",
+      "range": {
+        "startLine": 321,
+        "startChar": 43,
+        "endLine": 322,
+        "endChar": 99
+      },
+      "revId": "0fd1de144f61145651dbfc530735503933e46ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ede10ad7_7a681c52",
         "filename": "include/effects/SkImageFilters.h",
         "patchSetId": 2
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "If this is all just about confusion around SkImageFilters::Paint()... can we make it more explicit what fields are in play?\n\n    /** We only look at color, shader, and filter quality. */\n    sk_sp\u003cSkImageFilter\u003e Paint(const SkPaint\u0026 userPaint, \n                               const CropRect\u0026 cropRect) {\n        SkPaint paint;\n        paint.setColor(userPaint.getColor4f());\n        paint.setFilterQuality(userPaint.filterQuality());\n        paint.setShader(userPaint.refShader());\n        etc.\n\n        ...   \n    }",
       "parentUuid": "c9bfd5e1_38793917",
+      "range": {
+        "startLine": 323,
+        "startChar": 63,
+        "endLine": 323,
+        "endChar": 78
+      },
+      "revId": "0fd1de144f61145651dbfc530735503933e46ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "921915a4_6f3b4b2f",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-11T16:07:01Z",
+      "side": 1,
+      "message": "I have fairly strong opinions against SkCanvas\u0027 and others use of only a subset of an SkPaint\u0027s fields depending on the operation. In prior discussions, we were all interested in exploring APIs that split out the different areas/topics into specific fields.\n\nIn this case, that can be entirely represented as a single SkShader (using SkShaders::Color() if it\u0027s just a solid color). I\u0027m not worried about cons\u0027ing up a shader to represent a color in this case because the entire image filter pipeline is far heavier weight.\n\nTo me, having a temporary Shader() that takes the default FQ seems simpler than keeping Paint() around longer with these restrictions in play. Given the note, I should hope new callers do the right thing and make image shaders with explicit samplers and use the 2-arg version. I can update the name to temporary_Shader() or doNotUse_Shader(), deprecated_Shader(), or chromiumOnly_Shader() to better highlight this fact.\n\nIf chrome will be off FQ shortly, then I don\u0027t feel as strongly about letting Paint stay around for the same time frame.",
+      "parentUuid": "385f184d_a81126f8",
       "range": {
         "startLine": 323,
         "startChar": 63,
