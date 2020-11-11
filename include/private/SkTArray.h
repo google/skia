@@ -33,19 +33,22 @@
     characteristics when used with appropriate care. Consider using std::vector<T> in new code.
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
+private:
+    enum ReallocType { kExactFit, kGrowing, kShrinking };
+
 public:
     using value_type = T;
 
     /**
      * Creates an empty array with no initial storage
      */
-    SkTArray() { this->init(); }
+    SkTArray() { this->init(0); }
 
     /**
      * Creates an empty array that will preallocate space for reserveCount
      * elements.
      */
-    explicit SkTArray(int reserveCount) { this->init(0, reserveCount); }
+    explicit SkTArray(int reserveCount) : SkTArray() { this->reserve_back(reserveCount); }
 
     /**
      * Copies one array to another. The new array will be heap allocated.
@@ -96,7 +99,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(that.count());
+        this->checkRealloc(that.count(), kExactFit);
         fCount = that.fCount;
         this->copy(that.fItemArray);
         return *this;
@@ -109,7 +112,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(that.count());
+        this->checkRealloc(that.count(), kExactFit);
         fCount = that.fCount;
         that.move(fItemArray);
         that.fCount = 0;
@@ -143,7 +146,7 @@ public:
         }
         // Set fCount to 0 before calling checkRealloc so that no elements are moved.
         fCount = 0;
-        this->checkRealloc(n);
+        this->checkRealloc(n, kExactFit);
         fCount = n;
         for (int i = 0; i < this->count(); ++i) {
             new (fItemArray + i) T;
@@ -159,7 +162,7 @@ public:
             fItemArray[i].~T();
         }
         fCount = 0;
-        this->checkRealloc(count);
+        this->checkRealloc(count, kExactFit);
         fCount = count;
         this->copy(array);
         fReserved = false;
@@ -173,7 +176,7 @@ public:
     void reserve_back(int n) {
         SkASSERT(n >= 0);
         if (n > 0) {
-            this->checkRealloc(n);
+            this->checkRealloc(n, kExactFit);
             fReserved = fOwnMemory;
         } else {
             fReserved = false;
@@ -267,7 +270,7 @@ public:
      */
     T* push_back_n(int n, const T t[]) {
         SkASSERT(n >= 0);
-        this->checkRealloc(n);
+        this->checkRealloc(n, kGrowing);
         for (int i = 0; i < n; ++i) {
             new (fItemArray + fCount + i) T(t[i]);
         }
@@ -280,7 +283,7 @@ public:
      */
     T* move_back_n(int n, T* t) {
         SkASSERT(n >= 0);
-        this->checkRealloc(n);
+        this->checkRealloc(n, kGrowing);
         for (int i = 0; i < n; ++i) {
             new (fItemArray + fCount + i) T(std::move(t[i]));
         }
@@ -295,7 +298,7 @@ public:
         SkASSERT(fCount > 0);
         --fCount;
         fItemArray[fCount].~T();
-        this->checkRealloc(0);
+        this->checkRealloc(0, kShrinking);
     }
 
     /**
@@ -308,7 +311,7 @@ public:
         for (int i = 0; i < n; ++i) {
             fItemArray[fCount + i].~T();
         }
-        this->checkRealloc(0);
+        this->checkRealloc(0, kShrinking);
     }
 
     /**
@@ -457,19 +460,17 @@ protected:
     }
 
 private:
-    void init(int count = 0, int reserveCount = 0) {
+    void init(int count) {
         fCount = SkToU32(count);
-        if (!count && !reserveCount) {
+        if (!count) {
             fAllocCount = 0;
             fItemArray = nullptr;
-            fOwnMemory = true;
-            fReserved = false;
         } else {
-            fAllocCount = SkToU32(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
+            fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
-            fOwnMemory = true;
-            fReserved = reserveCount > 0;
         }
+        fOwnMemory = true;
+        fReserved = false;
     }
 
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
@@ -526,13 +527,13 @@ private:
     // Helper function that makes space for n objects, adjusts the count, but does not initialize
     // the new objects.
     void* push_back_raw(int n) {
-        this->checkRealloc(n);
+        this->checkRealloc(n, kGrowing);
         void* ptr = fItemArray + fCount;
         fCount += n;
         return ptr;
     }
 
-    void checkRealloc(int delta) {
+    void checkRealloc(int delta, ReallocType reallocType) {
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
         SkASSERT(-delta <= this->count());
@@ -549,12 +550,15 @@ private:
             return;
         }
 
+        int64_t newAllocCount = newCount;
+        if (reallocType != kExactFit) {
+            // Whether we're growing or shrinking, leave at least 50% extra space for future growth.
+            newAllocCount += ((newCount + 1) >> 1);
+            // Align the new allocation count to kMinHeapAllocCount.
+            static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
+            newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
+        }
 
-        // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
-        int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
-        // Align the new allocation count to kMinHeapAllocCount.
-        static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
-        newAllocCount = (newAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
         // At small sizes the old and new alloc count can both be kMinHeapAllocCount.
         if (newAllocCount == fAllocCount) {
             return;
@@ -566,7 +570,6 @@ private:
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
@@ -606,7 +609,9 @@ public:
         : SkSTArray(data.begin(), data.size()) {}
 
     explicit SkSTArray(int reserveCount)
-        : STORAGE{}, INHERITED(reserveCount) {}  // TODO: use STORAGE?
+        : SkSTArray() {
+        this->reserve_back(reserveCount);
+    }
 
     SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
     explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }
