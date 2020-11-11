@@ -471,7 +471,7 @@ public:
         descent, ascent, and leading.
         Result is scaled by text size but does not take into account
         dimensions required by stroking and SkPathEffect.
-        Returns the same result as getMetrics().
+        Returns the same result as makeGlyph().
 
         @return  recommended spacing between lines
     */
