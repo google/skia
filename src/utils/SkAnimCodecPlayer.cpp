@@ -86,7 +86,7 @@ sk_sp<SkImage> SkAnimCodecPlayer::getFrameAt(int index) {
             // of transparent black, and then draw that through the origin matrix
             // onto the required frame. To do that, SkCodec needs to expose the
             // rectangle of the delta and the blend mode, so we can handle
-            // kRestoreBGColor frames and Blend::kBG.
+            // kRestoreBGColor frames and Blend::kSrc.
             SkMatrix inverse;
             SkAssertResult(originMatrix.invert(&inverse));
             canvas->concat(inverse);
