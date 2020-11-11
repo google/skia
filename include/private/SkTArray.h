@@ -62,13 +62,11 @@ public:
             fCount = that.fCount;
             fAllocCount = that.fAllocCount;
             fOwnMemory = true;
-            fReserved = that.fReserved;
 
             that.fItemArray = nullptr;
             that.fCount = 0;
             that.fAllocCount = 0;
             that.fOwnMemory = true;
-            that.fReserved = false;
         } else {
             this->init(that.fCount);
             that.move(fItemArray);
@@ -129,15 +127,14 @@ public:
     }
 
     /**
-     * Resets to count() == 0 and resets any reserve count.
+     * Resets to count() == 0.
      */
     void reset() {
         this->pop_back_n(fCount);
-        fReserved = false;
     }
 
     /**
-     * Resets to count() = n newly constructed T objects and resets any reserve count.
+     * Resets to count() = n newly constructed T objects.
      */
     void reset(int n) {
         SkASSERT(n >= 0);
@@ -151,11 +148,10 @@ public:
         for (int i = 0; i < this->count(); ++i) {
             new (fItemArray + i) T;
         }
-        fReserved = false;
     }
 
     /**
-     * Resets to a copy of a C array and resets any reserve count.
+     * Resets to a copy of the passed-in array.
      */
     void reset(const T* array, int count) {
         for (int i = 0; i < this->count(); ++i) {
@@ -165,7 +161,6 @@ public:
         this->checkRealloc(count, kExactFit);
         fCount = count;
         this->copy(array);
-        fReserved = false;
     }
 
     /**
@@ -177,9 +172,6 @@ public:
         SkASSERT(n >= 0);
         if (n > 0) {
             this->checkRealloc(n, kExactFit);
-            fReserved = fOwnMemory;
-        } else {
-            fReserved = false;
         }
     }
 
@@ -470,7 +462,6 @@ private:
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         }
         fOwnMemory = true;
-        fReserved = false;
     }
 
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
@@ -479,7 +470,6 @@ private:
         SkASSERT(preallocStorage);
         fCount = count;
         fItemArray = nullptr;
-        fReserved = false;
         if (count > preallocCount) {
             fAllocCount = std::max(count, kMinHeapAllocCount);
             fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
@@ -541,11 +531,11 @@ private:
         // Move into 64bit math temporarily, to avoid local overflows
         int64_t newCount = fCount + delta;
 
-        // We allow fAllocCount to be in the range [newCount, 3*newCount]. We also never shrink
-        // when we're currently using preallocated memory, would allocate less than
-        // kMinHeapAllocCount, or a reserve count was specified that has yet to be exceeded.
+        // We try to keep fAllocCount within the range [newCount, 3*newCount]. We only shrink when
+        // we're performing a size-reducing operation, and when we aren't using preallocated memory.
         bool mustGrow = newCount > fAllocCount;
-        bool shouldShrink = fAllocCount > 3 * newCount && fOwnMemory && !fReserved;
+        bool shouldShrink = fOwnMemory && (reallocType == kShrinking) &&
+                            (fAllocCount > 3 * newCount);
         if (!mustGrow && !shouldShrink) {
             return;
         }
@@ -573,14 +563,12 @@ private:
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
-        fReserved = false;
     }
 
     T* fItemArray;
     uint32_t fOwnMemory  :  1;
     uint32_t fCount      : 31;
-    uint32_t fReserved   :  1;
-    uint32_t fAllocCount : 31;
+    uint32_t fAllocCount;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {

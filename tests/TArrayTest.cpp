@@ -298,19 +298,9 @@ static void test_self_assignment(skiatest::Reporter* reporter) {
 
 template <typename Array> static void test_array_reserve(skiatest::Reporter* reporter,
                                                          Array* array, int reserveCount) {
-    SkRandom random;
-    REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
-    array->push_back();
-    REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
-    array->pop_back();
     REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     while (array->count() < reserveCount) {
-        // Two steps forward, one step back
-        if (random.nextULessThan(3) < 2) {
-            array->push_back();
-        } else if (array->count() > 0) {
-            array->pop_back();
-        }
+        array->push_back();
         REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     }
 }
@@ -337,7 +327,6 @@ template<typename Array> static void test_reserve(skiatest::Reporter* reporter) 
         Array array4;
         array4.push_back_n(reserveCount);
         array4.reserve_back(reserveCount);
-        array4.pop_back_n(reserveCount);
         test_array_reserve(reporter, &array4, 2 * reserveCount);
     }
 }
