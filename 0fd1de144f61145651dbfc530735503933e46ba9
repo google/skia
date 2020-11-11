@@ -62,6 +62,30 @@
       },
       "revId": "0fd1de144f61145651dbfc530735503933e46ba9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9bfd5e1_38793917",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-11T15:01:21Z",
+      "side": 1,
+      "message": "I don\u0027t think that\u0027s necessary. This is a temporary stop-gap (hence the note above). SkImageFilters::Paint has too many loose ends in terms of parameters that just don\u0027t do anything, or do something and you didn\u0027t expect it to. The primary use cases are just to fill with a shader or solid color.\n\nChrome still creates image shaders that rely on the SkPaint\u0027s filter quality, so switching them to SkImageFilters::Shader() over SkImageFilters::Paint() requires a sidecar to get that default filter quality in.  Once chrome is updated to specify the explicit parameters at shader creation time that are replacing SkFilterQuality, then this function can just go away, since the 2-arg Shader() factory is completely sufficient.\n\nThe other option is we get chrome off of SkFilterQuality first, but I wanted to nip their use of the paint image filter in the bud before they started expecting it to handle mask filters/stroking/beveling etc. that are just not well-defined behaviors.",
+      "parentUuid": "ede10ad7_7a681c52",
+      "range": {
+        "startLine": 323,
+        "startChar": 63,
+        "endLine": 323,
+        "endChar": 78
+      },
+      "revId": "0fd1de144f61145651dbfc530735503933e46ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
