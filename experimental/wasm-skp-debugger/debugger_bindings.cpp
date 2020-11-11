@@ -277,6 +277,7 @@ class SkpDebugPlayer {
     }
 
     // returns a JSON string representing commands where each image is referenced.
+    // DEPRECTATED, use imageUseInfoForFrameJs
     std::string imageUseInfoForFrame(int framenumber) {
       std::map<int, std::vector<int>> m = frames[framenumber]->getImageIdToCommandMap(udm);
 
@@ -299,9 +300,35 @@ class SkpDebugPlayer {
       return std::string(data_view);
     }
 
+    // return data on which commands each image is used in.
+    // { imageid: [commandid, commandid, ...], ... }
+    emscripten::val imageUseInfoForFrameJs(int framenumber) {
+      emscripten::val result = emscripten::val::object();
+      std::map<int, std::vector<int>> m = frames[framenumber]->getImageIdToCommandMap(udm);
+      for (auto it = m.begin(); it != m.end(); ++it) {
+      emscripten::val list = emscripten::val::array();
+        for (const int commandId : it->second) {
+          list.call<void>("push", commandId);
+        }
+        result.set(std::to_string(it->first), list);
+      }
+      return result;
+    }
+
+
     // return a list of layer draw events that happened at the beginning of this frame.
+    // DEPRECATED, use getLayerSummariesJs()
     std::vector<DebugLayerManager::LayerSummary> getLayerSummaries() {
       return fLayerManager->summarizeLayers(fp);
+    }
+
+    // return a list of layer draw events that happened at the beginning of this frame.
+    emscripten::val getLayerSummariesJs() {
+      emscripten::val result = emscripten::val::array();
+      for (auto summary : fLayerManager->summarizeLayers(fp)) {
+          result.call<void>("push", summary);
+      }
+      return result;
     }
 
     // When set to a valid layer index, causes this class to playback the layer draw event at nodeId
@@ -312,7 +339,50 @@ class SkpDebugPlayer {
       fInspectedLayer = nodeId;
     }
 
+    // Finds a command that left the given pixel in it's current state.
+    // The surface is assumed to be drawn to commandIndex
+    // Note that this method may fail to find the absolute last command that leaves a pixel
+    // the given color, but there is probably only one candidate in most cases, and the log(n)
+    // makes it worth it.
+    int findCommandByPixel(SkSurface* surface, int x, int y, int commandIndex) {
+      // What color is the pixel now?
+      // SkPixmap pixmap;
+      // if (!surface->peekPixels(&pixmap)) {
+      //   SkDebugf("Failed to peek pixels\n");
+      // }
+      SkColor finalColor = evaluateCommandColor(surface, commandIndex, x, y);
+
+      int lowerBound = 0;
+      int upperBound = commandIndex;
+
+      while (upperBound - lowerBound > 1) {
+        int command = (upperBound - lowerBound) / 2 + lowerBound;
+        auto c = evaluateCommandColor(surface, command, x, y);
+        if (c == finalColor) {
+          upperBound = command;
+        } else {
+          lowerBound = command;
+        }
+      }
+      // clean up after side effects
+      drawTo(surface, commandIndex);
+      return upperBound;
+    }
+
   private:
+
+      // Helper for findCommandByPixel.
+      // Has side effect of flushing to surface.
+      // TODO(nifong) eliminate side effect.
+      SkColor evaluateCommandColor(SkSurface* surface, int command, int x, int y) {
+        drawTo(surface, command);
+
+        SkColor c;
+        SkImageInfo info = SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
+        SkPixmap pixmap(info, &c, 4);
+        surface->readPixels(pixmap, x, y);
+        return c;
+      }
 
       // Loads a single frame (traditional) skp file from the provided data stream and returns
       // a newly allocated DebugCanvas initialized with the SkPicture that was in the file.
@@ -496,14 +566,17 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("draw",                 &SkpDebugPlayer::draw, allow_raw_pointers())
     .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
     .function("fileVersion",          &SkpDebugPlayer::fileVersion)
+    .function("findCommandByPixel",   &SkpDebugPlayer::findCommandByPixel, allow_raw_pointers())
     .function("getBounds",            &SkpDebugPlayer::getBounds)
     .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
     .function("getImageCount",        &SkpDebugPlayer::getImageCount)
     .function("getImageInfo",         &SkpDebugPlayer::getImageInfo)
     .function("getLayerSummaries",    &SkpDebugPlayer::getLayerSummaries)
+    .function("getLayerSummariesJs",  &SkpDebugPlayer::getLayerSummariesJs)
     .function("getSize",              &SkpDebugPlayer::getSize)
     .function("imageUseInfoForFrame", &SkpDebugPlayer::imageUseInfoForFrame)
+    .function("imageUseInfoForFrameJs", &SkpDebugPlayer::imageUseInfoForFrameJs)
     .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
     .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo)
     .function("loadSkp",              &SkpDebugPlayer::loadSkp, allow_raw_pointers())
@@ -524,7 +597,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   // emscripten provided the following convenience function for binding vector<T>
   // https://emscripten.org/docs/api_reference/bind.h.html#_CPPv415register_vectorPKc
   register_vector<DebugLayerManager::LayerSummary>("VectorLayerSummary");
-  value_object<DebugLayerManager::LayerSummary>("DebugLayerManager::LayerSummary")
+  value_object<DebugLayerManager::LayerSummary>("LayerSummary")
     .field("nodeId",            &DebugLayerManager::LayerSummary::nodeId)
     .field("frameOfLastUpdate", &DebugLayerManager::LayerSummary::frameOfLastUpdate)
     .field("fullRedraw",        &DebugLayerManager::LayerSummary::fullRedraw)
@@ -559,7 +632,11 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("_flush", optional_override([](SkSurface& self) {
             self.flushAndSubmit(false);
         }))
+    .function("clear", optional_override([](SkSurface& self, JSColor color)->void {
+      self.getCanvas()->clear(SkColor(color));
+    }))
     .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
+  // TODO(nifong): remove
   class_<SkCanvas>("SkCanvas")
     .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
       // JS side gives us a signed int instead of an unsigned int for color

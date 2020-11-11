@@ -672,6 +672,11 @@ bool DrawCommand::flatten(const SkImage&  image,
         SkDebugf("DrawCommand::flatten SkImage: could not encode image as PNG\n");
         return false;
     }
+    auto dataPtr = encoded->data();
+    if (!dataPtr) {
+      SkDebugf("DrawCommand::flatten SkImage: encoding as PNG produced zero length data\n");
+      return false;
+    }
     SkString      url = encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager);
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url.c_str());
     return true;
