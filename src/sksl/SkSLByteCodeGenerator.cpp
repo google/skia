@@ -55,10 +55,14 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "clamp",     SpecialIntrinsic::kClamp },
         { "cos",       ByteCodeInstruction::kCos },
         { "dot",       SpecialIntrinsic::kDot },
+        { "exp",       ByteCodeInstruction::kExp },
+        { "exp2",      ByteCodeInstruction::kExp2 },
         { "floor",     ByteCodeInstruction::kFloor },
         { "fract",     ByteCodeInstruction::kFract },
         { "inverse",   ByteCodeInstruction::kInverse2x2 },
         { "length",    SpecialIntrinsic::kLength },
+        { "log",       ByteCodeInstruction::kLog },
+        { "log2",      ByteCodeInstruction::kLog2 },
         { "max",       SpecialIntrinsic::kMax },
         { "min",       SpecialIntrinsic::kMin },
         { "mix",       SpecialIntrinsic::kMix },
@@ -287,8 +291,12 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VEC_UNARY(kATan)
         VEC_UNARY(kCeil)
         VEC_UNARY(kCos)
+        VEC_UNARY(kExp)
+        VEC_UNARY(kExp2)
         VEC_UNARY(kFloor)
         VEC_UNARY(kFract)
+        VEC_UNARY(kLog)
+        VEC_UNARY(kLog2)
         VEC_UNARY(kSin)
         VEC_UNARY(kSqrt)
         VEC_UNARY(kTan)

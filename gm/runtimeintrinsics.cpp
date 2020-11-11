@@ -125,3 +125,20 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_trig,
     do_unary(canvas, "acos",  -1.0f,  1.0f,        0.0f,        kPI);
     do_unary(canvas, "atan", -10.0f, 10.0f, -kPIOverTwo, kPIOverTwo);
 }
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.2
+DEF_SIMPLE_GM_BG(runtime_intrinsics_exponential,
+                 canvas,
+                 /*width=*/ kPadding + kLabelWidth + kBoxSize + kPadding,
+                 /*height=*/ 8 * (kPadding + kBoxSize) + kPadding,
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+
+    do_unary(canvas, "exp", -1.0f, 7.0f,  0.0f, 1000.0f);
+    do_unary(canvas, "log",  0.0f, 2.5f, -4.0f,    1.0f);
+
+    do_unary(canvas, "exp2", -1.0f, 7.0f,  0.0f, 130.0f);
+    do_unary(canvas, "log2",  0.0f, 4.0f, -4.0f,   2.0f);
+
+    do_unary(canvas, "sqrt",  0.0f, 25.0f, 0.0f, 5.0f);
+}
