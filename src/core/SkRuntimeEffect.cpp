@@ -563,12 +563,28 @@ static skvm::Color program_fn(skvm::Builder* p,
                 binary([](skvm::F32 x, skvm::F32 y) { return skvm::max(x,y); });
                 break;
 
+            case Inst::kMod:
+                binary([](skvm::F32 x, skvm::F32 y) { return x - y * skvm::floor(x / y); });
+                break;
+
             case Inst::kPow:
                 binary([](skvm::F32 x, skvm::F32 y) { return skvm::approx_powf(x,y); });
                 break;
 
             case Inst::kLerp:
                 ternary([](skvm::F32 x, skvm::F32 y, skvm::F32 t) { return skvm::lerp(x, y, t); });
+                break;
+
+            case Inst::kSign:
+                unary([p](skvm::F32 x) {
+                    return select(x < 0, -1.0f, select(x > 0, 1.0f, p->splat(0.0f)));
+                });
+                break;
+
+            case Inst::kStep:
+                binary([p](skvm::F32 edge, skvm::F32 x) {
+                    return select(x < edge, 0.0f, p->splat(1.0f));
+                });
                 break;
 
             case Inst::kAbs:   unary(skvm::abs);         break;
