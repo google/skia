@@ -90,7 +90,6 @@ public:
 
     struct FormatArg {
         enum class Kind {
-            kOutput,
             kCoords,
             kUniform,
             kChildProcessor,
