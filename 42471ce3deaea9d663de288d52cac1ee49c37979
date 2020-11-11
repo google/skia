@@ -16,6 +16,41 @@
       "message": "There is probably a lot more to do here. \n\nDoes it make sense for flush to be on SkDevices and SkCanvas? It seems like we just want them on\nthe direct context and, maybe, SkSurfaces.",
       "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2a4802c_a0938865",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-11T20:50:02Z",
+      "side": 1,
+      "message": "Yeah definitely shouldn\u0027t be on SkDevice and SkCanvas.\n\nSkSurface… well, if you\u0027re on a DDL canvas, does SkCanvas::getSurface return nullptr or a surface?\n\nOur public flush methods aren\u0027t failable right now. They either return void or GrSemaphoresSubmitted. If we made them failable, we could make things convenient for our users AND transparent by just returning a fail if they try to flush a DDL surface. \n\nBUT that\u0027s convenience over clarity. Unless explicitly flushing an SkSurface without having your GrDirectContext nearby is a really common thing, we should yank it from surface too.",
+      "parentUuid": "c24ee150_797f6a0a",
+      "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd3d3794_988106a3",
+        "filename": "src/gpu/GrDirectContextPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-11T20:50:02Z",
+      "side": 1,
+      "message": "Update comment? Or better yet just remove this variant.",
+      "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
