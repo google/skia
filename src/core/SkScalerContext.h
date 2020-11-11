@@ -112,10 +112,11 @@ public:
         setContrast(0);
     }
 
-    uint8_t     fMaskFormat;
+    SkMask::Format fMaskFormat;
+
 private:
-    uint8_t     fStrokeJoin : 4;
-    uint8_t     fStrokeCap : 4;
+    uint8_t        fStrokeJoin : 4;
+    uint8_t        fStrokeCap  : 4;
 
 public:
     uint16_t    fFlags;
@@ -193,7 +194,7 @@ public:
     inline void setHinting(SkFontHinting);
 
     SkMask::Format getFormat() const {
-        return static_cast<SkMask::Format>(fMaskFormat);
+        return fMaskFormat;
     }
 
     SkColor getLuminanceColor() const {
@@ -269,7 +270,7 @@ public:
     SkTypeface* getTypeface() const { return fTypeface.get(); }
 
     SkMask::Format getMaskFormat() const {
-        return (SkMask::Format)fRec.fMaskFormat;
+        return fRec.fMaskFormat;
     }
 
     bool isSubpixel() const {
