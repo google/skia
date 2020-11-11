@@ -16,6 +16,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderUtils.h"
 
+#include "src/gpu/mtl/GrMtlBinaryArchive.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
@@ -510,6 +511,16 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &error);
 #else
+    id<MTLBinaryArchive> archive = fGpu->binaryArchive();
+    NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
+    pipelineDescriptor.binaryArchives = archiveArray;
+    [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
+                                                error: &error];
+    if (error) {
+        SkDebugf("Error storing pipeline: %s\n",
+                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+        return nullptr;
+    }
     id<MTLRenderPipelineState> pipelineState =
             [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                            error: &error];

@@ -849,6 +849,8 @@ skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlAttachment.h",
   "$_src/gpu/mtl/GrMtlAttachment.mm",
+  "$_src/gpu/mtl/GrMtlBinaryArchive.h",
+  "$_src/gpu/mtl/GrMtlBinaryArchive.mm",
   "$_src/gpu/mtl/GrMtlBuffer.h",
   "$_src/gpu/mtl/GrMtlBuffer.mm",
   "$_src/gpu/mtl/GrMtlCaps.h",

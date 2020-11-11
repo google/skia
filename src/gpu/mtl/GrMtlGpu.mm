@@ -15,6 +15,7 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/mtl/GrMtlBinaryArchive.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
@@ -143,12 +144,17 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
     fCaps = fMtlCaps;
     fCompiler.reset(new SkSL::Compiler(fMtlCaps->shaderCaps()));
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    fBinaryArchive = GrMtlBinaryArchive::Make(fDevice);
 }
 
 GrMtlGpu::~GrMtlGpu() {
     if (!fDisconnected) {
         this->destroyResources();
     }
+}
+
+id<MTLBinaryArchive> GrMtlGpu::binaryArchive() const {
+    return fBinaryArchive.get()->archive();
 }
 
 void GrMtlGpu::disconnect(DisconnectType type) {
