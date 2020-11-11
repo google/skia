@@ -174,7 +174,7 @@ public:
         kPipelineCache_PersistentCacheKeyType = 1,
     };
 
-    void storeVkPipelineCacheData() override;
+    void storePipelineCacheData() override;
 
     bool beginRenderPass(const GrVkRenderPass*,
                          const VkClearValue* colorClear,

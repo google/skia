@@ -1563,7 +1563,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     }
 
     if (grOptions.fPersistentCache) {
-        direct->storeVkPipelineCacheData();
+        direct->storePipelineCacheData();
     }
     return Result::Ok();
 }

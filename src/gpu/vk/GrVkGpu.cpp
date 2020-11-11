@@ -2698,7 +2698,7 @@ void GrVkGpu::addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) 
     fDrawables.emplace_back(std::move(drawable));
 }
 
-void GrVkGpu::storeVkPipelineCacheData() {
+void GrVkGpu::storePipelineCacheData() {
     if (this->getContext()->priv().getPersistentCache()) {
         this->resourceProvider().storePipelineCacheData();
     }

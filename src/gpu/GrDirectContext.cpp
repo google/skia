@@ -397,9 +397,9 @@ void GrDirectContext::checkAsyncWorkCompletion() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDirectContext::storeVkPipelineCacheData() {
+void GrDirectContext::storePipelineCacheData() {
     if (fGpu) {
-        fGpu->storeVkPipelineCacheData();
+        fGpu->storePipelineCacheData();
     }
 }
 

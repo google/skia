@@ -733,7 +733,7 @@ public:
         }
     }
 
-    virtual void storeVkPipelineCacheData() {}
+    virtual void storePipelineCacheData() {}
 
     // http://skbug.com/9739
     virtual void insertManualFramebufferBarrier() {

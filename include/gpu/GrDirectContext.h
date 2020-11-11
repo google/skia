@@ -386,7 +386,7 @@ public:
 
     bool supportsDistanceFieldText() const;
 
-    void storeVkPipelineCacheData();
+    void storePipelineCacheData();
 
     // Returns the gpu memory size of the the texture that backs the passed in SkImage. Returns 0 if
     // the SkImage is not texture backed. For external format textures this will also return 0 as we
