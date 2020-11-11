@@ -238,6 +238,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.build("vec4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
+    // Mutating coords should work. (skbug.com/10918)
+    effect.build("vec4 main(vec2 p) { p -= 0.5; return vec4(p, 0, 1); }");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+    effect.build("void moveCoords(inout vec2 p) { p -= 0.5; }"
+                 "vec4 main(vec2 p) { moveCoords(p); return vec4(p, 0, 1); }");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+
     //
     // Sampling children
     //
