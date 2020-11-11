@@ -91,11 +91,14 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kDivideS, "divideS")
         DISASSEMBLE_COUNT(kDivideU, "divideu")
         DISASSEMBLE_COUNT(kDup, "dup")
+        DISASSEMBLE_COUNT(kExp, "exp")
+        DISASSEMBLE_COUNT(kExp2, "exp2")
         DISASSEMBLE_COUNT(kFloor, "floor")
         DISASSEMBLE_COUNT(kFract, "fract")
         case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
         case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
         case ByteCodeInstruction::kInverse4x4: printf("inverse4x4"); break;
+        DISASSEMBLE_COUNT(kInvSqrt, "inversesqrt")
         DISASSEMBLE_COUNT(kLerp, "lerp")
         DISASSEMBLE_COUNT_SLOT(kLoad, "load")
         DISASSEMBLE_COUNT_SLOT(kLoadGlobal, "loadglobal")
@@ -104,6 +107,8 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kLoadExtendedGlobal, "loadextendedglobal")
         DISASSEMBLE_COUNT(kLoadExtendedUniform, "loadextendeduniform")
         case ByteCodeInstruction::kLoadFragCoord: printf("loadfragcoord"); break;
+        DISASSEMBLE_COUNT(kLog, "log")
+        DISASSEMBLE_COUNT(kLog2, "log2")
         case ByteCodeInstruction::kMatrixToMatrix: {
             int srcCols = READ8();
             int srcRows = READ8();
@@ -497,6 +502,9 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp += count;
             } continue;
 
+            VECTOR_UNARY_FN(kExp, [](auto x) { return skvx::map(expf, x); }, fFloat)
+            VECTOR_UNARY_FN(kExp2, [](auto x) { return skvx::map(exp2f, x); }, fFloat)
+
             VECTOR_UNARY_FN(kFloor, skvx::floor, fFloat)
             VECTOR_UNARY_FN(kFract, skvx::fract, fFloat)
 
@@ -585,6 +593,9 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 }
                 sp += count;
             } continue;
+
+            VECTOR_UNARY_FN(kLog, [](auto x) { return skvx::map(logf, x); }, fFloat)
+            VECTOR_UNARY_FN(kLog2, [](auto x) { return skvx::map(log2f, x); }, fFloat)
 
             case ByteCodeInstruction::kMatrixToMatrix: {
                 int srcCols = READ8();
@@ -751,6 +762,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
             VECTOR_UNARY_FN(kASin, [](auto x) { return skvx::map(asinf, x); }, fFloat)
             VECTOR_UNARY_FN(kSin, [](auto x) { return skvx::map(sinf, x); }, fFloat)
+            VECTOR_UNARY_FN(kInvSqrt, [](auto x) { return 1.0f / skvx::sqrt(x); }, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
 
             case ByteCodeInstruction::kStore: {
