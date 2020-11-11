@@ -338,8 +338,8 @@ public:
 
     /** Returns the advance width of text.
         The advance is the normal distance to move before drawing additional text.
-        Returns the bounding box of text if bounds is not nullptr. paint
-        stroke width or SkPathEffect may modify the advance with.
+        Returns the bounding box of text if bounds is not nullptr. The paint
+        stroke settings, mask filter, or path effect may modify the bounds.
 
         @param text        character storage encoded with SkTextEncoding
         @param byteLength  length of character storage in bytes
