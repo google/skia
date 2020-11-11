@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `CanvasKit.Shader.Blend`, `...Color`, and `...Lerp` have been renamed to
    `CanvasKit.Shader.MakeBlend`, `...MakeColor` and `...MakeLerp` to align with naming conventions.
    The old names will be removed in an upcoming release.
+ - `CanvasKit.MakeSurface` no longer uses a RasterDirect surface internally. This means
+   creating Images from this raster surface should be faster.
+ - `CanvasKit.MakeSurface` is Premul instead of Unpremul, which should be more performant when
+    drawing.
 
 ### Removed
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
