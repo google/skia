@@ -232,7 +232,7 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
         glyph.fHeight  = 0;
         glyph.fTop     = 0;
         glyph.fLeft    = 0;
-        glyph.fMaskFormat = 0;
+        glyph.fMaskFormat = SkMask::kBW_Format;
         return glyph;
     }
 
@@ -264,7 +264,7 @@ SK_ERROR:
     glyph.fTop      = 0;
     glyph.fWidth    = 0;
     glyph.fHeight   = 0;
-    glyph.fMaskFormat = fRec.fMaskFormat;
+    glyph.fMaskFormat = (SkMask::Format)fRec.fMaskFormat;
     return glyph;
 }
 
@@ -1172,7 +1172,7 @@ SkScalerContext* SkScalerContext::MakeEmptyContext(
             return true;
         }
         void generateMetrics(SkGlyph* glyph) override {
-            glyph->fMaskFormat = fRec.fMaskFormat;
+            glyph->fMaskFormat = (SkMask::Format)fRec.fMaskFormat;
             glyph->zeroMetrics();
         }
         void generateImage(const SkGlyph& glyph) override {}
