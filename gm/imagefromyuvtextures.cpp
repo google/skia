@@ -61,7 +61,8 @@ protected:
             bmp = copy;
         }
         SkYUVAPixmapInfo pixmapInfo({bmp.dimensions(),
-                                     SkYUVAInfo::PlanarConfig::kY_U_V_A_4204,
+                                     SkYUVAInfo::PlaneConfig::kY_U_V_A,
+                                     SkYUVAInfo::Subsampling::k420,
                                      kJPEG_Full_SkYUVColorSpace},
                                     SkYUVAPixmapInfo::DataType::kUnorm8,
                                     nullptr);
