@@ -284,7 +284,6 @@ public:
     bool isVertical() const { return false; }
 
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
-    void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
     bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
