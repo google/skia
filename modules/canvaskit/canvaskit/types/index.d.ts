@@ -1449,12 +1449,19 @@ export interface Font extends EmbindObject<Font> {
     getWidths(str: string): number[];
 
     /**
-     * Retrieves the total advance with the given string.
+     * Retrieves the total advance width of the given string.
      * If attempting to shape text to fit into a given width, using getGlyphIDs and getGlyphWidths
      * is probably easier / more efficient.
      * @param str
      */
-    measureText(str: string): number;
+    measureWidth(str: string): number;
+
+    /**
+     * Retrieves the total advance width of the given string and the bounding box.
+     * @param str
+     * @param paint - if provided, the Paint's stroke width or path effect may affect the result.
+     */
+    measureWidthBounds(str: string, paint?: Paint): WidthBounds;
 
     /**
      * Requests, but does not require, that edge pixels draw opaque or with partial transparency.
@@ -1513,6 +1520,12 @@ export interface Font extends EmbindObject<Font> {
      * @param face
      */
     setTypeface(face: Typeface | null): void;
+}
+
+export interface WidthBounds {
+    bounds: Rect;
+    /** The advance width of the text */
+    width: number;
 }
 
 /**

@@ -4,14 +4,6 @@ describe('CanvasKit\'s Matrix Helpers', () => {
     await LoadCanvasKit;
   });
 
-  const expectArrayCloseTo = (a, b, precision) => {
-    precision = precision || 14 // digits of precision in base 10
-    expect(a.length).toEqual(b.length);
-    for (let i=0; i<a.length; i++) {
-      expect(a[i]).toBeCloseTo(b[i], precision);
-    }
-  };
-
   describe('3x3 matrices', () => {
 
     it('can make a translated 3x3 matrix', () => {

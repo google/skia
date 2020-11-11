@@ -20,12 +20,12 @@ describe('Canvas 2D emulation', () => {
         for (let i=0; i<4; i++) {
             expect(a[i]).toBeCloseTo(b[i], 3);
         }
-    }
+    };
 
     describe('color strings', () => {
         const hex = (s) => {
             return parseInt(s, 16);
-        }
+        };
 
         it('parses hex color strings', () => {
             const parseColor = CanvasKit.parseColorString;
@@ -274,7 +274,7 @@ describe('Canvas 2D emulation', () => {
             skcanvas.dispose();
             done();
         }).catch(reportError(done));
-    }
+    };
 
     describe('CanvasContext2D API', () => {
         multipleCanvasGM('all_line_drawing_operations', (canvas) => {
@@ -305,7 +305,7 @@ describe('Canvas 2D emulation', () => {
             ctx.lineTo(20, 120);
 
             ctx.moveTo(150, 5);
-            ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI)
+            ctx.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI);
 
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -426,12 +426,12 @@ describe('Canvas 2D emulation', () => {
             ctx.lineWidth = 6;
             ctx.ellipse(10, 290, 30, 30, 0, 0, Math.PI * 2);
             ctx.scale(2, 1);
-            ctx.moveTo(10, 290)
+            ctx.moveTo(10, 290);
             ctx.ellipse(10, 290, 30, 60, 0, 0, Math.PI * 2);
             ctx.resetTransform();
             ctx.shadowColor = '#993366AA';
             ctx.scale(3, 1);
-            ctx.moveTo(10, 290)
+            ctx.moveTo(10, 290);
             ctx.ellipse(10, 290, 30, 90, 0, 0, Math.PI * 2);
             ctx.stroke();
         });
@@ -592,7 +592,7 @@ describe('Canvas 2D emulation', () => {
             multipleCanvasGM('draw_patterns', (canvas) => {
                 const ctx = canvas.getContext('2d');
                 let img = htmlImage;
-                if (canvas._config == 'software_canvas') {
+                if (canvas._config === 'software_canvas') {
                     img = canvas.decodeImage(skImageData);
                 }
                 ctx.fillStyle = '#EEE';
@@ -608,7 +608,7 @@ describe('Canvas 2D emulation', () => {
                 ctx.fillStyle = pattern;
                 ctx.fillRect(1500, 0, 3000, 750);
 
-                ctx.globalAlpha = 0.7
+                ctx.globalAlpha = 0.7;
                 pattern = ctx.createPattern(img, 'repeat-y');
                 ctx.fillStyle = pattern;
                 ctx.fillRect(0, 750, 1500, 1500);
@@ -623,12 +623,12 @@ describe('Canvas 2D emulation', () => {
             multipleCanvasGM('draw_image', (canvas) => {
                 let ctx = canvas.getContext('2d');
                 let img = htmlImage;
-                if (canvas._config == 'software_canvas') {
+                if (canvas._config === 'software_canvas') {
                     img = canvas.decodeImage(skImageData);
                 }
                 ctx.drawImage(img, 30, -200);
 
-                ctx.globalAlpha = 0.7
+                ctx.globalAlpha = 0.7;
                 ctx.rotate(.1);
                 ctx.imageSmoothingQuality = 'medium';
                 ctx.drawImage(img, 200, 350, 150, 100);
@@ -642,7 +642,7 @@ describe('Canvas 2D emulation', () => {
             const drawPoint = (ctx, x, y, color) => {
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y, 1, 1);
-            }
+            };
             const IN = 'purple';
             const OUT = 'orange';
             const SCALE = 8;
@@ -769,6 +769,12 @@ describe('Canvas 2D emulation', () => {
                 // bold wasn't defined, so should fallback to just the 400 weight
                 ctx.font = 'bold 45px BungeeNonSystem';
                 ctx.fillText('45px Bungee filled', 10, 260);
+
+                const measured = ctx.measureText('45px Bungee filled');
+                ctx.strokeStyle = 'red';
+                ctx.moveTo(10 + measured.actualBoundingBoxLeft, 260);
+                ctx.lineTo(10 + measured.actualBoundingBoxRight, 260);
+                ctx.stroke();
             });
         }); // describe('loading custom fonts')
 
@@ -810,7 +816,7 @@ describe('Canvas 2D emulation', () => {
                 clock = canvas.makePath2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
                 path = canvas.makePath2D();
             } else {
-                clock = new Path2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z')
+                clock = new Path2D('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
                 path = new Path2D();
             }
             path.moveTo(20, 5);
@@ -838,7 +844,7 @@ describe('Canvas 2D emulation', () => {
             path.lineTo(20, 120);
 
             path.moveTo(150, 5);
-            path.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI)
+            path.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI);
 
             ctx.lineWidth = 2;
             ctx.scale(3.0, 3.0);

@@ -9,6 +9,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._fontString = '10px monospace';
 
   this._font = new CanvasKit.Font(null, 10);
+  this._font.setHinting(CanvasKit.FontHinting.Slight);
   this._font.setSubpixel(true);
 
   this._strokeStyle    = CanvasKit.BLACK;
@@ -700,7 +701,7 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.fillText = function(text, x, y, maxWidth) {
-    // TODO do something with maxWidth, probably involving measure
+    // TODO(kjlubick) do something with maxWidth, probably involving measure
     var fillPaint = this._fillPaint();
     var blob = CanvasKit.TextBlob.MakeFromText(text, this._font);
 
@@ -808,9 +809,15 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.measureText = function(text) {
+    var widthBounds = this._font.measureWidthBounds(text, this._paint);
+    var bounds = widthBounds['bounds'];
+    // The following is based on
+    // https://source.chromium.org/chromium/chromium/src/+/master:third_party/blink/renderer/core/html/canvas/text_metrics.cc
     return {
-      width: this._font.measureText(text),
-      // TODO other measurements?
+      'width': widthBounds['width'],
+      'actualBoundingBoxLeft': -bounds[0], // -left Would need to account for textAlign
+      'actualBoundingBoxRight': bounds[2], // right
+      // TODO(kjlubick) other measurements
     }
   };
 
@@ -916,7 +923,7 @@ function CanvasRenderingContext2D(skcanvas) {
     this._imageFilterQuality = newState.isq;
     this._fontString = newState.fontstr;
 
-    //TODO: textAlign, textBaseline
+    //TODO(kjlubick): textAlign, textBaseline
 
     // restores the clip and ctm
     this._canvas.restore();
@@ -967,7 +974,7 @@ function CanvasRenderingContext2D(skcanvas) {
       isq:     this._imageFilterQuality,
       paint:   this._paint.copy(),
       fontstr: this._fontString,
-      //TODO: textAlign, textBaseline
+      //TODO(kjlubick): textAlign, textBaseline
     });
     // Saves the clip
     this._canvas.save();
