@@ -16,6 +16,29 @@
       "message": "I added a staging variable to hide the changes in google3, that\u0027s all.",
       "revId": "1be4fd0b3bf639c687e3ec30df930c6e62a4fd8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e581fe17_bc2c0652",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T21:46:50Z",
+      "side": 1,
+      "message": "I think I might use CORRECT here instead of OLD, since OLD somewhat implies that the old code is to be removed.\n\nSo your plan here is to \u0027#define SK_PARAGRAPH_OLD_SPACES_RESOLUTION\u0027 where needed, then land / roll this change, then remove the \u0027#define SK_PARAGRAPH_OLD_SPACES_RESOLUTION\u0027 when updating expectations?",
+      "range": {
+        "startLine": 308,
+        "startChar": 20,
+        "endLine": 308,
+        "endChar": 23
+      },
+      "revId": "1be4fd0b3bf639c687e3ec30df930c6e62a4fd8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
