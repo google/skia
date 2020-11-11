@@ -37,8 +37,6 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
-    virtual bool requiresExplicitCleanup() const { return false; }
-
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
@@ -68,11 +66,8 @@ public:
      */
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
-    virtual void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-        idArray->push_back(fUniqueID);
-    }
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual int numTargets() const { return fTargets.count(); }
+    int numTargets() const { return fTargets.count(); }
     const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
 
     /*
@@ -95,8 +90,8 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-       for (const GrSurfaceProxyView& target : fTargets) {
-            fn(target.proxy(), GrMipmapped::kNo);
+        for (int i = 0; i < this->numTargets(); ++i) {
+            fn(this->target(i).proxy(), GrMipmapped::kNo);
         }
     }
 #endif
@@ -134,8 +129,6 @@ protected:
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
     friend class GrDrawingManager;
-    friend class GrDDLTask; // for onIsUsed and gatherProxyIntervals
-
 
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the
@@ -211,9 +204,9 @@ private:
         }
     };
 
-
-    virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
-    virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
+    // Only the GrOpsTask currently overrides this virtual
+    virtual void onPrePrepare(GrRecordingContext*) {}
+    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;

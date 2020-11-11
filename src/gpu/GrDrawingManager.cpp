@@ -19,7 +19,6 @@
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
-#include "src/gpu/GrDDLTask.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -39,16 +38,17 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrTransferFromRenderTask.h"
+#include "src/gpu/GrUnrefDDLTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrSDFTOptions.h"
 #include "src/image/SkSurface_Gpu.h"
 
 void GrDrawingManager::RenderTaskDAG::gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
-    idArray->reserve_back(fRenderTasks.count());
+    idArray->reset(fRenderTasks.count());
     for (int i = 0; i < fRenderTasks.count(); ++i) {
         if (fRenderTasks[i]) {
-            fRenderTasks[i]->gatherIDs(idArray);
+            (*idArray)[i] = fRenderTasks[i]->uniqueID();
         }
     }
 }
@@ -89,6 +89,16 @@ GrRenderTask* GrDrawingManager::RenderTaskDAG::addBeforeLast(sk_sp<GrRenderTask>
         return (fRenderTasks[fRenderTasks.count() - 2] = std::move(renderTask)).get();
     }
     return nullptr;
+}
+
+void GrDrawingManager::RenderTaskDAG::add(const SkTArray<sk_sp<GrRenderTask>>& renderTasks) {
+#ifdef SK_DEBUG
+    for (auto& renderTask : renderTasks) {
+        SkASSERT(renderTask->unique());
+    }
+#endif
+
+    fRenderTasks.push_back_n(renderTasks.count(), renderTasks.begin());
 }
 
 void GrDrawingManager::RenderTaskDAG::swap(SkTArray<sk_sp<GrRenderTask>>* renderTasks) {
@@ -452,10 +462,8 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
         if (!task) {
             continue;
         }
-        if (!task->unique() || task->requiresExplicitCleanup()) {
-            // TODO: Eventually uniqueness should be guaranteed: http://skbug.com/7111.
-            // DDLs, however, will always require an explicit notification for when they
-            // can clean up resources.
+        if (!task->unique()) {
+            // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
             task->endFlush(this);
         }
         task->disown(this);
@@ -547,8 +555,8 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 
 void GrDrawingManager::setLastRenderTask(const GrSurfaceProxy* proxy, GrRenderTask* task) {
 #ifdef SK_DEBUG
-    if (auto prior = this->getLastRenderTask(proxy)) {
-        SkASSERT(prior->isClosed() || prior == task);
+    if (GrRenderTask* prior = this->getLastRenderTask(proxy)) {
+        SkASSERT(prior->isClosed());
     }
 #endif
     uint32_t key = proxy->uniqueID().asUInt();
@@ -577,8 +585,6 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     fDAG.closeAll(fContext->priv().caps());
     fActiveOpsTask = nullptr;
 
-    fDAG.prepForFlush();
-
     fDAG.swap(&ddl->fRenderTasks);
     SkASSERT(!fDAG.numRenderTasks());
 
@@ -600,8 +606,8 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                     GrRenderTargetProxy* newDest) {
+void GrDrawingManager::copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList> ddl,
+                                              GrRenderTargetProxy* newDest) {
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
@@ -613,7 +619,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         fActiveOpsTask = nullptr;
     }
 
-    // Propagate the DDL proxy's state information to the replay target.
+    // Propagate the DDL proxy's state information to the replaying DDL.
     if (ddl->priv().targetProxy()->isMSAADirty()) {
         newDest->markMSAADirty(ddl->priv().targetProxy()->msaaDirtyRect(),
                                ddl->characterization().origin());
@@ -626,7 +632,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     this->addDDLTarget(newDest, ddl->priv().targetProxy());
 
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
-    // The lazy proxy that references it (in the DDL opsTasks) will then steal its GrTexture.
+    // The lazy proxy that references it (in the copied opsTasks) will steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest;
 
     if (ddl->fPendingPaths.size()) {
@@ -635,11 +641,11 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         ccpr->mergePendingPaths(ddl->fPendingPaths);
     }
 
-    // Add a task to handle drawing and lifetime management of the DDL.
-    SkDEBUGCODE(auto ddlTask =) fDAG.add(sk_make_sp<GrDDLTask>(this,
-                                                               sk_ref_sp(newDest),
-                                                               std::move(ddl)));
-    SkASSERT(ddlTask->isClosed());
+    fDAG.add(ddl->fRenderTasks);
+
+    // Add a task to unref the DDL after flush.
+    GrRenderTask* unrefTask = fDAG.add(sk_make_sp<GrUnrefDDLTask>(std::move(ddl)));
+    unrefTask->makeClosed(*fContext->priv().caps());
 
     SkDEBUGCODE(this->validate());
 }
@@ -931,3 +937,4 @@ void GrDrawingManager::flushIfNecessary() {
         resourceCache->purgeAsNeeded();
     }
 }
+
