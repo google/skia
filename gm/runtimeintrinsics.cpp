@@ -145,3 +145,28 @@ DEF_SIMPLE_GM_BG(
     do_unary(canvas, "atan(x,  0.1)", -1.0f, 1.0f, -kPIOverTwo, kPIOverTwo); col(canvas);
     do_unary(canvas, "atan(x, -0.1)", -1.0f, 1.0f,        -kPI,        kPI); row(canvas);
 }
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.2
+DEF_SIMPLE_GM_BG(runtime_intrinsics_exponential,
+                 canvas,
+                 columns_to_width(2),
+                 rows_to_height(5),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    do_unary(canvas, "pow(x, 3)",  0.0f, 8.0f, 0.0f, 500.0f); col(canvas);
+    do_unary(canvas, "pow(x, -3)", 0.0f, 4.0f, 0.0f,  10.0f); row(canvas);
+
+    do_unary(canvas, "pow(0.9, x)", -10.0f, 10.0f, 0.0f, 3.0f); col(canvas);
+    do_unary(canvas, "pow(1.1, x)", -10.0f, 10.0f, 0.0f, 3.0f); row(canvas);
+
+    do_unary(canvas, "exp(x)", -1.0f, 7.0f,  0.0f, 1000.0f); col(canvas);
+    do_unary(canvas, "log(x)",  0.0f, 2.5f, -4.0f,    1.0f); row(canvas);
+
+    do_unary(canvas, "exp2(x)", -1.0f, 7.0f,  0.0f, 130.0f); col(canvas);
+    do_unary(canvas, "log2(x)",  0.0f, 4.0f, -4.0f,   2.0f); row(canvas);
+
+    do_unary(canvas,        "sqrt(x)", 0.0f, 25.0f, 0.0f, 5.0f); col(canvas);
+    do_unary(canvas, "inversesqrt(x)", 0.0f, 25.0f, 0.2f, 4.0f); row(canvas);
+}
