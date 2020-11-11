@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 88
 ------------
 
+  * SkYUVAInfo now has separate enums for division of channels among planes and
+    the subsampling. The previous combined enum, PlanarConfig, is deprecated.
+    https://review.skia.org/334102
+
   * Simplified SkDeferredDisplayListRecorder promise image API. Removed "release"
     callback and renamed "done" callback to "release". The new "release" proc can
     be null. Added a new SkYUVAInfo-based factory for YUVA promise texture images

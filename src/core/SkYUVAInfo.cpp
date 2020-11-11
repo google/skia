@@ -8,10 +8,31 @@
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkSafeMath.h"
 
+#include <algorithm>
+
+static bool is_plane_config_compatible_with_subsampling(SkYUVAInfo::PlaneConfig config,
+                                                        SkYUVAInfo::Subsampling subsampling) {
+    if (config      == SkYUVAInfo::PlaneConfig::kUnknown ||
+        subsampling == SkYUVAInfo::Subsampling::kUnknown) {
+        return false;
+    }
+    return subsampling == SkYUVAInfo::Subsampling::k444 ||
+           (config != SkYUVAInfo::PlaneConfig::kYUV  &&
+            config != SkYUVAInfo::PlaneConfig::kYUVA &&
+            config != SkYUVAInfo::PlaneConfig::kUYV  &&
+            config != SkYUVAInfo::PlaneConfig::kUYVA);
+}
+
 int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
-                                PlanarConfig planarConfig,
+                                PlaneConfig planeConfig,
+                                Subsampling subsampling,
                                 SkEncodedOrigin origin,
                                 SkISize planeDimensions[SkYUVAInfo::kMaxPlanes]) {
+    std::fill_n(planeDimensions, SkYUVAInfo::kMaxPlanes, SkISize{0, 0});
+    if (!is_plane_config_compatible_with_subsampling(planeConfig, subsampling)) {
+        return 0;
+    }
+
     int w = imageDimensions.width();
     int h = imageDimensions.height();
     if (origin >= kLeftTop_SkEncodedOrigin) {
@@ -20,66 +41,50 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
     }
     auto down2 = [](int x) { return (x + 1)/2; };
     auto down4 = [](int x) { return (x + 3)/4; };
-    switch (planarConfig) {
-        case PlanarConfig::kUnknown:
-            planeDimensions[0] =
-            planeDimensions[1] =
-            planeDimensions[2] =
-            planeDimensions[3] = {0, 0};
-            return 0;
-        case PlanarConfig::kY_U_V_444:
-            planeDimensions[0] = planeDimensions[1] = planeDimensions[2] = {w, h};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_U_V_422:
+    SkISize uvSize;
+    switch (subsampling) {
+        case Subsampling::kUnknown: SkUNREACHABLE;
+
+        case Subsampling::k444: uvSize = {      w ,       h }; break;
+        case Subsampling::k422: uvSize = {down2(w),       h }; break;
+        case Subsampling::k420: uvSize = {down2(w), down2(h)}; break;
+        case Subsampling::k440: uvSize = {      w , down2(h)}; break;
+        case Subsampling::k411: uvSize = {down4(w),       h }; break;
+        case Subsampling::k410: uvSize = {down4(w), down2(h)}; break;
+    }
+    switch (planeConfig) {
+        case PlaneConfig::kUnknown: SkUNREACHABLE;
+
+        case PlaneConfig::kY_U_V:
+        case PlaneConfig::kY_V_U:
             planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {down2(w), h};
-            planeDimensions[3] = {0, 0};
+            planeDimensions[1] = planeDimensions[2] = uvSize;
             return 3;
-        case PlanarConfig::kY_U_V_420:
-        case PlanarConfig::kY_V_U_420:
+
+        case PlaneConfig::kY_UV:
+        case PlaneConfig::kY_VU:
             planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {down2(w), down2(h)};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_UV_A_4204:
-        case PlanarConfig::kY_VU_A_4204:
-            planeDimensions[0] = planeDimensions[2] = {w, h};
-            planeDimensions[1] = {down2(w), down2(h)};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_U_V_440:
-            planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {w, down2(h)};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_U_V_411:
-            planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {down4(w), h};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_U_V_410:
-            planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {down4(w), down2(h)};
-            planeDimensions[3] = {0, 0};
-            return 3;
-        case PlanarConfig::kY_U_V_A_4204:
-        case PlanarConfig::kY_V_U_A_4204:
-            planeDimensions[0] = planeDimensions[3] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = {down2(w), down2(h)};
-            return 4;
-        case PlanarConfig::kY_UV_420:
-        case PlanarConfig::kY_VU_420:
-            planeDimensions[0] = {w, h};
-            planeDimensions[1] = {down2(w), down2(h)};
-            planeDimensions[2] = planeDimensions[3] = {0, 0};
+            planeDimensions[1] = uvSize;
             return 2;
-        case PlanarConfig::kYUV_444:
-        case PlanarConfig::kUYV_444:
-        case PlanarConfig::kYUVA_4444:
-        case PlanarConfig::kUYVA_4444:
+
+        case PlaneConfig::kY_U_V_A:
+        case PlaneConfig::kY_V_U_A:
+            planeDimensions[0] = planeDimensions[3] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = uvSize;
+            return 4;
+
+        case PlaneConfig::kY_UV_A:
+        case PlaneConfig::kY_VU_A:
+            planeDimensions[0] = planeDimensions[2] = {w, h};
+            planeDimensions[1] = uvSize;
+            return 3;
+
+        case PlaneConfig::kYUV:
+        case PlaneConfig::kUYV:
+        case PlaneConfig::kYUVA:
+        case PlaneConfig::kUYVA:
             planeDimensions[0] = {w, h};
-            planeDimensions[1] = planeDimensions[2] = planeDimensions[3] = {0, 0};
+            SkASSERT(planeDimensions[0] == uvSize);
             return 1;
     }
     SkUNREACHABLE;
@@ -125,76 +130,71 @@ static bool channel_index_to_channel(uint32_t channelFlags,
     }
 }
 
-bool SkYUVAInfo::GetYUVAIndices(PlanarConfig config,
+bool SkYUVAInfo::GetYUVAIndices(PlaneConfig config,
                                 const uint32_t planeChannelFlags[kMaxPlanes],
                                 SkYUVAIndex indices[SkYUVAIndex::kIndexCount]) {
     struct Location {int plane, chanIdx;};
     const Location* locations = nullptr;
     switch (config) {
-        case PlanarConfig::kUnknown:
+        case PlaneConfig::kUnknown:
             return false;
 
-        case PlanarConfig::kY_U_V_444:
-        case PlanarConfig::kY_U_V_422:
-        case PlanarConfig::kY_U_V_420:
-        case PlanarConfig::kY_U_V_440:
-        case PlanarConfig::kY_U_V_411:
-        case PlanarConfig::kY_U_V_410: {
+        case PlaneConfig::kY_U_V: {
             static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {2, 0}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kY_V_U_420: {
+        case PlaneConfig::kY_V_U: {
             static constexpr Location kLocations[] = {{0, 0}, {2, 0}, {1, 0}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kY_U_V_A_4204: {
-            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {2, 0}, {3, 0}};
-            locations = kLocations;
-            break;
-        }
-        case PlanarConfig::kY_V_U_A_4204: {
-            static constexpr Location kLocations[] = {{0, 0}, {2, 0}, {1, 0}, {3, 0}};
-            locations = kLocations;
-            break;
-        }
-        case PlanarConfig::kY_UV_420: {
+        case PlaneConfig::kY_UV: {
             static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {1, 1}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kY_VU_420: {
+        case PlaneConfig::kY_VU: {
             static constexpr Location kLocations[] = {{0, 0}, {1, 1}, {1, 0}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kY_UV_A_4204: {
-            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}};
-            locations = kLocations;
-            break;
-        }
-        case PlanarConfig::kY_VU_A_4204: {
-            static constexpr Location kLocations[] = {{0, 0}, {1, 1}, {1, 0}, {2, 0}};
-            locations = kLocations;
-            break;
-        }
-        case PlanarConfig::kYUV_444: {
+        case PlaneConfig::kYUV: {
             static constexpr Location kLocations[] = {{0, 0}, {0, 1}, {0, 2}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kUYV_444: {
+        case PlaneConfig::kUYV: {
             static constexpr Location kLocations[] = {{0, 1}, {0, 0}, {0, 2}, {-1, -1}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kYUVA_4444: {
+        case PlaneConfig::kY_U_V_A: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {2, 0}, {3, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlaneConfig::kY_V_U_A: {
+            static constexpr Location kLocations[] = {{0, 0}, {2, 0}, {1, 0}, {3, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlaneConfig::kY_UV_A: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlaneConfig::kY_VU_A: {
+            static constexpr Location kLocations[] = {{0, 0}, {1, 1}, {1, 0}, {2, 0}};
+            locations = kLocations;
+            break;
+        }
+        case PlaneConfig::kYUVA: {
             static constexpr Location kLocations[] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}};
             locations = kLocations;
             break;
         }
-        case PlanarConfig::kUYVA_4444: {
+        case PlaneConfig::kUYVA: {
             static constexpr Location kLocations[] = {{0, 1}, {0, 0}, {0, 2}, {0, 3}};
             locations = kLocations;
             break;
@@ -217,34 +217,48 @@ bool SkYUVAInfo::GetYUVAIndices(PlanarConfig config,
     return true;
 }
 
-bool SkYUVAInfo::HasAlpha(PlanarConfig planarConfig) {
-    switch (planarConfig) {
-        case PlanarConfig::kUnknown:      return false;
+bool SkYUVAInfo::HasAlpha(PlaneConfig planeConfig) {
+    switch (planeConfig) {
+        case PlaneConfig::kUnknown: return false;
 
-        case PlanarConfig::kY_U_V_444:    return false;
-        case PlanarConfig::kY_U_V_422:    return false;
-        case PlanarConfig::kY_U_V_420:    return false;
-        case PlanarConfig::kY_V_U_420:    return false;
-        case PlanarConfig::kY_U_V_440:    return false;
-        case PlanarConfig::kY_U_V_411:    return false;
-        case PlanarConfig::kY_U_V_410:    return false;
+        case PlaneConfig::kY_U_V:   return false;
+        case PlaneConfig::kY_V_U:   return false;
+        case PlaneConfig::kY_UV:    return false;
+        case PlaneConfig::kY_VU:    return false;
+        case PlaneConfig::kYUV:     return false;
+        case PlaneConfig::kUYV:     return false;
 
-        case PlanarConfig::kY_U_V_A_4204: return true;
-        case PlanarConfig::kY_V_U_A_4204: return true;
-
-        case PlanarConfig::kY_UV_420:     return false;
-        case PlanarConfig::kY_VU_420:     return false;
-
-        case PlanarConfig::kY_UV_A_4204:  return true;
-        case PlanarConfig::kY_VU_A_4204:  return true;
-
-        case PlanarConfig::kYUV_444:      return false;
-        case PlanarConfig::kUYV_444:      return false;
-
-        case PlanarConfig::kYUVA_4444:    return true;
-        case PlanarConfig::kUYVA_4444:    return true;
+        case PlaneConfig::kY_U_V_A: return true;
+        case PlaneConfig::kY_V_U_A: return true;
+        case PlaneConfig::kY_UV_A:  return true;
+        case PlaneConfig::kY_VU_A:  return true;
+        case PlaneConfig::kYUVA:    return true;
+        case PlaneConfig::kUYVA:    return true;
     }
     SkUNREACHABLE;
+}
+
+SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
+                       PlaneConfig planeConfig,
+                       Subsampling subsampling,
+                       SkYUVColorSpace yuvColorSpace,
+                       SkEncodedOrigin origin,
+                       Siting sitingX,
+                       Siting sitingY)
+        : fDimensions(dimensions)
+        , fPlaneConfig(planeConfig)
+        , fSubsampling(subsampling)
+        , fYUVColorSpace(yuvColorSpace)
+        , fOrigin(origin)
+        , fSitingX(sitingX)
+        , fSitingY(sitingY) {
+    if (fDimensions.isEmpty() ||
+        !is_plane_config_compatible_with_subsampling(planeConfig, subsampling)) {
+        *this = {};
+        SkASSERT(!this->isValid());
+        return;
+    }
+    SkASSERT(this->isValid());
 }
 
 SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
@@ -252,21 +266,9 @@ SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
                        SkYUVColorSpace yuvColorSpace,
                        SkEncodedOrigin origin,
                        Siting sitingX,
-                       Siting sitingY)
-    : fDimensions(dimensions)
-    , fPlanarConfig(planarConfig)
-    , fYUVColorSpace(yuvColorSpace)
-    , fOrigin(origin)
-    , fSitingX(sitingX)
-    , fSitingY(sitingY) {
-    if (fDimensions.width() <= 0 ||
-        fDimensions.height() <= 0 ||
-        planarConfig == PlanarConfig::kUnknown) {
-        *this = {};
-        SkASSERT(!this->isValid());
-        return;
-    }
-    SkASSERT(this->isValid());
+                       Siting sitingY) {
+    auto [c, s] = PlanarConfigToPlaneConfigAndSubsampling(planarConfig);
+    *this = SkYUVAInfo(dimensions, c, s, yuvColorSpace, origin, sitingX, sitingY);
 }
 
 size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
@@ -302,8 +304,75 @@ size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
     return safe.ok() ? totalBytes : SIZE_MAX;
 }
 
+SkYUVAInfo::PlanarConfig SkYUVAInfo::planarConfig() const {
+    SkASSERT(!this->isValid() || is_plane_config_compatible_with_subsampling(fPlaneConfig,
+                                                                             fSubsampling));
+    switch (fPlaneConfig) {
+        case PlaneConfig::kUnknown:  return PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_U_V:
+            switch (fSubsampling) {
+                case Subsampling::kUnknown: SkUNREACHABLE;
+
+                case Subsampling::k444: return PlanarConfig::kY_U_V_444;
+                case Subsampling::k422: return PlanarConfig::kY_U_V_422;
+                case Subsampling::k420: return PlanarConfig::kY_U_V_420;
+                case Subsampling::k440: return PlanarConfig::kY_U_V_440;
+                case Subsampling::k411: return PlanarConfig::kY_U_V_411;
+                case Subsampling::k410: return PlanarConfig::kY_U_V_410;
+            }
+            SkUNREACHABLE;
+
+        case PlaneConfig::kY_V_U:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_V_U_420
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_UV:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_UV_420
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_VU:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_VU_420
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kYUV:
+            SkASSERT(fSubsampling == Subsampling::k444);
+            return PlanarConfig::kYUV_444;
+
+        case PlaneConfig::kUYV:
+            SkASSERT(fSubsampling == Subsampling::k444);
+            return PlanarConfig::kUYV_444;
+
+        case PlaneConfig::kY_U_V_A:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_U_V_A_4204
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_V_U_A:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_V_U_A_4204
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_UV_A:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_UV_A_4204
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kY_VU_A:
+            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_VU_A_4204
+                                                     : PlanarConfig::kUnknown;
+
+        case PlaneConfig::kYUVA:
+            SkASSERT(fSubsampling == Subsampling::k444);
+            return PlanarConfig::kYUVA_4444;
+
+        case PlaneConfig::kUYVA:
+            SkASSERT(fSubsampling == Subsampling::k444);
+            return PlanarConfig::kUYVA_4444;
+    }
+    SkUNREACHABLE;
+}
+
 bool SkYUVAInfo::operator==(const SkYUVAInfo& that) const {
-    return fPlanarConfig  == that.fPlanarConfig  &&
+    return fPlaneConfig   == that.fPlaneConfig   &&
+           fSubsampling   == that.fSubsampling  &&
            fYUVColorSpace == that.fYUVColorSpace &&
            fDimensions    == that.fDimensions    &&
            fSitingX       == that.fSitingX       &&

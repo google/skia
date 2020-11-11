@@ -94,7 +94,10 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     if (!asyncContext.fResult) {
         return nullptr;
     }
-    SkYUVAInfo yuvaInfo(size, SkYUVAInfo::PlanarConfig::kY_U_V_420, yuvCS);
+    SkYUVAInfo yuvaInfo(size,
+                        SkYUVAInfo::PlaneConfig::kY_U_V,
+                        SkYUVAInfo::Subsampling::k420,
+                        yuvCS);
     SkPixmap yuvPMs[] = {
             {yII,  asyncContext.fResult->data(0), asyncContext.fResult->rowBytes(0)},
             {uvII, asyncContext.fResult->data(1), asyncContext.fResult->rowBytes(1)},

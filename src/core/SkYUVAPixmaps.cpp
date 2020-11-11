@@ -172,7 +172,7 @@ bool SkYUVAPixmapInfo::isSupported(const SupportedDataTypes& supportedDataTypes)
     if (!this->isValid()) {
         return false;
     }
-    return supportedDataTypes.supported(fYUVAInfo.planarConfig(), fDataType);
+    return supportedDataTypes.supported(fYUVAInfo.planeConfig(), fDataType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

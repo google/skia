@@ -67,7 +67,8 @@ DEF_TEST(ImageGenerator, reporter) {
     // Check that the YUV decoding API does not cause any crashes
     ig.queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &yuvaPixmapInfo);
     SkYUVAInfo yuvaInfo({250, 250},
-                        SkYUVAInfo::PlanarConfig::kY_UV_420,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
                         kJPEG_Full_SkYUVColorSpace);
     yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo,
                                       SkYUVAPixmapInfo::DataType::kUnorm8,

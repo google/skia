@@ -166,7 +166,10 @@ static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
                                    int const strides[],
                                    SkYUVColorSpace yuvSpace,
                                    sk_sp<SkColorSpace> cs) {
-    SkYUVAInfo yuvaInfo({w, h}, SkYUVAInfo::PlanarConfig::kY_U_V_420, yuvSpace);
+    SkYUVAInfo yuvaInfo({w, h},
+                        SkYUVAInfo::PlaneConfig::kY_U_V,
+                        SkYUVAInfo::Subsampling::k420,
+                        yuvSpace);
     SkPixmap pixmaps[3];
     pixmaps[0].reset(SkImageInfo::MakeA8(w, h), data[0], strides[0]);
     w = (w + 1)/2;

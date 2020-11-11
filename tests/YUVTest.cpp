@@ -82,39 +82,40 @@ static void codec_yuv(skiatest::Reporter* reporter,
 }
 
 DEF_TEST(Jpeg_YUV_Codec, r) {
-    auto setExpectations = [](SkISize dims, SkYUVAInfo::PlanarConfig planarConfig) {
+    auto setExpectations = [](SkISize dims, SkYUVAInfo::Subsampling subsampling) {
         return SkYUVAInfo(dims,
-                          planarConfig,
+                          SkYUVAInfo::PlaneConfig::kY_U_V,
+                          subsampling,
                           kJPEG_Full_SkYUVColorSpace,
                           kTopLeft_SkEncodedOrigin,
                           SkYUVAInfo::Siting::kCentered,
                           SkYUVAInfo::Siting::kCentered);
     };
 
-    SkYUVAInfo expectations = setExpectations({128, 128}, SkYUVAInfo::PlanarConfig::kY_U_V_420);
+    SkYUVAInfo expectations = setExpectations({128, 128}, SkYUVAInfo::Subsampling::k420);
     codec_yuv(r, "images/color_wheel.jpg", &expectations);
 
     // H2V2
-    expectations = setExpectations({512, 512}, SkYUVAInfo::PlanarConfig::kY_U_V_420);
+    expectations = setExpectations({512, 512}, SkYUVAInfo::Subsampling::k420);
     codec_yuv(r, "images/mandrill_512_q075.jpg", &expectations);
 
     // H1V1
-    expectations = setExpectations({512, 512}, SkYUVAInfo::PlanarConfig::kY_U_V_444);
+    expectations = setExpectations({512, 512}, SkYUVAInfo::Subsampling::k444);
     codec_yuv(r, "images/mandrill_h1v1.jpg", &expectations);
 
     // H2V1
-    expectations = setExpectations({512, 512}, SkYUVAInfo::PlanarConfig::kY_U_V_422);
+    expectations = setExpectations({512, 512}, SkYUVAInfo::Subsampling::k422);
     codec_yuv(r, "images/mandrill_h2v1.jpg", &expectations);
 
     // Non-power of two dimensions
-    expectations = setExpectations({439, 154}, SkYUVAInfo::PlanarConfig::kY_U_V_420);
+    expectations = setExpectations({439, 154}, SkYUVAInfo::Subsampling::k420);
     codec_yuv(r, "images/cropped_mandrill.jpg", &expectations);
 
-    expectations = setExpectations({8, 8}, SkYUVAInfo::PlanarConfig::kY_U_V_420);
+    expectations = setExpectations({8, 8}, SkYUVAInfo::Subsampling::k420);
     codec_yuv(r, "images/randPixels.jpg", &expectations);
 
     // Progressive images
-    expectations = setExpectations({512, 512}, SkYUVAInfo::PlanarConfig::kY_U_V_444);
+    expectations = setExpectations({512, 512}, SkYUVAInfo::Subsampling::k444);
     codec_yuv(r, "images/brickwork-texture.jpg", &expectations);
     codec_yuv(r, "images/brickwork_normal-map.jpg", &expectations);
 
