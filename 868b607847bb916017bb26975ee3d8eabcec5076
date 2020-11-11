@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c741510_a4938354",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-11T14:54:29Z",
+      "side": 1,
+      "message": "Not sure we need to ask the client for rowBytes here. If we\u0027re going to allocate it, the rowBytes should be left up to us.... afaik",
+      "range": {
+        "startLine": 1658,
+        "startChar": 73,
+        "endLine": 1658,
+        "endChar": 81
+      },
+      "revId": "868b607847bb916017bb26975ee3d8eabcec5076",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
