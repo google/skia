@@ -46,6 +46,30 @@
       },
       "revId": "868b607847bb916017bb26975ee3d8eabcec5076",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1c5f8c6_f266faea",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-11T18:12:19Z",
+      "side": 1,
+      "message": "you\u0027re right, I had forgotten that we expose two version of MakeRaster: w/ and w/o the rowBytes param. Still think its super-power-user to care about the rowBytes when *we* allocate the buffer.\n\nI might vote to keep things simpler and not expose it to JS, but I concede that we do have it in C++ (still not sure I remember why).",
+      "parentUuid": "79490e86_0130a2d7",
+      "range": {
+        "startLine": 1658,
+        "startChar": 73,
+        "endLine": 1658,
+        "endChar": 81
+      },
+      "revId": "868b607847bb916017bb26975ee3d8eabcec5076",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
