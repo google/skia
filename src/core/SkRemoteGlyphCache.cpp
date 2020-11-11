@@ -474,12 +474,10 @@ void RemoteStrike::commonMaskLoop(
                 MaskSummary* summary = fSentGlyphs.find(packedID);
                 if (summary == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
-                    fMasksToSend.emplace_back(packedID);
+                    this->ensureScalerContext();
+                    fMasksToSend.emplace_back(fContext->makeGlyph(packedID));
                     SkGlyph* glyph = &fMasksToSend.back();
 
-                    // Build the glyph
-                    this->ensureScalerContext();
-                    fContext->getMetrics(glyph);
                     MaskSummary newSummary =
                             {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
                     summary = fSentGlyphs.set(newSummary);
@@ -507,13 +505,11 @@ void RemoteStrike::prepareForMaskDrawing(
 
         MaskSummary* summary = fSentGlyphs.find(packedID);
         if (summary == nullptr) {
-            // Put the new SkGlyph in the glyphs to send.
-            fMasksToSend.emplace_back(packedID);
-            SkGlyph* glyph = &fMasksToSend.back();
 
-            // Build the glyph
+            // Put the new SkGlyph in the glyphs to send.
             this->ensureScalerContext();
-            fContext->getMetrics(glyph);
+            fMasksToSend.emplace_back(fContext->makeGlyph(packedID));
+            SkGlyph* glyph = &fMasksToSend.back();
 
             MaskSummary newSummary =
                     {packedID.value(), CanDrawAsMask(*glyph), CanDrawAsSDFT(*glyph)};
@@ -545,13 +541,11 @@ void RemoteStrike::prepareForPathDrawing(
                 SkGlyphID glyphID = packedID.glyphID();
                 PathSummary* summary = fSentPaths.find(glyphID);
                 if (summary == nullptr) {
-                    // Put the new SkGlyph in the glyphs to send.
-                    fPathsToSend.emplace_back(SkPackedGlyphID{glyphID});
-                    SkGlyph* glyph = &fPathsToSend.back();
 
-                    // Build the glyph
+                    // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
-                    fContext->getMetrics(glyph);
+                    fPathsToSend.emplace_back(fContext->makeGlyph(SkPackedGlyphID{glyphID}));
+                    SkGlyph* glyph = &fPathsToSend.back();
 
                     uint16_t maxDimensionOrPath = glyph->maxDimension();
                     // Only try to get the path if the glyphs is not color.

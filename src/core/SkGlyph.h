@@ -19,9 +19,6 @@
 class SkArenaAlloc;
 class SkScalerContext;
 
-// needs to be != to any valid SkMask::Format
-#define MASK_FORMAT_UNKNOWN         (0xFF)
-
 // A combination of SkGlyphID and sub-pixel position information.
 struct SkPackedGlyphID {
     static constexpr uint32_t kImpossibleID = ~0u;
@@ -64,7 +61,6 @@ struct SkPackedGlyphID {
         : fID{PackIDSkPoint(glyphID, pt, mask)} { }
 
     constexpr explicit SkPackedGlyphID(uint32_t v) : fID{v & kMaskAll} { }
-
     constexpr SkPackedGlyphID() : fID{kImpossibleID} {}
 
     bool operator==(const SkPackedGlyphID& that) const {
@@ -400,15 +396,12 @@ private:
     float     fAdvanceX = 0,
               fAdvanceY = 0;
 
-    // This is a combination of SkMask::Format and SkGlyph state. The SkGlyph can be in one of two
-    // states, just the advances have been calculated, and all the metrics are available. The
-    // illegal mask format is used to signal that only the advances are available.
-    uint8_t   fMaskFormat = MASK_FORMAT_UNKNOWN;
+    uint8_t   fMaskFormat = 0;
 
     // Used by the DirectWrite scaler to track state.
     int8_t    fForceBW = 0;
 
-    const SkPackedGlyphID fID;
+    SkPackedGlyphID fID;
 };
 
 #endif

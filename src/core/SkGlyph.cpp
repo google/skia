@@ -15,9 +15,6 @@
 constexpr SkIPoint SkPackedGlyphID::kXYFieldMask;
 
 SkMask SkGlyph::mask() const {
-    // getMetrics had to be called.
-    SkASSERT(fMaskFormat != MASK_FORMAT_UNKNOWN);
-
     SkMask mask;
     mask.fImage = (uint8_t*)fImage;
     mask.fBounds.setXYWH(fLeft, fTop, fWidth, fHeight);
