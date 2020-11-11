@@ -348,8 +348,76 @@ describe('Font Behavior', () => {
             font.setLinearMetrics(true);
             font.setSubpixel(true);
 
-            const res = font.measureText('someText');
+            const res = font.measureWidth('someText');
             expect(res).toBeCloseTo(expectedSizes[idx], 5);
+            font.delete();
+        }
+
+        typeface.delete();
+        fontMgr.delete();
+    });
+
+    it('can measure bounding areas of text', () => {
+        const fontMgr = CanvasKit.FontMgr.RefDefault();
+        const typeface = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const fontSizes = [257, 100, 11];
+        const expectedMeasurements = [{
+                'width': 3405.87744,
+                'bounds': Float32Array.of(0, -196.76562, 3393.83057, 64.25),
+            }, {
+                'width': 1325.24414,
+                'bounds': Float32Array.of(0, -77, 1320.24414, 24),
+            }, {
+                'width': 145.776855,
+                'bounds': Float32Array.of(0, -8, 145.27685, 3),
+            }
+        ];
+        for (const idx in fontSizes) {
+            const font = new CanvasKit.Font(typeface, fontSizes[idx]);
+            font.setHinting(CanvasKit.FontHinting.Slight);
+            font.setLinearMetrics(true);
+            font.setSubpixel(true);
+
+            const res = font.measureWidthBounds('Would you like to build a ☃?');
+            const expected = expectedMeasurements[idx];
+            expect(res.width).toBeCloseTo(expected.width, 5);
+            expectArrayCloseTo(res.bounds, expected.bounds, 5);
+            font.delete();
+        }
+
+        typeface.delete();
+        fontMgr.delete();
+    });
+
+    it('has bounding areas of text depend on Paint', () => {
+        const fontMgr = CanvasKit.FontMgr.RefDefault();
+        const typeface = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const fontSizes = [257, 100, 11];
+        const paint = new CanvasKit.Paint();
+        paint.setStrokeWidth(100); // SUPER wide text will affect some of the bounds below.
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        const expectedMeasurements = [{
+                'width': 3405.87744,
+                'bounds': Float32Array.of(0, -196.76562, 3393.83057, 64.25),
+            }, {
+                'width': 1325.24414,
+                'bounds': Float32Array.of(-50, -242, 1370.24414, 109),
+            }, {
+                'width': 145.776855,
+                'bounds': Float32Array.of(-50, -194, 195.27685, 128),
+            }
+        ];
+        for (const idx in fontSizes) {
+            const font = new CanvasKit.Font(typeface, fontSizes[idx]);
+            font.setHinting(CanvasKit.FontHinting.Slight);
+            font.setLinearMetrics(true);
+            font.setSubpixel(true);
+
+            const res = font.measureWidthBounds('Would you like to build a ☃?', paint);
+            const expected = expectedMeasurements[idx];
+            console.log(res);
+            expect(res.width).toBeCloseTo(expected.width, 5);
+            expectArrayCloseTo(res.bounds, expected.bounds, 5);
             font.delete();
         }
 

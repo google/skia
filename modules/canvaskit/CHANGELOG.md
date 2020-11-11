@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    the paint.
  - Support for .woff and .woff2 fonts. Disable .woff2 for reduced code size by supplying
    no_woff2 to compile.sh. (This removes the code to do brotli decompression).
+ - `Font.measureWidthBounds` to give access to the bounding box of the text.
 
 ### Breaking
  - `CanvasKit.MakePathFromSVGString` was renamed to `CanvasKit.Path.MakeFromSVGString`
@@ -35,11 +36,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    creating Images from this raster surface should be faster.
  - `CanvasKit.MakeSurface` is Premul instead of Unpremul, which should be more performant when
     drawing.
+ - `Font.measureText` has been renamed to `Font.measureWidth`. The old name will go away in a
+   future release.
+ - `CanvasContext2D.measureText` (not renamed) now returns bounding box measurements.
 
 ### Removed
  - `CanvasKit.MakePathFromCmds`; Was deprecated in favor of `CanvasKit.Path.MakeFromCmds`.
  - `new CanvasKit.Path(path)` in favor of existing `path.copy()`.
  - Unused internal APIs (_getRasterN32PremulSurface, Drawable)
+
+### Fixed
+ - `Font.measureWidth` (previously measureText) properly supports non-ASCII strings.
+
+### Deprecated
+ - `Font.getWidths` in favor of `Font.getGlyphIDs` and `Font.getGlyphWidths`.
 
 ### Type Changes (index.d.ts)
  - Return value for MakeFromCmds correctly reflects the possibility of null.
