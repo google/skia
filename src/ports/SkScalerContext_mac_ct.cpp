@@ -277,7 +277,7 @@ bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
-    glyph->fMaskFormat = fRec.fMaskFormat;
+    glyph->fMaskFormat = (SkMask::Format)fRec.fMaskFormat;
 
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
     glyph->zeroMetrics();
