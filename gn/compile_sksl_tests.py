@@ -8,6 +8,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 
 skslc = sys.argv[1]
 lang = sys.argv[2]
@@ -20,24 +21,15 @@ def makeEmptyFile(path):
     except OSError:
         pass
 
-def compile(skslc, input, target, extension):
-    target += extension
-    try:
-        subprocess.check_output([skslc, input, target, settings], stderr=subprocess.STDOUT)
-        return True
-
-    except subprocess.CalledProcessError as err:
-        with open(target, 'wb') as dst:
-            dst.write("### Compilation failed:\n\n")
-            dst.write("\n".join(err.output.splitlines()))
-            dst.write("\n")
-        return False
-
 if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
 
+targets = []
+worklist = tempfile.NamedTemporaryFile(suffix='.worklist')
+
+# Convert the list of command-line inputs into a worklist file sfor skslc.
 for input in inputs:
-    noExt, ext = os.path.splitext(input)
+    noExt, _ = os.path.splitext(input)
     head, tail = os.path.split(noExt)
     targetDir = os.path.join(head, "golden")
     if not os.path.isdir(targetDir):
@@ -47,24 +39,47 @@ for input in inputs:
     if settings == "--nosettings":
         target += "StandaloneSettings"
 
+    targets.append(target)
+
     if lang == "--fp":
-        # First, compile the CPP. If we get an error, stop here.
-        if compile(skslc, input, target, ".cpp"):
-            # Next, compile the header.
-            if compile(skslc, input, target, ".h"):
-                # Both files built successfully.
-                continue
-            else:
-                # The header generated an error; this counts as an overall failure for this test.
-                # Blank out the passing CPP output since it's not relevant in a failure case.
-                makeEmptyFile(target + ".cpp")
-        else:
-            # The CPP generated an error. We didn't actually generate a header at all, but Ninja
-            # expects an output file to exist or it won't reach steady-state.
-            makeEmptyFile(target + ".h")
+        worklist.write(input + "\n")
+        worklist.write(target + ".cpp\n")
+        worklist.write(settings + "\n\n")
+        worklist.write(input + "\n")
+        worklist.write(target + ".h\n")
+        worklist.write(settings + "\n\n")
     elif lang == "--glsl":
-        compile(skslc, input, target, ".glsl")
+        worklist.write(input + "\n")
+        worklist.write(target + ".glsl\n")
+        worklist.write(settings + "\n\n")
     elif lang == "--metal":
-        compile(skslc, input, target, ".metal")
+        worklist.write(input + "\n")
+        worklist.write(target + ".metal\n")
+        worklist.write(settings + "\n\n")
     else:
         sys.exit("### Expected one of: --fp --glsl --metal, got " + lang)
+
+# Invoke skslc, passing in the worklist.
+worklist.close()
+try:
+    output = subprocess.check_output([skslc, worklist.name], stderr=subprocess.STDOUT)
+
+except subprocess.CalledProcessError as err:
+    print("### skslc error:\n")
+    print("\n".join(err.output.splitlines()))
+
+# A special case cleanup pass, just for CPP and H files: if either one of these files starts with
+# `### Compilation failed`, its sibling should be replaced by an empty file. This improves clarity
+# during code review; a failure on either file means that success on the sibling is irrelevant.
+if lang == "--fp":
+    for target in targets:
+        cppFile = open(target + '.cpp', 'r')
+        hFile = open(target + '.h', 'r')
+        if cppFile.readline().startswith("### Compilation failed"):
+            # The CPP had a compilation failure. Clear the header file.
+            hFile.close()
+            makeEmptyFile(target + '.h')
+        elif hFile.readline().startswith("### Compilation failed"):
+            # The header had a compilation failure. Clear the CPP file.
+            cppFile.close()
+            makeEmptyFile(target + '.cpp')
