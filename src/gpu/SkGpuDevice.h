@@ -131,8 +131,11 @@ public:
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
 
     void flush() override;
+#if 0
     GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
                                 const GrBackendSurfaceMutableState*);
+#endif
+
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait);
 

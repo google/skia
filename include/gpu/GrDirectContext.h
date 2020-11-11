@@ -15,6 +15,9 @@
 // We shouldn't need this but currently Android is relying on this being include transitively.
 #include "include/core/SkUnPreMultiply.h"
 
+#include "include/core/SkSurface.h"
+#include "src/core/SkSpan.h"
+
 class GrAtlasManager;
 class GrBackendSemaphore;
 class GrClientMappedBufferManager;
@@ -330,6 +333,15 @@ public:
         this->flush(GrFlushInfo());
         this->submit(syncCpu);
     }
+
+    bool internalFlush(SkSpan<GrSurfaceProxy*> proxies,
+                       SkSurface::BackendSurfaceAccess access,
+                       const GrFlushInfo&,
+                       const GrBackendSurfaceMutableState* newState);
+
+    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access,
+                                const GrFlushInfo&,
+                                const GrBackendSurfaceMutableState* newState);
 
     /**
      * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
