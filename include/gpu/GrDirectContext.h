@@ -15,6 +15,8 @@
 // We shouldn't need this but currently Android is relying on this being include transitively.
 #include "include/core/SkUnPreMultiply.h"
 
+#include "include/core/SkSurface.h"
+
 class GrAtlasManager;
 class GrBackendSemaphore;
 class GrClientMappedBufferManager;
@@ -358,6 +360,11 @@ public:
     GrSemaphoresSubmitted flush(const GrFlushInfo& info);
 
     void flush() { this->flush({}); }
+
+    GrSemaphoresSubmitted flushSurface1(GrSurfaceProxy*,
+                                        SkSurface::BackendSurfaceAccess,
+                                        const GrFlushInfo&,
+                                        const GrBackendSurfaceMutableState* newState);
 
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return

@@ -353,25 +353,19 @@ GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
+GrSemaphoresSubmitted GrDirectContext::flushSurface1(
+                                            GrSurfaceProxy* proxy,
+                                            SkSurface::BackendSurfaceAccess access,
+                                            const GrFlushInfo& info,
+                                            const GrBackendSurfaceMutableState* newState) {
     ASSERT_SINGLE_OWNER
-    if (this->abandoned()) {
-        if (info.fFinishedProc) {
-            info.fFinishedProc(info.fFinishedContext);
-        }
-        if (info.fSubmittedProc) {
-            info.fSubmittedProc(info.fSubmittedContext, false);
-        }
-        return GrSemaphoresSubmitted::kNo;
-    }
 
-    bool flushed = this->drawingManager()->flush(
-            {}, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+    size_t numProxies = proxy ? 1 : 0;
+    return this->drawingManager()->flushSurfaces({&proxy, numProxies}, access, info, newState);
+}
 
-    if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
-        return GrSemaphoresSubmitted::kNo;
-    }
-    return GrSemaphoresSubmitted::kYes;
+GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
+    return this->flushSurface1(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
 bool GrDirectContext::submit(bool syncCpu) {
