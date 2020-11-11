@@ -271,6 +271,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc615391_66c212fc",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-11T14:01:03Z",
+      "side": 1,
+      "message": "333876 is not what I was suggesting.  My thinking when I said \"but I kind of think you don\u0027t need to track that bit if you just make growing ops only check to grow up, shrinking ops only check to shrink down,\" was that we could have push_back() guarantee to only grow or stay the same size, never shrink.  So reserve-push-push-push would be natively safe without tracking this fReserved bit.  I hadn\u0027t considered reserve-push-pop-push-pop.\n\nLet\u0027s forget the whole idea... after sleeping on it, I don\u0027t want to keep burning effort on SkTArray unless we\u0027re trying to delete it.",
+      "parentUuid": "014f86cd_daae5c24",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
