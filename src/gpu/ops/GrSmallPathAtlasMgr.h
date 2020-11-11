@@ -48,16 +48,14 @@ public:
 
     // GrOnFlushCallbackObject overrides
     void preFlush(GrOnFlushResourceProvider* onFlushRP,
-                  const uint32_t* /* opsTaskIDs */,
-                  int /* numOpsTaskIDs */) override {
+                  SkSpan<const uint32_t> /* taskIDs */) override {
         if (fAtlas) {
             fAtlas->instantiate(onFlushRP);
         }
     }
 
     void postFlush(GrDeferredUploadToken startTokenForNextFlush,
-                   const uint32_t* /* opsTaskIDs */,
-                   int /* numOpsTaskIDs */) override {
+                   SkSpan<const uint32_t> /* taskIDs */) override {
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }

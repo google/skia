@@ -361,7 +361,7 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 }
 
 void GrTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
-                                          const uint32_t* opsTaskIDs, int numOpsTaskIDs) {
+                                          SkSpan<const uint32_t> /* taskIDs */) {
     if (!fAtlas.drawBounds().isEmpty()) {
         this->renderAtlas(onFlushRP);
         fAtlas.reset(kAtlasInitialSize, *onFlushRP->caps());
