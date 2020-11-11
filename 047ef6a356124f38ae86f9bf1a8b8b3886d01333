@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57b6c829_86a1c2fb",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-11T13:51:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72b19aa5_0fc6a2e6",
+      "revId": "047ef6a356124f38ae86f9bf1a8b8b3886d01333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "754cca71_ce081c07",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-09T14:20:25Z",
       "side": 1,
       "message": "here too ?",
+      "revId": "047ef6a356124f38ae86f9bf1a8b8b3886d01333",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41d39dbb_35b3494e",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-11T13:51:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "754cca71_ce081c07",
       "revId": "047ef6a356124f38ae86f9bf1a8b8b3886d01333",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
