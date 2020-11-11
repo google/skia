@@ -353,7 +353,10 @@ GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
+bool GrDirectContext::flush(SkSpan<GrSurfaceProxy*> proxies,
+                            SkSurface::BackendSurfaceAccess access,
+                            const GrFlushInfo& info,
+                            const GrBackendSurfaceMutableState* newState) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         if (info.fFinishedProc) {
@@ -362,11 +365,17 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
-        return GrSemaphoresSubmitted::kNo;
+        return false;
     }
 
-    bool flushed = this->drawingManager()->flush(
-            {}, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+    return this->drawingManager()->flush(proxies, access, info, newState);
+
+}
+
+
+GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
+    bool flushed = this->flush({}, SkSurface::BackendSurfaceAccess::kNoAccess,
+                               info, nullptr);
 
     if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;

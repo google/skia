@@ -446,7 +446,7 @@ private:
 
     /** Causes any deferred drawing to the device to be completed.
      */
-    virtual void flush() {}
+//    virtual void flush() {}
 
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
 

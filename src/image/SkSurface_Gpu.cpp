@@ -44,6 +44,11 @@ GrRecordingContext* SkSurface_Gpu::onGetRecordingContext() {
 
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
                                                       SkSurface::BackendHandleAccess access) {
+    auto dContext = surface->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return nullptr;
+    }
+
     switch (access) {
         case SkSurface::kFlushRead_BackendHandleAccess:
             break;
@@ -55,7 +60,8 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    surface->getDevice()->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+    //surface->getDevice()->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+    dContext->flush({}, SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
     GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
     return rtc->accessRenderTarget();
 }
@@ -199,9 +205,14 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
+GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access,
+                                             const GrFlushInfo& info,
                                              const GrBackendSurfaceMutableState* newState) {
-    return fDevice->flush(access, info, newState);
+    auto direct = fDevice->recordingContext()->asDirectContext();
+    if (direct) {
+        return direct->flush({}, access, info, newState);
+    }
+    return GrSemaphoresSubmitted::kNo;
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,

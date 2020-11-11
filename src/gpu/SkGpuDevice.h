@@ -130,9 +130,12 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool = false) override;
 
+#if 0
     void flush() override;
     GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access, const GrFlushInfo&,
                                 const GrBackendSurfaceMutableState*);
+#endif
+
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait);
 
