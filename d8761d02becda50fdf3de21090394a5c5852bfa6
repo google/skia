@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab9ec257_3b830bc2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T15:10:42Z",
+      "side": 1,
+      "message": "I was going to suggest a clearer commit message, but figured it was simpler to write what I think it should say. PTAL.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 54
+      },
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43312440_c178e5a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T15:10:42Z",
+      "side": 1,
+      "message": "It\u0027s not in AOSP (yet), but there is another target that depends on skia_deps [1]. Should we add windows:enabled there, or is it correct that this will disable its windows build?\n\n[1] https://source.corp.google.com/android/frameworks/native/services/surfaceflinger/Android.bp;l\u003d18?q\u003dskia_deps\u0026ct\u003dos\u0026sq\u003dpackage:%5Eandroid$%20-file:external%2Fskqp%20-file:external%2Fqt",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 70
+      },
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee586a18_3b4c0593",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T15:10:42Z",
+      "side": 1,
+      "message": "Cherry-picked from https://android-review.googlesource.com/c/platform/external/skia/+/1495316/1\n\nPTAL",
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff756e12_489535ca",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T15:10:42Z",
+      "side": 1,
+      "message": "Better instructions, in response to https://android-review.googlesource.com/c/platform/external/skia/+/1495316/1/Android.bp#1. I\u0027m also fine to split this out into a separate CL.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 14
+      },
+      "revId": "d8761d02becda50fdf3de21090394a5c5852bfa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
