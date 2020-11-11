@@ -130,6 +130,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kMinF, "minf")
         DISASSEMBLE_COUNT(kMinS, "mins")
         DISASSEMBLE_COUNT(kMix, "mix")
+        DISASSEMBLE_COUNT(kMod, "mod")
         DISASSEMBLE_COUNT(kMultiplyF, "multiplyf")
         DISASSEMBLE_COUNT(kMultiplyI, "multiplyi")
         DISASSEMBLE_COUNT(kNegateF, "negatef")
@@ -162,8 +163,10 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kShiftLeft: printf("shl %d", READ8()); break;
         case ByteCodeInstruction::kShiftRightS: printf("shrs %d", READ8()); break;
         case ByteCodeInstruction::kShiftRightU: printf("shru %d", READ8()); break;
+        DISASSEMBLE_COUNT(kSign, "sign")
         DISASSEMBLE_COUNT(kSin, "sin")
         DISASSEMBLE_COUNT(kSqrt, "sqrt")
+        DISASSEMBLE_COUNT(kStep, "step")
         DISASSEMBLE_COUNT_SLOT(kStore, "store")
         DISASSEMBLE_COUNT_SLOT(kStoreGlobal, "storeglobal")
         DISASSEMBLE_COUNT(kStoreExtended, "storeextended")
@@ -658,6 +661,10 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp -= 2 * count;
             } continue;
 
+            VECTOR_BINARY_FN(kMod, fFloat, [](auto x, auto y) {
+                return x - y * skvx::floor(x / y);
+            })
+
             VECTOR_BINARY_OP(kMultiplyI, fSigned, *)
             VECTOR_BINARY_OP(kMultiplyF, fFloat, *)
 
@@ -765,6 +772,16 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_UNARY_FN(kSin, [](auto x) { return skvx::map(sinf, x); }, fFloat)
             VECTOR_UNARY_FN(kInvSqrt, [](auto x) { return 1.0f / skvx::sqrt(x); }, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
+            VECTOR_UNARY_FN(kSign,
+                    [](auto x) {
+                        return skvx::if_then_else(x < 0, F32(-1.0f),
+                               skvx::if_then_else(x > 0, F32( 1.0f),
+                                                         F32( 0.0f)));
+                    },
+                    fFloat)
+            VECTOR_BINARY_FN(kStep, fFloat, [](auto edge, auto x) {
+                return skvx::if_then_else(x < edge, F32(0.0f), F32(1.0f));
+            })
 
             case ByteCodeInstruction::kStore: {
                 int count = READ8(),
