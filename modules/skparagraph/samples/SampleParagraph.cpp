@@ -3151,6 +3151,66 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView52 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph52"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        //const char* text = "😀😃😄 ABC 😀😃😄 DEF GHI";
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+
+        {
+        const char* text = " 😀 😃";
+        ParagraphStyle paragraph_style;
+        paragraph_style.turnHintingOff();
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+        TextStyle text_style;
+        //text_style.setFontFamilies({SkString("sans-serif")});
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
+        text_style.setFontSize(40);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text, strlen(text));
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+
+        paragraph->paint(canvas, 0, 0);
+        }
+
+        {
+        const char* text = " 😀 A";
+        ParagraphStyle paragraph_style;
+        paragraph_style.turnHintingOff();
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+        TextStyle text_style;
+        //text_style.setFontFamilies({SkString("sans-serif")});
+        text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
+        text_style.setFontSize(40);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text, strlen(text));
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+
+        paragraph->paint(canvas, 0, 400);
+        }
+
+    }
+
+private:
+    using INHERITED = Sample;
+};
 
 }  // namespace
 
@@ -3204,3 +3264,4 @@ DEF_SAMPLE(return new ParagraphView48();)
 DEF_SAMPLE(return new ParagraphView49();)
 DEF_SAMPLE(return new ParagraphView50();)
 DEF_SAMPLE(return new ParagraphView51();)
+DEF_SAMPLE(return new ParagraphView52();)
