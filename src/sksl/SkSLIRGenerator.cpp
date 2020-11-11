@@ -790,38 +790,49 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     //                      0,
     //                      sk_Position.w);
     SkASSERT(skPerVertex && fRTAdjust);
-    #define REF(var) std::unique_ptr<Expression>(\
-                                  new VariableReference(-1, var, VariableReference::RefKind::kRead))
-    #define WREF(var) std::unique_ptr<Expression>(\
-                                 new VariableReference(-1, var, VariableReference::RefKind::kWrite))
-    #define FIELD(var, idx) std::unique_ptr<Expression>(\
-                   new FieldAccess(REF(var), idx, FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
-    #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(skPerVertex), 0, \
-                                                  FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
-    #define ADJUST (fRTAdjustInterfaceBlock ? \
-                    FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
-                    REF(fRTAdjust))
-    #define SWIZZLE(expr, comp) std::unique_ptr<Expression>( \
-                    new Swizzle(fContext, expr, ComponentArray(comp, SK_ARRAY_COUNT(comp))))
-    #define OP(left, op, right) std::unique_ptr<Expression>( \
-                                   new BinaryExpression(-1, left, op, right, \
-                                                        fContext.fFloat2_Type.get()))
+    auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
+        return std::make_unique<VariableReference>(-1, var, VariableReference::RefKind::kRead);
+    };
+    auto WRef = [](const Variable* var) -> std::unique_ptr<Expression> {
+        return std::make_unique<VariableReference>(-1, var, VariableReference::RefKind::kWrite);
+    };
+    auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
+        return std::make_unique<FieldAccess>(Ref(var), idx,
+                                             FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
+    };
+    auto Pos = [&]() -> std::unique_ptr<Expression> {
+        return std::make_unique<FieldAccess>(WRef(skPerVertex), 0,
+                                             FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
+    };
+    auto Adjust = [&]() -> std::unique_ptr<Expression> {
+        return fRTAdjustInterfaceBlock ? Field(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex)
+                                       : Ref(fRTAdjust);
+    };
+    auto Swizzle = [&](std::unique_ptr<Expression> expr,
+                       const ComponentArray& comp) -> std::unique_ptr<Expression> {
+        return std::make_unique<SkSL::Swizzle>(fContext, std::move(expr), comp);
+    };
+    auto Op = [&](std::unique_ptr<Expression> left, Token::Kind op,
+                  std::unique_ptr<Expression> right) -> std::unique_ptr<Expression> {
+        return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
+                                                  fContext.fFloat2_Type.get());
+    };
 
-    static constexpr int8_t kXYIndices[] = {0, 1};
-    static constexpr int8_t kXZIndices[] = {0, 2};
-    static constexpr int8_t kYWIndices[] = {1, 3};
-    static constexpr int8_t kWWIndices[] = {3, 3};
-    static constexpr int8_t kWIndex[]    = {3};
+    static const ComponentArray kXYIndices{0, 1};
+    static const ComponentArray kXZIndices{0, 2};
+    static const ComponentArray kYWIndices{1, 3};
+    static const ComponentArray kWWIndices{3, 3};
+    static const ComponentArray kWIndex{3};
 
     ExpressionArray children;
     children.reserve_back(3);
-    children.push_back(
-            OP(OP(SWIZZLE(POS, kXYIndices), Token::Kind::TK_STAR, SWIZZLE(ADJUST, kXZIndices)),
-                  Token::Kind::TK_PLUS,
-                  OP(SWIZZLE(POS, kWWIndices), Token::Kind::TK_STAR, SWIZZLE(ADJUST, kYWIndices))));
+    children.push_back(Op(
+            Op(Swizzle(Pos(), kXYIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kXZIndices)),
+            Token::Kind::TK_PLUS,
+            Op(Swizzle(Pos(), kWWIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kYWIndices))));
     children.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1, /*value=*/0.0));
-    children.push_back(SWIZZLE(POS, kWIndex));
-    std::unique_ptr<Expression> result = OP(POS, Token::Kind::TK_EQ,
+    children.push_back(Swizzle(Pos(), kWIndex));
+    std::unique_ptr<Expression> result = Op(Pos(), Token::Kind::TK_EQ,
                                  std::make_unique<Constructor>(/*offset=*/-1,
                                                                fContext.fFloat4_Type.get(),
                                                                std::move(children)));
