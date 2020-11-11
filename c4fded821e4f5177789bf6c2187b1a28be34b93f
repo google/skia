@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31cf80f3_828d4ca4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T16:33:54Z",
+      "side": 1,
+      "message": "I don\u0027t think \u0027bugs:\u0027 is supported by tooling, should be\n\n    Bug: skia:10715",
+      "revId": "c4fded821e4f5177789bf6c2187b1a28be34b93f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45e63dcc_08cfe3e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-11T16:33:54Z",
+      "side": 1,
+      "message": "Instead of a thumbs up \"looks good to me\" I want a grumpy \"I grudgingly allow it\" button.\n\nSeems fine with update to the commit message.",
+      "revId": "c4fded821e4f5177789bf6c2187b1a28be34b93f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
