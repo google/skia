@@ -54,8 +54,7 @@ public:
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
     bool onDrawPath(const DrawPathArgs&) override;
     void onStencilPath(const StencilPathArgs&) override;
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                  int numOpsTaskIDs) override;
+    void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
 private:
     void initAtlasFlags(GrRecordingContext*);

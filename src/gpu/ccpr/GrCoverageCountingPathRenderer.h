@@ -67,9 +67,8 @@ public:
             const SkPath& deviceSpacePath, const SkIRect& accessRect, const GrCaps& caps);
 
     // GrOnFlushCallbackObject overrides.
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
-                  int numOpsTaskIDs) override;
-    void postFlush(GrDeferredUploadToken, const uint32_t* opsTaskIDs, int numOpsTaskIDs) override;
+    void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
+    void postFlush(GrDeferredUploadToken, SkSpan<const uint32_t> taskIDs) override;
 
     void purgeCacheEntriesOlderThan(GrProxyProvider*, const GrStdSteadyClock::time_point&);
 
