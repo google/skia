@@ -146,9 +146,12 @@ private:
         kMax,
         kMin,
         kMix,
+        kMod,
         kNormalize,
         kSample,
         kSaturate,
+        kSmoothstep,
+        kStep,
     };
 
     struct Intrinsic {
@@ -258,52 +261,34 @@ private:
     std::unique_ptr<LValue> getLValue(const Expression& expr);
 
     void writeIntrinsicCall(const FunctionCall& c);
-
     void writeFunctionCall(const FunctionCall& c);
-
     void writeConstructor(const Constructor& c);
-
     void writeExternalFunctionCall(const ExternalFunctionCall& c);
-
     void writeExternalValue(const ExternalValueReference& r);
-
     void writeSwizzle(const Swizzle& swizzle);
-
     bool writeBinaryExpression(const BinaryExpression& b, bool discard);
-
     void writeTernaryExpression(const TernaryExpression& t);
-
-    void writeNullLiteral(const NullLiteral& n);
-
     bool writePrefixExpression(const PrefixExpression& p, bool discard);
-
     bool writePostfixExpression(const PostfixExpression& p, bool discard);
 
+    void writeNullLiteral(const NullLiteral& n);
     void writeBoolLiteral(const BoolLiteral& b);
-
     void writeIntLiteral(const IntLiteral& i);
-
     void writeFloatLiteral(const FloatLiteral& f);
 
     void writeStatement(const Statement& s);
-
     void writeBlock(const Block& b);
-
     void writeBreakStatement(const BreakStatement& b);
-
     void writeContinueStatement(const ContinueStatement& c);
-
     void writeIfStatement(const IfStatement& stmt);
-
     void writeForStatement(const ForStatement& f);
-
     void writeWhileStatement(const WhileStatement& w);
-
     void writeDoStatement(const DoStatement& d);
-
     void writeSwitchStatement(const SwitchStatement& s);
-
     void writeReturnStatement(const ReturnStatement& r);
+
+    // Some intrinsics are complex enough to warrant their own functions:
+    void writeSmoothstep(const ExpressionArray& args);
 
     // updates the current set of breaks to branch to the current location
     void setBreakTargets();
@@ -355,6 +340,9 @@ private:
     int fMaxLoopCount;
     int fConditionCount;
     int fMaxConditionCount;
+
+    // Holds variables synthesized during output, for lifetime purposes
+    SymbolTable fSynthetics;
 
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 

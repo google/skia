@@ -98,6 +98,7 @@ enum class ByteCodeInstruction : uint8_t {
     // Masked selection: Stack is ... A1, A2, A3, B1, B2, B3, M1, M2, M3
     //                   Result:      M1 ? B1 : A1, M2 ? B2 : A2, M3 ? B3 : A3
     kMix,        // N
+    kMod,        // N
     kNegateF,    // N
     kNegateI,    // N
     kMultiplyF,  // N
@@ -132,8 +133,10 @@ enum class ByteCodeInstruction : uint8_t {
     kShiftLeft,
     kShiftRightS,
     kShiftRightU,
+    kSign,  // N
     kSin,   // N
     kSqrt,  // N
+    kStep,  // N
     kStore,                // N, slot
     kStoreGlobal,          // N, slot
     // Indirect stores get the slot to store from the top of the stack

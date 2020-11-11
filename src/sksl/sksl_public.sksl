@@ -58,7 +58,10 @@ $genType  ceil($genType  x);
 $genHType ceil($genHType x);
 $genType  fract($genType  x);
 $genHType fract($genHType x);
-// TODO: mod(x, y)
+$genType  mod($genType  x, float     y);
+$genType  mod($genType  x, $genType  y);
+$genHType mod($genHType x, half      y);
+$genHType mod($genHType x, $genHType y);
 
 $genType  min($genType  x, $genType  y);
 $genType  min($genType  x, float     y);
@@ -72,16 +75,20 @@ $genType  clamp($genType  x, $genType  minVal, $genType  maxVal);
 $genType  clamp($genType  x, float     minVal, float     maxVal);
 $genHType clamp($genHType x, $genHType minVal, $genHType maxVal);
 $genHType clamp($genHType x, half      minVal, half      maxVal);
+$genType  saturate($genType  x);  // SkSL extension
+$genHType saturate($genHType x);  // SkSL extension
 $genType  mix($genType  x, $genType  y, $genType a);
 $genType  mix($genType  x, $genType  y, float a);
 $genHType mix($genHType x, $genHType y, $genHType a);
 $genHType mix($genHType x, $genHType y, half a);
-// TODO: step(edge, x)
-// TODO: smoothstep(edge0, edge1, x)
-
-// SkSL Extension to GLSL:
-$genType  saturate($genType  x);
-$genHType saturate($genHType x);
+$genType  step($genType  edge, $genType x);
+$genType  step(float     edge, $genType x);
+$genHType step($genHType edge, $genHType x);
+$genHType step(half      edge, $genHType x);
+$genType  smoothstep($genType  edge0, $genType  edge1, $genType  x);
+$genType  smoothstep(float     edge0, float     edge1, $genType  x);
+$genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
+$genHType smoothstep(half      edge0, half      edge1, $genHType x);
 
 // 8.4 : Geometric Functions
 float length($genType  x);

@@ -38,11 +38,12 @@ static TypeCategory type_category(const Type& type) {
 }
 
 
-ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                  ByteCode* output)
+ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* program,
+                                     ErrorReporter* errors, ByteCode* output)
     : INHERITED(program, errors, nullptr)
     , fContext(*context)
     , fOutput(output)
+    , fSynthetics(errors, /*builtin=*/true)
     // If you're adding new intrinsics here, ensure that they're declared in sksl_interp.sksl or
     // sksl_public.sksl, so they're available to "generic" interpreter programs (eg particles).
     // You can probably copy the declarations from sksl_gpu.sksl.
@@ -67,11 +68,15 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "max",         SpecialIntrinsic::kMax },
         { "min",         SpecialIntrinsic::kMin },
         { "mix",         SpecialIntrinsic::kMix },
+        { "mod",         SpecialIntrinsic::kMod },
         { "normalize",   SpecialIntrinsic::kNormalize },
         { "pow",         ByteCodeInstruction::kPow },
         { "sample",      SpecialIntrinsic::kSample },
         { "saturate",    SpecialIntrinsic::kSaturate },
+        { "sign",        ByteCodeInstruction::kSign },
         { "sin",         ByteCodeInstruction::kSin },
+        { "smoothstep",  SpecialIntrinsic::kSmoothstep },
+        { "step",        SpecialIntrinsic::kStep },
         { "sqrt",        ByteCodeInstruction::kSqrt },
         { "tan",         ByteCodeInstruction::kTan },
 
@@ -299,6 +304,7 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         VEC_UNARY(kInvSqrt)
         VEC_UNARY(kLog)
         VEC_UNARY(kLog2)
+        VEC_UNARY(kSign)
         VEC_UNARY(kSin)
         VEC_UNARY(kSqrt)
         VEC_UNARY(kTan)
@@ -327,6 +333,8 @@ int ByteCodeGenerator::StackUsage(ByteCodeInstruction inst, int count_) {
         case ByteCodeInstruction::kAddF: return -count;
 
         case ByteCodeInstruction::kATan2: return -count;
+        case ByteCodeInstruction::kMod:   return -count;
+        case ByteCodeInstruction::kStep:  return -count;
 
         case ByteCodeInstruction::kCompareIEQ:   return -count;
         case ByteCodeInstruction::kCompareFEQ:   return -count;
@@ -1040,6 +1048,82 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(float_to_bits(f.value()));
 }
 
+void ByteCodeGenerator::writeSmoothstep(const ExpressionArray& args) {
+    // genType smoothstep(genType edge0, genType edge1, genType x) {
+    //   genType t = saturate((x - edge0) / (edge1 - edge0));
+    //   return t * t * (3 - 2 * t);
+    // }
+
+    // There are variants where the first two arguments are scalar
+    SkASSERT(args.size() == 3);
+    int edgeCount = SlotCount(args[0]->type()),
+        xCount    = SlotCount(args[2]->type());
+    SkASSERT(edgeCount == 1 || edgeCount == xCount);
+    SkASSERT(edgeCount == SlotCount(args[1]->type()));
+
+    // Expand a (possibly scalar) value to be as wide as 'x'
+    auto dupToX = [xCount, this](int from) {
+        for (int i = from; i < xCount; ++i) {
+            this->write(ByteCodeInstruction::kDup, 1);
+        }
+    };
+
+    // Push xCount copies of 'f'
+    auto scalarToX = [&dupToX, this](float f) {
+        this->write(ByteCodeInstruction::kPushImmediate);
+        this->write32(float_to_bits(f));
+        dupToX(1);
+    };
+
+    // To avoid possible double-eval, we store edge0 in a local
+    const Variable* edge0Var = fSynthetics.takeOwnershipOfSymbol(
+            std::make_unique<Variable>(/*offset=*/-1,
+                                       fProgram.fModifiers->addToPool(Modifiers()),
+                                       "sksl_smoothstep_edge0",
+                                       &args[0]->type(),
+                                       /*builtin=*/true,
+                                       Variable::Storage::kLocal));
+    Location edge0Loc = this->getLocation(*edge0Var);
+    this->writeExpression(*args[0]);  // 'edge0'
+    this->write(ByteCodeInstruction::kStore, edgeCount);
+    this->write8(edge0Loc.fSlot);
+
+    // (x - edge0)
+    this->writeExpression(*args[2]);                     // 'x'
+    this->write(ByteCodeInstruction::kLoad, edgeCount);  // 'edge0'
+    this->write8(edge0Loc.fSlot);
+    dupToX(edgeCount);
+    this->write(ByteCodeInstruction::kSubtractF, xCount);
+
+    // (edge1 - edge0)
+    this->writeExpression(*args[1]);                     // 'edge1'
+    this->write(ByteCodeInstruction::kLoad, edgeCount);  // 'edge0'
+    this->write8(edge0Loc.fSlot);
+    this->write(ByteCodeInstruction::kSubtractF, edgeCount);
+    dupToX(edgeCount);
+
+    // saturate((x - edge0) / (edge1 - edge0))
+    this->write(ByteCodeInstruction::kDivideF, xCount);
+    scalarToX(0.0f);
+    this->write(ByteCodeInstruction::kMaxF, xCount);
+    scalarToX(1.0f);
+    this->write(ByteCodeInstruction::kMinF, xCount);
+
+    // Now, 't' is on the stack, we need three copies
+    this->write(ByteCodeInstruction::kDup, xCount);
+    this->write(ByteCodeInstruction::kDup, xCount);
+
+    // (3 - 2 * t) ... as (-2t + 3)
+    scalarToX(-2.0f);
+    this->write(ByteCodeInstruction::kMultiplyF, xCount);
+    scalarToX(3.0f);
+    this->write(ByteCodeInstruction::kAddF, xCount);
+
+    // ... * t * t
+    this->write(ByteCodeInstruction::kMultiplyF, xCount);
+    this->write(ByteCodeInstruction::kMultiplyF, xCount);
+}
+
 static bool is_generic_type(const Type* type, const Type* generic) {
     const std::vector<const Type*>& concrete(generic->coercibleTypes());
     return std::find(concrete.begin(), concrete.end(), type) != concrete.end();
@@ -1091,6 +1175,29 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         Location childLoc = this->getLocation(*args[0]);
         SkASSERT(childLoc.fStorage == Storage::kChildFP);
         this->write8(childLoc.fSlot);
+        return;
+    }
+
+    if (intrin.is_special && intrin.special == SpecialIntrinsic::kSmoothstep) {
+        this->writeSmoothstep(args);
+        return;
+    }
+
+    if (intrin.is_special && intrin.special == SpecialIntrinsic::kStep) {
+        // There are variants where the *first* argument is scalar
+        SkASSERT(nargs == 2);
+        int xCount = SlotCount(args[1]->type());
+        SkASSERT(count == 1 || count == xCount);
+
+        this->writeExpression(*args[0]);  // 'edge'
+
+        // Not 'dupSmallerType', because we're duping the first to match the second
+        for (int i = count; i < xCount; ++i) {
+            this->write(ByteCodeInstruction::kDup, 1);
+        }
+
+        this->writeExpression(*args[1]);  // 'x'
+        this->write(ByteCodeInstruction::kStep, xCount);
         return;
     }
 
@@ -1215,6 +1322,13 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     dupSmallerType(selectorCount);
                     this->write(ByteCodeInstruction::kLerp, count);
                 }
+            } break;
+
+            case SpecialIntrinsic::kMod: {
+                SkASSERT(nargs == 2);
+                // There are variants where the second argument is scalar
+                dupSmallerType(SlotCount(args[1]->type()));
+                this->write(ByteCodeInstruction::kMod, count);
             } break;
 
             case SpecialIntrinsic::kNormalize: {
