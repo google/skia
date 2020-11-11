@@ -21,7 +21,9 @@ public:
     }
 
     ~FileOutputStream() override {
-        SkASSERT(!fOpen);
+        if (fOpen) {
+            close();
+        }
     }
 
     bool isValid() const override {
