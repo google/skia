@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a856358_2f80ac45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-11T14:53:23Z",
+      "side": 1,
+      "message": "This is just a chain of mechanical git reverts. The third revert is the real target. The other two just got in the way.",
+      "revId": "daedded46a2cf5837416ea9472d14931756fc7bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
