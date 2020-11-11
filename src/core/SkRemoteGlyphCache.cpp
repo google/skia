@@ -952,8 +952,10 @@ bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deseri
     if (!deserializer->read<uint16_t>(&glyph->fHeight)) return false;
     if (!deserializer->read<int16_t>(&glyph->fTop)) return false;
     if (!deserializer->read<int16_t>(&glyph->fLeft)) return false;
-    if (!deserializer->read<uint8_t>(&glyph->fMaskFormat)) return false;
-    if (!SkMask::IsValidFormat(glyph->fMaskFormat)) return false;
+    uint8_t maskFormat;
+    if (!deserializer->read<uint8_t>(&maskFormat)) return false;
+    if (!SkMask::IsValidFormat(maskFormat)) return false;
+    glyph->fMaskFormat = static_cast<SkMask::Format>(maskFormat);
 
     return true;
 }

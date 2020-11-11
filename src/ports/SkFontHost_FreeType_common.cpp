@@ -546,7 +546,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 target.rows = glyph.fHeight;
                 target.pitch = glyph.rowBytes();
                 target.buffer = reinterpret_cast<uint8_t*>(glyph.fImage);
-                target.pixel_mode = compute_pixel_mode( (SkMask::Format)glyph.fMaskFormat);
+                target.pixel_mode = compute_pixel_mode(glyph.fMaskFormat);
                 target.num_grays = 256;
 
                 FT_Outline_Get_Bitmap(face->glyph->library, outline, &target);

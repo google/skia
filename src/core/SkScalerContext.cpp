@@ -178,7 +178,7 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
 }
 
 SkGlyph SkScalerContext::makeGlyph(SkPackedGlyphID packedID) {
-    return internalMakeGlyph(packedID, (SkMask::Format) fRec.fMaskFormat);
+    return internalMakeGlyph(packedID, fRec.fMaskFormat);
 }
 
 SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::Format format) {
@@ -232,7 +232,7 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
         glyph.fHeight  = 0;
         glyph.fTop     = 0;
         glyph.fLeft    = 0;
-        glyph.fMaskFormat = 0;
+        glyph.fMaskFormat = SkMask::kBW_Format;
         return glyph;
     }
 
@@ -537,8 +537,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         // need the original bounds, sans our maskfilter
         sk_sp<SkMaskFilter> mf = std::move(fMaskFilter);
-        tmpGlyph = this->internalMakeGlyph(origGlyph.getPackedID(),
-                                           (SkMask::Format) fRec.fMaskFormat);
+        tmpGlyph = this->internalMakeGlyph(origGlyph.getPackedID(), fRec.fMaskFormat);
         fMaskFilter = std::move(mf);
 
         // we need the prefilter bounds to be <= filter bounds
@@ -987,7 +986,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
         rec->fStrokeCap = 0;
     }
 
-    rec->fMaskFormat = SkToU8(compute_mask_format(font));
+    rec->fMaskFormat = compute_mask_format(font);
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {

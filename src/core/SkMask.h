@@ -22,7 +22,7 @@
 struct SkMask {
     SkMask() : fImage(nullptr) {}
 
-    enum Format {
+    enum Format : uint8_t {
         kBW_Format, //!< 1bit per pixel mask (e.g. monochrome)
         kA8_Format, //!< 8bits per pixel mask (e.g. antialiasing)
         k3D_Format, //!< 3 8bit per pixl planes: alpha, mul, add
