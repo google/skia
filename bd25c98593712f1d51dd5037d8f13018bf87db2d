@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "039b38df_d851b887",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "OK.",
+      "parentUuid": "0d451e1e_a488c81a",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98df9229_f26a69ed",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-10T23:34:26Z",
       "side": 1,
       "message": "Thanks, this feels really good to me now.",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7489fbd_eb01aa80",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "98df9229_f26a69ed",
       "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -75,6 +111,48 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ce4a233_a593b7bb",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "It sure seems that way.",
+      "parentUuid": "e01dd061_3edc1f90",
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9766f1f9_bf33102f",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Done (using kExactFit style to match styleguide)\n\nFor now, kGrowing and kShrinking behave the same, but keeping them distinct costs us nothing and gets us slightly closer to your \"tangential\" idea below.",
+      "parentUuid": "d710788b_b3c51fb5",
+      "range": {
+        "startLine": 99,
+        "startChar": 41,
+        "endLine": 99,
+        "endChar": 64
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3271b65_cf91696b",
@@ -88,6 +166,30 @@
       "writtenOn": "2020-11-10T23:34:26Z",
       "side": 1,
       "message": "Might be nice now to drop the `\u003d 0`?",
+      "range": {
+        "startLine": 460,
+        "startChar": 8,
+        "endLine": 460,
+        "endChar": 30
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9acf567_a4e3f11b",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3271b65_cf91696b",
       "range": {
         "startLine": 460,
         "startChar": 8,
@@ -121,6 +223,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21407fec_594b0518",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "I think that would totally work and it\u0027s a great idea.",
+      "parentUuid": "72679765_241793d9",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
@@ -134,6 +260,30 @@
       "writtenOn": "2020-11-10T23:34:26Z",
       "side": 1,
       "message": "let\u0027s try pushing this through to the callers and removing the default?",
+      "range": {
+        "startLine": 533,
+        "startChar": 38,
+        "endLine": 533,
+        "endChar": 58
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b55caaf_44cae674",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae35c504_f77a73d9",
       "range": {
         "startLine": 533,
         "startChar": 38,
@@ -167,6 +317,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd14df38_e5d4e328",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Removed the kMallocRoundUp logic. It\u0027s not something I\u0027ve seen other vector-like classes do anyway. This has the nice side benefit of simplifying the `capacity() \u003d\u003d 15` test back to its original form.\n\nFor now I\u0027ll leave the kMinHeapAllocCount logic as-is (except in kExactFit) but I definitely think it could stand to be improved. It seems to add value when sizeof(T)\u003c\u003d4 or so, but as sizeof(T) grows it eventually becomes a liability.",
+      "parentUuid": "c3cf5150_103c7449",
+      "range": {
+        "startLine": 558,
+        "startChar": 0,
+        "endLine": 567,
+        "endChar": 9
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2e95280_92ab26d0",
@@ -180,6 +354,30 @@
       "writtenOn": "2020-11-10T23:34:26Z",
       "side": 1,
       "message": "This chunk is more pithily, `SkSTArray()`.\n:)",
+      "range": {
+        "startLine": 618,
+        "startChar": 43,
+        "endLine": 618,
+        "endChar": 92
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc903e91_377cafb0",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T01:29:51Z",
+      "side": 1,
+      "message": "Right you are. Done.",
+      "parentUuid": "c2e95280_92ab26d0",
       "range": {
         "startLine": 618,
         "startChar": 43,
