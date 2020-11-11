@@ -34,9 +34,6 @@ public:
                                                i - substringStartIndex);
                 const SkSL::Compiler::FormatArg& arg = *fmtArg++;
                 switch (arg.fKind) {
-                    case SkSL::Compiler::FormatArg::Kind::kOutput:
-                        result += args.fOutputColor;
-                        break;
                     case SkSL::Compiler::FormatArg::Kind::kCoords:
                         result += args.fSampleCoord;
                         break;
