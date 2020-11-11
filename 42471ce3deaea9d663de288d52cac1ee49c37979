@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c24ee150_797f6a0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-11T20:20:09Z",
+      "side": 1,
+      "message": "There is probably a lot more to do here. \n\nDoes it make sense for flush to be on SkDevices and SkCanvas? It seems like we just want them on\nthe direct context and, maybe, SkSurfaces.",
+      "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
