@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04d21412_6fbd07f3",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T15:45:31Z",
+      "side": 1,
+      "message": "A small paranoid part of me is saying this should be \n\n    result +\u003d sampleCoords ? sampleCoords : \"float2(0)\";\n\nIt shouldn\u0027t happen, but if SOMEHOW we get a `kCoords` format arg in a helper function, IMO we\u0027re better off using zero than crashing. The assertion will still catch the issue in debug.",
+      "range": {
+        "startLine": 40,
+        "startChar": 34,
+        "endLine": 40,
+        "endChar": 46
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "922cbab6_f332bd06",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T15:45:31Z",
+      "side": 1,
+      "message": "How about another test that we can do this subtraction via a helper function taking \"inout vec2 p\"?\n\n    void moveCoords(inout vec2 p) { p -\u003d 0.5; }\n    vec4 main(vec2 p) { moveCoords(p); return p.xy01; }\n\nI expect it to work, but there\u0027s enough behind-the-scenes magic with the coord param that it seems like a good idea to verify (and in case we ever change the implementation, this is a good sanity check).\n\nBTW: .xy01 syntax is officially supported, right?",
+      "range": {
+        "startLine": 241,
+        "startChar": 52,
+        "endLine": 241,
+        "endChar": 53
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f05858fb_c78aba94",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T15:45:31Z",
+      "side": 1,
+      "message": "The return type doesn\u0027t match the main signature; we aren\u0027t testing relaxed precision rules in this test, so let\u0027s just use vecN or halfN throughout to keep the test focused?",
+      "range": {
+        "startLine": 242,
+        "startChar": 58,
+        "endLine": 242,
+        "endChar": 64
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
