@@ -123,6 +123,24 @@
       "parentUuid": "00f7d7a9_b4d971ca",
       "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab2ad972_a8073360",
+        "filename": "src/utils/SkAnimCodecPlayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-11T20:32:23Z",
+      "side": 1,
+      "message": "True. My concern about such an API would be that it might then be too easy for a client to misuse. i.e. if they are currently using the API, they\u0027ll need to update their code to take the matrix into account. And most images don\u0027t combine animation + orientation, so they might assume they don\u0027t need to worry about the matrix.\n\nBut you asked about an option. This might look something like SkAndroidCodec::ExifOrientationBehavior? Except in this case it might be\n\n  kRespect,\n  kOutputMatrix\n\nIf it\u0027s kRespect, we\u0027ll handle the orientation - dimensions() will report the proper width and height, and getFrame() will do something to correct for it (either with a PictureImage or by storing the properly oriented pixels). If it\u0027s kOutputMatrix, the client will call getFrame and pass an output matrix (or perhaps a new method with a required output matrix) to get both. I\u0027m not sure how to handle dimensions() in this case.\n\nThe downside to having an option is that it means two different paths for us to test and keep up to date, but maybe that\u0027s okay.\n\nWhat are y\u0027all\u0027s preferences? Patch set 4 uses drawing to orient the images. PTAL.",
+      "parentUuid": "7a6f0177_68eda587",
+      "revId": "f369f74111f0522df8f06d4b1d86b87f5dfc1167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
