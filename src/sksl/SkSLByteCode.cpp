@@ -56,6 +56,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kACos, "acos")
         DISASSEMBLE_COUNT(kASin, "asin")
         DISASSEMBLE_COUNT(kATan, "atan")
+        DISASSEMBLE_COUNT(kATan2, "atan2")
         case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
         case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
@@ -815,6 +816,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             } continue;
 
             VECTOR_UNARY_FN(kATan, [](auto x) { return skvx::map(atanf, x); }, fFloat)
+            VECTOR_BINARY_FN(kATan2, fFloat, [](auto y, auto x) { return skvx::map(atan2f, y, x); })
+
             VECTOR_UNARY_FN(kTan, [](auto x) { return skvx::map(tanf, x); }, fFloat)
 
             case ByteCodeInstruction::kWriteExternal: {

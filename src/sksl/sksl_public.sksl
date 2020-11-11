@@ -25,7 +25,8 @@ $genType  asin($genType  x);
 $genHType asin($genHType x);
 $genType  acos($genType  x);
 $genHType acos($genHType x);
-// TODO: atan(y, x)
+$genType  atan($genType  y, $genType  x);
+$genHType atan($genHType y, $genHType x);
 $genType  atan($genType  y_over_x);
 $genHType atan($genHType y_over_x);
 

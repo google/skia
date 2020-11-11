@@ -139,6 +139,7 @@ private:
     enum class SpecialIntrinsic {
         kAll,
         kAny,
+        kATan,
         kClamp,
         kDot,
         kLength,
