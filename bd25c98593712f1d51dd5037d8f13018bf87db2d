@@ -343,6 +343,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec8a343_ae4a338f",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T16:07:55Z",
+      "side": 1,
+      "message": "I\u0027m definitely interested--it\u0027s no bother! If you can make std::vector\u003c\u003e work and keep all the nice properties that we currently enjoy in SkTArray/SkSTArray, I would love to see it. I haven\u0027t yet been able to imagine a solution that doesn\u0027t give up at least one of the nice properties, but that doesn\u0027t mean it can\u0027t be done :)",
+      "parentUuid": "05fb59bb_d8f79797",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
