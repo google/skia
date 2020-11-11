@@ -247,6 +247,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "014f86cd_daae5c24",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-11T03:14:50Z",
+      "side": 1,
+      "message": "SkTArray currently guarantees that if you call `reserve_back(lots)`, you can push_back and pop_back as much as you want and it will never shrink until count \u003e lots (at which point it goes back to the typical shrink/grow behavior). Is this a guarantee that we care about? We have a test for this behavior in `test_array_reserve`. If we don\u0027t care about this, removing fReserved works fine. My gut feeling is that it\u0027s worth one bit to preserve the current behavior, but I don\u0027t have a strong feeling either way.\n\nhttp://review.skia.org/333876",
+      "parentUuid": "21407fec_594b0518",
+      "range": {
+        "startLine": 470,
+        "startChar": 7,
+        "endLine": 470,
+        "endChar": 26
+      },
+      "revId": "bd25c98593712f1d51dd5037d8f13018bf87db2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae35c504_f77a73d9",
