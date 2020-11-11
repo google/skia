@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af4718fd_179295ff",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-11T15:56:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04d21412_6fbd07f3",
+      "range": {
+        "startLine": 40,
+        "startChar": 34,
+        "endLine": 40,
+        "endChar": 46
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "922cbab6_f332bd06",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6023b4ec_9f807a09",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-11T15:56:06Z",
+      "side": 1,
+      "message": "Good idea. Added that. Yeah - the 01 swizzles work, I never added tests for those in runtime effects. So much missing test coverage.",
+      "parentUuid": "922cbab6_f332bd06",
+      "range": {
+        "startLine": 241,
+        "startChar": 52,
+        "endLine": 241,
+        "endChar": 53
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f05858fb_c78aba94",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-11T15:45:31Z",
       "side": 1,
       "message": "The return type doesn\u0027t match the main signature; we aren\u0027t testing relaxed precision rules in this test, so let\u0027s just use vecN or halfN throughout to keep the test focused?",
+      "range": {
+        "startLine": 242,
+        "startChar": 58,
+        "endLine": 242,
+        "endChar": 64
+      },
+      "revId": "ddbfd28c009583dec778b7a9ce26f9dc328bbc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89951c99_72430495",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-11T15:56:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f05858fb_c78aba94",
       "range": {
         "startLine": 242,
         "startChar": 58,
