@@ -1239,7 +1239,11 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     paragraph->layout(550);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+    REPORTER_ASSERT(reporter, impl->runs().size() == 5);
+#else
     REPORTER_ASSERT(reporter, impl->runs().size() == 4);
+#endif
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
     REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
 
@@ -3992,28 +3996,38 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 10.0, 15.0);
 
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+    size_t spaceRun = 1;
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 2); // From the text1 ("字典" - excluding the last space)
+#else
+    size_t spaceRun = 0;
     REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 3); // From the text1 ("字典 " - including the last space)
+#endif
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
-    REPORTER_ASSERT(reporter, impl->runs().size() == 6);
+    REPORTER_ASSERT(reporter, impl->runs().size() == 6 + spaceRun);
 
     // Font resolution in Skia produces 6 runs because 2 parts of "Roboto 字典 " have different
     // script (Minikin merges the first 2 into one because of unresolved)
-    // [Apple + Unresolved ] 0, 1
-    // [Apple + Noto] 2, 3
-    // [Apple + Han] 4, 5
+    // [Apple + Unresolved + ' '] 0, 1, 2
+    // [Apple + Noto] 3, 4
+    // [Apple + Han] 5, 6
     auto robotoAdvance = impl->runs()[0].advance().fX +
                          impl->runs()[1].advance().fX;
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+    robotoAdvance += impl->runs()[2].advance().fX;
+#endif
+
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(robotoAdvance, 64.199f, EPSILON50));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[2].advance().fX, 139.125f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3].advance().fX, 27.999f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4].advance().fX, 62.248f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5].advance().fX, 27.999f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[2 + spaceRun].advance().fX, 139.125f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[3 + spaceRun].advance().fX, 27.999f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[4 + spaceRun].advance().fX, 62.248f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(impl->runs()[5 + spaceRun].advance().fX, 27.999f, EPSILON100));
 
     // When a different font is resolved, then the metrics are different.
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctAscent() != impl->runs()[5].correctAscent());
-    REPORTER_ASSERT(reporter, impl->runs()[3].correctDescent() != impl->runs()[5].correctDescent());
+    REPORTER_ASSERT(reporter, impl->runs()[3 + spaceRun].correctAscent() != impl->runs()[5 + spaceRun].correctAscent());
+    REPORTER_ASSERT(reporter, impl->runs()[3 + spaceRun].correctDescent() != impl->runs()[5 + spaceRun].correctDescent());
 }
 
 // Checked: NO DIFF
@@ -5495,7 +5509,11 @@ DEF_TEST(SkParagraph_FontResolutionInRTL, reporter) {
     paragraph->paint(canvas.get(), 0, 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+    REPORTER_ASSERT(reporter, impl->runs().size() == (10 + 11));
+#else
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
+#endif
 }
 
 DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
@@ -5522,8 +5540,18 @@ DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
     paragraph->paint(canvas.get(), 0, 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+#ifdef SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION
+    REPORTER_ASSERT(reporter, impl->runs().size() == 5);
+    REPORTER_ASSERT(reporter, impl->runs()[0].textRange().width() == 4); // "abc "
+    REPORTER_ASSERT(reporter, impl->runs()[1].textRange().width() == 2); // "{unresolved}"
+    REPORTER_ASSERT(reporter, impl->runs()[2].textRange().width() == 1); // " "
+    REPORTER_ASSERT(reporter, impl->runs()[3].textRange().width() == 2); // "{unresolved}"
+    REPORTER_ASSERT(reporter, impl->runs()[4].textRange().width() == 4); // " def"
+#else
     REPORTER_ASSERT(reporter, impl->runs().size() == 3);
     REPORTER_ASSERT(reporter, impl->runs()[0].textRange().width() == 4); // "abc "
     REPORTER_ASSERT(reporter, impl->runs()[1].textRange().width() == 5); // "{unresolved} {unresolved}"
     REPORTER_ASSERT(reporter, impl->runs()[2].textRange().width() == 4); // " def"
+
+#endif
 }
