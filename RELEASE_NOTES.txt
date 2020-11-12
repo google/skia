@@ -4,6 +4,16 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 89
+------------
+
+  * Added a new interface for GrDirectContext creation in Metal, using
+    a new struct called GrMtlBackendContext. The previous interface taking
+    a MTLDevice and MTLCommandQueue is deprecated.
+    https://review.skia.org/334426
+
+* * *
+
 Milestone 88
 ------------
 
