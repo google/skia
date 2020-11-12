@@ -8,60 +8,25 @@
 #ifndef SKSL_MODIFIERSPOOL
 #define SKSL_MODIFIERSPOOL
 
-#include <unordered_map>
+#include <unordered_set>
 
 namespace SkSL {
 
 struct Modifiers;
 
 /**
- * Stores a pool of Modifiers objects. Modifiers is fairly heavy, so to reduce IRNode's size we only
- * store a handle to the Modifiers inside of the node and keep the object itself in a ModifiersPool.
+ * Deduplicates Modifiers objects and stores them in a shared pool. Modifiers are fairly heavy, and
+ * tend to be reused a lot, so deduplication can be a significant win.
  */
 class ModifiersPool {
 public:
-    class Handle {
-    public:
-        Handle() = default;
-
-        Handle(const ModifiersPool* pool, int index)
-            : fPool(pool)
-            , fIndex(index) {}
-
-        const Modifiers* operator->() const {
-            return &fPool->fModifiers[fIndex];
-        }
-
-        const Modifiers& operator*() const {
-            return fPool->fModifiers[fIndex];
-        }
-
-    private:
-        const ModifiersPool* fPool;
-        int fIndex;
-    };
-
-    bool empty() {
-        return fModifiers.empty();
-    }
-
-    Handle handle(const Modifiers& modifiers) {
-        SkASSERT(fModifiers.size() == fModifiersMap.size());
-        int index;
-        auto found = fModifiersMap.find(modifiers);
-        if (found != fModifiersMap.end()) {
-            index = found->second;
-        } else {
-            index = fModifiers.size();
-            fModifiers.push_back(modifiers);
-            fModifiersMap.insert({modifiers, index});
-        }
-        return Handle(this, index);
+    const Modifiers* addToPool(const Modifiers& modifiers) {
+        auto [iter, wasInserted] = fModifiersSet.insert(modifiers);
+        return &*iter;
     }
 
 private:
-    std::vector<Modifiers> fModifiers;
-    std::unordered_map<Modifiers, int> fModifiersMap;
+    std::unordered_set<Modifiers> fModifiersSet;
 };
 
 } // namespace SkSL

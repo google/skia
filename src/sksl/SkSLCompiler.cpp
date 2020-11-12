@@ -167,7 +167,7 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
     // treat it as builtin (ie, no need to clone it into the Program).
     fPrivateSymbolTable->add(
             std::make_unique<Variable>(/*offset=*/-1,
-                                       fIRGenerator->fModifiers->handle(Modifiers()),
+                                       fIRGenerator->fModifiers->addToPool(Modifiers()),
                                        "sk_Caps",
                                        fContext->fSkCaps_Type.get(),
                                        /*builtin=*/false,

@@ -564,7 +564,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const Type* typePtr = copy_if_needed(&old.type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
-                                               old.modifiersHandle(),
+                                               &old.modifiers(),
                                                namePtr->c_str(),
                                                typePtr,
                                                isBuiltinCode,
@@ -644,7 +644,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Add our new variable to the symbol table.
         const Variable* variableSymbol = symbolTableForCall->add(std::make_unique<Variable>(
-                                                 /*offset=*/-1, fModifiers->handle(Modifiers()),
+                                                 /*offset=*/-1, fModifiers->addToPool(Modifiers()),
                                                  nameFrag, type, caller->isBuiltin(),
                                                  Variable::Storage::kLocal, initialValue->get()));
 
