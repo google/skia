@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88e5f0e0_4f26a8f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-12T15:38:15Z",
+      "side": 1,
+      "message": "Needs https://chromium-review.googlesource.com/c/chromium/src/+/2533579/ to land first.",
+      "revId": "76a7c8f37a6afc759ae57ac5b41ed1282b2b4bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
