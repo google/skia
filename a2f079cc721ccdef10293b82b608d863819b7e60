@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f77a72f7_ddee6618",
+        "filename": "modules/skottie/tests/Text.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-12T17:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a751129_a92b1ebd",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 17
+      },
+      "revId": "a2f079cc721ccdef10293b82b608d863819b7e60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a3952152_183de6ff",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72409637_c4805e1d",
+        "filename": "modules/skottie/tests/Text.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-12T17:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3952152_183de6ff",
+      "range": {
+        "startLine": 22,
+        "startChar": 23,
+        "endLine": 22,
+        "endChar": 28
+      },
+      "revId": "a2f079cc721ccdef10293b82b608d863819b7e60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "322f0ecb_a28ca129",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-12T16:29:08Z",
       "side": 1,
       "message": "fStyleRequestedWhenMatchingFamily\n\nIt might make this easier to understand if an assert were added here that this map doesn\u0027t already have this family, or if is does already have this family that the value is already the same as \u0027style\u0027. (Or make this a std::multimap so all calls are recorded.)",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 15
+      },
+      "revId": "a2f079cc721ccdef10293b82b608d863819b7e60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1b2f91d_12eadce5",
+        "filename": "modules/skottie/tests/Text.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-12T17:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "322f0ecb_a28ca129",
       "range": {
         "startLine": 35,
         "startChar": 8,
