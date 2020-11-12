@@ -39,6 +39,30 @@
       },
       "revId": "1be4fd0b3bf639c687e3ec30df930c6e62a4fd8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f689487_cb2b9c62",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-12T15:15:36Z",
+      "side": 1,
+      "message": "You are right. Something is missing here...\nI renamed the definition and also had to add ifdefs to the tests.\nChecking against canary g3 build.",
+      "parentUuid": "e581fe17_bc2c0652",
+      "range": {
+        "startLine": 308,
+        "startChar": 20,
+        "endLine": 308,
+        "endChar": 23
+      },
+      "revId": "1be4fd0b3bf639c687e3ec30df930c6e62a4fd8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
