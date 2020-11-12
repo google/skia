@@ -33,6 +33,24 @@
       "message": "want to\n\n   static_assert(SkCLZ_portable(7) \u003d\u003d ???);\n\n?",
       "revId": "4cadde16a4e3524179e49003f83bf3176ad2fc6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4a032ee_29c303d7",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-12T19:04:45Z",
+      "side": 1,
+      "message": "(Tests for constexpr functions can go right alongside their implementations in SkMathPriv.h if you like, of course.)",
+      "parentUuid": "892886f1_d022a2b0",
+      "revId": "4cadde16a4e3524179e49003f83bf3176ad2fc6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
