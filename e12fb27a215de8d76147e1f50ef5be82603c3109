@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d077d95d_b557a910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-12T19:53:09Z",
+      "side": 1,
+      "message": "Oh, forgot to say: I\u0027m going to land this after the branch, so I\u0027ll update the release notes then.",
+      "revId": "e12fb27a215de8d76147e1f50ef5be82603c3109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
