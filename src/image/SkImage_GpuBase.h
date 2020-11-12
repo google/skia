@@ -76,6 +76,14 @@ public:
     using PromiseImageTextureReleaseProc =
             SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
 
+    static bool RenderYUVAToRGBA(const GrCaps&,
+                                 GrRenderTargetContext*,
+                                 const SkRect&,
+                                 SkYUVColorSpace,
+                                 sk_sp<GrColorSpaceXform>,
+                                 GrSurfaceProxyView[4],
+                                 const SkYUVAIndex[4]);
+
 protected:
     SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType,
                     SkAlphaType, sk_sp<SkColorSpace>);
@@ -90,12 +98,6 @@ protected:
                                                            GrMipmapped,
                                                            PromiseImageTextureFulfillProc,
                                                            sk_sp<GrRefCntedCallback> releaseHelper);
-
-    static bool RenderYUVAToRGBA(const GrCaps&, GrRenderTargetContext*,
-                                 const SkRect&, SkYUVColorSpace,
-                                 sk_sp<GrColorSpaceXform>,
-                                 GrSurfaceProxyView [4],
-                                 const SkYUVAIndex [4]);
 
     sk_sp<GrImageContext> fContext;
 
