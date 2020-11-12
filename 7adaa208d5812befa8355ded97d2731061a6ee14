@@ -16,6 +16,23 @@
       "message": "Ben/Mike/Dominik: I split this out from my other CL.\n\nThis is the contrast-enhancement formula that DWrite uses.",
       "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efcb9306_856ce303",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-11-12T13:11:42Z",
+      "side": 1,
+      "message": "Thanks for sharing the formula and preparing this CL. I am not a Skia reviewer. I would be happy if we can get to use it, if it\u0027s the formula that matches DWrite. But I would like to know more about what the transition plan is, with the next steps and how to get this through Skia gold and look at all affected test baselines so that we can replace the current #ifdef with a #ifdef OS(WINDOWS)? I would not object to merging this if it helps you test locally, but if it\u0027s an #ifdef it looks like you\u0027d need a local build anyway?\n",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
