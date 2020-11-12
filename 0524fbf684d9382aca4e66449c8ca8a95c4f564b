@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d76808c8_751c6d7b",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-12T18:45:59Z",
+      "side": 1,
+      "message": "Given that PictureImage requires a temporary buffer (as discussed in https://skia-review.googlesource.com/c/skia/+/332753), this patch set just draws to an SkCanvas and returns those pixels. This patch set still has a bug, though - if the image is opaque, but the post-process SkPicture adds alpha, the SkBitmap should have alpha. I noticed this while running viewer. To my surprise, the bug didn\u0027t show up everywhere:\n- in DM (config 8888 and gl), the corners look rounded (as I intended, though perhaps incorrectly)\n- in viewer, OpenGL looks the same as DM, but viewing in Raster caught the bug\n\nI simplified the use case and came up with a fiddle: https://fiddle.skia.org/c/a3b0310ac8203b3c357c0c2851dcaf05\n\nGiven that I was essentially lying, by marking the bitmap as kOpaque_SkAlphaType and then putting transparent pixels in it, maybe it\u0027s okay that the we don\u0027t get consistent results?",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 389,
+        "endChar": 69
+      },
+      "revId": "0524fbf684d9382aca4e66449c8ca8a95c4f564b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
