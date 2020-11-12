@@ -96,10 +96,9 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         auto fp = GrConstColorProcessor::Make(color);
         paint.setColorFragmentProcessor(std::move(fp));
 
-        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
-                      SkMatrix::I(), invPath, style);
+        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), invPath, style);
 
-        rtc->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
+        dContext->priv().flushSurface(rtc->asSurfaceProxy());
     }
 
     {

@@ -158,14 +158,6 @@ public:
                                                    SkImage::RescaleGamma,
                                                    SkFilterQuality);
 
-    /**
-     * After this returns any pending surface IO will be issued to the backend 3D API and
-     * if the surface has MSAA it will be resolved.
-     */
-    GrSemaphoresSubmitted flush(SkSurface::BackendSurfaceAccess access,
-                                const GrFlushInfo&,
-                                const GrBackendSurfaceMutableState*);
-
     GrAuditTrail* auditTrail();
 
     // Provides access to functions that aren't part of the public API.

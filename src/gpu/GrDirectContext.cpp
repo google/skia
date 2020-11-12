@@ -365,13 +365,8 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
         return GrSemaphoresSubmitted::kNo;
     }
 
-    bool flushed = this->drawingManager()->flush(
-            {}, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
-
-    if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
-        return GrSemaphoresSubmitted::kNo;
-    }
-    return GrSemaphoresSubmitted::kYes;
+    return this->drawingManager()->flushSurfaces({}, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                                 info, nullptr);
 }
 
 bool GrDirectContext::submit(bool syncCpu) {
