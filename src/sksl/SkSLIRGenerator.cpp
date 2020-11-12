@@ -1042,6 +1042,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                     }
                     if (other->definition() && !other->isBuiltin()) {
                         fErrors.error(f.fOffset, "duplicate definition of " + other->description());
+                        return;
                     }
                     break;
                 }
