@@ -100,9 +100,9 @@ static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     return false;
 }
 
-sk_sp<GrGpu> GrMtlGpu::Make(GrDirectContext* direct, const GrContextOptions& options,
-                            id<MTLDevice> device, id<MTLCommandQueue> queue) {
-    if (!device || !queue) {
+sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextOptions& options,
+                            GrDirectContext* direct) {
+    if (!context.fDevice || !context.fQueue) {
         return nullptr;
     }
     if (@available(macOS 10.14, iOS 9.0, *)) {
@@ -117,6 +117,8 @@ sk_sp<GrGpu> GrMtlGpu::Make(GrDirectContext* direct, const GrContextOptions& opt
 #endif
     }
 
+    id<MTLDevice> device = (__bridge id<MTLDevice>)(context.fDevice.get());
+    id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
     MTLFeatureSet featureSet;
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
