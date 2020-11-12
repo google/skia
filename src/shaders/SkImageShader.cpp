@@ -209,6 +209,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (quality == kHigh_SkFilterQuality) {
         return nullptr;
     }
+    if (quality == kMedium_SkFilterQuality) {
+        return nullptr;
+    }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
