@@ -729,7 +729,6 @@ bool SkSVGAttributeParser::parse(SkSVGVisibility* visibility) {
         { SkSVGVisibility::Type::kVisible , "visible"  },
         { SkSVGVisibility::Type::kHidden  , "hidden"   },
         { SkSVGVisibility::Type::kCollapse, "collapse" },
-        { SkSVGVisibility::Type::kInherit , "inherit"  },
     };
 
     bool parsedValue = false;

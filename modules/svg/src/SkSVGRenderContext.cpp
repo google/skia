@@ -402,6 +402,21 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
         }                                                                               \
     } while (false)
 
+#define ApplyLazyInheritedAttribute2(ATTR)                                               \
+    do {                                                                                \
+        /* All attributes should be defined on the inherited context. */                \
+        const auto& inheritedAttr = fPresentationContext->fInherited.f ## ATTR;\
+        SkASSERT(!inheritedAttr.isInherit());              \
+        const auto& attr = attrs.f ## ATTR;                             \
+        if (!attr.isInherit() && attr.value() != inheritedAttr.value()) {     \
+            /* Update the local attribute value */                                      \
+            fPresentationContext.writable()->fInherited.f ## ATTR = attr;          \
+            /* Update the cached paints */                                              \
+            commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *this,    \
+                                                     fPresentationContext.writable());  \
+        }                                                                               \
+    } while (false)
+
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
     ApplyLazyInheritedAttribute(FillRule);
@@ -419,7 +434,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
     ApplyLazyInheritedAttribute(TextAnchor);
-    ApplyLazyInheritedAttribute(Visibility);
+    ApplyLazyInheritedAttribute2(Visibility);
     ApplyLazyInheritedAttribute(Color);
 
     // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
@@ -428,6 +443,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     }
 
 #undef ApplyLazyInheritedAttribute
+#undef ApplyLazyInheritedAttribute2
 
     // Uninherited attributes.  Only apply to the current context.
 

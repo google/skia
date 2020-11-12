@@ -41,7 +41,7 @@ public:
         return result;
     }
 
-    template <typename T>
+    template <typename T, typename std::enable_if_t<!SkSVGIsInheritable<T>>* = nullptr>
     static ParseResult<T> parse(const char* expectedName,
                                 const char* name,
                                 const char* value) {
@@ -52,6 +52,26 @@ public:
         return ParseResult<T>();
     }
 
+
+    template <typename T, typename std::enable_if_t<SkSVGIsInheritable<T>>* = nullptr>
+    static ParseResult<T> parse(const char* expectedName,
+                                const char* name,
+                                const char* value) {
+        if (!strcmp(name, expectedName)) {
+            if (!strcmp(value, "inherit")) {
+                T inherit;
+                return ParseResult<T>(&inherit);
+            }
+
+            auto pr = parse<SkSVGRemoveInheritable<T>>(value);
+            if (pr.isValid()) {
+                T parsedValue = T::Make(*pr);
+                return ParseResult<T>(&parsedValue);
+            }
+        }
+
+        return ParseResult<T>();
+    }
 
 private:
     // Stack-only

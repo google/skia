@@ -73,6 +73,19 @@ public:                                                                      \
         }                                                                    \
     }
 
+#define SVG_PRES_ATTR2(attr_name, attr_type)\
+private:\
+    bool set##attr_name(SkSVGAttributeParser::ParseResult<SkSVGInheritable<attr_type>>&& pr) {\
+        if (pr.isValid()) { this->set##attr_name(std::move(*pr)); }\
+        return pr.isValid();\
+    }\
+public:\
+    void set##attr_name(SkSVGInheritable<attr_type>&& v) {\
+        fPresentationAttributes.f##attr_name = std::move(v); \
+    }
+
+#define SVG_PRES_ATTR_UNINHERITED(attr_name, attr_type)
+
 class SkSVGNode : public SkRefCnt {
 public:
     ~SkSVGNode() override;
@@ -113,7 +126,7 @@ public:
     SVG_PRES_ATTR(StrokeLineCap  , SkSVGLineCap   , true)
     SVG_PRES_ATTR(StrokeLineJoin , SkSVGLineJoin  , true)
     SVG_PRES_ATTR(TextAnchor     , SkSVGTextAnchor, true)
-    SVG_PRES_ATTR(Visibility     , SkSVGVisibility, true)
+    SVG_PRES_ATTR2(Visibility    , SkSVGVisibility)
 
     // not inherited
     SVG_PRES_ATTR(ClipPath       , SkSVGClip      , false)
@@ -153,7 +166,9 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-#undef SVG_PRES_ATTR // presentation attributes are only defined for the base class
+// Presentation attributes are only defined for the base class
+#undef SVG_PRES_ATTR
+#undef SVG_PRES_ATTR_UNINHERITED
 
 #define _SVG_ATTR_SETTERS(attr_name, attr_type, attr_default, set_cp, set_mv) \
     private:                                                                  \

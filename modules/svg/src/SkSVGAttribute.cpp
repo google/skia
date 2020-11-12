@@ -24,7 +24,7 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     result.fStrokeOpacity.set(SkSVGNumberType(1));
     result.fStrokeWidth.set(SkSVGLength(1));
 
-    result.fVisibility.set(SkSVGVisibility(SkSVGVisibility::Type::kVisible));
+    result.fVisibility = SkSVGInheritable<SkSVGVisibility>::Make(SkSVGVisibility::Type::kVisible);
 
     result.fColor.set(SkSVGColorType(SK_ColorBLACK));
 

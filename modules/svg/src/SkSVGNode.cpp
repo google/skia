@@ -156,6 +156,7 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
+    using AP = SkSVGAttributeParser;
     return this->setClipPath(SkSVGAttributeParser::parse<SkSVGClip>     ("clip-path"       , n, v))
         || this->setClipRule(SkSVGAttributeParser::parse<SkSVGFillRule> ("clip-rule"       , n, v))
         || this->setFill    (SkSVGAttributeParser::parse<SkSVGPaint>    ("fill"            , n, v))
@@ -177,5 +178,5 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
         || this->setTextAnchor
                            (SkSVGAttributeParser::parse<SkSVGTextAnchor>("text-anchor"     , n, v))
         || this->setVisibility
-                           (SkSVGAttributeParser::parse<SkSVGVisibility>("visibility"      , n, v));
+                           (AP::parse<SkSVGInheritable<SkSVGVisibility>>("visibility"      , n, v));
 }

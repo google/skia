@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkTLazy.h"
 
 using SkSVGColorType     = SkColor;
 using SkSVGIntegerType   = int;
@@ -25,6 +26,44 @@ using SkSVGStringType    = SkString;
 using SkSVGViewBoxType   = SkRect;
 using SkSVGTransformType = SkMatrix;
 using SkSVGPointsType    = SkTDArray<SkPoint>;
+
+template <typename T>
+class SkSVGInheritable {
+public:
+    SkSVGInheritable() = default;
+
+    template <typename... Args>
+    static SkSVGInheritable Make(Args&&... args) {
+        SkSVGInheritable result;
+        result.fValue.init(std::forward<Args>(args)...);
+        return result;
+    }
+
+    bool isInherit() const { return !fValue.isValid(); }
+
+    const T& value() const {
+        SkASSERT(fValue.isValid());
+        return *fValue.get();
+    }
+
+    T* operator->() const {
+        SkASSERT(fValue.isValid());
+        return fValue.get();
+    }
+
+private:
+
+    SkTLazy<T> fValue;
+};
+
+template <typename T> struct SkSVGInheritable_ : std::false_type {};
+template <typename T> struct SkSVGInheritable_<SkSVGInheritable<T>> : std::true_type {};
+template <typename T>
+inline constexpr bool SkSVGIsInheritable = SkSVGInheritable_<T>::value;
+
+template <typename T> struct SkSVGRemoveInheritable_ { using type = T; };
+template <typename T> struct SkSVGRemoveInheritable_<SkSVGInheritable<T>> { using type = T; };
+template <typename T> using SkSVGRemoveInheritable = typename SkSVGRemoveInheritable_<T>::type;
 
 class SkSVGLength {
 public:
@@ -235,7 +274,6 @@ public:
         kVisible,
         kHidden,
         kCollapse,
-        kInherit,
     };
 
     constexpr SkSVGVisibility() : fType(Type::kVisible) {}

@@ -88,7 +88,7 @@ struct SkSVGPresentationAttributes {
     SkTLazy<SkSVGNumberType> fStrokeOpacity;
     SkTLazy<SkSVGLength>     fStrokeWidth;
 
-    SkTLazy<SkSVGVisibility> fVisibility;
+    SkSVGInheritable<SkSVGVisibility> fVisibility;
 
     SkTLazy<SkSVGColorType>  fColor;
 
