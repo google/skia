@@ -61,10 +61,6 @@ SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
     return fCachedCanvas.get();
 }
 
-void GrVkSecondaryCBDrawContext::flush() {
-    fDevice->flush();
-}
-
 bool GrVkSecondaryCBDrawContext::wait(int numSemaphores,
                                       const GrBackendSemaphore waitSemaphores[],
                                       bool deleteSemaphoresAfterWait) {

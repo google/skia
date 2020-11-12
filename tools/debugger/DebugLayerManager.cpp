@@ -69,7 +69,6 @@ void DebugLayerManager::storeSkPicture(int nodeId, int frame, sk_sp<SkPicture> p
 void DebugLayerManager::drawLayerEventTo(SkCanvas* canvas, const int nodeId, const int frame) {
     auto& evt = fDraws[{frame, nodeId}];
     evt.debugCanvas->drawTo(canvas, evt.command);
-    canvas->flush();
 }
 
 sk_sp<SkImage> DebugLayerManager::getLayerAsImage(const int nodeId, const int frame) {
