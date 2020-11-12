@@ -168,11 +168,7 @@ config("default") {
   }
 
   if (is_android) {
-    cflags += [ "--sysroot=$ndk/sysroot" ]
-    cflags_cc += [
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
-    ]
+    cflags += [ "--sysroot=$ndk/toolchains/llvm/prebuilt/$ndk_host/sysroot" ]
     ldflags += [ "-static-libstdc++" ]
   }
 
