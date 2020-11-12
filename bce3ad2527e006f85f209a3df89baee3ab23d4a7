@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75ffd921_7c8ba606",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-11-12T15:22:21Z",
+      "side": 1,
+      "message": "In response to https://googleplex-android-review.git.corp.google.com/c/platform/external/skia/+/13035952/comment/edb0fe42_a52e5a0d/",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "bce3ad2527e006f85f209a3df89baee3ab23d4a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
