@@ -45,6 +45,7 @@ protected:
     id<MTLCommandQueue>         fQueue;
     CAMetalLayer*               fMetalLayer;
     GrMTLHandle                 fDrawableHandle;
+    id<MTLBinaryArchive>        fPipelineArchive;
 };
 
 }   // namespace sk_app

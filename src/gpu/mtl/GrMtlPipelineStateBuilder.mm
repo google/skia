@@ -510,6 +510,16 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &error);
 #else
+    id<MTLBinaryArchive> archive = fGpu->binaryArchive();
+    NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
+    pipelineDescriptor.binaryArchives = archiveArray;
+    [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
+                                                error: &error];
+    if (error) {
+        SkDebugf("Error storing pipeline: %s\n",
+                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+        return nullptr;
+    }
     id<MTLRenderPipelineState> pipelineState =
             [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                            error: &error];

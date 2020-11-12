@@ -119,11 +119,13 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
 
     id<MTLDevice> device = (__bridge id<MTLDevice>)(context.fDevice.get());
     id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
+    id<MTLBinaryArchive> pipelineArchive =
+        (__bridge id<MTLBinaryArchive>)(context.fPipelineArchive.get());
     MTLFeatureSet featureSet;
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
     }
-    return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, featureSet));
+    return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, pipelineArchive, featureSet));
 }
 
 // This constant determines how many OutstandingCommandBuffers are allocated together as a block in
@@ -133,7 +135,8 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
 static const int kDefaultOutstandingAllocCnt = 8;
 
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
-                   id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet)
+                   id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLBinaryArchive> archive,
+                   MTLFeatureSet featureSet)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
@@ -145,6 +148,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
     fCaps = fMtlCaps;
     fCompiler.reset(new SkSL::Compiler(fMtlCaps->shaderCaps()));
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    fBinaryArchive = archive;
 }
 
 GrMtlGpu::~GrMtlGpu() {
