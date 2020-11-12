@@ -18,6 +18,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNoDrawCanvas.h"
@@ -602,9 +603,11 @@ void SkCanvas::flush() {
 }
 
 void SkCanvas::onFlush() {
-    SkBaseDevice* device = this->getDevice();
-    if (device) {
-        device->flush();
+    auto dContext = GrAsDirectContext(this->recordingContext());
+
+    if (dContext) {
+        dContext->flush();
+        dContext->submit();
     }
 }
 

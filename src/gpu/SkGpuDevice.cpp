@@ -1027,16 +1027,6 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::flush() {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
-        return;
-    }
-
-    this->flush(SkSurface::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr);
-    direct->submit();
-}
-
 GrSemaphoresSubmitted SkGpuDevice::flush(SkSurface::BackendSurfaceAccess access,
                                          const GrFlushInfo& info,
                                          const GrBackendSurfaceMutableState* newState) {
