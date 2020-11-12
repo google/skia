@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36ae390e_fff29d78",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-12T15:49:10Z",
+      "side": 1,
+      "message": "I usually like to use an aliased type for these for readability, like JSObject",
+      "range": {
+        "startLine": 305,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 19
+      },
+      "revId": "346f7f6e76a2eabbc28e03de756d7b550399c059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
