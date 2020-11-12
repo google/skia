@@ -16,6 +16,24 @@
       "message": "dst and n are both changed by the rep sto instruction, so doing this after the assembly was the equivalent of uselessly calling sk_msan_mark_initialized(dst+n,0,note).  Moving it first does the trick.",
       "revId": "259d54940e3a5d19eb63ee52c9f7fcf42e5e241f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb34d51a_0ecfa33d",
+        "filename": "src/core/SkOpts_erms.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-12T18:01:58Z",
+      "side": 1,
+      "message": "er, the equivalent of sk_masn_mark_initialized(dst+n, dst+n+0, note)... still useless.",
+      "parentUuid": "9f1cc7df_db23bf02",
+      "revId": "259d54940e3a5d19eb63ee52c9f7fcf42e5e241f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
