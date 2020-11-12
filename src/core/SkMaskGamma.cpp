@@ -70,7 +70,12 @@ class SkSRGBColorSpaceLuminance : public SkColorSpaceLuminance {
 }
 
 static float apply_contrast(float srca, float contrast) {
+#if defined(SK_USE_DWRITE_COMPATIBLE_CONTRAST) && defined(SK_BUILD_FOR_WIN)
+    // On Windows, we use a DWrite-compatible contrast formula.
+    return (srca * (contrast + 1.0f)) / (srca * contrast + 1.0f);
+#else
     return srca + ((1.0f - srca) * contrast * srca);
+#endif
 }
 
 void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar contrast,
