@@ -46,7 +46,7 @@ deps = {
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@eaf99a4e2009b0e5759e6070ad1760ac1dd75461",
 
   "../src": {
-    "url": "https://chromium.googlesource.com/chromium/src.git@2cd5dabd77439bd357fa6c3213a7fdb4fbbee030",
+    "url": "https://chromium.googlesource.com/chromium/src.git@3f8d2809ace6ead9e0c1cb22a6be1858760650fb",
     "condition": "checkout_chromium",
   },
 }
