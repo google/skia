@@ -86,11 +86,22 @@ public:
 
     SkScalar getContrast() const {
         sk_ignore_unused_variable(fReservedAlign);
+#if defined(SK_USE_DWRITE_COMPATIBLE_CONTRAST) && defined(SK_BUILD_FOR_WIN)
+        // Contrast range is [0.0, 4.0] on Windows.
+        return SkIntToScalar(fContrast) / ((1 << 6) - 1);
+#else
         return SkIntToScalar(fContrast) / ((1 << 8) - 1);
+#endif
     }
     void setContrast(SkScalar c) {
+#if defined(SK_USE_DWRITE_COMPATIBLE_CONTRAST) && defined(SK_BUILD_FOR_WIN)
+        // Contrast range is [0.0, 4.0] on Windows.
+        SkASSERT(0 <= pg && pg <= SkIntToScalar(4));
+        fContrast = SkScalarFloorToInt(c * ((1 << 6) - 1));
+#else
         SkASSERT(0 <= c && c <= SK_Scalar1);
         fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
+#endif
     }
 
     /**
