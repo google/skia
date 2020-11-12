@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "398f17c8_edb92e87",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-12T22:14:48Z",
+      "side": 1,
+      "message": "Now that there are no special values for fMaskFormat, can SkScalerContextRec::fMaskFormat just be SkMask::Format?",
+      "range": {
+        "startLine": 267,
+        "startChar": 40,
+        "endLine": 267,
+        "endChar": 56
+      },
+      "revId": "25fa7504499b03f26362178426a377a73a656cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
