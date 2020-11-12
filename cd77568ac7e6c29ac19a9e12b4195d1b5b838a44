@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9aca5118_c5755558",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-12T14:28:58Z",
+      "side": 1,
+      "message": "Not important for this CL, but we could really cut down on repetition here, by hoisting the beginning and ending of this common chunk out.",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 296,
+        "endChar": 0
+      },
+      "revId": "cd77568ac7e6c29ac19a9e12b4195d1b5b838a44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
