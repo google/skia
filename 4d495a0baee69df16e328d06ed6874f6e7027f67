@@ -300,6 +300,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f252651_4ca6bfab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-11-12T03:01:31Z",
+      "side": 1,
+      "message": "FWIW, changes like this in Skia always need to be start life behind an #ifdef so that auto-rolling into Chromium (and Android, etc.) doesn\u0027t break things.  We\u0027d eventually turn it on by default and remove the #ifdef.\n\nAnyway... I\u0027ve removed the DWrite-compatible contrast stuff from this change, and will post a 2nd CL for continued discussion on that topic.",
+      "parentUuid": "531dc0bf_3c984e0a",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
