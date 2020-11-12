@@ -17,6 +17,9 @@ move-assets:
 	# built wasm debugger with the interface.
 	cp ./debugger/bin/debugger.js   ${SKIA_INFRA_ROOT}/debugger-assets/res/js
 	cp ./debugger/bin/debugger.wasm ${SKIA_INFRA_ROOT}/debugger-assets/res
+	# new debugger (lit html version)
+	cp ./debugger/bin/debugger.js   ${SKIA_INFRA_ROOT}/debugger-app/build/debugger
+	cp ./debugger/bin/debugger.wasm ${SKIA_INFRA_ROOT}/debugger-app/build/debugger
 
 # A barebones local example of the wasm module included in a page.
 # for the real interface see
