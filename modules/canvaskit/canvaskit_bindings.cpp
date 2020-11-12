@@ -1012,6 +1012,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("markCTM", optional_override([](SkCanvas& self, std::string marker) {
             self.markCTM(marker.c_str());
         }))
+
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       uintptr_t /* uint8_t* */ pPtr,
                                                       size_t dstRowBytes, int srcX, int srcY) {
@@ -1019,18 +1020,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.readPixels(dstInfo, pixels, dstRowBytes, srcX, srcY);
-        }))
-        // This is an internal override for quickly flushing to a Canvas2D. We hard-code the
-        // image info values so we don't need to pass them all over the wire.
-        .function("_readPixelsForCanvas2D", optional_override([](SkCanvas& self,
-                                                                 uintptr_t /* uint8_t* */ pPtr,
-                                                                 int width, int height) {
-            uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
-            // Reminder: Canvas2D's putImageData is unpremul
-            SkImageInfo dstInfo = SkImageInfo::Make(width, height,
-                    SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kUnpremul_SkAlphaType);
-
-            return self.readPixels(dstInfo, pixels, width*4, 0, 0);
         }))
         .function("restore", &SkCanvas::restore)
         .function("restoreToCount", &SkCanvas::restoreToCount)
@@ -1655,10 +1644,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkSurface>("Surface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<Surface>")
-        .class_function("_makeRaster", optional_override([](const SimpleImageInfo ii)->sk_sp<SkSurface> {
-            SkImageInfo imageInfo = toSkImageInfo(ii);
-            return SkSurface::MakeRaster(imageInfo);
-        }), allow_raw_pointers())
         .class_function("_makeRasterDirect", optional_override([](const SimpleImageInfo ii,
                                                                   uintptr_t /* uint8_t*  */ pPtr,
                                                                   size_t rowBytes)->sk_sp<SkSurface> {

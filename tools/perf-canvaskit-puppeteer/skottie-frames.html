@@ -31,7 +31,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
     const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets's measured.
     // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
     const MAX_FRAMES = 600; // ~10s at 60fps
-    const MAX_SAMPLE_MS = 30 * 1000; // in case something takes a while, stop after 30 seconds.
+    const MAX_SAMPLE_MS = 45 * 1000; // in case something takes a while, stop after 30 seconds.
     const LOTTIE_JSON_PATH = '/static/lottie.json';
     const ASSETS_PATH = '/static/assets/';
     (function() {
@@ -87,7 +87,6 @@ would display the animation (e.g. using clock time to determine where to seek, n
 
         document.getElementById('start_bench').addEventListener('click', async () => {
           const clearColor = CanvasKit.WHITE;
-          let idx = 0;
           const startTime = Date.now();
           const damageRect = Float32Array.of(0, 0, 0, 0);
 
@@ -101,9 +100,13 @@ would display the animation (e.g. using clock time to determine where to seek, n
             }
           }
 
-          const results = await startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS);
-          Object.assign(window._perfData, results);
-          window._perfDone = true;
+          startTimingFrames(draw, surface, WARM_UP_FRAMES, MAX_FRAMES, MAX_SAMPLE_MS).then((results) => {
+            Object.assign(window._perfData, results);
+            window._perfDone = true;
+          }).catch((error) => {
+            window._error = error;
+          });
+
         });
         console.log('Perf is ready');
         window._perfReady = true;
