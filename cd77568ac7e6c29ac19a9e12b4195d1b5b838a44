@@ -22,6 +22,30 @@
       },
       "revId": "cd77568ac7e6c29ac19a9e12b4195d1b5b838a44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c9b13ca_1b113a8f",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-12T15:05:13Z",
+      "side": 1,
+      "message": "I actually started doing that then decided to leave it for another CL because this one is already too big. But yes, 100% agreed, there is lots of boilerplate here and it feels like we should be able to clean it up easily.",
+      "parentUuid": "9aca5118_c5755558",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 296,
+        "endChar": 0
+      },
+      "revId": "cd77568ac7e6c29ac19a9e12b4195d1b5b838a44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
