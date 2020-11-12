@@ -9,6 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -48,8 +49,10 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
-    fContext = GrDirectContext::MakeMetal((__bridge void*)fDevice, (__bridge void*)fQueue,
-                                          fDisplayParams.fGrContextOptions);
+    GrMtlBackendContext backendContext = {};
+    backendContext.fDevice.retain((__bridge GrMTLHandle)fDevice);
+    backendContext.fQueue.retain((__bridge GrMTLHandle)fQueue);
+    fContext = GrDirectContext::MakeMetal(backendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
