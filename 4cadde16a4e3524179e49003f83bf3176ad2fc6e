@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "4cadde16a4e3524179e49003f83bf3176ad2fc6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "892886f1_d022a2b0",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-12T19:03:17Z",
+      "side": 1,
+      "message": "want to\n\n   static_assert(SkCLZ_portable(7) \u003d\u003d ???);\n\n?",
+      "revId": "4cadde16a4e3524179e49003f83bf3176ad2fc6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
