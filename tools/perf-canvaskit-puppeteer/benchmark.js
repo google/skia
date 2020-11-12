@@ -15,7 +15,7 @@ function getSurface(CanvasKit, webglversion) {
       window._error = 'fell back to CPU';
       return null;
     }
-    if (webglversion != surface.openGLversion) {
+    if (webglversion !== surface.openGLversion) {
       window._error = 'Want WebGL version '+webglversion+' but got '+surface.openGLversion;
       return null;
     }
@@ -91,8 +91,8 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
       withoutFlush[idx] = afterDraw - start;
 
       if (timeoutMillis && ((beginTest + timeoutMillis) < performance.now())) {
-        console.log('test aborted due to timeout');
-        reject('test aborted due to timeout');
+        console.log(`test aborted due to timeout after ${idx} frames`);
+        reject(`test aborted due to timeout after ${idx} frames`);
         return;
       }
       window.requestAnimationFrame(drawFrame);

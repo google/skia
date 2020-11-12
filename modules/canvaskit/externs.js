@@ -270,7 +270,6 @@ var CanvasKit = {
     _getLocalToDevice: function() {},
     _getTotalMatrix: function() {},
     _readPixels: function() {},
-    _readPixelsForCanvas2D: function() {},
     _saveLayer: function() {},
     _writePixels: function() {},
     delete: function() {},
@@ -647,7 +646,6 @@ var CanvasKit = {
     // private API
     _flush: function() {},
     _makeImageSnapshot: function() {},
-    _makeRaster: function() {},
     _makeRasterDirect: function() {},
     delete: function() {},
   },
