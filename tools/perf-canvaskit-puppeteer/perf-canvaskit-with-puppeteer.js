@@ -201,7 +201,6 @@ async function driveBrowser() {
   console.log('- Launching chrome for ' + options.input);
   let browser;
   let page;
-  const headless = !options.use_gpu;
   let browser_args = [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -211,19 +210,16 @@ async function driveBrowser() {
       // Chrome instance will be used instead of puppeteer spinning up a new one.
       '--disable-frame-rate-limit',
       '--disable-gpu-vsync',
+      '--ignore-gpu-blocklist',
+      '--enable-gpu-rasterization',
   ];
   if (options.enable_simd) {
     browser_args.push('--enable-features=WebAssemblySimd');
   }
-  if (options.use_gpu) {
-    browser_args.push('--ignore-gpu-blacklist');
-    browser_args.push('--ignore-gpu-blocklist');
-    browser_args.push('--enable-gpu-rasterization');
-  }
-  console.log("Running with headless: " + headless + " args: " + browser_args);
+  console.log("Running with args: " + browser_args);
   try {
     browser = await puppeteer.launch({
-      headless: headless,
+      headless: false,
       args: browser_args,
       executablePath: options.chromium_executable_path
     });
