@@ -7,6 +7,17 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * The following YUV image factories have been removed:
+    SkImage::MakeFromYUVTexturesCopyWithExternalBackend
+    SkImage::MakeFromNV12TexturesCopyWithExternalBackend
+    Replacement pattern outlined below.
+        1) Make image using MakeFromYUVATextures
+        2) Make a SkSurface around result texture using SkSurface::MakeFromBackendTexture
+        3) surface->getCanvas()->drawImage(image, 0, 0);
+        4) surface->flushAndSubmit()
+        5) Optional: SkImage::MakeFromBackendTexture() to use as SkImage.
+    https://review.skia.org/334596
+
   * Added a new interface for GrDirectContext creation in Metal, using
     a new struct called GrMtlBackendContext. The previous interface taking
     a MTLDevice and MTLCommandQueue is deprecated.
