@@ -760,10 +760,3 @@ DEF_TEST(canvas_markctm, reporter) {
     // found the previous one
     REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
 }
-
-DEF_TEST(Canvas_quickreject_empty, reporter) {
-    SkCanvas canvas(10, 10);
-
-    REPORTER_ASSERT(reporter, canvas.quickReject({0,0,0,0}));
-    REPORTER_ASSERT(reporter, canvas.quickReject(SkPath()));
-}

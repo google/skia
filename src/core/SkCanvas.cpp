@@ -1784,10 +1784,6 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     SkASSERT(fIsScaleTranslate == SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix));
 #endif
 
-    if (src.isEmpty()) {
-        return true;
-    }
-
     if (!fIsScaleTranslate) {
         return quick_reject_slow_path(src, fDeviceClipBounds, fMCRec->fMatrix.asM33());
     }
@@ -1816,7 +1812,7 @@ bool SkCanvas::quickReject(const SkRect& src) const {
 }
 
 bool SkCanvas::quickReject(const SkPath& path) const {
-    return this->quickReject(path.getBounds());
+    return path.isEmpty() || this->quickReject(path.getBounds());
 }
 
 SkRect SkCanvas::getLocalClipBounds() const {
