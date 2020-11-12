@@ -1352,11 +1352,10 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identifier) {
-    SkASSERT(identifier.fKind == ASTNode::Kind::kIdentifier);
-    const Symbol* result = (*fSymbolTable)[identifier.getString()];
+std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFragment name) {
+    const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
-        fErrors.error(identifier.fOffset, "unknown identifier '" + identifier.getString() + "'");
+        fErrors.error(offset, "unknown identifier '" + name + "'");
         return nullptr;
     }
     switch (result->kind()) {
@@ -1364,12 +1363,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
             std::vector<const FunctionDeclaration*> f = {
                 &result->as<FunctionDeclaration>()
             };
-            return std::make_unique<FunctionReference>(fContext, identifier.fOffset, f);
+            return std::make_unique<FunctionReference>(fContext, offset, f);
         }
         case Symbol::Kind::kUnresolvedFunction: {
             const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
-            return std::make_unique<FunctionReference>(fContext, identifier.fOffset,
-                                                       f->functions());
+            return std::make_unique<FunctionReference>(fContext, offset, f->functions());
         }
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();
@@ -1408,19 +1406,18 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                     }
                 }
                 if (!valid) {
-                    fErrors.error(identifier.fOffset, "'in' variable must be either 'uniform' or "
-                                                      "'layout(key)', or there must be a custom "
-                                                      "@setData function");
+                    fErrors.error(offset, "'in' variable must be either 'uniform' or 'layout(key)',"
+                                          " or there must be a custom @setData function");
                 }
             }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return std::make_unique<VariableReference>(identifier.fOffset,
+            return std::make_unique<VariableReference>(offset,
                                                        var,
                                                        VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
-            auto base = std::make_unique<VariableReference>(identifier.fOffset, &field->owner(),
+            auto base = std::make_unique<VariableReference>(offset, &field->owner(),
                                                             VariableReference::RefKind::kRead);
             return std::make_unique<FieldAccess>(std::move(base),
                                                  field->fieldIndex(),
@@ -1428,15 +1425,19 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
         }
         case Symbol::Kind::kType: {
             const Type* t = &result->as<Type>();
-            return std::make_unique<TypeReference>(fContext, identifier.fOffset, t);
+            return std::make_unique<TypeReference>(fContext, offset, t);
         }
         case Symbol::Kind::kExternal: {
             const ExternalValue* r = &result->as<ExternalValue>();
-            return std::make_unique<ExternalValueReference>(identifier.fOffset, r);
+            return std::make_unique<ExternalValueReference>(offset, r);
         }
         default:
             ABORT("unsupported symbol type %d\n", (int) result->kind());
     }
+}
+
+std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identifier) {
+    return this->convertIdentifier(identifier.fOffset, identifier.getString());
 }
 
 std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
@@ -1945,6 +1946,13 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!right) {
         return nullptr;
     }
+    return this->convertBinaryExpression(expression.fOffset, std::move(left), op, std::move(right));
+}
+
+std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(int offset,
+                                                                std::unique_ptr<Expression> left,
+                                                                Token::Kind op,
+                                                                std::unique_ptr<Expression> right) {
     const Type* leftType;
     const Type* rightType;
     const Type* resultType;
@@ -1962,10 +1970,10 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     }
     if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
                                *rawLeftType, *rawRightType, &leftType, &rightType, &resultType)) {
-        fErrors.error(expression.fOffset, String("type mismatch: '") +
-                                          Compiler::OperatorName(expression.getToken().fKind) +
-                                          "' cannot operate on '" + left->type().displayName() +
-                                          "', '" + right->type().displayName() + "'");
+        fErrors.error(offset, String("type mismatch: '") +
+                                     Compiler::OperatorName(op) + "' cannot operate on '" +
+                                     left->type().displayName() + "', '" +
+                                     right->type().displayName() + "'");
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
@@ -1982,10 +1990,53 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     }
     std::unique_ptr<Expression> result = this->constantFold(*left, op, *right);
     if (!result) {
-        result = std::make_unique<BinaryExpression>(expression.fOffset, std::move(left), op,
-                                                    std::move(right), resultType);
+        result = std::make_unique<BinaryExpression>(offset, std::move(left), op, std::move(right),
+                                                    resultType);
     }
     return result;
+}
+
+std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(int offset,
+                                                              std::unique_ptr<Expression> test,
+                                                              std::unique_ptr<Expression> ifTrue,
+                                                              std::unique_ptr<Expression> ifFalse) {
+    const Type* trueType;
+    const Type* falseType;
+    const Type* resultType;
+    if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions,
+                               Token::Kind::TK_EQEQ, ifTrue->type(), ifFalse->type(),
+                               &trueType, &falseType, &resultType) ||
+        trueType != falseType) {
+        fErrors.error(offset, "ternary operator result mismatch: '" +
+                              ifTrue->type().displayName() + "', '" +
+                              ifFalse->type().displayName() + "'");
+        return nullptr;
+    }
+    if (trueType->nonnullable() == *fContext.fFragmentProcessor_Type) {
+        fErrors.error(offset,
+                      "ternary expression of type '" + trueType->displayName() + "' not allowed");
+        return nullptr;
+    }
+    ifTrue = this->coerce(std::move(ifTrue), *trueType);
+    if (!ifTrue) {
+        return nullptr;
+    }
+    ifFalse = this->coerce(std::move(ifFalse), *falseType);
+    if (!ifFalse) {
+        return nullptr;
+    }
+    if (test->kind() == Expression::Kind::kBoolLiteral) {
+        // static boolean test, just return one of the branches
+        if (test->as<BoolLiteral>().value()) {
+            return ifTrue;
+        } else {
+            return ifFalse;
+        }
+    }
+    return std::make_unique<TernaryExpression>(offset,
+                                               std::move(test),
+                                               std::move(ifTrue),
+                                               std::move(ifFalse));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode& node) {
@@ -2009,43 +2060,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
             return nullptr;
         }
     }
-    const Type* trueType;
-    const Type* falseType;
-    const Type* resultType;
-    if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions,
-                               Token::Kind::TK_EQEQ, ifTrue->type(), ifFalse->type(),
-                               &trueType, &falseType, &resultType) ||
-        trueType != falseType) {
-        fErrors.error(node.fOffset, "ternary operator result mismatch: '" +
-                                    ifTrue->type().displayName() + "', '" +
-                                    ifFalse->type().displayName() + "'");
-        return nullptr;
-    }
-    if (trueType->nonnullable() == *fContext.fFragmentProcessor_Type) {
-        fErrors.error(node.fOffset,
-                      "ternary expression of type '" + trueType->displayName() + "' not allowed");
-        return nullptr;
-    }
-    ifTrue = this->coerce(std::move(ifTrue), *trueType);
-    if (!ifTrue) {
-        return nullptr;
-    }
-    ifFalse = this->coerce(std::move(ifFalse), *falseType);
-    if (!ifFalse) {
-        return nullptr;
-    }
-    if (test->kind() == Expression::Kind::kBoolLiteral) {
-        // static boolean test, just return one of the branches
-        if (test->as<BoolLiteral>().value()) {
-            return ifTrue;
-        } else {
-            return ifFalse;
-        }
-    }
-    return std::make_unique<TernaryExpression>(node.fOffset,
-                                               std::move(test),
-                                               std::move(ifTrue),
-                                               std::move(ifFalse));
+    return this->convertTernaryExpression(node.fOffset, std::move(test), std::move(ifTrue),
+                                          std::move(ifFalse));
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
@@ -2517,7 +2533,7 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 // secondary swizzle to put them back into the right order, so in this case we end up with
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        StringFragment fields) {
+                                                        String fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
     if (baseType.typeKind() != Type::TypeKind::kVector && !baseType.isNumber()) {
@@ -2525,13 +2541,13 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
 
-    if (fields.fLength > 4) {
+    if (fields.length() > 4) {
         fErrors.error(offset, "too many components in swizzle mask '" + fields + "'");
         return nullptr;
     }
 
     ComponentArray maskComponents;
-    for (size_t i = 0; i < fields.fLength; i++) {
+    for (size_t i = 0; i < fields.length(); i++) {
         switch (fields[i]) {
             case '0':
             case '1':
@@ -2597,7 +2613,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     }
 
     // If we have processed the entire swizzle, we're done.
-    if (maskComponents.size() == fields.fLength) {
+    if (maskComponents.size() == fields.length()) {
         return expr;
     }
 
@@ -2625,7 +2641,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     int constantFieldIdx = maskComponents.size();
     int constantZeroIdx = -1, constantOneIdx = -1;
 
-    for (size_t i = 0; i < fields.fLength; i++) {
+    for (size_t i = 0; i < fields.length(); i++) {
         switch (fields[i]) {
             case '0':
                 if (constantZeroIdx == -1) {
