@@ -370,12 +370,16 @@ protected:
     struct CreateInfo {
         CreateInfo(const SkImageInfo& info,
                    SkPixelGeometry geo,
+                   SkScalar textContrast,
+                   SkScalar textGamma,
                    TileUsage tileUsage,
                    bool trackCoverage,
                    SkRasterHandleAllocator* allocator)
             : fInfo(info)
             , fTileUsage(tileUsage)
             , fPixelGeometry(geo)
+            , fTextContrast(textContrast)
+            , fTextGamma(textGamma)
             , fTrackCoverage(trackCoverage)
             , fAllocator(allocator)
         {}
@@ -383,6 +387,8 @@ protected:
         const SkImageInfo       fInfo;
         const TileUsage         fTileUsage;
         const SkPixelGeometry   fPixelGeometry;
+        const SkScalar          fTextContrast;
+        const SkScalar          fTextGamma;
         const bool              fTrackCoverage = false;
         SkRasterHandleAllocator* fAllocator = nullptr;
     };
