@@ -22,6 +22,30 @@
       },
       "revId": "25fa7504499b03f26362178426a377a73a656cb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58d3ad82_c061064d",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-12T22:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "398f17c8_edb92e87",
+      "range": {
+        "startLine": 267,
+        "startChar": 40,
+        "endLine": 267,
+        "endChar": 56
+      },
+      "revId": "25fa7504499b03f26362178426a377a73a656cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
