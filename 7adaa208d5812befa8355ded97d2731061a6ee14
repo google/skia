@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c60996f3_5b0c57fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-11-12T02:55:18Z",
+      "side": 1,
+      "message": "Ben/Mike/Dominik: I split this out from my other CL.\n\nThis is the contrast-enhancement formula that DWrite uses.",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
