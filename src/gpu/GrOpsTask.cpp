@@ -363,6 +363,11 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas ar
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
+    if (GrOpsTask* lastOpsTask = drawingMgr->getLastRenderTaskAsOpsTask(view.proxy())) {
+        SkASSERT(!lastOpsTask->fNextOpsTaskForTarget);
+        lastOpsTask->fNextOpsTaskForTarget = this;
+        fLastOpsTaskForTarget = lastOpsTask;
+    }
     this->addTarget(drawingMgr, std::move(view));
 }
 
@@ -375,6 +380,12 @@ void GrOpsTask::deleteOps() {
 
 GrOpsTask::~GrOpsTask() {
     this->deleteOps();
+    // Ops tasks should be deleted in order.
+    SkASSERT(!fLastOpsTaskForTarget);
+    if (fNextOpsTaskForTarget) {
+        SkASSERT(this == fNextOpsTaskForTarget->fLastOpsTaskForTarget);
+        fNextOpsTaskForTarget->fLastOpsTaskForTarget = nullptr;
+    }
 }
 
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {

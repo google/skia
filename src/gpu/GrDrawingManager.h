@@ -113,7 +113,7 @@ public:
 #endif
 
     GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;
-    GrOpsTask* getLastOpsTask(const GrSurfaceProxy*) const;
+    GrOpsTask* getLastRenderTaskAsOpsTask(const GrSurfaceProxy*) const;
     void setLastRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);

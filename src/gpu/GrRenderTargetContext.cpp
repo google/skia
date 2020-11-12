@@ -134,7 +134,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         const SkSurfaceProps* surfaceProps) {
     // It is probably not necessary to check if the context is abandoned here since uses of the
     // GrRenderTargetContext which need the context will mostly likely fail later on without an
-    // issue. However having this hear adds some reassurance in case there is a path doesn't handle
+    // issue. However having this here adds some reassurance in case there is a path doesn't handle
     // an abandoned context correctly. It also lets us early out of some extra work.
     if (context->abandoned()) {
         return nullptr;
@@ -291,7 +291,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromVulkanSeco
                                        kTopLeft_GrSurfaceOrigin, props);
 }
 
-// In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
+// The reffing of the 'getLastRenderTaskAsOpsTask' call's result allows in-progress
 // GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpsTask).
@@ -308,7 +308,8 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask)
         , fGlyphPainter(*this) {
-    fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
+    fOpsTask = sk_ref_sp(this->drawingManager()
+                         ->getLastRenderTaskAsOpsTask(this->asSurfaceProxy()));
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
     SkASSERT(this->origin() == fWriteView.origin());
 

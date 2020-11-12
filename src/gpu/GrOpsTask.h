@@ -322,6 +322,9 @@ private:
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
+
+    GrOpsTask* fLastOpsTaskForTarget = nullptr;
+    GrOpsTask* fNextOpsTaskForTarget = nullptr;
 };
 
 #endif
