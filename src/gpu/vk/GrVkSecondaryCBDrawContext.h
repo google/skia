@@ -65,6 +65,7 @@ public:
 
     SkCanvas* getCanvas();
 
+    // Deprecated: use GrDirectContext::flush()
     // Records all the draws to the imported secondary command buffer and sets any dependent
     // offscreen draws to the GPU.
     void flush();
