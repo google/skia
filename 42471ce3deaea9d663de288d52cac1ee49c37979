@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57ba3b77_7bf819ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-12T14:34:40Z",
+      "side": 1,
+      "message": "Good point(s).\n\nRegardless of whether we remove flush from SkSurface though, we also need to fix the failability issue both in the public API and internally. Right now we conflate, has-there-been-an-error, did-we-flush-anything and were-the-semaphores-submitted.\n\nThe \"void GrDirectContext::flush()\" signature is particularly egregious.",
+      "parentUuid": "a2a4802c_a0938865",
+      "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd3d3794_988106a3",
@@ -49,6 +67,24 @@
       "writtenOn": "2020-11-11T20:50:02Z",
       "side": 1,
       "message": "Update comment? Or better yet just remove this variant.",
+      "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fa6b840_0225c735",
+        "filename": "src/gpu/GrDirectContextPriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-12T14:34:40Z",
+      "side": 1,
+      "message": "Updated the comment. The flushSurfaces variant is only ever used in SkImage_GpuYUVA::onFlush for the 4 planes. The other 15 call sites want the flushSurface pattern.\n\nI did move the implementation inline, however, to emphasize that it is just a helper function.",
+      "parentUuid": "dd3d3794_988106a3",
       "revId": "42471ce3deaea9d663de288d52cac1ee49c37979",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
