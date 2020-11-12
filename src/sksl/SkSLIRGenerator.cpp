@@ -415,7 +415,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                 sizes.push_back(nullptr);
             }
         }
-        auto var = std::make_unique<Variable>(varDecl.fOffset, fModifiers->handle(modifiers),
+        auto var = std::make_unique<Variable>(varDecl.fOffset, fModifiers->addToPool(modifiers),
                                               varData.fName, type, fIsBuiltinCode, storage);
         if (var->name() == Compiler::RTADJUST_NAME) {
             SkASSERT(!fRTAdjust);
@@ -476,7 +476,7 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         !fCaps->gsInvocationsSupport()) {
         modifiers.fLayout.fMaxVertices *= fInvocations;
     }
-    return std::make_unique<ModifiersDeclaration>(fModifiers->handle(modifiers));
+    return std::make_unique<ModifiersDeclaration>(fModifiers->addToPool(modifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
@@ -727,14 +727,13 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
 std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {
     Layout invokeLayout;
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
-    const FunctionDeclaration* invokeDecl =
-            fSymbolTable->add(std::make_unique<FunctionDeclaration>(
-                                                                /*offset=*/-1,
-                                                                fModifiers->handle(invokeModifiers),
-                                                                "_invoke",
-                                                                std::vector<const Variable*>(),
-                                                                fContext.fVoid_Type.get(),
-                                                                fIsBuiltinCode));
+    const FunctionDeclaration* invokeDecl = fSymbolTable->add(std::make_unique<FunctionDeclaration>(
+            /*offset=*/-1,
+            fModifiers->addToPool(invokeModifiers),
+            "_invoke",
+            std::vector<const Variable*>(),
+            fContext.fVoid_Type.get(),
+            fIsBuiltinCode));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
                                                                      invokeDecl, fIsBuiltinCode,
                                                                      std::move(main)));
@@ -950,7 +949,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
-                std::make_unique<Variable>(param.fOffset, fModifiers->handle(m), pd.fName, type,
+                std::make_unique<Variable>(param.fOffset, fModifiers->addToPool(m), pd.fName, type,
                                            fIsBuiltinCode, Variable::Storage::kParameter));
         parameters.push_back(var);
     }
@@ -1022,7 +1021,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 if (match) {
                     if (*returnType != other->returnType()) {
                         FunctionDeclaration newDecl(f.fOffset,
-                                                    fModifiers->handle(funcData.fModifiers),
+                                                    fModifiers->addToPool(funcData.fModifiers),
                                                     funcData.fName,
                                                     parameters,
                                                     returnType,
@@ -1057,13 +1056,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         // Create a new declaration.
-        decl = fSymbolTable->add(std::make_unique<FunctionDeclaration>(
-                                                                  f.fOffset,
-                                                                  fModifiers->handle(declModifiers),
-                                                                  funcData.fName,
-                                                                  parameters,
-                                                                  returnType,
-                                                                  fIsBuiltinCode));
+        decl = fSymbolTable->add(
+                std::make_unique<FunctionDeclaration>(f.fOffset,
+                                                      fModifiers->addToPool(declModifiers),
+                                                      funcData.fName,
+                                                      parameters,
+                                                      returnType,
+                                                      fIsBuiltinCode));
     }
     if (iter == f.end()) {
         // If there's no body, we've found a prototype.
@@ -1185,7 +1184,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     }
     const Variable* var = old->takeOwnershipOfSymbol(
             std::make_unique<Variable>(intf.fOffset,
-                                       fModifiers->handle(id.fModifiers),
+                                       fModifiers->addToPool(id.fModifiers),
                                        id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
                                        type,
                                        fIsBuiltinCode,
@@ -1256,7 +1255,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
         ++currentValue;
-        fSymbolTable->add(std::make_unique<Variable>(e.fOffset, fModifiers->handle(modifiers),
+        fSymbolTable->add(std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
                                                      child.getString(), type, fIsBuiltinCode,
                                                      Variable::Storage::kGlobal, value.get()));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
@@ -2894,7 +2893,7 @@ void IRGenerator::cloneBuiltinVariables() {
                 // so we're pointing at a Program-owned expression.
                 const Variable* clonedVar =
                         fGenerator->fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
-                                sharedVar->fOffset, sharedVar->modifiersHandle(), sharedVar->name(),
+                                sharedVar->fOffset, &sharedVar->modifiers(), sharedVar->name(),
                                 &sharedVar->type(), /*builtin=*/false, sharedVar->storage(),
                                 initialValue));
 
@@ -3005,7 +3004,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
             m.fFlags = Modifiers::kIn_Flag;
             m.fLayout.fBuiltin = SK_INVOCATIONID_BUILTIN;
         }
-        auto var = std::make_unique<Variable>(-1, fModifiers->handle(m), "sk_InvocationID",
+        auto var = std::make_unique<Variable>(-1, fModifiers->addToPool(m), "sk_InvocationID",
                                               fContext.fInt_Type.get(), false,
                                               Variable::Storage::kGlobal);
         auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fInt_Type.get(),

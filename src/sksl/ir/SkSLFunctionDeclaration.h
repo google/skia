@@ -27,18 +27,18 @@ class FunctionDeclaration final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
-    FunctionDeclaration(int offset, ModifiersPool::Handle modifiers, StringFragment name,
+    FunctionDeclaration(int offset, const Modifiers* modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type* returnType,
                         bool builtin)
     : INHERITED(offset, kSymbolKind, name, /*type=*/nullptr)
     , fDefinition(nullptr)
-    , fModifiersHandle(modifiers)
+    , fModifiers(modifiers)
     , fParameters(std::move(parameters))
     , fReturnType(returnType)
     , fBuiltin(builtin) {}
 
     const Modifiers& modifiers() const {
-        return *fModifiersHandle;
+        return *fModifiers;
     }
 
     const FunctionDefinition* definition() const {
@@ -147,7 +147,7 @@ public:
 
 private:
     mutable const FunctionDefinition* fDefinition;
-    ModifiersPool::Handle fModifiersHandle;
+    const Modifiers* fModifiers;
     std::vector<const Variable*> fParameters;
     const Type* fReturnType;
     bool fBuiltin;

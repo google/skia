@@ -181,7 +181,7 @@ const Symbol* Rehydrator::symbol() {
             const Type* returnType = this->type();
             const FunctionDeclaration* result =
                     fSymbolTable->takeOwnershipOfSymbol(std::make_unique<FunctionDeclaration>(
-                                              /*offset=*/-1, fModifiers.handle(modifiers), name,
+                                              /*offset=*/-1, fModifiers.addToPool(modifiers), name,
                                               std::move(parameters), returnType, /*builtin=*/true));
             this->addSymbol(id, result);
             return result;
@@ -257,7 +257,7 @@ const Symbol* Rehydrator::symbol() {
         }
         case kVariable_Command: {
             uint16_t id = this->readU16();
-            ModifiersPool::Handle m = fModifiers.handle(this->modifiers());
+            const Modifiers* m = fModifiers.addToPool(this->modifiers());
             StringFragment name = this->readString();
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
