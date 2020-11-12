@@ -58,12 +58,23 @@ SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
         { "UltraLight", SkFontStyle::kExtraLight_Weight },
     };
 
+    auto next_tok = [](const char* str) {
+        const char* sep = strchr(str, ' ');
+        return sep ? sep + 1 : nullptr;
+    };
+
+    // Style format:
+    //
+    //   "<weight>[ <slant>]"
+    const char* wstr = style;
+    const char* sstr = next_tok(wstr);
+    const auto  wlen = sstr ? SkToSizeT(sstr - wstr - 1) : strlen(wstr);
+
     SkFontStyle::Weight weight = SkFontStyle::kNormal_Weight;
     for (const auto& w : gWeightMap) {
-        const auto name_len = strlen(w.fName);
-        if (!strncmp(style, w.fName, name_len)) {
+        if (!strncmp(wstr, w.fName, wlen) && w.fName[wlen] == '\0') {
             weight = w.fWeight;
-            style += name_len;
+            wstr = nullptr;
             break;
         }
     }
@@ -77,17 +88,17 @@ SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
     };
 
     SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
-    if (*style != '\0') {
+    if (sstr) {
         for (const auto& s : gSlantMap) {
-            if (!strcmp(style, s.fName)) {
+            if (!strcmp(sstr, s.fName)) {
                 slant = s.fSlant;
-                style += strlen(s.fName);
+                sstr = nullptr;
                 break;
             }
         }
     }
 
-    if (*style != '\0') {
+    if (wstr || sstr) {
         abuilder->log(Logger::Level::kWarning, nullptr, "Unknown font style: %s.", style);
     }
 
