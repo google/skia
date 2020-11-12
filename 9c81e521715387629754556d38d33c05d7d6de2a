@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24ae1e6e_2f50f3d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-11-12T15:02:32Z",
+      "side": 1,
+      "message": "This may have caused perf regressions:\n\n   https://bugs.chromium.org/p/skia/issues/detail?id\u003d10938",
+      "revId": "9c81e521715387629754556d38d33c05d7d6de2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
