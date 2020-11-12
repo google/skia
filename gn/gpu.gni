@@ -845,6 +845,7 @@ skia_dawn_sources = [
 ]
 
 skia_metal_sources = [
+  "$_include/gpu/mtl/GrMtlBackendContext.h",
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlAttachment.h",
   "$_src/gpu/mtl/GrMtlAttachment.mm",
