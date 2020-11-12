@@ -24,6 +24,7 @@ struct GrD3DBackendContext;
 class GrFragmentProcessor;
 class GrGpu;
 struct GrGLInterface;
+struct GrMtlBackendContext;
 struct GrMockOptions;
 class GrPath;
 class GrResourceCache;
@@ -70,6 +71,16 @@ public:
 
 #ifdef SK_METAL
     /**
+     * Makes a GrDirectContext which uses Metal as the backend. The Metal context contains a
+     * MTLDevice and MTLCommandQueue which should be used by the backend. These objects
+     * must have a ref on them that can be transferred to Ganesh, which will release the ref
+     * when the GrDirectContext is destroyed.
+     */
+    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
+    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);
+    /**
+     * Deprecated.
+     *
      * Makes a GrDirectContext which uses Metal as the backend. The device parameter is an
      * MTLDevice and queue is an MTLCommandQueue which should be used by the backend. These objects
      * must have a ref on them which can be transferred to Ganesh which will release the ref
