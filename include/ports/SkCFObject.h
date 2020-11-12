@@ -34,7 +34,8 @@ template <typename T> class sk_cf_obj {
 public:
     using element_type = T;
 
-    constexpr sk_cf_obj() : fObject(nullptr) {}
+    constexpr sk_cf_obj() {}
+    constexpr sk_cf_obj(std::nullptr_t) {}
 
     /**
      *  Shares the underlying object by calling CFRetain(), so that both the argument and the newly
@@ -62,8 +63,10 @@ public:
      */
     ~sk_cf_obj() {
         SkCFSafeRelease(fObject);
-        SkDEBUGCODE(fObject = nullptr);
+        SkDEBUGCODE(fObject = nil);
     }
+
+    sk_cf_obj<T>& operator=(std::nullptr_t) { this->reset(); return *this; }
 
     /**
      *  Shares the underlying object referenced by the argument by calling CFRetain() on it. If this
@@ -87,13 +90,22 @@ public:
         return *this;
     }
 
+    explicit operator bool() const { return this->get() != nil; }
+
     T get() const { return fObject; }
+    T operator*() const {
+        SkASSERT(fObject);
+        return fObject;
+    }
 
     /**
      *  Adopt the new object, and call CFRelease() on any previously held object (if not null).
      *  No call to CFRetain() will be made.
      */
-    void reset(T object = nullptr) {
+    void reset(T object = nil) {
+        // Need to unref after assigning, see
+        // http://wg21.cmeerw.net/lwg/issue998
+        // http://wg21.cmeerw.net/lwg/issue2262
         T oldObject = fObject;
         fObject = object;
         SkCFSafeRelease(oldObject);
@@ -104,7 +116,7 @@ public:
      *  reference to an object (i.e. not null) it will call CFRelease() on that object.
      */
     void retain(T object) {
-        if (this->fObject != object) {
+        if (fObject != object) {
             this->reset(SkCFSafeRetain(object));
         }
     }
@@ -116,23 +128,49 @@ public:
      */
     T SK_WARN_UNUSED_RESULT release() {
         T obj = fObject;
-        fObject = nullptr;
+        fObject = nil;
         return obj;
     }
 
 private:
-    T fObject;
+    T fObject = nil;
 };
 
 template <typename T> inline bool operator==(const sk_cf_obj<T>& a,
                                              const sk_cf_obj<T>& b) {
     return a.get() == b.get();
 }
+template <typename T> inline bool operator==(const sk_cf_obj<T>& a,
+                                             std::nullptr_t) {
+    return !a;
+}
+template <typename T> inline bool operator==(std::nullptr_t,
+                                             const sk_cf_obj<T>& b) {
+    return !b;
+}
 
 template <typename T> inline bool operator!=(const sk_cf_obj<T>& a,
                                              const sk_cf_obj<T>& b) {
     return a.get() != b.get();
 }
+template <typename T> inline bool operator!=(const sk_cf_obj<T>& a,
+                                             std::nullptr_t) {
+    return static_cast<bool>(a);
+}
+template <typename T> inline bool operator!=(std::nullptr_t,
+                                             const sk_cf_obj<T>& b) {
+    return static_cast<bool>(b);
+}
+
+/*
+ *  Returns a sk_cf_obj wrapping the provided object AND calls retain on it (if not null).
+ *
+ *  This is different than the semantics of the constructor for sk_cf_obj, which just wraps the
+ *  object, effectively "adopting" it.
+ */
+template <typename T> sk_cf_obj<T> sk_ret_cf_obj(T obj) {
+    return sk_cf_obj<T>(SkCFSafeRetain(obj));
+}
 
 #endif  // SK_BUILD_FOR_MAC || SK_BUILD_FOR_IOS
-#endif  // SkCFOBject_DEFINED
+#endif  // SkCFObject_DEFINED
