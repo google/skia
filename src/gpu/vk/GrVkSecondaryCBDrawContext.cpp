@@ -62,7 +62,12 @@ SkCanvas* GrVkSecondaryCBDrawContext::getCanvas() {
 }
 
 void GrVkSecondaryCBDrawContext::flush() {
-    fDevice->flush();
+    auto dContext = GrAsDirectContext(fDevice->recordingContext());
+
+    if (dContext) {
+        dContext->flush();
+        dContext->submit();
+    }
 }
 
 bool GrVkSecondaryCBDrawContext::wait(int numSemaphores,
