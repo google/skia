@@ -4,6 +4,10 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 89
+
+  * SkCanvas::flush has been deprecated.
+
 Milestone 88
 ------------
 
