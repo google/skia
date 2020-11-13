@@ -9,6 +9,7 @@
 #define SkSVGAttributeParser_DEFINED
 
 #include "include/private/SkNoncopyable.h"
+#include "modules/svg/include/SkSVGProperty.h"
 #include "modules/svg/include/SkSVGTypes.h"
 #include "src/core/SkTLazy.h"
 
@@ -41,7 +42,7 @@ public:
         return result;
     }
 
-    template <typename T>
+    template <typename T, typename std::enable_if_t<!SkSVGIsProperty<T>>* = nullptr>
     static ParseResult<T> parse(const char* expectedName,
                                 const char* name,
                                 const char* value) {
@@ -52,6 +53,25 @@ public:
         return ParseResult<T>();
     }
 
+    template <typename T, typename std::enable_if_t<SkSVGIsProperty<T>>* = nullptr>
+    static ParseResult<T> parse(const char* expectedName,
+                                const char* name,
+                                const char* value) {
+        if (!strcmp(name, expectedName)) {
+            if (!strcmp(value, "inherit")) {
+                T inherit;
+                return ParseResult<T>(&inherit);
+            }
+
+            auto pr = parse<SkSVGPropertyInnerType<T>>(value);
+            if (pr.isValid()) {
+                T parsedValue = T::Make(*pr);
+                return ParseResult<T>(&parsedValue);
+            }
+        }
+
+        return ParseResult<T>();
+    }
 
 private:
     // Stack-only

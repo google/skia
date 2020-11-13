@@ -32,6 +32,7 @@ skia_svg_public = [
   "$_include/SkSVGPath.h",
   "$_include/SkSVGPattern.h",
   "$_include/SkSVGPoly.h",
+  "$_include/SkSVGProperty.h",
   "$_include/SkSVGRadialGradient.h",
   "$_include/SkSVGRect.h",
   "$_include/SkSVGRenderContext.h",
@@ -46,7 +47,6 @@ skia_svg_public = [
 ]
 
 skia_svg_sources = [
-  "$_src/SkSVGAttribute.cpp",
   "$_src/SkSVGAttributeParser.cpp",
   "$_src/SkSVGCircle.cpp",
   "$_src/SkSVGClipPath.cpp",
@@ -66,6 +66,7 @@ skia_svg_sources = [
   "$_src/SkSVGPath.cpp",
   "$_src/SkSVGPattern.cpp",
   "$_src/SkSVGPoly.cpp",
+  "$_src/SkSVGProperty.cpp",
   "$_src/SkSVGRadialGradient.cpp",
   "$_src/SkSVGRect.cpp",
   "$_src/SkSVGRenderContext.cpp",

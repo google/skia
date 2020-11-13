@@ -402,6 +402,21 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
         }                                                                               \
     } while (false)
 
+#define ApplyProperty(PROP)                                                                        \
+    do {                                                                                           \
+        /* All properties should be defined on the inherited context. */                           \
+        SkASSERT(!fPresentationContext->fInherited.f##PROP.isInherit());                           \
+        const auto& prop = attrs.f##PROP;                                                          \
+        /* Any forced 'inherit' properties should only be on inheritable properties by now. */     \
+        SkASSERT(!prop.isInherit() || fPresentationContext->fInherited.f##PROP.isInheritable());   \
+        if (!prop.isInherit() && *prop != *fPresentationContext->fInherited.f##PROP) {             \
+            /* Update the local property value */                                                  \
+            fPresentationContext.writable()->fInherited.f##PROP.set(*prop);                        \
+            /* Update the cached paints */                                                         \
+            commitToPaint<SkSVGAttribute::k##PROP>(attrs, *this, fPresentationContext.writable()); \
+        }                                                                                          \
+    } while (false)
+
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
     ApplyLazyInheritedAttribute(FillRule);
@@ -419,8 +434,9 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
     ApplyLazyInheritedAttribute(TextAnchor);
-    ApplyLazyInheritedAttribute(Visibility);
     ApplyLazyInheritedAttribute(Color);
+
+    ApplyProperty(Visibility);
 
     // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
     if (attrs.fColor.isValid()) {
@@ -428,6 +444,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     }
 
 #undef ApplyLazyInheritedAttribute
+#undef ApplyProperty
 
     // Uninherited attributes.  Only apply to the current context.
 

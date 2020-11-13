@@ -25,7 +25,7 @@ public:
     SVG_OPTIONAL_ATTR(Fy, SkSVGLength)
 
 protected:
-    bool parseAndSetAttribute(const char*, const char*) override;
+    bool parseAndSetAttribute(const char*, const char*, SkSVGPropertyContext*) override;
 
     sk_sp<SkShader> onMakeShader(const SkSVGRenderContext&,
                                  const SkColor*, const SkScalar*, int count,

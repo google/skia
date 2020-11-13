@@ -34,7 +34,7 @@ protected:
     virtual sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                                    const SkSVGFilterContext&) const = 0;
 
-    bool parseAndSetAttribute(const char*, const char*) override;
+    bool parseAndSetAttribute(const char*, const char*, SkSVGPropertyContext*) override;
 
 private:
     using INHERITED = SkSVGHiddenContainer;
