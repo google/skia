@@ -130,4 +130,8 @@ void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
     this->initializeContext();
 }
 
+void MetalWindowContext::activate(bool isActive) {
+    // save/restore here
+}
+
 }   //namespace sk_app
