@@ -1,0 +1,11 @@
+InterfaceBlock {
+    layout(set=0) $gsampler2D g;
+};
+
+struct S {
+    $bvec bv;
+};
+
+void func($ivec iv) {}
+void func2() { $genType g; }
+void func3() { S s; }
