@@ -23,5 +23,8 @@ bool SkAndroidCodecAdapter::onGetSupportedSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkAndroidCodecAdapter::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
         size_t rowBytes, const AndroidOptions& options) {
-    return this->codec()->getPixels(info, pixels, rowBytes, &options);
+    SkCodec::Options codecOptions;
+    codecOptions.fZeroInitialized = options.fZeroInitialized;
+    codecOptions.fSubset = options.fSubset;
+    return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions);
 }

@@ -195,11 +195,31 @@ public:
     //        called SkAndroidCodec.  On the other hand, it's may be a bit confusing to call
     //        these Options when SkCodec has a slightly different set of Options.  Maybe these
     //        should be DecodeOptions or SamplingOptions?
-    struct AndroidOptions : public SkCodec::Options {
+    struct AndroidOptions {
         AndroidOptions()
-            : SkCodec::Options()
+            : fZeroInitialized(SkCodec::kNo_ZeroInitialized)
+            , fSubset(nullptr)
             , fSampleSize(1)
         {}
+
+        /**
+         *  Indicates is destination pixel memory is zero initialized.
+         *
+         *  The default is SkCodec::kNo_ZeroInitialized.
+         */
+        SkCodec::ZeroInitialized fZeroInitialized;
+
+        /**
+         *  If not NULL, represents a subset of the original image to decode.
+         *
+         *  Must be within the bounds returned by getInfo().
+         *
+         *  If the EncodedFormat is SkEncodedImageFormat::kWEBP, the top and left
+         *  values must be even.
+         *
+         *  The default is NULL, meaning a decode of the entire image.
+         */
+        SkIRect* fSubset;
 
         /**
          *  The client may provide an integer downscale factor for the decode.
