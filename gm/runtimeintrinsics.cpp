@@ -225,3 +225,19 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_common,
     do_unary(canvas, "smoothstep(1, 2, p).x",   0.5f, 2.5f, -0.5f, 1.5f); col(canvas);
     do_unary(canvas, "smoothstep(v1, v2, p).x", 0.5f, 2.5f, -0.5f, 1.5f); row(canvas);
 }
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.4
+DEF_SIMPLE_GM_BG(runtime_intrinsics_geometric,
+                 canvas,
+                 columns_to_width(6),
+                 rows_to_height(6),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    do_unary(canvas, "length(x)",     -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "length(p.x1)",  -1.0f, 1.0f,  0.5f, 1.5f); row(canvas);
+
+    do_unary(canvas, "distance(x, 0)",        -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    do_unary(canvas, "distance(p.xx, v1.x0)",  0.0f, 1.0f,  0.5f, 1.5f); row(canvas);
+}

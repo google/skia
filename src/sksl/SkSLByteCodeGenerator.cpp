@@ -55,6 +55,7 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "ceil",        ByteCodeInstruction::kCeil },
         { "clamp",       SpecialIntrinsic::kClamp },
         { "cos",         ByteCodeInstruction::kCos },
+        { "distance",    SpecialIntrinsic::kDistance },
         { "dot",         SpecialIntrinsic::kDot },
         { "exp",         ByteCodeInstruction::kExp },
         { "exp2",        ByteCodeInstruction::kExp2 },
@@ -1248,6 +1249,19 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
 
     if (intrin.is_special) {
+        auto do_dot_product = [count, this] {
+            this->write(ByteCodeInstruction::kMultiplyF, count);
+            for (int i = count - 1; i-- > 0;) {
+                this->write(ByteCodeInstruction::kAddF, 1);
+            }
+        };
+
+        auto do_length = [count, this, &do_dot_product] {
+            this->write(ByteCodeInstruction::kDup, count);
+            do_dot_product();
+            this->write(ByteCodeInstruction::kSqrt, 1);
+        };
+
         switch (intrin.special) {
             case SpecialIntrinsic::kAll: {
                 for (int i = count-1; i --> 0;) {
@@ -1268,23 +1282,20 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                             count);
             } break;
 
+            case SpecialIntrinsic::kDistance: {
+                SkASSERT(nargs == 2 && count == SlotCount(args[1]->type()));
+                this->write(ByteCodeInstruction::kSubtractF, count);
+                do_length();
+            } break;
+
             case SpecialIntrinsic::kDot: {
-                SkASSERT(nargs == 2);
-                SkASSERT(count == SlotCount(args[1]->type()));
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
+                SkASSERT(nargs == 2 && count == SlotCount(args[1]->type()));
+                do_dot_product();
             } break;
 
             case SpecialIntrinsic::kLength: {
                 SkASSERT(nargs == 1);
-                this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
-                this->write(ByteCodeInstruction::kSqrt, 1);
+                do_length();
             } break;
 
             case SpecialIntrinsic::kMax:
@@ -1334,12 +1345,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case SpecialIntrinsic::kNormalize: {
                 SkASSERT(nargs == 1);
                 this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
-                this->write(ByteCodeInstruction::kSqrt, 1);
+                do_length();
                 dupSmallerType(1);
                 this->write(ByteCodeInstruction::kDivideF, count);
             } break;
