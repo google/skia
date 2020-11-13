@@ -140,6 +140,7 @@ private:
         kAny,
         kATan,
         kClamp,
+        kDistance,
         kDot,
         kLength,
         kMax,
