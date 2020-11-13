@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a9a6304_94cc3fc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-13T19:01:24Z",
+      "side": 1,
+      "message": "@Florin this CL should be treated with skepticism -- I think this is a potentially good way forward but I would definitely like to hear any architectural or conceptual observations you may have.",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
