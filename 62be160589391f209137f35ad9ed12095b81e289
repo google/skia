@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e70103e_78f6c334",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-13T22:12:25Z",
+      "side": 1,
+      "message": "This makes running iOS apps a little more straightforward, PTAL.",
+      "revId": "62be160589391f209137f35ad9ed12095b81e289",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
