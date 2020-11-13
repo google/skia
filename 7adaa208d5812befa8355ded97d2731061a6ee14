@@ -33,6 +33,24 @@
       "message": "Thanks for sharing the formula and preparing this CL. I am not a Skia reviewer. I would be happy if we can get to use it, if it\u0027s the formula that matches DWrite. But I would like to know more about what the transition plan is, with the next steps and how to get this through Skia gold and look at all affected test baselines so that we can replace the current #ifdef with a #ifdef OS(WINDOWS)? I would not object to merging this if it helps you test locally, but if it\u0027s an #ifdef it looks like you\u0027d need a local build anyway?\n",
       "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8635c9ef_f4a85c28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-11-13T00:48:54Z",
+      "side": 1,
+      "message": "To land changes like this, we have to do a little #ifdef dance with Chromium.  I\u0027d expect to follow something like \"Method 2\" described here: https://skia.org/dev/chrome/changes\n\nWe\u0027d update Chromium\u0027s tests when landing the Chromium part of the change that #defines the symbol, and update Skia\u0027s tests when removing the #ifdef (assuming we wanted it on by default for everyone).  (Since it would affect a large number of tests in Chrome, we\u0027d probably want to do the [NeedsRebaseline] trick, as mentioned here: \nhttps://skia.org/dev/chrome/blink.)\n\nMy bigger concern: given the location of the code, this doesn\u0027t easily lend itself to a runtime flag to turn it on or off in Chrome, so we\u0027d probably have to land it without going through an \u0027experimental\u0027 phase.  Do you see this as a problem, Dominik?",
+      "parentUuid": "efcb9306_856ce303",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
