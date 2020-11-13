@@ -56,6 +56,8 @@
 namespace SkSL {
 namespace {
 
+static constexpr int kInlinedStatementLimit = 2500;
+
 static bool contains_returns_above_limit(const FunctionDefinition& funcDef, int limit) {
     class CountReturnsWithLimit : public ProgramVisitor {
     public:
@@ -310,6 +312,7 @@ void Inliner::reset(const Context* context, ModifiersPool* modifiers,
     fSettings = settings;
     fCaps = caps;
     fInlineVarCounter = 0;
+    fInlinedStatementCounter = 0;
 }
 
 String Inliner::uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable) {
@@ -465,6 +468,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         return nullptr;
     };
+
+    ++fInlinedStatementCounter;
+
     switch (statement.kind()) {
         case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
@@ -757,6 +763,11 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
 
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (fSettings->fInlineThreshold <= 0) {
+        return false;
+    }
+
+    // Enforce a limit on inlining to avoid pathological cases. (inliner/ExponentialGrowth.sksl)
+    if (fInlinedStatementCounter >= kInlinedStatementLimit) {
         return false;
     }
 
@@ -1148,6 +1159,11 @@ bool Inliner::analyze(Program& program) {
         return false;
     }
 
+    // Enforce a limit on inlining to avoid pathological cases. (inliner/ExponentialGrowth.sksl)
+    if (fInlinedStatementCounter >= kInlinedStatementLimit) {
+        return false;
+    }
+
     ProgramUsage* usage = program.fUsage.get();
     InlineCandidateList candidateList;
     this->buildCandidateList(program, &candidateList);
@@ -1199,6 +1215,11 @@ bool Inliner::analyze(Program& program) {
         usage->replace(candidate.fCandidateExpr->get(), inlinedCall.fReplacementExpr.get());
         *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
         madeChanges = true;
+
+        // Stop inlining if we've reached our hard cap on new statements.
+        if (fInlinedStatementCounter >= kInlinedStatementLimit) {
+            break;
+        }
 
         // Note that nothing was destroyed except for the FunctionCall. All other nodes should
         // remain valid.
