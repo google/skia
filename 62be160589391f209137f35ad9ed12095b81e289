@@ -16,6 +16,29 @@
       "message": "This makes running iOS apps a little more straightforward, PTAL.",
       "revId": "62be160589391f209137f35ad9ed12095b81e289",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "531a8330_cfb51ffe",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-13T22:24:41Z",
+      "side": 1,
+      "message": "Please document bundle_prefix",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 7
+      },
+      "revId": "62be160589391f209137f35ad9ed12095b81e289",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

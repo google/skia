@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd06f0c5_6edc1288",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-13T22:24:41Z",
+      "side": 0,
+      "message": "I know this is the \"before\" code, but I\u0027m curious here--what\u0027s with the comma and range here; what does this do differently than\n\n  app \u003d sys.argv[1]\n\n?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "267a8589d32dcf25afd23219422e90af4f4b9f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
