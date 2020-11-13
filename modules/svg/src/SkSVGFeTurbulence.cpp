@@ -13,8 +13,8 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value, SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setNumOctaves(
                    SkSVGAttributeParser::parse<SkSVGIntegerType>("numOctaves", name, value)) ||
            this->setSeed(SkSVGAttributeParser::parse<SkSVGNumberType>("seed", name, value)) ||

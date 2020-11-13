@@ -44,6 +44,20 @@ private:
     SkScalar fDPI;
 };
 
+class SkSVGPropertyContext {
+public:
+    explicit SkSVGPropertyContext(const SkSVGPresentationAttributes& props) : fProps(props) {}
+
+    SkSVGPresentationAttributes* writableProps() { return fProps.writable(); }
+    const SkSVGPresentationAttributes& props() const { return *fProps; }
+
+    static const SkSVGPresentationAttributes& Defaults() { return kDefaults; }
+private:
+    static inline const SkSVGPresentationAttributes kDefaults =
+            SkSVGPresentationAttributes::MakeInitial();
+    SkTCopyOnFirstWrite<SkSVGPresentationAttributes> fProps;
+};
+
 struct SkSVGPresentationContext {
     SkSVGPresentationContext();
     SkSVGPresentationContext(const SkSVGPresentationContext&)            = default;

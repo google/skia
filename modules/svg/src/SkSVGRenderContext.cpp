@@ -402,6 +402,21 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
         }                                                                               \
     } while (false)
 
+#define ApplyLazyInheritedAttribute2(ATTR)                                                         \
+    do {                                                                                           \
+        /* All attributes should be defined on the inherited context. */                           \
+        SkASSERT(!fPresentationContext->fInherited.f##ATTR.isInherit());                           \
+        const auto& attr = attrs.f##ATTR;                                                          \
+        /* Any forced 'inherit' attributes should only be on inheritable attributes by now. */     \
+        SkASSERT(!attr.isInherit() || fPresentationContext->fInherited.f##ATTR.isInheritable());   \
+        if (!attr.isInherit() && *attr != *fPresentationContext->fInherited.f##ATTR) {             \
+            /* Update the local attribute value */                                                 \
+            fPresentationContext.writable()->fInherited.f##ATTR.set(*attr);                       \
+            /* Update the cached paints */                                                         \
+            commitToPaint<SkSVGAttribute::k##ATTR>(attrs, *this, fPresentationContext.writable()); \
+        }                                                                                          \
+    } while (false)
+
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
     ApplyLazyInheritedAttribute(FillRule);
@@ -419,7 +434,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(StrokeOpacity);
     ApplyLazyInheritedAttribute(StrokeWidth);
     ApplyLazyInheritedAttribute(TextAnchor);
-    ApplyLazyInheritedAttribute(Visibility);
+    ApplyLazyInheritedAttribute2(Visibility);
     ApplyLazyInheritedAttribute(Color);
 
     // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
