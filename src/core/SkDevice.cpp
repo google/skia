@@ -455,3 +455,101 @@ sk_sp<SkSurface> SkBaseDevice::makeSurface(SkImageInfo const&, SkSurfaceProps co
     return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
+void SkNoPixelsDevice::onSave() {
+    SkASSERT(!fClipStack.empty());
+    fClipStack.back().fDeferredSaveCount++;
+}
+
+void SkNoPixelsDevice::onRestore() {
+    SkASSERT(!fClipStack.empty());
+    if (fClipStack.back().fDeferredSaveCount > 0) {
+        fClipStack.back().fDeferredSaveCount--;
+    } else {
+        fClipStack.pop_back();
+        SkASSERT(!fClipStack.empty());
+    }
+}
+
+SkConservativeClip& SkNoPixelsDevice::writableClip() {
+    SkASSERT(!fClipStack.empty());
+    ClipState& current = fClipStack.back();
+    if (current.fDeferredSaveCount > 0) {
+        current.fDeferredSaveCount--;
+        return fClipStack.emplace_back(current.fClip).fClip;
+    } else {
+        return current.fClip;
+    }
+}
+
+void SkNoPixelsDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+    this->writableClip().opRect(rect, this->localToDevice(),
+                                SkIRect::MakeWH(this->width(), this->height()),
+                                (SkRegion::Op) op, aa);
+}
+
+void SkNoPixelsDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+    this->writableClip().opRRect(rrect, this->localToDevice(),
+                                 SkIRect::MakeWH(this->width(), this->height()),
+                                 (SkRegion::Op) op, aa);
+}
+
+void SkNoPixelsDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    this->writableClip().opPath(path, this->localToDevice(),
+                            SkIRect::MakeWH(this->width(), this->height()),
+                            (SkRegion::Op) op, aa);
+}
+
+void SkNoPixelsDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+    if (globalRgn.isEmpty()) {
+        this->writableClip().setEmpty();
+    } else if (this->isPixelAlignedToGlobal()) {
+        SkIPoint origin = this->getOrigin();
+        SkRegion deviceRgn(globalRgn);
+        deviceRgn.translate(-origin.fX, -origin.fY);
+        this->writableClip().opRegion(deviceRgn, (SkRegion::Op) op);
+    } else {
+        this->writableClip().opRect(SkRect::Make(globalRgn.getBounds()),
+                                    this->globalToDevice(),
+                                    SkIRect::MakeWH(this->width(), this->height()),
+                                    (SkRegion::Op) op, false);
+    }
+}
+
+void SkNoPixelsDevice::onClipShader(sk_sp<SkShader> shader) {
+    this->writableClip().opShader(std::move(shader));
+}
+
+void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
+    SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
+    this->writableClip().setRect(deviceRect);
+}
+
+void SkNoPixelsDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
+    if (!mutableClipRestriction || mutableClipRestriction->isEmpty()) {
+        fDeviceClipRestriction.setEmpty();
+    } else {
+        fDeviceClipRestriction =
+                this->globalToDevice().mapRect(SkRect::Make(*mutableClipRestriction)).round();
+    }
+}
+
+SkBaseDevice::ClipType SkNoPixelsDevice::onGetClipType() const {
+    const auto& clip = this->clip();
+    if (clip.isEmpty()) {
+        return ClipType::kEmpty;
+    } else if (clip.isRect()) {
+        return ClipType::kRect;
+    } else {
+        return ClipType::kComplex;
+    }
+}
+
+SkIRect SkNoPixelsDevice::onDevClipBounds() const {
+    SkIRect bounds = this->clip().getBounds();
+    if (!fDeviceClipRestriction.isEmpty() && !bounds.intersect(fDeviceClipRestriction)) {
+        bounds.setEmpty();
+    }
+    return bounds;
+}
