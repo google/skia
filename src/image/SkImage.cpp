@@ -633,3 +633,23 @@ sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
 sk_sp<SkImage> SkMipmapBuilder::attachTo(const SkImage* src) {
     return src->withMipmaps(fMM);
 }
+
+SkSamplingOptions SkSamplingOptions::Make(SkFilterQuality fq) {
+    switch (fq) {
+        case SkFilterQuality::kLow_SkFilterQuality:
+            return SkSamplingOptions({
+                SkSamplingMode::kLinear,
+                SkMipmapMode::kNone
+            });
+        case SkFilterQuality::kMedium_SkFilterQuality:
+            return SkSamplingOptions({
+                SkSamplingMode::kLinear,
+                SkMipmapMode::kNearest
+            });
+        case SkFilterQuality::kHigh_SkFilterQuality:
+            return SkSamplingOptions({1.0f/3, 1.0f/3});
+        case SkFilterQuality::kNone_SkFilterQuality:
+            break;  // fall out
+    }
+    return SkSamplingOptions(); // kNone_SkFilterQuality
+}

@@ -8,7 +8,7 @@
 #ifndef SkImageSampling_DEFINED
 #define SkImageSampling_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkFilterQuality.h"
 
 enum class SkSamplingMode {
     kNearest,   // single sample point (nearest neighbor)
@@ -69,6 +69,9 @@ struct SkSamplingOptions {
         , fCubic(cubic)
         , fFilter({SkSamplingMode::kNearest, SkMipmapMode::kNone})  // ignored
     {}
+
+    // Soon to go away
+    static SkSamplingOptions Make(SkFilterQuality);
 };
 
 #endif
