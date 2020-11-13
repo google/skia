@@ -233,10 +233,10 @@ private:
     std::unique_ptr<ModifiersPool> fModifiers;
     std::unique_ptr<ProgramUsage> fUsage;
 
-    friend class ByteCodeGenerator;   // fModifiers
     friend class Compiler;
     friend class Inliner;             // fUsage
     friend class SPIRVCodeGenerator;  // fModifiers
+    friend class ScratchVariable;     // fModifiers
 };
 
 }  // namespace SkSL
