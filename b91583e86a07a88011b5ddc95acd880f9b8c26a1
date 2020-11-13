@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8302204_76a7364a",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-13T14:47:44Z",
+      "side": 1,
+      "message": "This is fixed in GCC 9.3 and later. GCC usually only issues a warning for this, but we have -Werror. :-/ \n\nRemoved uint8_t.",
+      "parentUuid": "0ac6183b_0d753ae2",
+      "revId": "b91583e86a07a88011b5ddc95acd880f9b8c26a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6ab5896_bd5ada36",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-12T23:59:01Z",
       "side": 1,
       "message": "This line should go before the assignment and the potential narrowing or whatever of the cast. And also use the value directly, like\n\n    if (!SkMask::IsValidFormat(maskFormat)) return false;",
+      "revId": "b91583e86a07a88011b5ddc95acd880f9b8c26a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d46fea9b_2c4d4321",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-13T14:47:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6ab5896_bd5ada36",
       "revId": "b91583e86a07a88011b5ddc95acd880f9b8c26a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
