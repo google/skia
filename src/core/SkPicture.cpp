@@ -60,10 +60,12 @@ bool SkPicture::IsValidPictInfo(const SkPictInfo& info) {
     if (0 != memcmp(info.fMagic, kMagic, sizeof(kMagic))) {
         return false;
     }
-    if (info.getVersion() < SkPicturePriv::kMin_Version ||
-        info.getVersion() > SkPicturePriv::kCurrent_Version) {
+    #ifdef SKIA_CHECK_SKP_VERSION
+    if(info.getVersion() < SkPicturePriv::kMin_Version ||
+       info.getVersion() > SkPicturePriv::kCurrent_Version) {
         return false;
     }
+    #endif
     return true;
 }
 
