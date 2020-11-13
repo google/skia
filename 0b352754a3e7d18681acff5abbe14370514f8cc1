@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41f8ed3c_2af8e030",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-13T15:33:50Z",
+      "side": 1,
+      "message": "The underlying type of SkMask::Format is \u0027int\u0027 so this will be a full int anyway. (The old sizeof(SkScalerContextRec) \u003d\u003d 52, this one is 56, and I think makes it not-dense, since there is now a gap between the following uint8_t and the uint16_t.) It won\u0027t combine with the uint8_t below, so it seems strange to bitfield it.",
+      "range": {
+        "startLine": 115,
+        "startChar": 30,
+        "endLine": 115,
+        "endChar": 34
+      },
+      "revId": "0b352754a3e7d18681acff5abbe14370514f8cc1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
