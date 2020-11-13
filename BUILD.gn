@@ -1236,7 +1236,7 @@ component("skia") {
     "src/sfnt/SkOTUtils.cpp",
   ]
 
-  defines = [ "SK_HAS_ANDROID_CODEC" ]
+  defines = []
   libs = []
 
   if (is_win) {

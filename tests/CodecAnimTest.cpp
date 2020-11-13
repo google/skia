@@ -389,15 +389,16 @@ DEF_TEST(Codec_frames, r) {
     }
 }
 
-// Verify that an image can be animated scaled down. These images have a
-// kRestoreBG frame, so they are interesting to test. After decoding that
+// Verify that a webp image can be animated scaled down. This image has a
+// kRestoreBG frame, so it is an interesting image to test. After decoding that
 // frame, we have to erase its rectangle. The rectangle has to be adjusted
 // based on the scaled size.
-static void test_animated_AndroidCodec(skiatest::Reporter* r, const char* file) {
+DEF_TEST(AndroidCodec_animated, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
 
+    const char* file = "images/required.webp";
     sk_sp<SkData> data(GetResourceAsData(file));
     if (!data) {
         ERRORF(r, "Missing %s", file);
@@ -453,14 +454,6 @@ static void test_animated_AndroidCodec(skiatest::Reporter* r, const char* file) 
             }
         }
     }
-}
-
-DEF_TEST(AndroidCodec_animated, r) {
-    test_animated_AndroidCodec(r, "images/required.webp");
-}
-
-DEF_TEST(AndroidCodec_animated_gif, r) {
-    test_animated_AndroidCodec(r, "images/required.gif");
 }
 
 DEF_TEST(EncodedOriginToMatrixTest, r) {
