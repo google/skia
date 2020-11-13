@@ -140,6 +140,7 @@ private:
         kAny,
         kATan,
         kClamp,
+        kDistance,
         kDot,
         kLength,
         kMax,
@@ -286,7 +287,8 @@ private:
     void writeSwitchStatement(const SwitchStatement& s);
     void writeReturnStatement(const ReturnStatement& r);
 
-    // Some intrinsics are complex enough to warrant their own functions:
+    // Some intrinsics are complex enough (or reused enough) to warrant their own functions:
+    void writeDotProduct(int count);
     void writeSmoothstep(const ExpressionArray& args);
 
     // updates the current set of breaks to branch to the current location
@@ -345,9 +347,10 @@ private:
 
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 
-    friend class DeferredLocation;
     friend class ByteCodeExpressionLValue;
     friend class ByteCodeSwizzleLValue;
+    friend class DeferredLocation;
+    friend class ScratchVariable;
 
     using INHERITED = CodeGenerator;
 };
