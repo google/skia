@@ -22,6 +22,7 @@ static void test(skiatest::Reporter* r,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
+    settings.fInlineThreshold = 99999999;
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
@@ -40,8 +41,31 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+
+void fn1()  { sk_FragColor.x = 0; }
+void fn2()  { fn1(); fn1(); fn1(); }
+void fn3()  { fn2(); fn2(); fn2(); }
+void fn4()  { fn3(); fn3(); fn3(); }
+void fn5()  { fn4(); fn4(); fn4(); }
+void fn6()  { fn5(); fn5(); fn5(); }
+void fn7()  { fn6(); fn6(); fn6(); }
+void fn8()  { fn7(); fn7(); fn7(); }
+void fn9()  { fn8(); fn8(); fn8(); }
+void fnA()  { fn9(); fn9(); fn9(); }
+void fnB()  { fnA(); fnA(); fnA(); }
+void fnC()  { fnB(); fnB(); fnB(); }
+void fnD()  { fnC(); fnC(); fnC(); }
+void fnE()  { fnD(); fnD(); fnD(); }
+void fnF()  { fnE(); fnE(); fnE(); }
+void fnG()  { fnF(); fnF(); fnF(); }
+void fnH()  { fnG(); fnG(); fnG(); }
+void fnI()  { fnH(); fnH(); fnH(); }
+void fnJ()  { fnI(); fnI(); fnI(); }
+void fnK()  { fnJ(); fnJ(); fnJ(); }
+void fnL()  { fnK(); fnK(); fnK(); }
+void fnM()  { fnL(); fnL(); fnL(); }
+void fnN()  { fnM(); fnM(); fnM(); }
+void main() { fnN(); }
+
          )__SkSL__");
 }
