@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef640b01_47899268",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-13T20:59:39Z",
+      "side": 1,
+      "message": "The smoothstep implementation in ByteCodeGenerator is a little crazy, but everything works.",
+      "revId": "2d49d63018aa46a5074160bf2974ec087f346e67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
