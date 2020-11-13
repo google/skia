@@ -5,4 +5,18 @@ void main() {
     float3 v1 = float3x3(1) * float3(2);
     float3 v2 = float3(2) * float3x3(1);
     sk_FragColor = half4(half(z[0].x), half3(v1 + v2));
+
+    float2x2 m1 = float2x2(float4(1, 2, 3, 4));
+    float2x2 m2 = float2x2(float4(0));
+    float2x2 m3 = float2x2(m1);
+    float2x2 m4 = float2x2(1);
+    float2x2 m5 = float2x2(m1[0][0]);
+    float2x2 m6 = float2x2(1, 2, 3, 4);
+    float2x2 m7 = float2x2(5, float3(6, 7, 8));
+    float3x2 m8 = float3x2(float2(1, 2), 3, float3(4, 5, 6));
+    float3x3 m9 = float3x3(1);
+    float4x4 m10 = float4x4(1);
+    float4x4 m11 = float4x4(2);
+    sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0] + m4[0][0] + m5[0][0] +
+                              m6[0][0] + m7[0][0] + m8[0][0] + m9[0][0] + m10[0][0] + m11[0][0]));
 }

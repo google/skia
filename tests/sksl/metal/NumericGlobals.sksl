@@ -1,0 +1,8 @@
+half attr1;
+int attr2 = 123;
+float attr3;
+half4 attr4 = half4(4, 5, 6, 7);
+void main()
+{
+    sk_FragColor = half4(attr1, attr2, half(attr3), attr4.x);
+}

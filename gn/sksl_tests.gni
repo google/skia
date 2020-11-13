@@ -159,6 +159,16 @@ sksl_glsl_tests = [
   "$_tests/sksl/glsl/Version450Core.sksl",
 ]
 
+sksl_metal_tests = [
+  "$_tests/sksl/metal/CastHalf4ToMat2x2.sksl",
+  "$_tests/sksl/metal/CastMat2x2ToMat3x3.sksl",
+  "$_tests/sksl/metal/CastMat2x3ToMat4x4.sksl",
+  "$_tests/sksl/metal/CastMat4x4ToMat3x4.sksl",
+  "$_tests/sksl/metal/CastMat4x4ToMat4x3.sksl",
+  "$_tests/sksl/metal/NumericGlobals.sksl",
+  "$_tests/sksl/metal/SamplerGlobals.sksl",
+]
+
 sksl_shared_tests = [
   "$_tests/sksl/shared/ArrayConstructors.sksl",
   "$_tests/sksl/shared/ArrayIndexTypes.sksl",
@@ -356,4 +366,5 @@ sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 
 # Tests in sksl_metal_tests_sources will be compiled with --settings on, and are expected to
 # generate a .metal output file.
-sksl_metal_tests_sources = sksl_blend_tests + sksl_shared_tests
+sksl_metal_tests_sources =
+    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
