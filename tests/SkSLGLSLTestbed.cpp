@@ -22,6 +22,7 @@ static void test(skiatest::Reporter* r,
                  SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
+    settings.fInlineThreshold = 99999999;
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
