@@ -26,7 +26,7 @@ protected:
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const override;
 
-    bool parseAndSetAttribute(const char*, const char*) override;
+    bool parseAndSetAttribute(const char*, const char*, SkSVGPropertyContext*) override;
 
 private:
     SkSVGFeColorMatrix() : INHERITED(SkSVGTag::kFeColorMatrix) {}

@@ -14,8 +14,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
-#include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGIDMapper.h"
+#include "modules/svg/include/SkSVGProperty.h"
 #include "src/core/SkTLazy.h"
 
 class SkCanvas;

@@ -8,11 +8,6 @@
 #ifndef SkSVGAttribute_DEFINED
 #define SkSVGAttribute_DEFINED
 
-#include "modules/svg/include/SkSVGTypes.h"
-#include "src/core/SkTLazy.h"
-
-class SkSVGRenderContext;
-
 enum class SkSVGAttribute {
     kClipRule,
     kColor,
@@ -67,43 +62,6 @@ enum class SkSVGAttribute {
     kY2, // <line>: second endpoint y
 
     kUnknown,
-};
-
-struct SkSVGPresentationAttributes {
-    static SkSVGPresentationAttributes MakeInitial();
-
-    // TODO: SkTLazy adds an extra ptr per attribute; refactor to reduce overhead.
-
-    SkTLazy<SkSVGPaint>      fFill;
-    SkTLazy<SkSVGNumberType> fFillOpacity;
-    SkTLazy<SkSVGFillRule>   fFillRule;
-    SkTLazy<SkSVGFillRule>   fClipRule;
-
-    SkTLazy<SkSVGPaint>      fStroke;
-    SkTLazy<SkSVGDashArray>  fStrokeDashArray;
-    SkTLazy<SkSVGLength>     fStrokeDashOffset;
-    SkTLazy<SkSVGLineCap>    fStrokeLineCap;
-    SkTLazy<SkSVGLineJoin>   fStrokeLineJoin;
-    SkTLazy<SkSVGNumberType> fStrokeMiterLimit;
-    SkTLazy<SkSVGNumberType> fStrokeOpacity;
-    SkTLazy<SkSVGLength>     fStrokeWidth;
-
-    SkTLazy<SkSVGVisibility> fVisibility;
-
-    SkTLazy<SkSVGColorType>  fColor;
-
-    SkTLazy<SkSVGFontFamily> fFontFamily;
-    SkTLazy<SkSVGFontStyle>  fFontStyle;
-    SkTLazy<SkSVGFontSize>   fFontSize;
-    SkTLazy<SkSVGFontWeight> fFontWeight;
-    SkTLazy<SkSVGTextAnchor> fTextAnchor;
-
-    // TODO(tdenniston): add SkSVGStopColor
-
-    // uninherited
-    SkTLazy<SkSVGNumberType> fOpacity;
-    SkTLazy<SkSVGClip>       fClipPath;
-    SkTLazy<SkSVGFilterType> fFilter;
 };
 
 #endif // SkSVGAttribute_DEFINED

@@ -14,8 +14,10 @@ sk_sp<SkImageFilter> SkSVGFe::makeImageFilter(const SkSVGRenderContext& ctx,
     return this->onMakeImageFilter(ctx, fctx);
 }
 
-bool SkSVGFe::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGFe::parseAndSetAttribute(const char* name,
+                                   const char* value,
+                                   SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setIn(SkSVGAttributeParser::parse<SkSVGFeInputType>("in", name, value)) ||
            this->setResult(SkSVGAttributeParser::parse<SkSVGStringType>("result", name, value));
 }

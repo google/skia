@@ -14,8 +14,10 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-bool SkSVGFeColorMatrix::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGFeColorMatrix::parseAndSetAttribute(const char* name,
+                                              const char* value,
+                                              SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setType(
                    SkSVGAttributeParser::parse<SkSVGFeColorMatrixType>("type", name, value)) ||
            this->setValues(

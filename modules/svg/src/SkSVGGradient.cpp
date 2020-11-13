@@ -11,8 +11,10 @@
 #include "modules/svg/include/SkSVGStop.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-bool SkSVGGradient::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGGradient::parseAndSetAttribute(const char* name,
+                                         const char* value,
+                                         SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setGradientTransform(SkSVGAttributeParser::parse<SkSVGTransformType>(
                    "gradientTransform", name, value)) ||
            this->setHref(SkSVGAttributeParser::parse<SkSVGIRI>("xlink:href", name, value)) ||
