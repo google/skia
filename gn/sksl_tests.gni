@@ -257,6 +257,7 @@ sksl_shared_tests = [
 sksl_inliner_tests = [
   "$_tests/sksl/inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/DoWhileTestCannotBeInlined.sksl",
+  "$_tests/sksl/inliner/ExponentialGrowth.sksl",
   "$_tests/sksl/inliner/ForBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/ForInitializerExpressionsCanBeInlined.sksl",
   "$_tests/sksl/inliner/ForWithReturnInsideCannotBeInlined.sksl",
