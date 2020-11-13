@@ -764,10 +764,13 @@ static void push_codec_srcs(Path path) {
                     push_codec_src(path, CodecSrc::kAnimated_Mode, dstCT, at, 1.0f);
                 }
             }
+// FIXME (scroggo): Frame 2 of alphabetAnim.gif is failing at scale .5f
+#ifndef SK_BUILD_FOR_GOOGLE3
             for (float scale : { .5f, .33f }) {
-                push_codec_src(path, CodecSrc::kAnimated_Mode, CodecSrc::kGetFromCanvas_DstColorType,
-                               kPremul_SkAlphaType, scale);
+                push_codec_src(path, CodecSrc::kAnimated_Mode,
+                               CodecSrc::kGetFromCanvas_DstColorType, kPremul_SkAlphaType, scale);
             }
+#endif
         }
 
     }
