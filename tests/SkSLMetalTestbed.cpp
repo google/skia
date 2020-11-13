@@ -22,13 +22,13 @@ static void test(skiatest::Reporter* r,
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         REPORTER_ASSERT(r, program);
     } else {
-        REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
+        REPORTER_ASSERT(r, compiler.toMetal(*program, &output));
         REPORTER_ASSERT(r, output != "");
-        //SkDebugf("GLSL output:\n\n%s", output.c_str());
+        //SkDebugf("Metal output:\n\n%s", output.c_str());
     }
 }
 
-DEF_TEST(SkSLGLSLTestbed, r) {
+DEF_TEST(SkSLMetalTestbed, r) {
     // Add in your SkSL here.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
