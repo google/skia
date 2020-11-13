@@ -12,8 +12,8 @@
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 
-bool SkSVGLinearGradient::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGLinearGradient::parseAndSetAttribute(const char* name, const char* value, SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setX1(SkSVGAttributeParser::parse<SkSVGLength>("x1", name, value)) ||
            this->setY1(SkSVGAttributeParser::parse<SkSVGLength>("y1", name, value)) ||
            this->setX2(SkSVGAttributeParser::parse<SkSVGLength>("x2", name, value)) ||

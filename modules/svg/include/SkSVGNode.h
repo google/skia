@@ -12,12 +12,15 @@
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 
+// TODO: just need prop ctx
+#include "modules/svg/include/SkSVGRenderContext.h"
+
 class SkCanvas;
 class SkMatrix;
 class SkPaint;
 class SkPath;
 class SkSVGLengthContext;
-class SkSVGRenderContext;
+class SkSVGPropertyContext;
 class SkSVGValue;
 
 enum class SkSVGTag {
@@ -73,6 +76,45 @@ public:                                                                      \
         }                                                                    \
     }
 
+#define SVG_PRES_ATTR2(attr_name, attr_type)                                                     \
+private:                                                                                         \
+    bool set##attr_name(SkSVGAttributeParser::ParseResult<SkSVGProperty<attr_type>>&& pr,        \
+                        SkSVGPropertyContext* pctx) {                                            \
+        if (pr.isValid()) {                                                                      \
+            this->set##attr_name(std::move(*pr), pctx);                                          \
+        }                                                                                        \
+        return pr.isValid();                                                                     \
+    }                                                                                            \
+                                                                                                 \
+public:                                                                                          \
+    const SkSVGProperty<attr_type>& get##attr_name() const {                                     \
+        return fPresentationAttributes.f##attr_name;                                             \
+    }                                                                                            \
+    void set##attr_name(SkSVGProperty<attr_type>&& v, SkSVGPropertyContext* pctx) {              \
+        if (v.isInherit()) {                                                                     \
+            if (fPresentationAttributes.f##attr_name.isInheritable()) {                          \
+                if (pctx && !pctx->props().f##attr_name.isInherit()) {                           \
+                    pctx->writableProps()->f##attr_name.setInherit();                            \
+                }                                                                                \
+                fPresentationAttributes.f##attr_name.setInherit();                               \
+            } else {                                                                             \
+                /* Inheriting a non-inheritable property means take the computed value, */       \
+                /* which is the current value in the property context (or the default value). */ \
+                const auto& iv = pctx ? pctx->props().f##attr_name                               \
+                                      : SkSVGPropertyContext::Defaults().f##attr_name;           \
+                SkASSERT(!iv.isInherit());                                                       \
+                fPresentationAttributes.f##attr_name.set(*iv);                                   \
+            }                                                                                    \
+        } else {                                                                                 \
+            if (pctx &&                                                                          \
+                (pctx->props().f##attr_name.isInherit() || *pctx->props().f##attr_name != *v)) { \
+                attr_type vClone = *v;                                                           \
+                pctx->writableProps()->f##attr_name.set(std::move(vClone));                      \
+            }                                                                                    \
+            fPresentationAttributes.f##attr_name.set(std::move(*v));                             \
+        }                                                                                        \
+    }
+
 class SkSVGNode : public SkRefCnt {
 public:
     ~SkSVGNode() override;
@@ -90,7 +132,7 @@ public:
     bool setAttribute(const char* attributeName, const char* attributeValue);
 
     // TODO: consolidate with existing setAttribute
-    virtual bool parseAndSetAttribute(const char* name, const char* value);
+    virtual bool parseAndSetAttribute(const char* name, const char* value, SkSVGPropertyContext* pctx = nullptr);
 
     void setColor(const SkSVGColorType&);
     void setFillOpacity(const SkSVGNumberType&);
@@ -113,7 +155,7 @@ public:
     SVG_PRES_ATTR(StrokeLineCap  , SkSVGLineCap   , true)
     SVG_PRES_ATTR(StrokeLineJoin , SkSVGLineJoin  , true)
     SVG_PRES_ATTR(TextAnchor     , SkSVGTextAnchor, true)
-    SVG_PRES_ATTR(Visibility     , SkSVGVisibility, true)
+    SVG_PRES_ATTR2(Visibility     , SkSVGVisibility)
 
     // not inherited
     SVG_PRES_ATTR(ClipPath       , SkSVGClip      , false)

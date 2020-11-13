@@ -30,7 +30,7 @@ public:
 protected:
     explicit SkSVGGradient(SkSVGTag t) : INHERITED(t) {}
 
-    bool parseAndSetAttribute(const char*, const char*) override;
+    bool parseAndSetAttribute(const char*, const char*, SkSVGPropertyContext*) override;
 
     bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const final;
 
