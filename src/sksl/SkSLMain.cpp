@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 #include <fstream>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -182,6 +183,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 }
                 if (settingsText.consumeSuffix(" NoInline")) {
                     settings->fInlineThreshold = 0;
+                }
+                if (settingsText.consumeSuffix(" InlineThresholdMax")) {
+                    settings->fInlineThreshold = INT_MAX;
                 }
                 if (settingsText.consumeSuffix(" Sharpen")) {
                     settings->fSharpenTextures = true;
