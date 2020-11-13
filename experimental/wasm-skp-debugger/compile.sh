@@ -74,7 +74,7 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_NEW_GR_CLIP_STACK\",
-    \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
+    \"-DSK_FORCE_8_BYTE_ALIGNMENT\", \"-DSK_NO_CHECK_SKP_VERSION\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
