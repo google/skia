@@ -29,7 +29,8 @@ static constexpr int kLabelHeight = 15;
   produce a single float. It can reference:
 
     'x'  : float  in [xMin, xMax]
-    'p'  : float2 in [xMin, xMax] (helpful for intrinsics with a mix of scalar/vector params)
+    'p'  : float2 in [xMin, xMax]  Lerps from (xMax, xMin) to (xMin, xMax)
+                                   (helpful for intrinsics with a mix of scalar/vector params)
     'v1' : float2(1)
     'v2' : float2(2)
 */
@@ -40,7 +41,7 @@ static SkString make_unary_sksl_1d(const char* fn) {
             "half4 main(float2 p) {"
             "    float2 v1 = float2(1);"
             "    float2 v2 = float2(2);"
-            "    p = p * xScale + xBias;"
+            "    p = float2(p.x, 1 - p.x) * xScale + xBias;"
             "    float x = p.x;"
             "    float y = %s  * yScale + yBias;"
             "    return y.xxx1;"
@@ -232,4 +233,39 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_common,
     plot(canvas, "smoothstep(1, 2, x)",     0.5f, 2.5f, -0.5f, 1.5f, "smooth(scalar)"); col(canvas);
     plot(canvas, "smoothstep(1, 2, p).x",   0.5f, 2.5f, -0.5f, 1.5f, "smooth(mixed)" ); col(canvas);
     plot(canvas, "smoothstep(v1, v2, p).x", 0.5f, 2.5f, -0.5f, 1.5f, "smooth(vector)"); row(canvas);
+}
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.4
+DEF_SIMPLE_GM_BG(runtime_intrinsics_geometric,
+                 canvas,
+                 columns_to_width(4),
+                 rows_to_height(5),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    plot(canvas, "length(x)",  -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    plot(canvas, "length(p)",   0.0f, 1.0f,  0.5f, 1.5f); col(canvas);
+
+    plot(canvas, "distance(x, 0)",  -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    plot(canvas, "distance(p, v1)",  0.0f, 1.0f,  0.5f, 1.5f); row(canvas);
+
+    plot(canvas, "dot(x, 2)",    -1.0f, 1.0f, -2.5f, 2.5f); col(canvas);
+    plot(canvas, "dot(p, p.y1)", -1.0f, 1.0f, -2.5f, 0.5f); row(canvas);
+
+    plot(canvas, "cross(p.xy1, p.y1x).x", 0.0f, 1.0f, -1.0f, 1.0f); col(canvas);
+    plot(canvas, "cross(p.xy1, p.y1x).y", 0.0f, 1.0f, -1.0f, 1.0f); col(canvas);
+    plot(canvas, "cross(p.xy1, p.y1x).z", 0.0f, 1.0f, -1.0f, 1.0f); row(canvas);
+
+    plot(canvas, "normalize(x)",   -2.0f, 2.0f, -1.5f, 1.5f); col(canvas);
+    plot(canvas, "normalize(p).x",  0.0f, 2.0f,  0.0f, 1.0f); col(canvas);
+    plot(canvas, "normalize(p).y",  0.0f, 2.0f,  0.0f, 1.0f); col(canvas);
+
+    plot(canvas, "faceforward(v1, p.x0, v1.x0).x", -1.0f, 1.0f, -1.5f, 1.5f, "faceforward"); row(canvas);
+
+    plot(canvas, "reflect(p.x1, v1.0x).x",         -1.0f, 1.0f, -1.0f, 1.0f, "reflect(horiz)"); col(canvas);
+    plot(canvas, "reflect(p.x1, normalize(v1)).y", -1.0f, 1.0f, -1.0f, 1.0f, "reflect(diag)" ); col(canvas);
+
+    plot(canvas, "refract(v1.x0, v1.0x, x).x", 0.0f, 1.0f, -1.0f, 1.0f, "refract().x"); col(canvas);
+    plot(canvas, "refract(v1.x0, v1.0x, x).y", 0.0f, 1.0f, -1.0f, 1.0f, "refract().y"); row(canvas);
 }
