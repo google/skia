@@ -240,9 +240,10 @@ public:
         const auto shape_width = fDesc.fLinebreak == Shaper::LinebreakPolicy::kExplicit
                                     ? SK_ScalarMax
                                     : fBox.width();
+        const auto shape_ltr   = fDesc.fDirection == Shaper::Direction::kLTR;
 
         fUTF8 = start;
-        fShaper->shape(start, SkToSizeT(end - start), fFont, true, shape_width, this);
+        fShaper->shape(start, SkToSizeT(end - start), fFont, shape_ltr, shape_width, this);
         fUTF8 = nullptr;
     }
 

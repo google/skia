@@ -324,6 +324,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       Shaper::VAlign::kTopBaseline,
       Shaper::ResizePolicy::kNone,
       Shaper::LinebreakPolicy::kExplicit,
+      Shaper::Direction::kLTR,
       SkRect::MakeEmpty(),
       SK_ColorTRANSPARENT,
       SK_ColorTRANSPARENT,
@@ -476,6 +477,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 Shaper::VAlign::kTopBaseline,
                 Shaper::ResizePolicy::kNone,
                 Shaper::LinebreakPolicy::kExplicit,
+                Shaper::Direction::kLTR,
                 Shaper::Flags::kNone
             };
 
@@ -544,6 +546,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 talign.align,
                 Shaper::ResizePolicy::kNone,
                 Shaper::LinebreakPolicy::kParagraph,
+                Shaper::Direction::kLTR,
                 Shaper::Flags::kNone
             };
 
@@ -582,6 +585,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         Shaper::VAlign::kTop,
         Shaper::ResizePolicy::kNone,
         Shaper::LinebreakPolicy::kParagraph,
+        Shaper::Direction::kLTR,
         Shaper::Flags::kNone
     };
 
@@ -678,6 +682,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         Shaper::VAlign::kTop,
         Shaper::ResizePolicy::kNone,
         Shaper::LinebreakPolicy::kParagraph,
+        Shaper::Direction::kLTR,
         Shaper::Flags::kNone
     };
 

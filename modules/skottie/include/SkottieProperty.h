@@ -48,6 +48,7 @@ struct TextPropertyValue {
     Shaper::VAlign          fVAlign      = Shaper::VAlign::kTop;
     Shaper::ResizePolicy    fResize      = Shaper::ResizePolicy::kNone;
     Shaper::LinebreakPolicy fLineBreak   = Shaper::LinebreakPolicy::kExplicit;
+    Shaper::Direction       fDirection   = Shaper::Direction::kLTR;
     SkRect                  fBox         = SkRect::MakeEmpty();
     SkColor                 fFillColor   = SK_ColorTRANSPARENT,
                             fStrokeColor = SK_ColorTRANSPARENT;
