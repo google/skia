@@ -11,8 +11,8 @@
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 
-bool SkSVGFeComposite::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGFeComposite::parseAndSetAttribute(const char* name, const char* value, SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            // SkSVGFeInputType parsing defined in SkSVGFe.cpp:
            this->setIn2(SkSVGAttributeParser::parse<SkSVGFeInputType>("in2", name, value)) ||
            this->setK1(SkSVGAttributeParser::parse<SkSVGNumberType>("k1", name, value)) ||

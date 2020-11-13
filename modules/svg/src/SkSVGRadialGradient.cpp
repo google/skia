@@ -12,8 +12,8 @@
 
 SkSVGRadialGradient::SkSVGRadialGradient() : INHERITED(SkSVGTag::kRadialGradient) {}
 
-bool SkSVGRadialGradient::parseAndSetAttribute(const char* name, const char* value) {
-    return INHERITED::parseAndSetAttribute(name, value) ||
+bool SkSVGRadialGradient::parseAndSetAttribute(const char* name, const char* value, SkSVGPropertyContext* pctx) {
+    return INHERITED::parseAndSetAttribute(name, value, pctx) ||
            this->setCx(SkSVGAttributeParser::parse<SkSVGLength>("cx", name, value)) ||
            this->setCy(SkSVGAttributeParser::parse<SkSVGLength>("cy", name, value)) ||
            this->setR(SkSVGAttributeParser::parse<SkSVGLength>("r", name, value)) ||

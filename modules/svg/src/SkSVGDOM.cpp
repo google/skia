@@ -237,7 +237,8 @@ private:
     const char* fPos;
 };
 
-bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value);
+struct ConstructionContext;
+bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value, ConstructionContext* ctx);
 
 bool SetStyleAttributes(const sk_sp<SkSVGNode>& node, SkSVGAttribute,
                         const char* stringValue) {
@@ -249,7 +250,8 @@ bool SetStyleAttributes(const sk_sp<SkSVGNode>& node, SkSVGAttribute,
         if (name.isEmpty()) {
             break;
         }
-        set_string_attribute(node, name.c_str(), value.c_str());
+        // ATTN tdenniston: don't land with this being nullptr:
+        set_string_attribute(node, name.c_str(), value.c_str(), nullptr);
     }
 
     return true;
@@ -333,17 +335,21 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
 
+
 struct ConstructionContext {
-    ConstructionContext(SkSVGIDMapper* mapper) : fParent(nullptr), fIDMapper(mapper) {}
+    ConstructionContext(SkSVGIDMapper* mapper, const SkSVGPropertyContext& props)
+        : fParent(nullptr), fIDMapper(mapper), fProps(props) {}
     ConstructionContext(const ConstructionContext& other, const sk_sp<SkSVGNode>& newParent)
-        : fParent(newParent.get()), fIDMapper(other.fIDMapper) {}
+        : fParent(newParent.get()), fIDMapper(other.fIDMapper), fProps(other.fProps) {}
 
     SkSVGNode*     fParent;
     SkSVGIDMapper* fIDMapper;
+    SkSVGPropertyContext fProps;
 };
 
-bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value) {
-    if (node->parseAndSetAttribute(name, value)) {
+bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const char* value, ConstructionContext* ctx) {
+    // TODO: should be able to assert non-null ctx here once all props go through the new code path
+    if (node->parseAndSetAttribute(name, value, ctx ? &ctx->fProps : nullptr)) {
         // Handled by new code path
         return true;
     }
@@ -371,16 +377,16 @@ bool set_string_attribute(const sk_sp<SkSVGNode>& node, const char* name, const 
 }
 
 void parse_node_attributes(const SkDOM& xmlDom, const SkDOM::Node* xmlNode,
-                           const sk_sp<SkSVGNode>& svgNode, SkSVGIDMapper* mapper) {
+                           const sk_sp<SkSVGNode>& svgNode, ConstructionContext* ctx) {
     const char* name, *value;
     SkDOM::AttrIter attrIter(xmlDom, xmlNode);
     while ((name = attrIter.next(&value))) {
         // We're handling id attributes out of band for now.
         if (!strcmp(name, "id")) {
-            mapper->set(SkString(value), svgNode);
+            ctx->fIDMapper->set(SkString(value), svgNode);
             continue;
         }
-        set_string_attribute(svgNode, name, value);
+        set_string_attribute(svgNode, name, value, ctx);
     }
 }
 
@@ -412,9 +418,10 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
 
     SkASSERT(SkTo<size_t>(tagIndex) < SK_ARRAY_COUNT(gTagFactories));
     sk_sp<SkSVGNode> node = gTagFactories[tagIndex].fValue();
-    parse_node_attributes(dom, xmlNode, node, ctx.fIDMapper);
 
     ConstructionContext localCtx(ctx, node);
+    parse_node_attributes(dom, xmlNode, node, &localCtx);
+
     for (auto* child = dom.getFirstChild(xmlNode, nullptr); child;
          child = dom.getNextSibling(child)) {
         sk_sp<SkSVGNode> childNode = construct_svg_node(dom, localCtx, child);
@@ -440,7 +447,8 @@ sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
     }
 
     SkSVGIDMapper mapper;
-    ConstructionContext ctx(&mapper);
+    SkSVGPropertyContext initialProps;
+    ConstructionContext ctx(&mapper, initialProps);
 
     auto root = construct_svg_node(xmlDom, ctx, xmlDom.getRootNode());
     if (!root || root->tag() != SkSVGTag::kSvg) {
@@ -482,5 +490,5 @@ sk_sp<SkSVGNode>* SkSVGDOM::findNodeById(const char* id) {
 
 // TODO(fuego): move this to SkSVGNode or its own CU.
 bool SkSVGNode::setAttribute(const char* attributeName, const char* attributeValue) {
-    return set_string_attribute(sk_ref_sp(this), attributeName, attributeValue);
+    return set_string_attribute(sk_ref_sp(this), attributeName, attributeValue, nullptr);
 }

@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkTLazy.h"
 
 using SkSVGColorType     = SkColor;
 using SkSVGIntegerType   = int;
@@ -25,6 +26,44 @@ using SkSVGStringType    = SkString;
 using SkSVGViewBoxType   = SkRect;
 using SkSVGTransformType = SkMatrix;
 using SkSVGPointsType    = SkTDArray<SkPoint>;
+
+// https://www.w3.org/TR/SVG11/intro.html#TermProperty
+template <typename T>
+class SkSVGProperty {
+public:
+    explicit SkSVGProperty(bool inheritable) : fInheritable(inheritable), fValue(nullptr) {}
+
+    template <typename... Args>
+    static SkSVGProperty Make(Args&&... args) {
+        SkSVGProperty result{false};
+        result.fValue.init(std::forward<Args>(args)...);
+        return result;
+    }
+
+    bool isInherit() const { return !fValue.isValid(); }
+    bool isInheritable() const { return fInheritable; }
+
+    void setInherit() { fValue.reset(); }
+    void set(const T& value) { fValue.set(value); }
+    void set(T&& value) { fValue.set(std::move(value)); }
+
+    T* get() const { SkASSERT(!this->isInherit()); return fValue.getMaybeNull(); }
+    T* operator->() const { return this->get(); }
+    T& operator*() const { return *this->get(); }
+
+private:
+    bool fInheritable;
+    SkTLazy<T> fValue;
+};
+
+template <typename T> struct SkSVGProperty_ : std::false_type {};
+template <typename T> struct SkSVGProperty_<SkSVGProperty<T>> : std::true_type {};
+template <typename T>
+inline constexpr bool SkSVGIsProperty = SkSVGProperty_<T>::value;
+
+template <typename T> struct SkSVGRemoveProperty_ { using type = T; };
+template <typename T> struct SkSVGRemoveProperty_<SkSVGProperty<T>> { using type = T; };
+template <typename T> using SkSVGRemoveProperty = typename SkSVGRemoveProperty_<T>::type;
 
 class SkSVGLength {
 public:
