@@ -140,6 +140,8 @@ private:
         kDFdy_SpecialIntrinsic,
         kSaturate_SpecialIntrinsic,
         kSampledImage_SpecialIntrinsic,
+        kSmoothStep_SpecialIntrinsic,
+        kStep_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
