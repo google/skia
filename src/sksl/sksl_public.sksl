@@ -93,11 +93,8 @@ $genHType smoothstep(half      edge0, half      edge1, $genHType x);
 // 8.4 : Geometric Functions
 float length($genType  x);
 half  length($genHType x);
-
-float distance(float2 a, float2 b) { return length(a - b); }
-float distance(float3 a, float3 b) { return length(a - b); }
-float distance(float4 a, float4 b) { return length(a - b); }
-
+float distance($genType  p0, $genType  p1);
+half  distance($genHType p0, $genHType p1);
 float dot($genType  x, $genType  y);
 half  dot($genHType x, $genHType y);
 
@@ -109,9 +106,13 @@ float3 cross(float3 a, float3 b) {
 
 $genType  normalize($genType  x);
 $genHType normalize($genHType x);
-// TODO: faceforward(N, I, Nref)
-// TODO: reflect(I, N)
-// TODO: refract(I, N, eta)
+
+$genType  faceforward($genType  N, $genType  I, $genType  Nref);
+$genHType faceforward($genHType N, $genHType I, $genHType Nref);
+$genType  reflect($genType  I, $genType  N);
+$genHType reflect($genHType I, $genHType N);
+$genType  refract($genType  I, $genType  N, float eta);
+$genHType refract($genHType I, $genHType N, float eta);
 
 // 8.5 : Matrix Functions
 // TODO: matrixCompMult(x, y)

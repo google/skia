@@ -55,9 +55,11 @@ ByteCodeGenerator::ByteCodeGenerator(const Context* context, const Program* prog
         { "ceil",        ByteCodeInstruction::kCeil },
         { "clamp",       SpecialIntrinsic::kClamp },
         { "cos",         ByteCodeInstruction::kCos },
+        { "distance",    SpecialIntrinsic::kDistance },
         { "dot",         SpecialIntrinsic::kDot },
         { "exp",         ByteCodeInstruction::kExp },
         { "exp2",        ByteCodeInstruction::kExp2 },
+        { "faceforward", SpecialIntrinsic::kFaceForward },
         { "floor",       ByteCodeInstruction::kFloor },
         { "fract",       ByteCodeInstruction::kFract },
         { "inverse",     ByteCodeInstruction::kInverse2x2 },
@@ -1048,6 +1050,34 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write32(float_to_bits(f.value()));
 }
 
+class ScratchVariable {
+public:
+    ScratchVariable(ByteCodeGenerator* generator, const SkSL::Expression& e)
+            : fGenerator(generator)
+            , fCount(ByteCodeGenerator::SlotCount(e.type())) {
+        const Variable* var = fGenerator->fSynthetics.takeOwnershipOfSymbol(
+                std::make_unique<Variable>(/*offset=*/-1,
+                                           fGenerator->fProgram.fModifiers->addToPool(Modifiers()),
+                                           "sksl_scratch",
+                                           &e.type(),
+                                           /*builtin=*/true,
+                                           Variable::Storage::kLocal));
+        fLocation = fGenerator->getLocation(*var);
+        fGenerator->writeExpression(e);
+        fGenerator->write(ByteCodeInstruction::kStore, fCount);
+        fGenerator->write8(fLocation.fSlot);
+    }
+
+    void load() {
+        fGenerator->write(ByteCodeInstruction::kLoad, fCount);
+        fGenerator->write8(fLocation.fSlot);
+    }
+
+    ByteCodeGenerator* fGenerator;
+    ByteCodeGenerator::Location fLocation;
+    int fCount;
+};
+
 void ByteCodeGenerator::writeSmoothstep(const ExpressionArray& args) {
     // genType smoothstep(genType edge0, genType edge1, genType x) {
     //   genType t = saturate((x - edge0) / (edge1 - edge0));
@@ -1076,29 +1106,17 @@ void ByteCodeGenerator::writeSmoothstep(const ExpressionArray& args) {
     };
 
     // To avoid possible double-eval, we store edge0 in a local
-    const Variable* edge0Var = fSynthetics.takeOwnershipOfSymbol(
-            std::make_unique<Variable>(/*offset=*/-1,
-                                       fProgram.fModifiers->addToPool(Modifiers()),
-                                       "sksl_smoothstep_edge0",
-                                       &args[0]->type(),
-                                       /*builtin=*/true,
-                                       Variable::Storage::kLocal));
-    Location edge0Loc = this->getLocation(*edge0Var);
-    this->writeExpression(*args[0]);  // 'edge0'
-    this->write(ByteCodeInstruction::kStore, edgeCount);
-    this->write8(edge0Loc.fSlot);
+    ScratchVariable edge0(this, *args[0]);
 
     // (x - edge0)
-    this->writeExpression(*args[2]);                     // 'x'
-    this->write(ByteCodeInstruction::kLoad, edgeCount);  // 'edge0'
-    this->write8(edge0Loc.fSlot);
+    this->writeExpression(*args[2]);  // 'x'
+    edge0.load();                     // 'edge0'
     dupToX(edgeCount);
     this->write(ByteCodeInstruction::kSubtractF, xCount);
 
     // (edge1 - edge0)
-    this->writeExpression(*args[1]);                     // 'edge1'
-    this->write(ByteCodeInstruction::kLoad, edgeCount);  // 'edge0'
-    this->write8(edge0Loc.fSlot);
+    this->writeExpression(*args[1]);  // 'edge1'
+    edge0.load();                     // 'edge0'
     this->write(ByteCodeInstruction::kSubtractF, edgeCount);
     dupToX(edgeCount);
 
@@ -1248,6 +1266,19 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
 
     if (intrin.is_special) {
+        auto do_dot_product = [count, this] {
+            this->write(ByteCodeInstruction::kMultiplyF, count);
+            for (int i = count - 1; i-- > 0;) {
+                this->write(ByteCodeInstruction::kAddF, 1);
+            }
+        };
+
+        auto do_length = [count, this, &do_dot_product] {
+            this->write(ByteCodeInstruction::kDup, count);
+            do_dot_product();
+            this->write(ByteCodeInstruction::kSqrt, 1);
+        };
+
         switch (intrin.special) {
             case SpecialIntrinsic::kAll: {
                 for (int i = count-1; i --> 0;) {
@@ -1268,23 +1299,20 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                             count);
             } break;
 
+            case SpecialIntrinsic::kDistance: {
+                SkASSERT(nargs == 2 && count == SlotCount(args[1]->type()));
+                this->write(ByteCodeInstruction::kSubtractF, count);
+                do_length();
+            } break;
+
             case SpecialIntrinsic::kDot: {
-                SkASSERT(nargs == 2);
-                SkASSERT(count == SlotCount(args[1]->type()));
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
+                SkASSERT(nargs == 2 && count == SlotCount(args[1]->type()));
+                do_dot_product();
             } break;
 
             case SpecialIntrinsic::kLength: {
                 SkASSERT(nargs == 1);
-                this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
-                this->write(ByteCodeInstruction::kSqrt, 1);
+                do_length();
             } break;
 
             case SpecialIntrinsic::kMax:
@@ -1334,12 +1362,7 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             case SpecialIntrinsic::kNormalize: {
                 SkASSERT(nargs == 1);
                 this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kDup, count);
-                this->write(ByteCodeInstruction::kMultiplyF, count);
-                for (int i = count-1; i --> 0;) {
-                    this->write(ByteCodeInstruction::kAddF, 1);
-                }
-                this->write(ByteCodeInstruction::kSqrt, 1);
+                do_length();
                 dupSmallerType(1);
                 this->write(ByteCodeInstruction::kDivideF, count);
             } break;

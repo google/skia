@@ -141,7 +141,9 @@ private:
         kAny,
         kATan,
         kClamp,
+        kDistance,
         kDot,
+        kFaceForward,
         kLength,
         kMax,
         kMin,
@@ -346,9 +348,10 @@ private:
 
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 
-    friend class DeferredLocation;
     friend class ByteCodeExpressionLValue;
     friend class ByteCodeSwizzleLValue;
+    friend class DeferredLocation;
+    friend class ScratchVariable;
 
     using INHERITED = CodeGenerator;
 };
