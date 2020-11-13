@@ -1269,6 +1269,21 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     fSymbolTable = oldTable;
 }
 
+bool IRGenerator::typeContainsPrivateFields(const Type& type) {
+    // Checks for usage of private types, including fields inside a struct.
+    if (type.isPrivate()) {
+        return true;
+    }
+    if (type.typeKind() == Type::TypeKind::kStruct) {
+        for (const auto& f : type.fields()) {
+            if (this->typeContainsPrivateFields(*f.fType)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     ASTNode::TypeData td = type.getTypeData();
     const Symbol* result = (*fSymbolTable)[td.fName];
@@ -1295,6 +1310,10 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
                 return nullptr;
             }
+        }
+        if (!fIsBuiltinCode && this->typeContainsPrivateFields(result->as<Type>())) {
+            fErrors.error(type.fOffset, "type '" + td.fName + "' is private");
+            return {};
         }
         for (const auto& size : type) {
             String name(result->name());

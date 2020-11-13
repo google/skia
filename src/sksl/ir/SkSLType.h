@@ -241,6 +241,10 @@ public:
         return this->displayName();
     }
 
+    bool isPrivate() const {
+        return this->name().startsWith("$");
+    }
+
     bool operator==(const Type& other) const {
         return this->name() == other.name();
     }
