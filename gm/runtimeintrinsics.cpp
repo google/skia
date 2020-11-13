@@ -233,3 +233,36 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_common,
     plot(canvas, "smoothstep(1, 2, p).x",   0.5f, 2.5f, -0.5f, 1.5f, "smooth(mixed)" ); col(canvas);
     plot(canvas, "smoothstep(v1, v2, p).x", 0.5f, 2.5f, -0.5f, 1.5f, "smooth(vector)"); row(canvas);
 }
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.4
+DEF_SIMPLE_GM_BG(runtime_intrinsics_geometric,
+                 canvas,
+                 columns_to_width(6),
+                 rows_to_height(6),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    plot(canvas, "length(x)",     -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    plot(canvas, "length(p.x1)",  -1.0f, 1.0f,  0.5f, 1.5f); row(canvas);
+
+    plot(canvas, "distance(x, 0)",        -1.0f, 1.0f, -0.5f, 1.5f); col(canvas);
+    plot(canvas, "distance(p.xx, v1.x0)",  0.0f, 1.0f,  0.5f, 1.5f); row(canvas);
+
+    plot(canvas, "dot(x, 2)",     -1.0f, 1.0f, -2.5f, 2.5f); col(canvas);
+    plot(canvas, "dot(p.x1, v2)", -1.0f, 1.0f, -0.5f, 4.5f); row(canvas);
+
+// TODO: cross()
+
+    plot(canvas, "normalize(x)",      -2.0f, 2.0f, -1.5f, 1.5f); col(canvas);
+    plot(canvas, "normalize(p.x1).x", -2.0f, 2.0f, -1.0f, 1.0f); col(canvas);
+    plot(canvas, "normalize(p.x1).y", -2.0f, 2.0f,  0.0f, 1.5f); row(canvas);
+
+    plot(canvas, "faceforward(v1, p.x0, v1.x0).x", -1.0f, 1.0f, -1.5f, 1.5f, "faceforward"); row(canvas);
+
+    plot(canvas, "reflect(p.x1, v1.0x).x",         -1.0f, 1.0f, -1.0f, 1.0f, "reflect(horiz)"); col(canvas);
+    plot(canvas, "reflect(p.x1, normalize(v1)).y", -1.0f, 1.0f, -1.0f, 1.0f, "reflect(diag)" ); row(canvas);
+
+    plot(canvas, "refract(v1.x0, v1.0x, x).x", 0.0f, 1.0f, -1.0f, 1.0f, "refract().x"); col(canvas);
+    plot(canvas, "refract(v1.x0, v1.0x, x).y", 0.0f, 1.0f, -1.0f, 1.0f, "refract().y"); row(canvas);
+}
