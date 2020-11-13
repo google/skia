@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bdd845a_d600f164",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-13T19:59:54Z",
+      "side": 1,
+      "message": "So this means that if someone is using TextPropertyValue they can set the direction, but there isn\u0027t anything from a Lottie file to set it. Seems fine for now to get this in.",
+      "revId": "b9d2112273973bcb23784c841cc5aa58aae84c9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
