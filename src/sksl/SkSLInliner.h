@@ -95,6 +95,7 @@ private:
     const Program::Settings* fSettings = nullptr;
     const ShaderCapsClass* fCaps = nullptr;
     int fInlineVarCounter = 0;
+    int fInlinedStatementCounter = 0;
 };
 
 }  // namespace SkSL
