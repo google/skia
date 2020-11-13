@@ -29,8 +29,18 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
         return nullptr;
     }
 
-    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), requestedInfo,
-                cropRect, std::move(postProcess)));
+    auto scaledSize = requestedInfo.dimensions();
+    auto decodeInfo = requestedInfo;
+    if (codec->getEncodedFormat() != SkEncodedImageFormat::kWEBP
+            || scaledSize.width()  >= decodeInfo.width()
+            || scaledSize.height() >= decodeInfo.height()) {
+        // Only libwebp can decode to arbitrary smaller sizes.
+        auto dims = codec->getInfo().dimensions();
+        decodeInfo = decodeInfo.makeDimensions(dims);
+    }
+
+    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), scaledSize,
+                decodeInfo, cropRect, std::move(postProcess)));
     if (!image->fDisplayFrame.fBitmap.getPixels()) {
         // tryAllocPixels failed.
         return nullptr;
@@ -44,28 +54,32 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
         return nullptr;
     }
 
-    const auto& decodeInfo = codec->getInfo();
-    const auto  cropRect   = SkIRect::MakeSize(decodeInfo.dimensions());
-    auto image = Make(std::move(codec), decodeInfo, cropRect, nullptr);
+    const auto decodeInfo = codec->getInfo();
+    const auto scaledSize = decodeInfo.dimensions();
+    const auto cropRect   = SkIRect::MakeSize(scaledSize);
+    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), scaledSize,
+                decodeInfo, cropRect, nullptr));
 
-    SkASSERT(!image || image->simple());
+    if (!image->fDisplayFrame.fBitmap.getPixels()) {
+        // tryAllocPixels failed.
+        return nullptr;
+    }
+
+    SkASSERT(image->simple());
     return image;
 }
 
-SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec,
-        const SkImageInfo& requestedInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
+SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize scaledSize,
+        SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
     : fCodec(std::move(codec))
-    , fDecodeInfo(requestedInfo)
+    , fDecodeInfo(decodeInfo)
     , fCropRect(cropRect)
     , fPostProcess(std::move(postProcess))
     , fFrameCount(fCodec->codec()->getFrameCount())
-    , fSampleSize(1)
     , fFinished(false)
     , fRepetitionCount(fCodec->codec()->getRepetitionCount())
     , fRepetitionsCompleted(0)
 {
-    auto scaledSize = requestedInfo.dimensions();
-
     // For simplicity in decoding and compositing frames, decode directly to a size and
     // orientation that fCodec can do directly, and then use fMatrix to handle crop (along with a
     // clip), orientation, and scaling outside of fCodec. The matrices are computed individually
@@ -86,11 +100,6 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec,
             scaledSize = { scaledSize.height(), scaledSize.width() };
         }
     }
-
-    auto decodeSize = scaledSize;
-    fSampleSize = fCodec->computeSampleSize(&decodeSize);
-    fDecodeInfo = fDecodeInfo.makeDimensions(decodeSize);
-
     if (!fDecodingFrame.fBitmap.tryAllocPixels(fDecodeInfo)) {
         return;
     }
@@ -246,8 +255,7 @@ int SkAnimatedImage::decodeNextFrame() {
     // for frame |i+1|.
     // We could be even smarter about which frames to save by looking at the
     // entire dependency chain.
-    SkAndroidCodec::AndroidOptions options;
-    options.fSampleSize = fSampleSize;
+    SkCodec::Options options;
     options.fFrameIndex = frameToDecode;
     if (frameInfo.fRequiredFrame == SkCodec::kNoFrame) {
         if (is_restore_previous(frameInfo.fDisposalMethod)) {
@@ -302,8 +310,8 @@ int SkAnimatedImage::decodeNextFrame() {
         return this->finish();
     }
 
-    auto result = fCodec->getAndroidPixels(dst->info(), dst->getPixels(), dst->rowBytes(),
-                                           &options);
+    auto result = fCodec->codec()->getPixels(dst->info(), dst->getPixels(), dst->rowBytes(),
+                                             &options);
     if (result != SkCodec::kSuccess) {
         SkCodecPrintf("error %i, frame %i of %i\n", result, frameToDecode, fFrameCount);
         return this->finish();
