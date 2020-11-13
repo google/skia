@@ -1,3 +1,5 @@
+/*#pragma settings InlineThresholdMax*/
+
 void fn1()  { sk_FragColor.x = 0; }
 void fn2()  { fn1(); fn1(); fn1(); }
 void fn3()  { fn2(); fn2(); fn2(); }
