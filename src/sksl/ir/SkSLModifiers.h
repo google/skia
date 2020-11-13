@@ -8,6 +8,7 @@
 #ifndef SKSL_MODIFIERS
 #define SKSL_MODIFIERS
 
+#include "src/sksl/SkSLPool.h"
 #include "src/sksl/ir/SkSLLayout.h"
 
 #include <vector>

@@ -10,6 +10,8 @@
 
 #include <unordered_set>
 
+#include "src/sksl/SkSLPool.h"
+
 namespace SkSL {
 
 struct Modifiers;
@@ -26,7 +28,11 @@ public:
     }
 
 private:
-    std::unordered_set<Modifiers> fModifiersSet;
+    using ModifiersSet = std::unordered_set<Modifiers,
+                                            std::hash<Modifiers>,
+                                            std::equal_to<Modifiers>,
+                                            PoolAllocator<Modifiers>>;
+    ModifiersSet fModifiersSet;
 };
 
 } // namespace SkSL
