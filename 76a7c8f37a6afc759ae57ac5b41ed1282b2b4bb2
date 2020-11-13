@@ -16,6 +16,29 @@
       "message": "Needs https://chromium-review.googlesource.com/c/chromium/src/+/2533579/ to land first.",
       "revId": "76a7c8f37a6afc759ae57ac5b41ed1282b2b4bb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6ad33fc_e30efe25",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-13T15:39:19Z",
+      "side": 1,
+      "message": "I think you missed the milestone.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "76a7c8f37a6afc759ae57ac5b41ed1282b2b4bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
