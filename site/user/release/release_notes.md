@@ -5,6 +5,56 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 88
+------------
+
+  * SkYUVAInfo now has separate enums for division of channels among planes and
+    the subsampling. The previous combined enum, PlanarConfig, is deprecated.
+    https://review.skia.org/334102
+
+  * Simplified SkDeferredDisplayListRecorder promise image API. Removed "release"
+    callback and renamed "done" callback to "release". The new "release" proc can
+    be null. Added a new SkYUVAInfo-based factory for YUVA promise texture images
+    and deprecated the old SkYUVAIndex-based one.
+    https://review.skia.org/331836
+    https://review.skia.org/333519
+
+  * Limit the types and intrinsics supported in SkRuntimeEffect to GLSL ES 1.00
+    https://review.skia.org/332597
+
+  * Add AVIF support to SkHeifCodec.
+
+  * Add support for creating SkSurfaceCharacterizations directly for use by a
+    GrVkSecondaryCBDrawContext.
+    https://review.skia.org/331877
+
+  * Removed SkSurfaceProps::kLegacyFontHost_InitType, SkFontLCDConfig, and related code.
+    The default pixel geometry for SkSurfaceProps is now kUnknown instead of kRGB_H.
+    The removal was guarded by the SK_LEGACY_SURFACE_PROPS build flag which was later removed.
+    https://review.skia.org/322490
+    https://review.skia.org/329364
+
+  * Legacy 8-bit YUV interface removed from SkImageGenerator. Use more flexible SkYUVAPixmaps-
+    based interface instead.
+    https://review.skia.org/327917
+
+  * New variant of SkImage::MakeFromYUVATextures. Takes a new type GrYUVATextures
+    which wraps an SkYUVAInfo and compatible set of GrBackendTextures. The provides
+    a more complete and structured specification of the planar configuration. Previous
+    version is deprecated.
+    Already deprecated MakeFromYUVATexturesCopyToExternal added to replace other deprecated
+    APIs. It's not recommended that clients use this and instead use the pattern described
+    in the API comment.
+    https://review.skia.org/317762
+    https://review.skia.org/329956
+
+  * Add field to GrContextOptions to disable mipmap support even if the backend
+    supports it.
+
+  * SkTPin() removed from public API.
+
+* * *
+
 Milestone 87
 ------------
 
