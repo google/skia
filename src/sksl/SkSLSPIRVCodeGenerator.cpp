@@ -743,6 +743,11 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             return result;
         }
         case kSPIRV_IntrinsicKind: {
+            // GLSL supports dot(float, float), but SPIR-V does not. Convert it to FMul
+            if (intrinsicId == SpvOpDot &&
+                arguments[0]->type().typeKind() == Type::TypeKind::kScalar) {
+                intrinsicId = SpvOpFMul;
+            }
             SpvId result = this->nextId();
             std::vector<SpvId> argumentIds;
             for (size_t i = 0; i < arguments.size(); i++) {
