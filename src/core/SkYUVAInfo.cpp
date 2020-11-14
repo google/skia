@@ -370,6 +370,16 @@ SkYUVAInfo::PlanarConfig SkYUVAInfo::planarConfig() const {
     SkUNREACHABLE;
 }
 
+SkYUVAInfo SkYUVAInfo::makeSubsampling(SkYUVAInfo::Subsampling subsampling) const {
+    return {fDimensions,
+            fPlaneConfig,
+            subsampling,
+            fYUVColorSpace,
+            fOrigin,
+            fSitingX,
+            fSitingY};
+}
+
 bool SkYUVAInfo::operator==(const SkYUVAInfo& that) const {
     return fPlaneConfig   == that.fPlaneConfig   &&
            fSubsampling   == that.fSubsampling  &&
