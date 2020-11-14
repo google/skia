@@ -53,7 +53,6 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
         case Subsampling::k410: uvSize = {down4(w), down2(h)}; break;
     }
     switch (planeConfig) {
-        case PlaneConfig::kUnknown: SkUNREACHABLE;
 
         case PlaneConfig::kY_U_V:
         case PlaneConfig::kY_V_U:
@@ -368,6 +367,16 @@ SkYUVAInfo::PlanarConfig SkYUVAInfo::planarConfig() const {
             return PlanarConfig::kUYVA_4444;
     }
     SkUNREACHABLE;
+}
+
+SkYUVAInfo SkYUVAInfo::makeSubsampling(SkYUVAInfo::Subsampling subsampling) const {
+    return {fDimensions,
+            fPlaneConfig,
+            subsampling,
+            fYUVColorSpace,
+            fOrigin,
+            fSitingX,
+            fSitingY};
 }
 
 bool SkYUVAInfo::operator==(const SkYUVAInfo& that) const {
