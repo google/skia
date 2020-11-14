@@ -254,6 +254,13 @@ public:
         return GetYUVAIndices(fPlaneConfig, channelFlags, indices);
     }
 
+    /**
+     * Makes a SkYUVAInfo that is identical to this one but with the passed Subsampling. If the
+     * passed subsampling is not k444 then the result will be invalid if the PlaneConfig of this
+     * does not allow subsampling (because Y is in the same plane as UV).
+     */
+    SkYUVAInfo makeSubsampling(SkYUVAInfo::Subsampling) const;
+
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
 
