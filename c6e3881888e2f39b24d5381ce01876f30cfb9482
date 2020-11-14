@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbb7a3f7_d5bd2d62",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-14T17:13:11Z",
+      "side": 0,
+      "message": "This actually had a subtle case where the MCRec\u0027s matrix would be left as the remainder matrix from the image filter decomposition if the kNoLayer strategy was used. Querying getTotalMatrix() on a wrapping SkCanvas or recording canvas would then be corrupted.",
+      "range": {
+        "startLine": 1108,
+        "startChar": 4,
+        "endLine": 1121,
+        "endChar": 5
+      },
+      "revId": "c6e3881888e2f39b24d5381ce01876f30cfb9482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57f89f7e_5385b99e",
+        "filename": "src/core/SkRegion_path.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-14T17:13:11Z",
+      "side": 0,
+      "message": "This had been not being reached because the conservative bounds at the canvas\u0027 level caught it a little earlier than when going into SkBitmapDevice.\n\nBut non-finite paths are treated as empty, so inverse-filled non-finite paths need to be full.",
+      "range": {
+        "startLine": 325,
+        "startChar": 8,
+        "endLine": 326,
+        "endChar": 32
+      },
+      "revId": "c6e3881888e2f39b24d5381ce01876f30cfb9482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

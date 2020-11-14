@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32e99325_143763c0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-14T17:13:11Z",
+      "side": 1,
+      "message": "Re-computing the qr bounds and the net device clip bounds isn\u0027t that expensive given that there is usually only 1 device and it\u0027ll have a constant time device bounds query. But mapping from device bounds to global bounds is an extra call to mapRect(). I figured it wouldn\u0027t hurt to only do this computation during a restore() if the clip had actually changed after save had been called.",
+      "range": {
+        "startLine": 243,
+        "startChar": 8,
+        "endLine": 243,
+        "endChar": 30
+      },
+      "revId": "737d0038c38a6063caf93a909fc275b20abbe33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89e798f2_a5ac6586",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-14T17:13:11Z",
+      "side": 1,
+      "message": "Just moved out of the header.",
+      "range": {
+        "startLine": 270,
+        "startChar": 16,
+        "endLine": 270,
+        "endChar": 33
+      },
+      "revId": "737d0038c38a6063caf93a909fc275b20abbe33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8f7953a_9a39038d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-14T17:13:11Z",
+      "side": 1,
+      "message": "computeDeviceBounds() returns an SkRect (since it calls SkMatrix::mapRect). There\u0027s no point in rounding it out to an SkIRect and then going back to SkRect again. Lower probability cases (like init and saveLayer) can just map from SkIRect to SkRect on their own.",
+      "range": {
+        "startLine": 485,
+        "startChar": 42,
+        "endLine": 485,
+        "endChar": 48
+      },
+      "revId": "737d0038c38a6063caf93a909fc275b20abbe33e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
