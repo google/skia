@@ -485,11 +485,6 @@ GrInterpretFilterQuality(SkISize imageDims,
             return {Filter::kLinear, MipmapMode::kLinear, false};
         }
         case kHigh_SkFilterQuality: {
-            if (allowFilterQualityReduction) {
-                SkMatrix matrix;
-                matrix.setConcat(viewM, localM);
-                paintFilterQuality = SkMatrixPriv::AdjustHighQualityFilterLevel(matrix);
-            }
             switch (paintFilterQuality) {
                 case kNone_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , false};
                 case kLow_SkFilterQuality:    return {Filter::kLinear , MipmapMode::kNone  , false};

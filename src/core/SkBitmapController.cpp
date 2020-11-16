@@ -43,11 +43,6 @@ bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
         return false;
     }
 
-    if (SkMatrixPriv::AdjustHighQualityFilterLevel(fInvMatrix, true) != kHigh_SkFilterQuality) {
-        fQuality = kMedium_SkFilterQuality;
-        return false;
-    }
-
     (void)image->getROPixels(nullptr, &fResultBitmap);
     return true;
 }
