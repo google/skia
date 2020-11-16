@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b47e9e54_4dbd72e7",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T16:00:27Z",
+      "side": 1,
+      "message": "Is select() written so that we can\u0027t write\n\n   select(x \u003c edge, 0.0f, 1.0f)\n\nhere (and similar in kSign)?  If so I\u0027ll try to fix it.",
+      "range": {
+        "startLine": 586,
+        "startChar": 27,
+        "endLine": 586,
+        "endChar": 66
+      },
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60397521_bd1f4dcf",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T16:00:27Z",
+      "side": 1,
+      "message": "sometimes I find these sorts of things read more clearly with unconventional indentation, aligning the if_then_elses and the conditions.",
+      "range": {
+        "startLine": 778,
+        "startChar": 50,
+        "endLine": 778,
+        "endChar": 68
+      },
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "599f581a_bfa92cd8",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T16:00:27Z",
+      "side": 1,
+      "message": "I don\u0027t think I follow this... can we not evaluate it and put it on the stack just the same as a local if we\u0027re looking to avoid double evaluation?",
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
