@@ -65,6 +65,8 @@ SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii) {
   return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
 }
 
+uint32_t MinVersion() { return SkPicturePriv::kMin_Version; }
+
 class SkpDebugPlayer {
   public:
     SkpDebugPlayer() :
@@ -84,33 +86,23 @@ class SkpDebugPlayer {
      */
     std::string loadSkp(uintptr_t cptr, int length) {
       const uint8_t* data = reinterpret_cast<const uint8_t*>(cptr);
-      char magic[8];
       // Both traditional and multi-frame skp files have a magic word
       SkMemoryStream stream(data, length);
       SkDebugf("make stream at %p, with %d bytes\n",data, length);
-      // Why -1? I think it's got to do with using a constexpr, just a guess.
-      const size_t magicsize = sizeof(kMultiMagic) - 1;
-      const bool isMulti = memcmp(data, kMultiMagic, magicsize) == 0;
+      const bool isMulti = memcmp(data, kMultiMagic, sizeof(kMultiMagic) - 1) == 0;
+
+
       if (isMulti) {
         SkDebugf("Try reading as a multi-frame skp\n");
         const auto& error = loadMultiFrame(&stream);
         if (!error.empty()) { return error; }
       } else {
         SkDebugf("Try reading as single-frame skp\n");
-        // The unint32 after the magic string is the SKP version
-        memcpy(&fFileVersion, data + 8, 4);
         // TODO(nifong): Rely on SkPicture's return errors once it provides some.
-        if (fFileVersion < SkPicturePriv::kMin_Version ||
-          fFileVersion > SkPicturePriv::kCurrent_Version) {
-          return std::string(SkStringPrintf("Skp version (%d) cannot be read by this build. Version range supported = (%d, %d)",
-              fFileVersion, SkPicturePriv::kMin_Version, SkPicturePriv::kCurrent_Version).c_str());
-        }
         frames.push_back(loadSingleFrame(&stream));
       }
       return "";
     }
-
-    uint32_t fileVersion() { return fFileVersion; }
 
     /* drawTo asks the debug canvas to draw from the beginning of the picture
      * to the given command and flush the canvas.
@@ -467,8 +459,6 @@ class SkpDebugPlayer {
       int fp = 0;
       // The width and height of the animation. (in practice the bounds of the last loaded frame)
       SkIRect fBounds;
-      // SKP version of loaded file.
-      uint32_t fFileVersion;
       // image resources from a loaded file
       std::vector<sk_sp<SkImage>> fImages;
 
@@ -556,6 +546,8 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageIn
 using namespace emscripten;
 EMSCRIPTEN_BINDINGS(my_module) {
 
+  function("MinVersion", &MinVersion);
+
   // The main class that the JavaScript in index.html uses
   class_<SkpDebugPlayer>("SkpDebugPlayer")
     .constructor<>()
@@ -563,7 +555,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("deleteCommand",        &SkpDebugPlayer::deleteCommand)
     .function("draw",                 &SkpDebugPlayer::draw, allow_raw_pointers())
     .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
-    .function("fileVersion",          &SkpDebugPlayer::fileVersion)
     .function("findCommandByPixel",   &SkpDebugPlayer::findCommandByPixel, allow_raw_pointers())
     .function("getBounds",            &SkpDebugPlayer::getBounds)
     .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
