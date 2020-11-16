@@ -83,6 +83,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4625041_b6e5efef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T20:30:52Z",
+      "side": 1,
+      "message": "Ugh.  What we\u0027re missing is the equivalent of a layout pass to resolve these in tree order before rendering.\n\nDOM construction time only gets us so far because one can always go back and update these after parsing - then we won\u0027t be able to recalc correct values.\n\nCrazy thought: can we drop property inheritance from the DOM?  We\u0027d still support inheritance at parse time, but only explicit values after.  Not sure whether anybody cares about programmatic styling...",
+      "parentUuid": "1000d518_d5d3bd72",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5a9a6304_94cc3fc9",
