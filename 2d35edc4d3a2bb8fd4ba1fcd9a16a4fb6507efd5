@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "680153ff_8b00cbed",
+        "filename": "tests/sksl/errors/golden/ArrayUnspecifiedDimensions.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-16T23:07:57Z",
+      "side": 1,
+      "message": "Note that our parser appears to treat \"null\" here the same as \"\". This is harmless for now, but is not what I would expect.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 76
+      },
+      "revId": "2d35edc4d3a2bb8fd4ba1fcd9a16a4fb6507efd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
