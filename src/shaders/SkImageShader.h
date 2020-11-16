@@ -17,33 +17,19 @@ class SkImageStageUpdater;
 
 class SkImageShader : public SkShaderBase {
 public:
-    enum FilterEnum {   // first 4 entries match SkFilterQuality
-        kNone,
-        kLow,
-        kMedium,
-        kHigh,
-        // this is the special value for backward compatibility
-        kInheritFromPaint,
-        // this signals we should use the new SkFilterOptions
-        kUseFilterOptions,
-        // use fCubic and ignore FilterOptions
-        kUseCubicResampler,
+    enum class FilterEnum {
+        kInheritFromPaintQuality,
+        kUseSamplingOptions,
 
-        kLast = kUseCubicResampler,
+        kLast = kUseSamplingOptions,
     };
 
     static sk_sp<SkShader> Make(sk_sp<SkImage>,
                                 SkTileMode tmx,
                                 SkTileMode tmy,
+                                const SkSamplingOptions*,   // null means inherit-from-paint-fq
                                 const SkMatrix* localMatrix,
-                                FilterEnum,
                                 bool clampAsIfUnpremul = false);
-
-    static sk_sp<SkShader> Make(sk_sp<SkImage>,
-                                SkTileMode tmx,
-                                SkTileMode tmy,
-                                const SkSamplingOptions&,
-                                const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
 
@@ -59,14 +45,9 @@ private:
     SkImageShader(sk_sp<SkImage>,
                   SkTileMode tmx,
                   SkTileMode tmy,
+                  const SkSamplingOptions*,
                   const SkMatrix* localMatrix,
-                  FilterEnum,
-                  bool clampAsIfUnpremul);
-    SkImageShader(sk_sp<SkImage>,
-                  SkTileMode tmx,
-                  SkTileMode tmy,
-                  const SkSamplingOptions&,
-                  const SkMatrix* localMatrix);
+                  bool clampAsIfUnpremul = false);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -84,6 +65,7 @@ private:
 
     bool doStages(const SkStageRec&, SkImageStageUpdater* = nullptr) const;
 
+#if 0
     SkFilterQuality resolveFiltering(SkFilterQuality paintQuality) const {
         switch (fFilterEnum) {
             case kUseCubicResampler: return kHigh_SkFilterQuality;   // TODO: handle explicitly
@@ -93,20 +75,20 @@ private:
         }
         return (SkFilterQuality)fFilterEnum;
     }
+#endif
 
     sk_sp<SkImage>   fImage;
     const SkTileMode fTileModeX;
     const SkTileMode fTileModeY;
     const FilterEnum fFilterEnum;
     const bool       fClampAsIfUnpremul;
-
-    // only use this if fFilterEnum == kUseFilterOptions
-    SkFilterOptions  fFilterOptions;
-    // only use this if fFilterEnum == kUseCubicResampler or kHigh
-    SkCubicResampler fCubic = {1/3.0f, 1/3.0f};  // Default to Mitchell-Netravali.
+    SkSamplingOptions fSampling;
 
     friend class SkShaderBase;
     using INHERITED = SkShaderBase;
+
+    // for legacy unflattening
+    static sk_sp<SkFlattenable> PreSamplingCreate(SkReadBuffer&);
 };
 
 #endif
