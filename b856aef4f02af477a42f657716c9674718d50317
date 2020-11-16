@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c5df704_228ae6da",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "The main difference AFAIU is inherited props cascade down, while non-inherited props are only pulled from the immediate parent when \"inherit\" is specified.\n\ne.g.\n\n  \u003cg opacity\u003d\"50%\"\u003e\n    \u003crect opacity\u003d\"inherit\"/\u003e\n  \u003c/g\u003e\n\napplies .5 opacity twice, while\n\n  \u003cg opacity\u003d\"50%\"\u003e\n    \u003cg\u003e\n      \u003crect opacity\u003d\"inherit\"/\u003e\n    \u003c/g\u003e\n  \u003c/g\u003e\n\nonly applies .5 opacity once.",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e7e708f_5431ea62",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "Hmm, how does the computed value relate to DOM construction?\n\nMy understanding is \"computed values\" are essentially properties resolved to absolute values that can be used for rendering.  E.g. percentage -\u003e absolute value.\n\nhttps://www.w3.org/TR/2008/REC-CSS2-20080411/cascade.html#computed-value\n\nSince there are cases where the same element is used in different DOM contexts (e.g. via \u003cuse\u003e), it seems that computed values cannot be resolved at construction time as they depend on the use context not just their parent context?\n\nTo fully support CSS semantics, I *think* we need a separate \"ComputedProperties\" primitive-type-only structure for inheritance cascading.",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5a9a6304_94cc3fc9",
@@ -14,6 +54,86 @@
       "writtenOn": "2020-11-13T19:01:24Z",
       "side": 1,
       "message": "@Florin this CL should be treated with skepticism -- I think this is a potentially good way forward but I would definitely like to hear any architectural or conceptual observations you may have.",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a73139a_d7d77ec9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "There\u0027s a lot going on here, maybe we can split into just adding the property template and then change inheritance semantics later?",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e470b172_10694a39",
+        "filename": "modules/svg/include/SkSVGProperty.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "I think we need a tri-state to discriminate\n\na) unspecified property\nb) \"inherited\" property\nc) explicit property\n\nDepending on whether the property is inheritable, these all make a difference IIUC.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 56
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acc59d73_fcf538e5",
+        "filename": "modules/svg/include/SkSVGProperty.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "What does type\u003d\u003dunknown mean?  Isn\u0027t inheritability always known?",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0065ef12_eadf9792",
+        "filename": "modules/svg/include/SkSVGProperty.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-16T15:26:38Z",
+      "side": 1,
+      "message": "This is a static trait for a given property.  I think it should be a template param, i.e.\n\ntemplate \u003ctypename T, bool INHERITABLE\u003e SkSVGProperty",
       "revId": "b856aef4f02af477a42f657716c9674718d50317",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
