@@ -37,6 +37,8 @@ public:
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
+    virtual bool requiresExplicitCleanup() const { return false; }
+
     // Called when this class will survive a flush and needs to truncate its ops and start over.
     // TODO: ultimately it should be invalid for an op list to survive a flush.
     // https://bugs.chromium.org/p/skia/issues/detail?id=7111
@@ -66,8 +68,11 @@ public:
      */
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
+    virtual void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const {
+        idArray->push_back(fUniqueID);
+    }
     uint32_t uniqueID() const { return fUniqueID; }
-    int numTargets() const { return fTargets.count(); }
+    virtual int numTargets() const { return fTargets.count(); }
     const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
 
     /*
@@ -90,11 +95,21 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-        for (int i = 0; i < this->numTargets(); ++i) {
-            fn(this->target(i).proxy(), GrMipmapped::kNo);
+       for (const GrSurfaceProxyView& target : fTargets) {
+            fn(target.proxy(), GrMipmapped::kNo);
         }
     }
 #endif
+
+    bool isUsed(GrSurfaceProxy* proxy) const {
+        for (const GrSurfaceProxyView& target : fTargets) {
+            if (target.proxy() == proxy) {
+                return true;
+            }
+        }
+
+        return this->onIsUsed(proxy);
+    }
 
 protected:
     // In addition to just the GrSurface being allocated, has the stencil buffer been allocated (if
@@ -129,6 +144,8 @@ protected:
 private:
     // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
     friend class GrDrawingManager;
+    friend class GrDDLTask; // for handleInternalAllocationFailure, gatherProxyIntervals, Flags
+
 
     // Drops any pending operations that reference proxies that are not instantiated.
     // NOTE: Derived classes don't need to check targets. That is handled when the
@@ -138,16 +155,6 @@ private:
     // Derived classes can override to indicate usage of proxies _other than target proxies_.
     // GrRenderTask itself will handle checking the target proxies.
     virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
-
-    bool isUsed(GrSurfaceProxy* proxy) const {
-        for (const GrSurfaceProxyView& target : fTargets) {
-            if (target.proxy() == proxy) {
-                return true;
-            }
-        }
-
-        return this->onIsUsed(proxy);
-    }
 
     void addDependency(GrRenderTask* dependedOn);
     void addDependent(GrRenderTask* dependent);
@@ -204,9 +211,9 @@ private:
         }
     };
 
-    // Only the GrOpsTask currently overrides this virtual
-    virtual void onPrePrepare(GrRecordingContext*) {}
-    virtual void onPrepare(GrOpFlushState*) {} // Only the GrOpsTask overrides this virtual
+
+    virtual void onPrePrepare(GrRecordingContext*) {} // Only the GrOpsTask currently overrides this
+    virtual void onPrepare(GrOpFlushState*) {} // Only GrOpsTask and GrDDLTask override this virtual
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
