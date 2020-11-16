@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09ded28b_06fcc2b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T18:50:17Z",
+      "side": 1,
+      "message": "Yes, I mind.  If you encounter an issue like this again, please always restore the code to read the files properly.",
+      "parentUuid": "acf3a418_ea11f12b",
+      "revId": "68eedffbb09a1f334ab51a7e12732a4e06e1f8cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e11e5429_c99fe699",
