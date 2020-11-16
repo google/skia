@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Deprecated SkImage factories have been removed from
+    SkDeferredDisplayListRecorder.
+
   * The following YUV image factories have been removed:
     SkImage::MakeFromYUVTexturesCopyWithExternalBackend
     SkImage::MakeFromNV12TexturesCopyWithExternalBackend

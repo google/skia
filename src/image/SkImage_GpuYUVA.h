@@ -71,13 +71,7 @@ public:
      * This is the implementation of SkDeferredDisplayListRecorder::makeYUVAPromiseTexture.
      */
     static sk_sp<SkImage> MakePromiseYUVATexture(GrRecordingContext*,
-                                                 SkYUVColorSpace yuvColorSpace,
-                                                 const GrBackendFormat yuvaFormats[],
-                                                 const SkISize yuvaSizes[],
-                                                 const SkYUVAIndex yuvaIndices[4],
-                                                 int width,
-                                                 int height,
-                                                 GrSurfaceOrigin textureOrigin,
+                                                 const GrYUVABackendTextureInfo&,
                                                  sk_sp<SkColorSpace> imageColorSpace,
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
