@@ -22,6 +22,30 @@
       },
       "revId": "267a8589d32dcf25afd23219422e90af4f4b9f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0891c491_24c423a2",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-16T15:25:47Z",
+      "side": 0,
+      "message": "https://stackoverflow.com/questions/509211/understanding-slice-notation\n\nI\u0027m not 100% sure why the comma is there -- probably because it\u0027s using slice notation.\n\nUnfortunately Python has become Perl, in that there\u0027s more than one way to do it.",
+      "parentUuid": "fd06f0c5_6edc1288",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "267a8589d32dcf25afd23219422e90af4f4b9f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
