@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "49f5b13d_96dbee61",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-16T16:30:35Z",
+      "side": 1,
+      "message": "Yeah, that produces:\n../../src/core/SkRuntimeEffect.cpp:586:28: error: call to \u0027select\u0027 is ambiguous\n                    return select(x \u003c edge, 0.0f, 1.0f);\n                           ^~~~~~\n../../src/core/SkVM.h:1225:23: note: candidate function\n    static inline I32 select(I32 cond, I32a t, I32a f) { return cond-\u003eselect(cond,t,f); }\n                      ^\n../../src/core/SkVM.h:1226:23: note: candidate function\n    static inline F32 select(I32 cond, F32a t, F32a f) { return cond-\u003eselect(cond,t,f); }\n                      ^",
+      "parentUuid": "b47e9e54_4dbd72e7",
+      "range": {
+        "startLine": 586,
+        "startChar": 27,
+        "endLine": 586,
+        "endChar": 66
+      },
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "60397521_bd1f4dcf",
         "filename": "src/sksl/SkSLByteCode.cpp",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-16T16:00:27Z",
       "side": 1,
       "message": "sometimes I find these sorts of things read more clearly with unconventional indentation, aligning the if_then_elses and the conditions.",
+      "range": {
+        "startLine": 778,
+        "startChar": 50,
+        "endLine": 778,
+        "endChar": 68
+      },
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de5c8da4_dc124266",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-16T16:30:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60397521_bd1f4dcf",
       "range": {
         "startLine": 778,
         "startChar": 50,
@@ -60,6 +108,24 @@
       "writtenOn": "2020-11-16T16:00:27Z",
       "side": 1,
       "message": "I don\u0027t think I follow this... can we not evaluate it and put it on the stack just the same as a local if we\u0027re looking to avoid double evaluation?",
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e69cfbf_2e808a9d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-16T16:30:35Z",
+      "side": 1,
+      "message": "Given the fairly limited set of stack-manipulation operations that we have, I couldn\u0027t come up with a sequence that works - because we need edge0 twice, interleaved with the other parameters. The alternative would be to add some other opcode (either \"rotate\" or \"pick\", using the HP calculator lingo).\n\neg:\n\nwrite edge0\ndup\nwrite edge1\nsub\n// Now I need to do something with the other copy of edge0, but it\u0027s unreachable",
+      "parentUuid": "599f581a_bfa92cd8",
       "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
