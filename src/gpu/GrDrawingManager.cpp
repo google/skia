@@ -591,7 +591,8 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                     GrRenderTargetProxy* newDest) {
+                                     GrRenderTargetProxy* newDest,
+                                     SkIPoint offset) {
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {
@@ -628,7 +629,8 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     // Add a task to handle drawing and lifetime management of the DDL.
     SkDEBUGCODE(auto ddlTask =) this->appendTask(sk_make_sp<GrDDLTask>(this,
                                                                        sk_ref_sp(newDest),
-                                                                       std::move(ddl)));
+                                                                       std::move(ddl),
+                                                                       offset));
     SkASSERT(ddlTask->isClosed());
 
     SkDEBUGCODE(this->validate());

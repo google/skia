@@ -125,7 +125,7 @@ public:
 
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
     virtual bool onIsCompatible(const SkSurfaceCharacterization&) const { return false; }
-    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>, int xOffset, int yOffset) {
+    virtual bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) {
         return false;
     }
 

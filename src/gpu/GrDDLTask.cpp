@@ -13,9 +13,12 @@
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
                      sk_sp<GrRenderTargetProxy> ddlTarget,
-                     sk_sp<const SkDeferredDisplayList> ddl)
+                     sk_sp<const SkDeferredDisplayList> ddl,
+                     SkIPoint offset)
         : fDDL(std::move(ddl))
-        , fDDLTarget(std::move(ddlTarget)) {
+        , fDDLTarget(std::move(ddlTarget))
+        , fOffset(offset) {
+    (void) fOffset;  // fOffset will be used shortly
 
     for (const sk_sp<GrRenderTask>& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
