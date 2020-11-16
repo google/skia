@@ -82,6 +82,7 @@ public:
     // V79: Cubic Resampler option on imageshader
 
     enum Version {
+        kEdgeAAQuadColor4f_Version          = 73,
         kMorphologyTakesScalar_Version      = 74,
         kVerticesUseReadBuffer_Version      = 75,
         kFilterEnumInImageShader_Version    = 76,
@@ -90,7 +91,7 @@ public:
         kCubicResamplerImageShader_Version  = 79,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
-        kMin_Version     = kMorphologyTakesScalar_Version,
+        kMin_Version     = kEdgeAAQuadColor4f_Version,
         kCurrent_Version = kCubicResamplerImageShader_Version
     };
 
