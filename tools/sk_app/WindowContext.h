@@ -31,6 +31,8 @@ public:
 
     virtual void resize(int w, int h) = 0;
 
+    virtual void activate(bool isActive) {}
+
     const DisplayParams& getDisplayParams() { return fDisplayParams; }
     virtual void setDisplayParams(const DisplayParams& params) = 0;
 

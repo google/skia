@@ -127,6 +127,7 @@ public:
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
     void onPaint();
     void onResize(int width, int height);
+    void onActivate(bool isActive);
 
     int width() const;
     int height() const;
@@ -146,6 +147,7 @@ protected:
 
     SkTDArray<Layer*>      fLayers;
     DisplayParams          fRequestedDisplayParams;
+    bool                   fIsActive = true;
 
     std::unique_ptr<WindowContext> fWindowContext;
 
