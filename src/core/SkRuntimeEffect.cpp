@@ -576,14 +576,15 @@ static skvm::Color program_fn(skvm::Builder* p,
                 break;
 
             case Inst::kSign:
-                unary([p](skvm::F32 x) {
-                    return select(x < 0, -1.0f, select(x > 0, 1.0f, p->splat(0.0f)));
+                unary([](skvm::F32 x) {
+                    return select(x < 0, -1.0f,
+                           select(x > 0, +1.0f, 0.0f));
                 });
                 break;
 
             case Inst::kStep:
-                binary([p](skvm::F32 edge, skvm::F32 x) {
-                    return select(x < edge, 0.0f, p->splat(1.0f));
+                binary([](skvm::F32 edge, skvm::F32 x) {
+                    return select(x < edge, 0.0f, 1.0f);
                 });
                 break;
 
