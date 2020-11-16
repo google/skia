@@ -25,7 +25,6 @@ static void test_basic(skiatest::Reporter* reporter) {
   SkPaint paint;
   paint.setColor(SK_ColorBLUE);
   canvas->drawOval(SkRect::MakeLTRB(1,1,99,99), paint);
-  canvas->flush();
   auto picture1 = rec.finishRecordingAsPicture();
   SkIRect dirtyRectFull = SkIRect::MakeLTRB(0, 0, layerWidth, layerHeight);
 
@@ -34,7 +33,6 @@ static void test_basic(skiatest::Reporter* reporter) {
   canvas = rec2.beginRecording(layerWidth, layerHeight);
   paint.setColor(SK_ColorGREEN);
   canvas->drawOval(SkRect::MakeLTRB(40,40,60,60), paint);
-  canvas->flush();
   auto picture2 = rec2.finishRecordingAsPicture();
   SkIRect dirtyRectPartial = SkIRect::MakeLTRB(40,40,60,60);
 

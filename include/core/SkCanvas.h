@@ -254,6 +254,8 @@ public:
         If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
         If SkCanvas is associated with raster surface, has no effect; raster draw
         operations are never deferred.
+
+        DEPRECATED: Replace usage with GrDirectContext::flush()
     */
     void flush();
 
