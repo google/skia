@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "03022f65_8906151a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-16T17:59:36Z",
+      "side": 1,
+      "message": "alpha",
+      "range": {
+        "startLine": 14,
+        "startChar": 1,
+        "endLine": 14,
+        "endChar": 9
+      },
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c60996f3_5b0c57fa",
@@ -67,6 +90,46 @@
       "side": 1,
       "message": "I\u0027d like to hear Skia folks\u0027 opinion on this change, in particular with regards to whether this can be the default value for Windows and be reflected in Skia gold tests. I would prefer not to derive from Skia test results for what we\u0027re shipping in Chrome at some point.\n\nYes, the #ifdef transition would be the way to bring this into Chrome. \n\n\u003e My bigger concern: given the location of the code, this doesn\u0027t easily lend itself to a runtime flag to turn it on or off in Chrome, so we\u0027d probably have to land it without going through an \u0027experimental\u0027 phase.  Do you see this as a problem, Dominik?\n\nI do. I think a change of this impact would benefit from being experiment-configurable. Is there a way to refactor this so that the state can be toggled with a feature flag in Chrome - and thus an experiment configuration?",
       "parentUuid": "8635c9ef_f4a85c28",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a4984c_f47e6f73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-16T17:59:36Z",
+      "side": 1,
+      "message": "This change should probably end up being the contrast adjustment on all platforms, there is no good reason to attempt to use different ones on different platforms (it will need to be rolled out behind a flag though). This particular calculation hasn\u0027t changed since it was introduced in https://codereview.appspot.com/6244068/diff/52002/src/core/SkMaskGamma.h#newcode105 (only eight years ago now).\n\nThe existing calculation is \"plot (-c*a^2 + c*a + a) a \u003d 0 to 1 c \u003d 0 to 1\". In this calculation c is limited from 0 to 1, as above 1 it could return values greater than 1, which would quite bad. This means that the existing calculation is limited in the amount of boost provided to lower alpha values to ~doubling their values. \n\nThe proposed contrast calculation here is \"plot (c*a + a) / (c*a + 1) a \u003d 0 to 1 c \u003d 0 to 4\" which does what one would expect, as \u0027c\u0027 increases lower \u0027a\u0027 are boosted more. As c grows 0 stays at zero but every other value of a will tend towards 1. This provides opportunities for more coverage.\n\nAs a comment on coverage in general it is covering for two issues.\n\nThe first is pixel density and anti-aliasing. If a one pixel wide stem happens to end up on a half pixel boundary, even if all the blending is correct and the right number of photons get emitted from the display, the fact that the signal is over twice the area of a stem which is on a pixel boundary makes things look weird, so to compensate, do it more. (And often if the blending isn\u0027t right and the wrong number of photons are being emitted by the screen, some amount of \u0027do it more\u0027 may help compensate).\n\nThe second is just optical sizing. At smaller optical sizes it is expected that a greater percentage of the area will be covered relative to larger optical sizes. Increasing contrast by manipulating the mask is essentially the same as making all outlines a bit bigger by some amount of a pixel (in a weird hinted way). The percentage difference due to alpha contrast adjustment will be much higher for smaller renderings than larger ones, so while the same thing is done to both small and large the effect is much more noticeable on the small sizes. Note that on macOS this is done via \u0027font smoothing\u0027 which works on the outlines. The outlines are outset some amount with the outset determined based on the size (as a declining percentage of the size, used to just be a percentage of the size which looked really bad). This takes care of the optical sizing issue without adjusting the alpha values and messing with correct blending. (Note that on macOS \u0027font smoothing\u0027 also enables root two blending, without it incorrect perceptual blending is used which generally provides some \u0027contrast\u0027.)",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cceaa380_a24cbde5",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-16T17:59:36Z",
+      "side": 1,
+      "message": "I think this should be \u0027(\u0027 since this is open (a contrast of 0 is allowed). The \u0027[\u0027 makes it look like the range is closed on this end (a contrast of 0 isn\u0027t allowed). I\u0027m not sure about the other end, I think 4.0 is allowed.",
+      "range": {
+        "startLine": 90,
+        "startChar": 29,
+        "endLine": 90,
+        "endChar": 30
+      },
       "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
