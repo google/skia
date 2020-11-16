@@ -343,7 +343,7 @@ bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yO
         return false; // the offsets currently aren't supported
     }
 
-    return asSB(this)->onDraw(std::move(ddl), xOffset, yOffset);
+    return asSB(this)->onDraw(std::move(ddl), { xOffset, yOffset });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
