@@ -621,19 +621,29 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
         // If the SubRun is completely outside, don't add an op for it.
         return {nullptr, nullptr};
     } else if (clip != nullptr) {
-        const GrClip::PreClipResult result = clip->preApply(subRunBounds, GrAA::kNo);
-        if (result.fEffect == GrClip::Effect::kClipped) {
-            if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
-                // Clip geometrically during onPrepare using clipRect.
-                result.fRRect.getBounds().round(&clipRect);
-                if (clipRect.contains(subRunBounds)) {
-                    // If fully within the clip, then signal no clipping using the empty rect.
-                    clipRect = SkIRect::MakeEmpty();
-                }
+        switch (auto result = clip->preApply(subRunBounds, GrAA::kNo); result.fEffect) {
+            case GrClip::Effect::kClippedOut:
+                // Return nullptr op to indicate no op needed.
+                return {nullptr, nullptr};
+            case GrClip::Effect::kUnclipped:
+                clipRect = SkIRect::MakeEmpty();
                 clip = nullptr;
+                break;
+            case GrClip::Effect::kClipped: {
+                if (result.fIsRRect && result.fRRect.isRect()) {
+                    SkRect r = result.fRRect.rect();
+                    if (result.fAA == GrAA::kNo || GrClip::IsPixelAligned(r)) {
+                        // Clip geometrically during onPrepare using clipRect.
+                        r.round(&clipRect);
+                        if (clipRect.contains(subRunBounds)) {
+                            // If fully within the clip, signal no clipping using the empty rect.
+                            clipRect = SkIRect::MakeEmpty();
+                        }
+                        clip = nullptr;
+                    }
+                }
             }
-        } else if (result.fEffect == GrClip::Effect::kClippedOut) {
-            return {nullptr, nullptr};
+            break;
         }
     }
 
