@@ -27,7 +27,7 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     REPORTER_ASSERT(r, compiler.errorText() == skError);
 }
 
-DEF_TEST(SkSLBadOffset, r) {
+DEF_TEST(SkSLSPIRVBadOffset, r) {
     test_failure(r,
                  "struct Bad { layout (offset = 5) int x; } bad; void main() { bad.x = 5; "
                  "sk_FragColor.r = half(bad.x); }",
@@ -36,4 +36,16 @@ DEF_TEST(SkSLBadOffset, r) {
                  "struct Bad { int x; layout (offset = 0) int y; } bad; void main() { bad.x = 5; "
                  "sk_FragColor.r = half(bad.x); }",
                  "error: 1: offset of field 'y' must be at least 4\n1 error\n");
+}
+
+DEF_TEST(SkSLSPIRVBadTypeInStruct, r) {
+    test_failure(r,
+                 "struct Bad { sampler x; }; uniform Bad b; void main() {}",
+                 "error: 1: type 'sampler' is not permitted here\n1 error\n");
+}
+
+DEF_TEST(SkSLSPIRVBadTypeInInterfaceBlock, r) {
+    test_failure(r,
+                 "Bad { sampler x; }; void main() {}",
+                 "error: 1: type 'sampler' is not permitted here\n1 error\n");
 }

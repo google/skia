@@ -1,0 +1,3 @@
+struct Bad { sampler x; };
+layout (set=0) uniform Bad b;
+void main() {}
