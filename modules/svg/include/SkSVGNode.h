@@ -52,24 +52,23 @@ private:                                                                     \
     }                                                                        \
 public:                                                                      \
     const attr_type* get##attr_name() const {                                \
-        return fPresentationAttributes.f##attr_name.getMaybeNull();          \
+        const auto& attr = fPresentationAttributes.f##attr_name;             \
+        return attr.isValue() ? attr.get() : nullptr;                        \
     }                                                                        \
     void set##attr_name(const attr_type& v) {                                \
-        if (!attr_inherited || v.type() != attr_type::Type::kInherit) {      \
-            fPresentationAttributes.f##attr_name.set(v);                     \
+        auto* dest = &fPresentationAttributes.f##attr_name;                  \
+        if (!dest->isInherited() || v.type() != attr_type::Type::kInherit) { \
+            dest->set(v);                                                    \
         } else {                                                             \
-            /* kInherited values are semantically equivalent to              \
-               the absence of a local presentation attribute.*/              \
-            fPresentationAttributes.f##attr_name.reset();                    \
+            dest->set(SkSVGPropertyState::kInherit);                         \
         }                                                                    \
     }                                                                        \
     void set##attr_name(attr_type&& v) {                                     \
-        if (!attr_inherited || v.type() != attr_type::Type::kInherit) {      \
-            fPresentationAttributes.f##attr_name.set(std::move(v));          \
+        auto* dest = &fPresentationAttributes.f##attr_name;                  \
+        if (!dest->isInherited() || v.type() != attr_type::Type::kInherit) { \
+            dest->set(std::move(v));                                         \
         } else {                                                             \
-            /* kInherited values are semantically equivalent to              \
-               the absence of a local presentation attribute.*/              \
-            fPresentationAttributes.f##attr_name.reset();                    \
+            dest->set(SkSVGPropertyState::kInherit);                         \
         }                                                                    \
     }
 
