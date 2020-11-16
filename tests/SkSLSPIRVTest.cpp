@@ -47,5 +47,6 @@ DEF_TEST(SkSLSPIRVBadTypeInStruct, r) {
 DEF_TEST(SkSLSPIRVBadTypeInInterfaceBlock, r) {
     test_failure(r,
                  "Bad { sampler x; }; void main() {}",
-                 "error: 1: type 'sampler' is not permitted here\n1 error\n");
+                 "error: 1: opaque type 'sampler' is not permitted in an interface block\n"
+                 "1 error\n");
 }
