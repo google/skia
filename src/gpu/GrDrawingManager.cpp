@@ -15,7 +15,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
-#include "src/core/SkTTopoSort.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
@@ -33,6 +32,7 @@
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTTopoSort.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
@@ -392,7 +392,7 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
 }
 
 void GrDrawingManager::sortTasks() {
-    if (!SkTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fDAG)) {
+    if (!GrTTopoSort<GrRenderTask, GrRenderTask::TopoSortTraits>(&fDAG)) {
         SkDEBUGFAIL("Render task topo sort failed.");
         return;
     }

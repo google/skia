@@ -6,7 +6,7 @@
  */
 
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTTopoSort.h"
+#include "src/gpu/GrTTopoSort.h"
 #include "tests/Test.h"
 
 #include "tools/ToolUtils.h"
@@ -126,7 +126,7 @@ DEF_TEST(TopoSort, reporter) {
 
         ToolUtils::TopoTestNode::Shuffle(&graph, &rand);
 
-        bool actualResult = SkTTopoSort<ToolUtils::TopoTestNode>(&graph);
+        bool actualResult = GrTTopoSort<ToolUtils::TopoTestNode>(&graph);
         REPORTER_ASSERT(reporter, actualResult == tests[i].fExpectedResult);
 
         if (tests[i].fExpectedResult) {

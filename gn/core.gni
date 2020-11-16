@@ -382,7 +382,6 @@ skia_core_sources = [
   "$_src/core/SkTSearch.cpp",
   "$_src/core/SkTSearch.h",
   "$_src/core/SkTSort.h",
-  "$_src/core/SkTTopoSort.h",
   "$_src/core/SkTaskGroup.cpp",
   "$_src/core/SkTaskGroup.h",
   "$_src/core/SkTextBlob.cpp",
