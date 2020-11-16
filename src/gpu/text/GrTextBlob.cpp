@@ -622,15 +622,24 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
         return {nullptr, nullptr};
     } else if (clip != nullptr) {
         const GrClip::PreClipResult result = clip->preApply(subRunBounds, GrAA::kNo);
+        if (result.fEffect == GrClip::Effect::kUnclipped) {
+            clipRect = SkIRect::MakeEmpty();
+            clip = nullptr;
+        }
         if (result.fEffect == GrClip::Effect::kClipped) {
-            if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
-                // Clip geometrically during onPrepare using clipRect.
-                result.fRRect.getBounds().round(&clipRect);
-                if (clipRect.contains(subRunBounds)) {
-                    // If fully within the clip, then signal no clipping using the empty rect.
-                    clipRect = SkIRect::MakeEmpty();
+            if (result.fIsRRect && result.fRRect.isRect()) {
+                SkRect r = result.fRRect.rect();
+                if (result.fAA == GrAA::kNo ||
+                    (SkScalarIsInt(r.fLeft)  && SkScalarIsInt(r.fTop) &&
+                     SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom))) {
+                    // Clip geometrically during onPrepare using clipRect.
+                    r.round(&clipRect);
+                    if (clipRect.contains(subRunBounds)) {
+                        // If fully within the clip, then signal no clipping using the empty rect.
+                        clipRect = SkIRect::MakeEmpty();
+                    }
+                    clip = nullptr;
                 }
-                clip = nullptr;
             }
         } else if (result.fEffect == GrClip::Effect::kClippedOut) {
             return {nullptr, nullptr};
