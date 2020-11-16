@@ -27,6 +27,8 @@ public:
 
     void setDisplayParams(const DisplayParams& params) override;
 
+    void activate(bool isActive) override;
+
 protected:
     MetalWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display

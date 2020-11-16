@@ -33,6 +33,20 @@ using sk_app::Application;
     _done = TRUE;
 }
 
+- (void)applicationWillResignActive:(UIApplication *)sender {
+    sk_app::Window_ios* mainWindow = sk_app::Window_ios::MainWindow();
+    if (mainWindow) {
+        mainWindow->onActivate(false);
+    }
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)sender {
+    sk_app::Window_ios* mainWindow = sk_app::Window_ios::MainWindow();
+    if (mainWindow) {
+        mainWindow->onActivate(true);
+    }
+}
+
 - (void)launchApp {
     // Extract argc and argv from NSProcessInfo
     NSArray *arguments = [[NSProcessInfo processInfo] arguments];
@@ -65,6 +79,8 @@ using sk_app::Application;
         return;
     }
     self.window = mainWindow->uiWindow();
+    mainWindow->onActivate(
+            UIApplication.sharedApplication.applicationState == UIApplicationStateActive);
 
     // take over the main event loop
     bool done = false;
