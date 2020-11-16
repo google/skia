@@ -16,6 +16,23 @@
       "message": "Let\u0027s keep the current code under the flag",
       "revId": "3ea857fd228c899faa3fc2423e67b36fdcfb6c62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "460c9f58_b479f9a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-16T20:39:54Z",
+      "side": 1,
+      "message": "I\u0027m not a fan. I want the the default case to be the good case, Flutter can get bad code if they want it, but it shouldn\u0027t be the default. Also, this doesn\u0027t currently keep both code paths building, so there is no point in keeping the existing code like this, it will just bitrot.",
+      "revId": "3ea857fd228c899faa3fc2423e67b36fdcfb6c62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
