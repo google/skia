@@ -106,11 +106,15 @@ if (is_ios) {
   template("ios_app_bundle") {
     app_name = target_name
     gen_path = target_gen_dir
+    bundle_prefix = "com.google"
 
     action("${app_name}_generate_info_plist") {
       script = "//gn/gen_plist_ios.py"
       outputs = [ "$gen_path/${app_name}_Info.plist" ]
-      args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
+      args = [
+        rebase_path("$gen_path/$app_name", root_build_dir),
+        "$bundle_prefix",
+      ]
     }
 
     bundle_data("${app_name}_bundle_info_plist") {
@@ -183,6 +187,10 @@ if (is_ios) {
       bundle_root_dir = "${root_build_dir}/${target_name}.app"
       bundle_resources_dir = bundle_root_dir
       bundle_executable_dir = bundle_root_dir
+
+      xcode_extra_attributes = {
+        PRODUCT_BUNDLE_IDENTIFIER = "${bundle_prefix}.${app_name}"
+      }
 
       deps = [
         ":${app_name}_bundle_executable_and_symbols",
