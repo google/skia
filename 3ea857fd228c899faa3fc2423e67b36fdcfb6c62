@@ -33,6 +33,24 @@
       "message": "I\u0027m not a fan. I want the the default case to be the good case, Flutter can get bad code if they want it, but it shouldn\u0027t be the default. Also, this doesn\u0027t currently keep both code paths building, so there is no point in keeping the existing code like this, it will just bitrot.",
       "revId": "3ea857fd228c899faa3fc2423e67b36fdcfb6c62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b641bf8b_a698c9e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-16T20:45:17Z",
+      "side": 1,
+      "message": "Ok. Prepare to code review the third CL that would only add SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION to gn/flutter_defines.gni.",
+      "parentUuid": "460c9f58_b479f9a8",
+      "revId": "3ea857fd228c899faa3fc2423e67b36fdcfb6c62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
