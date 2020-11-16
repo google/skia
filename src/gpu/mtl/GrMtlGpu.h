@@ -84,6 +84,7 @@ public:
                        const SkIPoint& dstPoint) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
+    id<MTLBinaryArchive> binaryArchive() const { return fBinaryArchive; }
 
     void submit(GrOpsRenderPass* renderPass) override;
 
@@ -112,7 +113,7 @@ public:
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
-             id<MTLCommandQueue>, MTLFeatureSet);
+             id<MTLCommandQueue>, id<MTLBinaryArchive>, MTLFeatureSet);
 
     void destroyResources();
 
@@ -282,6 +283,7 @@ private:
     SkDeque fOutstandingCommandBuffers;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
+    id<MTLBinaryArchive> fBinaryArchive;
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
