@@ -17,6 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
+#include "src/core/SkTLazy.h"
 
 using SkSVGColorType     = SkColor;
 using SkSVGIntegerType   = int;
@@ -25,6 +26,50 @@ using SkSVGStringType    = SkString;
 using SkSVGViewBoxType   = SkRect;
 using SkSVGTransformType = SkMatrix;
 using SkSVGPointsType    = SkTDArray<SkPoint>;
+
+enum class SkSVGPropertyState {
+    kUnspecified,
+    kInherit,
+    kValue,
+};
+
+// https://www.w3.org/TR/SVG11/intro.html#TermProperty
+template <typename T, bool kInherited> class SkSVGProperty {
+public:
+    SkSVGProperty() : fState(SkSVGPropertyState::kUnspecified) {}
+
+    template <typename... Args>
+    void init(Args&&... args) {
+        fState = SkSVGPropertyState::kValue;
+        fValue.init(std::forward<Args>(args)...);
+    }
+
+    constexpr bool isInherited() const { return kInherited; }
+
+    bool isValue() const { return fState == SkSVGPropertyState::kValue; }
+
+    T* get() const {
+        SkASSERT(fState == SkSVGPropertyState::kValue);
+        return fValue.get();
+    }
+
+    void set(SkSVGPropertyState state) { fState = state; }
+    void set(const T& value) {
+        fState = SkSVGPropertyState::kValue;
+        fValue.set(value);
+    }
+    void set(T&& value) {
+        fState = SkSVGPropertyState::kValue;
+        fValue.set(std::move(value));
+    }
+
+    T* operator->() const { return this->get(); }
+    T& operator*() const { return *this->get(); }
+
+private:
+    SkSVGPropertyState fState;
+    SkTLazy<T> fValue;
+};
 
 class SkSVGLength {
 public:
