@@ -107,6 +107,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b101be6_0d1027ea",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T20:39:08Z",
+      "side": 1,
+      "message": "One other idle thought I had: if we allow nodes to traverse the DOM hierarchy, properties set to \"inherit\" could at render-time traverse *up* the hierarchy and resolve as needed. In the above gradient example, the parent node of \u003clinearGradient\u003e always remains the \u003cg stop-color\u003d\"red\"\u003e element, so when we go to construct the SkPaint for the \u003crect\u003e, those stop colors would be resolved dynamically, so to speak. We\u0027d take a performance hit relative to the current scheme but I think it would solve this dilemma?\n\nThat said, I think it\u0027d be ok to drop it. If someone explicitly asks for the ability to manipulate styling and have it respect these inheritance rules, we can revisit then. Until then, it does seem fairly niche.",
+      "parentUuid": "f4625041_b6e5efef",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5a9a6304_94cc3fc9",

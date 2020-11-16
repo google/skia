@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47ca4f44_66e363fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T20:39:08Z",
+      "side": 1,
+      "message": "Either way we go, this template class still seems useful since it should allow us to remove kInherit from all the SVG type enums.",
+      "revId": "cd9761de99621cb5cf9c45bf5594926bee395b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
