@@ -16,6 +16,24 @@
       "message": "I\u0027m not sure we should remove this, I wish we had more ifdefs like this explicitly calling out all the terrible hacks that need to be removed (and having the right expectations). Skia is testing the path where SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION isn\u0027t set and the roller is ensuring things don\u0027t break in users which have SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION set.",
       "revId": "3268d9f3ddd7545b0558c98557d1f05185793f57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "496d095e_f6cf8b16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-16T18:08:07Z",
+      "side": 1,
+      "message": "I agree, it seems useful but! Flutter has to have SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION set and I don\u0027t want to propagate this variable all the way to Flutter. So, the best I can do is to revert the variable to have SK_PARAGRAPH_SMART_SPACES_RESOLUTION and keep the current code under it until it\u0027s needed. \nNotice, that I didn\u0027t remove the product code at all - I just don\u0027t use it for now.",
+      "parentUuid": "ae4784fc_efb4f38e",
+      "revId": "3268d9f3ddd7545b0558c98557d1f05185793f57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
