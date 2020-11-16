@@ -16,6 +16,24 @@
       "message": "We could sync up to the current activation here with `UIApplication.sharedApplication.state \u003d\u003d UIApplicationStateActive`",
       "revId": "b2e464b1d0925a8619b5342df7e207f6bd3775e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49ef2ed7_7bbe05e0",
+        "filename": "tools/sk_app/ios/main_ios.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-16T16:09:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "939bc5ea_c959c903",
+      "revId": "b2e464b1d0925a8619b5342df7e207f6bd3775e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
