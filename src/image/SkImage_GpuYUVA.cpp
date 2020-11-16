@@ -372,76 +372,69 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 
 sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
         GrRecordingContext* context,
-        SkYUVColorSpace yuvColorSpace,
-        const GrBackendFormat yuvaFormats[],
-        const SkISize yuvaSizes[],
-        const SkYUVAIndex yuvaIndices[4],
-        int imageWidth,
-        int imageHeight,
-        GrSurfaceOrigin textureOrigin,
+        const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
         sk_sp<SkColorSpace> imageColorSpace,
         PromiseImageTextureFulfillProc textureFulfillProc,
         PromiseImageTextureReleaseProc textureReleaseProc,
         PromiseImageTextureContext textureContexts[]) {
-    int numTextures;
-    bool valid = SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures);
+    if (!yuvaBackendTextureInfo.isValid()) {
+        return nullptr;
+    }
+
+    SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
+    int n = yuvaBackendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
 
     // Our contract is that we will always call the release proc even on failure.
     // We use the helper to convey the context, so we need to ensure make doesn't fail.
     textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
     sk_sp<GrRefCntedCallback> releaseHelpers[4];
-    for (int i = 0; i < numTextures; ++i) {
+    for (int i = 0; i < n; ++i) {
         releaseHelpers[i] = GrRefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
     }
+
+    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
+    SkAssertResult(yuvaBackendTextureInfo.toYUVAIndices(yuvaIndices));
+    if (yuvaBackendTextureInfo.yuvaInfo().origin() != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
+        // SkImage_GpuYUVA does not support this yet. This will get removed
+        // when the old APIs are gone and we only have to support YUVA configs described by
+        // SkYUVAInfo.
+        return nullptr;
+    }
+
+    int numIndices;
+    SkAssertResult(SkYUVAIndex::AreValidIndices(yuvaIndices, &numIndices));
+    SkASSERT(numIndices == n);
 
     if (!context) {
         return nullptr;
     }
 
-    if (!valid) {
-        return nullptr;
-    }
-
-    if (imageWidth <= 0 || imageHeight <= 0) {
-        return nullptr;
-    }
-
-    SkAlphaType at = (-1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex) ? kPremul_SkAlphaType
-                                                                       : kOpaque_SkAlphaType;
-    SkImageInfo info =
-            SkImageInfo::Make(imageWidth, imageHeight, kAssumedColorType, at, imageColorSpace);
+    SkAlphaType at = yuvaBackendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
+                                                                  : kOpaque_SkAlphaType;
+    SkImageInfo info = SkImageInfo::Make(yuvaBackendTextureInfo.yuvaInfo().dimensions(),
+                                         kAssumedColorType, at, imageColorSpace);
     if (!SkImageInfoIsValid(info)) {
         return nullptr;
     }
 
-    // verify sizes with expected texture count
-    for (int i = 0; i < numTextures; ++i) {
-        if (yuvaSizes[i].isEmpty()) {
-            return nullptr;
-        }
-    }
-    for (int i = numTextures; i < SkYUVASizeInfo::kMaxCount; ++i) {
-        if (!yuvaSizes[i].isEmpty()) {
-            return nullptr;
-        }
-    }
-
-    // Get lazy proxies
+    // Make a lazy proxy for each plane and wrap in a view.
     GrSurfaceProxyView views[4];
-    for (int texIdx = 0; texIdx < numTextures; ++texIdx) {
+    for (int texIdx = 0; texIdx < n; ++texIdx) {
         auto proxy = MakePromiseImageLazyProxy(context,
-                                               yuvaSizes[texIdx],
-                                               yuvaFormats[texIdx],
+                                               planeDimensions[texIdx],
+                                               yuvaBackendTextureInfo.planeFormat(texIdx),
                                                GrMipmapped::kNo,
                                                textureFulfillProc,
                                                std::move(releaseHelpers[texIdx]));
         if (!proxy) {
             return nullptr;
         }
-        views[texIdx] = GrSurfaceProxyView(std::move(proxy), textureOrigin, GrSwizzle("rgba"));
+        views[texIdx] = GrSurfaceProxyView(std::move(proxy), yuvaBackendTextureInfo.textureOrigin(),
+                                           GrSwizzle("rgba"));
     }
 
-    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), SkISize{imageWidth, imageHeight},
-                                       kNeedNewImageUniqueID, yuvColorSpace, views, numTextures,
-                                       yuvaIndices, std::move(imageColorSpace));
+    return sk_make_sp<SkImage_GpuYUVA>(
+            sk_ref_sp(context), yuvaBackendTextureInfo.yuvaInfo().dimensions(),
+            kNeedNewImageUniqueID, yuvaBackendTextureInfo.yuvColorSpace(), views, n, yuvaIndices,
+            std::move(imageColorSpace));
 }
