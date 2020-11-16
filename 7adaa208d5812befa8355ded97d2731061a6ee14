@@ -51,6 +51,24 @@
       "parentUuid": "efcb9306_856ce303",
       "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6925d85c_0e0170fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-11-16T10:41:35Z",
+      "side": 1,
+      "message": "I\u0027d like to hear Skia folks\u0027 opinion on this change, in particular with regards to whether this can be the default value for Windows and be reflected in Skia gold tests. I would prefer not to derive from Skia test results for what we\u0027re shipping in Chrome at some point.\n\nYes, the #ifdef transition would be the way to bring this into Chrome. \n\n\u003e My bigger concern: given the location of the code, this doesn\u0027t easily lend itself to a runtime flag to turn it on or off in Chrome, so we\u0027d probably have to land it without going through an \u0027experimental\u0027 phase.  Do you see this as a problem, Dominik?\n\nI do. I think a change of this impact would benefit from being experiment-configurable. Is there a way to refactor this so that the state can be toggled with a feature flag in Chrome - and thus an experiment configuration?",
+      "parentUuid": "8635c9ef_f4a85c28",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
