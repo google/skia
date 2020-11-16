@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "400c65b9_44fa0e2f",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-16T21:49:57Z",
+      "side": 1,
+      "message": "This has slightly different from the old CREATE_CHILD, and from the other ::create helpers (it\u0027s not creating anything), now. Want to either name this addChild, or do something like:\n\ncreateChild(target, Args\u0026... args) {\n}",
+      "range": {
+        "startLine": 144,
+        "startChar": 20,
+        "endLine": 144,
+        "endChar": 31
+      },
+      "revId": "1e5f85c65eb4e50dd42150744af13bd3194cf089",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
