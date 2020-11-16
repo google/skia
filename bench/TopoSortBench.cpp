@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTTopoSort.h"
+#include "src/gpu/GrTTopoSort.h"
 
 #include "tools/ToolUtils.h"
 
@@ -51,7 +51,7 @@ protected:
 
             ToolUtils::TopoTestNode::Shuffle(&fGraph, &fRand);
 
-            SkDEBUGCODE(bool actualResult =) SkTTopoSort<ToolUtils::TopoTestNode>(&fGraph);
+            SkDEBUGCODE(bool actualResult =) GrTTopoSort<ToolUtils::TopoTestNode>(&fGraph);
             SkASSERT(actualResult);
 
 #ifdef SK_DEBUG
