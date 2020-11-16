@@ -128,6 +128,24 @@
       "parentUuid": "599f581a_bfa92cd8",
       "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba5c5775_54f90124",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T16:46:02Z",
+      "side": 1,
+      "message": "Oh, I did not realize we only had dup and not the full slew of stack manipulators.",
+      "parentUuid": "6e69cfbf_2e808a9d",
+      "revId": "41b7529c4de7f24378ecdadde4c43437114d0127",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
