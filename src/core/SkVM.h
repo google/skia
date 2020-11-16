@@ -483,7 +483,8 @@ namespace skvm {
     // You can of course always splat() to override these opinions.
     struct I32a {
         I32a(I32 v) : SkDEBUGCODE(builder(v.builder),) id(v.id) {}
-        I32a(int v) : imm(v) {}
+        template <typename T>
+        I32a(T v, std::enable_if_t<std::is_integral<T>::value>* = nullptr) : imm(v) {}
 
         SkDEBUGCODE(Builder* builder = nullptr;)
         Val id  = NA;
