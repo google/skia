@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1be152d_384e73f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-16T18:55:53Z",
+      "side": 1,
+      "message": "Before take 1 of this CL, dm yielded the cache stats:\n\n   Entry Count: current 23 (12 budgeted, 10 wrapped, 11 locked, 12 scratch), high 32\n\ndm with take 1 of this CL yielded the cache stats:\n\n   Entry Count: current 104 (93 budgeted, 10 wrapped, 11 locked, 93 scratch), high 113\n\nSo, no scratch texture reuse.\n\nThis CL (take 2) has the cache stats:\n\n   Entry Count: current 23 (12 budgeted, 10 wrapped, 11 locked, 12 scratch), high 32\n\nSo, back to normal.",
+      "revId": "7ceda34ef3f4158c0b12a943b8702a12eba153cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
