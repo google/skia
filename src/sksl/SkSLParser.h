@@ -268,6 +268,12 @@ private:
 
     bool identifier(StringFragment* dest);
 
+    template <typename... Args> ASTNode::ID createNode(Args&&... args);
+
+    ASTNode::ID addChild(ASTNode::ID target, ASTNode::ID child);
+
+    void createEmptyChild(ASTNode::ID target);
+
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
     const char* fText;
