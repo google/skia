@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0dfab5bb_ce81cf23",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-16T17:49:11Z",
+      "side": 0,
+      "message": "should we keep this as a sanity check?  You can then assert that the value you got in JS matches this value.",
+      "revId": "a06b63c56ecd6edee1bfb9c03438a6260985e66c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
