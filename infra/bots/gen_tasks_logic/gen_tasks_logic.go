@@ -565,6 +565,10 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
 		}
+		if os == "Mac10.15" && b.parts["model"] == "VMware7.1" {
+			// ChOps VMs are at a newer version of MacOS.
+			d["os"] = "Mac-10.15.7"
+		}
 		if b.parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
