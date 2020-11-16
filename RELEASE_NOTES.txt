@@ -23,8 +23,6 @@ Milestone 89
     a MTLDevice and MTLCommandQueue is deprecated.
     https://review.skia.org/334426
 
-  * SkCanvas::flush has been deprecated.
-
 * * *
 
 Milestone 88
