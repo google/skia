@@ -396,6 +396,10 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
+        if (!memoryLayout.layoutIsSupported(*field.fType)) {
+            fErrors.error(type.fOffset, "type '" + field.fType->name() + "' is not permitted here");
+            return;
+        }
         size_t size = memoryLayout.size(*field.fType);
         size_t alignment = memoryLayout.alignment(*field.fType);
         const Layout& fieldLayout = field.fModifiers.fLayout;
@@ -2722,6 +2726,10 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                 fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.variable().type();
+    if (!memoryLayout.layoutIsSupported(*type)) {
+        fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
+        return this->nextId();
+    }
     Modifiers intfModifiers = intf.variable().modifiers();
     SpvStorageClass_ storageClass = get_storage_class(intfModifiers);
     if (fProgram.fInputs.fRTHeight && appendRTHeight) {

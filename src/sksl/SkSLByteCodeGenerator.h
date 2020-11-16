@@ -14,7 +14,6 @@
 
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCodeGenerator.h"
-#include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"

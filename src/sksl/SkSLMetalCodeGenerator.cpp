@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLMetalCodeGenerator.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -1180,6 +1181,10 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
     for (const auto& field: fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
+        if (!memoryLayout.layoutIsSupported(*fieldType)) {
+            fErrors.error(parentOffset, "type '" + fieldType->name() + "' is not permitted here");
+            return;
+        }
         if (fieldOffset != -1) {
             if (currentOffset > fieldOffset) {
                 fErrors.error(parentOffset,
