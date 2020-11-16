@@ -444,6 +444,10 @@ private:
         this->setDeviceCoordinateSystem(SkMatrix::I(), globalCTM, x, y);
     }
 
+    /** Causes any deferred drawing to the device to be completed.
+     */
+    virtual void flush() {}
+
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
 
     friend class SkNoPixelsDevice;

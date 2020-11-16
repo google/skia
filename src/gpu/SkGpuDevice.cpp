@@ -1028,6 +1028,16 @@ void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, SkC
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkGpuDevice::flush() {
+    auto direct = fContext->asDirectContext();
+    if (!direct) {
+        return;
+    }
+
+    direct->priv().flushSurface(fRenderTargetContext->asSurfaceProxy());
+    direct->submit();
+}
+
 bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                        bool deleteSemaphoresAfterWait) {
     ASSERT_SINGLE_OWNER
