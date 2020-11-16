@@ -1,4 +1,6 @@
 ### Compilation failed:
 
+error: 1: arrays without an explicit size must use an initializer expression
+error: 1: initializers are not permitted on interface block fields
 error: 1: only the last entry in an interface block may be a runtime-sized array
-1 error
+3 errors
