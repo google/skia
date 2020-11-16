@@ -166,6 +166,8 @@ sksl_metal_tests = [
   "$_tests/sksl/metal/CastMat4x4ToMat3x4.sksl",
   "$_tests/sksl/metal/CastMat4x4ToMat4x3.sksl",
   "$_tests/sksl/metal/NumericGlobals.sksl",
+  "$_tests/sksl/metal/OpaqueTypeInInterfaceBlock.sksl",
+  "$_tests/sksl/metal/OpaqueTypeInStruct.sksl",
   "$_tests/sksl/metal/SamplerGlobals.sksl",
 ]
 
