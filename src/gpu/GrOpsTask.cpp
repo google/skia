@@ -256,6 +256,20 @@ bool GrOpsTask::OpChain::tryConcat(
                 GrRectsTouchOrOverlap(fBounds, bounds)) ||
         (fProcessorAnalysis.requiresDstTexture() != processorAnalysis.requiresDstTexture()) ||
         (fProcessorAnalysis.requiresDstTexture() && fDstProxyView != dstProxyView)) {
+        printf("tryConcat rejected merge of %s : %p and %s : %p ",
+               fList.head()->name(), fList.head(), list->head()->name(), list->head());
+        if (fList.head()->classID() != list->head()->classID()) {
+            printf("\n");
+        } else if (SkToBool(fAppliedClip) != SkToBool(appliedClip)
+            || (fAppliedClip && *fAppliedClip != *appliedClip)) {
+            printf("because different applied clip %p %p\n", fAppliedClip, appliedClip);
+        } else if (fProcessorAnalysis.requiresNonOverlappingDraws() !=
+            processorAnalysis.requiresNonOverlappingDraws()
+            || (fProcessorAnalysis.requiresNonOverlappingDraws() &&
+            GrRectsTouchOrOverlap(fBounds, bounds))) {
+            printf("because overlaps\n");
+        }
+
         return false;
     }
 
@@ -298,6 +312,7 @@ bool GrOpsTask::OpChain::tryConcat(
 bool GrOpsTask::OpChain::prependChain(OpChain* that, const GrCaps& caps,
                                       GrRecordingContext::Arenas* arenas,
                                       GrAuditTrail* auditTrail) {
+    printf("prepend op ");
     if (!that->tryConcat(&fList, fProcessorAnalysis, fDstProxyView, fAppliedClip, fBounds, caps,
                          arenas, auditTrail)) {
         this->validate();
@@ -330,6 +345,7 @@ GrOp::Owner GrOpsTask::OpChain::appendOp(
     SkASSERT(op->isChainHead() && op->isChainTail());
     SkRect opBounds = op->bounds();
     List chain(std::move(op));
+    printf("append op ");
     if (!this->tryConcat(
             &chain, processorAnalysis, *dstProxyView, appliedClip, opBounds, caps,
             arenas, auditTrail)) {
@@ -841,6 +857,7 @@ void GrOpsTask::recordOp(
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
+    printf("placing %s in chain\n", op->name());
     fOpChains.emplace_back(std::move(op), processorAnalysis, clip, dstProxyView);
 }
 

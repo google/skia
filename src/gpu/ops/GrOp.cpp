@@ -41,13 +41,18 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
 
 GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, SkArenaAlloc* alloc, const GrCaps& caps) {
     SkASSERT(this != that);
+    printf("considering merging %s : %p and %s : %p ", this->name(), this, that->name(), that);
     if (this->classID() != that->classID()) {
+        printf("can't combine\n");
         return CombineResult::kCannotCombine;
     }
     auto result = this->onCombineIfPossible(that, alloc, caps);
     if (result == CombineResult::kMerged) {
+        printf("merged\n");
         this->joinBounds(*that);
+        return result;
     }
+    printf("kept separate\n");
     return result;
 }
 
