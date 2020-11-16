@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed2ad83f_0161b719",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-16T17:51:10Z",
+      "side": 1,
+      "message": "Please restore the code that reads the old pictures instead of doing this.",
+      "revId": "68eedffbb09a1f334ab51a7e12732a4e06e1f8cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e11e5429_c99fe699",
