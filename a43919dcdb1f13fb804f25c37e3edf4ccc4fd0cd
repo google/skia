@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46ecfe65_9e0a0c1d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-16T18:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a208f79_adbff1a7",
+      "range": {
+        "startLine": 625,
+        "startChar": 8,
+        "endLine": 628,
+        "endChar": 9
+      },
+      "revId": "a43919dcdb1f13fb804f25c37e3edf4ccc4fd0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99529d0e_9cd5ff33",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-16T18:27:10Z",
       "side": 1,
       "message": "This could be replaced with GrClip::IsPixelAligned(r)",
+      "range": {
+        "startLine": 633,
+        "startChar": 21,
+        "endLine": 634,
+        "endChar": 72
+      },
+      "revId": "a43919dcdb1f13fb804f25c37e3edf4ccc4fd0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cd4d74c_59e804b5",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-16T18:45:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99529d0e_9cd5ff33",
       "range": {
         "startLine": 633,
         "startChar": 21,
