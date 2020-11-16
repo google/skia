@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "800d6930_c6505181",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-16T18:18:29Z",
+      "side": 1,
+      "message": "Let\u0027s keep the current code under the flag",
+      "revId": "3ea857fd228c899faa3fc2423e67b36fdcfb6c62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
