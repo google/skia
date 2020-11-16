@@ -38,6 +38,10 @@ class FunctionCall;
 struct ParsedModule;
 struct Swizzle;
 
+namespace dsl {
+    class DSLWriter;
+} // namespace dsl
+
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
  */
@@ -144,6 +148,26 @@ public:
     void pushSymbolTable();
     void popSymbolTable();
 
+    std::unique_ptr<Expression> call(int offset,
+                                     std::unique_ptr<Expression> function,
+                                     ExpressionArray arguments);
+
+    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
+
+    std::unique_ptr<Expression> convertBinaryExpression(int offset,
+                                                        std::unique_ptr<Expression> left,
+                                                        Token::Kind op,
+                                                        std::unique_ptr<Expression> right);
+
+    std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
+
+    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base, String fields);
+
+    std::unique_ptr<Expression> convertTernaryExpression(int offset,
+                                                         std::unique_ptr<Expression> test,
+                                                         std::unique_ptr<Expression> ifTrue,
+                                                         std::unique_ptr<Expression> ifFalse);
+
     const Context& fContext;
 
 private:
@@ -166,11 +190,7 @@ private:
                                      ExpressionArray arguments);
     CoercionCost callCost(const FunctionDeclaration& function,
                           const ExpressionArray& arguments);
-    std::unique_ptr<Expression> call(int offset,
-                                     std::unique_ptr<Expression> function,
-                                     ExpressionArray arguments);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
-    std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     template <typename T>
     std::unique_ptr<Expression> constantFoldVector(const Expression& left,
                                                    Token::Kind op,
@@ -212,8 +232,6 @@ private:
                                                  StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              StringFragment field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               StringFragment fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);
@@ -262,6 +280,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class dsl::DSLWriter;
 };
 
 }  // namespace SkSL

@@ -13,6 +13,8 @@
 #include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/dsl/Statement.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
@@ -22,6 +24,7 @@ GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     , fCodeIndex(kCode)
     , fFinalized(false)
     , fTmpVariableCounter(0) {
+    SkSL::dsl::DSLWriter::Instance().reset();
     // We push back some dummy pointers which will later become our header
     for (int i = 0; i <= kCode; i++) {
         fShaderStrings.push_back();
@@ -79,6 +82,14 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(GrSLType returnType,
                                                 bool forceInline) {
     this->appendFunctionDecl(returnType, mangledName, args, forceInline);
     this->functions().append(";\n");
+}
+
+void GrGLSLShaderBuilder::codeAppend(SkSL::dsl::Statement stmt) {
+    for (const std::unique_ptr<SkSL::Statement>& v :
+         SkSL::dsl::DSLWriter::Instance().pendingDeclarations()) {
+        this->codeAppend(v->description().c_str());
+    }
+    this->codeAppend(stmt.release()->description().c_str());
 }
 
 static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {

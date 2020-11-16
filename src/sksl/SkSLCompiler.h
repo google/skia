@@ -46,6 +46,11 @@ class SkSLCompileBench;
 
 namespace SkSL {
 
+namespace dsl {
+    class DSL;
+    class DSLWriter;
+} // namespace dsl
+
 class ByteCode;
 class ExternalValue;
 class IRGenerator;
@@ -300,6 +305,8 @@ private:
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
+    friend class dsl::DSL;
+    friend class dsl::DSLWriter;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
