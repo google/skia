@@ -34,6 +34,24 @@
       "parentUuid": "ae4784fc_efb4f38e",
       "revId": "3268d9f3ddd7545b0558c98557d1f05185793f57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e35fbe4_33d5ac09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-16T20:37:42Z",
+      "side": 1,
+      "message": "Why not, it just means adding SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION to gn/flutter_defines.gni . If flutter wants to be wrong, it can be explicitly wrong this way. I really want a big red flag in the code everywhere we hobble the code in ridiculous ways, because there are so many of them we aren\u0027t going to be able to keep track of them without big ugly ifdefs all over the codebase.",
+      "parentUuid": "496d095e_f6cf8b16",
+      "revId": "3268d9f3ddd7545b0558c98557d1f05185793f57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
