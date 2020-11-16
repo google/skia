@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "acdf90aa_a40f16ad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T16:24:28Z",
+      "side": 1,
+      "message": "That example makes sense to me (pull from immediate parent when \"inherit\" is specified). See other comment for discussion on when exactly that \"pull\" should happen.",
+      "parentUuid": "0c5df704_228ae6da",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e7e708f_5431ea62",
         "filename": "/COMMIT_MSG",
         "patchSetId": 5
@@ -31,6 +49,30 @@
       "writtenOn": "2020-11-16T15:26:38Z",
       "side": 1,
       "message": "Hmm, how does the computed value relate to DOM construction?\n\nMy understanding is \"computed values\" are essentially properties resolved to absolute values that can be used for rendering.  E.g. percentage -\u003e absolute value.\n\nhttps://www.w3.org/TR/2008/REC-CSS2-20080411/cascade.html#computed-value\n\nSince there are cases where the same element is used in different DOM contexts (e.g. via \u003cuse\u003e), it seems that computed values cannot be resolved at construction time as they depend on the use context not just their parent context?\n\nTo fully support CSS semantics, I *think* we need a separate \"ComputedProperties\" primitive-type-only structure for inheritance cascading.",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1000d518_d5d3bd72",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T16:24:28Z",
+      "side": 1,
+      "message": "Inheritance of this sort never seems to be called out as something that happens at DOM construction time, but I\u0027m not sure how else to explain this example:\n\n    \u003csvg version\u003d\"1.1\" xmlns\u003d\"http://www.w3.org/2000/svg\" xmlns:xlink\u003d\"http://www.w3.org/1999/xlink\"\u003e\n      \u003cg stop-color\u003d\"red\"\u003e\n        \u003clinearGradient id\u003d\"MyGradient1\" stop-color\u003d\"inherit\"\u003e\n          \u003cstop offset\u003d\"0\" stop-color\u003d\"green\" stop-opacity\u003d\"1\"/\u003e\n          \u003cstop offset\u003d\"1\" stop-color\u003d\"inherit\" stop-opacity\u003d\"1\"/\u003e\n        \u003c/linearGradient\u003e\n      \u003c/g\u003e\n      \u003cg stop-color\u003d\"blue\"\u003e\n        \u003crect fill\u003d\"url(#MyGradient1)\" width\u003d\"100\" height\u003d\"100\" x\u003d\"50\" y\u003d\"50\"/\u003e\n      \u003c/g\u003e\n    \u003c/svg\u003e\n\n(part of test pservers-grad-18-b)\n\nThe resulting rect is filled with a gradient from green to red, not green to blue as one might expect. It seems to me that in fact the computed value for the stop-color must be done at DOM construction time, even though the gradient element can be referenced in arbitrary other contexts. This is only because the stop-color attribute is not inheritable (\"Inherited: no\" in the spec).",
+      "parentUuid": "3e7e708f_5431ea62",
       "range": {
         "startLine": 25,
         "startChar": 51,
@@ -75,6 +117,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7294c6f1_8dfa05df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T16:24:28Z",
+      "side": 1,
+      "message": "Will do, this one got a little bit away from me :-). We can punt on all the discussions below as well.",
+      "parentUuid": "4a73139a_d7d77ec9",
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e470b172_10694a39",
@@ -111,6 +171,30 @@
       "writtenOn": "2020-11-16T15:26:38Z",
       "side": 1,
       "message": "What does type\u003d\u003dunknown mean?  Isn\u0027t inheritability always known?",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "776d1b9a_ae90b956",
+        "filename": "modules/svg/include/SkSVGProperty.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-16T16:24:28Z",
+      "side": 1,
+      "message": "Yeah, per your other comment it\u0027s really a trait of a given property, so I like the idea of adding it as a template param instead. That was complicating some of the function signatures, but I\u0027ll revisit to see if there\u0027s a clean way to do it.",
+      "parentUuid": "acc59d73_fcf538e5",
       "range": {
         "startLine": 47,
         "startChar": 8,
