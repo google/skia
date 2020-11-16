@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65a36a29_0882992f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-16T18:27:10Z",
+      "side": 1,
+      "message": "just some minor points, but otherwise makes sense to me",
+      "revId": "a43919dcdb1f13fb804f25c37e3edf4ccc4fd0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a208f79_adbff1a7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-16T18:27:10Z",
+      "side": 1,
+      "message": "Now all values of GrClip::Effect are being handled, maybe a switch is cleaner looking?",
+      "range": {
+        "startLine": 625,
+        "startChar": 8,
+        "endLine": 628,
+        "endChar": 9
+      },
+      "revId": "a43919dcdb1f13fb804f25c37e3edf4ccc4fd0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99529d0e_9cd5ff33",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-16T18:27:10Z",
+      "side": 1,
+      "message": "This could be replaced with GrClip::IsPixelAligned(r)",
+      "range": {
+        "startLine": 633,
+        "startChar": 21,
+        "endLine": 634,
+        "endChar": 72
+      },
+      "revId": "a43919dcdb1f13fb804f25c37e3edf4ccc4fd0cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
