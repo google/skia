@@ -46,6 +46,12 @@ Run::Run(ParagraphImpl* owner,
     fPositions[info.glyphCount] = fOffset + fAdvance;
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
+    if (fOwner) {
+        size_t len = fOwner->getWhitespacesLength(fTextRange);
+        fWhitespaces = (len == this->fTextRange.width());
+    } else {
+        fWhitespaces = false;
+    }
     fPlaceholderIndex = std::numeric_limits<size_t>::max();
 }
 

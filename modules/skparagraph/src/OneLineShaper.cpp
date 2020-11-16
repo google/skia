@@ -303,7 +303,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         const char* cluster = text.begin() + clusterIndex(i);
         SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
         bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
-        // TODO: This is a temp change to match space handiling in LibTxt
+        // TODO: This is a temp change to match space handling in LibTxt
         // (all spaces are resolved with the main font)
 #ifdef SK_PARAGRAPH_SMART_SPACES_RESOLUTION
         bool isWhitespace8 = fParagraph->getUnicode()->isWhitespace(codepoint);

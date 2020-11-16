@@ -107,6 +107,7 @@ public:
     ParagraphImpl* owner() const { return fOwner; }
 
     bool isEllipsis() const { return fEllipsis; }
+    bool isWhitespaces() const { return fWhitespaces; }
 
     void calculateMetrics();
     void updateMetrics(InternalLineMetrics* endlineMetrics);
@@ -200,6 +201,7 @@ private:
 
     bool fSpaced;
     bool fEllipsis;
+    bool fWhitespaces;
     uint8_t fBidiLevel;
 };
 

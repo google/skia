@@ -5555,3 +5555,84 @@ DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
     REPORTER_ASSERT(reporter, impl->runs()[4].textRange().width() == 4); // " def"
 #endif
 }
+
+
+DEF_TEST(SkParagraph_NoCache1, reporter) {
+
+    ParagraphCache cache;
+    cache.turnOn(true);
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_NoCache1.png");
+    // Long arabic text with english spaces
+    const char* text =
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "بمباركة التقليدية قام عن. تصفح";
+
+    SkString str;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(14);
+    text_style.setColor(SK_ColorBLACK);
+
+
+    auto test = [&](const char* test, const char* text, bool editing0, bool wasted0) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        SkDebugf("test %s:\n", test);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(TestCanvasWidth);
+        paragraph->paint(canvas.get(), 0, 0);
+
+        if (test == nullptr) {
+            return;
+        }
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        auto editing1 = fontCollection->getParagraphCache()->isPossiblyTextEditing(impl);
+        REPORTER_ASSERT(reporter, editing0 == editing1);
+        auto wasted1 = fontCollection->getParagraphCache()->isTooMuchMemoryWasted(impl);
+        REPORTER_ASSERT(reporter, wasted0 == wasted1);
+    };
+
+    // Long arabic text
+    str.append(text);
+    test(nullptr, str.c_str(), false, false);
+    test("Long arabic text", str.c_str(), true, true);
+
+    // Add one character
+    str.append("ا", 1);
+    test("+1 character", str.c_str(), true, true);
+
+    // Remove 2 characters
+    str.resize(str.size() - 2);
+    test("-2 characters", str.c_str(), true, true);
+
+    // Too long arabic text
+    str.append(text);
+    test("Double the text", str.c_str(), false, true);
+
+    // The text wastes too much memory
+    str.append(text);
+    str.append(text);
+    str.append(text);
+    str.append(text);
+
+    for (size_t i = 0; i < str.size(); ++i) {
+        if (str[i] == ' ') {
+            str[i] = '_';
+        }
+    }
+    test("Toooooo long text", str.c_str(), false, true);
+}

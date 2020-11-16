@@ -45,14 +45,17 @@ public:
     void turnOn(bool value) { fCacheIsOn = value; }
     int count() { return fLRUCacheMap.count(); }
 
+    bool isPossiblyTextEditing(ParagraphImpl* paragraph);
+    bool isTooMuchMemoryWasted(ParagraphImpl* paragraph);
+
  private:
 
     struct Entry;
     void updateFrom(const ParagraphImpl* paragraph, Entry* entry);
     void updateTo(ParagraphImpl* paragraph, const Entry* entry);
 
-     mutable SkMutex fParagraphMutex;
-     std::function<void(ParagraphImpl* impl, const char*, bool)> fChecker;
+    mutable SkMutex fParagraphMutex;
+    std::function<void(ParagraphImpl* impl, const char*, bool)> fChecker;
 
     static const int kMaxEntries = 128;
 
@@ -63,6 +66,7 @@ public:
 
     SkLRUCache<ParagraphCacheKey, std::unique_ptr<Entry>, KeyHash> fLRUCacheMap;
     bool fCacheIsOn;
+    ParagraphCacheValue* fLastCachedValue;
 
 #ifdef PARAGRAPH_CACHE_STATS
     int fTotalRequests;
