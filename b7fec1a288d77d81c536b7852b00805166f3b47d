@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54829e0c_d8d18ba6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-16T22:55:18Z",
+      "side": 1,
+      "message": "Does this feel like a valid way to evolve? Where we don\u0027t have heuristics for \"disabling\" the bicubic?",
+      "revId": "b7fec1a288d77d81c536b7852b00805166f3b47d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
