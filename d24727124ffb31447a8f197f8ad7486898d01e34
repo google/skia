@@ -16,6 +16,24 @@
       "message": "nit: add similar comment below?",
       "revId": "d24727124ffb31447a8f197f8ad7486898d01e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d9c835_f669caeb",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-11-16T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49b76b7d_14b79444",
+      "revId": "d24727124ffb31447a8f197f8ad7486898d01e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
