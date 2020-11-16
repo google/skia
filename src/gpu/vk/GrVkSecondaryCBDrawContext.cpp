@@ -181,7 +181,7 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
         return false;
     }
 
-    direct->priv().createDDLTask(std::move(ddl), rtc->asRenderTargetProxy());
+    direct->priv().createDDLTask(std::move(ddl), rtc->asRenderTargetProxy(), { 0, 0 });
     return true;
 }
 
