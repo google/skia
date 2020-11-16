@@ -1972,6 +1972,8 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
     SkDEBUGCODE(drawOp->fAddDrawOpCalled = true;)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "addDrawOp", fContext);
 
+    printf("adding op %s\n", op->name());
+
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
