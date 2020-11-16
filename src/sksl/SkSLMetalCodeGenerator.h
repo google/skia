@@ -14,7 +14,6 @@
 #include <unordered_set>
 
 #include "src/sksl/SkSLCodeGenerator.h"
-#include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
