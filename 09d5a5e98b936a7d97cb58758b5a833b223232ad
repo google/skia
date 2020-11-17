@@ -46,6 +46,30 @@
       },
       "revId": "09d5a5e98b936a7d97cb58758b5a833b223232ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0b42cfa_bed889da",
+        "filename": "tests/sksl/errors/golden/ArrayUnspecifiedDimensions.glsl",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-17T15:50:21Z",
+      "side": 1,
+      "message": "Fixed at http://review.skia.org/335584 (placed ahead of this CL)",
+      "parentUuid": "e9e1d01f_b8012235",
+      "range": {
+        "startLine": 3,
+        "startChar": 7,
+        "endLine": 3,
+        "endChar": 8
+      },
+      "revId": "09d5a5e98b936a7d97cb58758b5a833b223232ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
