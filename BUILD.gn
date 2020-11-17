@@ -23,6 +23,24 @@ if (defined(skia_settings)) {
 
 import("gn/ios.gni")
 
+if (is_ios && skia_ios_min_target != "") {
+  if (defined(extra_cflags)) {
+    extra_cflags += [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  } else {
+    extra_cflags = [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  }
+  if (defined(extra_asmflags)) {
+    extra_asmflags += [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  } else {
+    extra_asmflags = [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  }
+  if (defined(extra_ldflags)) {
+    extra_ldflags += [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  } else {
+    extra_ldflags = [ "-miphoneos-version-min=$skia_ios_min_target" ]
+  }
+}
+
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = [ "." ]
@@ -1549,6 +1567,7 @@ if (skia_enable_tools) {
         testonly = true
         extra_configs = [ ":skia_private" ]
         launchscreen = "platform_tools/ios/app/LaunchScreen.storyboard"
+
         data_sources = [ "resources" ]
         if ("True" == exec_script("//gn/checkdir.py",
                                   [ rebase_path("skps", root_build_dir) ],

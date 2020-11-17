@@ -77,6 +77,7 @@ declare_args() {
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
+    skia_ios_min_target = ""
   }
 
   if (is_mac) {
