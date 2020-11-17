@@ -592,10 +592,11 @@ ASTNode::ID Parser::structVarDeclaration(Modifiers modifiers) {
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFragment name) {
-    ASTNode::ID result = this->createNode(/*offset=*/-1, ASTNode::Kind::kVarDeclarations);
-    this->addChild(result, this->createNode(/*offset=*/-1, ASTNode::Kind::kModifiers, mods));
+    int offset = this->peek().fOffset;
+    ASTNode::ID result = this->createNode(offset, ASTNode::Kind::kVarDeclarations);
+    this->addChild(result, this->createNode(offset, ASTNode::Kind::kModifiers, mods));
     getNode(result).addChild(type);
-    ASTNode::ID currentVar = this->createNode(/*offset=*/-1, ASTNode::Kind::kVarDeclaration);
+    ASTNode::ID currentVar = this->createNode(offset, ASTNode::Kind::kVarDeclaration);
     ASTNode::VarData vd(name, 0);
     getNode(result).addChild(currentVar);
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
@@ -632,7 +633,7 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
         }
         currentVar = ASTNode::ID(fFile->fNodes.size());
         vd = ASTNode::VarData(this->text(identifierName), 0);
-        fFile->fNodes.emplace_back(&fFile->fNodes, -1, ASTNode::Kind::kVarDeclaration);
+        fFile->fNodes.emplace_back(&fFile->fNodes, offset, ASTNode::Kind::kVarDeclaration);
         getNode(result).addChild(currentVar);
         while (this->checkNext(Token::Kind::TK_LBRACKET)) {
             if (this->checkNext(Token::Kind::TK_RBRACKET)) {
@@ -1147,7 +1148,8 @@ ASTNode::ID Parser::type() {
         if (this->peek().fKind != Token::Kind::TK_RBRACKET) {
             SKSL_INT i;
             if (this->intLiteral(&i)) {
-                this->addChild(result, this->createNode(/*offset=*/-1, ASTNode::Kind::kInt, i));
+                this->addChild(result, this->createNode(this->peek().fOffset,
+                                                        ASTNode::Kind::kInt, i));
             } else {
                 return ASTNode::ID::Invalid();
             }

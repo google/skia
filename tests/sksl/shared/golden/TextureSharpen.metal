@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: Unsupported texture dimensions
+error: 3: Unsupported texture dimensions
 1 error
