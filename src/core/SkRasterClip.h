@@ -16,7 +16,10 @@
 class SkRRect;
 
 class SkConservativeClip {
-    SkIRect         fBounds;
+    SkIRect         fBounds = SkIRect::MakeEmpty();
+    bool            fIIOR = true;
+    bool            fAA = false;
+
     const SkIRect*  fClipRestrictionRect;
 
     inline void applyClipRestriction(SkRegion::Op op, SkIRect* bounds) {
@@ -28,19 +31,31 @@ class SkConservativeClip {
         }
     }
 
+    inline void onOp(SkRegion::Op op, bool isAA, bool isRect) {
+        fAA |= isAA;
+        fIIOR &= (op == SkRegion::kIntersect_Op && isRect);
+    }
+
 public:
     SkConservativeClip() : fBounds(SkIRect::MakeEmpty()), fClipRestrictionRect(nullptr) {}
 
     bool isEmpty() const { return fBounds.isEmpty(); }
-    bool isRect() const { return true; }
+    bool isRect() const { return fIIOR; }
+    bool isAA() const { return fAA; }
     const SkIRect& getBounds() const { return fBounds; }
 
-    void setEmpty() { fBounds.setEmpty(); }
-    void setRect(const SkIRect& r) { fBounds = r; }
+    void setEmpty() { this->setRect(SkIRect::MakeEmpty()); }
+    void setRect(const SkIRect& r) {
+        fBounds = r;
+        fIIOR = true;
+        fAA = false;
+    }
     void setDeviceClipRestriction(const SkIRect* rect) {
         fClipRestrictionRect = rect;
     }
-
+    void opShader(sk_sp<SkShader>) {
+        fIIOR = false;
+    }
     void opRect(const SkRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
     void opRRect(const SkRRect&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
     void opPath(const SkPath&, const SkMatrix&, const SkIRect& limit, SkRegion::Op, bool isAA);
