@@ -32,8 +32,8 @@ error: 7: '__pixel_local_inEXT' is not permitted here
 error: 7: '__pixel_local_outEXT' is not permitted here
 error: 7: 'varying' is not permitted here
 error: 7: 'inline' is not permitted here
-error: 1: 'in uniform' variables only permitted within fragment processors
-error: 1: 'varying' is only permitted in runtime effects
-error: 1: 'sk_has_side_effects' is not permitted here
-error: 1: 'inline' is not permitted here
+error: 11: 'in uniform' variables only permitted within fragment processors
+error: 11: 'varying' is only permitted in runtime effects
+error: 11: 'sk_has_side_effects' is not permitted here
+error: 11: 'inline' is not permitted here
 36 errors
