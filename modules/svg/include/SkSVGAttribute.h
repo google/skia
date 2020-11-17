@@ -72,38 +72,38 @@ enum class SkSVGAttribute {
 struct SkSVGPresentationAttributes {
     static SkSVGPresentationAttributes MakeInitial();
 
-    // TODO: SkTLazy adds an extra ptr per attribute; refactor to reduce overhead.
+    // TODO: SkSVGProperty adds an extra ptr per attribute; refactor to reduce overhead.
 
-    SkTLazy<SkSVGPaint>      fFill;
-    SkTLazy<SkSVGNumberType> fFillOpacity;
-    SkTLazy<SkSVGFillRule>   fFillRule;
-    SkTLazy<SkSVGFillRule>   fClipRule;
+    SkSVGProperty<SkSVGPaint     , true> fFill;
+    SkSVGProperty<SkSVGNumberType, true> fFillOpacity;
+    SkSVGProperty<SkSVGFillRule  , true> fFillRule;
+    SkSVGProperty<SkSVGFillRule  , true> fClipRule;
 
-    SkTLazy<SkSVGPaint>      fStroke;
-    SkTLazy<SkSVGDashArray>  fStrokeDashArray;
-    SkTLazy<SkSVGLength>     fStrokeDashOffset;
-    SkTLazy<SkSVGLineCap>    fStrokeLineCap;
-    SkTLazy<SkSVGLineJoin>   fStrokeLineJoin;
-    SkTLazy<SkSVGNumberType> fStrokeMiterLimit;
-    SkTLazy<SkSVGNumberType> fStrokeOpacity;
-    SkTLazy<SkSVGLength>     fStrokeWidth;
+    SkSVGProperty<SkSVGPaint     , true> fStroke;
+    SkSVGProperty<SkSVGDashArray , true> fStrokeDashArray;
+    SkSVGProperty<SkSVGLength    , true> fStrokeDashOffset;
+    SkSVGProperty<SkSVGLineCap   , true> fStrokeLineCap;
+    SkSVGProperty<SkSVGLineJoin  , true> fStrokeLineJoin;
+    SkSVGProperty<SkSVGNumberType, true> fStrokeMiterLimit;
+    SkSVGProperty<SkSVGNumberType, true> fStrokeOpacity;
+    SkSVGProperty<SkSVGLength    , true> fStrokeWidth;
 
-    SkTLazy<SkSVGVisibility> fVisibility;
+    SkSVGProperty<SkSVGVisibility, true> fVisibility;
 
-    SkTLazy<SkSVGColorType>  fColor;
+    SkSVGProperty<SkSVGColorType , true> fColor;
 
-    SkTLazy<SkSVGFontFamily> fFontFamily;
-    SkTLazy<SkSVGFontStyle>  fFontStyle;
-    SkTLazy<SkSVGFontSize>   fFontSize;
-    SkTLazy<SkSVGFontWeight> fFontWeight;
-    SkTLazy<SkSVGTextAnchor> fTextAnchor;
+    SkSVGProperty<SkSVGFontFamily, true> fFontFamily;
+    SkSVGProperty<SkSVGFontStyle , true> fFontStyle;
+    SkSVGProperty<SkSVGFontSize  , true> fFontSize;
+    SkSVGProperty<SkSVGFontWeight, true> fFontWeight;
+    SkSVGProperty<SkSVGTextAnchor, true> fTextAnchor;
 
     // TODO(tdenniston): add SkSVGStopColor
 
     // uninherited
-    SkTLazy<SkSVGNumberType> fOpacity;
-    SkTLazy<SkSVGClip>       fClipPath;
-    SkTLazy<SkSVGFilterType> fFilter;
+    SkSVGProperty<SkSVGNumberType, false> fOpacity;
+    SkSVGProperty<SkSVGClip      , false> fClipPath;
+    SkSVGProperty<SkSVGFilterType, false> fFilter;
 };
 
 #endif // SkSVGAttribute_DEFINED

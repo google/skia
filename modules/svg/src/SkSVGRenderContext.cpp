@@ -168,7 +168,7 @@ template <>
 void commitToPaint<SkSVGAttribute::kStrokeDashArray>(const SkSVGPresentationAttributes& attrs,
                                                      const SkSVGRenderContext& ctx,
                                                      SkSVGPresentationContext* pctx) {
-    const auto& dashArray = attrs.fStrokeDashArray.get();
+    const auto& dashArray = attrs.fStrokeDashArray.getMaybeNull();
     SkASSERT(dashArray->type() != SkSVGDashArray::Type::kInherit);
 
     if (dashArray->type() != SkSVGDashArray::Type::kDashArray) {
@@ -391,13 +391,13 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 #define ApplyLazyInheritedAttribute(ATTR)                                               \
     do {                                                                                \
         /* All attributes should be defined on the inherited context. */                \
-        SkASSERT(fPresentationContext->fInherited.f ## ATTR.isValid());                 \
-        const auto* value = attrs.f ## ATTR.getMaybeNull();                             \
-        if (value && *value != *fPresentationContext->fInherited.f ## ATTR.get()) {     \
+        SkASSERT(fPresentationContext->fInherited.f ## ATTR.isValue());                 \
+        const auto& attr = attrs.f ## ATTR;                                             \
+        if (attr.isValue() && *attr != *fPresentationContext->fInherited.f ## ATTR) {   \
             /* Update the local attribute value */                                      \
-            fPresentationContext.writable()->fInherited.f ## ATTR.set(*value);          \
+            fPresentationContext.writable()->fInherited.f ## ATTR.set(*attr);           \
             /* Update the cached paints */                                              \
-            commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *this,    \
+            commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *this,                      \
                                                      fPresentationContext.writable());  \
         }                                                                               \
     } while (false)
@@ -423,7 +423,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     ApplyLazyInheritedAttribute(Color);
 
     // Local 'color' attribute: update paints for attributes that are set to 'currentColor'.
-    if (attrs.fColor.isValid()) {
+    if (attrs.fColor.isValue()) {
         updatePaintsWithCurrentColor(attrs);
     }
 
@@ -431,17 +431,17 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     // Uninherited attributes.  Only apply to the current context.
 
-    if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
-        this->applyOpacity(*opacity, flags);
+    if (attrs.fOpacity.isValue()) {
+        this->applyOpacity(*attrs.fOpacity, flags);
     }
 
-    if (auto* clip = attrs.fClipPath.getMaybeNull()) {
-        this->applyClip(*clip);
+    if (attrs.fClipPath.isValue()) {
+        this->applyClip(*attrs.fClipPath);
     }
 
     // TODO: when both a filter and opacity are present, we can apply both with a single layer
-    if (auto* filter = attrs.fFilter.getMaybeNull()) {
-        this->applyFilter(*filter);
+    if (attrs.fFilter.isValue()) {
+        this->applyFilter(*attrs.fFilter);
     }
 }
 
