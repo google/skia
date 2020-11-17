@@ -52,7 +52,7 @@ public:
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call
     // addProxy() on the returned object.
-    GrTextureResolveRenderTask* newTextureResolveRenderTask(const GrCaps&);
+    GrTextureResolveRenderTask* newTextureResolveRenderTask();
 
     // Create a new render task that will cause the gpu to wait on semaphores before executing any
     // more RenderTasks that target proxy. It is possible for this wait to also block additional
@@ -145,6 +145,9 @@ private:
     GrRenderTask* appendTask(sk_sp<GrRenderTask>);
     GrRenderTask* insertTaskBeforeLast(sk_sp<GrRenderTask>);
 
+    // Get the last task in the DAG if it is an open ops task.
+    GrOpsTask* getActiveOpsTask() const;
+
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,
                const GrFlushInfo&,
@@ -171,7 +174,6 @@ private:
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
     SkTArray<sk_sp<GrRenderTask>>     fDAG;
-    GrOpsTask*                        fActiveOpsTask = nullptr;
     // These are the IDs of the opsTask currently being flushed (in internalFlush). They are
     // only stored here to prevent memory thrashing.
     SkSTArray<8, uint32_t, true>      fFlushingRenderTaskIDs;
