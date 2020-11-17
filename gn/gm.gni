@@ -312,6 +312,7 @@ gm_sources = [
   "$_gm/runtimefunctions.cpp",
   "$_gm/runtimeintrinsics.cpp",
   "$_gm/runtimeshader.cpp",
+  "$_gm/runtimeshader_blur.cpp",
   "$_gm/sample_matrix_constant.cpp",
   "$_gm/sample_matrix_variable.cpp",
   "$_gm/samplelocations.cpp",
