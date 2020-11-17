@@ -46,6 +46,30 @@
       },
       "revId": "42d552efc8df2ed469c1a022a4798c6c10b5a1e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3052c1bb_8dedd862",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T17:40:05Z",
+      "side": 1,
+      "message": "Talked offline – updated with a TODO.",
+      "parentUuid": "c19bf7f6_4bff312e",
+      "range": {
+        "startLine": 603,
+        "startChar": 8,
+        "endLine": 603,
+        "endChar": 73
+      },
+      "revId": "42d552efc8df2ed469c1a022a4798c6c10b5a1e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
