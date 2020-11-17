@@ -292,6 +292,10 @@ SkMatrix& SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
     return *this;
 }
 
+SkMatrix & SkMatrix::preTranslate(SkVector v) {
+    return this->preTranslate(v.x(), v.y());
+}
+
 SkMatrix& SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
     if (this->hasPerspective()) {
         SkMatrix    m;
