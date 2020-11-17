@@ -193,6 +193,7 @@ ParagraphCache::ParagraphCache()
     : fChecker([](ParagraphImpl* impl, const char*, bool){ })
     , fLRUCacheMap(kMaxEntries)
     , fCacheIsOn(true)
+    , fLastCachedValue(nullptr)
 #ifdef PARAGRAPH_CACHE_STATS
     , fTotalRequests(0)
     , fCacheMisses(0)
@@ -242,6 +243,7 @@ void ParagraphCache::reset() {
     fHashMisses = 0;
 #endif
     fLRUCacheMap.reset();
+    fLastCachedValue = nullptr;
 }
 
 bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
@@ -276,17 +278,88 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
     ++fTotalRequests;
 #endif
     SkAutoMutexExclusive lock(fParagraphMutex);
+
     ParagraphCacheKey key(paragraph);
     std::unique_ptr<Entry>* entry = fLRUCacheMap.find(key);
     if (!entry) {
+        // isTooMuchMemoryWasted(paragraph) not needed for now
+        if (isPossiblyTextEditing(paragraph)) {
+            // Skip this paragraph
+            return false;
+        }
         ParagraphCacheValue* value = new ParagraphCacheValue(paragraph);
         fLRUCacheMap.insert(key, std::make_unique<Entry>(value));
         fChecker(paragraph, "addedParagraph", true);
+        fLastCachedValue = value;
         return true;
     } else {
         // We do not have to update the paragraph
         return false;
     }
+}
+
+// Not in use but keeping it just in case
+#define NOCACHE_RUN_MIN 128
+#define NOCACHE_RUN_RATIO 0.4
+bool ParagraphCache::isTooMuchMemoryWasted(skia::textlayout::ParagraphImpl* paragraph) {
+
+    if (paragraph->fRuns.size() < NOCACHE_RUN_MIN) {
+        //SkDebugf("Not enough runs\n");
+        return false;
+    }
+
+    SkScalar glyphs = 0;
+    SkScalar runs1 = 0;
+    for (auto& run : paragraph->fRuns) {
+        glyphs += run.size();
+        if (run.size() == 1) {
+            ++runs1;
+        }
+    }
+
+    if (runs1 / paragraph->fRuns.size() > NOCACHE_RUN_RATIO) {
+        // Too much of wasted space
+        SkDebugf("Skip caching, too much memory wasting: %f\n", runs1 / paragraph->fRuns.size());
+        return true;
+    }
+
+    //SkDebugf("Not enough trivial runs\n");
+    return false;
+}
+
+// Special situation: (very) long paragraph that is close to the last formatted paragraph
+#define NOCACHE_TEXT_DELTA 10
+#define NOCACHE_PREFIX_LENGTH 40
+bool ParagraphCache::isPossiblyTextEditing(ParagraphImpl* paragraph) {
+    if (fLastCachedValue == nullptr) {
+        return false;
+    }
+
+    auto& lastText = fLastCachedValue->fKey.fText;
+    auto& text = paragraph->fText;
+
+    if ((lastText.size() < NOCACHE_PREFIX_LENGTH) || (text.size() < NOCACHE_PREFIX_LENGTH)) {
+        // Either last text or the current are too short
+        return false;
+    }
+
+    auto deltaText = std::abs((long)lastText.size() - (long)text.size());
+    if (deltaText > NOCACHE_TEXT_DELTA) {
+        // The texts have too different lengths
+        return false;
+    }
+
+    if (std::strncmp(lastText.c_str(), text.c_str(), NOCACHE_PREFIX_LENGTH) != 0) {
+        // Texts have different starts
+        return false;
+    }
+
+    // First few characters match; what are the chances?
+    // Removed few characters from the end
+    // Added few characters to the end
+    // Changed a few (last) characters
+    // SkDebugf("*** Skip caching, possibly text editing\n");
+    return true;
 }
 }  // namespace textlayout
 }  // namespace skia
