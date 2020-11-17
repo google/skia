@@ -66,9 +66,11 @@ template <typename T, T* P> struct SkFunctionWrapper {
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallVProc
     : public std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>> {
+    using inherited = std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>>;
 public:
-    SkAutoTCallVProc(T* obj)
-        : std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>>(obj) {}
+    using inherited::inherited;
+    SkAutoTCallVProc(const SkAutoTCallVProc&) = delete;
+    SkAutoTCallVProc(SkAutoTCallVProc&& that) : inherited(std::move(that)) {}
 
     operator T*() const { return this->get(); }
 };
