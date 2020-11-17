@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a066e0e_4bf799a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-17T21:15:42Z",
+      "side": 1,
+      "message": "Will I have to update skia-docker-pushes-watcher or anything?",
+      "revId": "598fbb12dd85b74a4ce04f92fc7ee58d06bc0757",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
