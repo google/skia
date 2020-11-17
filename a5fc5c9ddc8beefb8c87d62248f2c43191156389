@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a07a717_ae4600a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-17T19:18:19Z",
+      "side": 1,
+      "message": "PTAL. Could use advice on this one -- I feel like there should be a cleaner way to set up the cflags, etc.",
+      "revId": "a5fc5c9ddc8beefb8c87d62248f2c43191156389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
