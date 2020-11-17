@@ -1,5 +1,3 @@
-// TODO(nifong): Complete this before turning on clojure optimizations in compile.sh
-
 var DebuggerView = {
 	MakeSWCanvasSurface: function() {},
 	_getRasterDirectSurface: function() {},
@@ -11,6 +9,7 @@ var DebuggerView = {
 	MakeGrContext: function() {},
 	MakeOnScreenGLSurface: function() {},
 	MakeCanvasSurface: function() {},
+  MinVersion: function() {},
 
 	ColorType: {
 		RGBA_8888: {},
@@ -26,6 +25,7 @@ var DebuggerView = {
 		// public API (from C++ bindings)
 		/** @return {DebuggerView.SkCanvas} */
 		getCanvas: function() {},
+		clear: function() {},
 
 		// private API
 		_flush: function() {},
@@ -34,18 +34,31 @@ var DebuggerView = {
 
 	SkpDebugPlayer: {
 		SkpDebugPlayer: function() {},
-		loadSkp: function() {},
-		drawTo: function() {},
-		getBounds: function() {},
-		setOverdrawVis: function() {},
-		setGpuOpBounds: function() {},
-		setClipVizColor: function() {},
-		getSize: function() {},
+		changeFrame: function() {},
 		deleteCommand: function() {},
-		setCommandVisibility: function() {},
+		draw: function() {},
+		drawTo: function() {},
+		findCommandByPixel: function() {},
+		getBounds: function() {},
+		getFrameCount: function() {},
+		getImageResource: function() {},
+		getImageCount: function() {},
+		getImageInfo: function() {},
+		getLayerSummaries: function() {},
+		getLayerSummariesJs: function() {},
+		getSize: function() {},
+		imageUseInfoForFrame: function() {},
+		imageUseInfoForFrameJs: function() {},
 		jsonCommandList: function() {},
 		lastCommandInfo: function() {},
-		imageUseInfoForFrame: function() {},
+		loadSkp: function() {},
+		setClipVizColor: function() {},
+		setCommandVisibility: function() {},
+		setGpuOpBounds: function() {},
+		setInspectedLayer: function() {},
+		setOriginVisible: function() {},
+		setOverdrawVis: function() {},
+		setAndroidClipViz: function() {},
 	},
 
 	/**
