@@ -237,6 +237,13 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const buff = new ArrayBuffer(10);
     const img = CK.MakeImageFromEncoded(buff); // $ExpectType Image | null
     const img2 = CK.MakeImageFromCanvasImageSource(imgElement); // $ExpectType Image
+    const img3 = CK.MakeImage({ // $ExpectType Image | null
+      width: 1,
+      height: 1,
+      alphaType: CK.AlphaType.Premul,
+      colorType: CK.ColorType.RGBA_8888,
+      colorSpace: CK.ColorSpace.SRGB
+    }, Uint8Array.of(255, 0, 0, 250), 4);
     if (!img) return;
     const dOne = img.encodeToData(); // $ExpectType Data
     const dTwo = img.encodeToDataWithFormat(CK.ImageFormat.JPEG, 97);

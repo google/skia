@@ -293,6 +293,14 @@ export interface CanvasKit {
     MakeCanvas(width: number, height: number): EmulatedCanvas2D;
 
     /**
+     * Returns an image with the given pixel data and format.
+     * @param info
+     * @param bytes
+     * @param bytesPerRow
+     */
+    MakeImage(info: ImageInfo, bytes: number[] | TypedArray, bytesPerRow: number): Image | null;
+
+    /**
      * Return an Image backed by the encoded data, but attempt to defer decoding until the image
      * is actually used/drawn. This deferral allows the system to cache the result, either on the
      * CPU or on the GPU, depending on where the image is drawn.
