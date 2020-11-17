@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f0fd6b1_a8223f4d",
+        "filename": "include/gpu/mtl/GrMtlBackendContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-11-17T19:29:10Z",
+      "side": 1,
+      "message": "Maybe call this a |binaryArchive| instead to be more consistent with the Metal API (or |binaryPipelineArchive|).",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e60466aa_6df347f3",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-11-17T19:29:10Z",
+      "side": 1,
+      "message": "The macOS availability check here is redundant as this code wont be compiled on Mac.",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15162c22_ddd80f7a",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-11-17T19:29:10Z",
+      "side": 1,
+      "message": "Can we add a trace around |addRenderPipelineFunctionsWithDescriptor:| as well as |newRenderPipelineTraceWithDescrtiptor| please?",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "843cb818_7167a536",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-11-17T19:29:10Z",
+      "side": 1,
+      "message": "Nit: Log the error (if there is one) after checking |addRenderPipelineFunctionsWithDescriptor| returns |NO|.",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
