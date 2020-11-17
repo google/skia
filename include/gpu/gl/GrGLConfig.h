@@ -50,11 +50,6 @@
  * GR_GL_CHECK_ERROR_START: controls the initial value of gCheckErrorGL
  * when GR_GL_CHECK_ERROR is 1.  Defaults to 1.
  *
- * GR_GL_CHECK_ALLOC_WITH_GET_ERROR: If set to 1 this will then glTexImage,
- * glBufferData, glRenderbufferStorage, etc will be checked for errors. This
- * amounts to ensuring the error is GL_NO_ERROR, calling the allocating
- * function, and then checking that the error is still GL_NO_ERROR. When the
- * value is 0 we will assume no error was generated without checking.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -79,10 +74,6 @@
 
 #if !defined(GR_GL_CHECK_ERROR_START)
     #define GR_GL_CHECK_ERROR_START                     1
-#endif
-
-#if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
-    #define GR_GL_CHECK_ALLOC_WITH_GET_ERROR            1
 #endif
 
 #endif

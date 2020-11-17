@@ -771,7 +771,6 @@ def base_defines(os_conditions):
                 "SK_DISABLE_LEGACY_SHADERCONTEXT",
                 "SK_DISABLE_TRACING",
                 "SK_GL",
-                "GR_GL_CHECK_ALLOC_WITH_GET_ERROR=0",
                 "SK_SUPPORT_GPU=1",
                 "SK_DISABLE_AAA",
                 "SK_DISABLE_EFFECT_DESERIALIZATION",

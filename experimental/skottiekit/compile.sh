@@ -27,7 +27,7 @@ EMAR=`which emar`
 
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0 -DSK_DISABLE_TRACING"
-EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\",\"-DSK_DISABLE_TRACING\""
+EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DSK_DISABLE_TRACING\""
 IS_OFFICIAL_BUILD="true"
 
 if [[ $@ == *full-build* ]]; then
