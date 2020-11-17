@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "703d7f66_0ab6f178",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-17T20:38:54Z",
+      "side": 1,
+      "message": "Do we already expose a \"getter\", that returns the ImageInfo for a given Image? Very helpful that.",
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e3e17ed_415ce9bc",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1531,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-17T20:38:54Z",
+      "side": 1,
+      "message": "Do we expose a helper function that returns the bytes-per-pixel for a given colortype? Might be very nice (also helps document what we\u0027re doing).\n\ne.g.\n\nint ComputeBytesPerPixel(CavnasKit.ColorType)",
+      "range": {
+        "startLine": 1531,
+        "startChar": 23,
+        "endLine": 1531,
+        "endChar": 24
+      },
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e60fc9f_7659b0f5",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-17T20:38:54Z",
+      "side": 1,
+      "message": "Let\u0027s document about the contents of the buffer.\n\nSimplest would be to document that we *always* copy their data, so they can always mutate it after making the call. If we have a client that *really* wants us to \"share\" their buffer, we need to document when we actually do that.",
+      "range": {
+        "startLine": 1537,
+        "startChar": 10,
+        "endLine": 1537,
+        "endChar": 19
+      },
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
