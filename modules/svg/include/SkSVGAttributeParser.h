@@ -17,7 +17,6 @@ public:
     SkSVGAttributeParser(const char[]);
 
     bool parseColor(SkSVGColorType*);
-    bool parseFilter(SkSVGFilterType*);
     bool parseNumber(SkSVGNumberType*);
     bool parseInteger(SkSVGIntegerType*);
     bool parseViewBox(SkSVGViewBoxType*);
@@ -41,10 +40,8 @@ public:
         return result;
     }
 
-    template <typename T>
-    static ParseResult<T> parse(const char* expectedName,
-                                const char* name,
-                                const char* value) {
+    template <typename T, typename std::enable_if_t<!SkSVGIsProperty<T>>* = nullptr>
+    static ParseResult<T> parse(const char* expectedName, const char* name, const char* value) {
         if (!strcmp(name, expectedName)) {
             return parse<T>(value);
         }
@@ -52,6 +49,26 @@ public:
         return ParseResult<T>();
     }
 
+    template <typename T, typename std::enable_if_t<SkSVGIsProperty<T>>* = nullptr>
+    static ParseResult<T> parse(const char* expectedName, const char* name, const char* value) {
+        if (strcmp(name, expectedName)) {
+            return ParseResult<T>();
+        }
+
+        if (!strcmp(value, "inherit")) {
+            T result(SkSVGPropertyState::kInherit);
+            return ParseResult<T>(&result);
+        }
+
+        using InnerT = SkSVGPropertyInnerType<T>;
+        ParseResult<InnerT> pr = parse<InnerT>(value);
+        if (pr.isValid()) {
+            T result(*pr);
+            return ParseResult<T>(&result);
+        }
+
+        return ParseResult<T>();
+    }
 
 private:
     // Stack-only

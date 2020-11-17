@@ -165,18 +165,6 @@ bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetFilterAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                        const char* stringValue) {
-    SkSVGFilterType filter;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseFilter(&filter)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGFilterValue(filter));
-    return true;
-}
-
 bool SetPreserveAspectRatioAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                                      const char* stringValue) {
     SkSVGPreserveAspectRatio par;
@@ -272,7 +260,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "cy"                 , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
     { "d"                  , { SkSVGAttribute::kD                , SetPathDataAttribute     }},
     { "fill-opacity"       , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
-    { "filter"             , { SkSVGAttribute::kFilter           , SetFilterAttribute       }},
     { "filterUnits"        , { SkSVGAttribute::kFilterUnits      ,
                                SetObjectBoundingBoxUnitsAttribute }},
     // focal point x & y
