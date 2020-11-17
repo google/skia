@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7304ed4a_6bb40c73",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-17T20:25:25Z",
+      "side": 1,
+      "message": "Let\u0027s add this to cflags/asmflags/ldflags in the if (is_ios) part of config(\"default\") in gn/BUILD.gn?  I\u0027d like to leave the various extra_??flags empty if possible so that users get maximum maximum control there (they come last and can override any defaults we set up).",
+      "revId": "841e7d3a21fa5cdce9db92a352787d2fc7042181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
