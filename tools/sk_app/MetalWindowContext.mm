@@ -20,6 +20,13 @@
 using sk_app::DisplayParams;
 using sk_app::MetalWindowContext;
 
+static NSURL* cache_URL() {
+    NSArray *paths = [[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory
+                                                            inDomains:NSUserDomainMask];
+    NSURL* cachePath = [paths objectAtIndex:0];
+    return [cachePath URLByAppendingPathComponent:@"binaryArchive.metallib"];
+}
+
 namespace sk_app {
 
 MetalWindowContext::MetalWindowContext(const DisplayParams& params)
@@ -49,9 +56,29 @@ void MetalWindowContext::initializeContext() {
 
     fValid = this->onInitializeContext();
 
+    if (@available(macOS 11.0, iOS 14.0, *)) {
+        MTLBinaryArchiveDescriptor* desc = [MTLBinaryArchiveDescriptor new];
+        desc.url = cache_URL(); // try to load
+        NSError* error;
+        fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
+        if (!fPipelineArchive) {
+            desc.url = nil; // create new
+            NSError* error;
+            fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
+            if (!fPipelineArchive) {
+                SkDebugf("Error creating MTLBinaryArchive:\n%s\n",
+                         error.debugDescription.UTF8String);
+            }
+        }
+        [desc release];
+    }
+
     GrMtlBackendContext backendContext = {};
     backendContext.fDevice.retain((__bridge GrMTLHandle)fDevice);
     backendContext.fQueue.retain((__bridge GrMTLHandle)fQueue);
+    if (@available(macOS 11.0, iOS 14.0, *)) {
+        backendContext.fPipelineArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
+    }
     fContext = GrDirectContext::MakeMetal(backendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
@@ -72,6 +99,9 @@ void MetalWindowContext::destroyContext() {
     fMetalLayer = nil;
     fValid = false;
 
+    if (@available(macOS 11.0, iOS 14.0, *)) {
+        [fPipelineArchive release];
+    }
     [fQueue release];
     [fDevice release];
 }
@@ -131,7 +161,17 @@ void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
 }
 
 void MetalWindowContext::activate(bool isActive) {
-    // save/restore here
+    // serialize pipeline archive
+    if (!isActive) {
+        if (@available(macOS 11.0, iOS 14.0, *)) {
+            NSError* error;
+            [fPipelineArchive serializeToURL:cache_URL() error:&error];
+            if (error) {
+                SkDebugf("Error storing MTLBinaryArchive:\n%s\n",
+                         error.debugDescription.UTF8String);
+            }
+        }
+    }
 }
 
 }   //namespace sk_app
