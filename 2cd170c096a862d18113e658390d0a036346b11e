@@ -16,6 +16,23 @@
       "message": "Another fix for GCC (in this case, only when used with GOLD linker). Kind of tricky issue.",
       "revId": "2cd170c096a862d18113e658390d0a036346b11e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b885300_c23dd9a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-17T15:11:01Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand... which Chromium build is broken, and when did we break it?  I\u0027d like to prevent that from happening in our roll.\n\nWhat is GOLD?  Is it https://en.wikipedia.org/wiki/Gold_(linker)?",
+      "revId": "2cd170c096a862d18113e658390d0a036346b11e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
