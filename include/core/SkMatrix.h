@@ -729,6 +729,26 @@ public:
     */
     SkMatrix& preTranslate(SkScalar dx, SkScalar dy);
 
+    /** Sets SkMatrix to SkMatrix multiplied by SkMatrix constructed from translation by v.
+        This can be thought of as moving the point to be mapped before applying SkMatrix.
+
+        Given:
+            dx = v.x() and dy = v.y()
+
+                     | A B C |               | 1 0 dx |
+            Matrix = | D E F |,  T(dx, dy) = | 0 1 dy |
+                     | G H I |               | 0 0  1 |
+
+        sets SkMatrix to:
+
+                                 | A B C | | 1 0 dx |   | A B A*dx+B*dy+C |
+            Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
+                                 | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |
+
+        @param v   translate the matrix by the vector v.
+    */
+    SkMatrix& preTranslate(SkVector v);
+
     /** Sets SkMatrix to SkMatrix multiplied by SkMatrix constructed from scaling by (sx, sy)
         about pivot point (px, py).
         This can be thought of as scaling about a pivot point before applying SkMatrix.

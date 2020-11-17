@@ -390,7 +390,7 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
 }
 
 void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
-                                             const SkMatrixProvider& viewMatrix,
+                                             const SkMatrixProvider& drawMatrix,
                                              const SkGlyphRunList& glyphRunList) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -409,7 +409,6 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
 
     // Get the first paint to use as the key paint.
     const SkPaint& drawPaint = glyphRunList.paint();
-
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
@@ -463,7 +462,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
             textBlobCache->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+        blob = GrTextBlob::Make(glyphRunList, posMatrix);
         if (canCache) {
             blob->addKey(key);
             textBlobCache->add(glyphRunList, blob);
@@ -484,7 +483,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     for (GrSubRun* subRun : blob->subRunList()) {
-        subRun->draw(clip, viewMatrix, glyphRunList, this);
+        subRun->draw(clip, drawMatrix, posMatrix, glyphRunList, this);
     }
 }
 

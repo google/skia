@@ -539,11 +539,11 @@ public:
     /**
      * Draw the text specified by the SkGlyphRunList.
      *
-     * @param viewMatrix      transformationMatrix
+     * @param drawMatrix      transformation Matrix
      * @param glyphRunList    text, text positions, and paint.
      */
     void drawGlyphRunList(const GrClip*,
-                          const SkMatrixProvider& viewMatrix,
+                          const SkMatrixProvider& drawMatrix,
                           const SkGlyphRunList& glyphRunList);
 
     /**

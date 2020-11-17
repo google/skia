@@ -46,7 +46,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
         , fMaskType(static_cast<uint32_t>(maskType))
         , fUsesLocalCoords(false)
         , fNeedsGlyphTransform(needsTransform)
-        , fHasPerspective(needsTransform && geo.fDrawMatrix.hasPerspective())
+        , fHasPerspective(needsTransform && geo.fPosMatrix.hasPerspective())
         , fUseGammaCorrectDistanceTable(false) {
     fGeometries.push_back(geo);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -70,7 +70,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
         , fMaskType(static_cast<uint32_t>(maskType))
         , fUsesLocalCoords(false)
         , fNeedsGlyphTransform(needsTransform)
-        , fHasPerspective(needsTransform && geo.fDrawMatrix.hasPerspective())
+        , fHasPerspective(needsTransform && geo.fPosMatrix.hasPerspective())
         , fUseGammaCorrectDistanceTable(useGammaCorrectDistanceTable)
         , fLuminanceColor(luminanceColor) {
     fGeometries.push_back(geo);
@@ -80,8 +80,7 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    fSubRun.fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
-                           fDrawMatrix, fDrawOrigin, fClipRect);
+    fSubRun.fillVertexData(dst, offset, count, fColor.toBytes_RGBA(), fPosMatrix, fClipRect);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
@@ -93,11 +92,9 @@ SkString GrAtlasTextOp::onDumpInfo() const {
     SkString str;
     int i = 0;
     for (const auto& g : fGeometries.items()) {
-        str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f\n",
+        str.appendf("%d: Color: 0x%08x\n",
                     i++,
-                    g.fColor.toBytes_RGBA(),
-                    g.fDrawOrigin.x(),
-                    g.fDrawOrigin.y());
+                    g.fColor.toBytes_RGBA());
     }
 
     str += fProcessors.dumpProcessors();
@@ -358,8 +355,8 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, c
     if (fUsesLocalCoords) {
         // If the fragment processors use local coordinates, the GPs compute them using the inverse
         // of the view matrix stored in a uniform, so all geometries must have the same matrix.
-        const SkMatrix& thisFirstMatrix = fGeometries.front().fDrawMatrix;
-        const SkMatrix& thatFirstMatrix = that->fGeometries.front().fDrawMatrix;
+        const SkMatrix& thisFirstMatrix = fGeometries.front().fPosMatrix;
+        const SkMatrix& thatFirstMatrix = that->fGeometries.front().fPosMatrix;
         if (!SkMatrixPriv::CheapEqual(thisFirstMatrix, thatFirstMatrix)) {
             return CombineResult::kCannotCombine;
         }
@@ -436,13 +433,11 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
                                                const SkPaint& skPaint,
                                                const SkFont& font,
-                                               const SkMatrixProvider& mtxProvider,
+                                               const SkMatrixProvider& drawMatrix,
                                                const char* text,
                                                int x,
                                                int y) {
     size_t textLen = (int)strlen(text);
-
-    const SkMatrix& drawMatrix(mtxProvider.localToDevice());
 
     auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
@@ -456,11 +451,11 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
     auto rContext = rtc->recordingContext();
     GrSDFTOptions SDFOptions = rContext->priv().SDFTOptions();
 
-    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+    sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix.localToDevice());
     SkGlyphRunListPainter* painter = rtc->glyphRunPainter();
     painter->processGlyphRun(
             *glyphRunList.begin(),
-            drawMatrix, glyphRunList.origin(),
+            drawMatrix.localToDevice(), glyphRunList.origin(),
             glyphRunList.paint(),
             rtc->surfaceProps(),
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
@@ -472,7 +467,10 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
     GrAtlasSubRun* subRun = blob->subRunList().head()->testingOnly_atlasSubRun();
     SkASSERT(subRun);
     GrOp::Owner op;
-    std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
+    SkMatrix posMatrix{drawMatrix.localToDevice()};
+    posMatrix.preTranslate(drawOrigin);
+    std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
+            nullptr, drawMatrix, posMatrix, glyphRunList, rtc);
     return op;
 }
 

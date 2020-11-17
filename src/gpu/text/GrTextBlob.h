@@ -88,14 +88,14 @@ public:
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
-                                  const SkMatrix& drawMatrix);
+                                  const SkMatrix& posMatrix);
 
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);
 
     void addKey(const Key& key);
     bool hasPerspective() const;
-    const SkMatrix& initialMatrix() const { return fInitialMatrix; }
+    const SkMatrix& initialPosMatrix() const { return fInitialPosMatrix; }
 
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
     std::tuple<SkScalar, SkScalar> scaleBounds() const {
@@ -116,7 +116,7 @@ public:
     const SkTInternalLList<GrSubRun>& subRunList() const { return fSubRunList; }
 
 private:
-    GrTextBlob(size_t allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);
+    GrTextBlob(size_t allocSize, const SkMatrix& posMatrix, SkColor initialLuminance);
 
     void insertSubRun(GrSubRun* subRun);
 
@@ -139,7 +139,7 @@ private:
 
     // The initial view matrix combined with the initial origin. Used to determine if a cached
     // subRun can be used in this draw situation.
-    const SkMatrix fInitialMatrix;
+    const SkMatrix fInitialPosMatrix;
 
     const SkColor fInitialLuminance;
 
@@ -179,12 +179,14 @@ public:
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
+                    const SkMatrixProvider& drawMatrix,
+                    const SkMatrix& posMatrix,
                     const SkGlyphRunList& glyphRunList,
                     GrRenderTargetContext* rtc) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
-            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+            GrColor color,
+            const SkMatrix& posMatrix,
             SkIRect clip) const = 0;
 
     virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) = 0;
