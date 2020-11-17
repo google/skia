@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e7df84e_5baf1e11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-17T21:45:46Z",
+      "side": 1,
+      "message": "This change came about after debugging the chrome roller failures in this roll: https://chromium-review.googlesource.com/c/chromium/src/+/2541917 from this CL: https://skia-review.googlesource.com/c/skia/+/333123\n\nIt came down to recording canvas\u0027 using SkNoPixelsDevice, and that device not providing accurate clip bounds. We hid that detail by tracking the bounds universally in the canvas stack. This moves the conservative tracking to SkNoPixelsDevice, so that non-recording canvas\u0027 just rely on the concrete SkBitmapDevice or SkGPUDevice\u0027s reported bounds.",
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
