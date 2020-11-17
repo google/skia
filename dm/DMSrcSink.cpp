@@ -1836,7 +1836,7 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // calls.
     constexpr int kNumDivisions = 3;
     DDLTileHelper tiles(gpuThreadCtx, dstCharacterization, viewport, kNumDivisions,
-                        /* addRandomPaddingToDst */ false);
+                        /* addRandomPaddingToDst */ true);
 
     tiles.createBackendTextures(gpuTaskGroup, gpuThreadCtx);
 
