@@ -157,6 +157,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f0b0b5f9_f36aeb63",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-17T16:56:29Z",
+      "side": 1,
+      "message": "\u003e Indeed.  To avoid the hit we could also bite the bullet and introduce a style-calc pass, with style inval tracking to minimize work.\n\nJust curious, what would this look like? Just densifying/resolving all attributes on all nodes prior to rendering?",
+      "parentUuid": "1bcce772_a8cf691a",
+      "range": {
+        "startLine": 25,
+        "startChar": 51,
+        "endLine": 26,
+        "endChar": 16
+      },
+      "revId": "b856aef4f02af477a42f657716c9674718d50317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5a9a6304_94cc3fc9",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
