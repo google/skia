@@ -400,7 +400,7 @@ gm_sources = [
   "$_gm/xfermodes3.cpp",
   "$_gm/ycbcrimage.cpp",
   "$_gm/yuv420_odd_dim.cpp",
-  "$_gm/yuvtorgbeffect.cpp",
+  "$_gm/yuvtorgbsubset.cpp",
 ]
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
