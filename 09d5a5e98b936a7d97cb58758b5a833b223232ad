@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bd04906_24f75f4e",
+        "filename": "tests/sksl/errors/golden/ArrayUnspecifiedDimensions.glsl",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-17T14:26:08Z",
+      "side": 1,
+      "message": "What\u0027s up with all of these errors having the same line number?",
+      "range": {
+        "startLine": 3,
+        "startChar": 7,
+        "endLine": 3,
+        "endChar": 8
+      },
+      "revId": "09d5a5e98b936a7d97cb58758b5a833b223232ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
