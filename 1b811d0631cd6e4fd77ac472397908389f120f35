@@ -52,6 +52,24 @@
       "parentUuid": "dc3486f1_be423f86",
       "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af933bb2_4d5ed837",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-17T14:43:20Z",
+      "side": 1,
+      "message": "lol - it is np. One less thing for me to reland!",
+      "parentUuid": "cbe7c852_7a87ecd8",
+      "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
