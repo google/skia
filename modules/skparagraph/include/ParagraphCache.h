@@ -45,6 +45,8 @@ public:
     void turnOn(bool value) { fCacheIsOn = value; }
     int count() { return fLRUCacheMap.count(); }
 
+    bool isPossiblyTextEditing(ParagraphImpl* paragraph);
+
  private:
 
     struct Entry;
@@ -63,6 +65,7 @@ public:
 
     SkLRUCache<ParagraphCacheKey, std::unique_ptr<Entry>, KeyHash> fLRUCacheMap;
     bool fCacheIsOn;
+    ParagraphCacheValue* fLastCachedValue;
 
 #ifdef PARAGRAPH_CACHE_STATS
     int fTotalRequests;

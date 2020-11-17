@@ -5576,3 +5576,69 @@ DEF_TEST(SkParagraph_Intrinsic, reporter) {
     paragraph->layout(300000.0f);
     REPORTER_ASSERT(reporter, paragraph->getMinIntrinsicWidth() <= paragraph->getMaxIntrinsicWidth());
 }
+
+DEF_TEST(SkParagraph_NoCache1, reporter) {
+
+    ParagraphCache cache;
+    cache.turnOn(true);
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_NoCache1.png");
+    // Long arabic text with english spaces
+    const char* text =
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "عل بمباركة التقليدية قام عن. تصفح";
+
+    SkString str;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(14);
+    text_style.setColor(SK_ColorBLACK);
+
+
+    auto test = [&](const char* test, const char* text, bool editing) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        //SkDebugf("test %s:\n", test);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+
+        auto cache = fontCollection->getParagraphCache();
+        auto countBefore = cache->count();
+        auto paragraph = builder.Build();
+        paragraph->layout(TestCanvasWidth);
+        auto countAfter = cache->count();
+        //paragraph->paint(canvas.get(), 0, 0);
+
+        if (test == nullptr) {
+            return;
+        }
+
+        REPORTER_ASSERT(reporter, (countBefore == countAfter) == editing);
+    };
+
+    str.append(text);
+    test("Long arabic text", str.c_str(), false);
+
+    str.append("عل");
+    test("+2 character at the end", str.c_str(), true);
+
+    str = SkString(text);
+    test("-2 characters from the end", str.c_str(), true);
+
+    str.insert(0, "عل");
+    test("+2 character at the start", str.c_str(), true);
+
+    test("-2 characters from the start", text, true);
+
+    // Make sure that different strings are not flagged as editing
+    test("different strings", "0123456789 0123456789 0123456789 0123456789 0123456789", false);
+}
