@@ -1368,27 +1368,17 @@ void* GrTextBlob::operator new(size_t, void* p) { return p; }
 GrTextBlob::~GrTextBlob() = default;
 
 sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkMatrix& drawMatrix) {
-    // The difference in alignment from the storage of VertexData to SubRun;
-    union AllSubRuns {
-        ~AllSubRuns() = delete;  // MSVC warns this is implicit if we don't write it explicitly.
-        DirectMaskSubRun      d;
-        TransformedMaskSubRun t;
-        SDFTSubRun            s;
-        PathSubRun            p;
-    };
-    union AllVertexData {
-        DirectMaskSubRun     ::DevicePosition d;
-        TransformedMaskSubRun::VertexData     t;
-        SDFTSubRun           ::VertexData     s;
-    };
-
-    constexpr size_t alignDiff = alignof(AllSubRuns) - alignof(AllVertexData);
+    // The difference in alignment from the per-glyph data to the SubRun;
+    constexpr size_t alignDiff =
+            alignof(DirectMaskSubRun) - alignof(DirectMaskSubRun::DevicePosition);
     constexpr size_t vertexDataToSubRunPadding = alignDiff > 0 ? alignDiff : 0;
     size_t totalGlyphCount = glyphRunList.totalGlyphCount();
+
+    // The arenaSize is optimized for DirectMaskSubRun which is by far the most common case.
     size_t arenaSize =
-            totalGlyphCount * sizeof(AllVertexData)
+            totalGlyphCount * sizeof(DirectMaskSubRun::DevicePosition)
             + GlyphVector::GlyphVectorSize(totalGlyphCount)
-            + glyphRunList.runCount() * (sizeof(AllSubRuns) + vertexDataToSubRunPadding)
+            + glyphRunList.runCount() * (sizeof(DirectMaskSubRun) + vertexDataToSubRunPadding)
             + 32;  // Misc arena overhead.
 
     size_t allocationSize = sizeof(GrTextBlob) + arenaSize;
