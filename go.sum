@@ -266,6 +266,7 @@ github.com/bazelbuild/remote-apis-sdks v0.0.0-20201029144734-84eedba4d9ea/go.mod
 github.com/bazelbuild/remote-apis-sdks v0.0.0-20201110004117-e776219c9bb7 h1:0SkXdQd6uHU6pDzy0ZJw4KUWsBnil6QAzBj+SljxRaM=
 github.com/bazelbuild/remote-apis-sdks v0.0.0-20201110004117-e776219c9bb7/go.mod h1:SvHtabqK9r562BLgmQfd+s5hzd9UUS903b0OmQHvzrI=
 github.com/bazelbuild/remote-apis-sdks v0.0.0-20201116233214-f0ad8b722536 h1:vtJoTfFkzNGbcSSdcGiLC9a+aHRKsnlGceE0Wm5xHBE=
+github.com/bazelbuild/remote-apis-sdks v0.0.0-20201117200903-8ec2ee2346e2 h1:hZbRrJ7TK0pqX6PwYuSJesbxichRb4Jpyozpb2IywJI=
 github.com/bazelbuild/rules_go v0.0.0-20190719190356-6dae44dc5cab/go.mod h1:MC23Dc/wkXEyk3Wpq6lCqz0ZAYOZDw2DR5y3N1q2i7M=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0 h1:HWo1m869IqiPhD389kmkxeTalrjNbbJTC8LXupb+sl0=
@@ -1466,6 +1467,8 @@ go.skia.org/infra v0.0.0-20201030163508-003d90397045 h1:9uAC3f9GstmnQ1p/dNyWA2rt
 go.skia.org/infra v0.0.0-20201030163508-003d90397045/go.mod h1:ytV4zF6Ko8b2prbRy/3dws2LG0zllbkcpp9TyrMsPSo=
 go.skia.org/infra v0.0.0-20201116224347-1e7e10cc955e h1:4nZBi12MpE8M5Lkb9/fVRCzMc1+5nmhwkWjyx+cgsQ0=
 go.skia.org/infra v0.0.0-20201116224347-1e7e10cc955e/go.mod h1:oU/fFSg6ls3dhtf8znJiyV6igl/Usj8dyAKwOW8mqBs=
+go.skia.org/infra v0.0.0-20201117202645-45feb3444957 h1:Ij9XfTHPWN28cLPnWXtXfreCIMdJl8bm5njgf3/16AI=
+go.skia.org/infra v0.0.0-20201117202645-45feb3444957/go.mod h1:oU/fFSg6ls3dhtf8znJiyV6igl/Usj8dyAKwOW8mqBs=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.5.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=

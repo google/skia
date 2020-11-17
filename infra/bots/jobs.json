@@ -168,7 +168,6 @@
   "Housekeeper-PerCommit-IsolateSVG",
   "Housekeeper-PerCommit-IsolateSkImage",
   "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage",
-  "Housekeeper-PerCommit-PushAppsFromSkiaWASMDockerImages",
   "Housekeeper-PerCommit-PushAppsFromWASMDockerImage",
   "Housekeeper-PerCommit-RunGnToBp",
   "Housekeeper-Weekly-RecreateSKPs",
