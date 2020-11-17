@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f639be0c_4d7d1038",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-17T19:15:43Z",
+      "side": 1,
+      "message": "Pure code deletion and file rename. See PS 1-\u003e2 to see edits to the file, as PS1 is just the file rename and corresponding gni file update.",
+      "revId": "37c8db77472f240016ad0c96fe002ecae5f08273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
