@@ -296,6 +296,22 @@ public:
     }
 
     /**
+     * Returns true if this is an "opaque type" (an external object which the shader references in
+     * some fashion). https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Opaque_types
+     */
+    bool isOpaque() const {
+        switch (fTypeKind) {
+            case TypeKind::kOther:
+            case TypeKind::kSampler:
+            case TypeKind::kSeparateSampler:
+            case TypeKind::kTexture:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Returns the "priority" of a number type, in order of float > half > int > short.
      * When operating on two number types, the result is the higher-priority type.
      */

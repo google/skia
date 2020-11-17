@@ -1126,6 +1126,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             }
             for (const auto& decl : decls) {
                 const VarDeclaration& vd = decl->as<VarDeclaration>();
+                if (vd.var().type().isOpaque()) {
+                    fErrors.error(decl->fOffset, "opaque type '" + vd.var().type().name() +
+                                                 "' is not permitted in an interface block");
+                }
                 if (haveRuntimeArray) {
                     fErrors.error(decl->fOffset,
                                 "only the last entry in an interface block may be a runtime-sized "

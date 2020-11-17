@@ -108,6 +108,8 @@ sksl_error_tests = [
   "$_tests/sksl/errors/InvalidOutParams.sksl",
   "$_tests/sksl/errors/InvalidUnary.sksl",
   "$_tests/sksl/errors/ModifiersInStruct.sksl",
+  "$_tests/sksl/errors/OpaqueTypeInInterfaceBlock.sksl",
+  "$_tests/sksl/errors/OpaqueTypeInStruct.sksl",
   "$_tests/sksl/errors/OpenArray.sksl",
   "$_tests/sksl/errors/Ossfuzz26700.sksl",
   "$_tests/sksl/errors/Ossfuzz26759.sksl",
