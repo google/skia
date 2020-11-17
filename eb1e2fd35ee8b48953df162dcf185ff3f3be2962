@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5679bb66_323b2878",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-17T15:49:47Z",
+      "side": 1,
+      "message": "Start with \u0027A\u0027?\n\nIt seems weird to word this as adding something to GrGlyph when GrGlyph isn\u0027t itself touched here.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 44
+      },
+      "revId": "eb1e2fd35ee8b48953df162dcf185ff3f3be2962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb18a7ed_58bafef5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-17T15:49:47Z",
+      "side": 1,
+      "message": "Do you mean \"Each glyph created by a SkScalerCache will be given an id unique to that SkScalerCache.\"? Or something like that.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 29
+      },
+      "revId": "eb1e2fd35ee8b48953df162dcf185ff3f3be2962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31e16a7a_8baa45f9",
+        "filename": "src/core/SkGlyph.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-17T15:49:47Z",
+      "side": 1,
+      "message": "Both the comment and name seem quite opaque. This is essentially a void* for user context, it just happens to be inlined since it only has one user. That one user is using this to store on the SkGlyph its index into an array of SkGlyphs owned by the user. So that way if the user sees the SkGlyph again it can immediately find its own index. Instead of using SkGlyph as the key to the map the idea is to use this number as the key to the map, since it also happens to be an index.\n\nAs for the comment, what does this have to do with sub-position glyphs? SkScalerCache::fGlyphForIndex grows with each glyph added?\n\nIs int32_t the right size? What is enforcing that?",
+      "revId": "eb1e2fd35ee8b48953df162dcf185ff3f3be2962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87396b13_afa3fc41",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-17T15:49:47Z",
+      "side": 1,
+      "message": "There should at least be a debug checked SkTo\u003cint32_t\u003e here, since this is size_t.",
+      "revId": "eb1e2fd35ee8b48953df162dcf185ff3f3be2962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b5c7b14_9526fc6f",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-17T15:49:47Z",
+      "side": 1,
+      "message": "Here using int32_t directly? Make it clear this is narrowing and why that is safe?",
+      "revId": "eb1e2fd35ee8b48953df162dcf185ff3f3be2962",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
