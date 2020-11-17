@@ -34,6 +34,24 @@
       "parentUuid": "05cc0c12_fec64b82",
       "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbe7c852_7a87ecd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T14:42:03Z",
+      "side": 1,
+      "message": "Tried to edit the description to clarify, but it already merged. Oh well – the real history is here.",
+      "parentUuid": "dc3486f1_be423f86",
+      "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
