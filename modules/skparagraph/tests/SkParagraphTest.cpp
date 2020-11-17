@@ -5555,3 +5555,90 @@ DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
 
 #endif
 }
+
+DEF_TEST(SkParagraph_NoCache1, reporter) {
+
+    ParagraphCache cache;
+    cache.turnOn(true);
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_NoCache1.png");
+    // Long arabic text with english spaces
+    const char* text =
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "من أسر وإعلان الخاصّة وهولندا،, عل قائمة الضغوط بالمطالبة تلك. الصفحة "
+            "عل بمباركة التقليدية قام عن. تصفح";
+
+    SkString str;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(14);
+    text_style.setColor(SK_ColorBLACK);
+
+
+    auto test = [&](const char* test, const char* text, bool editing) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        //SkDebugf("test %s:\n", test);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        builder.pop();
+
+        auto cache = fontCollection->getParagraphCache();
+        auto countBefore = cache->count();
+        auto paragraph = builder.Build();
+        paragraph->layout(TestCanvasWidth);
+        auto countAfter = cache->count();
+        //paragraph->paint(canvas.get(), 0, 0);
+
+        if (test == nullptr) {
+            return;
+        }
+
+        REPORTER_ASSERT(reporter, (countBefore == countAfter) == editing);
+    };
+
+    // Long arabic text
+    str.append(text);
+    test("Long arabic text", str.c_str(), false);
+
+    // Add one character
+    str.append("عل");
+    test("+1 character", str.c_str(), true);
+
+    // Remove 2 characters
+    auto len = strlen("عل");
+    str.resize(str.size() - len * 2);
+    test("-2 characters", str.c_str(), true);
+
+    // Too long arabic text
+    str.append(" ");
+    str.append(text);
+    test("Double the text1", str.c_str(), false);
+
+    // The text wastes too much memory
+    str.append(text);
+    str.append(" ");
+    str.append(text);
+    str.append(" ");
+    str.append(text);
+    str.append(" ");
+    str.append(text);
+    str.append(" ");
+    str.append(text);
+    str.append(" ");
+    str.append(text);
+
+    test("Toooooo long text2", str.c_str(), false);
+
+
+    str.append("عل");
+    test("Toooooo long text3", str.c_str(), true);
+    // "ضصصثثق ققققق ققققق ققققق ققققق ققققق ققققق ققققڨ ققققق ققققق ققققق ققققق ققققق "
+}
