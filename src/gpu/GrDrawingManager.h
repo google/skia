@@ -143,7 +143,6 @@ private:
     void closeAllTasks();
 
     GrRenderTask* appendTask(sk_sp<GrRenderTask>);
-    void appendTasks(SkSpan<const sk_sp<GrRenderTask>>);
     GrRenderTask* insertTaskBeforeLast(sk_sp<GrRenderTask>);
 
     bool flush(SkSpan<GrSurfaceProxy*> proxies,

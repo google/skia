@@ -444,15 +444,6 @@ GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
     return fDAG.push_back(std::move(task)).get();
 }
 
-void GrDrawingManager::appendTasks(SkSpan<const sk_sp<GrRenderTask>> tasks) {
-#ifdef SK_DEBUG
-    for (const auto& task : tasks) {
-        SkASSERT(task && task->unique());
-    }
-#endif
-    fDAG.push_back_n(tasks.count(), tasks.begin());
-}
-
 static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
     if (!proxy->isInstantiated()) {
         return;
