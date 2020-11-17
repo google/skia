@@ -32,8 +32,7 @@ public:
         void fillVertexData(void* dst, int offset, int count) const;
 
         const GrAtlasSubRun& fSubRun;
-        const SkMatrix       fDrawMatrix;
-        const SkPoint        fDrawOrigin;
+        const SkMatrix       fPosMatrix;
         const SkIRect        fClipRect;
         GrTextBlob* const    fBlob;  // mutable to make unref call in Op dtor.
 

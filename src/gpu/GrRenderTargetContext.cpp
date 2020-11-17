@@ -393,7 +393,7 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
 }
 
 void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
-                                             const SkMatrixProvider& viewMatrix,
+                                             const SkMatrixProvider& drawMatrix,
                                              const SkGlyphRunList& glyphRunList) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -412,8 +412,6 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
 
     // Get the first paint to use as the key paint.
     const SkPaint& blobPaint = glyphRunList.paint();
-
-    SkPoint drawOrigin = glyphRunList.origin();
 
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
@@ -457,9 +455,9 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         blob = textBlobCache->find(key);
     }
 
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    if (blob == nullptr || !blob->canReuse(blobPaint, drawMatrix)) {
+    SkMatrix posMatrix{drawMatrix.localToDevice()};
+    posMatrix.preTranslate(glyphRunList.origin());
+    if (blob == nullptr || !blob->canReuse(blobPaint, posMatrix)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
@@ -467,7 +465,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
             textBlobCache->remove(blob.get());
         }
 
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+        blob = GrTextBlob::Make(glyphRunList, posMatrix);
         if (canCache) {
             blob->addKey(key);
             textBlobCache->add(glyphRunList, blob);
@@ -476,7 +474,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         // TODO(herb): redo processGlyphRunList to handle shifted draw matrix.
         bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
         fGlyphPainter.processGlyphRunList(glyphRunList,
-                                          viewMatrix.localToDevice(), // Use unshifted matrix.
+                                          drawMatrix.localToDevice(),
                                           fSurfaceProps,
                                           supportsSDFT,
                                           options,
@@ -484,7 +482,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     for (GrSubRun* subRun : blob->subRunList()) {
-        subRun->draw(clip, viewMatrix, glyphRunList, this);
+        subRun->draw(clip, drawMatrix, posMatrix, glyphRunList, this);
     }
 }
 

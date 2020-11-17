@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <screenplay xmlns="urn:screenplay">
-	<array id="colors" 
+	<array id="colors"
 		values="[yellow,blue,green,red,orange,cyan,magenta,lime,navy,olive]" />
 	<path id="path">
 		<moveTo x="20" y="20" />
@@ -10,7 +10,7 @@
 	</path>
 
 	<event kind="onLoad">
-		<matrix id="initialMatrix" translate="[120,150]" />
+		<matrix id="initialPosMatrix" translate="[120,150]" />
 		<paint  id="pathPaint" antiAlias="true">
 			<color color="lightpink" />
 		</paint>
@@ -37,17 +37,17 @@
 		<post target="addLineCaption" delay="1" />
 		<post target="scaleInitial" delay="2" />
 	</event>
-	
-	
+
+
 	<event kind="user" id="addCaptionFade" >
 		<apply>
-			<paint  > 
+			<paint  >
 				<color id="captionFade" alpha="0" />
 			</paint>
 			<animate target="captionFade" field="alpha" from="0" to="1" dur="1" />
 		</apply>
 	</event>
-	
+
 	<event kind="user" id="addLineCaption" >
 		<paint textSize="24" textAlign="center" > <!--  -->
 			<shader  />
@@ -59,11 +59,11 @@
 		<apply scope="pathPaint" >
 			<set field="linearText" to="true" />
 		</apply>
-		<apply scope="initialMatrix" >
+		<apply scope="initialPosMatrix" >
 			<animate field="scale" from="1" to=".5" dur="1"/>
 			<animate field="translateX" from="120" to="60" dur="1"/>
 			<animate field="translateY" from="150" to="180" dur="1"/>
 		</apply>
 	</event>
-	
+
 </screenplay>

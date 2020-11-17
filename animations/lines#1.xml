@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" ?> 
+<?xml version="1.0" encoding="utf-8" ?>
 <screenplay xmlns="urn:screenplay">
 	<line id="line" x1="0" y1="0" x2="100" y2="0" />
 	<random id="rRed" min="0" max="255" seed="1900"  />
 	<random id="rBlue" min="0" max="255" seed="50000"  />
 	<random id="rGreen" min="0" max="255" seed="99"  />
-	
+
 	<event kind="onLoad" >
-		<matrix id="initialMatrix" translate="[120,100]" />
-		<paint id="basePaint" strokeWidth="2" antiAlias="true" textAlign="center" 
+		<matrix id="initialPosMatrix" translate="[120,100]" />
+		<paint id="basePaint" strokeWidth="2" antiAlias="true" textAlign="center"
 				textSize="24" linearText="false" >
 			<color color="lightblue" />
 		</paint>
@@ -33,7 +33,7 @@
 		</apply>
 		<add use="line" />
 	</event>
-	
+
 	<event kind="user" id="addCaptionFade" >
 		<apply>
 			<paint>
@@ -42,22 +42,22 @@
 			<animate target="captionFade" field="alpha" from="0" to="1" dur="1" />
 		</apply>
 	</event>
-	
+
 	<event kind="user" id="addLineCaption" >
 		<text id="linescaption" text="Lines" x="0" y="120" />
 	</event>
-	
+
 	<event kind="user" id="scaleInitial" >
 		<apply scope="basePaint" >
 			<set field="linearText" to="true" dur="1" reset="true" />
 		</apply>
-		<apply scope="initialMatrix" >
+		<apply scope="initialPosMatrix" >
 			<animate field="scale" from="1" to=".5" dur="1"/>
 			<animate field="translateX" from="120" to="60" dur="1"/>
 			<animate field="translateY" from="100" to="60" dur="1"/>
 		</apply>
 	</event>
-		
+
 <!--
 	<event kind="keyChar" key="d" >
 		<dump />
