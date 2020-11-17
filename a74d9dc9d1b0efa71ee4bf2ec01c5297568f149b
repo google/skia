@@ -110,6 +110,30 @@
       },
       "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb851e3a_64461137",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-17T20:57:35Z",
+      "side": 1,
+      "message": "I vote to make it easy to understand (by the client) -- let\u0027s always copy.",
+      "parentUuid": "1d9a145a_0dc576ed",
+      "range": {
+        "startLine": 1537,
+        "startChar": 10,
+        "endLine": 1537,
+        "endChar": 19
+      },
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
