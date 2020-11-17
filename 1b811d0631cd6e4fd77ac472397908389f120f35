@@ -16,6 +16,24 @@
       "message": "When https://skia-review.googlesource.com/c/skia/+/332600 (Change UnrefDDLTask to just be the DDLTask) got reverted, https://skia-review.googlesource.com/c/skia/+/333463 (Remove the bulk add-renderTasks entry point from the drawing manager) also had to be reverted. \n\nThe former was relanded in: https://skia-review.googlesource.com/c/skia/+/334422 (Change UnrefDDLTask to just be the DDLTask (take 2)) ",
       "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc3486f1_be423f86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T14:40:04Z",
+      "side": 1,
+      "message": "Right! The bulk-add function moved in the meantime, so I figured best to go ahead and yank it now that 334422 (great number) is re-landed. Didn\u0027t mean to cut you off if this was your docket already!",
+      "parentUuid": "05cc0c12_fec64b82",
+      "revId": "1b811d0631cd6e4fd77ac472397908389f120f35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
