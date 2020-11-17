@@ -16,6 +16,23 @@
       "message": "Does this feel like a valid way to evolve? Where we don\u0027t have heuristics for \"disabling\" the bicubic?",
       "revId": "b7fec1a288d77d81c536b7852b00805166f3b47d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ede2e186_4efb39c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-17T14:16:23Z",
+      "side": 1,
+      "message": "I\u0027m not sure. We call it downgrading, but switching from bicubic to mip-maps when downscaling is probably more often considered a quality upgrade. I think a benefit of the new APIs is client is selecting an algorithm not a quality.\n\nFWIW the unit test failures are due to a few unit tests that use a downscaling draw to trigger mip level content regeneration (to test that we don\u0027t forget to regen \"dirty\" levels). They can probably be fixed by either changing to kMedium or using the new explicit APIs.",
+      "revId": "b7fec1a288d77d81c536b7852b00805166f3b47d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
