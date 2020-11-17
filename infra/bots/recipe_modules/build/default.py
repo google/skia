@@ -99,9 +99,7 @@ def compile_fn(api, checkout_root, out_dir):
     # https://developer.apple.com/news/releases/, or on Wikipedia here:
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
     # Use lowercase letters.
-    XCODE_BUILD_VERSION = '11c29'
-    if os == 'Mac10.15.5':
-      XCODE_BUILD_VERSION = '11e503a'
+    XCODE_BUILD_VERSION = '12B5044c'  # Xcode 12.2
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
