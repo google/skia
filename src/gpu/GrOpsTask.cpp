@@ -377,6 +377,52 @@ GrOpsTask::~GrOpsTask() {
     this->deleteOps();
 }
 
+void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
+                      GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+    auto addDependency = [&](GrSurfaceProxy* p, GrMipmapped mipmapped) {
+        this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
+    };
+
+    op->visitProxies(addDependency);
+
+    this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
+}
+
+void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
+                          const GrProcessorSet::Analysis& processorAnalysis,
+                          GrAppliedClip&& clip, const DstProxyView& dstProxyView,
+                          GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+    auto addDependency = [&](GrSurfaceProxy* p, GrMipmapped mipmapped) {
+        this->addSampledTexture(p);
+        this->addDependency(drawingMgr, p, mipmapped, textureResolveManager, caps);
+    };
+
+    op->visitProxies(addDependency);
+    clip.visitProxies(addDependency);
+    if (dstProxyView.proxy()) {
+        if (GrDstSampleTypeUsesTexture(dstProxyView.dstSampleType())) {
+            this->addSampledTexture(dstProxyView.proxy());
+        }
+        addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
+        if (this->target(0).proxy() == dstProxyView.proxy()) {
+            // Since we are sampling and drawing to the same surface we will need to use
+            // texture barriers.
+            SkASSERT(GrDstSampleTypeDirectlySamplesDst(dstProxyView.dstSampleType()));
+            fRenderPassXferBarriers |= GrXferBarrierFlags::kTexture;
+        }
+        SkASSERT(dstProxyView.dstSampleType() != GrDstSampleType::kAsInputAttachment ||
+                 dstProxyView.offset().isZero());
+    }
+
+    if (processorAnalysis.usesNonCoherentHWBlending()) {
+        fRenderPassXferBarriers |= GrXferBarrierFlags::kBlend;
+    }
+
+    this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
+                   &dstProxyView, caps);
+}
+
+
 void GrOpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
