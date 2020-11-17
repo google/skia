@@ -395,24 +395,26 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                 }
                 String name(type->name());
                 int64_t count;
-                if (size->is<IntLiteral>()) {
-                    count = size->as<IntLiteral>().value();
-                    if (count <= 0) {
-                        fErrors.error(size->fOffset, "array size must be positive");
-                        return {};
-                    }
-                    name += "[" + to_string(count) + "]";
-                } else {
-                    fErrors.error(size->fOffset, "array size must be specified");
+                if (!size->is<IntLiteral>()) {
+                    fErrors.error(size->fOffset, "array size must be an integer");
                     return {};
                 }
+                count = size->as<IntLiteral>().value();
+                if (count <= 0) {
+                    fErrors.error(size->fOffset, "array size must be positive");
+                    return {};
+                }
+                name += "[" + to_string(count) + "]";
                 type = fSymbolTable->takeOwnershipOfSymbol(
                         std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
                 sizes.push_back(std::move(size));
-            } else {
+            } else if (i == 0) {
                 type = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
                         type->name() + "[]", Type::TypeKind::kArray, *type, Type::kUnsizedArray));
                 sizes.push_back(nullptr);
+            } else {
+                fErrors.error(varDecl.fOffset, "array size must be specified");
+                return {};
             }
         }
         auto var = std::make_unique<Variable>(varDecl.fOffset, fModifiers->addToPool(modifiers),
@@ -423,7 +425,13 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             fRTAdjust = var.get();
         }
         std::unique_ptr<Expression> value;
-        if (iter != varDecl.end()) {
+        if (iter == varDecl.end()) {
+            if (varData.fSizeCount > 0 && sizes.front() == nullptr) {
+                fErrors.error(varDecl.fOffset,
+                              "arrays without an explicit size must use an initializer expression");
+                return {};
+            }
+        } else {
             value = this->convertExpression(*iter);
             if (!value) {
                 return {};
@@ -1258,7 +1266,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                 return;
             }
         }
-        value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
+        value = std::make_unique<IntLiteral>(fContext, e.fOffset, currentValue);
         ++currentValue;
         fSymbolTable->add(std::make_unique<Variable>(e.fOffset, fModifiers->addToPool(modifiers),
                                                      child.getString(), type, fIsBuiltinCode,
