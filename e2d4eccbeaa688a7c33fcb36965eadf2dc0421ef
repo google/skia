@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f8aacad_f9a38b84",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-17T20:09:18Z",
+      "side": 1,
+      "message": "I wasn\u0027t able to figure out how to do this overload without SFINAE and the \"inner type\" business -- let me know if you have objections/other ways to do this.",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e04d1352_39d22459",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-17T20:09:18Z",
+      "side": 1,
+      "message": "When these setters are called at parse time, this is where the handling of \"inherit\" on non-inheritable properties will need to go.",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
