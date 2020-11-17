@@ -34,6 +34,24 @@
       "parentUuid": "279eb110_aaf2b74c",
       "revId": "2ec7387e1571c5b21d176fb93d4b87ed90ae5765",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85a2b8ab_777cdd28",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1832,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-17T19:10:36Z",
+      "side": 1,
+      "message": "Looking again... maybe not?  I got confused by the terrible kLow_SkFilterQuality on the CPU, but I think they go like this top to bottom,\n\n   None\n   LQ   \u003c-- looks real bad in CPU\n   HQ\n   HQ explicit {  0,1/2}\n   HQ explicit {1/3,1/3}\n\nso maybe this GM not drawing anything differently is fine.",
+      "parentUuid": "eab36e0f_e9b6d68b",
+      "revId": "2ec7387e1571c5b21d176fb93d4b87ed90ae5765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
