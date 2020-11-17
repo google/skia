@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "279eb110_aaf2b74c",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1832,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-17T18:26:56Z",
+      "side": 1,
+      "message": "I remember the CPU and GPU backends disagree about powering down HQ, and that was the reason the GM \"bicubic\" draws differently, not the bicubic algorithm itself.\n\nWith this patched in, they still draw differently.  This must not be the only place we power down HQ?",
+      "revId": "2ec7387e1571c5b21d176fb93d4b87ed90ae5765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
