@@ -67,6 +67,24 @@
       "message": "Do we have any way of testing this? For GL and Vulkan we have the gltestpersistentcache and vktestpersistentcache configs.",
       "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33b33947_e51e02a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-17T22:46:44Z",
+      "side": 1,
+      "message": "This is the sort of information I\u0027ve been searching for online... and it\u0027s in the header? In any case, this may not be the silver bullet that Flutter needs then. We may need a side channel to track which pipelines are cached in the archive.",
+      "parentUuid": "ed3d740b_4a48244d",
+      "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
