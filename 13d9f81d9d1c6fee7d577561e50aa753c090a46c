@@ -33,6 +33,23 @@
       "message": "Some nits but LGTM otherwise. Thanks.",
       "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed3d740b_4a48244d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T20:43:45Z",
+      "side": 1,
+      "message": "Interesting, and the possibilities here are incredible! Apple does warn the following in MTLBinaryArchive.h:\n\n\u003e Updating a MTLBinaryArchive at runtime in a shipping app configuration is not recommended; such a scenario requires corruption resiliency, careful storage space management and may cache hard-to-reproduce errors.\n\nShould we add a documentation comment that this technique hasn\u0027t been battle-tested or pass along this warning from Apple? Once Flutter has been doing it for a while and found any gotchas we could take it off.",
+      "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
