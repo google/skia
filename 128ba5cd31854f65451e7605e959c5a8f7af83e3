@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ef9d6ee_60612381",
+        "filename": "src/ports/SkFontMgr_fontconfig.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-17T14:26:35Z",
+      "side": 1,
+      "message": "Can you use {} here to show more strongly that this is initing match? ...and below",
+      "range": {
+        "startLine": 602,
+        "startChar": 33,
+        "endLine": 602,
+        "endChar": 34
+      },
+      "revId": "128ba5cd31854f65451e7605e959c5a8f7af83e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
