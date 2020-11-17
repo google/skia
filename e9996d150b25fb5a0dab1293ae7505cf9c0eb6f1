@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6986a698_5638c01b",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-17T15:23:58Z",
+      "side": 1,
+      "message": "The contract is:\n\n Separate \u0027textureFulfillProc\u0027 and \u0027textureReleaseProc\u0027 calls are made for each texture. Each texture has its own PromiseImageTextureContext. If \u0027yuvaBackendTextureinfo\u0027 is not valid then no release proc\n        calls are made.\n\n[I just slightly reworded this to break a long sentence into the first two sentences].\n\nThe reason is that if the info is not valid then we have a plane count of 0 and we can\u0027t assume any number of proc contexts are valid.",
+      "parentUuid": "97897dc5_79f990e6",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 381,
+        "endChar": 23
+      },
+      "revId": "e9996d150b25fb5a0dab1293ae7505cf9c0eb6f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec7da703_d76a51bd",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-17T15:10:40Z",
       "side": 1,
       "message": "What\u0027s up with this comment ?",
+      "range": {
+        "startLine": 398,
+        "startChar": 11,
+        "endLine": 398,
+        "endChar": 66
+      },
+      "revId": "e9996d150b25fb5a0dab1293ae7505cf9c0eb6f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f0f45aa_ea3f5bea",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-17T15:23:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec7da703_d76a51bd",
       "range": {
         "startLine": 398,
         "startChar": 11,
