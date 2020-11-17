@@ -50,6 +50,23 @@
       "message": "Interesting, and the possibilities here are incredible! Apple does warn the following in MTLBinaryArchive.h:\n\n\u003e Updating a MTLBinaryArchive at runtime in a shipping app configuration is not recommended; such a scenario requires corruption resiliency, careful storage space management and may cache hard-to-reproduce errors.\n\nShould we add a documentation comment that this technique hasn\u0027t been battle-tested or pass along this warning from Apple? Once Flutter has been doing it for a while and found any gotchas we could take it off.",
       "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c21a5ec_4792ae54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-17T20:51:02Z",
+      "side": 1,
+      "message": "Do we have any way of testing this? For GL and Vulkan we have the gltestpersistentcache and vktestpersistentcache configs.",
+      "revId": "13d9f81d9d1c6fee7d577561e50aa753c090a46c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
