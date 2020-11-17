@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcb25967_954332e1",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-17T14:20:46Z",
+      "side": 1,
+      "message": "Maybe kOther, as well? That covers fragmentProcessor, \u003cINVALID\u003e, void, and null, I think. And from looking at the constructors used in Context - many of the \"sampler\" types are actually kOther.",
+      "revId": "0c148ff13f7e371e24298ee6f892a22e6927d257",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
