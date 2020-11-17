@@ -38,6 +38,16 @@ template <typename T, bool kInheritable> class SkSVGProperty {
 public:
     SkSVGProperty() : fState(SkSVGPropertyState::kUnspecified) {}
 
+    explicit SkSVGProperty(SkSVGPropertyState state) : fState(state) {}
+
+    explicit SkSVGProperty(const T& value) : fState(SkSVGPropertyState::kValue) {
+        fValue.set(value);
+    }
+
+    explicit SkSVGProperty(T&& value) : fState(SkSVGPropertyState::kValue) {
+        fValue.set(std::move(value));
+    }
+
     template <typename... Args>
     void init(Args&&... args) {
         fState = SkSVGPropertyState::kValue;
@@ -85,6 +95,21 @@ private:
     SkSVGPropertyState fState;
     SkTLazy<T> fValue;
 };
+
+template <typename T> struct SkSVGIsProperty_ : std::false_type {};
+template <typename T, bool B> struct SkSVGIsProperty_<SkSVGProperty<T, B>> : std::true_type {};
+template <typename T> constexpr inline bool SkSVGIsProperty = SkSVGIsProperty_<T>::value;
+static_assert(!SkSVGIsProperty<SkSVGNumberType>);
+static_assert(SkSVGIsProperty<SkSVGProperty<SkSVGNumberType, true>>);
+static_assert(SkSVGIsProperty<SkSVGProperty<SkSVGNumberType, false>>);
+
+template <typename T> struct SkSVGPropertyInnerType_ { using type = T; };
+template <typename T, bool B> struct SkSVGPropertyInnerType_<SkSVGProperty<T, B>> { using type = T; };
+template <typename T> using SkSVGPropertyInnerType = typename SkSVGPropertyInnerType_<T>::type;
+static_assert(std::is_same<SkSVGPropertyInnerType<SkSVGProperty<SkSVGNumberType, true>>,
+                           SkSVGNumberType>::value);
+static_assert(std::is_same<SkSVGPropertyInnerType<SkSVGProperty<SkSVGNumberType, false>>,
+                           SkSVGNumberType>::value);
 
 class SkSVGLength {
 public:
