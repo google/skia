@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b52f5b00_124a060a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-17T19:01:13Z",
+      "side": 1,
+      "message": "This is ready for re-review. All the CLs that were reverted are back in.",
+      "revId": "fc34e85c4418bfcf12b560c9927017aed22c3eeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
