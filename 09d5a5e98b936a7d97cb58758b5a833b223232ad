@@ -22,6 +22,30 @@
       },
       "revId": "09d5a5e98b936a7d97cb58758b5a833b223232ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9e1d01f_b8012235",
+        "filename": "tests/sksl/errors/golden/ArrayUnspecifiedDimensions.glsl",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-17T14:27:58Z",
+      "side": 1,
+      "message": "I\u0027m assuming their offset is -1 because some earlier piece of code used -1 instead of a proper offset. There are a lot of places that jam in -1 even when we could easily use a right-ish offset. I\u0027ll take a look.",
+      "parentUuid": "5bd04906_24f75f4e",
+      "range": {
+        "startLine": 3,
+        "startChar": 7,
+        "endLine": 3,
+        "endChar": 8
+      },
+      "revId": "09d5a5e98b936a7d97cb58758b5a833b223232ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
