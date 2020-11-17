@@ -22,6 +22,30 @@
       },
       "revId": "7fa80d5f4b07dd35b0a05688212bda7757147b17",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "257d036d_c776f98b",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-17T15:04:16Z",
+      "side": 1,
+      "message": "Actually - you\u0027re right. I was doing this just to save space, because the labels were overlapping. But the scalar/mixed/vector are better labels to explain each case, too. I\u0027ll update them.",
+      "parentUuid": "000a921c_1b2e24de",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 0
+      },
+      "revId": "7fa80d5f4b07dd35b0a05688212bda7757147b17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
