@@ -47,6 +47,7 @@ protected:
     id<MTLCommandQueue>         fQueue;
     CAMetalLayer*               fMetalLayer;
     GrMTLHandle                 fDrawableHandle;
+    id<MTLBinaryArchive>        fPipelineArchive  SK_API_AVAILABLE(macos(11.0), ios(14.0));
 };
 
 }   // namespace sk_app
