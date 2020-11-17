@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "830dc308_84114397",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-17T17:00:07Z",
+      "side": 1,
+      "message": "Isn\u0027t this more:\n\n// To preserve painter\u0027s order, we need to close the current opsTask. This is overkill\n// because we really only need to close the current opsTask if it targets\n// the same proxy as the DDL. Since DDL tasks are always closed, doing so wouldn\u0027t violate\n// the only-one-task-open-at-a-time rule.\n\nNote that I think something is probably broken for DDLs right now in the opsTaskSplittingReduction world. We probably need to close _any_ tasks that target the same proxy as the ddl.",
+      "range": {
+        "startLine": 603,
+        "startChar": 8,
+        "endLine": 603,
+        "endChar": 73
+      },
+      "revId": "42d552efc8df2ed469c1a022a4798c6c10b5a1e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
