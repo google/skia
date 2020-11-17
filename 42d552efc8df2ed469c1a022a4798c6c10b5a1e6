@@ -22,6 +22,30 @@
       },
       "revId": "42d552efc8df2ed469c1a022a4798c6c10b5a1e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c19bf7f6_4bff312e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T17:19:33Z",
+      "side": 1,
+      "message": "Since only the active ops task and its texture resolve can be open, and since closing an ops task closes its texture resolve task, are we OK then? There can\u0027t be any other open tasks at all?",
+      "parentUuid": "830dc308_84114397",
+      "range": {
+        "startLine": 603,
+        "startChar": 8,
+        "endLine": 603,
+        "endChar": 73
+      },
+      "revId": "42d552efc8df2ed469c1a022a4798c6c10b5a1e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

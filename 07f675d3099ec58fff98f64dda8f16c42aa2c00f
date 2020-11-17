@@ -16,6 +16,24 @@
       "message": "This was also checking that, when opsTaskSplittingReduction isn\u0027t enabled, there is only ever one open task % the texture resolve task.",
       "revId": "07f675d3099ec58fff98f64dda8f16c42aa2c00f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37075bb2_dd1edc28",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-17T17:19:33Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "7ef9a62d_0e03dbc9",
+      "revId": "07f675d3099ec58fff98f64dda8f16c42aa2c00f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
