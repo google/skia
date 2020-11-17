@@ -30,8 +30,8 @@ if [[ $@ == *debug* ]]; then
   BUILD_DIR=${BUILD_DIR:="out/debugger_wasm_debug"}
 else
   echo "Building a Release build"
-  EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
-  RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+  EXTRA_CFLAGS="\"-DSK_RELEASE\","
+  RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE"
   BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
 fi
 

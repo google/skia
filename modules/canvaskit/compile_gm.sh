@@ -26,8 +26,8 @@ EMCXX=`which em++`
 EMAR=`which emar`
 
 RELEASE_CONF="-O3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
-              -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0 -DGR_TEST_UTILS"
-EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\", \"-DGR_TEST_UTILS\", "
+              -DGR_TEST_UTILS"
+EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_TEST_UTILS\", "
 IS_OFFICIAL_BUILD="false"
 
 BUILD_DIR=${BUILD_DIR:="out/wasm_gm_tests"}
