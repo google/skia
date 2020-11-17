@@ -111,11 +111,19 @@ public:
         return this->onIsUsed(proxy);
     }
 
-protected:
+    // Drops any pending operations that reference proxies that are not instantiated.
+    // NOTE: Derived classes don't need to check targets. That is handled when the
+    // drawingManager calls isInstantiated.
+    virtual void handleInternalAllocationFailure() = 0;
+
+    // Feed proxy usage intervals to the GrResourceAllocator class
+    virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
+
     // In addition to just the GrSurface being allocated, has the stencil buffer been allocated (if
     // it is required)?
     bool isInstantiated() const;
 
+protected:
     SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
 
     // Add a target surface proxy to the list of targets for this task.
@@ -141,32 +149,6 @@ protected:
     // executing. Can this be replaced?
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
-private:
-    // for resetFlag, TopoSortTraits, gatherProxyIntervals, handleInternalAllocationFailure
-    friend class GrDrawingManager;
-    friend class GrDDLTask; // for handleInternalAllocationFailure, gatherProxyIntervals, Flags
-
-
-    // Drops any pending operations that reference proxies that are not instantiated.
-    // NOTE: Derived classes don't need to check targets. That is handled when the
-    // drawingManager calls isInstantiated.
-    virtual void handleInternalAllocationFailure() = 0;
-
-    // Derived classes can override to indicate usage of proxies _other than target proxies_.
-    // GrRenderTask itself will handle checking the target proxies.
-    virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
-
-    void addDependency(GrRenderTask* dependedOn);
-    void addDependent(GrRenderTask* dependent);
-    SkDEBUGCODE(bool isDependedent(const GrRenderTask* dependent) const;)
-    SkDEBUGCODE(void validate() const;)
-    void closeThoseWhoDependOnMe(const GrCaps&);
-
-    // Feed proxy usage intervals to the GrResourceAllocator class
-    virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
-
-    static uint32_t CreateUniqueID();
-
     enum Flags {
         kClosed_Flag    = 0x01,   //!< This task can't accept any more dependencies.
         kDisowned_Flag  = 0x02,   //!< This task is disowned by its creating GrDrawingManager.
@@ -186,6 +168,22 @@ private:
     bool isSetFlag(uint32_t flag) const {
         return SkToBool(fFlags & flag);
     }
+
+private:
+    // for TopoSortTraits, fTextureResolveTask, closeThoseWhoDependOnMe, addDependency
+    friend class GrDrawingManager;
+
+    // Derived classes can override to indicate usage of proxies _other than target proxies_.
+    // GrRenderTask itself will handle checking the target proxies.
+    virtual bool onIsUsed(GrSurfaceProxy*) const = 0;
+
+    void addDependency(GrRenderTask* dependedOn);
+    void addDependent(GrRenderTask* dependent);
+    SkDEBUGCODE(bool isDependedent(const GrRenderTask* dependent) const;)
+    SkDEBUGCODE(void validate() const;)
+    void closeThoseWhoDependOnMe(const GrCaps&);
+
+    static uint32_t CreateUniqueID();
 
     struct TopoSortTraits {
         static void Output(GrRenderTask* renderTask, int /* index */) {
