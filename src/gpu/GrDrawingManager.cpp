@@ -586,13 +586,12 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                      SkIPoint offset) {
     SkDEBUGCODE(this->validate());
 
-    if (fActiveOpsTask) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
-        // reordering so ops that (in the single opsTask world) would've just glommed onto the
-        // end of the single opsTask but referred to a far earlier RT need to appear in their
-        // own opsTask.
-        fActiveOpsTask->makeClosed(*fContext->priv().caps());
-        fActiveOpsTask = nullptr;
+    if (auto lastTaskOnDest = this->getLastRenderTask(newDest)) {
+        // To preserve painter's order, we need to close any ops task targeting the DDL's target.
+        lastTaskOnDest->makeClosed(*fContext->priv().caps());
+        if (lastTaskOnDest == fActiveOpsTask) {
+            fActiveOpsTask = nullptr;
+        }
     }
 
     // Propagate the DDL proxy's state information to the replay target.
