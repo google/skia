@@ -16,6 +16,52 @@
       "message": "Either way we go, this template class still seems useful since it should allow us to remove kInherit from all the SVG type enums.",
       "revId": "cd9761de99621cb5cf9c45bf5594926bee395b0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01d38ddc_0ff81b7e",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-17T15:33:53Z",
+      "side": 1,
+      "message": "Maybe \"inheritable\"?  Just thinking about differentiating the \"inherit\" value (isInherit?) - naming may get confusing.",
+      "range": {
+        "startLine": 47,
+        "startChar": 19,
+        "endLine": 47,
+        "endChar": 30
+      },
+      "revId": "cd9761de99621cb5cf9c45bf5594926bee395b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72a0b246_144260a3",
+        "filename": "modules/svg/include/SkSVGTypes.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-17T15:33:53Z",
+      "side": 1,
+      "message": "I wonder if it would be more fluent to allow nullptr returns here.  Then one doesn\u0027t have to check isValue() first but can just test for null.\n\nThe assert could be moved to */-\u003e operators.\n\nNot important, just a thought.",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 55
+      },
+      "revId": "cd9761de99621cb5cf9c45bf5594926bee395b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
