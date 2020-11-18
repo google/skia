@@ -13,7 +13,7 @@
 
 #ifdef SK_DEBUG
 template <typename T, typename Traits = T>
-void GrTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
+void GrTTopoSort_CheckAllUnmarked(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(!Traits::WasOutput(graph[i].get()));
@@ -21,7 +21,7 @@ void GrTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
 }
 
 template <typename T, typename Traits = T>
-void GrTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
+void GrTTopoSort_CleanExit(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(Traits::WasOutput(graph[i].get()));
@@ -32,21 +32,24 @@ void GrTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
 // Recursively visit a node and all the other nodes it depends on.
 // Return false if there is a loop.
 template <typename T, typename Traits = T>
-bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
-    if (Traits::IsTempMarked(node)) {
+bool GrTTopoSort_Visit(std::unique_ptr<T> node, SkTArray<std::unique_ptr<T>>* result) {
+    bool wasError = false;
+
+    if (Traits::IsTempMarked(node.get())) {
         // There is a loop.
         return false;
     }
 
     // If the node under consideration has been already been output it means it
     // (and all the nodes it depends on) are already in 'result'.
-    if (!Traits::WasOutput(node)) {
+    if (!Traits::WasOutput(node.get())) {
         // This node hasn't been output yet. Recursively assess all the
         // nodes it depends on outputing them first.
-        Traits::SetTempMark(node);
-        for (int i = 0; i < Traits::NumDependencies(node); ++i) {
-            if (!GrTTopoSort_Visit<T, Traits>(Traits::Dependency(node, i), result)) {
-                return false;
+        Traits::SetTempMark(node.get());
+        for (int i = 0; i < Traits::NumDependencies(node.get()); ++i) {
+            bool succeeded = GrTTopoSort_Visit<T, Traits>(Traits::Dependency(node.get(), i), result);
+            if (!succeeded) {
+                wasError = true;
             }
         }
         Traits::Output(node, result->count()); // mark this node as output
@@ -55,7 +58,7 @@ bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
         result->push_back(sk_ref_sp(node));
     }
 
-    return true;
+    return wasError;
 }
 
 // Topologically sort the nodes in 'graph'. For this sort, when node 'i' depends
@@ -79,14 +82,16 @@ bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
 // node and all the nodes on which it depends. This could be used to partially
 // flush a GrRenderTask DAG.
 template <typename T, typename Traits = T>
-bool GrTTopoSort(SkTArray<sk_sp<T>>* graph) {
-    SkTArray<sk_sp<T>> result;
+bool GrTTopoSort(SkTArray<std::unique_ptr<T>>* graph) {
+    SkTArray<std::unique_ptr<T>> result;
 
 #ifdef SK_DEBUG
     GrTTopoSort_CheckAllUnmarked<T, Traits>(*graph);
 #endif
 
     result.reserve_back(graph->count());
+
+    int currentLocation = 0;
 
     for (int i = 0; i < graph->count(); ++i) {
         if (Traits::WasOutput((*graph)[i].get())) {
@@ -96,7 +101,7 @@ bool GrTTopoSort(SkTArray<sk_sp<T>>* graph) {
         }
 
         // Output this node after all the nodes it depends on have been output.
-        if (!GrTTopoSort_Visit<T, Traits>((*graph)[i].get(), &result)) {
+        if (!GrTTopoSort_Visit<T, Traits>(std::move((*graph)[i]), &result)) {
             return false;
         }
     }
