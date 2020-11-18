@@ -70,6 +70,30 @@
       },
       "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19b6debe_8aada6fb",
+        "filename": "modules/skottie/src/layers/TextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T18:11:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fa1adb6_d88fd589",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
