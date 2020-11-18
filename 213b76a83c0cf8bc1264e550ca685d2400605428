@@ -51,6 +51,24 @@
       "parentUuid": "a278e2e7_938e19e2",
       "revId": "213b76a83c0cf8bc1264e550ca685d2400605428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2c6a6e2_f56cc64f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-18T19:45:41Z",
+      "side": 1,
+      "message": "(Metal is much slower, around 5ms.)",
+      "parentUuid": "c59bd19b_2cacf088",
+      "revId": "213b76a83c0cf8bc1264e550ca685d2400605428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
