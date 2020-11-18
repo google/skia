@@ -148,7 +148,7 @@ if (is_ios) {
                                "data_sources",
                                "extra_configs",
                              ])
-      if (defined(invoker.extra_configsa)) {
+      if (defined(invoker.extra_configs)) {
         configs += invoker.extra_configs
       }
       output_name = rebase_path("$gen_path/$app_name", root_build_dir)
