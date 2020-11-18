@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8419eeb2_cefd5957",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-18T15:54:16Z",
+      "side": 1,
+      "message": "NodeArrayWrapper is dead code. Should we just remove it?",
+      "revId": "b57d75ddc8bdf5831af98c11ca451a20ba1634d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
