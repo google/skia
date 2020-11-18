@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0503a03a_08a629f0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-18T15:59:13Z",
+      "side": 1,
+      "message": "This is not true if there are 0 or 1 components in the swizzle.",
+      "range": {
+        "startLine": 1103,
+        "startChar": 80,
+        "endLine": 1104,
+        "endChar": 86
+      },
+      "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
