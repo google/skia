@@ -46,6 +46,30 @@
       },
       "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fa1adb6_d88fd589",
+        "filename": "modules/skottie/src/layers/TextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T18:00:23Z",
+      "side": 1,
+      "message": "\u003e Isn\u0027t SkAutoAsciiToLC\u0027s tolower() also locale-dependent?\n\nWell, yes and no. It does use \u0027tolower\u0027 (it shouldn\u0027t) but only on codepoints \u003c 0x80. In theory this could run into problems but in practice it shouldn\u0027t. Should probably still be fixed though.",
+      "parentUuid": "6afb5a39_dd7ced78",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
