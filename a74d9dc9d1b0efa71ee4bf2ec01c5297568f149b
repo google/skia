@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7516d35_95c5a8ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-18T13:08:05Z",
+      "side": 1,
+      "message": "We do not because of an awkwardness with SkColorSpace. If we return SkColorSpace with the info, then that colorspace could leak (it would be prone to be forgotten about)\n\nWe could perhaps return everything but the colorspace (those are all JS primitives) and then have another method for colorspace with a clearly documented \"you must clean this up\"?",
+      "parentUuid": "703d7f66_0ab6f178",
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e3e17ed_415ce9bc",
@@ -126,6 +144,30 @@
       "side": 1,
       "message": "I vote to make it easy to understand (by the client) -- let\u0027s always copy.",
       "parentUuid": "1d9a145a_0dc576ed",
+      "range": {
+        "startLine": 1537,
+        "startChar": 10,
+        "endLine": 1537,
+        "endChar": 19
+      },
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd44e27f_bef3785b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-18T13:08:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb851e3a_64461137",
       "range": {
         "startLine": 1537,
         "startChar": 10,
