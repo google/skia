@@ -120,23 +120,6 @@ public:
     bool fOldCanInline;
 };
 
-IRGenerator::IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter)
-        : fContext(*context)
-        , fInliner(inliner)
-        , fErrors(errorReporter)
-        , fModifiers(new ModifiersPool()) {
-    SkASSERT(fInliner);
-}
-
-void IRGenerator::pushSymbolTable() {
-    auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
-    fSymbolTable = std::move(childSymTable);
-}
-
-void IRGenerator::popSymbolTable() {
-    fSymbolTable = fSymbolTable->fParent;
-}
-
 static void fill_caps(const SkSL::ShaderCapsClass& caps,
                       std::unordered_map<String, Program::Settings::Value>* capsMap) {
 #define CAP(name) capsMap->insert({String(#name), Program::Settings::Value(caps.name())})
@@ -158,6 +141,34 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
     CAP(builtinFMASupport);
     CAP(builtinDeterminantSupport);
 #undef CAP
+}
+
+IRGenerator::IRGenerator(const Context* context,
+                         const ShaderCapsClass* caps,
+                         Inliner* inliner,
+                         ErrorReporter& errorReporter)
+        : fContext(*context)
+        , fCaps(caps)
+        , fInliner(inliner)
+        , fErrors(errorReporter)
+        , fModifiers(new ModifiersPool()) {
+    SkASSERT(fInliner);
+
+    if (fCaps) {
+        fill_caps(*fCaps, &fCapsMap);
+    } else {
+        fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
+    }
+
+}
+
+void IRGenerator::pushSymbolTable() {
+    auto childSymTable = std::make_shared<SymbolTable>(std::move(fSymbolTable), fIsBuiltinCode);
+    fSymbolTable = std::move(childSymTable);
+}
+
+void IRGenerator::popSymbolTable() {
+    fSymbolTable = fSymbolTable->fParent;
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
@@ -2104,7 +2115,7 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
             this->copyIntrinsicIfNeeded(*f);
         }
 
-        fProgramElements->push_back(original.clone());
+        fSharedElements->push_back(found);
     }
 }
 
@@ -2944,7 +2955,6 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 IRGenerator::IRBundle IRGenerator::convertProgram(
         Program::Kind kind,
         const Program::Settings* settings,
-        const ShaderCapsClass* caps,
         const ParsedModule& base,
         bool isBuiltinCode,
         const char* text,
@@ -2952,7 +2962,6 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
     fKind = kind;
     fSettings = settings;
-    fCaps = caps;
     fSymbolTable = base.fSymbols;
     fIntrinsics = base.fIntrinsics.get();
     if (fIntrinsics) {
@@ -2970,13 +2979,6 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     fInvocations = -1;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
-
-    fCapsMap.clear();
-    if (fCaps) {
-        fill_caps(*fCaps, &fCapsMap);
-    } else {
-        fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
-    }
 
     AutoSymbolTable table(this);
 

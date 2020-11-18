@@ -15,6 +15,7 @@
 #include "modules/skresources/include/SkResources.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLUtil.h"
 
 static inline float bits_to_float(uint32_t u) {
     float f;
@@ -120,7 +121,8 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     }
 
     auto buildProgram = [this](const SkSL::String& code, Program* p) {
-        SkSL::Compiler compiler(/*caps=*/nullptr);
+        SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
+        SkSL::Compiler compiler(caps.get());
         SkSL::Program::Settings settings;
         settings.fRemoveDeadFunctions = false;
 

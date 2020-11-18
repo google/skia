@@ -19,6 +19,7 @@ class ErrorReporter;
 class Expression;
 class FunctionDeclaration;
 class FunctionDefinition;
+struct LoadedModule;
 struct Program;
 class ProgramElement;
 class ProgramUsage;
@@ -40,6 +41,7 @@ struct Analysis {
     static bool NodeCountExceeds(const FunctionDefinition& function, int limit);
 
     static std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
+    static std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
