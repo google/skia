@@ -22,6 +22,30 @@
       },
       "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78778904_ceb518bb",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-18T16:00:06Z",
+      "side": 1,
+      "message": "The IR generator has already converted these to standard xyzw swizzles. You can see a lot of these in the unit test output actually.",
+      "parentUuid": "0503a03a_08a629f0",
+      "range": {
+        "startLine": 1103,
+        "startChar": 80,
+        "endLine": 1104,
+        "endChar": 86
+      },
+      "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
