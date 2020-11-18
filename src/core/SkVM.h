@@ -350,6 +350,8 @@ namespace skvm {
 
         void fmovs(X dst, V src); // dst = 32-bit src[0]
 
+        void ld1r4s(V dst, X src);  // Each 32-bit lane = *src
+
     private:
         // TODO: can probably track two of these three?
         uint8_t* fCode;

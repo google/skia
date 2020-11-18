@@ -2524,6 +2524,10 @@ namespace skvm {
         this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & 19_mask) << 5);
     }
 
+    void Assembler::ld1r4s(V dst, X src) {
+        this->op(0b0'1'0011010'1'0'00000'110'0'10, src, dst);
+    }
+
     void Assembler::label(Label* l) {
         if (fCode) {
             // The instructions all currently point to l->offset.
@@ -3979,6 +3983,10 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
+
+                case Op::uniform32: a->add(GP0, arg[immy], immz);
+                                    a->ld1r4s(dst(), GP0);
+                                    break;
 
                 case Op::add_f32: a->fadd4s(dst(), r(x), r(y)); break;
                 case Op::sub_f32: a->fsub4s(dst(), r(x), r(y)); break;
