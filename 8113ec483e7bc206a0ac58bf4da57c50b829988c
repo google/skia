@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "941a3bbf_abf48e51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T20:37:02Z",
+      "side": 1,
+      "message": "There are a few other CLs in the queue before I\u0027ll land this one, but it seemed useful to isolate this request from https://skia-review.googlesource.com/c/skia/+/334957 into its own CL.",
+      "revId": "8113ec483e7bc206a0ac58bf4da57c50b829988c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
