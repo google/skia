@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9c86cc0_9c9352a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-18T15:20:52Z",
+      "side": 1,
+      "message": "This is my attempt to filter out text editing case that clutters the cache (one position for each added symbol). At the same time I didn\u0027t want to limit large paragraphs that (as I know) appear in performance testing.",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
