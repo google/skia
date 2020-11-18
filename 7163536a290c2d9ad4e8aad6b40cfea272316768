@@ -16,6 +16,23 @@
       "message": "This is the first CL that was split from https://skia-review.googlesource.com/c/skia/+/334957",
       "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddb6528c_a9f727ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T18:15:09Z",
+      "side": 1,
+      "message": "Can you say something about why a \"conservative\" clip needs to also know if its a rect?\n\nAre the AA changes to be more precise, or do they fix a bug in the previous code (which didn\u0027t care I guess, or always assumed AA migh be true?)",
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
