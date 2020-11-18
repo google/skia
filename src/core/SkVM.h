@@ -299,7 +299,8 @@ namespace skvm {
 
         // d = op(n,imm)
         using DOpNImm = void(V d, V n, int imm);
-        DOpNImm sli4s,
+        DOpNImm dup4s,
+                sli4s,
                 shl4s, sshr4s, ushr4s,
                                ushr8h;
 
@@ -312,15 +313,20 @@ namespace skvm {
              fcvtns4s,  // round float -> int  (nearest even)
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
-             uxtlb2h,   // u8 -> u16
-             uxtlh2s,   // u16 -> u32
+             uxtlb2h,   // u8 -> u16    (TODO: this is a special case of ushll.8h)
+             uxtlh2s,   // u16 -> u32   (TODO: this is a special case of ushll.4s)
              uminv4s;   // dst[0] = min(n[0],n[1],n[2],n[3]), n as unsigned
 
         void brk (int imm16);
         void ret (X);
         void add (X d, X n, int imm12);
         void sub (X d, X n, int imm12);
+        void lsl (X d, X n, int imm6);
         void subs(X d, X n, int imm12);  // subtract setting condition flags
+
+        // add() can shift m before the addition, with
+        enum Shift { LSL,LSR,ASR,ROR };
+        void add (X d, X n, X m, Shift=LSL, int imm6=0);
 
         // There's another encoding for unconditional branches that can jump further,
         // but this one encoded as b.al is simple to implement and should be fine.
@@ -338,17 +344,32 @@ namespace skvm {
         void cbz (X t, Label* l);
         void cbnz(X t, Label* l);
 
+        void ldrd(X dst, X src, int imm12=0);  // 64-bit dst = *(src+imm12*8)
+        void ldrs(X dst, X src, int imm12=0);  // 32-bit dst = *(src+imm12*4)
+        void ldrh(X dst, X src, int imm12=0);  // 16-bit dst = *(src+imm12*2)
+        void ldrb(X dst, X src, int imm12=0);  //  8-bit dst = *(src+imm12)
+
         void ldrq(V dst, Label*);  // 128-bit PC-relative load
 
         void ldrq(V dst, X src, int imm12=0);  // 128-bit dst = *(src+imm12*16)
+        void ldrd(V dst, X src, int imm12=0);  //  64-bit dst = *(src+imm12*8)
         void ldrs(V dst, X src, int imm12=0);  //  32-bit dst = *(src+imm12*4)
+        void ldrh(V dst, X src, int imm12=0);  //  16-bit dst = *(src+imm12*2)
         void ldrb(V dst, X src, int imm12=0);  //   8-bit dst = *(src+imm12)
 
         void strq(V src, X dst, int imm12=0);  // 128-bit *(dst+imm12*16) = src
+        void strd(V src, X dst, int imm12=0);  //  64-bit *(dst+imm12*8)  = src
         void strs(V src, X dst, int imm12=0);  //  32-bit *(dst+imm12*4)  = src
+        void strh(V src, X dst, int imm12=0);  //  16-bit *(dst+imm12*2)  = src
         void strb(V src, X dst, int imm12=0);  //   8-bit *(dst+imm12)    = src
 
-        void fmovs(X dst, V src); // dst = 32-bit src[0]
+        void fmovs(X dst, V src);            // dst = 32-bit src[0]
+        void  movs(X dst, V src, int lane);  // dst = 32-bit src[lane]
+        void  inss(V dst, X src, int lane);  // dst[lane] = 32-bit src
+
+        void ld1r4s (V dst, X src);  // Each 32-bit lane = *src
+        void ld1r8h (V dst, X src);  // Each 16-bit lane = *src
+        void ld1r16b(V dst, X src);  // Each  8-bit lane = *src
 
     private:
         // TODO: can probably track two of these three?
