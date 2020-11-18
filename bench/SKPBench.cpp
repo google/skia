@@ -130,21 +130,24 @@ void SKPBench::drawPicture() {
     }
 
     for (int j = 0; j < fTileRects.count(); ++j) {
-        fSurfaces[j]->getCanvas()->flush();
+        fSurfaces[j]->flush();
     }
 }
 
 #include "src/gpu/GrGpu.h"
-static void draw_pic_for_stats(SkCanvas* canvas, GrDirectContext* context, const SkPicture* picture,
-                               SkTArray<SkString>* keys, SkTArray<double>* values) {
-    context->priv().resetGpuStats();
-    context->priv().resetContextStats();
+static void draw_pic_for_stats(SkCanvas* canvas,
+                               GrDirectContext* dContext,
+                               const SkPicture* picture,
+                               SkTArray<SkString>* keys,
+                               SkTArray<double>* values) {
+    dContext->priv().resetGpuStats();
+    dContext->priv().resetContextStats();
     canvas->drawPicture(picture);
-    canvas->flush();
+    dContext->flush();
 
-    context->priv().dumpGpuStatsKeyValuePairs(keys, values);
-    context->priv().dumpCacheStatsKeyValuePairs(keys, values);
-    context->priv().dumpContextStatsKeyValuePairs(keys, values);
+    dContext->priv().dumpGpuStatsKeyValuePairs(keys, values);
+    dContext->priv().dumpCacheStatsKeyValuePairs(keys, values);
+    dContext->priv().dumpContextStatsKeyValuePairs(keys, values);
 }
 
 void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<double>* values) {
