@@ -476,7 +476,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
     static_cast<SkNoPixelsDevice*>(fMCRec->fLayer->fDevice.get())->resetForNextPicture(bounds);
-    fDeviceClipBounds = qr_clip_bounds(bounds);
+    fQuickRejectBounds = qr_clip_bounds(bounds);
     fIsScaleTranslate = true;
 }
 
@@ -497,13 +497,13 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = nullptr;
-    fDeviceClipBounds = {0, 0, 0, 0};
+    fQuickRejectBounds = {0, 0, 0, 0};
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
         SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
         fMCRec->fRasterClip.setRect(device->getGlobalBounds());
-        fDeviceClipBounds = qr_clip_bounds(device->getGlobalBounds());
+        fQuickRejectBounds = qr_clip_bounds(device->getGlobalBounds());
 
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
 
@@ -825,7 +825,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
         if (BoundsAffectsClip(saveLayerFlags)) {
             fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
             fMCRec->fRasterClip.setEmpty();
-            fDeviceClipBounds.setEmpty();
+            fQuickRejectBounds.setEmpty();
         }
         return false;
     }
@@ -834,7 +834,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
         fMCRec->fRasterClip.setRect(clippedSaveLayerBounds);
-        fDeviceClipBounds = qr_clip_bounds(clippedSaveLayerBounds);
+        fQuickRejectBounds = qr_clip_bounds(clippedSaveLayerBounds);
     }
 
     if (intersection) {
@@ -1282,7 +1282,7 @@ void SkCanvas::internalRestore() {
 
     if (fMCRec) {
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
-        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+        fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     }
 }
 
@@ -1557,7 +1557,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeSty
     AutoValidateClip avc(this);
     fMCRec->fRasterClip.opRect(rect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
-    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
@@ -1571,7 +1571,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
         FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
         AutoValidateClip avc(this);
         fMCRec->fRasterClip.opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op);
-        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+        fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     }
 }
 
@@ -1580,7 +1580,7 @@ void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     FOR_EACH_TOP_DEVICE(device->replaceClip(rect));
     AutoValidateClip avc(this);
     fMCRec->fRasterClip.setRect(rect);
-    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
@@ -1602,7 +1602,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
 
     fMCRec->fRasterClip.opRRect(rrect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
                                 (SkRegion::Op)op, isAA);
-    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
@@ -1640,7 +1640,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     const SkPath* rasterClipPath = &path;
     fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
-    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
@@ -1679,7 +1679,7 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     AutoValidateClip avc(this);
 
     fMCRec->fRasterClip.opRegion(rgn, (SkRegion::Op)op);
-    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 #ifdef SK_DEBUG
@@ -1772,12 +1772,12 @@ static SK_NEVER_INLINE bool quick_reject_slow_path(const SkRect& src, const SkRe
 
 bool SkCanvas::quickReject(const SkRect& src) const {
 #ifdef SK_DEBUG
-    // Verify that fDeviceClipBounds are set properly.
+    // Verify that fQuickRejectBounds are set properly.
     SkRect tmp = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     if (fMCRec->fRasterClip.isEmpty()) {
-        SkASSERT(fDeviceClipBounds.isEmpty());
+        SkASSERT(fQuickRejectBounds.isEmpty());
     } else {
-        SkASSERT(tmp == fDeviceClipBounds);
+        SkASSERT(tmp == fQuickRejectBounds);
     }
 
     // Verify that fIsScaleTranslate is set properly.
@@ -1785,7 +1785,7 @@ bool SkCanvas::quickReject(const SkRect& src) const {
 #endif
 
     if (!fIsScaleTranslate) {
-        return quick_reject_slow_path(src, fDeviceClipBounds, fMCRec->fMatrix.asM33());
+        return quick_reject_slow_path(src, fQuickRejectBounds, fMCRec->fMatrix.asM33());
     }
 
     // We inline the implementation of mapScaleTranslate() for the fast path.
@@ -1808,7 +1808,7 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     Sk4f devRect = Sk4f(min[2], min[3], max[0], max[1]);
 
     // Check if the device rect is NaN or outside the clip.
-    return is_nan_or_clipped(devRect, Sk4f::Load(&fDeviceClipBounds.fLeft));
+    return is_nan_or_clipped(devRect, Sk4f::Load(&fQuickRejectBounds.fLeft));
 }
 
 bool SkCanvas::quickReject(const SkPath& path) const {

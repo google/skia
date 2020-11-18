@@ -2763,7 +2763,7 @@ private:
      *  us to do a fast quick reject in the common case.
      */
     bool   fIsScaleTranslate;
-    SkRect fDeviceClipBounds;
+    SkRect fQuickRejectBounds;
 
     class AutoValidateClip {
     public:
