@@ -12,12 +12,10 @@ void main() {
         {
             _3_0_foo = _1_y[0] * _1_y[1];
         }
-
         _2_z = _3_0_foo;
 
         x = _2_z;
     }
-
 
     sk_FragColor = vec4(x);
 }
