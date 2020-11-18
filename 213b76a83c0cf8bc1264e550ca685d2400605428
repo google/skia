@@ -33,6 +33,24 @@
       "message": ".. BTW -- woot that it\u0027s only 3x faster. Speaks well for the interpreter",
       "revId": "213b76a83c0cf8bc1264e550ca685d2400605428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c59bd19b_2cacf088",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-18T19:44:04Z",
+      "side": 1,
+      "message": "Yeah... the interpreter is working pretty well here, though I\u0027d estimate there\u0027s probably another week\u0027s worth of work there to really trick it out for this device.  Much of the codegen looks perfect, but some of it looks strange, like doing 8 FMAs as one 4x FMA, one 2x FMA, and two 1x FMAs.  Why not two 4x?\n\nAlso worth noting that, *FOR THIS GM*, the GL backend draws in 2ms.  So we\u0027re within spitting distance there, and once everything\u0027s JITing there will still be a few big-ticket speedups possible on devices like this.  The M1 is an ARMv8.3 chip, including ARMv8.2 which added that half-float math.  Switching color channels to half floats and doubling the vector stride to 8x seems possible if everything works the way what I\u0027ve seen so far suggests.",
+      "parentUuid": "a278e2e7_938e19e2",
+      "revId": "213b76a83c0cf8bc1264e550ca685d2400605428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
