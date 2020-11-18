@@ -39,6 +39,30 @@
       },
       "revId": "76a7c8f37a6afc759ae57ac5b41ed1282b2b4bb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6821b17_a5623dc3",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T13:46:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6ad33fc_e30efe25",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 12
+      },
+      "revId": "76a7c8f37a6afc759ae57ac5b41ed1282b2b4bb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
