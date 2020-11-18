@@ -9,9 +9,8 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Constructor::constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) {
+std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& irGenerator,
+                                                           const DefinitionMap& definitions) {
     if (this->arguments().size() == 1 && this->arguments()[0]->is<IntLiteral>()) {
         const Context& context = irGenerator.fContext;
         const Type& type = this->type();
@@ -100,7 +99,7 @@ resultType Constructor::getVecComponent(int index) const {
 
         switch (arg->kind()) {
             case Kind::kConstructor: {
-                const Constructor& constructor = static_cast<const Constructor&>(*arg);
+                const Constructor& constructor = arg->as<Constructor>();
                 if (current + constructor.type().columns() > index) {
                     // We've found a constructor that overlaps the proper argument. Descend into
                     // it, honoring the type.
@@ -113,7 +112,7 @@ resultType Constructor::getVecComponent(int index) const {
                 break;
             }
             case Kind::kPrefix: {
-                const PrefixExpression& prefix = static_cast<const PrefixExpression&>(*arg);
+                const PrefixExpression& prefix = arg->as<PrefixExpression>();
                 if (current + prefix.type().columns() > index) {
                     // We found a prefix operator that contains the proper argument. Descend
                     // into it. We only support for constant propagation of the unary minus, so
@@ -121,9 +120,7 @@ resultType Constructor::getVecComponent(int index) const {
                     SkASSERT(prefix.getOperator() == Token::Kind::TK_MINUS);
 
                     // We expect the - prefix to always be attached to a constructor.
-                    SkASSERT(prefix.operand()->kind() == Kind::kConstructor);
-                    const Constructor& constructor =
-                            static_cast<const Constructor&>(*prefix.operand());
+                    const Constructor& constructor = prefix.operand()->as<Constructor>();
 
                     // Descend into this constructor, honoring the type.
                     if (constructor.type().componentType().isFloat()) {
@@ -148,9 +145,9 @@ resultType Constructor::getVecComponent(int index) const {
     SkDEBUGFAILF("failed to find vector component %d in %s\n", index, description().c_str());
     return -1;
 }
+
 template int Constructor::getVecComponent(int) const;
 template float Constructor::getVecComponent(int) const;
-
 
 SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
     SkDEBUGCODE(const Type& myType = this->type();)

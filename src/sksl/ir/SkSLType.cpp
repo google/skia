@@ -60,6 +60,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fFloat_Type;
                     case 2: return *context.fFloat2_Type;
                     case 3: return *context.fFloat3_Type;
                     case 4: return *context.fFloat4_Type;
@@ -92,6 +93,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fHalf_Type;
                     case 2: return *context.fHalf2_Type;
                     case 3: return *context.fHalf3_Type;
                     case 4: return *context.fHalf4_Type;
@@ -124,6 +126,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fInt_Type;
                     case 2: return *context.fInt2_Type;
                     case 3: return *context.fInt3_Type;
                     case 4: return *context.fInt4_Type;
@@ -135,6 +138,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fShort_Type;
                     case 2: return *context.fShort2_Type;
                     case 3: return *context.fShort3_Type;
                     case 4: return *context.fShort4_Type;
@@ -146,6 +150,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fByte_Type;
                     case 2: return *context.fByte2_Type;
                     case 3: return *context.fByte3_Type;
                     case 4: return *context.fByte4_Type;
@@ -157,6 +162,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fUInt_Type;
                     case 2: return *context.fUInt2_Type;
                     case 3: return *context.fUInt3_Type;
                     case 4: return *context.fUInt4_Type;
@@ -168,6 +174,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fUShort_Type;
                     case 2: return *context.fUShort2_Type;
                     case 3: return *context.fUShort3_Type;
                     case 4: return *context.fUShort4_Type;
@@ -179,6 +186,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fUByte_Type;
                     case 2: return *context.fUByte2_Type;
                     case 3: return *context.fUByte3_Type;
                     case 4: return *context.fUByte4_Type;
@@ -190,6 +198,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
+                    case 1: return *context.fBool_Type;
                     case 2: return *context.fBool2_Type;
                     case 3: return *context.fBool3_Type;
                     case 4: return *context.fBool4_Type;
@@ -199,7 +208,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         }
     }
 #ifdef SK_DEBUG
-    ABORT("unsupported scalar_to_compound type %s", this->description().c_str());
+    ABORT("unsupported toCompound type %s", this->description().c_str());
 #endif
     return *context.fVoid_Type;
 }
