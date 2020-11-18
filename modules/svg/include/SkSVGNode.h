@@ -44,7 +44,7 @@ enum class SkSVGTag {
     kUse
 };
 
-#define SVG_PRES_ATTR(attr_name, attr_type, attr_inherited)                  \
+#define SVG_PRES_ATTR(attr_name, attr_type, attr_inherited, validator)       \
 private:                                                                     \
     bool set##attr_name(SkSVGAttributeParser::ParseResult<                   \
                             SkSVGProperty<attr_type, attr_inherited>>&& pr) {\
@@ -64,6 +64,9 @@ public:                                                                      \
         } else {                                                             \
             dest->set(SkSVGPropertyState::kInherit);                         \
         }                                                                    \
+        if (dest->isValue()) {                                               \
+            dest->set(validator(**dest));                                    \
+        }                                                                    \
     }                                                                        \
     void set##attr_name(SkSVGProperty<attr_type, attr_inherited>&& v) {      \
         auto* dest = &fPresentationAttributes.f##attr_name;                  \
@@ -72,6 +75,9 @@ public:                                                                      \
             *dest = std::move(v);                                            \
         } else {                                                             \
             dest->set(SkSVGPropertyState::kInherit);                         \
+        }                                                                    \
+        if (dest->isValue()) {                                               \
+            dest->set(validator(**dest));                                    \
         }                                                                    \
     }
 
@@ -94,32 +100,31 @@ public:
     // TODO: consolidate with existing setAttribute
     virtual bool parseAndSetAttribute(const char* name, const char* value);
 
-    void setColor(const SkSVGColorType&);
-    void setFillOpacity(const SkSVGNumberType&);
-    void setOpacity(const SkSVGNumberType&);
-    void setStrokeDashOffset(const SkSVGLength&);
-    void setStrokeOpacity(const SkSVGNumberType&);
-    void setStrokeMiterLimit(const SkSVGNumberType&);
-    void setStrokeWidth(const SkSVGLength&);
-
     // inherited
-    SVG_PRES_ATTR(ClipRule       , SkSVGFillRule  , true)
-    SVG_PRES_ATTR(FillRule       , SkSVGFillRule  , true)
-    SVG_PRES_ATTR(Fill           , SkSVGPaint     , true)
-    SVG_PRES_ATTR(FontFamily     , SkSVGFontFamily, true)
-    SVG_PRES_ATTR(FontSize       , SkSVGFontSize  , true)
-    SVG_PRES_ATTR(FontStyle      , SkSVGFontStyle , true)
-    SVG_PRES_ATTR(FontWeight     , SkSVGFontWeight, true)
-    SVG_PRES_ATTR(Stroke         , SkSVGPaint     , true)
-    SVG_PRES_ATTR(StrokeDashArray, SkSVGDashArray , true)
-    SVG_PRES_ATTR(StrokeLineCap  , SkSVGLineCap   , true)
-    SVG_PRES_ATTR(StrokeLineJoin , SkSVGLineJoin  , true)
-    SVG_PRES_ATTR(TextAnchor     , SkSVGTextAnchor, true)
-    SVG_PRES_ATTR(Visibility     , SkSVGVisibility, true)
+    SVG_PRES_ATTR(ClipRule        , SkSVGFillRule  , true, Validators::I)
+    SVG_PRES_ATTR(Color           , SkSVGColorType , true, Validators::I)
+    SVG_PRES_ATTR(FillRule        , SkSVGFillRule  , true, Validators::I)
+    SVG_PRES_ATTR(Fill            , SkSVGPaint     , true, Validators::I)
+    SVG_PRES_ATTR(FillOpacity     , SkSVGNumberType, true, Validators::Opacity)
+    SVG_PRES_ATTR(FontFamily      , SkSVGFontFamily, true, Validators::I)
+    SVG_PRES_ATTR(FontSize        , SkSVGFontSize  , true, Validators::I)
+    SVG_PRES_ATTR(FontStyle       , SkSVGFontStyle , true, Validators::I)
+    SVG_PRES_ATTR(FontWeight      , SkSVGFontWeight, true, Validators::I)
+    SVG_PRES_ATTR(Stroke          , SkSVGPaint     , true, Validators::I)
+    SVG_PRES_ATTR(StrokeDashArray , SkSVGDashArray , true, Validators::I)
+    SVG_PRES_ATTR(StrokeDashOffset, SkSVGLength    , true, Validators::I)
+    SVG_PRES_ATTR(StrokeLineCap   , SkSVGLineCap   , true, Validators::I)
+    SVG_PRES_ATTR(StrokeLineJoin  , SkSVGLineJoin  , true, Validators::I)
+    SVG_PRES_ATTR(StrokeMiterLimit, SkSVGNumberType, true, Validators::I)
+    SVG_PRES_ATTR(StrokeOpacity   , SkSVGNumberType, true, Validators::Opacity)
+    SVG_PRES_ATTR(StrokeWidth     , SkSVGLength    , true, Validators::I)
+    SVG_PRES_ATTR(TextAnchor      , SkSVGTextAnchor, true, Validators::I)
+    SVG_PRES_ATTR(Visibility      , SkSVGVisibility, true, Validators::I)
 
     // not inherited
-    SVG_PRES_ATTR(ClipPath       , SkSVGClip      , false)
-    SVG_PRES_ATTR(Filter         , SkSVGFilterType, false)
+    SVG_PRES_ATTR(ClipPath        , SkSVGClip      , false, Validators::I)
+    SVG_PRES_ATTR(Filter          , SkSVGFilterType, false, Validators::I)
+    SVG_PRES_ATTR(Opacity         , SkSVGNumberType, false, Validators::Opacity)
 
 protected:
     SkSVGNode(SkSVGTag);
@@ -138,7 +143,7 @@ protected:
 
     virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
-    virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
+    virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&) {}
 
     virtual bool hasChildren() const { return false; }
 
@@ -147,6 +152,14 @@ protected:
     }
 
 private:
+    struct Validators {
+        template <typename T> static inline T I(T&& t) { return t; }
+
+        static inline SkSVGNumberType Opacity(SkSVGNumberType v) {
+            return SkTPin<SkSVGNumberType>(v, 0, 1);
+        }
+    };
+
     SkSVGTag                    fTag;
 
     // FIXME: this should be sparse
