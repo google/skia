@@ -33,6 +33,75 @@
       "message": "Can you say something about why a \"conservative\" clip needs to also know if its a rect?\n\nAre the AA changes to be more precise, or do they fix a bug in the previous code (which didn\u0027t care I guess, or always assumed AA migh be true?)",
       "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "840091ec_09b25766",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1667,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T18:17:01Z",
+      "side": 1,
+      "message": "how did we get away with not doing this before?",
+      "range": {
+        "startLine": 1667,
+        "startChar": 12,
+        "endLine": 1667,
+        "endChar": 23
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a3ed6d0_f468ab06",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T18:17:01Z",
+      "side": 1,
+      "message": "what does this field mean?",
+      "range": {
+        "startLine": 20,
+        "startChar": 20,
+        "endLine": 20,
+        "endChar": 25
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6be9687_37a945d7",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T18:17:01Z",
+      "side": 1,
+      "message": "not cricital, but this method name (and its bool params) are really hard to glance at and know what is going on at the call-sites.\n\nmaybe?\n\nonRegionOp(op, enum, enum)?",
+      "range": {
+        "startLine": 34,
+        "startChar": 21,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
