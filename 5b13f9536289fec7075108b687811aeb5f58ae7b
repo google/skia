@@ -46,6 +46,30 @@
       },
       "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16d1176f_52833d42",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-11-18T16:01:14Z",
+      "side": 1,
+      "message": "Ah, gotcha. I think that\u0027s worth clarifying in the comment.",
+      "parentUuid": "78778904_ceb518bb",
+      "range": {
+        "startLine": 1103,
+        "startChar": 80,
+        "endLine": 1104,
+        "endChar": 86
+      },
+      "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
