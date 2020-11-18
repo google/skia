@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6953fd1b_f62e29d0",
+        "filename": "modules/svg/src/SkSVGNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-18T16:50:48Z",
+      "side": 0,
+      "message": "I believe I wrote this TODO and I also believe it\u0027s incorrect. The color property default is evidently up to the user agent -- our default is currently SK_ColorBLACK.",
+      "revId": "c3076503bf13306a2532a739bb1ccf8136324eb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
