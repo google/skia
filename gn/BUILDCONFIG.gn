@@ -29,6 +29,8 @@ declare_args() {
 
   clang_win = ""
   clang_win_version = ""
+
+  ios_min_target = ""
 }
 declare_args() {
   is_debug = !is_official_build
