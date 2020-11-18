@@ -16,6 +16,23 @@
       "message": "ptal ... this was a very well-hidden bug.",
       "revId": "ddf53eebbb49dfa30d9f8e76743678bc8d815450",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7d36f58_5c3ea457",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-18T14:24:53Z",
+      "side": 1,
+      "message": "Agree with all of your analysis - and yes, this is a code path that\u0027s probably not tested well (or at all), particularly with this combination of other factors.",
+      "revId": "ddf53eebbb49dfa30d9f8e76743678bc8d815450",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
