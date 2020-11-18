@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ecd4715_84cfea40",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-18T17:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ace4e0f4_034ebdfd",
+      "range": {
+        "startLine": 1375,
+        "startChar": 44,
+        "endLine": 1375,
+        "endChar": 53
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "26171a2a_9e7774a5",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8404595_65a2657d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-18T17:05:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26171a2a_9e7774a5",
+      "range": {
+        "startLine": 1381,
+        "startChar": 67,
+        "endLine": 1381,
+        "endChar": 70
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "72f347fc_7bb50d6c",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-18T17:00:39Z",
       "side": 1,
       "message": "Ah, I think I understand now.  This is all just a guess about how much memory we\u0027ll need, allocated past the end of the GrTextBlob itself, and fed to an SkArenaAlloc?  So if we underestimate, no big deal, we\u0027ll just hit the heap again for more RAM?",
+      "range": {
+        "startLine": 1393,
+        "startChar": 55,
+        "endLine": 1393,
+        "endChar": 64
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "552a2319_f146d12a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-18T17:05:08Z",
+      "side": 1,
+      "message": "Right. And since 95% of the time we use DirectMaskSubRun we usually guess the right amount.",
+      "parentUuid": "72f347fc_7bb50d6c",
       "range": {
         "startLine": 1393,
         "startChar": 55,
