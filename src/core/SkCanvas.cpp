@@ -1664,7 +1664,7 @@ void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
     AutoValidateClip avc(this);
 
     FOR_EACH_TOP_DEVICE(device->clipShader(sh, op));
-
+    fMCRec->fRasterClip.opShader(sh);
     // we don't know how to mutate our conservative bounds, so we don't
 }
 
