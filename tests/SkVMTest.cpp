@@ -1936,6 +1936,12 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.ld1r4s(A::v0, A::x8);  // echo 'ld1r.4s {v0}, [x8]' | llvm-mc --show-encoding
+    },{
+        0x00,0xc9,0x40,0x4d,
+    });
+
+    test_asm(r, [&](A& a) {
         a.xtns2h(A::v0, A::v0);
         a.xtnh2b(A::v0, A::v0);
         a.strs  (A::v0, A::x0);
@@ -1945,7 +1951,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.uxtlh2s(A::v0, A::v0);
 
         a.uminv4s(A::v3, A::v4);
-        a.fmovs  (A::x3, A::v4);  // fmov w3,s4
+        a.movs   (A::x3, A::v4,0);  // mov.s w3,v4[0]
+        a.movs   (A::x3, A::v4,1);  // mov.s w3,v4[1]
     },{
         0x00,0x28,0x61,0x0e,
         0x00,0x28,0x21,0x0e,
@@ -1956,7 +1963,8 @@ DEF_TEST(SkVM_Assembler, r) {
         0x00,0xa4,0x10,0x2f,
 
         0x83,0xa8,0xb1,0x6e,
-        0x83,0x00,0x26,0x1e,
+        0x83,0x3c,0x04,0x0e,
+        0x83,0x3c,0x0c,0x0e,
     });
 
     test_asm(r, [&](A& a) {
