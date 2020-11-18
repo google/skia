@@ -190,6 +190,9 @@ if (is_ios) {
 
       xcode_extra_attributes = {
         PRODUCT_BUNDLE_IDENTIFIER = "${bundle_prefix}.${app_name}"
+        if (ios_min_target != "") {
+          IPHONEOS_DEPLOYMENT_TARGET = ios_min_target
+        }
       }
 
       deps = [
