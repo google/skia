@@ -105,9 +105,9 @@ public:
     }
 
     /**
-     * Compares this constant expression against another constant expression of the same type. It is
-     * an error to call this on non-constant expressions, or if the types of the expressions do not
-     * match.
+     * Compares this constant expression against another constant expression of the same kind. (i.e.
+     * both sides must be IntLiterals, or BoolLiterals, or Constructors, etc.) It is an error to
+     * call this on non-constant expressions, or if the kinds of the expressions do not match.
      */
     virtual bool compareConstant(const Context& context, const Expression& other) const {
         ABORT("cannot call compareConstant on this type");
