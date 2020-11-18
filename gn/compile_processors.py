@@ -17,7 +17,7 @@ processors = sys.argv[4:]
 
 exeSuffix = '.exe' if sys.platform.startswith('win') else '';
 targets = []
-worklist = tempfile.NamedTemporaryFile(suffix='.worklist')
+worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False)
 
 # Fetch clang-format if it's not present already.
 if not os.path.isfile(clangFormat + exeSuffix):
@@ -46,6 +46,8 @@ try:
 except subprocess.CalledProcessError as err:
     print("### skslc error:\n")
     print("\n".join(err.output.splitlines()))
+
+os.remove(worklist.name)
 
 # Invoke clang-format on every generated target.
 try:
