@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Deprecated enum SkYUVAInfo::PlanarConfig has been removed.
+    https://review.skia.org/334161
+
   * Deprecated SkImage factories have been removed from
     SkDeferredDisplayListRecorder.
 

@@ -31,7 +31,6 @@ public:
 
     using PlaneConfig  = SkYUVAInfo::PlaneConfig;
     using Subsampling  = SkYUVAInfo::Subsampling;
-    using PlanarConfig = SkYUVAInfo::PlanarConfig;
 
     /**
      * Data type for Y, U, V, and possibly A channels independent of how values are packed into
@@ -63,9 +62,6 @@ public:
          * as indicated by PlaneConfig with channel data types as indicated by DataType.
          */
         constexpr bool supported(PlaneConfig, DataType) const;
-
-        /** Deprecated. Use PlaneConfig version. */
-        constexpr bool supported(PlanarConfig, DataType) const;
 
         /**
          * Update to add support for pixmaps with numChannel channels where each channel is
@@ -298,12 +294,6 @@ constexpr bool SkYUVAPixmapInfo::SupportedDataTypes::supported(PlaneConfig confi
         }
     }
     return true;
-}
-
-constexpr bool SkYUVAPixmapInfo::SupportedDataTypes::supported(PlanarConfig planarConfig,
-                                                               DataType type) const {
-    auto pc = std::get<0>(SkYUVAInfo::PlanarConfigToPlaneConfigAndSubsampling(planarConfig));
-    return this->supported(pc, type);
 }
 
 constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dataType,

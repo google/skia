@@ -261,16 +261,6 @@ SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
     SkASSERT(this->isValid());
 }
 
-SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
-                       PlanarConfig planarConfig,
-                       SkYUVColorSpace yuvColorSpace,
-                       SkEncodedOrigin origin,
-                       Siting sitingX,
-                       Siting sitingY) {
-    auto [c, s] = PlanarConfigToPlaneConfigAndSubsampling(planarConfig);
-    *this = SkYUVAInfo(dimensions, c, s, yuvColorSpace, origin, sitingX, sitingY);
-}
-
 size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
                                      size_t planeSizes[kMaxPlanes]) const {
     if (!this->isValid()) {
@@ -302,72 +292,6 @@ size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
     }
 
     return safe.ok() ? totalBytes : SIZE_MAX;
-}
-
-SkYUVAInfo::PlanarConfig SkYUVAInfo::planarConfig() const {
-    SkASSERT(!this->isValid() || is_plane_config_compatible_with_subsampling(fPlaneConfig,
-                                                                             fSubsampling));
-    switch (fPlaneConfig) {
-        case PlaneConfig::kUnknown:  return PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_U_V:
-            switch (fSubsampling) {
-                case Subsampling::kUnknown: SkUNREACHABLE;
-
-                case Subsampling::k444: return PlanarConfig::kY_U_V_444;
-                case Subsampling::k422: return PlanarConfig::kY_U_V_422;
-                case Subsampling::k420: return PlanarConfig::kY_U_V_420;
-                case Subsampling::k440: return PlanarConfig::kY_U_V_440;
-                case Subsampling::k411: return PlanarConfig::kY_U_V_411;
-                case Subsampling::k410: return PlanarConfig::kY_U_V_410;
-            }
-            SkUNREACHABLE;
-
-        case PlaneConfig::kY_V_U:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_V_U_420
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_UV:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_UV_420
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_VU:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_VU_420
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kYUV:
-            SkASSERT(fSubsampling == Subsampling::k444);
-            return PlanarConfig::kYUV_444;
-
-        case PlaneConfig::kUYV:
-            SkASSERT(fSubsampling == Subsampling::k444);
-            return PlanarConfig::kUYV_444;
-
-        case PlaneConfig::kY_U_V_A:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_U_V_A_4204
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_V_U_A:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_V_U_A_4204
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_UV_A:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_UV_A_4204
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kY_VU_A:
-            return fSubsampling == Subsampling::k420 ? PlanarConfig::kY_VU_A_4204
-                                                     : PlanarConfig::kUnknown;
-
-        case PlaneConfig::kYUVA:
-            SkASSERT(fSubsampling == Subsampling::k444);
-            return PlanarConfig::kYUVA_4444;
-
-        case PlaneConfig::kUYVA:
-            SkASSERT(fSubsampling == Subsampling::k444);
-            return PlanarConfig::kUYVA_4444;
-    }
-    SkUNREACHABLE;
 }
 
 SkYUVAInfo SkYUVAInfo::makeSubsampling(SkYUVAInfo::Subsampling subsampling) const {
