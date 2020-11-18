@@ -293,6 +293,19 @@ export interface CanvasKit {
     MakeCanvas(width: number, height: number): EmulatedCanvas2D;
 
     /**
+     * Returns an image with the given pixel data and format.
+     * Note that we will always make a copy of the pixel data, because of inconsistencies in
+     * behavior between GPU and CPU (i.e. the pixel data will be turned into a GPU texture and
+     * not modifiable after creation).
+     *
+     * @param info
+     * @param bytes - bytes representing the pixel data.
+     * @param bytesPerRow
+     */
+    MakeImage(info: ImageInfo, bytes: number[] | Uint8Array | Uint8ClampedArray,
+              bytesPerRow: number): Image | null;
+
+    /**
      * Return an Image backed by the encoded data, but attempt to defer decoding until the image
      * is actually used/drawn. This deferral allows the system to cache the result, either on the
      * CPU or on the GPU, depending on where the image is drawn.

@@ -208,8 +208,13 @@ describe('Core canvas behavior', () => {
               0,   0, 255, 255, // opaque blue
             255,   0, 255, 100, // transparent purple
         ]);
-        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888,
-            CanvasKit.ColorSpace.SRGB);
+        const img = CanvasKit.MakeImage({
+          'width': 1,
+          'height': 4,
+          'alphaType': CanvasKit.AlphaType.Unpremul,
+          'colorType': CanvasKit.ColorType.RGBA_8888,
+          'colorSpace': CanvasKit.ColorSpace.SRGB
+        }, pixels, 4);
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
         paint.delete();
