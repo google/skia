@@ -22,6 +22,30 @@
       },
       "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6afb5a39_dd7ced78",
+        "filename": "modules/skottie/src/layers/TextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T17:41:46Z",
+      "side": 1,
+      "message": "\"real specification\" -\u003e bunch of jsons with mixed case style names :P\n\nIsn\u0027t SkAutoAsciiToLC\u0027s tolower() also locale-dependent?\n\nWe\u0027re not trying to perform language correct conversions, just looking for a case-insensitive match for a short list of ASCII names (e.g. both ExtraBold and Extrabold).\n\nLet me try SkAutoAsciiToLC since the win bots don\u0027t like no stinkin\u0027 stracasecmp.",
+      "parentUuid": "7dba0a72_691dd547",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
