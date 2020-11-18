@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dba0a72_691dd547",
+        "filename": "modules/skottie/src/layers/TextLayer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T16:53:56Z",
+      "side": 1,
+      "message": "This is locale dependent, so I\u0027m not sure it does what you think it does (and may not do what it does on your machine). Is there some real specification here that can be followed?\n\nNote similar code at https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/ports/SkFontHost_FreeType.cpp;l\u003d1986;drc\u003d8aa0edfed214c58308e3c7c0c61ceb509e101597 . That bottoms out in SkAutoAsciiToLC which just lower cases base Latin. Probably should do a better job there too. Case is complicated.",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 28
+      },
+      "revId": "e69813006128d7e9a65d2409249d0b41cd13d788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
