@@ -51,6 +51,24 @@
       "parentUuid": "697d3cb0_87220196",
       "revId": "8113ec483e7bc206a0ac58bf4da57c50b829988c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dffec711_390a0bd7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T21:41:45Z",
+      "side": 1,
+      "message": "Gotcha, probably worth a comment.",
+      "parentUuid": "7a9de70e_75ff337b",
+      "revId": "8113ec483e7bc206a0ac58bf4da57c50b829988c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
