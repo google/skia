@@ -7,8 +7,8 @@
 
 in fragmentProcessor fp;
 
-void main() {
-    sk_OutColor = sample(fp, sk_FragCoord.xy);
+half4 main() {
+    return sample(fp, sk_FragCoord.xy);
 }
 
 @optimizationFlags {

@@ -27,9 +27,9 @@ public:
         SkString _coords0("sk_FragCoord.xy");
         SkString _sample0 = this->invokeChild(0, args, _coords0.c_str());
         fragBuilder->codeAppendf(
-                R"SkSL(%s = %s;
+                R"SkSL(return %s;
 )SkSL",
-                args.fOutputColor, _sample0.c_str());
+                _sample0.c_str());
     }
 
 private:
@@ -46,7 +46,7 @@ bool GrDeviceSpaceEffect::onIsEqual(const GrFragmentProcessor& other) const {
     (void)that;
     return true;
 }
-bool GrDeviceSpaceEffect::usesExplicitReturn() const { return false; }
+bool GrDeviceSpaceEffect::usesExplicitReturn() const { return true; }
 GrDeviceSpaceEffect::GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src)
         : INHERITED(kGrDeviceSpaceEffect_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);
