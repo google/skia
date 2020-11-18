@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1bbeaee_e1c5d4bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T18:38:05Z",
+      "side": 1,
+      "message": "Updated in commit message.",
+      "parentUuid": "ddb6528c_a9f727ed",
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "840091ec_09b25766",
@@ -48,6 +66,30 @@
       "writtenOn": "2020-11-18T18:17:01Z",
       "side": 1,
       "message": "how did we get away with not doing this before?",
+      "range": {
+        "startLine": 1667,
+        "startChar": 12,
+        "endLine": 1667,
+        "endChar": 23
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b3e09b8_79e2cb29",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1667,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T18:38:05Z",
+      "side": 1,
+      "message": "SkConservativeClip was always reporting that its clip was just a rect, regardless of what went into it, so there was no \"need\" to record a clip shader into it. This still doesn\u0027t change the reported bounds, just the isRect-ness of it.",
+      "parentUuid": "840091ec_09b25766",
       "range": {
         "startLine": 1667,
         "startChar": 12,
@@ -81,6 +123,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73b33719_dac29a20",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T18:38:05Z",
+      "side": 1,
+      "message": "IsIntersectionOfRects (SkClipStack uses it), but I\u0027ll rename it to fIsRect.",
+      "parentUuid": "3a3ed6d0_f468ab06",
+      "range": {
+        "startLine": 20,
+        "startChar": 20,
+        "endLine": 20,
+        "endChar": 25
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6be9687_37a945d7",
@@ -94,6 +160,30 @@
       "writtenOn": "2020-11-18T18:17:01Z",
       "side": 1,
       "message": "not cricital, but this method name (and its bool params) are really hard to glance at and know what is going on at the call-sites.\n\nmaybe?\n\nonRegionOp(op, enum, enum)?",
+      "range": {
+        "startLine": 34,
+        "startChar": 21,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "7163536a290c2d9ad4e8aad6b40cfea272316768",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83ff4147_46977c75",
+        "filename": "src/core/SkRasterClip.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T18:38:05Z",
+      "side": 1,
+      "message": "renamed to applyOpParams and added enums for ClipAA and IsRect.",
+      "parentUuid": "b6be9687_37a945d7",
       "range": {
         "startLine": 34,
         "startChar": 21,
