@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "409799fa_e1a6cf31",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-11-18T15:14:40Z",
+      "side": 1,
+      "message": "Why not submit it? there\u0027s no harm in putting extra data in that json.",
+      "revId": "91367c6bf9011fb6781116279d05edfd34d0ef40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
