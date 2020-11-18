@@ -1522,32 +1522,23 @@ CanvasKit.MakeImageFromCanvasImageSource = function(canvasImageSource) {
 
   var imageData = ctx2d.getImageData(0, 0, width, height);
 
-  return CanvasKit.MakeImage(
-    imageData.data,
-    width,
-    height,
-    CanvasKit.AlphaType.Unpremul,
-    CanvasKit.ColorType.RGBA_8888,
-    CanvasKit.ColorSpace.SRGB
-  );
+  return CanvasKit.MakeImage({
+      'width': width,
+      'height': height,
+      'alphaType': CanvasKit.AlphaType.Unpremul,
+      'colorType': CanvasKit.ColorType.RGBA_8888,
+      'colorSpace': CanvasKit.ColorSpace.SRGB
+    }, imageData.data, 4 * width);
 };
 
-// pixels may be any Typed Array, but Uint8Array or Uint8ClampedArray is recommended,
-// with bytes representing the pixel values.
+// pixels may be an array but Uint8Array or Uint8ClampedArray is recommended,
+// with the bytes representing the pixel values.
 // (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
-CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType, colorSpace) {
-  var bytesPerPixel = pixels.length / (width * height);
-  var info = {
-    'width': width,
-    'height': height,
-    'alphaType': alphaType,
-    'colorType': colorType,
-    'colorSpace': colorSpace,
-  };
-  var pptr = copy1dArray(pixels, 'HEAPU8');
+CanvasKit.MakeImage = function(info, pixels, bytesPerRow) {
+  var pptr = CanvasKit._malloc(pixels.length);
+  CanvasKit.HEAPU8.set(pixels, pptr); // We always want to copy the bytes into the WASM heap.
   // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
-
-  return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
+  return CanvasKit._MakeImage(info, pptr, pixels.length, bytesPerRow);
 };
 
 // Colors may be a Uint32Array of int colors, a Flat Float32Array of float colors

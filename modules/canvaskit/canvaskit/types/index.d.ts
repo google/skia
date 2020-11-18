@@ -293,6 +293,19 @@ export interface CanvasKit {
     MakeCanvas(width: number, height: number): EmulatedCanvas2D;
 
     /**
+     * Returns an image with the given pixel data and format.
+     * Note that we will always make a copy of the pixel data, because of inconsistencies in
+     * behavior between GPU and CPU (i.e. the pixel data will be turned into a GPU texture and
+     * not modifiable after creation).
+     *
+     * @param info
+     * @param bytes - bytes representing the pixel data.
+     * @param bytesPerRow
+     */
+    MakeImage(info: ImageInfo, bytes: number[] | Uint8Array | Uint8ClampedArray,
+              bytesPerRow: number): Image | null;
+
+    /**
      * Return an Image backed by the encoded data, but attempt to defer decoding until the image
      * is actually used/drawn. This deferral allows the system to cache the result, either on the
      * CPU or on the GPU, depending on where the image is drawn.
@@ -482,12 +495,6 @@ export interface EmbindObject<T extends EmbindObject<T>> {
     deleteAfter(): void;
     isAliasOf(other: any): boolean;
     isDeleted(): boolean;
-}
-
-export interface EmbindSingleton {
-    // Technically Embind includes the other methods too, but they should not be called for a
-    // singleton.
-    isAliasOf(other: any): boolean;
 }
 
 /**
@@ -1555,6 +1562,18 @@ export interface Image extends EmbindObject<Image> {
     encodeToDataWithFormat(fmt: EncodedImageFormat, quality: number): Data;
 
     /**
+     * Returns the color space associated with this object.
+     * It is the user's responsibility to call delete() on this after it has been used.
+     */
+    getColorSpace(): ColorSpace;
+
+    /**
+     * Returns the width, height, colorType and alphaType associated with this image.
+     * Colorspace is separate so as to not accidentally leak that memory.
+     */
+    getImageInfo(): PartialImageInfo;
+
+    /**
      * Return the height in pixels of the image.
      */
     height(): number;
@@ -1602,6 +1621,13 @@ export type ImageFilter = EmbindObject<ImageFilter>;
 export interface ImageInfo {
     alphaType: AlphaType;
     colorSpace: ColorSpace;
+    colorType: ColorType;
+    height: number;
+    width: number;
+}
+
+export interface PartialImageInfo {
+    alphaType: AlphaType;
     colorType: ColorType;
     height: number;
     width: number;
@@ -3433,7 +3459,7 @@ export type AlphaType = EmbindEnumEntity;
 export type BlendMode = EmbindEnumEntity;
 export type BlurStyle = EmbindEnumEntity;
 export type ClipOp = EmbindEnumEntity;
-export type ColorSpace = EmbindSingleton;
+export type ColorSpace = EmbindObject<ColorSpace>;
 export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
 export type FillType = EmbindEnumEntity;
@@ -3519,9 +3545,17 @@ export interface ClipOpEnumValues extends EmbindEnum {
  * The currently supported color spaces. These are all singleton values.
  */
 export interface ColorSpaceEnumValues { // not a typical enum, but effectively like one.
+    // These are all singleton values - don't call delete on them.
     readonly SRGB: ColorSpace;
     readonly DISPLAY_P3: ColorSpace;
     readonly ADOBE_RGB: ColorSpace;
+
+    /**
+     * Returns true if the two color spaces are equal.
+     * @param a
+     * @param b
+     */
+    Equals(a: ColorSpace, b: ColorSpace): boolean;
 }
 
 export interface ColorTypeEnumValues extends EmbindEnum {
