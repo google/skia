@@ -45,6 +45,29 @@
       },
       "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72f347fc_7bb50d6c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-18T17:00:39Z",
+      "side": 1,
+      "message": "Ah, I think I understand now.  This is all just a guess about how much memory we\u0027ll need, allocated past the end of the GrTextBlob itself, and fed to an SkArenaAlloc?  So if we underestimate, no big deal, we\u0027ll just hit the heap again for more RAM?",
+      "range": {
+        "startLine": 1393,
+        "startChar": 55,
+        "endLine": 1393,
+        "endChar": 64
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
