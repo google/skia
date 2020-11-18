@@ -25,7 +25,7 @@ if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
 
 targets = []
-worklist = tempfile.NamedTemporaryFile(suffix='.worklist')
+worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False)
 
 # Convert the list of command-line inputs into a worklist file sfor skslc.
 for input in inputs:
@@ -67,6 +67,8 @@ try:
 except subprocess.CalledProcessError as err:
     print("### skslc error:\n")
     print("\n".join(err.output.splitlines()))
+
+os.remove(worklist.name)
 
 # A special case cleanup pass, just for CPP and H files: if either one of these files starts with
 # `### Compilation failed`, its sibling should be replaced by an empty file. This improves clarity
