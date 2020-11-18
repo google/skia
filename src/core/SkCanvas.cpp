@@ -471,6 +471,15 @@ private:
 
 #define DRAW_END    }
 
+// TODO: conservativeUpdate is temporary to stage moving bounds tracking into SkNoPixelsDevice
+#define UPDATE_DEVICE_CLIP(code, conservativeUpdate)                      \
+    do {                                                                  \
+    AutoValidateClip avc(this);                                           \
+    FOR_EACH_TOP_DEVICE(code);                                            \
+    fMCRec->fRasterClip.conservativeUpdate;                               \
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds()); \
+    } while(0)
+
 ////////////////////////////////////////////////////////////////////////////
 
 static inline SkRect qr_clip_bounds(const SkIRect& bounds) {
@@ -1567,13 +1576,8 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkASSERT(rect.isSorted());
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-
-    FOR_EACH_TOP_DEVICE(device->clipRect(rect, op, isAA));
-
-    AutoValidateClip avc(this);
-    fMCRec->fRasterClip.opRect(rect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
-                               (SkRegion::Op)op, isAA);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->clipRect(rect, op, isAA), \
+                       opRect(rect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op) op, isAA));
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
@@ -1583,18 +1587,14 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
         // removing it (i.e. rect is empty).
         this->checkForDeferredSave();
     }
-    AutoValidateClip avc(this);
-    FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
-    fMCRec->fRasterClip.opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect),\
+                       opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op));
 }
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     this->checkForDeferredSave();
-    FOR_EACH_TOP_DEVICE(device->replaceClip(rect));
-    AutoValidateClip avc(this);
-    fMCRec->fRasterClip.setRect(rect);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->replaceClip(rect), \
+                       setRect(rect));
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
@@ -1608,15 +1608,9 @@ void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
 }
 
 void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
-    AutoValidateClip avc(this);
-
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-
-    FOR_EACH_TOP_DEVICE(device->clipRRect(rrect, op, isAA));
-
-    fMCRec->fRasterClip.opRRect(rrect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
-                                (SkRegion::Op)op, isAA);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->clipRRect(rrect, op, isAA), \
+                       opRRect(rrect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op)op, isAA));
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
@@ -1645,16 +1639,9 @@ void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
 }
 
 void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
-    AutoValidateClip avc(this);
-
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-
-    FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
-
-    const SkPath* rasterClipPath = &path;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
-                               (SkRegion::Op)op, isAA);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->clipPath(path, op, isAA), \
+                       opPath(path, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op)op, isAA));
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
@@ -1675,11 +1662,8 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
 }
 
 void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
-    AutoValidateClip avc(this);
-
-    FOR_EACH_TOP_DEVICE(device->clipShader(sh, op));
-    fMCRec->fRasterClip.opShader(sh);
-    // we don't know how to mutate our conservative bounds, so we don't
+    UPDATE_DEVICE_CLIP(device->clipShader(sh, op),
+                       opShader(sh));
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
@@ -1688,12 +1672,8 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    FOR_EACH_TOP_DEVICE(device->clipRegion(rgn, op));
-
-    AutoValidateClip avc(this);
-
-    fMCRec->fRasterClip.opRegion(rgn, (SkRegion::Op)op);
-    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    UPDATE_DEVICE_CLIP(device->clipRegion(rgn, op),
+                       opRegion(rgn, (SkRegion::Op) op));
 }
 
 void SkCanvas::validateClip() const {
