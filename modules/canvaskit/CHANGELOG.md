@@ -6,12 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `getImageInfo()` and `getColorSpace()` to the `Image` type.
+
+### Changed
+ - `MakeImage` is now documented. The parameters have been streamlined to align with other,
+   similar APIs.
+
 ## [0.20.0] - 2020-11-12
 
-## Added
+### Added
  - `MakeFractalNoise`, `MakeImprovedNoise`, and `MakeTurbulence` have been added to
    `CanvasKit.Shader`.
- - `MakeRasterDirectSurface` for giving the user direct access to drawn pixels.
+ - `MakeRasterDirectSurface` for giving the user direct access tso drawn pixels.
  - `getLineMetrics` to Paragraph.
  - `Canvas.saveLayerPaint` as an experimental, undocumented "fast path" if one only needs to pass 
    the paint.

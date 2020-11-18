@@ -1207,6 +1207,20 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImage>("Image")
         .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
+        // Note that this needs to be cleaned up with delete().
+        .function("getColorSpace", optional_override([](sk_sp<SkImage> self)->sk_sp<SkColorSpace> {
+            return self->imageInfo().refColorSpace();
+        }), allow_raw_pointers())
+        .function("getImageInfo", optional_override([](sk_sp<SkImage> self)->JSObject {
+            // We cannot return a SimpleImageInfo because the colorspace object would be leaked.
+            JSObject result = emscripten::val::object();
+            SkImageInfo ii = self->imageInfo();
+            result.set("alphaType", ii.alphaType());
+            result.set("colorType", ii.colorType());
+            result.set("height", ii.height());
+            result.set("width", ii.width());
+            return result;
+        }))
         .function("height", &SkImage::height)
         .function("width", &SkImage::width)
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
