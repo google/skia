@@ -8,8 +8,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
-
 float _color_dodge_component(float2 s, float2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -18,17 +16,19 @@ float _color_dodge_component(float2 s, float2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _1_guarded_divide;
-            float _2_n = d.x * s.y;
+            float _4_guarded_divide;
+            float _5_n = d.x * s.y;
             {
-                _1_guarded_divide = _2_n / delta;
+                _4_guarded_divide = _5_n / delta;
             }
-            delta = min(d.y, _1_guarded_divide);
+            delta = min(d.y, _4_guarded_divide);
 
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
 }
+
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
