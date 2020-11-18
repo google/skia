@@ -2763,6 +2763,10 @@ private:
     bool   fIsScaleTranslate;
     SkRect fQuickRejectBounds;
 
+    // Compute the clip's bounds based on all clipped SkDevice's reported device bounds transformed
+    // into the canvas' global space.
+    SkRect computeDeviceClipBounds() const;
+
     class AutoValidateClip;
     void validateClip() const;
 
