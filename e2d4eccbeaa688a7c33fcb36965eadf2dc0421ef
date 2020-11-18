@@ -20,6 +20,47 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9bf06b9a_3cfcd439",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T13:20:24Z",
+      "side": 1,
+      "message": "One of std::is_same/is_base_of/is_convertible may work, but how about a separate name - parseProperty?  Or is this called from another template?\n\nFor inner type I think we can just add a \u0027using InnerType \u003d T\u0027 to SkSVGProperty and then reference it directly?",
+      "parentUuid": "4f8aacad_f9a38b84",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1de436d_ec6bba26",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T13:20:24Z",
+      "side": 1,
+      "message": "unrelated: weird that SkTLazy only has the pointer ctor version...",
+      "range": {
+        "startLine": 60,
+        "startChar": 34,
+        "endLine": 60,
+        "endChar": 35
+      },
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e04d1352_39d22459",
         "filename": "modules/svg/include/SkSVGNode.h",
         "patchSetId": 4
@@ -31,6 +72,24 @@
       "writtenOn": "2020-11-17T20:09:18Z",
       "side": 1,
       "message": "When these setters are called at parse time, this is where the handling of \"inherit\" on non-inheritable properties will need to go.",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd2cd041_b5e32b61",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T13:20:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e04d1352_39d22459",
       "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
