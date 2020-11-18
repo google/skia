@@ -733,8 +733,6 @@ def base_defines(os_conditions):
         "SK_CODEC_DECODES_JPEG",
         "SK_ENCODE_JPEG",
         "SK_HAS_ANDROID_CODEC",
-        # Needed for some tests in dm
-        "SK_ENABLE_SKSL_INTERPRETER",
     ] + skia_select(
         os_conditions,
         [

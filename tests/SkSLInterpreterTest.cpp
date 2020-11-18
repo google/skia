@@ -13,6 +13,8 @@
 
 #include "tests/Test.h"
 
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
+
 static bool nearly_equal(const float a[], const float b[], int count) {
     for (int i = 0; i < count; ++i) {
         if (!SkScalarNearlyEqual(a[i], b[i])) {
@@ -1244,3 +1246,5 @@ DEF_TEST(SkSLInterpreterExternalValuesVectorCall, r) {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
 }
+
+#endif // SK_ENABLE_SKSL_INTERPRETER

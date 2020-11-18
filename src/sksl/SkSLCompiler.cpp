@@ -1796,7 +1796,6 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
 #endif
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
     AutoSource as(this, program.fSource.get());
     std::unique_ptr<ByteCode> result(new ByteCode());
     ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
@@ -1804,9 +1803,6 @@ std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     if (success) {
         return result;
     }
-#else
-    ABORT("ByteCode interpreter not enabled");
-#endif
     return nullptr;
 }
 
