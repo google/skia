@@ -16,6 +16,92 @@
       "message": "This change came about after debugging the chrome roller failures in this roll: https://chromium-review.googlesource.com/c/chromium/src/+/2541917 from this CL: https://skia-review.googlesource.com/c/skia/+/333123\n\nIt came down to recording canvas\u0027 using SkNoPixelsDevice, and that device not providing accurate clip bounds. We hid that detail by tracking the bounds universally in the canvas stack. This moves the conservative tracking to SkNoPixelsDevice, so that non-recording canvas\u0027 just rely on the concrete SkBitmapDevice or SkGPUDevice\u0027s reported bounds.",
       "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "693b4f18_1d41bfa6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T14:12:48Z",
+      "side": 1,
+      "message": "I\u0027m not as intimately familiar with the inner workings of SkCanvas as reed@ but this lgtm.",
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e14cee5_abf396ff",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2641,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T14:12:48Z",
+      "side": 1,
+      "message": "Could we add a static_assert in SkCanvas.cpp somewhere that this value is correct?",
+      "range": {
+        "startLine": 2641,
+        "startChar": 43,
+        "endLine": 2641,
+        "endChar": 45
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b041c370_dceeeb1b",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1124,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T14:12:48Z",
+      "side": 1,
+      "message": "I find this slightly easier to read as strategy \u003d\u003d kFullLayer_SaveStrategy",
+      "range": {
+        "startLine": 1124,
+        "startChar": 8,
+        "endLine": 1124,
+        "endChar": 47
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea8bd778_c95757fb",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T14:12:48Z",
+      "side": 1,
+      "message": "really minor: this gets repeated a lot and is a verbose way of saying \"bounds\". Maybe a bounds() helper on SkNoPixelsDevice, or SkDevice?",
+      "range": {
+        "startLine": 494,
+        "startChar": 33,
+        "endLine": 494,
+        "endChar": 79
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
