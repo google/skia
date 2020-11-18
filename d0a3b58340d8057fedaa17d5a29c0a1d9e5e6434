@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f10475b_f68f7167",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T21:51:50Z",
+      "side": 1,
+      "message": "CL #5 from https://skia-review.googlesource.com/c/skia/+/334957\n\nThis shouldn\u0027t change any logic, but gets the function code more appropriate to be replaced with a macro in a later CL (i.e. it follows the exact same pattern as the other clipping functions now).",
+      "revId": "d0a3b58340d8057fedaa17d5a29c0a1d9e5e6434",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
