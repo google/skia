@@ -21,6 +21,7 @@ sksl_fp_error_tests = [
 ]
 
 sksl_fp_tests = [
+  "$_tests/sksl/fp/GrAllBlends.fp",
   "$_tests/sksl/fp/GrChildProcessorAndGlobal.fp",
   "$_tests/sksl/fp/GrChildProcessorFieldAccess.fp",
   "$_tests/sksl/fp/GrChildProcessorInlineFieldAccess.fp",
@@ -304,6 +305,7 @@ sksl_inliner_tests = [
 ]
 
 sksl_blend_tests = [
+  "$_tests/sksl/blend/AllBlends.sksl",
   "$_tests/sksl/blend/BlendClear.sksl",
   "$_tests/sksl/blend/BlendColor.sksl",
   "$_tests/sksl/blend/BlendColorBurn.sksl",
