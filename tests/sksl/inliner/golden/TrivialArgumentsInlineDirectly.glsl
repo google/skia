@@ -47,7 +47,7 @@ void main() {
 
 
     {
-        sk_FragColor = vec3(s.h).xyzx;
+        sk_FragColor = vec4(s.h);
     }
 
 
