@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66a08db0_23b1552e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:54:00Z",
+      "side": 1,
+      "message": "CL #2 split from https://skia-review.googlesource.com/c/skia/+/334957",
+      "revId": "e15210f9c7f970b20c33dd01fbb8fa95c73a7755",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
