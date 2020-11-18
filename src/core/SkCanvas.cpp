@@ -1578,17 +1578,15 @@ void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeSty
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     fClipRestrictionRect = rect;
-    if (fClipRestrictionRect.isEmpty()) {
-        // we notify the device, but we *dont* resolve deferred saves (since we're just
-        // removing the restriction if the rect is empty. how I hate this api.
-        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
-    } else {
+    if (!fClipRestrictionRect.isEmpty()) {
+        // we only resolve deferred saves when we're setting the restriction, not when we're
+        // removing it (i.e. rect is empty).
         this->checkForDeferredSave();
-        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
-        AutoValidateClip avc(this);
-        fMCRec->fRasterClip.opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op);
-        fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     }
+    AutoValidateClip avc(this);
+    FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+    fMCRec->fRasterClip.opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op);
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
