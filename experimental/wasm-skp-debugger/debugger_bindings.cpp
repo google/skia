@@ -119,12 +119,12 @@ class SkpDebugPlayer {
       canvas->clear(SK_ColorTRANSPARENT);
       if (fInspectedLayer >= 0) {
         // when it's a layer event we're viewing, we use the layer manager to render it.
-        fLayerManager->drawLayerEventTo(canvas, fInspectedLayer, fp);
+        fLayerManager->drawLayerEventTo(surface, fInspectedLayer, fp);
       } else {
         // otherwise, its a frame at the top level.
         frames[fp]->drawTo(surface->getCanvas(), index);
       }
-      surface->getCanvas()->flush();
+      surface->flush();
     }
 
     // Draws to the end of the current frame.
