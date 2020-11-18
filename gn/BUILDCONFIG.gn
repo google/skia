@@ -33,6 +33,11 @@ declare_args() {
 declare_args() {
   is_debug = !is_official_build
 }
+declare_args() {
+  if (target_os == "ios" || target_os == "tvos") {
+    ios_min_target = ""
+  }
+}
 
 assert(!(is_debug && is_official_build))
 
