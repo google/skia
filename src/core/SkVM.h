@@ -299,7 +299,8 @@ namespace skvm {
 
         // d = op(n,imm)
         using DOpNImm = void(V d, V n, int imm);
-        DOpNImm sli4s,
+        DOpNImm dup4s,
+                sli4s,
                 shl4s, sshr4s, ushr4s,
                                ushr8h;
 
@@ -338,17 +339,30 @@ namespace skvm {
         void cbz (X t, Label* l);
         void cbnz(X t, Label* l);
 
+        void ldrd(X dst, X src, int imm12=0);  // 64-bit dst = *(src+imm12*8)
+        void ldrs(X dst, X src, int imm12=0);  // 32-bit dst = *(src+imm12*4)
+        void ldrh(X dst, X src, int imm12=0);  // 16-bit dst = *(src+imm12*2)
+        void ldrb(X dst, X src, int imm12=0);  //  8-bit dst = *(src+imm12)
+
         void ldrq(V dst, Label*);  // 128-bit PC-relative load
 
         void ldrq(V dst, X src, int imm12=0);  // 128-bit dst = *(src+imm12*16)
+        void ldrd(V dst, X src, int imm12=0);  //  64-bit dst = *(src+imm12*8)
         void ldrs(V dst, X src, int imm12=0);  //  32-bit dst = *(src+imm12*4)
+        void ldrh(V dst, X src, int imm12=0);  //  16-bit dst = *(src+imm12*2)
         void ldrb(V dst, X src, int imm12=0);  //   8-bit dst = *(src+imm12)
 
         void strq(V src, X dst, int imm12=0);  // 128-bit *(dst+imm12*16) = src
+        void strd(V src, X dst, int imm12=0);  //  64-bit *(dst+imm12*8)  = src
         void strs(V src, X dst, int imm12=0);  //  32-bit *(dst+imm12*4)  = src
+        void strh(V src, X dst, int imm12=0);  //  16-bit *(dst+imm12*2)  = src
         void strb(V src, X dst, int imm12=0);  //   8-bit *(dst+imm12)    = src
 
-        void fmovs(X dst, V src); // dst = 32-bit src[0]
+        void fmovs(X dst, V src);            // dst = 32-bit src[0]
+        void  movs(X dst, V src, int lane);  // dst = 32-bit src[lane]
+        void  inss(V dst, X src, int lane);  // dst[lane] = 32-bit src
+
+        void ld1r4s(V dst, X src);  // Each 32-bit lane = *src
 
     private:
         // TODO: can probably track two of these three?
