@@ -1800,20 +1800,28 @@ DEF_TEST(SkVM_Assembler, r) {
         a.sub (A::sp, A::sp, 32);  // sub   sp, sp, #32
         a.strq(A::v0, A::sp, 1);   // str   q0, [sp, #16]
         a.strq(A::v1, A::sp);      // str   q1, [sp]
+        a.strd(A::v0, A::sp, 6);   // str   s0, [sp, #48]
         a.strs(A::v0, A::sp, 6);   // str   s0, [sp, #24]
+        a.strh(A::v0, A::sp, 10);  // str   h0, [sp, #20]
         a.strb(A::v0, A::sp, 47);  // str   b0, [sp, #47]
         a.ldrb(A::v9, A::sp, 42);  // ldr   b9, [sp, #42]
+        a.ldrh(A::v9, A::sp, 47);  // ldr   h9, [sp, #94]
         a.ldrs(A::v7, A::sp, 10);  // ldr   s7, [sp, #40]
+        a.ldrd(A::v7, A::sp,  1);  // ldr   d7, [sp, #8]
         a.ldrq(A::v5, A::sp, 128); // ldr   q5, [sp, #2048]
         a.add (A::sp, A::sp, 32);  // add   sp, sp, #32
     },{
          0xff,0x83,0x00,0xd1,
          0xe0,0x07,0x80,0x3d,
          0xe1,0x03,0x80,0x3d,
+         0xe0,0x1b,0x00,0xfd,
          0xe0,0x1b,0x00,0xbd,
+         0xe0,0x2b,0x00,0x7d,
          0xe0,0xbf,0x00,0x3d,
          0xe9,0xab,0x40,0x3d,
+         0xe9,0xbf,0x40,0x7d,
          0xe7,0x2b,0x40,0xbd,
+         0xe7,0x07,0x40,0xfd,
          0xe5,0x03,0xc2,0x3d,
          0xff,0x83,0x00,0x91,
     });
@@ -1845,6 +1853,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.b(&l);
         a.cbnz(A::x2, &l);
         a.cbz(A::x2, &l);
+
+        a.add(A::x3, A::x2, A::x1);             // add x3,x2,x1
+        a.add(A::x3, A::x2, A::x1, A::ASR, 3);  // add x3,x2,x1, asr #3
     },{
         0x00,0x00,0x20,0xd4,
         0xe0,0xff,0x3f,0xd4,
@@ -1870,6 +1881,9 @@ DEF_TEST(SkVM_Assembler, r) {
         0xae,0xff,0xff,0x54,   // b.al #-12
         0x82,0xff,0xff,0xb5,   // cbnz x2, #-16
         0x62,0xff,0xff,0xb4,   // cbz x2, #-20
+
+        0x43,0x00,0x01,0x8b,
+        0x43,0x0c,0x81,0x8b,
     });
 
     // Can we cbz() to a not-yet-defined label?
@@ -1936,6 +1950,16 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.ld1r4s (A::v0, A::x8);  // echo 'ld1r.4s {v0}, [x8]' | llvm-mc --show-encoding
+        a.ld1r8h (A::v0, A::x8);
+        a.ld1r16b(A::v0, A::x8);
+    },{
+        0x00,0xc9,0x40,0x4d,
+        0x00,0xc5,0x40,0x4d,
+        0x00,0xc1,0x40,0x4d,
+    });
+
+    test_asm(r, [&](A& a) {
         a.xtns2h(A::v0, A::v0);
         a.xtnh2b(A::v0, A::v0);
         a.strs  (A::v0, A::x0);
@@ -1945,7 +1969,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.uxtlh2s(A::v0, A::v0);
 
         a.uminv4s(A::v3, A::v4);
-        a.fmovs  (A::x3, A::v4);  // fmov w3,s4
+        a.movs   (A::x3, A::v4,0);  // mov.s w3,v4[0]
+        a.movs   (A::x3, A::v4,1);  // mov.s w3,v4[1]
+        a.inss   (A::v4, A::x3,3);  // ins.s v4[3],w3
     },{
         0x00,0x28,0x61,0x0e,
         0x00,0x28,0x21,0x0e,
@@ -1956,7 +1982,9 @@ DEF_TEST(SkVM_Assembler, r) {
         0x00,0xa4,0x10,0x2f,
 
         0x83,0xa8,0xb1,0x6e,
-        0x83,0x00,0x26,0x1e,
+        0x83,0x3c,0x04,0x0e,
+        0x83,0x3c,0x0c,0x0e,
+        0x64,0x1c,0x1c,0x4e,
     });
 
     test_asm(r, [&](A& a) {
@@ -1965,6 +1993,18 @@ DEF_TEST(SkVM_Assembler, r) {
     },{
         0x00,0x01,0x40,0x3d,
         0x00,0x01,0x00,0x3d,
+    });
+
+    test_asm(r, [&](A& a) {
+        a.ldrd(A::x0, A::x1, 3);   // ldr  x0, [x1, #24]
+        a.ldrs(A::x0, A::x1, 3);   // ldr  w0, [x1, #12]
+        a.ldrh(A::x0, A::x1, 3);   // ldrh w0, [x1, #6]
+        a.ldrb(A::x0, A::x1, 3);   // ldrb w0, [x1, #3]
+    },{
+        0x20,0x0c,0x40,0xf9,
+        0x20,0x0c,0x40,0xb9,
+        0x20,0x0c,0x40,0x79,
+        0x20,0x0c,0x40,0x39,
     });
 
     test_asm(r, [&](A& a) {
