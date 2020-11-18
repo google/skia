@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03ff3e7c_6696250a",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-18T14:32:34Z",
+      "side": 1,
+      "message": "Good point that we can just rename it. That allows me to remove the std::enable_if, but it\u0027s still not super clear. I also tried this, to make the typing a little more visible, but I couldn\u0027t figure out how to get the compiler to infer the types correctly at the callsites:\n\n  template \u003ctypename T, typename B\u003e\n  static ParseResult\u003cSkSVGProperty\u003cT, B\u003e\u003e parseProperty(...)\n\nThe latest patchset might be good enough though? Let me know your thoughts.",
+      "parentUuid": "9bf06b9a_3cfcd439",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e1de436d_ec6bba26",
         "filename": "modules/svg/include/SkSVGAttributeParser.h",
         "patchSetId": 4
@@ -49,6 +67,30 @@
       "writtenOn": "2020-11-18T13:20:24Z",
       "side": 1,
       "message": "unrelated: weird that SkTLazy only has the pointer ctor version...",
+      "range": {
+        "startLine": 60,
+        "startChar": 34,
+        "endLine": 60,
+        "endChar": 35
+      },
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "313190f3_e702e5f7",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-18T14:32:34Z",
+      "side": 1,
+      "message": "Yeah, not sure. Perhaps to make it more clear that a copy takes place?",
+      "parentUuid": "e1de436d_ec6bba26",
       "range": {
         "startLine": 60,
         "startChar": 34,
