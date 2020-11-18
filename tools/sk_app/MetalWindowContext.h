@@ -30,6 +30,8 @@ public:
     void activate(bool isActive) override;
 
 protected:
+    static NSURL* CacheURL();
+
     MetalWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
@@ -47,6 +49,9 @@ protected:
     id<MTLCommandQueue>         fQueue;
     CAMetalLayer*               fMetalLayer;
     GrMTLHandle                 fDrawableHandle;
+#if GR_METAL_SDK_VERSION >= 230
+    id<MTLBinaryArchive>        fPipelineArchive  SK_API_AVAILABLE(macos(11.0), ios(14.0));
+#endif
 };
 
 }   // namespace sk_app
