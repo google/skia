@@ -16,6 +16,40 @@
       "message": "This is my attempt to filter out text editing case that clutters the cache (one position for each added symbol). At the same time I didn\u0027t want to limit large paragraphs that (as I know) appear in performance testing.",
       "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f78512df_5e6130d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T17:28:35Z",
+      "side": 1,
+      "message": "Also, each Run is 5680 bytes which seems excessive for caching. Is there any noticeable reason for all the SkSTArray in there not to just be std::vector?\n\nIt seems the cache is currently just an LRU cache with 128 entries. Really it seems you probably want a combination of some number of entries but also limit based on maximum size of the cache (and maybe really big things just shouldn\u0027t go in the cache at all if they would evict everything else). Note that this is how the SkStrikeCache works (combination of size and count) https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/core/SkStrikeCache.cpp;l\u003d249;drc\u003d8632b1866ce37fd47c6edae1f1b916d482323c9b .",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c86369af_26c6465a",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T17:28:35Z",
+      "side": 1,
+      "message": "If this isn\u0027t needed or used right now, why add it?",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
