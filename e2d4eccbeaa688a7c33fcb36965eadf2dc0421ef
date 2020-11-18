@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05751959_f1834419",
+        "filename": "modules/svg/include/SkSVGAttributeParser.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-18T14:51:33Z",
+      "side": 1,
+      "message": "Looks neat!",
+      "parentUuid": "03ff3e7c_6696250a",
+      "revId": "e2d4eccbeaa688a7c33fcb36965eadf2dc0421ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1de436d_ec6bba26",
