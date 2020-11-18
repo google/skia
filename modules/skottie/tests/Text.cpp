@@ -95,7 +95,11 @@ DEF_TEST(Skottie_Text_Style, r) {
                  { "fName"  : "f9" , "fFamily": "f9" , "fStyle" : "Bold Italic"       },
                  { "fName"  : "f10", "fFamily": "f10", "fStyle" : "Light Oblique"     },
                  { "fName"  : "f11", "fFamily": "f11", "fStyle" : "Extra Oblique"     },
-                 { "fName"  : "f12", "fFamily": "f12", "fStyle" : "ExtraBold Oblique" }
+                 { "fName"  : "f12", "fFamily": "f12", "fStyle" : "Extrabold Oblique" },
+
+                 { "fName"  : "f13", "fFamily": "f13", "fStyle" : "Italic"  },
+                 { "fName"  : "f14", "fFamily": "f14", "fStyle" : "Oblique" },
+                 { "fName"  : "f15", "fFamily": "f15", "fStyle" : ""        }
                ]
              }
            })";
@@ -127,6 +131,10 @@ DEF_TEST(Skottie_Text_Style, r) {
         { "f10", SkFontStyle::kLight_Weight    , SkFontStyle::kOblique_Slant },
         { "f11", SkFontStyle::kExtraBold_Weight, SkFontStyle::kOblique_Slant },
         { "f12", SkFontStyle::kExtraBold_Weight, SkFontStyle::kOblique_Slant },
+
+        { "f13", SkFontStyle::kNormal_Weight   , SkFontStyle::kItalic_Slant  },
+        { "f14", SkFontStyle::kNormal_Weight   , SkFontStyle::kOblique_Slant },
+        { "f15", SkFontStyle::kNormal_Weight   , SkFontStyle::kUpright_Slant },
     };
 
     for (const auto& exp : expected) {

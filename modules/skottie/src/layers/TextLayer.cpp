@@ -19,6 +19,7 @@
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGText.h"
+#include "src/core/SkTSearch.h"
 
 #include <string.h>
 
@@ -27,78 +28,71 @@ namespace internal {
 
 namespace {
 
-SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
-    static constexpr struct {
-        const char*               fName;
-        const SkFontStyle::Weight fWeight;
-    } gWeightMap[] = {
-        { "Regular"   , SkFontStyle::kNormal_Weight     },
-        { "Medium"    , SkFontStyle::kMedium_Weight     },
-        { "Bold"      , SkFontStyle::kBold_Weight       },
-        { "Light"     , SkFontStyle::kLight_Weight      },
-        { "Black"     , SkFontStyle::kBlack_Weight      },
-        { "Thin"      , SkFontStyle::kThin_Weight       },
-        { "Extra"     , SkFontStyle::kExtraBold_Weight  },
-        { "ExtraBold" , SkFontStyle::kExtraBold_Weight  },
-        { "ExtraLight", SkFontStyle::kExtraLight_Weight },
-        { "ExtraBlack", SkFontStyle::kExtraBlack_Weight },
-        { "SemiBold"  , SkFontStyle::kSemiBold_Weight   },
-        { "Hairline"  , SkFontStyle::kThin_Weight       },
-        { "Normal"    , SkFontStyle::kNormal_Weight     },
-        { "Plain"     , SkFontStyle::kNormal_Weight     },
-        { "Standard"  , SkFontStyle::kNormal_Weight     },
-        { "Roman"     , SkFontStyle::kNormal_Weight     },
-        { "Heavy"     , SkFontStyle::kBlack_Weight      },
-        { "Demi"      , SkFontStyle::kSemiBold_Weight   },
-        { "DemiBold"  , SkFontStyle::kSemiBold_Weight   },
-        { "Ultra"     , SkFontStyle::kExtraBold_Weight  },
-        { "UltraBold" , SkFontStyle::kExtraBold_Weight  },
-        { "UltraBlack", SkFontStyle::kExtraBlack_Weight },
-        { "UltraHeavy", SkFontStyle::kExtraBlack_Weight },
-        { "UltraLight", SkFontStyle::kExtraLight_Weight },
-    };
+template <typename T, typename TMap>
+const char* parse_map(const TMap& map, const char* str, T* result) {
+    // ignore leading whitespace
+    while (*str == ' ') ++str;
 
-    auto next_tok = [](const char* str) {
-        const char* sep = strchr(str, ' ');
-        return sep ? sep + 1 : nullptr;
-    };
+    const char* next_tok = strchr(str, ' ');
 
-    // Style format:
-    //
-    //   "<weight>[ <slant>]"
-    const char* wstr = style;
-    const char* sstr = next_tok(wstr);
-    const auto  wlen = sstr ? SkToSizeT(sstr - wstr - 1) : strlen(wstr);
-
-    SkFontStyle::Weight weight = SkFontStyle::kNormal_Weight;
-    for (const auto& w : gWeightMap) {
-        if (!strncmp(wstr, w.fName, wlen) && w.fName[wlen] == '\0') {
-            weight = w.fWeight;
-            wstr = nullptr;
-            break;
-        }
-    }
-
-    static constexpr struct {
-        const char*              fName;
-        const SkFontStyle::Slant fSlant;
-    } gSlantMap[] = {
-        { "Italic" , SkFontStyle::kItalic_Slant  },
-        { "Oblique", SkFontStyle::kOblique_Slant },
-    };
-
-    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
-    if (sstr) {
-        for (const auto& s : gSlantMap) {
-            if (!strcmp(sstr, s.fName)) {
-                slant = s.fSlant;
-                sstr = nullptr;
-                break;
+    if (const auto len = next_tok ? (next_tok - str) : strlen(str)) {
+        for (const auto& e : map) {
+            const char* key = std::get<0>(e);
+            if (!strncmp(str, key, len) && key[len] == '\0') {
+                *result = std::get<1>(e);
+                return str + len;
             }
         }
     }
 
-    if (wstr || sstr) {
+    return str;
+}
+
+SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
+    static constexpr std::tuple<const char*, SkFontStyle::Weight> gWeightMap[] = {
+        { "regular"   , SkFontStyle::kNormal_Weight     },
+        { "medium"    , SkFontStyle::kMedium_Weight     },
+        { "bold"      , SkFontStyle::kBold_Weight       },
+        { "light"     , SkFontStyle::kLight_Weight      },
+        { "black"     , SkFontStyle::kBlack_Weight      },
+        { "thin"      , SkFontStyle::kThin_Weight       },
+        { "extra"     , SkFontStyle::kExtraBold_Weight  },
+        { "extrabold" , SkFontStyle::kExtraBold_Weight  },
+        { "extralight", SkFontStyle::kExtraLight_Weight },
+        { "extrablack", SkFontStyle::kExtraBlack_Weight },
+        { "semibold"  , SkFontStyle::kSemiBold_Weight   },
+        { "hairline"  , SkFontStyle::kThin_Weight       },
+        { "normal"    , SkFontStyle::kNormal_Weight     },
+        { "plain"     , SkFontStyle::kNormal_Weight     },
+        { "standard"  , SkFontStyle::kNormal_Weight     },
+        { "roman"     , SkFontStyle::kNormal_Weight     },
+        { "heavy"     , SkFontStyle::kBlack_Weight      },
+        { "demi"      , SkFontStyle::kSemiBold_Weight   },
+        { "demibold"  , SkFontStyle::kSemiBold_Weight   },
+        { "ultra"     , SkFontStyle::kExtraBold_Weight  },
+        { "ultrabold" , SkFontStyle::kExtraBold_Weight  },
+        { "ultrablack", SkFontStyle::kExtraBlack_Weight },
+        { "ultraheavy", SkFontStyle::kExtraBlack_Weight },
+        { "ultralight", SkFontStyle::kExtraLight_Weight },
+    };
+    static constexpr std::tuple<const char*, SkFontStyle::Slant> gSlantMap[] = {
+        { "italic" , SkFontStyle::kItalic_Slant  },
+        { "oblique", SkFontStyle::kOblique_Slant },
+    };
+
+    auto weight = SkFontStyle::kNormal_Weight;
+    auto slant  = SkFontStyle::kUpright_Slant;
+
+    // style is case insensitive.
+    SkAutoAsciiToLC lc_style(style);
+    style = lc_style.lc();
+    style = parse_map(gWeightMap, style, &weight);
+    style = parse_map(gSlantMap , style, &slant );
+
+    // ignore trailing whitespace
+    while (*style == ' ') ++style;
+
+    if (*style) {
         abuilder->log(Logger::Level::kWarning, nullptr, "Unknown font style: %s.", style);
     }
 
@@ -223,7 +217,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
 
         if (!jname   || !jname->size() ||
             !jfamily || !jfamily->size() ||
-            !jstyle  || !jstyle->size()) {
+            !jstyle) {
             this->log(Logger::Level::kError, jfont, "Invalid font.");
             continue;
         }
