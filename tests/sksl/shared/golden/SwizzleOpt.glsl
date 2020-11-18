@@ -12,10 +12,10 @@ layout (set = 0) uniform vec3 colRGB;
 void main() {
     float v = sqrt(1.0);
     sk_FragColor = vec4(v);
-    sk_FragColor = vec4(vec3(v), 0.0).wzyx;
-    sk_FragColor = vec3(vec2(v), 0.0).zzxy;
-    sk_FragColor = vec3(vec3(vec2(v), 0.0).yx, 1.0).zzxy;
-    sk_FragColor = vec3(vec2(v), 1.0).xyzz;
+    sk_FragColor = vec4(0.0, vec3(v));
+    sk_FragColor = vec4(0.0, 0.0, vec2(v));
+    sk_FragColor = vec4(1.0, 1.0, vec2(v));
+    sk_FragColor = vec4(vec2(v), 1.0, 1.0);
     sk_FragColor = vec4(v);
     sk_FragColor = vec4(vec2(v), 1.0, 1.0);
     sk_FragColor = vec4(v);

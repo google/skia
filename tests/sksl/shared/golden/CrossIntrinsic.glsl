@@ -10,25 +10,25 @@ void main() {
 
     sk_FragColor = vec4(_0_cross);
 
+    float _1_cross;
+    {
+        _1_cross = determinant(mat2(vec2(5.0, 6.0), vec2(7.0, 8.0)));
+    }
+
+    sk_FragColor = vec4(_1_cross);
+
+    float _2_cross;
+    {
+        _2_cross = determinant(mat2(h2, h2));
+    }
+
+    sk_FragColor = vec4(_2_cross);
+
     float _3_cross;
     {
-        _3_cross = determinant(mat2(vec2(5.0, 6.0), vec2(7.0, 8.0)));
+        _3_cross = determinant(mat2(f2, f2));
     }
 
     sk_FragColor = vec4(_3_cross);
-
-    float _6_cross;
-    {
-        _6_cross = determinant(mat2(h2, h2));
-    }
-
-    sk_FragColor = vec4(_6_cross);
-
-    float _7_cross;
-    {
-        _7_cross = determinant(mat2(f2, f2));
-    }
-
-    sk_FragColor = vec4(_7_cross);
 
 }
