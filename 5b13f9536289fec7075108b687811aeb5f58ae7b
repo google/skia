@@ -70,6 +70,30 @@
       },
       "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ecf95b8_1bbafa1e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-18T16:11:24Z",
+      "side": 1,
+      "message": "You identified a really important precondition, so I added both a comment and an assertion to verify that the comment is true.",
+      "parentUuid": "16d1176f_52833d42",
+      "range": {
+        "startLine": 1103,
+        "startChar": 80,
+        "endLine": 1104,
+        "endChar": 86
+      },
+      "revId": "5b13f9536289fec7075108b687811aeb5f58ae7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
