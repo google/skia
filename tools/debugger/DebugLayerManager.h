@@ -46,7 +46,7 @@ public:
     // Set's the command playback head for a given picture/draw event.
     void setCommand(int nodeId, int frame, int command);
 
-    void drawLayerEventTo(SkCanvas* canvas, const int nodeId, const int frame);
+    void drawLayerEventTo(SkSurface*, const int nodeId, const int frame);
 
     // getLayerAsImage draws the given layer as it would have looked on frame and returns an image.
     // Though each picture can be played back in as many ways as there are commands, we will let

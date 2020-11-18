@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 
@@ -118,6 +119,8 @@ protected:
     void onPerCanvasPostDraw(SkCanvas*) override { fImages.reset(); }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
@@ -216,7 +219,9 @@ protected:
                 }
             }
             // Prevent any batching between composited "frames".
-            canvas->flush();
+            if (dContext) {
+                dContext->flush();
+            }
         }
         canvas->restore();
     }
