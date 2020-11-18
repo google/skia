@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9008a382_865eba4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2020-11-18T06:05:10Z",
+      "side": 1,
+      "message": "ptal ... this was a very well-hidden bug.",
+      "revId": "ddf53eebbb49dfa30d9f8e76743678bc8d815450",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
