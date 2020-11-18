@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfe78b0a_7b0ee0c7",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T20:42:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ab84abf_69b60e61",
+      "revId": "857bd90d5d14e54c21345b3bbb24d273da6a238d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "021cecda_87dc27b9",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-18T16:55:56Z",
       "side": 1,
       "message": "I don\u0027t think this if() is important... if you set it and don\u0027t build for iOS/tvOS, ios_min_target will just be ignored, right?",
+      "revId": "857bd90d5d14e54c21345b3bbb24d273da6a238d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "222933a4_64882a27",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T20:42:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "021cecda_87dc27b9",
       "revId": "857bd90d5d14e54c21345b3bbb24d273da6a238d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
