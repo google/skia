@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e4b6816_8a3028b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T14:14:58Z",
+      "side": 1,
+      "message": "sgtm -- until we can count on weakrefs everywhere, right?",
+      "parentUuid": "d7516d35_95c5a8ad",
+      "revId": "a74d9dc9d1b0efa71ee4bf2ec01c5297568f149b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e3e17ed_415ce9bc",
