@@ -193,4 +193,18 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
     ABORT("can't happen, matrix component out of bounds");
 }
 
+int64_t Constructor::getConstantInt() const {
+    SkASSERT(this->arguments().size() == 1);
+    SkASSERT(this->arguments().front()->type().typeKind() == Type::TypeKind::kScalar);
+    SkASSERT(this->arguments().front()->type().isInteger());
+    return this->arguments().front()->getConstantInt();
+}
+
+SKSL_FLOAT Constructor::getConstantFloat() const {
+    SkASSERT(this->arguments().size() == 1);
+    SkASSERT(this->arguments().front()->type().typeKind() == Type::TypeKind::kScalar);
+    SkASSERT(this->arguments().front()->type().isFloat());
+    return this->arguments().front()->getConstantFloat();
+}
+
 }  // namespace SkSL
