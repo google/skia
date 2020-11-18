@@ -27,11 +27,28 @@ namespace internal {
 
 namespace {
 
+template <typename T, typename TMap>
+const char* parse_map(const TMap& map, const char* str, T* result) {
+    // ignore leading whitespace
+    while (*str == ' ') ++str;
+
+    const char* next_tok = strchr(str, ' ');
+
+    if (const auto len = next_tok ? (next_tok - str) : strlen(str)) {
+        for (const auto& e : map) {
+            const char* key = std::get<0>(e);
+            if (!strncmp(str, key, len) && key[len] == '\0') {
+                *result = std::get<1>(e);
+                return str + len;
+            }
+        }
+    }
+
+    return str;
+}
+
 SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
-    static constexpr struct {
-        const char*               fName;
-        const SkFontStyle::Weight fWeight;
-    } gWeightMap[] = {
+    static constexpr std::tuple<const char*, SkFontStyle::Weight> gWeightMap[] = {
         { "Regular"   , SkFontStyle::kNormal_Weight     },
         { "Medium"    , SkFontStyle::kMedium_Weight     },
         { "Bold"      , SkFontStyle::kBold_Weight       },
@@ -57,48 +74,20 @@ SkFontStyle FontStyle(const AnimationBuilder* abuilder, const char* style) {
         { "UltraHeavy", SkFontStyle::kExtraBlack_Weight },
         { "UltraLight", SkFontStyle::kExtraLight_Weight },
     };
-
-    auto next_tok = [](const char* str) {
-        const char* sep = strchr(str, ' ');
-        return sep ? sep + 1 : nullptr;
-    };
-
-    // Style format:
-    //
-    //   "<weight>[ <slant>]"
-    const char* wstr = style;
-    const char* sstr = next_tok(wstr);
-    const auto  wlen = sstr ? SkToSizeT(sstr - wstr - 1) : strlen(wstr);
-
-    SkFontStyle::Weight weight = SkFontStyle::kNormal_Weight;
-    for (const auto& w : gWeightMap) {
-        if (!strncmp(wstr, w.fName, wlen) && w.fName[wlen] == '\0') {
-            weight = w.fWeight;
-            wstr = nullptr;
-            break;
-        }
-    }
-
-    static constexpr struct {
-        const char*              fName;
-        const SkFontStyle::Slant fSlant;
-    } gSlantMap[] = {
+    static constexpr std::tuple<const char*, SkFontStyle::Slant> gSlantMap[] = {
         { "Italic" , SkFontStyle::kItalic_Slant  },
         { "Oblique", SkFontStyle::kOblique_Slant },
     };
 
-    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
-    if (sstr) {
-        for (const auto& s : gSlantMap) {
-            if (!strcmp(sstr, s.fName)) {
-                slant = s.fSlant;
-                sstr = nullptr;
-                break;
-            }
-        }
-    }
+    auto weight = SkFontStyle::kNormal_Weight;
+    auto slant  = SkFontStyle::kUpright_Slant;
+    style = parse_map(gWeightMap, style, &weight);
+    style = parse_map(gSlantMap , style, &slant );
 
-    if (wstr || sstr) {
+    // ignore trailing whitespace
+    while (*style == ' ') ++style;
+
+    if (*style) {
         abuilder->log(Logger::Level::kWarning, nullptr, "Unknown font style: %s.", style);
     }
 
@@ -223,7 +212,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
 
         if (!jname   || !jname->size() ||
             !jfamily || !jfamily->size() ||
-            !jstyle  || !jstyle->size()) {
+            !jstyle) {
             this->log(Logger::Level::kError, jfont, "Invalid font.");
             continue;
         }
