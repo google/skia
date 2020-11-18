@@ -370,11 +370,11 @@ int processCommand(std::vector<SkSL::String>& args, bool writeErrorsToOutputFile
             printf("error writing '%s'\n", outputPath.c_str());
             return 4;
         }
-        auto [symbols, elements] = compiler.loadModule(
+        SkSL::LoadedModule module = compiler.loadModule(
                 kind, SkSL::Compiler::MakeModulePath(inputPath.c_str()), nullptr);
         SkSL::Dehydrator dehydrator;
-        dehydrator.write(*symbols);
-        dehydrator.write(elements);
+        dehydrator.write(*module.fSymbols);
+        dehydrator.write(module.fElements);
         SkSL::String baseName = base_name(inputPath, "", ".sksl");
         SkSL::StringStream buffer;
         dehydrator.finish(buffer);

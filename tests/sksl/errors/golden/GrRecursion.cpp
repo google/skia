@@ -26,15 +26,9 @@ public:
 , factorial_name.c_str());
         fragBuilder->emitFunction(kInt_GrSLType, factorial_name.c_str(), {factorial_args, 1}, factorial_impl.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(int _0_factorial;
-{
-    _0_factorial = 7 * %s(6);
-}
-
-%s = half4(half(_0_factorial));
-
+R"SkSL(%s = half4(half(%s(7)));
 )SkSL"
-, factorial_name.c_str(), args.fOutputColor);
+, args.fOutputColor, factorial_name.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
