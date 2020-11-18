@@ -111,8 +111,7 @@ public:
     void addMultiMaskFormat(
             AddSingleMaskFormat addSingle,
             const SkZip<SkGlyphVariant, SkPoint>& drawables,
-            const SkStrikeSpec& strikeSpec,
-            SkPoint residual);
+            const SkStrikeSpec& strikeSpec);
 
     const SkTInternalLList<GrSubRun>& subRunList() const { return fSubRunList; }
 
@@ -123,8 +122,7 @@ private:
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                            const SkStrikeSpec& strikeSpec,
-                            SkPoint residual) override;
+                            const SkStrikeSpec& strikeSpec) override;
     void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkFont& runFont,
                             const SkStrikeSpec& strikeSpec) override;
