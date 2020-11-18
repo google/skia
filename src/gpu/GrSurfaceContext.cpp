@@ -212,11 +212,10 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
             GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
                                             ? GrColorType::kRGBA_8888
                                             : this->colorInfo().colorType();
-            sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
-
             tempCtx = GrRenderTargetContext::Make(
-                    dContext, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
-                    1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+                    dContext, colorType, this->colorInfo().refColorSpace(), SkBackingFit::kApprox,
+                    dstInfo.dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo,
+                    kTopLeft_GrSurfaceOrigin);
             if (!tempCtx) {
                 return false;
             }
