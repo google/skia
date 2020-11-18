@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3be3edd0_0bc05c0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T14:28:08Z",
+      "side": 1,
+      "message": "Any chance this can be broken into more than one (smaller) CLs?\n\n- renaming DeviceClipBounds to QuickRejectBounds\n- not needed savelayerflags\n- androids_clip_restriction changes\n- ...",
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e14cee5_abf396ff",
@@ -53,6 +70,29 @@
         "startChar": 43,
         "endLine": 2641,
         "endChar": 45
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b433e3f6_e878d9c5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T14:28:08Z",
+      "side": 1,
+      "message": "is this the same as fQuickRejectBounds_is_dirty ?",
+      "range": {
+        "startLine": 236,
+        "startChar": 9,
+        "endLine": 236,
+        "endChar": 22
       },
       "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
