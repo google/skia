@@ -34,6 +34,24 @@
       "parentUuid": "4229e79c_a9a0864f",
       "revId": "3eb08aa6d001447b71484035e8492c98068b7bb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ae51621_1afab60a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T19:31:53Z",
+      "side": 1,
+      "message": "Happy to hear other voices, but my vote would be:\n\n- Skia\u0027s only promise is to not crash when presented with non-finite inputs\n- Other than that, it is \u0027undefined\u0027 what we do\n\nI guess a slightly nicer one is\n\n- On non-finite input, Skia tries to make the call a no-op (when possible)",
+      "parentUuid": "31c7be9d_fce12cea",
+      "revId": "3eb08aa6d001447b71484035e8492c98068b7bb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
