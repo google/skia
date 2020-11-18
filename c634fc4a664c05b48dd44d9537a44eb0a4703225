@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13a71ecc_e860ba57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T21:27:09Z",
+      "side": 1,
+      "message": "Fixed this without figuring out the actual deadlock because suspending a lock is always a bad idea. However, after some prodding, looked at this and annotated here the actual deadlock condition.",
+      "revId": "c634fc4a664c05b48dd44d9537a44eb0a4703225",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

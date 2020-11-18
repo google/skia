@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77cf1e72_e54f25d8",
+        "filename": "src/ports/SkFontMgr_fontconfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T21:27:09Z",
+      "side": 0,
+      "message": "2. Thread B has taken FCLocker and gets here, has to wait on fTFCacheMutex.",
+      "revId": "5dfa02be698154dcc667f853f1b71b43fdbecff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c41fc16_9774e51f",
+        "filename": "src/ports/SkFontMgr_fontconfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 706,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T21:27:09Z",
+      "side": 0,
+      "message": "1. Thread A gets here, holds fTFCacheMutex, drops FCLocker.",
+      "revId": "5dfa02be698154dcc667f853f1b71b43fdbecff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d86d195b_926f18e6",
+        "filename": "src/ports/SkFontMgr_fontconfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-18T21:27:09Z",
+      "side": 0,
+      "message": "3. Thread A gets here, hold fTFCacheMutex, tries to obtain FCLocker. Will not give up fTFCacheMutex until it gets FCLocker.\n\nAt this point Thread A and B are deadlocked and any other thread trying to take FCLocker will join them in making no further progress.",
+      "revId": "5dfa02be698154dcc667f853f1b71b43fdbecff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
