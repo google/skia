@@ -496,9 +496,10 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return std::make_unique<FieldAccess>(std::move(base), index, ownerKind);
         }
         case Rehydrator::kFloatLiteral_Command: {
+            const Type* type = this->type();
             FloatIntUnion u;
             u.fInt = this->readS32();
-            return std::make_unique<FloatLiteral>(fContext, -1, u.fFloat);
+            return std::make_unique<FloatLiteral>(-1, u.fFloat, type);
         }
         case Rehydrator::kFunctionCall_Command: {
             const Type* type = this->type();
@@ -518,8 +519,9 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(index));
         }
         case Rehydrator::kIntLiteral_Command: {
+            const Type* type = this->type();
             int value = this->readS32();
-            return std::make_unique<IntLiteral>(fContext, -1, value);
+            return std::make_unique<IntLiteral>(-1, value, type);
         }
         case Rehydrator::kNullLiteral_Command:
             return std::make_unique<NullLiteral>(fContext, -1);
