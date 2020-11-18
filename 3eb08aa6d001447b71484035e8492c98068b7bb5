@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4229e79c_a9a0864f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T18:56:59Z",
+      "side": 1,
+      "message": "Hmmm, do we really want to document how we deal with non-finite data ever (other than \u0027not drawing\u0027)? e.g. this CL says inverse-non-finite is wide open. Do we \u0027draw\u0027 this path everywhere?\n\nMy initial feeling is \n- non-finite is just bad\n- we can behave in an undefined manner\n-    an/or we always do \u0027nothing\u0027 with non-finites",
+      "revId": "3eb08aa6d001447b71484035e8492c98068b7bb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
