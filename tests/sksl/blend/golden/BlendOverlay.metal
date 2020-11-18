@@ -15,19 +15,19 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_overlay;
     {
+        float _2_blend_overlay_component;
+        {
+            _2_blend_overlay_component = 2.0 * _in.dst.x <= _in.dst.w ? (2.0 * _in.src.x) * _in.dst.x : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.x)) * (_in.src.w - _in.src.x);
+        }
         float _3_blend_overlay_component;
         {
-            _3_blend_overlay_component = 2.0 * _in.dst.x <= _in.dst.w ? (2.0 * _in.src.x) * _in.dst.x : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.x)) * (_in.src.w - _in.src.x);
+            _3_blend_overlay_component = 2.0 * _in.dst.y <= _in.dst.w ? (2.0 * _in.src.y) * _in.dst.y : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.y)) * (_in.src.w - _in.src.y);
         }
         float _4_blend_overlay_component;
         {
-            _4_blend_overlay_component = 2.0 * _in.dst.y <= _in.dst.w ? (2.0 * _in.src.y) * _in.dst.y : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.y)) * (_in.src.w - _in.src.y);
+            _4_blend_overlay_component = 2.0 * _in.dst.z <= _in.dst.w ? (2.0 * _in.src.z) * _in.dst.z : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.z)) * (_in.src.w - _in.src.z);
         }
-        float _5_blend_overlay_component;
-        {
-            _5_blend_overlay_component = 2.0 * _in.dst.z <= _in.dst.w ? (2.0 * _in.src.z) * _in.dst.z : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.z)) * (_in.src.w - _in.src.z);
-        }
-        float4 _1_result = float4(_3_blend_overlay_component, _4_blend_overlay_component, _5_blend_overlay_component, _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
+        float4 _1_result = float4(_2_blend_overlay_component, _3_blend_overlay_component, _4_blend_overlay_component, _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
 
 
 

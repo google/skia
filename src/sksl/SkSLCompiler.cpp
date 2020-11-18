@@ -289,11 +289,11 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     fIRGenerator->fCanInline = false;
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, &standaloneCaps, baseModule,
+            fIRGenerator->convertProgram(kind, &settings, fCaps, baseModule,
                                          /*isBuiltinCode=*/true, source->c_str(), source->length(),
                                          /*externalValues=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
-    LoadedModule module = {std::move(ir.fSymbolTable), std::move(ir.fElements)};
+    LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -304,7 +304,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     SkASSERT(data.fData && (data.fSize != 0));
     Rehydrator rehydrator(fContext.get(), fIRGenerator->fModifiers.get(), base, this,
                           data.fData, data.fSize);
-    LoadedModule module = { rehydrator.symbolTable(), rehydrator.elements() };
+    LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
     fModifiers.push_back(fIRGenerator->releaseModifiers());
 #endif
 
@@ -312,19 +312,20 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
 }
 
 ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base) {
-    auto [symbols, elements] = this->loadModule(kind, data, base.fSymbols);
+    LoadedModule module = this->loadModule(kind, data, base.fSymbols);
+    this->optimize(module);
 
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
     // program elements. In that case, we can share our parent's intrinsic map:
-    if (elements.empty()) {
-        return {symbols, base.fIntrinsics};
+    if (module.fElements.empty()) {
+        return {module.fSymbols, base.fIntrinsics};
     }
 
     auto intrinsics = std::make_shared<IRIntrinsicMap>(base.fIntrinsics.get());
 
     // Now, transfer all of the program elements to an intrinsic map. This maps certain types of
     // global objects to the declaring ProgramElement.
-    for (std::unique_ptr<ProgramElement>& element : elements) {
+    for (std::unique_ptr<ProgramElement>& element : module.fElements) {
         switch (element->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = element->as<FunctionDefinition>();
@@ -362,7 +363,7 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
         }
     }
 
-    return {symbols, std::move(intrinsics)};
+    return {module.fSymbols, std::move(intrinsics)};
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -1620,6 +1621,30 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     program->fPool->detachFromThread();
     return success ? std::move(program) : nullptr;
+}
+
+bool Compiler::optimize(LoadedModule& module) {
+    SkASSERT(!fErrorCount);
+    Program::Settings settings;
+    fIRGenerator->fKind = module.fKind;
+    fIRGenerator->fSettings = &settings;
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
+
+    while (fErrorCount == 0) {
+        bool madeChanges = false;
+
+        // Scan and optimize based on the control-flow graph for each function.
+        for (const auto& element : module.fElements) {
+            if (element->is<FunctionDefinition>()) {
+                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
+            }
+        }
+
+        if (!madeChanges) {
+            break;
+        }
+    }
+    return fErrorCount == 0;
 }
 
 bool Compiler::optimize(Program& program) {

@@ -1,19 +1,5 @@
 
 out vec4 sk_FragColor;
-uniform vec4 color;
-float singleuse() {
-    return 1.25;
-}
-float add(float a, float b) {
-    float c = a + b;
-    return c;
-}
-float mul(float a, float b) {
-    return a * b;
-}
-float fma(float a, float b, float c) {
-    return add(mul(a, b), c);
-}
 vec4 blend_src_in(vec4 src, vec4 dst) {
     return src * dst.w;
 }
@@ -63,6 +49,20 @@ vec4 blend_hue(vec4 src, vec4 dst) {
     vec3 sda = src.xyz * dst.w;
     vec3 dsa = dst.xyz * src.w;
     return vec4((((_blend_set_color_luminance(_blend_set_color_saturation(sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
+}
+uniform vec4 color;
+float singleuse() {
+    return 1.25;
+}
+float add(float a, float b) {
+    float c = a + b;
+    return c;
+}
+float mul(float a, float b) {
+    return a * b;
+}
+float fma(float a, float b, float c) {
+    return add(mul(a, b), c);
 }
 void main() {
     sk_FragColor = vec4(fma(color.x, color.y, color.z));
