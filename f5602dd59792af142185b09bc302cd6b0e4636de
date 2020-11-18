@@ -16,6 +16,52 @@
       "message": "The android canary failure appears to be infrastructure related",
       "revId": "f5602dd59792af142185b09bc302cd6b0e4636de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "543c2934_524fca00",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T22:15:49Z",
+      "side": 1,
+      "message": "The irony is not lost on me: The might better be named UPDATE_QUICKREJECTBOUNDS ... :) \n\nkidding",
+      "range": {
+        "startLine": 475,
+        "startChar": 8,
+        "endLine": 475,
+        "endChar": 26
+      },
+      "revId": "f5602dd59792af142185b09bc302cd6b0e4636de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd165533_f20d6523",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T22:15:49Z",
+      "side": 1,
+      "message": "wonders if these macros can be replaced by lambdas...",
+      "range": {
+        "startLine": 478,
+        "startChar": 4,
+        "endLine": 478,
+        "endChar": 23
+      },
+      "revId": "f5602dd59792af142185b09bc302cd6b0e4636de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
