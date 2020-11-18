@@ -36,7 +36,19 @@ enum class SkSVGPropertyState {
 // https://www.w3.org/TR/SVG11/intro.html#TermProperty
 template <typename T, bool kInheritable> class SkSVGProperty {
 public:
+    using ValueT = T;
+
     SkSVGProperty() : fState(SkSVGPropertyState::kUnspecified) {}
+
+    explicit SkSVGProperty(SkSVGPropertyState state) : fState(state) {}
+
+    explicit SkSVGProperty(const T& value) : fState(SkSVGPropertyState::kValue) {
+        fValue.set(value);
+    }
+
+    explicit SkSVGProperty(T&& value) : fState(SkSVGPropertyState::kValue) {
+        fValue.set(std::move(value));
+    }
 
     template <typename... Args>
     void init(Args&&... args) {
