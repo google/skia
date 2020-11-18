@@ -25,6 +25,7 @@ void GrTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(Traits::WasOutput(graph[i].get()));
+        SkASSERT(Traits::GetIndex(graph[i].get()) == (uint32_t) i);
     }
 }
 #endif
@@ -32,11 +33,13 @@ void GrTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
 // Recursively visit a node and all the other nodes it depends on.
 // Return false if there is a loop.
 template <typename T, typename Traits = T>
-bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
+bool GrTTopoSort_Visit(T* node, uint32_t* counter) {
     if (Traits::IsTempMarked(node)) {
         // There is a loop.
         return false;
     }
+
+    bool succeeded = true;
 
     // If the node under consideration has been already been output it means it
     // (and all the nodes it depends on) are already in 'result'.
@@ -45,17 +48,16 @@ bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
         // nodes it depends on outputing them first.
         Traits::SetTempMark(node);
         for (int i = 0; i < Traits::NumDependencies(node); ++i) {
-            if (!GrTTopoSort_Visit<T, Traits>(Traits::Dependency(node, i), result)) {
-                return false;
+            if (!GrTTopoSort_Visit<T, Traits>(Traits::Dependency(node, i), counter)) {
+                succeeded = false;
             }
         }
-        Traits::Output(node, result->count()); // mark this node as output
+        Traits::Output(node, *counter); // mark this node as output
+        ++(*counter);
         Traits::ResetTempMark(node);
-
-        result->push_back(sk_ref_sp(node));
     }
 
-    return true;
+    return succeeded;
 }
 
 // Topologically sort the nodes in 'graph'. For this sort, when node 'i' depends
@@ -64,8 +66,9 @@ bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
 // be in some arbitrary state.
 //
 // Traits requires:
-//   static void Output(T* t, int index) { ... }  // 'index' is 't's position in the result
+//   static void Output(T* t, uint32_t index) { ... }  // 'index' is 't's position in the result
 //   static bool WasOutput(const T* t) { ... }
+//   static uint32_t GetIndex() { ... }
 //
 //   static void SetTempMark(T* t) { ... }        // transiently used during toposort
 //   static void ResetTempMark(T* t) { ... }
@@ -80,13 +83,13 @@ bool GrTTopoSort_Visit(T* node, SkTArray<sk_sp<T>>* result) {
 // flush a GrRenderTask DAG.
 template <typename T, typename Traits = T>
 bool GrTTopoSort(SkTArray<sk_sp<T>>* graph) {
-    SkTArray<sk_sp<T>> result;
+    uint32_t counter = 0;
 
 #ifdef SK_DEBUG
     GrTTopoSort_CheckAllUnmarked<T, Traits>(*graph);
 #endif
 
-    result.reserve_back(graph->count());
+    bool succeeded = true;
 
     for (int i = 0; i < graph->count(); ++i) {
         if (Traits::WasOutput((*graph)[i].get())) {
@@ -96,18 +99,26 @@ bool GrTTopoSort(SkTArray<sk_sp<T>>* graph) {
         }
 
         // Output this node after all the nodes it depends on have been output.
-        if (!GrTTopoSort_Visit<T, Traits>((*graph)[i].get(), &result)) {
-            return false;
+        if (!GrTTopoSort_Visit<T, Traits>((*graph)[i].get(), &counter)) {
+            succeeded = false;
         }
     }
 
-    SkASSERT(graph->count() == result.count());
-    graph->swap(result);
+    SkASSERT(counter == (uint32_t) graph->count());
+
+    // Reorder the array given the output order
+    for (uint32_t i = 0; i < (uint32_t) graph->count(); ++i) {
+        for (uint32_t correctIndex = Traits::GetIndex((*graph)[i].get());
+             correctIndex != i;
+             correctIndex = Traits::GetIndex((*graph)[i].get())) {
+            (*graph)[i].swap((*graph)[correctIndex]);
+        }
+    }
 
 #ifdef SK_DEBUG
     GrTTopoSort_CleanExit<T, Traits>(*graph);
 #endif
-    return true;
+    return succeeded;
 }
 
 #endif

@@ -169,6 +169,17 @@ protected:
         return SkToBool(fFlags & flag);
     }
 
+    void setIndex(uint32_t index) {
+        SkASSERT(!this->isSetFlag(kWasOutput_Flag));
+        SkASSERT(index < (1 << 28));
+        fFlags |= index << 4;
+    }
+
+    uint32_t getIndex() const {
+        SkASSERT(this->isSetFlag(kWasOutput_Flag));
+        return fFlags >> 4;
+    }
+
 private:
     // for TopoSortTraits, fTextureResolveTask, closeThoseWhoDependOnMe, addDependency
     friend class GrDrawingManager;
@@ -186,7 +197,11 @@ private:
     static uint32_t CreateUniqueID();
 
     struct TopoSortTraits {
-        static void Output(GrRenderTask* renderTask, int /* index */) {
+        static uint32_t GetIndex(GrRenderTask* renderTask) {
+            return renderTask->getIndex();
+        }
+        static void Output(GrRenderTask* renderTask, uint32_t index) {
+            renderTask->setIndex(index);
             renderTask->setFlag(kWasOutput_Flag);
         }
         static bool WasOutput(const GrRenderTask* renderTask) {
