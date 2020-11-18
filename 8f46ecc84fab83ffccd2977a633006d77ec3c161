@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7af59c0b_0c28a84a",
+        "filename": "include/gpu/gl/GrGLConfig_chrome.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-18T19:47:22Z",
+      "side": 0,
+      "message": "I think this one could just be moved into Chrome\u0027s SkUserConfig.h and then we can rid ourselves of GrGLConfig entirely.",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 31
+      },
+      "revId": "8f46ecc84fab83ffccd2977a633006d77ec3c161",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
