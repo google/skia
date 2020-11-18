@@ -628,13 +628,13 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
 ////////////////////////////////////////////////////////////////////////////////
 
 void SkPDFDevice::drawImageRect(const SkImage* image,
-                                const SkRect* src,
+                                const SkRect& src,
                                 const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint) {
     SkASSERT(image);
     this->internalDrawImageRect(SkKeyedImage(sk_ref_sp(const_cast<SkImage*>(image))),
-                                src, dst, paint, this->localToDevice());
+                                &src, dst, paint, this->localToDevice());
 }
 
 void SkPDFDevice::drawSprite(const SkBitmap& bm, int x, int y, const SkPaint& paint) {

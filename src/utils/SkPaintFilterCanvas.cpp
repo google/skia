@@ -123,12 +123,12 @@ void SkPaintFilterCanvas::onDrawImage(const SkImage* image, SkScalar left, SkSca
     }
 }
 
-void SkPaintFilterCanvas::onDrawImageRect(const SkImage* image, const SkRect* src,
-                                          const SkRect& dst, const SkPaint* paint,
-                                          SrcRectConstraint constraint) {
+void SkPaintFilterCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src,
+                                           const SkRect& dst, const SkPaint* paint,
+                                           SrcRectConstraint constraint) {
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawImageRect(image, src, dst, &apf.paint(), constraint);
+        this->SkNWayCanvas::onDrawImageRect2(image, src, dst, &apf.paint(), constraint);
     }
 }
 

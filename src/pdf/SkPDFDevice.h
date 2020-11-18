@@ -79,7 +79,7 @@ public:
     void drawPath(const SkPath& origpath, const SkPaint& paint, bool pathIsMutable) override;
 
     void drawImageRect(const SkImage*,
-                       const SkRect* src,
+                       const SkRect& src,
                        const SkRect& dst,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
