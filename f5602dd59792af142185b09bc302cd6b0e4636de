@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb84e52d_6c912c41",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T22:21:28Z",
+      "side": 1,
+      "message": "It actually does both quick reject updates and calling the actual clip functions on each SkDevice",
+      "parentUuid": "543c2934_524fca00",
+      "range": {
+        "startLine": 475,
+        "startChar": 8,
+        "endLine": 475,
+        "endChar": 26
+      },
+      "revId": "f5602dd59792af142185b09bc302cd6b0e4636de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd165533_f20d6523",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-18T22:15:49Z",
       "side": 1,
       "message": "wonders if these macros can be replaced by lambdas...",
+      "range": {
+        "startLine": 478,
+        "startChar": 4,
+        "endLine": 478,
+        "endChar": 23
+      },
+      "revId": "f5602dd59792af142185b09bc302cd6b0e4636de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "543612e4_ada0a502",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T22:21:28Z",
+      "side": 1,
+      "message": "Once unclipped layers are gone in android (soooooon), the whole SkDrawIter + multiple top-level devices support in SkCanvas can go away.\n\nFOR_EACH_TOP_DEVICE will just be deletable and you can say fMCRec-\u003efTopLayer-\u003efDevice do stuff.",
+      "parentUuid": "cd165533_f20d6523",
       "range": {
         "startLine": 478,
         "startChar": 4,
