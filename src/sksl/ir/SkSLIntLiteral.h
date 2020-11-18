@@ -31,7 +31,7 @@ public:
         : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
         , fValue(value) {}
 
-    Literal(int offset, int64_t value, const Type* type = nullptr)
+    Literal(int offset, int64_t value, const Type* type)
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 

@@ -13,18 +13,19 @@
 #include "tests/Test.h"
 
 DEF_TEST(SkSLNodeArrayWrapper, r) {
+    SkSL::Context context;
     SkSL::ExpressionArray base;
     SkSL::NodeArrayWrapper<SkSL::IntLiteral, SkSL::Expression> wrapper(&base);
     REPORTER_ASSERT(r, wrapper.empty());
-    base.emplace_back(new SkSL::IntLiteral(-1, 0));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 0));
     REPORTER_ASSERT(r, !wrapper.empty());
-    base.emplace_back(new SkSL::IntLiteral(-1, 1));
-    base.emplace_back(new SkSL::IntLiteral(-1, 2));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 1));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 2));
     REPORTER_ASSERT(r, wrapper.count() == 3);
     REPORTER_ASSERT(r, wrapper[0].value() == 0);
     REPORTER_ASSERT(r, wrapper[1].value() == 1);
     REPORTER_ASSERT(r, wrapper[2].value() == 2);
-    wrapper.push_back(new SkSL::IntLiteral(-1, 3));
+    wrapper.push_back(new SkSL::IntLiteral(context, -1, 3));
     REPORTER_ASSERT(r, base.count() == 4);
     REPORTER_ASSERT(r, wrapper.count() == 4);
     REPORTER_ASSERT(r, wrapper[3].value() == 3);
@@ -55,13 +56,14 @@ DEF_TEST(SkSLNodeArrayWrapper, r) {
 }
 
 DEF_TEST(SkSLConstNodeArrayWrapper, r) {
+    SkSL::Context context;
     SkSL::ExpressionArray base;
     SkSL::ConstNodeArrayWrapper<SkSL::IntLiteral, SkSL::Expression> wrapper(&base);
     REPORTER_ASSERT(r, wrapper.empty());
-    base.emplace_back(new SkSL::IntLiteral(-1, 0));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 0));
     REPORTER_ASSERT(r, !wrapper.empty());
-    base.emplace_back(new SkSL::IntLiteral(-1, 1));
-    base.emplace_back(new SkSL::IntLiteral(-1, 2));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 1));
+    base.emplace_back(new SkSL::IntLiteral(context, -1, 2));
     REPORTER_ASSERT(r, wrapper.count() == 3);
     REPORTER_ASSERT(r, wrapper[0].value() == 0);
     REPORTER_ASSERT(r, wrapper[1].value() == 1);
