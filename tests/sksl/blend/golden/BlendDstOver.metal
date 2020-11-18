@@ -17,7 +17,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     {
         _0_blend_dst_over = (1.0 - _in.dst.w) * _in.src + _in.dst;
     }
-
     _out->sk_FragColor = _0_blend_dst_over;
 
     return *_out;
