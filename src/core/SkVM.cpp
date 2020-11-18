@@ -2482,6 +2482,10 @@ namespace skvm {
         this->op(0b1'1'1'10001'00'000000000000, n,d, (imm12 & 12_mask) << 10);
     }
 
+    void Assembler::add(X d, X n, X m) {
+        this->op(0b1'0'0'01011'00'0'00000'000000, n,d, m<<16);
+    }
+
     void Assembler::b(Condition cond, Label* l) {
         const int imm19 = this->disp19(l);
         this->op(0b0101010'0'00000000000000, (X)0, (V)cond, (imm19 & 19_mask) << 5);
@@ -2495,11 +2499,30 @@ namespace skvm {
         this->op(0b1'011010'1'00000000000000, (X)0, t, (imm19 & 19_mask) << 5);
     }
 
+    void Assembler::ldrd(X dst, X src, int imm12) {
+        this->op(0b11'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrs(X dst, X src, int imm12) {
+        this->op(0b10'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrh(X dst, X src, int imm12) {
+        this->op(0b01'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrb(X dst, X src, int imm12) {
+        this->op(0b00'111'0'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+
     void Assembler::ldrq(V dst, X src, int imm12) {
         this->op(0b00'111'1'01'11'000000000000, src, dst, (imm12 & 12_mask) << 10);
     }
+    void Assembler::ldrd(V dst, X src, int imm12) {
+        this->op(0b11'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
     void Assembler::ldrs(V dst, X src, int imm12) {
         this->op(0b10'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::ldrh(V dst, X src, int imm12) {
+        this->op(0b01'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
     }
     void Assembler::ldrb(V dst, X src, int imm12) {
         this->op(0b00'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
@@ -2508,8 +2531,14 @@ namespace skvm {
     void Assembler::strq(V src, X dst, int imm12) {
         this->op(0b00'111'1'01'10'000000000000, dst, src, (imm12 & 12_mask) << 10);
     }
+    void Assembler::strd(V src, X dst, int imm12) {
+        this->op(0b11'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
     void Assembler::strs(V src, X dst, int imm12) {
         this->op(0b10'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
+    void Assembler::strh(V src, X dst, int imm12) {
+        this->op(0b01'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
     }
     void Assembler::strb(V src, X dst, int imm12) {
         this->op(0b00'111'1'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
@@ -2519,9 +2548,27 @@ namespace skvm {
         this->op(0b0'0'0'11110'00'1'00'110'000000, src, dst);
     }
 
+    void Assembler::movs(X dst, V src, int lane) {
+        int imm5 = (lane << 3) | 0b100;
+        this->op(0b0'0'0'01110000'00000'0'01'1'1'1, src, dst, (imm5 & 5_mask) << 16);
+    }
+    void Assembler::inss(V dst, X src, int lane) {
+        int imm5 = (lane << 3) | 0b100;
+        this->op(0b0'1'0'01110000'00000'0'0011'1, src, dst, (imm5 & 5_mask) << 16);
+    }
+    void Assembler::dup4s(V d, V n, int lane) {
+        int imm5 = (lane << 3) | 0b100;
+        this->op(0b0'1'0'01110000'00000'0'0000'1, n,d, (imm5 & 5_mask)<<16);
+    }
+
+
     void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
         this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & 19_mask) << 5);
+    }
+
+    void Assembler::ld1r4s(V dst, X src) {
+        this->op(0b0'1'0011010'1'0'00000'110'0'10, src, dst);
     }
 
     void Assembler::label(Label* l) {
@@ -3343,6 +3390,7 @@ namespace skvm {
         using Reg = A::V;
         const A::X N     = A::x0,
                    GP0   = A::x8,
+                   GP1   = A::x9,
                    arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
         // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15 in enter/exit.
@@ -3966,6 +4014,11 @@ namespace skvm {
                    else        { a->strs  (dst(), arg[immy]); }
                                  break;
 
+                case Op::store16: a->xtns2h(dst(), r(x));
+                    if (scalar) { a->strh  (dst(), arg[immy]); }
+                    else        { a->strd  (dst(), arg[immy]); }
+                                  break;
+
                 case Op::store32: if (scalar) { a->strs(r(x), arg[immy]); }
                                   else        { a->strq(r(x), arg[immy]); }
                                                 break;
@@ -3976,9 +4029,77 @@ namespace skvm {
                                               a->uxtlh2s(dst(), dst());
                                               break;
 
+                case Op::load16: if (scalar) { a->ldrh(dst(), arg[immy]); }
+                                 else        { a->ldrd(dst(), arg[immy]); }
+                                               a->uxtlh2s(dst(), dst());
+                                               break;
+
                 case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
+
+                // TODO is ther ld1r4s equiv for 8- and 16-bit uniforms?
+                case Op::uniform8: a->add(GP0, arg[immy], immz);
+                                   a->ldrb(dst(), GP0);
+                                   a->uxtlb2h(dst(), dst());
+                                   a->uxtlh2s(dst(), dst());
+                                   a->dup4s(dst(), dst(), 0);
+                                   break;
+
+                case Op::uniform16: a->add(GP0, arg[immy], immz);
+                                    a->ldrh(dst(), GP0);
+                                    a->uxtlh2s(dst(), dst());
+                                    a->dup4s(dst(), dst(), 0);
+                                    break;
+
+                case Op::uniform32: a->add(GP0, arg[immy], immz);
+                                #if 1
+                                    a->ld1r4s(dst(), GP0);
+                                #else
+                                    a->ldrs(dst(), GP0);
+                                    a->dup4s(dst(), dst(), 0);
+                                #endif
+                                    break;
+
+                case Op::gather8: {
+                    // As usual, the gather base pointer is immz bytes off of uniform immy.
+                    a->add (GP0, arg[immy], immz);  // GP0 = &ptr
+                    a->ldrd(GP0, GP0);              // GP0 =  ptr
+
+                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                        a->movs(GP1, r(x), i);    // Extract index lane i into GP1.
+                        a->add (GP1, GP0, GP1);   // Add the base gather pointer.
+                        a->ldrb(GP1, GP1);        // Load that byte.
+                        a->inss(dst(), GP1, i);   // Insert it into dst() lane i.
+                    }
+                } break;
+
+                // See gather8 for general idea; comments here only where gather16 differs.
+                case Op::gather16: {
+                    a->add (GP0, arg[immy], immz);
+                    a->ldrd(GP0, GP0);
+                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                        a->movs(GP1, r(x), i);
+                        a->add (GP1, GP1, GP1);  // Double to convert 16-bit index to byte offset.
+                        a->add (GP1, GP0, GP1);
+                        a->ldrh(GP1, GP1);       // Notice, 2-byte load.
+                        a->inss(dst(), GP1, i);
+                    }
+                } break;
+
+                // See gather8 for general idea; comments here only where gather32 differs.
+                case Op::gather32: {
+                    a->add (GP0, arg[immy], immz);
+                    a->ldrd(GP0, GP0);
+                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                        a->movs(GP1, r(x), i);
+                        a->add (GP1, GP1, GP1);  // Scale index up a total of 4x.
+                        a->add (GP1, GP1, GP1);  // (TODO: <<2 instead of add,add)
+                        a->add (GP1, GP0, GP1);
+                        a->ldrs(GP1, GP1);       // 4-byte load.
+                        a->inss(dst(), GP1, i);
+                    }
+                } break;
 
                 case Op::add_f32: a->fadd4s(dst(), r(x), r(y)); break;
                 case Op::sub_f32: a->fsub4s(dst(), r(x), r(y)); break;

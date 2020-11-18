@@ -1936,6 +1936,12 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.ld1r4s(A::v0, A::x8);  // echo 'ld1r.4s {v0}, [x8]' | llvm-mc --show-encoding
+    },{
+        0x00,0xc9,0x40,0x4d,
+    });
+
+    test_asm(r, [&](A& a) {
         a.xtns2h(A::v0, A::v0);
         a.xtnh2b(A::v0, A::v0);
         a.strs  (A::v0, A::x0);
