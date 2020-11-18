@@ -33,6 +33,24 @@
       "message": "Can we assert that they\u0027re exact?",
       "revId": "8113ec483e7bc206a0ac58bf4da57c50b829988c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a9de70e_75ff337b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T21:38:47Z",
+      "side": 1,
+      "message": "Not with the current way the sizes are declared. The structs have pointers, so they will shrink on 32-bit systems. We could update SkCanvas to specify the size as a constexpr along the lines of (4*sizeof(void*) + sizeof(SkM44) + sizeof(int)), etc.",
+      "parentUuid": "697d3cb0_87220196",
+      "revId": "8113ec483e7bc206a0ac58bf4da57c50b829988c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
