@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7131d2e_8c5480ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T19:35:50Z",
+      "side": 1,
+      "message": "The new CL comment is great, thanks. Much clearer about why we want to track the extra information.",
+      "revId": "d4c2f0be5930df71cda0ab437496a81e1e9af2e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "418af578_2f268080",
+        "filename": "src/core/SkRasterClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-18T19:35:50Z",
+      "side": 1,
+      "message": "just a thought:\n\nCan this turn into\n\nClipAA(doAA) or ClipAA(true) -- the type name is the big improvement",
+      "range": {
+        "startLine": 86,
+        "startChar": 28,
+        "endLine": 86,
+        "endChar": 61
+      },
+      "revId": "d4c2f0be5930df71cda0ab437496a81e1e9af2e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
