@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d46f7c4f_8b8ef323",
+        "filename": "include/gpu/mtl/GrMtlBackendContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T19:59:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f0fd6b1_a8223f4d",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e60466aa_6df347f3",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-17T19:29:10Z",
       "side": 1,
       "message": "The macOS availability check here is redundant as this code wont be compiled on Mac.",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "351e457e_946fdbd1",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T19:59:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e60466aa_6df347f3",
       "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dc9ea27_444fade0",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T19:59:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15162c22_ddd80f7a",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "843cb818_7167a536",
@@ -65,6 +119,24 @@
       "writtenOn": "2020-11-17T19:29:10Z",
       "side": 1,
       "message": "Nit: Log the error (if there is one) after checking |addRenderPipelineFunctionsWithDescriptor| returns |NO|.",
+      "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20c50050_923b375c",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T19:59:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "843cb818_7167a536",
       "revId": "c31a37ac955df9a8ff17d42e75f5bad2aeab8ef8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
