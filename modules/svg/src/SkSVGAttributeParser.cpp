@@ -701,7 +701,8 @@ bool SkSVGAttributeParser::parse(SkSVGFillRule* fillRule) {
 }
 
 // https://www.w3.org/TR/SVG11/filters.html#FilterProperty
-bool SkSVGAttributeParser::parseFilter(SkSVGFilterType* filter) {
+template <>
+bool SkSVGAttributeParser::parse(SkSVGFilterType* filter) {
     SkSVGStringType iri;
     bool parsedValue = false;
 

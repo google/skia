@@ -117,11 +117,6 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
             this->setFillOpacity(*opacity);
         }
         break;
-    case SkSVGAttribute::kFilter:
-        if (const SkSVGFilterValue* filter = v.as<SkSVGFilterValue>()) {
-            this->setFilter(*filter);
-        }
-        break;
     case SkSVGAttribute::kOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setOpacity(*opacity);
@@ -156,26 +151,26 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
-    return this->setClipPath(SkSVGAttributeParser::parse<SkSVGClip>     ("clip-path"       , n, v))
-        || this->setClipRule(SkSVGAttributeParser::parse<SkSVGFillRule> ("clip-rule"       , n, v))
-        || this->setFill    (SkSVGAttributeParser::parse<SkSVGPaint>    ("fill"            , n, v))
-        || this->setFillRule(SkSVGAttributeParser::parse<SkSVGFillRule> ("fill-rule"       , n, v))
-        || this->setFontFamily
-                          (SkSVGAttributeParser::parse<SkSVGFontFamily> ("font-family"     , n, v))
-        || this->setFontSize(SkSVGAttributeParser::parse<SkSVGFontSize> ("font-size"       , n, v))
-        || this->setFontStyle
-                            (SkSVGAttributeParser::parse<SkSVGFontStyle>("font-style"      , n, v))
-        || this->setFontWeight
-                           (SkSVGAttributeParser::parse<SkSVGFontWeight>("font-weight"     , n, v))
-        || this->setStroke  (SkSVGAttributeParser::parse<SkSVGPaint>    ("stroke"          , n, v))
-        || this->setStrokeDashArray
-                            (SkSVGAttributeParser::parse<SkSVGDashArray>("stroke-dasharray", n, v))
-        || this->setStrokeLineCap
-                            (SkSVGAttributeParser::parse<SkSVGLineCap>  ("stroke-linecap"  , n ,v))
-        || this->setStrokeLineJoin
-                            (SkSVGAttributeParser::parse<SkSVGLineJoin> ("stroke-linejoin" , n ,v))
-        || this->setTextAnchor
-                           (SkSVGAttributeParser::parse<SkSVGTextAnchor>("text-anchor"     , n, v))
-        || this->setVisibility
-                           (SkSVGAttributeParser::parse<SkSVGVisibility>("visibility"      , n, v));
+#define PARSE_AND_SET(svgName, attrName)                                                        \
+    this->set##attrName(                                                                        \
+            SkSVGAttributeParser::parseProperty<decltype(fPresentationAttributes.f##attrName)>( \
+                    svgName, n, v))
+
+    return PARSE_AND_SET(   "clip-path"       , ClipPath)
+           || PARSE_AND_SET("clip-rule"       , ClipRule)
+           || PARSE_AND_SET("fill"            , Fill)
+           || PARSE_AND_SET("fill-rule"       , FillRule)
+           || PARSE_AND_SET("filter"          , Filter)
+           || PARSE_AND_SET("font-family"     , FontFamily)
+           || PARSE_AND_SET("font-size"       , FontSize)
+           || PARSE_AND_SET("font-style"      , FontStyle)
+           || PARSE_AND_SET("font-weight"     , FontWeight)
+           || PARSE_AND_SET("stroke"          , Stroke)
+           || PARSE_AND_SET("stroke-dasharray", StrokeDashArray)
+           || PARSE_AND_SET("stroke-linecap"  , StrokeLineCap)
+           || PARSE_AND_SET("stroke-linejoin" , StrokeLineJoin)
+           || PARSE_AND_SET("text-anchor"     , TextAnchor)
+           || PARSE_AND_SET("visibility"      , Visibility);
+
+#undef PARSE_AND_SET
 }
