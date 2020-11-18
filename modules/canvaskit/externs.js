@@ -369,6 +369,8 @@ var CanvasKit = {
 
   Image: {
     // public API (from C++ bindings)
+    getColorSpace: function() {},
+    getImageInfo: function() {},
     height: function() {},
     width: function() {},
     // private API

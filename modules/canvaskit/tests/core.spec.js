@@ -49,7 +49,7 @@ describe('Core canvas behavior', () => {
          (c >>  0) & 0xFF,
         ((c >> 24) & 0xFF) / 255
       );
-    }
+    };
 
     it('can compute tonal colors', () => {
         const input = {
@@ -208,9 +208,26 @@ describe('Core canvas behavior', () => {
               0,   0, 255, 255, // opaque blue
             255,   0, 255, 100, // transparent purple
         ]);
-        const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888,
-            CanvasKit.ColorSpace.SRGB);
+        const img = CanvasKit.MakeImage({
+          'width': 1,
+          'height': 4,
+          'alphaType': CanvasKit.AlphaType.Unpremul,
+          'colorType': CanvasKit.ColorType.RGBA_8888,
+          'colorSpace': CanvasKit.ColorSpace.SRGB
+        }, pixels, 4);
         canvas.drawImage(img, 1, 1, paint);
+
+        const info = img.getImageInfo();
+        expect(info).toEqual({
+          'width': 1,
+          'height': 4,
+          'alphaType': CanvasKit.AlphaType.Unpremul,
+          'colorType': CanvasKit.ColorType.RGBA_8888,
+        });
+        const cs = img.getColorSpace();
+        expect(CanvasKit.ColorSpace.Equals(cs, CanvasKit.ColorSpace.SRGB)).toBeTruthy();
+
+        cs.delete();
         img.delete();
         paint.delete();
     });
@@ -250,7 +267,7 @@ describe('Core canvas behavior', () => {
 
         atlas.delete();
         paint.delete();
-    }, '/assets/mandrill_512.png')
+    }, '/assets/mandrill_512.png');
 
     gm('draw_atlas_with_arrays', (canvas, fetchedByteBuffers) => {
         const atlas = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
@@ -722,7 +739,7 @@ describe('Core canvas behavior', () => {
             // ourselves), so reportSurface would likely be blank if we
             // were to call it.
             done();
-        }
+        };
         surface.drawOnce(drawFrame);
         // Reminder: drawOnce is async. In this test, we are just making
         // sure the drawOnce function is there and doesn't crash, so we can
@@ -752,7 +769,7 @@ describe('Core canvas behavior', () => {
             path.delete();
             paint.delete();
             done();
-        }
+        };
         const dirtyRect = CanvasKit.XYWHRect(10, 10, 15, 15);
         surface.drawOnce(drawFrame, dirtyRect);
         // We simply ensure that passing a dirty rect doesn't crash.
@@ -834,7 +851,7 @@ describe('Core canvas behavior', () => {
 
         canvas.drawShadow(path, zPlaneParams, lightPos, lightRadius,
                               CanvasKit.BLACK, CanvasKit.MAGENTA, flags);
-    })
+    });
 
     gm('fractal_noise_shader', (canvas) => {
         const shader = CanvasKit.Shader.MakeFractalNoise(0.1, 0.05, 2, 0, 0, 0);
@@ -1010,7 +1027,7 @@ describe('Core canvas behavior', () => {
 
         const radiansToDegrees = (rad) => {
            return (rad / Math.PI) * 180;
-        }
+        };
 
         // this should draw the same as concat_with4x4_canvas
         gm('concat_dommatrix', (canvas) => {

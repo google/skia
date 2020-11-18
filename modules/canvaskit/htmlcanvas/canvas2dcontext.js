@@ -849,10 +849,13 @@ function CanvasRenderingContext2D(skcanvas) {
     if (dirtyWidth <= 0 || dirtyHeight <= 0) {
       return;
     }
-    var img = CanvasKit.MakeImage(imageData.data, imageData.width, imageData.height,
-                                  CanvasKit.AlphaType.Unpremul,
-                                  CanvasKit.ColorType.RGBA_8888,
-                                  CanvasKit.ColorSpace.SRGB);
+    var img = CanvasKit.MakeImage({
+      'width': imageData.width,
+      'height': imageData.height,
+      'alphaType': CanvasKit.AlphaType.Unpremul,
+      'colorType': CanvasKit.ColorType.RGBA_8888,
+      'colorSpace': CanvasKit.ColorSpace.SRGB
+    }, imageData.data, 4 * imageData.width);
     var src = CanvasKit.XYWHRect(dirtyX, dirtyY, dirtyWidth, dirtyHeight);
     var dst = CanvasKit.XYWHRect(x+dirtyX, y+dirtyY, dirtyWidth, dirtyHeight);
     var inverted = CanvasKit.Matrix.invert(this._currentTransform);
