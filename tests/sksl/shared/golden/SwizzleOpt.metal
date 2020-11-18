@@ -23,10 +23,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     thread Outputs* _out = &_outputStruct;
     float v = sqrt(1.0);
     _out->sk_FragColor = float4(v);
-    _out->sk_FragColor = float4(float3(v), 0.0).wzyx;
-    _out->sk_FragColor = float3(float2(v), 0.0).zzxy;
-    _out->sk_FragColor = float3(float3(float2(v), 0.0).yx, 1.0).zzxy;
-    _out->sk_FragColor = float3(float2(v), 1.0).xyzz;
+    _out->sk_FragColor = float4(0.0, float3(v));
+    _out->sk_FragColor = float4(0.0, 0.0, float2(v));
+    _out->sk_FragColor = float4(1.0, 1.0, float2(v));
+    _out->sk_FragColor = float4(float2(v), 1.0, 1.0);
     _out->sk_FragColor = float4(v);
     _out->sk_FragColor = float4(float2(v), 1.0, 1.0);
     _out->sk_FragColor = float4(v);
