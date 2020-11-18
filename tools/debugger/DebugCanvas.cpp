@@ -10,6 +10,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTextBlob.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
@@ -140,6 +141,8 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
     SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
+    auto dContext = GrAsDirectContext(finalCanvas->recordingContext());
+
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
@@ -153,7 +156,9 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             // We need to flush any pending operations, or they might combine with commands below.
             // Previous operations were not registered with the audit trail when they were
             // created, so if we allow them to combine, the audit trail will fail to find them.
-            finalCanvas->flush();
+            if (dContext) {
+                dContext->flush();
+            }
             acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
         if (fCommandVector[i]->isVisible()) {
@@ -196,7 +201,9 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
         GrAuditTrail::AutoEnable ae(at);
-        finalCanvas->flush();
+        if (dContext) {
+            dContext->flush();
+        }
 
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds     = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
@@ -278,7 +285,11 @@ void DebugCanvas::drawAndCollectOps(SkCanvas* canvas) {
         // in case there is some kind of global reordering
         {
             GrAuditTrail::AutoEnable ae(at);
-            canvas->flush();
+
+            auto dContext = GrAsDirectContext(canvas->recordingContext());
+            if (dContext) {
+                dContext->flush();
+            }
         }
     }
 }
