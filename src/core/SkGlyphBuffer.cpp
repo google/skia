@@ -68,7 +68,7 @@ void SkDrawableGlyphBuffer::startBitmapDevice(
     SkDEBUGCODE(fPhase = kInput);
 }
 
-SkPoint SkDrawableGlyphBuffer::startGPUDevice(
+void SkDrawableGlyphBuffer::startGPUDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
         SkPoint origin, const SkMatrix& viewMatrix,
         const SkGlyphPositionRoundingSpec& roundingSpec) {
@@ -89,9 +89,6 @@ SkPoint SkDrawableGlyphBuffer::startGPUDevice(
         return {SkScalarFloorToScalar(pt.x()), SkScalarFloorToScalar(pt.y())};
     };
 
-    // Map the origin from source space to device space without the halfSampleFreq offset.
-    SkPoint originMappedToDevice = viewMatrix.mapXY(origin.x(), origin.y());
-
     for (auto [packedGlyphID, glyphID, pos]
             : SkMakeZip(fMultiBuffer.get(), source.get<0>(), fPositions.get())) {
         packedGlyphID = SkPackedGlyphID{glyphID, pos, roundingSpec.ignorePositionFieldMask};
@@ -100,8 +97,6 @@ SkPoint SkDrawableGlyphBuffer::startGPUDevice(
     }
 
     SkDEBUGCODE(fPhase = kInput);
-    // Return the origin mapped through the initial matrix.
-    return originMappedToDevice;
 }
 
 

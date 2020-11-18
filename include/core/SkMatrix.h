@@ -1326,6 +1326,27 @@ public:
      */
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const;
 
+    /** Returns SkPoint pt multiplied by SkMatrix. Given:
+
+                     | A B C |        | x |
+            Matrix = | D E F |,  pt = | y |
+                     | G H I |        | 1 |
+
+        result is computed as:
+
+                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
+            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
+                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
+
+        @param p  SkPoint to map
+        @return   mapped SkPoint
+    */
+    SkPoint mapPoint(SkPoint pt) const {
+        SkPoint result;
+        this->mapXY(pt.x(), pt.y(), &result);
+        return result;
+    }
+
     /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
 
                      | A B C |        | x |
@@ -1366,6 +1387,33 @@ public:
         SkPoint result;
         this->mapXY(x,y, &result);
         return result;
+    }
+
+
+    /** Returns (0, 0) multiplied by SkMatrix. Given:
+
+                     | A B C |        | 0 |
+            Matrix = | D E F |,  pt = | 0 |
+                     | G H I |        | 1 |
+
+        result is computed as:
+
+                          |A B C| |0|             C    F
+            Matrix * pt = |D E F| |0| = |C F I| = -  , -
+                          |G H I| |1|             I    I
+
+        @return   mapped (0, 0)
+    */
+    SkPoint mapOrigin() const {
+        SkScalar x = this->getTranslateX(),
+                 y = this->getTranslateY();
+        if (this->hasPerspective()) {
+            SkScalar w = fMat[kMPersp2];
+            if (w) { w = 1 / w; }
+            x *= w;
+            y *= w;
+        }
+        return {x, y};
     }
 
     /** Maps src vector array of length count to vector SkPoint array of equal or greater
