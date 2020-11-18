@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "417dcf19_54c4db36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-18T16:49:01Z",
+      "side": 1,
+      "message": "Not quite sold on the \"validators\" idea...",
+      "revId": "c7710c0af16f4839b96777f9c9499f5716dcd144",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
