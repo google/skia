@@ -1297,7 +1297,7 @@ void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDa
 }
 
 DrawImageRectCommand::DrawImageRectCommand(const SkImage*              image,
-                                           const SkRect*               src,
+                                           const SkRect&               src,
                                            const SkRect&               dst,
                                            const SkPaint*              paint,
                                            SkCanvas::SrcRectConstraint constraint)
@@ -1309,8 +1309,7 @@ DrawImageRectCommand::DrawImageRectCommand(const SkImage*              image,
         , fConstraint(constraint) {}
 
 void DrawImageRectCommand::execute(SkCanvas* canvas) const {
-    canvas->legacy_drawImageRect(
-            fImage.get(), fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+    canvas->drawImageRect(fImage.get(), fSrc, fDst, fPaint.getMaybeNull(), fConstraint);
 }
 
 bool DrawImageRectCommand::render(SkCanvas* canvas) const {
@@ -1338,10 +1337,9 @@ void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
         writer.endObject();  // image
     }
 
-    if (fSrc.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
-        MakeJsonRect(writer, *fSrc);
-    }
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
+    MakeJsonRect(writer, fSrc);
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
     MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {
@@ -1359,7 +1357,7 @@ void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
 DrawImageRectLayerCommand::DrawImageRectLayerCommand(DebugLayerManager*    layerManager,
                                                      const int                   nodeId,
                                                      const int                   frame,
-                                                     const SkRect*               src,
+                                                     const SkRect&               src,
                                                      const SkRect&               dst,
                                                      const SkPaint*              paint,
                                                      SkCanvas::SrcRectConstraint constraint)
@@ -1374,8 +1372,8 @@ DrawImageRectLayerCommand::DrawImageRectLayerCommand(DebugLayerManager*    layer
 
 void DrawImageRectLayerCommand::execute(SkCanvas* canvas) const {
     sk_sp<SkImage> snapshot = fLayerManager->getLayerAsImage(fNodeId, fFrame);
-    canvas->legacy_drawImageRect(
-            snapshot.get(), fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+    canvas->drawImageRect(
+            snapshot.get(), fSrc, fDst, fPaint.getMaybeNull(), fConstraint);
 }
 
 bool DrawImageRectLayerCommand::render(SkCanvas* canvas) const {
@@ -1397,10 +1395,9 @@ void DrawImageRectLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& url
     // Append the node id, and the layer inspector of the debugger will know what to do with it.
     writer.appendS64(DEBUGCANVAS_ATTRIBUTE_LAYERNODEID, fNodeId);
 
-    if (fSrc.isValid()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
-        MakeJsonRect(writer, *fSrc);
-    }
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
+    MakeJsonRect(writer, fSrc);
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
     MakeJsonRect(writer, fDst);
     if (fPaint.isValid()) {

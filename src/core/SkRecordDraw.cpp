@@ -120,7 +120,7 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
 }
 
-DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
+DRAW(DrawImageRect, drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
 DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
