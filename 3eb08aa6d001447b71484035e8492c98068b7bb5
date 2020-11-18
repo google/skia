@@ -16,6 +16,24 @@
       "message": "Hmmm, do we really want to document how we deal with non-finite data ever (other than \u0027not drawing\u0027)? e.g. this CL says inverse-non-finite is wide open. Do we \u0027draw\u0027 this path everywhere?\n\nMy initial feeling is \n- non-finite is just bad\n- we can behave in an undefined manner\n-    an/or we always do \u0027nothing\u0027 with non-finites",
       "revId": "3eb08aa6d001447b71484035e8492c98068b7bb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31c7be9d_fce12cea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T19:28:30Z",
+      "side": 1,
+      "message": "It\u0027s already semi-documented in the ClipPath_nonfinite test: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/tests/PathTest.cpp;drc\u003d282f8f468542cd7b282eb8c82b2dcd952dd14e48;l\u003d5176\n\nBeforehand, the conservative clip was was allowing this test to pass. Afterwards, SkBitmapDevice\u0027s SkRasterClip\u0027s handling came into play and that\u0027s where we hit this inconsistency with SkRegion::setPath.\n\nI don\u0027t disagree with any of your initial feelings, and perhaps the right approach is to leave SkRegion::setPath as-is and adjust the unit test expectations and have SkCanvas::onClipPath universally handle non-finite paths.",
+      "parentUuid": "4229e79c_a9a0864f",
+      "revId": "3eb08aa6d001447b71484035e8492c98068b7bb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
