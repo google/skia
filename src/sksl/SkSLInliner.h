@@ -36,12 +36,9 @@ class Variable;
  */
 class Inliner {
 public:
-    Inliner() {}
+    Inliner(const Context* context, const ShaderCapsClass* caps) : fContext(context), fCaps(caps) {}
 
-    void reset(const Context*,
-               ModifiersPool* modifiers,
-               const Program::Settings*,
-               const ShaderCapsClass* caps);
+    void reset(ModifiersPool* modifiers, const Program::Settings*);
 
     /**
      * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
@@ -64,14 +61,18 @@ public:
     bool isLargeFunction(const FunctionDefinition* functionDef);
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
-    bool analyze(Program& program);
+    bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+                 SymbolTable* symbols,
+                 ProgramUsage* usage);
 
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
 
-    void buildCandidateList(Program& program, InlineCandidateList* candidateList);
+    void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+                            SymbolTable* symbols,
+                            InlineCandidateList* candidateList);
 
     std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,

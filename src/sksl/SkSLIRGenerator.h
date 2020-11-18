@@ -96,7 +96,10 @@ private:
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter);
+    IRGenerator(const Context* context,
+                const ShaderCapsClass* caps,
+                Inliner* inliner,
+                ErrorReporter& errorReporter);
 
     struct IRBundle {
         std::vector<std::unique_ptr<ProgramElement>> fElements;
@@ -112,7 +115,6 @@ public:
      */
     IRBundle convertProgram(Program::Kind kind,
                             const Program::Settings* settings,
-                            const ShaderCapsClass* caps,
                             const ParsedModule& base,
                             bool isBuiltinCode,
                             const char* text,

@@ -38,15 +38,6 @@ public:
         (void)linearize;
         contrastModVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                           kHalf_GrSLType, "contrastMod");
-        SkString HSLToRGB_name = fragBuilder->getMangledFunctionName("HSLToRGB");
-        const GrShaderVar HSLToRGB_args[] = {GrShaderVar("p", kHalf_GrSLType),
-                                             GrShaderVar("q", kHalf_GrSLType),
-                                             GrShaderVar("t", kHalf_GrSLType)};
-        fragBuilder->emitFunction(kHalf_GrSLType, HSLToRGB_name.c_str(), {HSLToRGB_args, 3},
-                                  R"SkSL(if (t < 0.0) t += 1.0;
-if (t > 1.0) t -= 1.0;
-return t < 0.1666666716337204 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - t)) * 6.0 : p));
-)SkSL");
         fragBuilder->codeAppendf(
                 R"SkSL(;)SkSL");
         SkString _sample0 = this->invokeChild(0, args);
@@ -96,9 +87,36 @@ half4 color = _0_unpremul;
     } else {
         half q = l < 0.5 ? l * (1.0 + s) : (l + s) - l * s;
         half p = 2.0 * l - q;
-        color.x = %s(p, q, h + 0.3333333432674408);
-        color.y = %s(p, q, h);
-        color.z = %s(p, q, h - 0.3333333432674408);
+        half _1_HSLToRGB;
+        half _2_t = h + 0.3333333432674408;
+        {
+            if (_2_t < 0.0) _2_t += 1.0;
+            if (_2_t > 1.0) _2_t -= 1.0;
+            _1_HSLToRGB = _2_t < 0.1666666716337204 ? p + ((q - p) * 6.0) * _2_t : (_2_t < 0.5 ? q : (_2_t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - _2_t)) * 6.0 : p));
+        }
+
+        color.x = _1_HSLToRGB;
+
+        half _3_HSLToRGB;
+        half _4_t = h;
+        {
+            if (_4_t < 0.0) _4_t += 1.0;
+            if (_4_t > 1.0) _4_t -= 1.0;
+            _3_HSLToRGB = _4_t < 0.1666666716337204 ? p + ((q - p) * 6.0) * _4_t : (_4_t < 0.5 ? q : (_4_t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - _4_t)) * 6.0 : p));
+        }
+
+        color.y = _3_HSLToRGB;
+
+        half _5_HSLToRGB;
+        half _6_t = h - 0.3333333432674408;
+        {
+            if (_6_t < 0.0) _6_t += 1.0;
+            if (_6_t > 1.0) _6_t -= 1.0;
+            _5_HSLToRGB = _6_t < 0.1666666716337204 ? p + ((q - p) * 6.0) * _6_t : (_6_t < 0.5 ? q : (_6_t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - _6_t)) * 6.0 : p));
+        }
+
+        color.z = _5_HSLToRGB;
+
     }
 }
 @if (%s) {
@@ -113,8 +131,7 @@ color = clamp(color, 0.0, 1.0);
 )SkSL",
                 _sample0.c_str(), (_outer.linearize ? "true" : "false"),
                 (_outer.grayscale ? "true" : "false"), (_outer.invertBrightness ? "true" : "false"),
-                (_outer.invertLightness ? "true" : "false"), HSLToRGB_name.c_str(),
-                HSLToRGB_name.c_str(), HSLToRGB_name.c_str(),
+                (_outer.invertLightness ? "true" : "false"),
                 (_outer.hasContrast ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
