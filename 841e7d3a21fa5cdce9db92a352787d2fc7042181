@@ -34,6 +34,24 @@
       "parentUuid": "7304ed4a_6bb40c73",
       "revId": "841e7d3a21fa5cdce9db92a352787d2fc7042181",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3438877_76fcbd57",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-18T16:10:55Z",
+      "side": 1,
+      "message": "Done, PTAL.",
+      "parentUuid": "63e3b939_a97559d2",
+      "revId": "841e7d3a21fa5cdce9db92a352787d2fc7042181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
