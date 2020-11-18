@@ -2893,86 +2893,37 @@ bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) 
     return true;
 }
 
-void IRGenerator::cloneBuiltinVariables() {
-    class BuiltinVariableRemapper : public ProgramWriter {
+void IRGenerator::findAndDeclareBuiltinVariables() {
+    class BuiltinVariableScanner : public ProgramVisitor {
     public:
-        BuiltinVariableRemapper(IRGenerator* generator) : fGenerator(generator) {}
+        BuiltinVariableScanner(IRGenerator* generator) : fGenerator(generator) {}
 
-        void cloneVariable(const String& name) {
+        void addDeclaringElement(const String& name) {
             // If this is the *first* time we've seen this builtin, findAndInclude will return
             // the corresponding ProgramElement.
-            if (const ProgramElement* sharedDecl = fGenerator->fIntrinsics->findAndInclude(name)) {
-                SkASSERT(sharedDecl->is<GlobalVarDeclaration>() ||
-                         sharedDecl->is<InterfaceBlock>());
-
-                // Clone the ProgramElement that declares this variable
-                std::unique_ptr<ProgramElement> clonedDecl = sharedDecl->clone();
-                const Variable* sharedVar = nullptr;
-                const Expression* initialValue = nullptr;
-
-                if (clonedDecl->is<GlobalVarDeclaration>()) {
-                    GlobalVarDeclaration& global = clonedDecl->as<GlobalVarDeclaration>();
-                    VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-                    sharedVar = &decl.var();
-                    initialValue = decl.value().get();
-                } else {
-                    SkASSERT(clonedDecl->is<InterfaceBlock>());
-                    sharedVar = &clonedDecl->as<InterfaceBlock>().variable();
-                }
-
-                // Now clone the Variable, and add the clone to the Program's symbol table.
-                // Any initial value expression was cloned as part of the GlobalVarDeclaration,
-                // so we're pointing at a Program-owned expression.
-                const Variable* clonedVar =
-                        fGenerator->fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
-                                sharedVar->fOffset, &sharedVar->modifiers(), sharedVar->name(),
-                                &sharedVar->type(), /*builtin=*/false, sharedVar->storage(),
-                                initialValue));
-
-                // Go back and update the declaring element to point at the cloned Variable.
-                if (clonedDecl->is<GlobalVarDeclaration>()) {
-                    GlobalVarDeclaration& global = clonedDecl->as<GlobalVarDeclaration>();
-                    global.declaration()->as<VarDeclaration>().setVar(clonedVar);
-                } else {
-                    clonedDecl->as<InterfaceBlock>().setVariable(clonedVar);
-                }
-
-                // Remember this new re-mapping...
-                fRemap.insert({sharedVar, clonedVar});
-
-                // Add the declaring element to this Program
-                fNewElements.push_back(std::move(clonedDecl));
+            if (const ProgramElement* decl = fGenerator->fIntrinsics->findAndInclude(name)) {
+                SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<InterfaceBlock>());
+                fNewElements.push_back(decl);
             }
         }
 
-        bool visitExpression(Expression& e) override {
-            // Look for references to builtin variables.
+        bool visitExpression(const Expression& e) override {
             if (e.is<VariableReference>() && e.as<VariableReference>().variable()->isBuiltin()) {
-                const Variable* sharedVar = e.as<VariableReference>().variable();
-
-                this->cloneVariable(sharedVar->name());
-
-                // TODO: SkASSERT(found), once all pre-includes are converted?
-                auto found = fRemap.find(sharedVar);
-                if (found != fRemap.end()) {
-                    e.as<VariableReference>().setVariable(found->second);
-                }
+                this->addDeclaringElement(e.as<VariableReference>().variable()->name());
             }
-
             return INHERITED::visitExpression(e);
         }
 
         IRGenerator* fGenerator;
-        std::unordered_map<const Variable*, const Variable*> fRemap;
-        std::vector<std::unique_ptr<ProgramElement>> fNewElements;
+        std::vector<const ProgramElement*> fNewElements;
 
-        using INHERITED = ProgramWriter;
+        using INHERITED = ProgramVisitor;
         using INHERITED::visitProgramElement;
     };
 
-    BuiltinVariableRemapper remapper(this);
+    BuiltinVariableScanner scanner(this);
     for (auto& e : *fProgramElements) {
-        remapper.visitProgramElement(*e);
+        scanner.visitProgramElement(*e);
     }
 
     // Vulkan requires certain builtin variables be present, even if they're unused. At one time,
@@ -2980,15 +2931,14 @@ void IRGenerator::cloneBuiltinVariables() {
     // that drop or corrupt draws if they're missing.
     switch (fKind) {
         case Program::kFragment_Kind:
-            remapper.cloneVariable("sk_Clockwise");
+            scanner.addDeclaringElement("sk_Clockwise");
             break;
         default:
             break;
     }
 
-    fProgramElements->insert(fProgramElements->begin(),
-                             std::make_move_iterator(remapper.fNewElements.begin()),
-                             std::make_move_iterator(remapper.fNewElements.end()));
+    fSharedElements->insert(
+            fSharedElements->begin(), scanner.fNewElements.begin(), scanner.fNewElements.end());
 }
 
 IRGenerator::IRBundle IRGenerator::convertProgram(
@@ -3119,9 +3069,9 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         }
     }
 
-    // Any variables defined in the pre-includes need to be cloned into the Program
+    // Variables defined in the pre-includes need their declaring elements added to the program
     if (!fIsBuiltinCode && fIntrinsics) {
-        this->cloneBuiltinVariables();
+        this->findAndDeclareBuiltinVariables();
     }
 
     // Do a final pass looking for dangling FunctionReference or TypeReference expressions
