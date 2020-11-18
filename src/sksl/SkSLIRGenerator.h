@@ -228,7 +228,7 @@ private:
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     bool getConstantInt(const Expression& value, int64_t* out);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
-    void cloneBuiltinVariables();
+    void findAndDeclareBuiltinVariables();
 
     Program::Inputs fInputs;
     const Program::Settings* fSettings = nullptr;
