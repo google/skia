@@ -2561,7 +2561,7 @@ protected:
     // returns false if the entire rectangle is entirely clipped out
     // If non-NULL, The imageFilter parameter will be used to expand the clip
     // and offscreen bounds for any margin required by the filter DAG.
-    bool clipRectBounds(const SkRect* bounds, SaveLayerFlags flags, SkIRect* intersection,
+    bool clipRectBounds(const SkRect* bounds, SkIRect* intersection,
                         const SkImageFilter* imageFilter = nullptr);
 
     SkBaseDevice* getTopDevice() const;
@@ -2605,8 +2605,6 @@ private:
         SkIPoint          fDeviceOrigin;
         bool              fDone;
     };
-
-    static bool BoundsAffectsClip(SaveLayerFlags);
 
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
