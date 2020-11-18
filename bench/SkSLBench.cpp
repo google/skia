@@ -26,8 +26,9 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        GrShaderCaps caps(GrContextOptions{});
         for (int i = 0; i < loops; i++) {
-            SkSL::Compiler compiler(/*caps=*/nullptr);
+            SkSL::Compiler compiler(&caps);
         }
     }
 };
@@ -110,7 +111,8 @@ public:
     SkSLParseBench(SkSL::String name, const char* src)
         : fName("sksl_parse_" + name)
         , fSrc(src)
-        , fCompiler(/*caps=*/nullptr) {}
+        , fCaps(GrContextOptions())
+        , fCompiler(&fCaps) {}
 
 protected:
     const char* onGetName() override {
@@ -143,6 +145,7 @@ protected:
 private:
     SkSL::String fName;
     SkSL::String fSrc;
+    GrShaderCaps fCaps;
     SkSL::Compiler fCompiler;
     SkSL::Program::Settings fSettings;
 
@@ -569,7 +572,8 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
 
     {
         int before = heap_bytes_used();
-        SkSL::Compiler compiler(/*caps=*/nullptr);
+        GrShaderCaps caps(GrContextOptions{});
+        SkSL::Compiler compiler(&caps);
         int after = heap_bytes_used();
         bench("sksl_compiler_baseline", after - before);
     }

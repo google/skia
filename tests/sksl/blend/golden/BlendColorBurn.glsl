@@ -1,23 +1,23 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
 float _color_burn_component(vec2 s, vec2 d) {
     if (d.y == d.x) {
         return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _1_guarded_divide;
-        float _2_n = (d.y - d.x) * s.y;
+        float _6_guarded_divide;
+        float _7_n = (d.y - d.x) * s.y;
         {
-            _1_guarded_divide = _2_n / s.x;
+            _6_guarded_divide = _7_n / s.x;
         }
-        float delta = max(0.0, d.y - _1_guarded_divide);
+        float delta = max(0.0, d.y - _6_guarded_divide);
 
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
+in vec4 src;
+in vec4 dst;
 void main() {
     vec4 _0_blend_color_burn;
     {

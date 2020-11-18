@@ -1,7 +1,5 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
 float _color_dodge_component(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -10,17 +8,19 @@ float _color_dodge_component(vec2 s, vec2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _1_guarded_divide;
-            float _2_n = d.x * s.y;
+            float _4_guarded_divide;
+            float _5_n = d.x * s.y;
             {
-                _1_guarded_divide = _2_n / delta;
+                _4_guarded_divide = _5_n / delta;
             }
-            delta = min(d.y, _1_guarded_divide);
+            delta = min(d.y, _4_guarded_divide);
 
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
 }
+in vec4 src;
+in vec4 dst;
 void main() {
     vec4 _0_blend_color_dodge;
     {

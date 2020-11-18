@@ -54,6 +54,7 @@ struct PipelineStageArgs;
 class ProgramUsage;
 
 struct LoadedModule {
+    Program::Kind                                fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
@@ -266,8 +267,11 @@ private:
      */
     bool optimize(Program& program);
 
+    bool optimize(LoadedModule& module);
+
     Position position(int offset);
 
+    std::shared_ptr<Context> fContext;
     const ShaderCapsClass* fCaps = nullptr;
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
@@ -294,7 +298,6 @@ private:
     int fFlags;
 
     const String* fSource;
-    std::shared_ptr<Context> fContext;
     int fErrorCount;
     String fErrorText;
 

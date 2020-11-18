@@ -372,6 +372,15 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
     return usage;
 }
 
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module) {
+    auto usage = std::make_unique<ProgramUsage>();
+    ProgramUsageVisitor addRefs(usage.get(), /*delta=*/+1);
+    for (const auto& element : module.fElements) {
+        addRefs.visitProgramElement(*element);
+    }
+    return usage;
+}
+
 ProgramUsage::VariableCounts ProgramUsage::get(const Variable& v) const {
     VariableCounts result = { 0, v.initialValue() ? 1 : 0 };
     if (const VariableCounts* counts = fVariableCounts.find(&v)) {

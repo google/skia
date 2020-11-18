@@ -85,13 +85,15 @@ public:
 };
 
 Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
-: fCaps(caps)
-, fFlags(flags)
-, fContext(std::make_shared<Context>())
-, fErrorCount(0) {
+        : fContext(std::make_shared<Context>())
+        , fCaps(caps)
+        , fInliner(fContext.get(), fCaps)
+        , fFlags(flags)
+        , fErrorCount(0) {
+    SkASSERT(fCaps);
     fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
     fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, *this);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), fCaps, &fInliner, *this);
 
 #define TYPE(t) fContext->f##t##_Type.get()
 
@@ -289,11 +291,11 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     fIRGenerator->fCanInline = false;
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     IRGenerator::IRBundle ir =
-            fIRGenerator->convertProgram(kind, &settings, &standaloneCaps, baseModule,
+            fIRGenerator->convertProgram(kind, &settings, baseModule,
                                          /*isBuiltinCode=*/true, source->c_str(), source->length(),
                                          /*externalValues=*/nullptr);
     SkASSERT(ir.fSharedElements.empty());
-    LoadedModule module = {std::move(ir.fSymbolTable), std::move(ir.fElements)};
+    LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -304,7 +306,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     SkASSERT(data.fData && (data.fSize != 0));
     Rehydrator rehydrator(fContext.get(), fIRGenerator->fModifiers.get(), base, this,
                           data.fData, data.fSize);
-    LoadedModule module = { rehydrator.symbolTable(), rehydrator.elements() };
+    LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
     fModifiers.push_back(fIRGenerator->releaseModifiers());
 #endif
 
@@ -312,19 +314,20 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
 }
 
 ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base) {
-    auto [symbols, elements] = this->loadModule(kind, data, base.fSymbols);
+    LoadedModule module = this->loadModule(kind, data, base.fSymbols);
+    this->optimize(module);
 
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
     // program elements. In that case, we can share our parent's intrinsic map:
-    if (elements.empty()) {
-        return {symbols, base.fIntrinsics};
+    if (module.fElements.empty()) {
+        return {module.fSymbols, base.fIntrinsics};
     }
 
     auto intrinsics = std::make_shared<IRIntrinsicMap>(base.fIntrinsics.get());
 
     // Now, transfer all of the program elements to an intrinsic map. This maps certain types of
     // global objects to the declaring ProgramElement.
-    for (std::unique_ptr<ProgramElement>& element : elements) {
+    for (std::unique_ptr<ProgramElement>& element : module.fElements) {
         switch (element->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = element->as<FunctionDefinition>();
@@ -362,7 +365,7 @@ ParsedModule Compiler::parseModule(Program::Kind kind, ModuleData data, const Pa
         }
     }
 
-    return {symbols, std::move(intrinsics)};
+    return {module.fSymbols, std::move(intrinsics)};
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -1702,23 +1705,25 @@ std::unique_ptr<Program> Compiler::convertProgram(
         const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
     SkASSERT(!externalValues || (kind == Program::kGeneric_Kind));
 
+    // Loading and optimizing our base module might reset the inliner, so do that first,
+    // *then* configure the inliner with the settings for this program.
+    const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(fContext.get(), fIRGenerator->fModifiers.get(), &settings, fCaps);
+    fInliner.reset(fIRGenerator->fModifiers.get(), &settings);
 
     // Not using AutoSource, because caller is likely to call errorText() if we fail to compile
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
 
-    const ParsedModule& baseModule = this->moduleForProgramKind(kind);
-
     // Enable node pooling while converting and optimizing the program for a performance boost.
     // The Program will take ownership of the pool.
     std::unique_ptr<Pool> pool = Pool::Create();
     pool->attachToThread();
-    IRGenerator::IRBundle ir = fIRGenerator->convertProgram(
-            kind, &settings, fCaps, baseModule, /*isBuiltinCode=*/false, textPtr->c_str(),
-            textPtr->size(), externalValues);
+    IRGenerator::IRBundle ir =
+            fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
+                                         textPtr->c_str(), textPtr->size(), externalValues);
     auto program = std::make_unique<Program>(kind,
                                              std::move(textPtr),
                                              settings,
@@ -1744,6 +1749,35 @@ std::unique_ptr<Program> Compiler::convertProgram(
     return success ? std::move(program) : nullptr;
 }
 
+bool Compiler::optimize(LoadedModule& module) {
+    SkASSERT(!fErrorCount);
+    Program::Settings settings;
+    fIRGenerator->fKind = module.fKind;
+    fIRGenerator->fSettings = &settings;
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
+
+    fInliner.reset(fModifiers.back().get(), &settings);
+
+    while (fErrorCount == 0) {
+        bool madeChanges = false;
+
+        // Scan and optimize based on the control-flow graph for each function.
+        for (const auto& element : module.fElements) {
+            if (element->is<FunctionDefinition>()) {
+                madeChanges |= this->scanCFG(element->as<FunctionDefinition>(), usage.get());
+            }
+        }
+
+        // Perform inline-candidate analysis and inline any functions deemed suitable.
+        madeChanges |= fInliner.analyze(module.fElements, module.fSymbols.get(), usage.get());
+
+        if (!madeChanges) {
+            break;
+        }
+    }
+    return fErrorCount == 0;
+}
+
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
     fIRGenerator->fKind = program.fKind;
@@ -1761,7 +1795,7 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program);
+        madeChanges |= fInliner.analyze(program.ownedElements(), program.fSymbols.get(), usage);
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.

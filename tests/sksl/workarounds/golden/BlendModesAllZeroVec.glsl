@@ -12,11 +12,11 @@ void main() {
 
     vec4 _1_blend_dst_in;
     {
-        vec4 _3_blend_src_in;
+        vec4 _2_0_blend_src_in;
         {
-            _3_blend_src_in = dst == vec4(0.0) ? vec4(0.0) : dst * src.w;
+            _2_0_blend_src_in = dst == vec4(0.0) ? vec4(0.0) : dst * src.w;
         }
-        _1_blend_dst_in = _3_blend_src_in;
+        _1_blend_dst_in = _2_0_blend_src_in;
 
     }
 
