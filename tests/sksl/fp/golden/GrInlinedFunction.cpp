@@ -20,16 +20,15 @@ public:
         const GrInlinedFunction& _outer = args.fFp.cast<GrInlinedFunction>();
         (void) _outer;
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
+        SkString flip_name = fragBuilder->getMangledFunctionName("flip");
+        const GrShaderVar flip_args[] = { GrShaderVar("c", kHalf4_GrSLType) };
+        fragBuilder->emitFunction(kHalf4_GrSLType, flip_name.c_str(), {flip_args, 1},
+R"SkSL(return c.wzyx;
+)SkSL");
         fragBuilder->codeAppendf(
-R"SkSL(half4 _0_flip;
-{
-    _0_flip = %s.wzyx;
-}
-
-%s = _0_flip;
-
+R"SkSL(%s = %s(%s);
 )SkSL"
-, args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+, args.fOutputColor, flip_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
