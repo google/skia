@@ -506,6 +506,13 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
+    // SkCanvas.h declares internal storage for the hidden structs DeviceCM and MCRec, and these
+    // asserts ensure it's sufficient. <= is used because the structs have pointer fields, so the
+    // declared sizes are an upper bound across architectures. When the size is smaller, more stack
+    // entries can fit before reallocating.
+    static_assert(sizeof(DeviceCM) <= kDeviceCMSize);
+    static_assert(sizeof(MCRec) <= kMCRecSize);
+
     fMarkerStack = sk_make_sp<SkMarkerStack>();
 
     fSaveCount = 1;
@@ -515,7 +522,6 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
-    SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
     new (fDeviceCMStorage) DeviceCM(device, nullptr, fMCRec->fMatrix.asM33());
 
