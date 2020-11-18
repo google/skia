@@ -2765,27 +2765,8 @@ private:
     bool   fIsScaleTranslate;
     SkRect fQuickRejectBounds;
 
-    class AutoValidateClip {
-    public:
-        explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
-            fCanvas->validateClip();
-        }
-        ~AutoValidateClip() { fCanvas->validateClip(); }
-
-    private:
-        const SkCanvas* fCanvas;
-
-        AutoValidateClip(AutoValidateClip&&) = delete;
-        AutoValidateClip(const AutoValidateClip&) = delete;
-        AutoValidateClip& operator=(AutoValidateClip&&) = delete;
-        AutoValidateClip& operator=(const AutoValidateClip&) = delete;
-    };
-
-#ifdef SK_DEBUG
+    class AutoValidateClip;
     void validateClip() const;
-#else
-    void validateClip() const {}
-#endif
 
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
 
