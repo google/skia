@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ace4e0f4_034ebdfd",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-18T16:58:39Z",
+      "side": 1,
+      "message": "this might parse more clearly with a hyphen?",
+      "range": {
+        "startLine": 1375,
+        "startChar": 44,
+        "endLine": 1375,
+        "endChar": 53
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26171a2a_9e7774a5",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-18T16:58:39Z",
+      "side": 1,
+      "message": "far?",
+      "range": {
+        "startLine": 1381,
+        "startChar": 67,
+        "endLine": 1381,
+        "endChar": 70
+      },
+      "revId": "5a02667d567b0dbbd7f90a8c26530a4682ae5148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
