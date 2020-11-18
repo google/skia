@@ -90,7 +90,7 @@ void main() {
     }
 
 
-    vec4 _5_h4 = vec3(s.h4.y, 0.0, 1.0).xyyz;
+    vec4 _5_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
     {
         sk_FragColor = _5_h4;
     }
