@@ -506,6 +506,10 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
+    // SkCanvas.h declares internal storage for hidden types, this ensures it's sufficient
+    static_assert(sizeof(DeviceCM) <= kDeviceCMSize);
+    static_assert(sizeof(MCRec) <= kMCRecSize);
+
     fMarkerStack = sk_make_sp<SkMarkerStack>();
 
     fSaveCount = 1;
@@ -515,7 +519,6 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
-    SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
     new (fDeviceCMStorage) DeviceCM(device, nullptr, fMCRec->fMatrix.asM33());
 
