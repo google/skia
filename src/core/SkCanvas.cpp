@@ -266,6 +266,22 @@ public:
     }
 };
 
+class SkCanvas::AutoValidateClip {
+public:
+    explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
+        fCanvas->validateClip();
+    }
+    ~AutoValidateClip() { fCanvas->validateClip(); }
+
+private:
+    const SkCanvas* fCanvas;
+
+    AutoValidateClip(AutoValidateClip&&) = delete;
+    AutoValidateClip(const AutoValidateClip&) = delete;
+    AutoValidateClip& operator=(AutoValidateClip&&) = delete;
+    AutoValidateClip& operator=(const AutoValidateClip&) = delete;
+};
+
 class SkDrawIter {
 public:
     SkDrawIter(SkCanvas* canvas)
@@ -1682,16 +1698,22 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-#ifdef SK_DEBUG
 void SkCanvas::validateClip() const {
-    // construct clipRgn from the clipstack
+#ifdef SK_DEBUG
+    SkRect tmp = qr_clip_bounds(this->fMCRec->fRasterClip.getBounds());
+    if (this->isClipEmpty()) {
+        SkASSERT(fQuickRejectBounds.isEmpty());
+    } else {
+        SkASSERT(tmp == fQuickRejectBounds);
+    }
+
     const SkBaseDevice* device = this->getDevice();
     if (!device) {
         SkASSERT(this->isClipEmpty());
         return;
     }
-}
 #endif
+}
 
 bool SkCanvas::androidFramework_isClipAA() const {
     bool containsAA = false;
@@ -1773,13 +1795,7 @@ static SK_NEVER_INLINE bool quick_reject_slow_path(const SkRect& src, const SkRe
 bool SkCanvas::quickReject(const SkRect& src) const {
 #ifdef SK_DEBUG
     // Verify that fQuickRejectBounds are set properly.
-    SkRect tmp = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
-    if (fMCRec->fRasterClip.isEmpty()) {
-        SkASSERT(fQuickRejectBounds.isEmpty());
-    } else {
-        SkASSERT(tmp == fQuickRejectBounds);
-    }
-
+    this->validateClip();
     // Verify that fIsScaleTranslate is set properly.
     SkASSERT(fIsScaleTranslate == SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix));
 #endif
