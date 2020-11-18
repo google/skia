@@ -424,7 +424,7 @@ void GrDrawingManager::closeAllTasks() {
     }
 }
 
-GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::insertTaskBeforeLast(std::unique_ptr<GrRenderTask> task) {
     SkASSERT(!fDAG.empty());
     if (!task) {
         return nullptr;
@@ -437,7 +437,7 @@ GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
     return (fDAG[fDAG.count() - 2] = std::move(task)).get();
 }
 
-GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::appendTask(std::unique_ptr<GrRenderTask> task) {
     if (!task) {
         return nullptr;
     }

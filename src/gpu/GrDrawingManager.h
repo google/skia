@@ -142,8 +142,8 @@ private:
 
     void closeAllTasks();
 
-    GrRenderTask* appendTask(sk_sp<GrRenderTask>);
-    GrRenderTask* insertTaskBeforeLast(sk_sp<GrRenderTask>);
+    GrRenderTask* appendTask(std::unique_ptr<GrRenderTask>);
+    GrRenderTask* insertTaskBeforeLast(std::unique_ptr<GrRenderTask>);
 
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,
@@ -170,7 +170,7 @@ private:
     // flushes.
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
-    SkTArray<sk_sp<GrRenderTask>>     fDAG;
+    SkTArray<std::unique_ptr<GrRenderTask>>  fDAG;
     GrOpsTask*                        fActiveOpsTask = nullptr;
     // These are the IDs of the opsTask currently being flushed (in internalFlush). They are
     // only stored here to prevent memory thrashing.

@@ -104,15 +104,15 @@ private:
     // 'fArenas.fRecordTimeAllocator'. In that case that arena must be freed before
     // 'fPendingPaths' which relies on uniquely holding the atlas proxies used by the
     // GrCCClipPaths.
-    PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
+    PendingPathsMap                           fPendingPaths;  // This is the path data from CCPR.
     // These are ordered such that the destructor cleans op tasks up first (which may refer back
     // to the arena and memory pool in their destructors).
-    GrRecordingContext::OwnedArenas fArenas;
-    SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
+    GrRecordingContext::OwnedArenas           fArenas;
+    SkTArray<std::unique_ptr<GrRenderTask>>   fRenderTasks;
 
     SkTArray<GrRecordingContext::ProgramData> fProgramData;
-    sk_sp<GrRenderTargetProxy>      fTargetProxy;
-    sk_sp<LazyProxyData>            fLazyProxyData;
+    sk_sp<GrRenderTargetProxy>                fTargetProxy;
+    sk_sp<LazyProxyData>                      fLazyProxyData;
 #endif
 };
 
