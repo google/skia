@@ -94,5 +94,5 @@ void main() {
     }
 
 
-    sk_FragColor = vec4(1.0, bvec2(false).x ? 1.0 : 0.0, bvec3(true).x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
+    sk_FragColor = vec4(1.0, false ? 1.0 : 0.0, true ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
 }

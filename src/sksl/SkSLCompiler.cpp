@@ -834,6 +834,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                                   OptimizationContext* optimizationContext) {
     Expression* expr = (*iter)->expression()->get();
     SkASSERT(expr);
+
     if ((*iter)->fConstantPropagation) {
         std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator,
                                                                         definitions);
@@ -1052,7 +1053,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->as<Swizzle>();
-            // detect identity swizzles like foo.rgba
+            // Detect identity swizzles like `foo.rgba`.
             if ((int) s.components().size() == s.base()->type().columns()) {
                 bool identity = true;
                 for (int i = 0; i < (int) s.components().size(); ++i) {
@@ -1072,8 +1073,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     break;
                 }
             }
-            // detect swizzles of swizzles, e.g. replace foo.argb.r000 with foo.a000
-            if (s.base()->kind() == Expression::Kind::kSwizzle) {
+            // Detect swizzles of swizzles, e.g. replace `foo.argb.r000` with `foo.a000`.
+            if (s.base()->is<Swizzle>()) {
                 Swizzle& base = s.base()->as<Swizzle>();
                 ComponentArray final;
                 for (int c : s.components()) {
@@ -1082,12 +1083,50 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 optimizationContext->fUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
                                                                     final));
-                // No fUsage change: foo.gbr.gbr and foo.brg have equivalent reference counts
+                // No fUsage change: `foo.gbr.gbr` and `foo.brg` have equivalent reference counts
                 if (!try_replace_expression(&b, iter, &replacement)) {
                     optimizationContext->fNeedsRescan = true;
                     return;
                 }
                 SkASSERT((*iter)->isExpression());
+                break;
+            }
+            // Optimize swizzles of constructors.
+            if (s.base()->is<Constructor>()) {
+                Constructor& base = s.base()->as<Constructor>();
+                std::unique_ptr<Expression> replacement;
+                const Type& componentType = base.type().componentType();
+                int swizzleSize = s.components().size();
+
+                // The IR generator has already converted any zero/one swizzle components into
+                // constructors containing zero/one args. Confirm that this is true by checking that
+                // our swizzle components are all `xyzw` (values 0 through 3).
+                SkASSERT(std::all_of(s.components().begin(), s.components().end(),
+                                     [](int8_t c) { return c >= 0 && c <= 3; }));
+
+                if (base.arguments().size() == 1 &&
+                    base.arguments().front()->type().typeKind() == Type::TypeKind::kScalar) {
+                    // `half4(scalar).zyy` can be optimized to `half3(scalar)`. The swizzle
+                    // components don't actually matter since all fields are the same.
+                    ExpressionArray newArgs;
+                    newArgs.push_back(base.arguments().front()->clone());
+                    replacement = std::make_unique<Constructor>(
+                            base.fOffset,
+                            &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
+                            std::move(newArgs));
+
+                    // No fUsage change: `half4(foo).xy` and `half2(foo)` have equivalent reference
+                    // counts.
+                    if (!try_replace_expression(&b, iter, &replacement)) {
+                        optimizationContext->fNeedsRescan = true;
+                        return;
+                    }
+                    SkASSERT((*iter)->isExpression());
+                    break;
+                }
+
+                // TODO(skia:10954): Optimize the multiple-argument case.
+                break;
             }
             break;
         }

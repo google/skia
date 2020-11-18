@@ -17,7 +17,7 @@
 namespace SkSL {
 
 /**
- * Represents a vector swizzle operation such as 'float2(1, 2, 3).zyx'.
+ * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.
  */
 struct Swizzle final : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSwizzle;
