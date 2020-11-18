@@ -2104,7 +2104,7 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
             this->copyIntrinsicIfNeeded(*f);
         }
 
-        fProgramElements->push_back(original.clone());
+        fSharedElements->push_back(found);
     }
 }
 

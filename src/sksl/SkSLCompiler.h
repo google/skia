@@ -54,6 +54,7 @@ struct PipelineStageArgs;
 class ProgramUsage;
 
 struct LoadedModule {
+    Program::Kind                                fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
@@ -265,6 +266,8 @@ private:
      * Optimize every function in the program.
      */
     bool optimize(Program& program);
+
+    bool optimize(LoadedModule& module);
 
     Position position(int offset);
 

@@ -1,7 +1,5 @@
 
 out vec4 sk_FragColor;
-in vec4 src;
-in vec4 dst;
 float _color_dodge_component(vec2 s, vec2 d) {
     if (d.x == 0.0) {
         return s.x * (1.0 - d.y);
@@ -10,12 +8,12 @@ float _color_dodge_component(vec2 s, vec2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _3_guarded_divide;
-            float _4_n = d.x * s.y;
+            float _4_guarded_divide;
+            float _5_n = d.x * s.y;
             {
-                _3_guarded_divide = _4_n / (delta + 9.9999999392252903e-09);
+                _4_guarded_divide = _5_n / (delta + 9.9999999392252903e-09);
             }
-            delta = min(d.y, _3_guarded_divide);
+            delta = min(d.y, _4_guarded_divide);
 
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
@@ -27,41 +25,43 @@ float _color_burn_component(vec2 s, vec2 d) {
     } else if (s.x == 0.0) {
         return d.x * (1.0 - s.y);
     } else {
-        float _5_guarded_divide;
-        float _6_n = (d.y - d.x) * s.y;
+        float _6_guarded_divide;
+        float _7_n = (d.y - d.x) * s.y;
         {
-            _5_guarded_divide = _6_n / (s.x + 9.9999999392252903e-09);
+            _6_guarded_divide = _7_n / (s.x + 9.9999999392252903e-09);
         }
-        float delta = max(0.0, d.y - _5_guarded_divide);
+        float delta = max(0.0, d.y - _6_guarded_divide);
 
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
-        float _7_guarded_divide;
-        float _8_n = (d.x * d.x) * (s.y - 2.0 * s.x);
+        float _11_guarded_divide;
+        float _12_n = (d.x * d.x) * (s.y - 2.0 * s.x);
         {
-            _7_guarded_divide = _8_n / (d.y + 9.9999999392252903e-09);
+            _11_guarded_divide = _12_n / (d.y + 9.9999999392252903e-09);
         }
-        return (_7_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
+        return (_11_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
 
     } else if (4.0 * d.x <= d.y) {
         float DSqd = d.x * d.x;
         float DCub = DSqd * d.x;
         float DaSqd = d.y * d.y;
         float DaCub = DaSqd * d.y;
-        float _9_guarded_divide;
-        float _10_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
+        float _13_guarded_divide;
+        float _14_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
         {
-            _9_guarded_divide = _10_n / (DaSqd + 9.9999999392252903e-09);
+            _13_guarded_divide = _14_n / (DaSqd + 9.9999999392252903e-09);
         }
-        return _9_guarded_divide;
+        return _13_guarded_divide;
 
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
 }
+in vec4 src;
+in vec4 dst;
 void main() {
     vec4 _0_blend_color_dodge;
     {

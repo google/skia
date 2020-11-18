@@ -19,27 +19,26 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrNestedCall& _outer = args.fFp.cast<GrNestedCall>();
         (void) _outer;
-        SkString func1_name = fragBuilder->getMangledFunctionName("func1");
-        const GrShaderVar func1_args[] = {  };
         SkString func2_name = fragBuilder->getMangledFunctionName("func2");
         const GrShaderVar func2_args[] = {  };
         SkString func3_name = fragBuilder->getMangledFunctionName("func3");
         const GrShaderVar func3_args[] = {  };
-        fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func1_name.c_str(), {func1_args, 0});
         fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0});
         fragBuilder->emitFunctionPrototype(kHalf4_GrSLType, func3_name.c_str(), {func3_args, 0});
-        const String func1_impl = String::printf(R"SkSL(return %s();
-)SkSL"
-, func2_name.c_str());
-        fragBuilder->emitFunction(kHalf4_GrSLType, func1_name.c_str(), {func1_args, 0}, func1_impl.c_str());
         const String func2_impl = String::printf(R"SkSL(return %s();
 )SkSL"
 , func3_name.c_str());
         fragBuilder->emitFunction(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0}, func2_impl.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s();
+R"SkSL(half4 _0_func1;
+{
+    _0_func1 = %s();
+}
+
+%s = _0_func1;
+
 )SkSL"
-, args.fOutputColor, func1_name.c_str());
+, func2_name.c_str(), args.fOutputColor);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
