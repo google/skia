@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a0b0c50_f3951e2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:48:14Z",
+      "side": 1,
+      "message": "I\u0027ve split this into lots of CLs now and will start passing out reviews",
+      "parentUuid": "3be3edd0_0bc05c0b",
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e14cee5_abf396ff",
@@ -65,6 +83,30 @@
       "writtenOn": "2020-11-18T14:12:48Z",
       "side": 1,
       "message": "Could we add a static_assert in SkCanvas.cpp somewhere that this value is correct?",
+      "range": {
+        "startLine": 2641,
+        "startChar": 43,
+        "endLine": 2641,
+        "endChar": 45
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c6c14c0_7b4b4df8",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2641,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:48:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e14cee5_abf396ff",
       "range": {
         "startLine": 2641,
         "startChar": 43,
@@ -100,6 +142,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2f4275e4_d36d5118",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:48:14Z",
+      "side": 1,
+      "message": "Sort but not entirely. fQuickRejectBounds is always kept up-to-date whenever a clip modification is issued. This is done so that it doesn\u0027t have to be a mutable field, since SkCanvas::quickReject() is const. All fModifiedClip really means during a restore() is that the modifications that had been done to fQuickRejectBounds at the old top-of-stack are invalid and the field needs to be updated to preserve the \"always up-to-date\"-ness of it.\n\nIf having fQuickRejectBounds be mutable is okay, we could remove this bool from MCRec and add a fQRBoundsIsDirty field to SkCanvas. Then this is set to true whenever clipX() is called, and whenever restore() is called. quickReject() and getDeviceClipBounds() then update the field if needed. Notably, this isDirty wouldn\u0027t need to be stored per save record, since we can just mark dirtiness conservatively. This may even be more efficient if someone makes many clip modifications in a row before doing anything that actually requires quick rejection.\n\nWe can address this decision in the smaller CL that actually adds this behavior here: https://skia-review.googlesource.com/c/skia/+/335863",
+      "parentUuid": "b433e3f6_e878d9c5",
+      "range": {
+        "startLine": 236,
+        "startChar": 9,
+        "endLine": 236,
+        "endChar": 22
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b041c370_dceeeb1b",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 7
@@ -111,6 +177,30 @@
       "writtenOn": "2020-11-18T14:12:48Z",
       "side": 1,
       "message": "I find this slightly easier to read as strategy \u003d\u003d kFullLayer_SaveStrategy",
+      "range": {
+        "startLine": 1124,
+        "startChar": 8,
+        "endLine": 1124,
+        "endChar": 47
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c7be5e7_c5e4ef8b",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1124,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:48:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b041c370_dceeeb1b",
       "range": {
         "startLine": 1124,
         "startChar": 8,
@@ -134,6 +224,30 @@
       "writtenOn": "2020-11-18T14:12:48Z",
       "side": 1,
       "message": "really minor: this gets repeated a lot and is a verbose way of saying \"bounds\". Maybe a bounds() helper on SkNoPixelsDevice, or SkDevice?",
+      "range": {
+        "startLine": 494,
+        "startChar": 33,
+        "endLine": 494,
+        "endChar": 79
+      },
+      "revId": "c4d7038dcf5d069ec50fbc3c11fd75d092ba92b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef8c764b_0e0a67d9",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-18T17:48:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea8bd778_c95757fb",
       "range": {
         "startLine": 494,
         "startChar": 33,
