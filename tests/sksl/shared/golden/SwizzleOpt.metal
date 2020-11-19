@@ -33,12 +33,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _out->sk_FragColor = float3(fn(v), 123.0, 456.0).yyzz;
     _out->sk_FragColor = float3(fn(v), float2(123.0, 456.0)).yyzz;
     _out->sk_FragColor = float4(123.0, 456.0, 456.0, fn(v));
-    _out->sk_FragColor = float4(123.0, 456.0, 456.0, fn(v));
+    _out->sk_FragColor = float4(float3(123.0, 456.0, 456.0), fn(v));
     _out->sk_FragColor = float3(fn(v), 123.0, 456.0).yxxz;
     _out->sk_FragColor = float3(fn(v), float2(123.0, 456.0)).yxxz;
     _out->sk_FragColor = float4(1.0, 1.0, 2.0, 3.0);
-    _out->sk_FragColor = float4(_uniforms.colRGB.x, _uniforms.colRGB.y, _uniforms.colRGB.z, 1.0);
-    _out->sk_FragColor = float4(_uniforms.colRGB.x, 1.0, _uniforms.colRGB.y, _uniforms.colRGB.z);
+    _out->sk_FragColor = float4(_uniforms.colRGB, 1.0);
+    _out->sk_FragColor = float4(_uniforms.colRGB.x, 1.0, _uniforms.colRGB.yz);
     _out->sk_FragColor.xyzw = _out->sk_FragColor;
     _out->sk_FragColor.wzyx = _out->sk_FragColor;
     _out->sk_FragColor.xyzw.xw = _out->sk_FragColor.yz;
