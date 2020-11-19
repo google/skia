@@ -1186,25 +1186,54 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 }
 
                 if (safeToOptimize) {
-                    // Create a new constructor, with the arguments from the original constructor
-                    // reordered and swizzled to match the original swizzle permutation. Note that
-                    // we expect followup passes to optimize things like `bar.yz.x` into `bar.y`.
-                    ExpressionArray newArgs;
-                    newArgs.reserve_back(swizzleSize);
+                    struct ReorderedArgument {
+                        int8_t fArgIndex;
+                        ComponentArray fComponents;
+                    };
+                    SkSTArray<4, ReorderedArgument> reorderedArgs;
                     for (int c : s.components()) {
                         const ConstructorArgMap& argument = argMap[c];
                         const Expression& baseArg = *base.arguments()[argument.fArgIndex];
 
                         if (baseArg.type().typeKind() == Type::TypeKind::kScalar) {
+                            // This argument is a scalar; add it to the list as-is.
                             SkASSERT(argument.fComponent == 0);
-                            newArgs.push_back(baseArg.clone());
+                            reorderedArgs.push_back({argument.fArgIndex,
+                                                     ComponentArray{}});
                         } else {
+                            // This argument is a component from a vector.
                             SkASSERT(argument.fComponent < baseArg.type().columns());
-                            newArgs.push_back(std::make_unique<Swizzle>(
-                                    *fContext, baseArg.clone(),
-                                    ComponentArray{argument.fComponent}));
+                            if (reorderedArgs.empty() ||
+                                reorderedArgs.back().fArgIndex != argument.fArgIndex) {
+                                // This can't be combined with the previous argument. Add a new one.
+                                reorderedArgs.push_back({argument.fArgIndex,
+                                                         ComponentArray{argument.fComponent}});
+                            } else {
+                                // Since we know this argument uses components, it should already
+                                // have at least one component set.
+                                SkASSERT(!reorderedArgs.back().fComponents.empty());
+                                // Build up the current argument with one more component.
+                                reorderedArgs.back().fComponents.push_back(argument.fComponent);
+                            }
                         }
                     }
+
+                    // Convert our reordered argument list to an actual array of expressions, with
+                    // the new order and any new inner swizzles that need to be applied. Note that
+                    // we expect followup passes to clean up the inner swizzles.
+                    ExpressionArray newArgs;
+                    newArgs.reserve_back(swizzleSize);
+                    for (const ReorderedArgument& reorderedArg : reorderedArgs) {
+                        const Expression& baseArg = *base.arguments()[reorderedArg.fArgIndex];
+                        if (reorderedArg.fComponents.empty()) {
+                            newArgs.push_back(baseArg.clone());
+                        } else {
+                            newArgs.push_back(std::make_unique<Swizzle>(*fContext, baseArg.clone(),
+                                                                        reorderedArg.fComponents));
+                        }
+                    }
+
+                    // Create a new constructor.
                     replacement = std::make_unique<Constructor>(
                             base.fOffset,
                             &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
