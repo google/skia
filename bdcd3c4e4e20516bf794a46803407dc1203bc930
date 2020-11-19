@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3ef79bf_a945680b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T15:28:49Z",
+      "side": 1,
+      "message": "Sounds good. Other than my one comment about the scalar/columns, this lgtm.",
+      "parentUuid": "e6d4d0e6_e98e8719",
+      "revId": "bdcd3c4e4e20516bf794a46803407dc1203bc930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2488dd62_6858b47c",
