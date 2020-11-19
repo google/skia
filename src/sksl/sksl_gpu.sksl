@@ -452,20 +452,19 @@ half3 _blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
     half sat = _blend_color_saturation(satColor);
     if (hueLumColor.r <= hueLumColor.g) {
         if (hueLumColor.g <= hueLumColor.b) {
-            hueLumColor.rgb = _blend_set_color_saturation_helper(hueLumColor.rgb, sat);
+            return _blend_set_color_saturation_helper(hueLumColor.rgb, sat);
         } else if (hueLumColor.r <= hueLumColor.b) {
-            hueLumColor.rbg = _blend_set_color_saturation_helper(hueLumColor.rbg, sat);
+            return _blend_set_color_saturation_helper(hueLumColor.rbg, sat).rbg;
         } else {
-            hueLumColor.brg = _blend_set_color_saturation_helper(hueLumColor.brg, sat);
+            return _blend_set_color_saturation_helper(hueLumColor.brg, sat).gbr;
         }
     } else if (hueLumColor.r <= hueLumColor.b) {
-       hueLumColor.grb = _blend_set_color_saturation_helper(hueLumColor.grb, sat);
+       return _blend_set_color_saturation_helper(hueLumColor.grb, sat).grb;
     } else if (hueLumColor.g <= hueLumColor.b) {
-       hueLumColor.gbr = _blend_set_color_saturation_helper(hueLumColor.gbr, sat);
+       return _blend_set_color_saturation_helper(hueLumColor.gbr, sat).brg;
     } else {
-       hueLumColor.bgr = _blend_set_color_saturation_helper(hueLumColor.bgr, sat);
+       return _blend_set_color_saturation_helper(hueLumColor.bgr, sat).bgr;
     }
-    return hueLumColor;
 }
 
 half4 blend_hue(half4 src, half4 dst) {
@@ -500,7 +499,6 @@ half4 blend_luminosity(half4 src, half4 dst) {
     half3 dsa = dst.rgb*src.a;
     return half4(_blend_set_color_luminance(dsa, alpha, sda) + dst.rgb - dsa + src.rgb - sda,
                  src.a + dst.a - alpha);
-
 }
 
 enum class SkBlendMode {
