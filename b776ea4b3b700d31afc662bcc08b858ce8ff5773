@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1362118b_393e7ecc",
+        "filename": "tests/sksl/shared/golden/SwizzleOpt.glsl",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:24:35Z",
+      "side": 1,
+      "message": "This case seems worse than before?",
+      "revId": "b776ea4b3b700d31afc662bcc08b858ce8ff5773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
