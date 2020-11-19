@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e59a4249_7cbb34cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-19T18:10:58Z",
+      "side": 1,
+      "message": "I ran across this error while trying to remove the GrTextBlob caching code (which remove the problem with this code).",
+      "revId": "7de9552620699d0f00da9a79df79179fc5c1b886",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
