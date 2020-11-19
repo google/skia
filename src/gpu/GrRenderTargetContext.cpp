@@ -392,6 +392,63 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
     return canonicalColor;
 }
 
+void GrRenderTargetContext::drawGlyphRunListDirectly(const GrClip*,
+                                                     const SkMatrixProvider& viewMatrix,
+                                                     const SkGlyphRunList& glyphRunList) {
+    GrSDFTOptions options = fContext->priv().SDFTOptions();
+
+    SkGlyphRun glyphRun;
+
+    class Visitor : public SkGlyphRunPainterInterface {
+    public:
+        Visitor(const SkGlyphRun& run, GrRenderTargetContext* rtc)
+            : fRun{run}
+            , fRTC{rtc} {}
+
+        void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                const SkStrikeSpec& strikeSpec) override {
+            GrOp::Owner op;
+            fRTC->priv().addDrawOp(nullptr, std::move(op));
+        }
+
+        void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                const SkStrikeSpec& strikeSpec) override {
+
+        }
+
+        void
+        processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkFont& runFont,
+                           const SkStrikeSpec& strikeSpec) override {
+
+        }
+
+        void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                               const SkStrikeSpec& strikeSpec, const SkFont& runFont,
+                               SkScalar minScale, SkScalar maxScale) override {
+
+        }
+    private:
+        const SkGlyphRun& fRun;
+        GrRenderTargetContext* const fRTC;
+    } visitor{glyphRun, this};
+
+    // TODO(herb): redo processGlyphRunList to handle shifted draw matrix.
+    bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
+    const SkPoint drawOrigin = glyphRunList.origin();
+    const SkPaint& drawPaint = glyphRunList.paint();
+    for (auto& glyphRun : glyphRunList) {
+        fGlyphPainter.processGlyphRun(glyphRun,
+                                      viewMatrix.localToDevice(),
+                                      drawOrigin,
+                                      drawPaint,
+                                      fSurfaceProps,
+                                      supportsSDFT,
+                                      options,
+                                      &visitor);
+    }
+}
+
+bool GrUseDirectText = true;
 void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
                                              const SkMatrixProvider& viewMatrix,
                                              const SkGlyphRunList& glyphRunList) {
@@ -407,70 +464,73 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrSDFTOptions options = fContext->priv().SDFTOptions();
-    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
+    if (GrUseDirectText) {
+        drawGlyphRunListDirectly(clip, viewMatrix, glyphRunList);
+    } else {
+        GrSDFTOptions options = fContext->priv().SDFTOptions();
+        GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
 
-    // Get the first paint to use as the key paint.
-    const SkPaint& drawPaint = glyphRunList.paint();
+        // Get the first paint to use as the key paint.
+        const SkPaint& drawPaint = glyphRunList.paint();
 
-    SkMaskFilterBase::BlurRec blurRec;
-    // It might be worth caching these things, but its not clear at this time
-    // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
-    const SkMaskFilter* mf = drawPaint.getMaskFilter();
-    bool canCache = glyphRunList.canCache() &&
-            !(drawPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
+        SkMaskFilterBase::BlurRec blurRec;
+        // It might be worth caching these things, but its not clear at this time
+        // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
+        const SkMaskFilter* mf = drawPaint.getMaskFilter();
+        bool canCache = glyphRunList.canCache() &&
+                !(drawPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
 
-    // If we're doing linear blending, then we can disable the gamma hacks.
-    // Otherwise, leave them on. In either case, we still want the contrast boost:
-    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
-                                              ? SkScalerContextFlags::kBoostContrast
-                                              : SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        // If we're doing linear blending, then we can disable the gamma hacks.
+        // Otherwise, leave them on. In either case, we still want the contrast boost:
+        // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+        SkScalerContextFlags scalerContextFlags =
+                this->colorInfo().isLinearlyBlended()
+                ? SkScalerContextFlags::kBoostContrast
+                : SkScalerContextFlags::kFakeGammaAndBoostContrast;
 
-    sk_sp<GrTextBlob> blob;
-    GrTextBlob::Key key;
-    if (canCache) {
-        bool hasLCD = glyphRunList.anyRunsLCD();
-
-        // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry =
-                hasLCD ? fSurfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
-
-        GrColor canonicalColor = compute_canonical_color(drawPaint, hasLCD);
-
-        key.fPixelGeometry = pixelGeometry;
-        key.fUniqueID = glyphRunList.uniqueID();
-        key.fStyle = drawPaint.getStyle();
-        if (key.fStyle != SkPaint::kFill_Style) {
-            key.fFrameWidth = drawPaint.getStrokeWidth();
-            key.fMiterLimit = drawPaint.getStrokeMiter();
-            key.fJoin = drawPaint.getStrokeJoin();
-        }
-        key.fHasBlur = SkToBool(mf);
-        if (key.fHasBlur) {
-            key.fBlurRec = blurRec;
-        }
-        key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = scalerContextFlags;
-        blob = textBlobCache->find(key);
-    }
-
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
-        if (blob != nullptr) {
-            // We have to remake the blob because changes may invalidate our masks.
-            // TODO we could probably get away with reuse most of the time if the pointer is unique,
-            //      but we'd have to clear the SubRun information
-            textBlobCache->remove(blob.get());
-        }
-
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+        sk_sp<GrTextBlob> blob;
+        GrTextBlob::Key key;
         if (canCache) {
-            blob->addKey(key);
-            textBlobCache->add(glyphRunList, blob);
+            bool hasLCD = glyphRunList.anyRunsLCD();
+
+            // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
+            SkPixelGeometry pixelGeometry =
+                    hasLCD ? fSurfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
+
+            GrColor canonicalColor = compute_canonical_color(drawPaint, hasLCD);
+
+            key.fPixelGeometry = pixelGeometry;
+            key.fUniqueID = glyphRunList.uniqueID();
+            key.fStyle = drawPaint.getStyle();
+            if (key.fStyle != SkPaint::kFill_Style) {
+                key.fFrameWidth = drawPaint.getStrokeWidth();
+                key.fMiterLimit = drawPaint.getStrokeMiter();
+                key.fJoin = drawPaint.getStrokeJoin();
+            }
+            key.fHasBlur = SkToBool(mf);
+            if (key.fHasBlur) {
+                key.fBlurRec = blurRec;
+            }
+            key.fCanonicalColor = canonicalColor;
+            key.fScalerContextFlags = scalerContextFlags;
+            blob = textBlobCache->find(key);
         }
+
+        SkMatrix drawMatrix(viewMatrix.localToDevice());
+        SkPoint drawOrigin = glyphRunList.origin();drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+        if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
+            if (blob != nullptr) {
+                // We have to remake the blob because changes may invalidate our masks.
+                // TODO we could probably get away with reuse most of the time if the pointer is
+                //  unique, but we'd have to clear the SubRun information
+                textBlobCache->remove(blob.get());
+            }
+
+            blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+            if (canCache) {
+                blob->addKey(key);
+                textBlobCache->add(glyphRunList, blob);
+            }
 
         // TODO(herb): redo processGlyphRunList to handle shifted draw matrix.
         bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
@@ -486,8 +546,9 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         }
     }
 
-    for (GrSubRun* subRun : blob->subRunList()) {
-        subRun->draw(clip, viewMatrix, glyphRunList, this);
+        for (GrSubRun* subRun : blob->subRunList()) {
+            subRun->draw(clip, viewMatrix, glyphRunList, this);
+        }
     }
 }
 
