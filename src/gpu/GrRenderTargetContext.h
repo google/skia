@@ -63,7 +63,7 @@ class GrRenderTargetContext : public GrSurfaceContext {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
-            GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps = true);
+            GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps, bool foo);
 
     static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
                                                        GrColorType,
@@ -589,7 +589,7 @@ public:
 #if GR_TEST_UTILS
     bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
-    GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
+    GrOpsTask* testingOnly_PeekLastOpsTask1() { return fOpsTask1; }
 #endif
 
 private:
@@ -710,7 +710,7 @@ private:
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
-    sk_sp<GrOpsTask> fOpsTask;
+    GrOpsTask* fOpsTask1;
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpsTask;
