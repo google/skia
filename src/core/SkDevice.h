@@ -535,7 +535,7 @@ protected:
                            const SkImageFilter* filter, const SkPaint& paint) override {}
 
 private:
-struct ClipState {
+    struct ClipState {
         SkConservativeClip fClip;
         int fDeferredSaveCount = 0;
 
