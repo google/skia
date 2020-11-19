@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b091bce2_9e4e3f19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T14:28:11Z",
+      "side": 1,
+      "message": "I looked at this, and the follow-up CLs. How much further do you think we can/should push these kinds of optimizations? I think this is okay (given that the next two don\u0027t add much complexity, and expand coverage more). But my fear with too many peephole opts around swizzles is that:\n\n1) It\u0027s diminishing returns, and the code needs to be subtle/tricky sometimes to remain correct.\n2) The interaction of all these optimizations creates a risk of pathological behavior. This string only really adds one case, which is good - I don\u0027t want to get into a case where the fuzzer figures out that it can trick us into ping-ponging swizzle states, or simply spending a really long time simplifying some complex expression (requiring a CFG re-scan after each iteration).",
+      "revId": "bdcd3c4e4e20516bf794a46803407dc1203bc930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2488dd62_6858b47c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T14:28:11Z",
+      "side": 1,
+      "message": "kScalar types return 1 for columns(), so this can just be:\n  int argWidth \u003d expr.type().columns();",
+      "range": {
+        "startLine": 1152,
+        "startChar": 0,
+        "endLine": 1154,
+        "endChar": 67
+      },
+      "revId": "bdcd3c4e4e20516bf794a46803407dc1203bc930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
