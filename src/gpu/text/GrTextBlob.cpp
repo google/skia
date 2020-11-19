@@ -1437,6 +1437,15 @@ void GrTextBlob::addMultiMaskFormat(
         const SkStrikeSpec& strikeSpec) {
     if (drawables.empty()) { return; }
 
+    auto addSameFormat = [&](const SkZip<SkGlyphVariant, SkPoint>& drawable, GrMaskFormat format) {
+        GrSubRun* subRun = addSingle(drawable, strikeSpec, format, this, &fAlloc);
+        if (subRun != nullptr) {
+            this->insertSubRun(subRun);
+        } else {
+            fSomeGlyphsExcluded = true;
+        }
+    };
+
     auto glyphSpan = drawables.get<0>();
     SkGlyph* glyph = glyphSpan[0];
     GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
@@ -1446,23 +1455,13 @@ void GrTextBlob::addMultiMaskFormat(
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
-            GrSubRun* subRun = addSingle(sameFormat, strikeSpec, format, this, &fAlloc);
-            this->insertSubRun(subRun);
+            addSameFormat(sameFormat, format);
             format = nextFormat;
             startIndex = i;
         }
     }
     auto sameFormat = drawables.last(drawables.size() - startIndex);
-    GrSubRun* subRun = addSingle(sameFormat,
-                                 strikeSpec,
-                                 format,
-                                 this,
-                                 &fAlloc);
-    if (subRun != nullptr) {
-        this->insertSubRun(subRun);
-    } else {
-        fSomeGlyphsExcluded = true;
-    }
+    addSameFormat(sameFormat, format);
 }
 
 GrTextBlob::GrTextBlob(size_t allocSize,
