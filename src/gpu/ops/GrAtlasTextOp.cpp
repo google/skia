@@ -460,8 +460,11 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
 
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
     SkGlyphRunListPainter* painter = rtc->priv().testingOnly_glyphRunPainter();
-    painter->processGlyphRunList(
-            glyphRunList, drawMatrix, rtc->surfaceProps(),
+    painter->processGlyphRun(
+            *glyphRunList.begin(),
+            drawMatrix, glyphRunList.origin(),
+            glyphRunList.paint(),
+            rtc->surfaceProps(),
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
     if (!blob->subRunList().head()) {
