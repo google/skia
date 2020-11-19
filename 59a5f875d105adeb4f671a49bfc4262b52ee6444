@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fca54ad7_77e6603f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-19T18:16:21Z",
+      "side": 1,
+      "message": "Good call; done.",
+      "parentUuid": "6fadd1b8_b79a6407",
+      "revId": "59a5f875d105adeb4f671a49bfc4262b52ee6444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a5d8691_ff830e61",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c876f52_c0748f16",
+        "filename": "gm/tessellation.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-19T18:16:21Z",
+      "side": 1,
+      "message": "That doesn\u0027t actually exist (the origin field is on an inner class OpArgs in GrOpFlushState.h) but I\u0027ve now removed origin and writeSwizzle from that object too and just always get them from the writeView.",
+      "parentUuid": "9a5d8691_ff830e61",
+      "range": {
+        "startLine": 347,
+        "startChar": 67,
+        "endLine": 347,
+        "endChar": 94
+      },
+      "revId": "59a5f875d105adeb4f671a49bfc4262b52ee6444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61407c37_f20814b1",
@@ -54,6 +96,24 @@
       "writtenOn": "2020-11-19T17:58:47Z",
       "side": 1,
       "message": "Do we ever use this?",
+      "revId": "59a5f875d105adeb4f671a49bfc4262b52ee6444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "badd2591_a4b9612e",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-19T18:16:21Z",
+      "side": 1,
+      "message": "Yes, but it shouldn\u0027t be here anymore (probably predates GrSurfaceProxyView.) I removed it as well as writeSwizzle() and called through to the view.",
+      "parentUuid": "61407c37_f20814b1",
       "revId": "59a5f875d105adeb4f671a49bfc4262b52ee6444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
