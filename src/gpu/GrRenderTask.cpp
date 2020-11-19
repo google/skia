@@ -173,7 +173,7 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     // Does this proxy have msaa to resolve and/or mipmaps to regenerate?
     if (GrSurfaceProxy::ResolveFlags::kNone != resolveFlags) {
         if (!fTextureResolveTask) {
-            fTextureResolveTask = textureResolveManager.newTextureResolveRenderTask();
+            fTextureResolveTask = textureResolveManager.newTextureResolveRenderTask(caps);
         }
         fTextureResolveTask->addProxy(drawingMgr, sk_ref_sp(dependedOn), resolveFlags, caps);
 

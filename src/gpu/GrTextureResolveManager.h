@@ -25,9 +25,9 @@ public:
     explicit GrTextureResolveManager(GrDrawingManager* drawingManager)
             : fDrawingManager(drawingManager) {}
 
-    GrTextureResolveRenderTask* newTextureResolveRenderTask() const {
+    GrTextureResolveRenderTask* newTextureResolveRenderTask(const GrCaps& caps) const {
         SkASSERT(fDrawingManager);
-        return fDrawingManager->newTextureResolveRenderTask();
+        return fDrawingManager->newTextureResolveRenderTask(caps);
     }
 
 private:
