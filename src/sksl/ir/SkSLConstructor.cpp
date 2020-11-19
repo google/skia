@@ -194,17 +194,27 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
 }
 
 int64_t Constructor::getConstantInt() const {
+    // We're looking for scalar integer constructors only, i.e. `int(1)`.
     SkASSERT(this->arguments().size() == 1);
-    SkASSERT(this->arguments().front()->type().typeKind() == Type::TypeKind::kScalar);
-    SkASSERT(this->arguments().front()->type().isInteger());
-    return this->arguments().front()->getConstantInt();
+    SkASSERT(this->type().columns() == 1);
+    SkASSERT(this->type().isInteger());
+
+    // The inner argument might actually be a float! `int(1.0)` is a valid cast.
+    const Expression& expr = *this->arguments().front();
+    SkASSERT(expr.type().typeKind() == Type::TypeKind::kScalar);
+    return expr.type().isInteger() ? expr.getConstantInt() : (int64_t)expr.getConstantFloat();
 }
 
 SKSL_FLOAT Constructor::getConstantFloat() const {
+    // We're looking for scalar integer constructors only, i.e. `float(1.0)`.
     SkASSERT(this->arguments().size() == 1);
-    SkASSERT(this->arguments().front()->type().typeKind() == Type::TypeKind::kScalar);
-    SkASSERT(this->arguments().front()->type().isFloat());
-    return this->arguments().front()->getConstantFloat();
+    SkASSERT(this->type().columns() == 1);
+    SkASSERT(this->type().isFloat());
+
+    // The inner argument might actually be an integer! `float(1)` is a valid cast.
+    const Expression& expr = *this->arguments().front();
+    SkASSERT(expr.type().typeKind() == Type::TypeKind::kScalar);
+    return expr.type().isFloat() ? expr.getConstantFloat() : (SKSL_FLOAT)expr.getConstantInt();
 }
 
 }  // namespace SkSL
