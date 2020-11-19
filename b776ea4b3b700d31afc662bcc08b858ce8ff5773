@@ -16,6 +16,24 @@
       "message": "This case seems worse than before?",
       "revId": "b776ea4b3b700d31afc662bcc08b858ce8ff5773",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4f2076c_7b72d1c5",
+        "filename": "tests/sksl/shared/golden/SwizzleOpt.glsl",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-19T18:06:02Z",
+      "side": 1,
+      "message": "Our starting point is this expression:\n    sk_FragColor \u003d half3(fn(v), half2(123, 456)).yzzx;\n\nWhich optimizes to:\n    sk_FragColor \u003d half4(half2(123, 456).xyy, fn(v));\n    sk_FragColor \u003d half4(half3(123, 123, 456), fn(v));\n\nIn the previous implemention I expect that it was doing:\n    sk_FragColor \u003d half3(fn(v), half2(123, 456)).yzzx;\n    sk_FragColor \u003d half4(half2(123, 456).x, half2(123, 456).y, half2(123, 456).y, fn(v));\n    sk_FragColor \u003d half4(half(123), half(456), half(456), fn(v));\n    sk_FragColor \u003d half4(123, 456, 456, fn(v));\n\nGranted, it works out to a nice final representation, but it\u0027s further away from the starting expression and does a lot more cloning to get there. I think if flattening nested constructors is an optimization we care about, we would be better served to implement it as its own optimization. I don\u0027t have any idea if this would be beneficial.",
+      "parentUuid": "1362118b_393e7ecc",
+      "revId": "b776ea4b3b700d31afc662bcc08b858ce8ff5773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
