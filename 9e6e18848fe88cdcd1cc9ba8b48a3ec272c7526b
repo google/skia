@@ -22,6 +22,30 @@
       },
       "revId": "9e6e18848fe88cdcd1cc9ba8b48a3ec272c7526b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2b7df9d_cbeec691",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T19:33:20Z",
+      "side": 0,
+      "message": "It looks like I introduced a bug causing nondeterministic inlining in .fp files. I\u0027ve got ASAN telling me what I did wrong, just trying to decipher it.",
+      "parentUuid": "dae49cfa_fa09bea6",
+      "range": {
+        "startLine": 46,
+        "startChar": 36,
+        "endLine": 48,
+        "endChar": 154
+      },
+      "revId": "9e6e18848fe88cdcd1cc9ba8b48a3ec272c7526b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
