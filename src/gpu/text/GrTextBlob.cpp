@@ -1511,3 +1511,64 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
                                     const SkStrikeSpec& strikeSpec) {
     this->addMultiMaskFormat(TransformedMaskSubRun::Make, drawables, strikeSpec);
 }
+
+// -- GrRenderTargetContext ------------------------------------------------------------------------
+void GrRenderTargetContext::drawGlyphRunListDirectly(const GrClip*,
+                                                     const SkMatrixProvider& viewMatrix,
+                                                     const SkGlyphRunList& glyphRunList) {
+    GrSDFTOptions options = fContext->priv().SDFTOptions();
+
+
+
+    // TODO(herb): redo processGlyphRunList to handle shifted draw matrix.
+    bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
+    const SkPoint drawOrigin = glyphRunList.origin();
+    const SkPaint& drawPaint = glyphRunList.paint();
+    SkArenaAlloc* const alloc = nullptr;
+    for (auto& glyphRun : glyphRunList) {
+        class Visitor : public SkGlyphRunPainterInterface {
+        public:
+            Visitor(const SkGlyphRun& run, GrRenderTargetContext* rtc, SkArenaAlloc* alloc)
+                    : fRun{run}
+                    , fRTC{rtc}
+                    , fAlloc{alloc} {}
+
+            void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkStrikeSpec& strikeSpec) override {
+                GrAtlasSubRun* run = DirectMaskSubRun::Make(drawables, )
+                GrOp::Owner op;
+                fRTC->priv().addDrawOp(nullptr, std::move(op));
+            }
+
+            void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkStrikeSpec& strikeSpec) override {
+
+            }
+
+            void
+            processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkFont& runFont,
+                               const SkStrikeSpec& strikeSpec) override {
+
+            }
+
+            void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                   const SkStrikeSpec& strikeSpec, const SkFont& runFont,
+                                   SkScalar minScale, SkScalar maxScale) override {
+
+            }
+        private:
+            const SkGlyphRun& fRun;
+            GrRenderTargetContext* const fRTC;
+            SkArenaAlloc* const fAlloc;
+        } visitor{glyphRun, this, alloc};
+
+        fGlyphPainter.processGlyphRun(glyphRun,
+                                      viewMatrix.localToDevice(),
+                                      drawOrigin,
+                                      drawPaint,
+                                      fSurfaceProps,
+                                      supportsSDFT,
+                                      options,
+                                      &visitor);
+    }
+}
