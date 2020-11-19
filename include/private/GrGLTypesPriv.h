@@ -54,6 +54,7 @@ public:
     };
 
     void invalidate();
+    void invalidateMag();
 
     ResetTimestamp resetTimestamp() const { return fResetTimestamp; }
     const SamplerOverriddenState& samplerOverriddenState() const { return fSamplerOverriddenState; }
