@@ -15,6 +15,7 @@
 struct SK_API GrMtlBackendContext {
     sk_cf_obj<GrMTLHandle> fDevice;
     sk_cf_obj<GrMTLHandle> fQueue;
+    sk_cf_obj<GrMTLHandle> fBinaryArchive;
 };
 
 #endif

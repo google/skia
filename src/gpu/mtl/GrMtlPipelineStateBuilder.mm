@@ -506,14 +506,37 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkASSERT(pipelineDescriptor.colorAttachments[0]);
 
     NSError* error = nil;
+#if GR_METAL_SDK_VERSION >= 230
+    if (@available(macOS 11.0, iOS 14.0, *)) {
+        id<MTLBinaryArchive> archive = fGpu->binaryArchive();
+        if (archive) {
+            NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
+            pipelineDescriptor.binaryArchives = archiveArray;
+            BOOL result;
+            {
+                TRACE_EVENT0("skia.gpu", "addRenderPipelineFunctionsWithDescriptor");
+                result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
+                                                                            error: &error];
+            }
+            if (!result && error) {
+                SkDebugf("Error storing pipeline: %s\n",
+                        [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+            }
+        }
+    }
+#endif
+    id<MTLRenderPipelineState> pipelineState;
+    {
+        TRACE_EVENT0("skia.gpu", "newRenderPipelineStateWithDescriptor");
 #if defined(SK_BUILD_FOR_MAC)
-    id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
+        pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &error);
 #else
-    id<MTLRenderPipelineState> pipelineState =
+        pipelineState =
             [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                            error: &error];
 #endif
+    }
     if (error) {
         SkDebugf("Error creating pipeline: %s\n",
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);

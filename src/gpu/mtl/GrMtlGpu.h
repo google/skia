@@ -84,6 +84,11 @@ public:
                        const SkIPoint& dstPoint) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
+#if GR_METAL_SDK_VERSION >= 230
+    id<MTLBinaryArchive> binaryArchive() const SK_API_AVAILABLE(macos(11.0), ios(14.0)) {
+        return fBinaryArchive;
+    }
+#endif
 
     void submit(GrOpsRenderPass* renderPass) override;
 
@@ -112,7 +117,7 @@ public:
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
-             id<MTLCommandQueue>, MTLFeatureSet);
+             id<MTLCommandQueue>, GrMTLHandle binaryArchive, MTLFeatureSet);
 
     void destroyResources();
 
@@ -282,6 +287,9 @@ private:
     SkDeque fOutstandingCommandBuffers;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
+#if GR_METAL_SDK_VERSION >= 230
+    id<MTLBinaryArchive> fBinaryArchive SK_API_AVAILABLE(macos(11.0), ios(14.0));
+#endif
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
