@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "875b2ea8_b869557b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "I\u0027ve forgotten quite a lot about this, mostly related to all the various SkSamplingOptions.h and policies... so parts of this I\u0027m kind of glazing over.  I do like simpler, for sure, but I don\u0027t think I understand/remember the inherent complexity in any of this.",
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9c15612_eac44914",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "This could be clearer as SkSamplingOptions, I think.\nAs is it looks like you\u0027re creating a smart pointer or something.\n\nI\u0027m curious why we didn\u0027t make this an SkSamplingOptions constructor like the other three.  Did we want it to stand out?  If so I don\u0027t think it stands out enough.",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 242,
+        "endChar": 8
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a2983b4_024c157f",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "Also clearer with `SkSamplingOptions sampling \u003d ...` here I think?",
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0b0713c_d59a48f0",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "can\u0027t this be just a value?\n\n   static const SkCubicResampler kDefaultCubicResampler{1/3.0f, 1/3.0f};\n\n?",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 1
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc909590_31790a82",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "Since this is no longer in the public API, doesn\u0027t the enum feel a bit overkill?  bool fDeriveSamplingOptionsFromPaint?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "044a4263_519f7b89",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-19T22:52:33Z",
+      "side": 1,
+      "message": "I always get myself confused by the relationship between the types in SkSamplingOptions.h... it sort of feels like it\u0027s more nested than necessary.  With this CL is there anything we can do in there to condense now?  Like trimming out middle types like SkFilterOptions?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 32
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
