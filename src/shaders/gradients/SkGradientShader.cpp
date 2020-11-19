@@ -671,7 +671,22 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
 //
 static bool valid_grad(const SkColor4f colors[], const SkScalar pos[], int count,
                        SkTileMode tileMode) {
-    return nullptr != colors && count >= 1 && (unsigned)tileMode < kSkTileModeCount;
+    if (!colors || count < 1 || (unsigned) tileMode < kSkTileModeCount) {
+        return false;
+    }
+    // If positions were provided, they must be sorted and between 0 and 1 (consecutive positions
+    // are allowed to be identical though).
+    if (pos) {
+        if (pos[0] < 0.f || pos[count - 1] > 1.f) {
+            return false;
+        }
+        for (int i = 1; i < count; ++i) {
+            if (pos[i] < pos[i - 1]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 static void desc_init(SkGradientShaderBase::Descriptor* desc,
