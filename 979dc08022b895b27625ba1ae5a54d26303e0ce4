@@ -46,6 +46,30 @@
       },
       "revId": "979dc08022b895b27625ba1ae5a54d26303e0ce4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e51b8f55_1ceb4ed9",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T16:20:50Z",
+      "side": 1,
+      "message": "SkASSERT + comment is good, but I don\u0027t think we need to guard it with GR_TEST_UTILS. The assert gets completely removed in non-debug builds, and I don\u0027t think it\u0027s an issue to check on debug builds.",
+      "parentUuid": "d5210ae1_a2c95609",
+      "range": {
+        "startLine": 596,
+        "startChar": 4,
+        "endLine": 599,
+        "endChar": 0
+      },
+      "revId": "979dc08022b895b27625ba1ae5a54d26303e0ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
