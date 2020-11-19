@@ -63,10 +63,12 @@ for input in inputs:
 worklist.close()
 try:
     output = subprocess.check_output([skslc, worklist.name], stderr=subprocess.STDOUT)
-
 except subprocess.CalledProcessError as err:
-    print("### skslc error:\n")
-    print("\n".join(err.output.splitlines()))
+    if err.returncode != 1:
+        print("### skslc error:\n")
+        print("\n".join(err.output.splitlines()))
+        sys.exit(err.returncode)
+    pass  # Compile errors (exit code 1) are expected and normal in test code
 
 os.remove(worklist.name)
 
