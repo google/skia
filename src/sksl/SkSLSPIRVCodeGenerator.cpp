@@ -525,7 +525,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                            (int32_t) layout.stride(type),
                                            fDecorationBuffer);
                 } else {
-                    SkASSERT(false); // we shouldn't have any runtime-sized arrays right now
+                    // We shouldn't have any runtime-sized arrays right now
+                    fErrors.error(type.fOffset, "runtime-sized arrays are not supported in SPIR-V");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
                                            this->getType(type.componentType(), layout),
                                            fConstantBuffer);
@@ -1760,10 +1761,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
             auto entry = fVariableMap.find(&var);
             SkASSERT(entry != fVariableMap.end());
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(*this,
-                                                                                 entry->second,
-                                                                                 typeId,
-                                                                                 precision));
+            return std::make_unique<PointerLValue>(*this, entry->second, typeId, precision);
         }
         case Expression::Kind::kIndex: // fall through
         case Expression::Kind::kFieldAccess: {
@@ -1775,17 +1773,15 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             for (SpvId idx : chain) {
                 this->writeWord(idx, out);
             }
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                                *this,
-                                                                                member,
-                                                                                this->getType(type),
-                                                                                precision));
+            return std::make_unique<PointerLValue>(*this, member, this->getType(type), precision);
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& swizzle = (Swizzle&) expr;
             size_t count = swizzle.components().size();
             SpvId base = this->getLValue(*swizzle.base(), out)->getPointer();
-            SkASSERT(base);
+            if (!base) {
+                fErrors.error(swizzle.fOffset, "unable to retrieve lvalue from swizzle");
+            }
             if (count == 1) {
                 IntLiteral index(fContext, -1, swizzle.components()[0]);
                 SpvId member = this->nextId();
@@ -1796,19 +1792,11 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                        base,
                                        this->writeIntLiteral(index),
                                        out);
-                return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                                *this,
-                                                                                member,
-                                                                                this->getType(type),
-                                                                                precision));
+                return std::make_unique<PointerLValue>(*this, member, this->getType(type),
+                                                       precision);
             } else {
-                return std::unique_ptr<SPIRVCodeGenerator::LValue>(new SwizzleLValue(
-                                                                             *this,
-                                                                             base,
-                                                                             swizzle.components(),
-                                                                             swizzle.base()->type(),
-                                                                             type,
-                                                                             precision));
+                return std::make_unique<SwizzleLValue>(*this, base, swizzle.components(),
+                                                       swizzle.base()->type(), type, precision);
             }
         }
         case Expression::Kind::kTernary: {
@@ -1831,11 +1819,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             SpvId result = this->nextId();
             this->writeInstruction(SpvOpPhi, this->getType(*fContext.fBool_Type), result, ifTrue,
                        ifTrueLabel, ifFalse, ifFalseLabel, out);
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                                *this,
-                                                                                result,
-                                                                                this->getType(type),
-                                                                                precision));
+            return std::make_unique<PointerLValue>(*this, result, this->getType(type), precision);
         }
         default: {
             // expr isn't actually an lvalue, create a dummy variable for it. This case happens due
@@ -1847,11 +1831,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             this->writeInstruction(SpvOpVariable, pointerType, result, SpvStorageClassFunction,
                                    fVariableBuffer);
             this->writeInstruction(SpvOpStore, result, this->writeExpression(expr, out), out);
-            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
-                                                                                *this,
-                                                                                result,
-                                                                                this->getType(type),
-                                                                                precision));
+            return std::make_unique<PointerLValue>(*this, result, this->getType(type), precision);
         }
     }
 }
@@ -1881,7 +1861,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 // height variable hasn't been written yet
                 SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
                 std::vector<Type::Field> fields;
-                SkASSERT(fProgram.fSettings.fRTHeightOffset >= 0);
+                if (fProgram.fSettings.fRTHeightOffset < 0) {
+                    fErrors.error(ref.fOffset, "RTHeightOffset is negative");
+                }
                 fields.emplace_back(
                         Modifiers(Layout(0, -1, fProgram.fSettings.fRTHeightOffset, -1, -1, -1, -1,
                                          -1, Layout::Format::kUnspecified,
@@ -1893,9 +1875,13 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 Type intfStruct(-1, name, fields);
 
                 int binding = fProgram.fSettings.fRTHeightBinding;
+                if (binding == -1) {
+                    fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
+                }
                 int set = fProgram.fSettings.fRTHeightSet;
-                SkASSERT(binding != -1 && set != -1);
-
+                if (set == -1) {
+                    fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
+                }
                 Layout layout(0, -1, -1, binding, -1, set, -1, -1, Layout::Format::kUnspecified,
                                 Layout::kUnspecified_Primitive, -1, -1, "", "", Layout::kNo_Key,
                                 Layout::CType::kDefault);
@@ -2327,7 +2313,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         case Token::Kind::TK_COMMA:
             return rhs;
         default:
-            SkASSERT(false);
+            fErrors.error(0, "unsupported token");
             return -1;
     }
 }
