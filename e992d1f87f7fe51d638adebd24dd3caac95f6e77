@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29cb17d6_182028e8",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-19T16:58:42Z",
+      "side": 1,
+      "message": "tab left ?",
+      "revId": "e992d1f87f7fe51d638adebd24dd3caac95f6e77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
