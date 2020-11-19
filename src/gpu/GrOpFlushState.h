@@ -58,23 +58,20 @@ public:
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
         // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
-        explicit OpArgs(GrOp* op, GrSurfaceProxyView* surfaceView, GrAppliedClip* appliedClip,
+        explicit OpArgs(GrOp* op, const GrSurfaceProxyView& surfaceView, GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxyView& dstProxyView,
                         GrXferBarrierFlags renderPassXferBarriers)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
-                , fRenderTargetProxy(surfaceView->asRenderTargetProxy())
+                , fRenderTargetProxy(surfaceView.asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView)
                 , fRenderPassXferBarriers(renderPassXferBarriers) {
-            SkASSERT(surfaceView->asRenderTargetProxy());
+            SkASSERT(surfaceView.asRenderTargetProxy());
         }
 
-        GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
-        GrSwizzle writeSwizzle() const { return fSurfaceView->swizzle(); }
-
         GrOp* op() { return fOp; }
-        const GrSurfaceProxyView* writeView() const { return fSurfaceView; }
+        const GrSurfaceProxyView& writeView() const { return fSurfaceView; }
         GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
@@ -90,7 +87,7 @@ public:
 
     private:
         GrOp*                         fOp;
-        GrSurfaceProxyView*           fSurfaceView;
+        const GrSurfaceProxyView&     fSurfaceView;
         GrRenderTargetProxy*          fRenderTargetProxy;
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
@@ -144,7 +141,7 @@ public:
     }
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
-    const GrSurfaceProxyView* writeView() const final { return this->drawOpArgs().writeView(); }
+    const GrSurfaceProxyView& writeView() const final { return this->drawOpArgs().writeView(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     const GrAppliedHardClip& appliedHardClip() const {

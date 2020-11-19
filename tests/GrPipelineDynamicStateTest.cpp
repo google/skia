@@ -143,14 +143,14 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().writeSwizzle());
+                            flushState->drawOpArgs().writeView().swizzle());
         SkSTArray<kNumMeshes, GrSimpleMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrSimpleMesh& mesh = meshes.push_back();
@@ -162,7 +162,7 @@ private:
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->proxy()->backendFormat(),
-                                  flushState->writeView()->origin(),
+                                  flushState->writeView().origin(),
                                   &pipeline,
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,

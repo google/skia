@@ -39,7 +39,7 @@ protected:
 
     void createProgramInfo(const GrCaps* caps,
                            SkArenaAlloc* arena,
-                           const GrSurfaceProxyView* writeView,
+                           const GrSurfaceProxyView& writeView,
                            GrAppliedClip&& appliedClip,
                            const GrXferProcessor::DstProxyView& dstProxyView,
                            GrXferBarrierFlags renderPassXferBarriers) {
@@ -103,7 +103,7 @@ protected:
     }
 
     virtual void onPrePrepareDraws(GrRecordingContext*,
-                                   const GrSurfaceProxyView* writeView,
+                                   const GrSurfaceProxyView& writeView,
                                    GrAppliedClip*,
                                    const GrXferProcessor::DstProxyView&,
                                    GrXferBarrierFlags renderPassXferBarriers);
@@ -114,13 +114,13 @@ private:
     // by this op.
     virtual void onCreateProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
-                                     const GrSurfaceProxyView* writeView,
+                                     const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&,
                                      GrXferBarrierFlags renderPassXferBarriers) = 0;
 
     void onPrePrepare(GrRecordingContext* context,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView,
                       GrXferBarrierFlags renderPassXferBarriers) final {
@@ -216,7 +216,7 @@ public:
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
-    virtual const GrSurfaceProxyView* writeView() const = 0;
+    virtual const GrSurfaceProxyView& writeView() const = 0;
 
     virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;

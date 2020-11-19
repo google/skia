@@ -15,7 +15,7 @@
 using Patch = GrStrokeTessellateShader::Patch;
 
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
-                                        const GrSurfaceProxyView* writeView, GrAppliedClip* clip,
+                                        const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();

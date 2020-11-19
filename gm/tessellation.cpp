@@ -311,7 +311,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
@@ -327,7 +327,7 @@ private:
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            state->drawOpArgs().writeSwizzle());
+                            state->drawOpArgs().writeView().swizzle());
         int tessellationPatchVertexCount;
         std::unique_ptr<GrGeometryProcessor> shader;
         if (fTriPositions) {
@@ -344,7 +344,7 @@ private:
         }
 
         GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->writeView()->origin(),
+                                  state->proxy()->backendFormat(), state->writeView().origin(),
                                   &pipeline, &GrUserStencilSettings::kUnused, shader.get(),
                                   GrPrimitiveType::kPatches, tessellationPatchVertexCount,
                                   state->renderPassBarriers());
