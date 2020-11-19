@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc2ec269_f64759d0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1656,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bca45751_52c1a7a1",
+      "range": {
+        "startLine": 1648,
+        "startChar": 0,
+        "endLine": 1656,
+        "endChar": 29
+      },
+      "revId": "a48ae1c06ee5e6e89e4d6a2c5b31126f0fabff3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae896b93_41b490d2",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0423af1c_70632fe7",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae896b93_41b490d2",
+      "range": {
+        "startLine": 831,
+        "startChar": 19,
+        "endLine": 831,
+        "endChar": 24
+      },
+      "revId": "a48ae1c06ee5e6e89e4d6a2c5b31126f0fabff3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "914608e7_8936fa64",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-11-19T18:28:00Z",
       "side": 1,
       "message": "This seems like it\u0027s 99% of the way to a generic \"iterate over two containers back-to-back\" class that we could reuse anywhere. Any interest in templatizing it?\n\nIn any event I think it might be a good idea to move it out of Program, which still claims to be a struct :)",
+      "range": {
+        "startLine": 220,
+        "startChar": 10,
+        "endLine": 220,
+        "endChar": 28
+      },
+      "revId": "a48ae1c06ee5e6e89e4d6a2c5b31126f0fabff3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adb8df03_b2276a7d",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T19:01:43Z",
+      "side": 1,
+      "message": "Maybe as a follow-up? I\u0027m just not sure where else we\u0027d need this.",
+      "parentUuid": "914608e7_8936fa64",
       "range": {
         "startLine": 220,
         "startChar": 10,
