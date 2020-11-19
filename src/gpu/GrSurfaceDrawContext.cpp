@@ -324,6 +324,7 @@ GrMipmapped GrSurfaceDrawContext::mipmapped() const {
     return GrMipmapped::kNo;
 }
 
+bool gGrDrawTextNoCache = true;
 void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
                                             const SkMatrixProvider& viewMatrix,
                                             const SkGlyphRunList& glyphRunList) {
@@ -339,16 +340,21 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+    if (gGrDrawTextNoCache) {
+        drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList);
+    } else {
 
-    GrSDFTControl control =
-            this->recordingContext()->priv().getSDFTControl(
-                    this->surfaceProps().isUseDeviceIndependentFonts());
+        SkMatrix drawMatrix(viewMatrix.localToDevice());
+        drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
-    auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
-                                                 fSurfaceProps,
-                                                 this->colorInfo(),
+        GrSDFTControl control =
+                this->recordingContext()->priv().getSDFTControl(
+                        this->surfaceProps().isUseDeviceIndependentFonts());
+
+        auto [canCache, key] = GrTextBlob::Key::Make(glyphRunList,
+        fSurfaceProps,
+
+                this->colorInfo(),
                                                  drawMatrix,
                                                  control);
 
@@ -377,8 +383,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         }
     }
 
-    for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList, this);
+        for (const GrSubRun& subRun : blob->subRunList()) {
+            subRun.draw(clip, viewMatrix, glyphRunList, this);
+        }
     }
 }
 

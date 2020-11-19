@@ -258,16 +258,20 @@ class GrAtlasSubRun  {
 public:
     static constexpr int kVerticesPerGlyph = 4;
 
+    using SubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
+
     virtual ~GrAtlasSubRun() = default;
 
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
     virtual int glyphCount() const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList& glyphRunList,
-                    GrSurfaceDrawContext* rtc) const = 0;
+    makeAtlasTextOp(
+            const GrClip* clip,
+            const SkMatrixProvider& viewMatrix,
+            const SkGlyphRunList& glyphRunList,
+            GrSurfaceDrawContext* rtc,
+            SubRunOwner subRun) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& positionMatrix,
