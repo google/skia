@@ -32,9 +32,10 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
         return nullptr;
     }
 
+    // !! not managed
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, colorType, std::move(colorSpace), std::move(proxy),
-            origin, props, false);
+            origin, props, false, false);
 
     if (!renderTargetContext) {
         return nullptr;
@@ -43,7 +44,7 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
     renderTargetContext->discard();
 
     // FIXME: http://skbug.com/9357: This breaks if the renderTargetContext splits its opsTask.
-    fDrawingMgr->fOnFlushRenderTasks.push_back(sk_ref_sp(renderTargetContext->getOpsTask()));
+//    fDrawingMgr->fOnFlushRenderTasks.push_back(sk_ref_sp(renderTargetContext->getOpsTask()));
 
     return renderTargetContext;
 }
@@ -57,7 +58,7 @@ void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> text
         renderTask->makeClosed(*this->caps());
     }
     auto task = static_cast<GrTextureResolveRenderTask*>(fDrawingMgr->fOnFlushRenderTasks.push_back(
-            sk_make_sp<GrTextureResolveRenderTask>()).get());
+            std::make_unique<GrTextureResolveRenderTask>()).get());
     task->addProxy(fDrawingMgr, std::move(textureProxy), resolveFlags, *this->caps());
     task->makeClosed(*this->caps());
 }
