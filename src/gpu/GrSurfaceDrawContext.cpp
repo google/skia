@@ -324,21 +324,31 @@ GrMipmapped GrSurfaceDrawContext::mipmapped() const {
     return GrMipmapped::kNo;
 }
 
-void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
-                                            const SkMatrixProvider& viewMatrix,
-                                            const SkGlyphRunList& glyphRunList) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawGlyphRunList", fContext);
+void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
+                                                   const SkMatrixProvider& viewMatrix,
+                                                   const SkGlyphRunList& glyphRunList) {
+    GrSDFTControl control =
+            fContext->priv().getSDFTControl(fSurfaceProps.isUseDeviceIndependentFonts());
+    const SkPoint drawOrigin = glyphRunList.origin();
+    SkMatrix drawMatrix = viewMatrix.localToDevice();
+    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    GrSubRunAllocator* const alloc = this->recordingContext()->priv().recordTimeSubRunAllocator();
 
-    // Drawing text can cause us to do inline uploads. This is not supported for wrapped vulkan
-    // secondary command buffers because it would require stopping and starting a render pass which
-    // we don't have access to.
-    if (this->wrapsVkSecondaryCB()) {
-        return;
+    for (auto& glyphRun : glyphRunList) {
+        GrSubRunNoCachePainter painter{this, alloc, clip, viewMatrix, glyphRunList};
+
+        // Make and add the text ops.
+        fGlyphPainter.processGlyphRun(glyphRun,
+                                      drawMatrix,
+                                      glyphRunList.paint(),
+                                      control,
+                                      &painter);
     }
+}
 
+void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
+                                                     const SkMatrixProvider& viewMatrix,
+                                                     const SkGlyphRunList& glyphRunList) {
     SkMatrix drawMatrix(viewMatrix.localToDevice());
     drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
@@ -379,6 +389,31 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
 
     for (const GrSubRun& subRun : blob->subRunList()) {
         subRun.draw(clip, viewMatrix, glyphRunList, this);
+    }
+}
+
+// choose to use the GrTextBlob cache or not.
+bool gGrDrawTextNoCache = false;
+void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
+                                            const SkMatrixProvider& viewMatrix,
+                                            const SkGlyphRunList& glyphRunList) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "drawGlyphRunList", fContext);
+
+    // Drawing text can cause us to do inline uploads. This is not supported for wrapped vulkan
+    // secondary command buffers because it would require stopping and starting a render pass which
+    // we don't have access to.
+    if (this->wrapsVkSecondaryCB()) {
+        return;
+    }
+
+    if (gGrDrawTextNoCache) {
+        // drawGlyphRunListNoCache lives in GrTextBlob.cpp to share sub run implementation code.
+        this->drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList);
+    } else {
+        this->drawGlyphRunListWithCache(clip, viewMatrix, glyphRunList);
     }
 }
 
