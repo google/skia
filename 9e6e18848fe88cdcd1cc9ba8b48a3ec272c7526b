@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dae49cfa_fa09bea6",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-19T19:20:19Z",
+      "side": 0,
+      "message": "I had always just assumed that this function exceeded the inline threshold, but now it\u0027s inlining. Do you know what might have changed?",
+      "range": {
+        "startLine": 46,
+        "startChar": 36,
+        "endLine": 48,
+        "endChar": 154
+      },
+      "revId": "9e6e18848fe88cdcd1cc9ba8b48a3ec272c7526b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
