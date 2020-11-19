@@ -703,26 +703,36 @@ static SkColor4f average_gradient_color(const SkColor4f colors[], const SkScalar
 
         // when pos == null, there are colorCount uniformly distributed stops, going from 0 to 1,
         // so pos[i + 1] - pos[i] = 1/(colorCount-1)
-        SkScalar w = pos ? (pos[i + 1] - pos[i])
-                         : (1.0f / (colorCount - 1));
+        SkScalar w;
+        if (pos) {
+            // Match position fixing in SkGradientShader's constructor, clamping positions outside
+            // [0, 1] and forcing the sequence to be monotonic
+            SkScalar p0 = SkTPin(pos[i], 0.f, 1.f);
+            SkScalar p1 = SkTPin(pos[i + 1], p0, 1.f);
+            w = p1 - p0;
+
+            // And account for any implicit intervals at the start or end of the positions
+            if (i == 0) {
+                if (p0 > 0.0f) {
+                    // The first color is fixed between p = 0 to pos[0], so 0.5*(ci + cj)*(pj - pi)
+                    // becomes 0.5*(c + c)*(pj - 0) = c * pj
+                    Sk4f c = Sk4f::Load(&colors[0]);
+                    blend += p0 * c;
+                }
+            }
+            if (i == colorCount - 2) {
+                if (p1 < 1.f) {
+                    // The last color is fixed between pos[n-1] to p = 1, so 0.5*(ci + cj)*(pj - pi)
+                    // becomes 0.5*(c + c)*(1 - pi) = c * (1 - pi)
+                    Sk4f c = Sk4f::Load(&colors[colorCount - 1]);
+                    blend += (1.f - p1) * c;
+                }
+            }
+        } else {
+            w = 1.f / (colorCount - 1);
+        }
 
         blend += 0.5f * w * (c1 + c0);
-    }
-
-    // Now account for any implicit intervals at the start or end of the stop definitions
-    if (pos) {
-        if (pos[0] > 0.0) {
-            // The first color is fixed between p = 0 to pos[0], so 0.5 * (ci + cj) * (pj - pi)
-            // becomes 0.5 * (c + c) * (pj - 0) = c * pj
-            Sk4f c = Sk4f::Load(&colors[0]);
-            blend += pos[0] * c;
-        }
-        if (pos[colorCount - 1] < SK_Scalar1) {
-            // The last color is fixed between pos[n-1] to p = 1, so 0.5 * (ci + cj) * (pj - pi)
-            // becomes 0.5 * (c + c) * (1 - pi) = c * (1 - pi)
-            Sk4f c = Sk4f::Load(&colors[colorCount - 1]);
-            blend += (1 - pos[colorCount - 1]) * c;
-        }
     }
 
     SkColor4f avg;
