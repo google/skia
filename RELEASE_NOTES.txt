@@ -7,6 +7,12 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Add MTLBinaryArchive parameter to GrMtlBackendContext. This allows
+    Skia to cache PipelineStates in the given archive for faster
+    shader compiles on future runs. The client must handle loading and
+    saving of the archive.
+    https://review.skia.org/333758
+
   * Deprecated enum SkYUVAInfo::PlanarConfig has been removed.
     https://review.skia.org/334161
 
