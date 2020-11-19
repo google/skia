@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6a2ffe0_e1ab2d2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T18:42:28Z",
+      "side": 1,
+      "message": "CL #6 for moving bounds tracking out of SkCanvas. Only 1 more after this one!",
+      "revId": "41a5599070f29c31e91fbfbeba4cb7f047629a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
