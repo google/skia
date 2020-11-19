@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4399ef53_c23ae96e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T19:19:02Z",
+      "side": 1,
+      "message": "Okay, now this should be ready to review. PS2 took the wrong approach, but P3 should do the trick.",
+      "revId": "fd698ea41e49e0fca8346e7a000876a408d8126d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "192a430f_91a2e04d",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T19:19:02Z",
+      "side": 1,
+      "message": "This was moved into the loop so that it had access to the pinned p0 and p1. An alternative would be to track the very first pinned p0 and the very last pinned p1 to then do this implicit interval work at the end like before, but I didn\u0027t think it was very readable.",
+      "range": {
+        "startLine": 714,
+        "startChar": 12,
+        "endLine": 730,
+        "endChar": 13
+      },
+      "revId": "fd698ea41e49e0fca8346e7a000876a408d8126d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15e6e4b2_706e58f6",
+        "filename": "tests/GradientTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T19:19:02Z",
+      "side": 1,
+      "message": "These match the values from the fuzzer test case in the linked chromium bug. I confirmed that the test fails before the fix to average_gradient_color and passes afterwards.",
+      "range": {
+        "startLine": 378,
+        "startChar": 4,
+        "endLine": 381,
+        "endChar": 75
+      },
+      "revId": "fd698ea41e49e0fca8346e7a000876a408d8126d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
