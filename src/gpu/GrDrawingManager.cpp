@@ -324,11 +324,11 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     static constexpr int kMaxRenderTasksBeforeFlush = 100;
 
     // Execute the onFlush renderTasks first, if any.
-    for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+    for (std::unique_ptr<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
         if (!onFlushRenderTask->execute(flushState)) {
             SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
-        SkASSERT(onFlushRenderTask->unique());
+//        SkASSERT(onFlushRenderTask->unique());
         onFlushRenderTask->disown(this);
         onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
@@ -375,10 +375,9 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
         if (!task) {
             continue;
         }
-        if (!task->unique() || task->requiresExplicitCleanup()) {
-            // TODO: Eventually uniqueness should be guaranteed: http://skbug.com/7111.
-            // DDLs, however, will always require an explicit notification for when they
-            // can clean up resources.
+        if (/*!task->unique()*/ task->requiresExplicitCleanup()) {
+            // DDL tasks require an explicit notification to clean up resources since the
+            // lifetime of the sub-tasks is governed by the DDL object
             task->endFlush(this);
         }
         task->disown(this);
@@ -423,7 +422,7 @@ void GrDrawingManager::closeAllTasks() {
     }
 }
 
-GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::insertTaskBeforeLast(std::unique_ptr<GrRenderTask> task) {
     SkASSERT(!fDAG.empty());
     if (!task) {
         return nullptr;
@@ -436,7 +435,7 @@ GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
     return (fDAG[fDAG.count() - 2] = std::move(task)).get();
 }
 
-GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::appendTask(std::unique_ptr<GrRenderTask> task) {
     if (!task) {
         return nullptr;
     }
@@ -624,10 +623,10 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     }
 
     // Add a task to handle drawing and lifetime management of the DDL.
-    SkDEBUGCODE(auto ddlTask =) this->appendTask(sk_make_sp<GrDDLTask>(this,
-                                                                       sk_ref_sp(newDest),
-                                                                       std::move(ddl),
-                                                                       offset));
+    SkDEBUGCODE(auto ddlTask =) this->appendTask(std::make_unique<GrDDLTask>(this,
+                                                                             sk_ref_sp(newDest),
+                                                                             std::move(ddl),
+                                                                             offset));
     SkASSERT(ddlTask->isClosed());
 
     SkDEBUGCODE(this->validate());
@@ -675,9 +674,10 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     GrSurfaceProxy* proxy = surfaceView.proxy();
     this->closeRenderTasksForNewRenderTask(proxy);
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas(),
-                                           std::move(surfaceView),
-                                           fContext->priv().auditTrail()));
+    std::unique_ptr<GrOpsTask> opsTask = std::make_unique<GrOpsTask>(this,
+                                                                     fContext->priv().arenas(),
+                                                                     std::move(surfaceView),
+                                                                     fContext->priv().auditTrail());
     SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
 
     if (managedOpsTask) {
