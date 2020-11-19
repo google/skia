@@ -45,9 +45,8 @@ public:
 
     void freeGpuResources();
 
-    // A managed opsTask is controlled by the drawing manager (i.e., sorted & flushed with the
-    // others). An unmanaged one is created and used by the onFlushCallback.
-    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool managedOpsTask);
+    // OpsTasks created at flush time are stored and handled different from the others.
+    sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool flushTimeOpsTask);
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call

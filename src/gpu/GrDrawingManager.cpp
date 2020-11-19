@@ -676,7 +676,7 @@ void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) 
 }
 
 sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
-                                              bool managedOpsTask) {
+                                              bool flushTimeOpsTask) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
@@ -688,7 +688,9 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
                                            fContext->priv().auditTrail()));
     SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
 
-    if (managedOpsTask) {
+    if (flushTimeOpsTask) {
+        fOnFlushRenderTasks.push_back(opsTask);
+    } else {
         this->appendTask(opsTask);
 
         if (!fReduceOpsTaskSplitting) {
