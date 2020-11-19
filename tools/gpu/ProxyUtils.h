@@ -28,7 +28,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext*,
 
 GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  SkArenaAlloc*,
-                                 const GrSurfaceProxyView* writeView,
+                                 const GrSurfaceProxyView& writeView,
                                  GrAppliedClip&&,
                                  const GrXferProcessor::DstProxyView&,
                                  GrGeometryProcessor*,

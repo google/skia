@@ -35,7 +35,7 @@ protected:
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
     void prePrepareColorProgram(SkArenaAlloc* arena, GrStrokeTessellateShader*,
-                                const GrSurfaceProxyView*, GrAppliedClip&&, const
+                                const GrSurfaceProxyView&, GrAppliedClip&&, const
                                 GrXferProcessor::DstProxyView&, GrXferBarrierFlags, const GrCaps&);
 
     static float NumCombinedSegments(float numParametricSegments, float numRadialSegments) {

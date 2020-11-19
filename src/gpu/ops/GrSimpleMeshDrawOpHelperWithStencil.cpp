@@ -47,7 +47,7 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
 GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil(
                                             const GrCaps* caps,
                                             SkArenaAlloc* arena,
-                                            const GrSurfaceProxyView* writeViewSwizzle,
+                                            const GrSurfaceProxyView& writeViewSwizzle,
                                             GrAppliedClip&& appliedClip,
                                             const GrXferProcessor::DstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,

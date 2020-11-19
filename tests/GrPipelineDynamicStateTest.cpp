@@ -143,7 +143,7 @@ private:
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
@@ -162,7 +162,7 @@ private:
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->proxy()->backendFormat(),
-                                  flushState->writeView()->origin(),
+                                  flushState->writeView().origin(),
                                   &pipeline,
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,
