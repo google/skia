@@ -102,7 +102,7 @@ private:
     // Create a GrProgramInfo object in the provided arena
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers) final;
@@ -852,7 +852,7 @@ GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
 
 void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       SkArenaAlloc* arena,
-                                      const GrSurfaceProxyView* writeView,
+                                      const GrSurfaceProxyView& writeView,
                                       GrAppliedClip&& appliedClip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers) {

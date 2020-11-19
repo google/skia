@@ -876,17 +876,17 @@ public:
 
 private:
     void makeLineProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              const SkMatrix* geometryProcessorViewM,
                              const SkMatrix* geometryProcessorLocalM,
                              GrXferBarrierFlags renderPassXferBarriers);
     void makeQuadProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              const SkMatrix* geometryProcessorViewM,
                              const SkMatrix* geometryProcessorLocalM,
                              GrXferBarrierFlags renderPassXferBarriers);
     void makeConicProgramInfo(const GrCaps&, SkArenaAlloc*, const GrPipeline*,
-                              const GrSurfaceProxyView* writeView,
+                              const GrSurfaceProxyView& writeView,
                               const SkMatrix* geometryProcessorViewM,
                               const SkMatrix* geometryProcessorLocalM,
                               GrXferBarrierFlags renderPassXferBarriers);
@@ -902,13 +902,13 @@ private:
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* writeView,
+                           const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&,
                            GrXferBarrierFlags renderPassXferBarriers) override;
@@ -992,7 +992,7 @@ GR_MAKE_BITFIELD_OPS(AAHairlineOp::Program)
 
 void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                        const GrPipeline* pipeline,
-                                       const GrSurfaceProxyView* writeView,
+                                       const GrSurfaceProxyView& writeView,
                                        const SkMatrix* geometryProcessorViewM,
                                        const SkMatrix* geometryProcessorLocalM,
                                        GrXferBarrierFlags renderPassXferBarriers) {
@@ -1024,7 +1024,7 @@ void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 
 void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                        const GrPipeline* pipeline,
-                                       const GrSurfaceProxyView* writeView,
+                                       const GrSurfaceProxyView& writeView,
                                        const SkMatrix* geometryProcessorViewM,
                                        const SkMatrix* geometryProcessorLocalM,
                                        GrXferBarrierFlags renderPassXferBarriers) {
@@ -1048,7 +1048,7 @@ void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 
 void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
                                         const GrPipeline* pipeline,
-                                        const GrSurfaceProxyView* writeView,
+                                        const GrSurfaceProxyView& writeView,
                                         const SkMatrix* geometryProcessorViewM,
                                         const SkMatrix* geometryProcessorLocalM,
                                         GrXferBarrierFlags renderPassXferBarriers) {
@@ -1098,7 +1098,7 @@ AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
 
 void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                        SkArenaAlloc* arena,
-                                       const GrSurfaceProxyView* writeView,
+                                       const GrSurfaceProxyView& writeView,
                                        GrAppliedClip&& appliedClip,
                                        const GrXferProcessor::DstProxyView& dstProxyView,
                                        GrXferBarrierFlags renderPassXferBarriers) {
@@ -1117,7 +1117,7 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
         geometryProcessorLocalM = &SkMatrix::I();
     }
 
-    auto pipeline = fHelper.createPipeline(caps, arena, writeView->swizzle(),
+    auto pipeline = fHelper.createPipeline(caps, arena, writeView.swizzle(),
                                            std::move(appliedClip), dstProxyView);
 
     if (fCharacterization & kLine_Program) {
@@ -1139,7 +1139,7 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
 }
 
 void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
-                                     const GrSurfaceProxyView* writeView,
+                                     const GrSurfaceProxyView& writeView,
                                      GrAppliedClip* clip,
                                      const GrXferProcessor::DstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers) {

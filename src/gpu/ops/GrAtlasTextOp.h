@@ -112,7 +112,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers) override {
@@ -122,7 +122,7 @@ private:
     }
 
     void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* writeView,
+                           const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&,
                            GrXferBarrierFlags renderPassXferBarriers) override {

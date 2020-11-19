@@ -65,12 +65,12 @@ private:
     GrProgramInfo* programInfo() override { return nullptr; }
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrePrepareDraws(GrRecordingContext*,
-                           const GrSurfaceProxyView* writeView,
+                           const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&,
                            GrXferBarrierFlags renderPassXferBarriers) override {}

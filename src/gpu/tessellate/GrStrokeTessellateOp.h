@@ -30,7 +30,7 @@ private:
             : GrStrokeOp(ClassID(), aaType, viewMatrix, stroke, path, std::move(paint)) {
     }
 
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags) override;
 
     enum class JoinType {

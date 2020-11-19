@@ -135,7 +135,7 @@ public:
 
     static GrProgramInfo* CreateProgramInfo(SkArenaAlloc*,
                                             const GrPipeline*,
-                                            const GrSurfaceProxyView* writeView,
+                                            const GrSurfaceProxyView& writeView,
                                             GrGeometryProcessor*,
                                             GrPrimitiveType,
                                             GrXferBarrierFlags renderPassXferBarriers,
@@ -147,7 +147,7 @@ public:
     //     it has no dynamic state besides the scissor clip
     static GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                             SkArenaAlloc*,
-                                            const GrSurfaceProxyView* writeView,
+                                            const GrSurfaceProxyView& writeView,
                                             GrAppliedClip&&,
                                             const GrXferProcessor::DstProxyView&,
                                             GrGeometryProcessor*,
@@ -161,7 +161,7 @@ public:
 
     GrProgramInfo* createProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
-                                     const GrSurfaceProxyView* writeView,
+                                     const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&,
                                      GrGeometryProcessor*,

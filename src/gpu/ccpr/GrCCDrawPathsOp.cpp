@@ -449,7 +449,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     GrPipeline::InitArgs initArgs;
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
-    initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
+    initArgs.fWriteSwizzle = flushState->drawOpArgs().writeView().swizzle();
     auto clip = flushState->detachAppliedClip();
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
