@@ -34,16 +34,13 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
 
     auto renderTargetContext = GrRenderTargetContext::Make(
             context, colorType, std::move(colorSpace), std::move(proxy),
-            origin, props, false);
+            origin, props, true);
 
     if (!renderTargetContext) {
         return nullptr;
     }
 
     renderTargetContext->discard();
-
-    // FIXME: http://skbug.com/9357: This breaks if the renderTargetContext splits its opsTask.
-    fDrawingMgr->fOnFlushRenderTasks.push_back(sk_ref_sp(renderTargetContext->getOpsTask()));
 
     return renderTargetContext;
 }
