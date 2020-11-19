@@ -52,7 +52,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
                                             const GrXferProcessor::DstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
                                             GrPrimitiveType primType,
-                                            GrXferBarrierFlags renderPassXferBarriers) {
+                                            GrXferBarrierFlags renderPassXferBarriers,
+                                            GrLoadOp colorLoadOp) {
     return CreateProgramInfo(caps,
                              arena,
                              writeViewSwizzle,
@@ -62,6 +63,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
                              this->detachProcessorSet(),
                              primType,
                              renderPassXferBarriers,
+                             colorLoadOp,
                              this->pipelineFlags(),
                              this->stencilSettings());
 }

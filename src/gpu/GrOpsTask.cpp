@@ -454,7 +454,8 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
                                      &fTargets[0],
                                      chain.appliedClip(),
                                      chain.dstProxyView(),
-                                     fRenderPassXferBarriers);
+                                     fRenderPassXferBarriers,
+                                     fColorLoadOp);
         }
     }
 }
@@ -484,7 +485,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
                                           &fTargets[0],
                                           chain.appliedClip(),
                                           chain.dstProxyView(),
-                                          fRenderPassXferBarriers);
+                                          fRenderPassXferBarriers,
+                                          fColorLoadOp);
 
             flushState->setOpArgs(&opArgs);
 
@@ -636,7 +638,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                                       &fTargets[0],
                                       chain.appliedClip(),
                                       chain.dstProxyView(),
-                                      fRenderPassXferBarriers);
+                                      fRenderPassXferBarriers,
+                                      fColorLoadOp);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());
