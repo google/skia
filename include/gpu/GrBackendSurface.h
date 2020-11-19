@@ -291,7 +291,7 @@ public:
 
     // Call this to indicate that the texture parameters have been modified in the GL context
     // externally to GrContext.
-    void glTextureParametersModified();
+    void glTextureParametersModified(bool just_mag = false);
 
 #ifdef SK_DAWN
     // If the backend API is Dawn, copies a snapshot of the GrDawnTextureInfo struct into the passed
@@ -596,4 +596,3 @@ private:
 #endif
 
 #endif
-
