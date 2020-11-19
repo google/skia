@@ -585,13 +585,20 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
     }
 }
 
-static inline bool is_ieee_float_inside_0_1_exclusive(float x) {
-    constexpr static uint32_t kIEEE_one = 127 << 23;
-    return sk_bit_cast<uint32_t>(x) - 1 < kIEEE_one - 1;
-}
-
 int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2]) {
     using grvx::float2;
+
+    // If a chop falls within a distance of "kEpsilon" from 0 or 1, throw it out. Tangents become
+    // unstable when we chop too close to the boundary. This works out because the tessellation
+    // shaders don't allow more than 2^10 parametric segments, and they snap the beginning and
+    // ending edges at 0 and 1. So if we overstep an inflection or point of 180-degree rotation by a
+    // fraction of a tessellation segment, it just gets snapped.
+    constexpr static float kEpsilon = 1.f / (1 << 12);
+    // Floating-point representation of "1 - 2*kEpsilon".
+    constexpr static uint32_t kIEEE_one_minus_2_epsilon = (127 << 23) - 2*(1 << 12);
+    // Unfortunately we don't have a way to static_assert this, but we can runtime assert that the
+    // kIEEE_one_minus_2_epsilon bits are correct.
+    SkASSERT(sk_bit_cast<float>(kIEEE_one_minus_2_epsilon) == 1 - 2*kEpsilon);
 
     float2 p0 = skvx::bit_pun<float2>(pts[0]);
     float2 p1 = skvx::bit_pun<float2>(pts[1]);
@@ -642,7 +649,8 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2]) {
             // convex-180 if any points are colocated, and T[0] will equal NaN which returns 0
             // chops.
             float root = sk_ieee_float_divide(c, b_over_minus_2);
-            if (is_ieee_float_inside_0_1_exclusive(root)) {
+            // Is "root" inside the range [epsilon, 1 - epsilon)?
+            if (sk_bit_cast<uint32_t>(root - kEpsilon) < kIEEE_one_minus_2_epsilon) {
                 T[0] = root;
                 return 1;
             }
@@ -673,7 +681,7 @@ int GrPathUtils::findCubicConvex180Chops(const SkPoint pts[], float T[2]) {
     q = q + b_over_minus_2;
     float2 roots = float2{q,c} / float2{a,q};
 
-    auto inside = (roots > 0) & (roots < 1);
+    auto inside = (roots > kEpsilon) & (roots < (1 - kEpsilon));
     if (inside[0]) {
         if (inside[1] && roots[0] != roots[1]) {
             if (roots[0] > roots[1]) {
