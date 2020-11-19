@@ -107,13 +107,13 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
 }
 
-auto GrAtlasTextOp::Geometry::Make(GrRecordingContext* rc,
-                                   const GrAtlasSubRun& subRun,
-                                   const SkMatrix& drawMatrix,
-                                   SkPoint drawOrigin,
-                                   SkIRect clipRect,
-                                   sk_sp<GrTextBlob> blob,
-                                   const SkPMColor4f& color) -> Geometry* {
+auto GrAtlasTextOp::Geometry::MakeForBlob(GrRecordingContext* rc,
+                                          const GrAtlasSubRun& subRun,
+                                          const SkMatrix& drawMatrix,
+                                          SkPoint drawOrigin,
+                                          SkIRect clipRect,
+                                          sk_sp<GrTextBlob> blob,
+                                          const SkPMColor4f& color) -> Geometry* {
     auto arena = rc->priv().recordTimeAllocator();
     // Bypass the automatic dtor behavior in SkArenaAlloc. I'm leaving this up to the Op to run
     // all geometry dtors for now.
@@ -123,10 +123,9 @@ auto GrAtlasTextOp::Geometry::Make(GrRecordingContext* rc,
                               drawOrigin,
                               clipRect,
                               std::move(blob),
+                              nullptr,
                               color};
 }
-
-
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
     SkMatrix positionMatrix = fDrawMatrix;
@@ -287,7 +286,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     for (const Geometry* geo = fHead; geo != nullptr; geo = geo->fNext) {
         const GrAtlasSubRun& subRun = geo->fSubRun;
-        SkASSERT((int) subRun.vertexStride(geo->fDrawMatrix) == vertexStride);
+        SkASSERTF((int) subRun.vertexStride(geo->fDrawMatrix) == vertexStride,
+                  "subRun stride: %d vertex buffer stride: %d\n",
+                  (int)subRun.vertexStride(geo->fDrawMatrix), vertexStride);
 
         const int subRunEnd = subRun.glyphCount();
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
@@ -522,7 +523,8 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
     GrAtlasSubRun* subRun = blob->subRunList().front().testingOnly_atlasSubRun();
     SkASSERT(subRun);
     GrOp::Owner op;
-    std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
+    std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
+            nullptr, mtxProvider, glyphRunList, rtc, nullptr);
     return op;
 }
 
