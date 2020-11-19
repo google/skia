@@ -16,6 +16,24 @@
       "message": "This is still causing a rapid increase in cache memory usage for RTL text editing.  Once the text exceeds NOCACHE_PREFIX_LENGTH, then every time you add another word or two the delta since the last cache entry will exceed NOCACHE_TEXT_DELTA.  So another cache entry will be added, and because it\u0027s RTL that entry will duplicate all the runs that were created for each word in the text.\n\nWould it be safe to remove the delta check?\n\nI\u0027d also be curious to try checking both the first and last characters of the old and new strings.  If either the prefix or suffix is identical, then skip the cache.  This will avoid excess cache insertions if the start of the text is being edited.",
       "revId": "860aeecac05ec6ae803c7c4dcbb99f7916356930",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b061d4f_0cb975b6",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-19T23:16:34Z",
+      "side": 1,
+      "message": "I think it\u0027s safe for real life examples.\nHowever, if a performance test is written in a certain manner (incrementing the text, for instance), it would show really bad results.",
+      "parentUuid": "7278c3dc_438efe41",
+      "revId": "860aeecac05ec6ae803c7c4dcbb99f7916356930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
