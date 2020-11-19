@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "518d80cb_65a264c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-19T19:48:45Z",
+      "side": 1,
+      "message": "This is not a good solution for a long run. SkStrikeCache looks like a good pattern for what I need but the caching approach should change anyway (for instance, caching SkShaper runs rather than SkParagraphs). For now I would like to do the minimum just to satisfy Flutter requirements.\nI will come back to it later.",
+      "parentUuid": "f78512df_5e6130d8",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c86369af_26c6465a",
@@ -48,6 +66,24 @@
       "writtenOn": "2020-11-18T17:28:35Z",
       "side": 1,
       "message": "If this isn\u0027t needed or used right now, why add it?",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02d5b657_18351454",
+        "filename": "modules/skparagraph/src/ParagraphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-19T19:48:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c86369af_26c6465a",
       "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
