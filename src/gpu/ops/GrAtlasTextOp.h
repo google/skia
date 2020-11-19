@@ -21,7 +21,9 @@ public:
 
     ~GrAtlasTextOp() override {
         for (const auto& g : fGeometries.items()) {
-            g.fBlob->unref();
+            if (g.fBlob != nullptr) {
+                g.fBlob->unref();
+            }
         }
     }
 
