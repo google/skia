@@ -138,13 +138,13 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
 #if SK_SUPPORT_GPU
 void SkGlyphRunListPainter::processGlyphRun(const SkGlyphRun& glyphRun,
-                                                const SkMatrix& drawMatrix,
-                                                SkPoint drawOrigin,
-                                                const SkPaint& runPaint,
-                                                const SkSurfaceProps& props,
-                                                bool contextSupportsDistanceFieldText,
-                                                const GrSDFTOptions& options,
-                                                SkGlyphRunPainterInterface* process) {
+                                            const SkMatrix& drawMatrix,
+                                            SkPoint drawOrigin,
+                                            const SkPaint& runPaint,
+                                            const SkSurfaceProps& props,
+                                            bool contextSupportsDistanceFieldText,
+                                            const GrSDFTOptions& options,
+                                            SkGlyphRunPainterInterface* process) {
     ScopedBuffers _ = this->ensureBuffers(glyphRun);
     fRejects.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
