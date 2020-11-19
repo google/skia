@@ -122,9 +122,6 @@ func (b *jobBuilder) genTasksForJob() {
 	} else if b.extraConfig("PushAppsFromWASMDockerImage") {
 		b.createPushAppsFromWASMDockerImage()
 		return
-	} else if b.extraConfig("PushAppsFromSkiaWASMDockerImages") {
-		b.createPushAppsFromSkiaWASMDockerImages()
-		return
 	}
 
 	// Infra tests.
