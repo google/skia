@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37bb5143_19ae193e",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-19T17:10:04Z",
+      "side": 1,
+      "message": "Note: After review.skia.org/336451 this will just be this-\u003etarget(0). For right now it wants a mutable pointer :(",
+      "revId": "d802bf27430558e96bfb6e4b5b6c5423f8cb2a24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
