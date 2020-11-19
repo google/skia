@@ -1,0 +1,35 @@
+/*#pragma settings Default*/
+
+in half4 src, dst;
+
+void main() {
+    sk_FragColor = blend_clear(src, dst);
+    sk_FragColor = blend_src(src, dst);
+    sk_FragColor = blend_dst(src, dst);
+    sk_FragColor = blend_src_over(src, dst);
+    sk_FragColor = blend_dst_over(src, dst);
+    sk_FragColor = blend_src_in(src, dst);
+    sk_FragColor = blend_dst_in(src, dst);
+    sk_FragColor = blend_src_out(src, dst);
+    sk_FragColor = blend_dst_out(src, dst);
+    sk_FragColor = blend_src_atop(src, dst);
+    sk_FragColor = blend_dst_atop(src, dst);
+    sk_FragColor = blend_xor(src, dst);
+    sk_FragColor = blend_plus(src, dst);
+    sk_FragColor = blend_modulate(src, dst);
+    sk_FragColor = blend_screen(src, dst);
+    sk_FragColor = blend_overlay(src, dst);
+    sk_FragColor = blend_darken(src, dst);
+    sk_FragColor = blend_lighten(src, dst);
+    sk_FragColor = blend_color_dodge(src, dst);
+    sk_FragColor = blend_color_burn(src, dst);
+    sk_FragColor = blend_hard_light(src, dst);
+    sk_FragColor = blend_soft_light(src, dst);
+    sk_FragColor = blend_difference(src, dst);
+    sk_FragColor = blend_exclusion(src, dst);
+    sk_FragColor = blend_multiply(src, dst);
+    sk_FragColor = blend_hue(src, dst);
+    sk_FragColor = blend_saturation(src, dst);
+    sk_FragColor = blend_color(src, dst);
+    sk_FragColor = blend_luminosity(src, dst);
+}
