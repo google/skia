@@ -16,6 +16,29 @@
       "message": "CL #6 for moving bounds tracking out of SkCanvas. Only 1 more after this one!",
       "revId": "41a5599070f29c31e91fbfbeba4cb7f047629a40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c71b1a8e_b768d76e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-19T19:50:51Z",
+      "side": 1,
+      "message": "unrelated to this CL, but:\n\nwhy is stashed not 4x4?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 41,
+        "endLine": 1154,
+        "endChar": 9
+      },
+      "revId": "41a5599070f29c31e91fbfbeba4cb7f047629a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
