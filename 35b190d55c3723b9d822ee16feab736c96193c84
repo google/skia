@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "878593b6_928d680a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2020-11-19T22:02:23Z",
+      "side": 1,
+      "message": "I would also prefer to reduce the fixed minimum size of a Run.  Most text runs are a lot shorter than 128 glyphs, and it\u0027s common for runs to be as short as 1 glyph for an icon.\n\nThe large size of a Run is especially expensive for RTL text, where SkParagraph is dividing the text into one run for each word.",
+      "parentUuid": "518d80cb_65a264c5",
+      "revId": "35b190d55c3723b9d822ee16feab736c96193c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c86369af_26c6465a",
