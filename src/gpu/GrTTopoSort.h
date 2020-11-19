@@ -13,7 +13,7 @@
 
 #ifdef SK_DEBUG
 template <typename T, typename Traits = T>
-void GrTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
+void GrTTopoSort_CheckAllUnmarked(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(!Traits::WasOutput(graph[i].get()));
@@ -21,7 +21,7 @@ void GrTTopoSort_CheckAllUnmarked(const SkTArray<sk_sp<T>>& graph) {
 }
 
 template <typename T, typename Traits = T>
-void GrTTopoSort_CleanExit(const SkTArray<sk_sp<T>>& graph) {
+void GrTTopoSort_CleanExit(const SkTArray<std::unique_ptr<T>>& graph) {
     for (int i = 0; i < graph.count(); ++i) {
         SkASSERT(!Traits::IsTempMarked(graph[i].get()));
         SkASSERT(Traits::WasOutput(graph[i].get()));
@@ -82,7 +82,7 @@ bool GrTTopoSort_Visit(T* node, uint32_t* counter) {
 // node and all the nodes on which it depends. This could be used to partially
 // flush a GrRenderTask DAG.
 template <typename T, typename Traits = T>
-bool GrTTopoSort(SkTArray<sk_sp<T>>* graph) {
+bool GrTTopoSort(SkTArray<std::unique_ptr<T>>* graph) {
     uint32_t counter = 0;
 
 #ifdef SK_DEBUG
