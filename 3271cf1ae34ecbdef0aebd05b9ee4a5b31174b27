@@ -34,6 +34,24 @@
       "parentUuid": "9f93d0cd_c7e50b83",
       "revId": "3271cf1ae34ecbdef0aebd05b9ee4a5b31174b27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8d4f995_3479f250",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T18:06:53Z",
+      "side": 0,
+      "message": "Yes, that\u0027s the idea. We\u0027re either operating on Program::fOwnedElements, if we came via convertProgram, or a module\u0027s elements, via parseModule.\n\nAside: There appear to be two remaining issues here - the .fp results aren\u0027t actually stable - they keep changing as I re-run. And whatever is up with CPU tests crashing (probably initializing the compiler with no caps). Going to keep debugging...",
+      "parentUuid": "019549e8_141edc24",
+      "revId": "3271cf1ae34ecbdef0aebd05b9ee4a5b31174b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
