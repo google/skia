@@ -254,6 +254,9 @@ private:
 //        space.
 //      * SDFTSubRun - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
+
+class GrAtlasSubRun;
+using GrAtlasSubRunOwner = std::unique_ptr<GrAtlasSubRun, GrSubRunAllocator::Destroyer>;
 class GrAtlasSubRun  {
 public:
     static constexpr int kVerticesPerGlyph = 4;
@@ -264,10 +267,12 @@ public:
     virtual int glyphCount() const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
-    makeAtlasTextOp(const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    const SkGlyphRunList& glyphRunList,
-                    GrSurfaceDrawContext* rtc) const = 0;
+    makeAtlasTextOp(
+            const GrClip* clip,
+            const SkMatrixProvider& viewMatrix,
+            const SkGlyphRunList& glyphRunList,
+            GrSurfaceDrawContext* rtc,
+            GrAtlasSubRunOwner subRun) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& positionMatrix,
@@ -290,6 +295,8 @@ public:
 //   * TransformedMaskSubRun - handle large bitmap/argb glyphs that need to be scaled to the screen.
 //   * SDFTSubRun - use signed distance fields to draw largish glyphs to the screen.
 //   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
+class GrSubRun;
+using GrSubRunOwner = std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>;
 class GrSubRun {
 public:
     virtual ~GrSubRun() = default;
@@ -308,7 +315,7 @@ public:
     // * Don't use this API. It is only to support testing.
     virtual GrAtlasSubRun* testingOnly_atlasSubRun() = 0;
 
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fNext;
+    GrSubRunOwner fNext;
 };
 
 struct GrSubRunList {
@@ -342,8 +349,8 @@ struct GrSubRunList {
     Iterator end() const { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer> fHead{nullptr};
-    std::unique_ptr<GrSubRun, GrSubRunAllocator::Destroyer>* fTail{&fHead};
+    GrSubRunOwner fHead{nullptr};
+    GrSubRunOwner* fTail{&fHead};
 };
 
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
@@ -478,4 +485,32 @@ private:
 
     bool fSomeGlyphsExcluded{false};
 };
+
+class GrSubRunNoCachePainter : public SkGlyphRunPainterInterface {
+public:
+    GrSubRunNoCachePainter(GrSurfaceDrawContext* sdc,
+                           GrSubRunAllocator* alloc,
+                           const GrClip* clip,
+                           const SkMatrixProvider& viewMatrix,
+                           const SkGlyphRunList& glyphRunList);
+    void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                            const SkStrikeSpec& strikeSpec) override;
+    void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                            const SkStrikeSpec& strikeSpec) override;
+    void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                            const SkFont& runFont, const SkStrikeSpec& strikeSpec) override;
+    void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                           const SkStrikeSpec& strikeSpec, const SkFont& runFont,
+                           SkScalar minScale, SkScalar maxScale) override;
+private:
+    // Draw passes ownership to the op.
+    void draw(GrAtlasSubRunOwner subRun);
+
+    GrSurfaceDrawContext* const fSDC;
+    GrSubRunAllocator* const fAlloc;
+    const GrClip* const fClip;
+    const SkMatrixProvider& fViewMatrix;
+    const SkGlyphRunList& fGlyphRunList;
+};
+
 #endif  // GrTextBlob_DEFINED
