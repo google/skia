@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c254f16_ad688586",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-19T15:29:45Z",
+      "side": 1,
+      "message": "Trying to fix that now but I\u0027m pretty hobbled without working Goma.",
+      "parentUuid": "f3ef79bf_a945680b",
+      "revId": "bdcd3c4e4e20516bf794a46803407dc1203bc930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2488dd62_6858b47c",
