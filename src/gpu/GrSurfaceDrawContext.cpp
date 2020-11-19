@@ -349,6 +349,7 @@ static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
     return canonicalColor;
 }
 
+bool gGrDrawTextNoCache = false;
 void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
                                             const SkMatrixProvider& viewMatrix,
                                             const SkGlyphRunList& glyphRunList) {
@@ -364,86 +365,90 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
         return;
     }
 
-    GrSDFTOptions options = fContext->priv().SDFTOptions();
-    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
+    if (gGrDrawTextNoCache) {
+        drawGlyphRunListNoCache(clip, viewMatrix, glyphRunList);
+    } else {
+        GrSDFTOptions options = fContext->priv().SDFTOptions();
+        GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
 
-    // Get the first paint to use as the key paint.
-    const SkPaint& drawPaint = glyphRunList.paint();
+        // Get the first paint to use as the key paint.
+        const SkPaint& drawPaint = glyphRunList.paint();
 
-    SkMaskFilterBase::BlurRec blurRec;
-    // It might be worth caching these things, but its not clear at this time
-    // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
-    const SkMaskFilter* mf = drawPaint.getMaskFilter();
-    bool canCache = glyphRunList.canCache() &&
-            !(drawPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
+        SkMaskFilterBase::BlurRec blurRec;
+        // It might be worth caching these things, but its not clear at this time
+        // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
+        const SkMaskFilter* mf = drawPaint.getMaskFilter();
+        bool canCache = glyphRunList.canCache() &&
+                !(drawPaint.getPathEffect() || (mf && !as_MFB(mf)->asABlur(&blurRec)));
 
-    // If we're doing linear blending, then we can disable the gamma hacks.
-    // Otherwise, leave them on. In either case, we still want the contrast boost:
-    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
-    SkScalerContextFlags scalerContextFlags = this->colorInfo().isLinearlyBlended()
-                                              ? SkScalerContextFlags::kBoostContrast
-                                              : SkScalerContextFlags::kFakeGammaAndBoostContrast;
+        // If we're doing linear blending, then we can disable the gamma hacks.
+        // Otherwise, leave them on. In either case, we still want the contrast boost:
+        // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+        SkScalerContextFlags scalerContextFlags =
+                this->colorInfo().isLinearlyBlended()
+                ? SkScalerContextFlags::kBoostContrast
+                : SkScalerContextFlags::kFakeGammaAndBoostContrast;
 
-    sk_sp<GrTextBlob> blob;
-    GrTextBlob::Key key;
-    if (canCache) {
-        bool hasLCD = glyphRunList.anyRunsLCD();
-
-        // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
-        SkPixelGeometry pixelGeometry =
-                hasLCD ? fSurfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
-
-        GrColor canonicalColor = compute_canonical_color(drawPaint, hasLCD);
-
-        key.fPixelGeometry = pixelGeometry;
-        key.fUniqueID = glyphRunList.uniqueID();
-        key.fStyle = drawPaint.getStyle();
-        if (key.fStyle != SkPaint::kFill_Style) {
-            key.fFrameWidth = drawPaint.getStrokeWidth();
-            key.fMiterLimit = drawPaint.getStrokeMiter();
-            key.fJoin = drawPaint.getStrokeJoin();
-        }
-        key.fHasBlur = SkToBool(mf);
-        if (key.fHasBlur) {
-            key.fBlurRec = blurRec;
-        }
-        key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = scalerContextFlags;
-        blob = textBlobCache->find(key);
-    }
-
-    SkMatrix drawMatrix(viewMatrix.localToDevice());
-    SkPoint drawOrigin = glyphRunList.origin();
-    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-    if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
-        if (blob != nullptr) {
-            // We have to remake the blob because changes may invalidate our masks.
-            // TODO we could probably get away with reuse most of the time if the pointer is unique,
-            //      but we'd have to clear the SubRun information
-            textBlobCache->remove(blob.get());
-        }
-
-        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-        bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
-        blob->makeSubRuns(&fGlyphPainter,
-                          glyphRunList,
-                          viewMatrix.localToDevice(),
-                          drawOrigin,
-                          drawPaint,
-                          fSurfaceProps,
-                          supportsSDFT,
-                          options);
-
+        sk_sp<GrTextBlob> blob;
+        GrTextBlob::Key key;
         if (canCache) {
-            blob->addKey(key);
-            // The blob may already have been created on a different thread. Use the first one
-            // that was there.
-            blob = textBlobCache->addOrReturnExisting(glyphRunList, blob);
-        }
-    }
+            bool hasLCD = glyphRunList.anyRunsLCD();
 
-    for (const GrSubRun& subRun : blob->subRunList()) {
-        subRun.draw(clip, viewMatrix, glyphRunList, this);
+            // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
+            SkPixelGeometry pixelGeometry =
+                    hasLCD ? fSurfaceProps.pixelGeometry() : kUnknown_SkPixelGeometry;
+
+            GrColor canonicalColor = compute_canonical_color(drawPaint, hasLCD);
+
+            key.fPixelGeometry = pixelGeometry;
+            key.fUniqueID = glyphRunList.uniqueID();
+            key.fStyle = drawPaint.getStyle();
+            if (key.fStyle != SkPaint::kFill_Style) {
+                key.fFrameWidth = drawPaint.getStrokeWidth();
+                key.fMiterLimit = drawPaint.getStrokeMiter();
+                key.fJoin = drawPaint.getStrokeJoin();
+            }
+            key.fHasBlur = SkToBool(mf);
+            if (key.fHasBlur) {
+                key.fBlurRec = blurRec;
+            }
+            key.fCanonicalColor = canonicalColor;
+            key.fScalerContextFlags = scalerContextFlags;
+            blob = textBlobCache->find(key);
+        }
+
+        SkMatrix drawMatrix(viewMatrix.localToDevice());
+        SkPoint drawOrigin = glyphRunList.origin();
+        drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+        if (blob == nullptr || !blob->canReuse(drawPaint, drawMatrix)) {
+            if (blob != nullptr) {
+                // We have to remake the blob because changes may invalidate our masks.
+                // TODO we could probably get away with reuse most of the time if the pointer is
+                //  unique, but we'd have to clear the SubRun information
+                textBlobCache->remove(blob.get());
+            }
+
+            blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+            bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
+            blob->makeSubRuns(&fGlyphPainter,
+                              glyphRunList,
+                              viewMatrix.localToDevice(),
+                              drawOrigin,
+                              drawPaint,
+                              fSurfaceProps,
+                              supportsSDFT,
+                              options);
+            if (canCache) {
+                blob->addKey(key);
+                // The blob may already have been created on a different thread. Use the first one
+                // that was there.
+                blob = textBlobCache->addOrReturnExisting(glyphRunList, blob);
+            }
+        }
+
+        for (const GrSubRun& subRun : blob->subRunList()) {
+            subRun.draw(clip, viewMatrix, glyphRunList, this);
+        }
     }
 }
 
