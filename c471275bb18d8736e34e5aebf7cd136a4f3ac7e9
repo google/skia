@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b337bd60_d21d46c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-19T19:50:16Z",
+      "side": 1,
+      "message": "lgtm! This fixes the concern I had when I filed the bug",
+      "revId": "c471275bb18d8736e34e5aebf7cd136a4f3ac7e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
