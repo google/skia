@@ -248,19 +248,6 @@ std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
     return clone;
 }
 
-bool is_trivial_argument(const Expression& argument) {
-    return argument.is<VariableReference>() ||
-           (argument.is<Swizzle>() && is_trivial_argument(*argument.as<Swizzle>().base())) ||
-           (argument.is<FieldAccess>() &&
-            is_trivial_argument(*argument.as<FieldAccess>().base())) ||
-           (argument.is<Constructor>() &&
-            argument.as<Constructor>().arguments().size() == 1 &&
-            is_trivial_argument(*argument.as<Constructor>().arguments().front())) ||
-           (argument.is<IndexExpression>() &&
-            argument.as<IndexExpression>().index()->is<IntLiteral>() &&
-            is_trivial_argument(*argument.as<IndexExpression>().base()));
-}
-
 }  // namespace
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
@@ -685,7 +672,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
 
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
-        if (is_trivial_argument(*arguments[i])) {
+        if (Analysis::IsTrivialExpression(*arguments[i])) {
             // ... and it's an `out` param, or it isn't written to within the inline function...
             if (isOutParam || !Analysis::StatementWritesToVariable(*function.body(), *param)) {
                 // ... we don't need to copy it at all! We can just use the existing expression.

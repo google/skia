@@ -1178,7 +1178,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     const Expression& baseArg = *base.arguments()[constructorArgIndex];
 
                     // Check that non-trivial expressions are not swizzled in more than once.
-                    if (exprUsed[constructorArgIndex] > 1 && !baseArg.isConstantOrUniform()) {
+                    if (exprUsed[constructorArgIndex] > 1 &&
+                            !Analysis::IsTrivialExpression(baseArg)) {
                         safeToOptimize = false;
                         break;
                     }

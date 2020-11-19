@@ -46,6 +46,21 @@ struct Analysis {
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
                              ErrorReporter* errors = nullptr);
+
+    // A "trivial" expression is one where we'd feel comfortable cloning it multiple times in
+    // the code, without worrying about incurring a performance penalty. Examples:
+    // - true
+    // - 3.14159265
+    // - myIntVariable
+    // - myColor.rgb
+    // - myArray[123]
+    // - myStruct.myField
+    // - half4(0)
+    //
+    // Trivial-ness is stackable. Somewhat large expressions can occasionally make the cut:
+    // - half4(myColor.a)
+    // - myStruct.myArrayField[7].xyz
+    static bool IsTrivialExpression(const Expression& expr);
 };
 
 /**

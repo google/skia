@@ -448,6 +448,25 @@ bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
     return IsAssignableVisitor{assignableVar, errors ? errors : &trivialErrors}.visit(expr);
 }
 
+bool Analysis::IsTrivialExpression(const Expression& expr) {
+    return expr.is<IntLiteral>() ||
+           expr.is<FloatLiteral>() ||
+           expr.is<BoolLiteral>() ||
+           expr.is<VariableReference>() ||
+           (expr.is<Swizzle>() &&
+            IsTrivialExpression(*expr.as<Swizzle>().base())) ||
+           (expr.is<FieldAccess>() &&
+            IsTrivialExpression(*expr.as<FieldAccess>().base())) ||
+           (expr.is<Constructor>() &&
+            expr.as<Constructor>().arguments().size() == 1 &&
+            IsTrivialExpression(*expr.as<Constructor>().arguments().front())) ||
+           (expr.is<Constructor>() &&
+            expr.isConstantOrUniform()) ||
+           (expr.is<IndexExpression>() &&
+            expr.as<IndexExpression>().index()->is<IntLiteral>() &&
+            IsTrivialExpression(*expr.as<IndexExpression>().base()));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 

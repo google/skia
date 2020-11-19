@@ -7,18 +7,18 @@ void main() {
 
     sk_FragColor = vec4(-2.0);
 
-    float _6_cross;
+    float _2_cross;
     {
-        _6_cross = h2.x * h2.y - h2.y * h2.x;
+        _2_cross = h2.x * h2.y - h2.y * h2.x;
     }
 
-    sk_FragColor = vec4(_6_cross);
+    sk_FragColor = vec4(_2_cross);
 
-    float _7_cross;
+    float _3_cross;
     {
-        _7_cross = f2.x * f2.y - f2.y * f2.x;
+        _3_cross = f2.x * f2.y - f2.y * f2.x;
     }
 
-    sk_FragColor = vec4(_7_cross);
+    sk_FragColor = vec4(_3_cross);
 
 }
