@@ -45,6 +45,8 @@ void GrGLTextureParameters::invalidate() {
     fNonsamplerState.invalidate();
 }
 
+void GrGLTextureParameters::invalidateMag() { fSamplerOverriddenState.fMagFilter = ~0U; }
+
 void GrGLTextureParameters::set(const SamplerOverriddenState* samplerState,
                                 const NonsamplerState& nonsamplerState,
                                 ResetTimestamp currTimestamp) {

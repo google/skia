@@ -697,10 +697,14 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::glTextureParametersModified() {
+void GrBackendTexture::glTextureParametersModified(bool just_mag) {
 #ifdef SK_GL
     if (this->isValid() && fBackend == GrBackendApi::kOpenGL) {
+      if (just_mag) {
+        fGLInfo.parameters()->invalidateMag();
+      } else {
         fGLInfo.parameters()->invalidate();
+      }
     }
 #endif
 }
