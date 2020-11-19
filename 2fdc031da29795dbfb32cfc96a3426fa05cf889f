@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6db9036_f6b88e73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-19T15:26:34Z",
+      "side": 1,
+      "message": "It failed, but only due to not downloading puppeteer, which happens sometimes.\n\nI think we can remove the puppeteer download from our release ci builds, but I can\u0027t\ndo that in this CL.",
+      "revId": "2fdc031da29795dbfb32cfc96a3426fa05cf889f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
