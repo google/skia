@@ -35,9 +35,10 @@ void GrRenderTask::disown(GrDrawingManager* drawingMgr) {
     SkDEBUGCODE(fDrawingMgr = nullptr);
     this->setFlag(kDisowned_Flag);
 
-    for (const GrSurfaceProxyView& target : fTargets) {
-        if (this == drawingMgr->getLastRenderTask(target.proxy())) {
-            drawingMgr->setLastRenderTask(target.proxy(), nullptr);
+    for (const auto& targetInfo : fTargets) {
+        auto proxy = targetInfo.fProxyView.proxy();
+        if (this == drawingMgr->getLastRenderTask(proxy)) {
+            drawingMgr->setLastRenderTask(proxy, nullptr);
         }
     }
 }
@@ -257,8 +258,8 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 }
 
 bool GrRenderTask::isInstantiated() const {
-    for (const GrSurfaceProxyView& target : fTargets) {
-        GrSurfaceProxy* proxy = target.proxy();
+    for (const auto& targetInfo : fTargets) {
+        GrSurfaceProxy* proxy = targetInfo.fProxyView.proxy();
         if (!proxy->isInstantiated()) {
             return false;
         }
@@ -272,13 +273,60 @@ bool GrRenderTask::isInstantiated() const {
     return true;
 }
 
+bool GrRenderTask::getIndexOfTarget(const GrSurfaceProxy* target, int* outIndex) {
+    for (int i = 0; i < fTargets.count(); i++) {
+        if (fTargets[i].fProxyView.proxy() == target) {
+            if (outIndex) {
+                *outIndex = i;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+GrRenderTask* GrRenderTask::getLastRenderTask(const GrSurfaceProxy* target) {
+    SkASSERT(target);
+    int index;
+    if (!this->getIndexOfTarget(target, &index)) {
+        SkDEBUGFAIL("Target not found in this task.");
+        return nullptr;
+    }
+    return fTargets[index].fLastTask;
+}
+
+GrRenderTask* GrRenderTask::getNextRenderTask(const GrSurfaceProxy* target) {
+    SkASSERT(target);
+    int index;
+    if (!this->getIndexOfTarget(target, &index)) {
+        SkDEBUGFAIL("Target not found in this task.");
+        return nullptr;
+    }
+    return fTargets[index].fNextTask;
+}
+
 void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView view) {
     SkASSERT(view);
     SkASSERT(!this->isClosed());
+    SkASSERT(!this->getIndexOfTarget(view.proxy(), /* outIndex */ nullptr));
     SkASSERT(!fDrawingMgr || drawingMgr == fDrawingMgr);
     SkDEBUGCODE(fDrawingMgr = drawingMgr);
+    GrRenderTask* lastTask = drawingMgr->getLastRenderTask(view.proxy());
+    if (lastTask) {
+        lastTask->setNextRenderTask(view.proxy(), this);
+    }
     drawingMgr->setLastRenderTask(view.proxy(), this);
-    fTargets.push_back(std::move(view));
+    fTargets.push_back({std::move(view), lastTask, /* fNextTask */ nullptr});
+}
+
+void GrRenderTask::setNextRenderTask(const GrSurfaceProxy* target, GrRenderTask* task) {
+    SkASSERT(target);
+    int index;
+    if (!this->getIndexOfTarget(target, &index)) {
+        SkDEBUGFAIL("Target not found in this task.");
+        return;
+    }
+    fTargets[index].fNextTask = task;
 }
 
 #if GR_TEST_UTILS
@@ -288,8 +336,8 @@ void GrRenderTask::dump(bool printDependencies) const {
 
     if (!fTargets.empty()) {
         SkDebugf("Targets: \n");
-        for (const GrSurfaceProxyView& target : fTargets) {
-            GrSurfaceProxy* proxy = target.proxy();
+        for (const auto& targetInfo : fTargets) {
+            GrSurfaceProxy* proxy = targetInfo.fProxyView.proxy();
             SkDebugf("proxyID: %d - surfaceID: %d\n",
                      proxy ? proxy->uniqueID().asUInt() : -1,
                      proxy && proxy->peekSurface()
@@ -299,13 +347,13 @@ void GrRenderTask::dump(bool printDependencies) const {
     }
 
     if (printDependencies) {
-        SkDebugf("I rely On (%d): ", fDependencies.count());
+        SkDebugf("I rely on (%d): ", fDependencies.count());
         for (int i = 0; i < fDependencies.count(); ++i) {
             SkDebugf("%d, ", fDependencies[i]->fUniqueID);
         }
         SkDebugf("\n");
 
-        SkDebugf("(%d) Rely On Me: ", fDependents.count());
+        SkDebugf("(%d) Rely on me: ", fDependents.count());
         for (int i = 0; i < fDependents.count(); ++i) {
             SkDebugf("%d, ", fDependents[i]->fUniqueID);
         }
