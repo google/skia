@@ -141,6 +141,30 @@
       },
       "revId": "e5983c3837a6f0fe811cce02b8a6f6b71e499003",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e7fd19e_af9b2a3d",
+        "filename": "tests/sksl/shared/golden/GeometryNoGSInvocationsReorder.glsl",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T19:58:52Z",
+      "side": 1,
+      "message": "Actually - yes, it would have suffered the same bug, because the geometry module is delay-loaded. (Unlike fragment and vertex, which are pre-loaded in the compiler constructor).",
+      "parentUuid": "27db7cb4_fb37d1e5",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 11
+      },
+      "revId": "e5983c3837a6f0fe811cce02b8a6f6b71e499003",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
