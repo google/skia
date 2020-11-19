@@ -140,6 +140,30 @@
       },
       "revId": "a48ae1c06ee5e6e89e4d6a2c5b31126f0fabff3f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c90d55ae_e53db338",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-19T19:06:58Z",
+      "side": 1,
+      "message": "Fair, it might be overkill to genericize it.",
+      "parentUuid": "adb8df03_b2276a7d",
+      "range": {
+        "startLine": 220,
+        "startChar": 10,
+        "endLine": 220,
+        "endChar": 28
+      },
+      "revId": "a48ae1c06ee5e6e89e4d6a2c5b31126f0fabff3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
