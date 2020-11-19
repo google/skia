@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b0bedea_216eecfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "OK, there are actually three CLs to review, this is the last of the three. I tried to break it up so that the earlier ones are simpler, but they don\u0027t make much sense until this CL (which is the big payoff).\n\n- The first CL is largely mechanical, adding the idea of shared program elements.\n- The second CL uses that in a very simple way, to change how shared variable declarations are handled.\n- This CL moves shared functions to the new world, which opened a can of worms. As a result, it has a bunch of changes that spiral out from there. I can try to split this one up a bit, if that helps? Some of the ir generator and inliner refactoring could be done standalone.",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3defa87_a5c3a14b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "Moving this here (vs. convertProgram) ensures that:\n1) It\u0027s only done once.\n2) It\u0027s done *before* we try to load/optimize the GPU module at run-time. Otherwise we end up optimizing the GPU blend functions with an empty caps map.\n\nOnce I stumbled on to that issue, I figured it made sense to hoist the initialization of caps and context in the inliner, too - those are things that are tied to the compiler, and can\u0027t change per-program.",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c64f00da_38574a4c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "This is the meat of the change. This one line then creates/necessitates everything else.",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c73873e_955eac6e",
+        "filename": "tests/sksl/blend/golden/BlendColorBurn.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "In quite a few of these, declarations moved. That\u0027s because program element iteration always does shared before owned. So shared function definitions now come before uniform or in variables that are specific to that program. Shouldn\u0027t be a problem, I hope.",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f85d6fb_398e62a8",
+        "filename": "tests/sksl/fp/golden/GrInlinedFunction.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "I haven\u0027t dug into the .fp related changes, but in every case, it\u0027s a matter of doing less inlining during .fp -\u003e .cpp conversion. Could be a follow-up?",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53c1cfbe_379e48cb",
+        "filename": "tests/sksl/inliner/golden/InlinerCanBeDisabled.glsl",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 1,
+      "message": "This one is slightly interesting. The line count grew, because inlining happened inside the module code, but not into main. With inlining control being a setting (not a caps thing), the compiler doesn\u0027t have access to that information at construction time. Seems okay?",
+      "revId": "ff6f81c8f7c2bcb2c45f1558fbfad358ff16a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f93d0cd_c7e50b83",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-19T17:19:14Z",
+      "side": 0,
+      "message": "I had a version of this (PS1) that didn\u0027t do inlining in modules (just settings replacement + simplification). That worked, but caused a bunch of blend functions to not have inlined versions of guarded_divide, etc. To keep code-gen as close to current as possible, I had to rework the inliner so that it doesn\u0027t take a program (just a list of elements and some supporting objects). I also had to rip out this assert and the check that prevents operating on builtins. The new world is basically: The inliner is either operating on ALL builtin code, or NO builtin code (though it can be inlining the contents of builtins into non-builtin code).\n\nGiven this - am I right in thinking that we don\u0027t need to wrap builtin symbol tables, if we\u0027re making permanent/shared edits to the builtins?",
+      "revId": "3271cf1ae34ecbdef0aebd05b9ee4a5b31174b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
