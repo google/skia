@@ -58,11 +58,11 @@ public:
 
     // Override operator new and delete to allow us to use a memory pool.
     static void* operator new(const size_t size) {
-        return Pool::AllocIRNode(size);
+        return Pool::AllocMemory(size);
     }
 
     static void operator delete(void* ptr) {
-        Pool::FreeIRNode(ptr);
+        Pool::FreeMemory(ptr);
     }
 
 protected:
