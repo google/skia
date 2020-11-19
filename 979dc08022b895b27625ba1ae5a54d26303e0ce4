@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38dc6a39_09883f5c",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T14:35:06Z",
+      "side": 1,
+      "message": "Can you add a static assert along the lines of:\n\n   static_assert(sk_bit_cast\u003cuint32_t\u003e(1-2*kEpsilon) \u003d\u003d kIEEE_one_minus_2_epsilon)",
+      "range": {
+        "startLine": 596,
+        "startChar": 4,
+        "endLine": 599,
+        "endChar": 0
+      },
+      "revId": "979dc08022b895b27625ba1ae5a54d26303e0ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
