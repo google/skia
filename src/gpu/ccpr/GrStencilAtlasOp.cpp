@@ -181,7 +181,7 @@ void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline&
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
-                              flushState->writeView()->origin(), &resolvePipeline, stencil,
+                              flushState->writeView().origin(), &resolvePipeline, stencil,
                               &primProc, GrPrimitiveType::kTriangleStrip, 0,
                               flushState->renderPassBarriers());
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));

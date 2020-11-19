@@ -60,7 +60,7 @@ private:
 }
 
 void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
-                                      const GrSurfaceProxyView* writeView, GrAppliedClip* clip,
+                                      const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers) {
     SkArenaAlloc* recordTimeAllocator = context->priv().recordTimeAllocator();
@@ -360,7 +360,7 @@ void GrPathTessellateOp::prePreparePipelineForFills(const PrePrepareArgs& args) 
 
     auto pipelineFlags = GrPipeline::InputFlags::kNone;
     if (GrAAType::kNone != fAAType) {
-        if (args.fWriteView->asRenderTargetProxy()->numSamples() == 1) {
+        if (args.fWriteView.asRenderTargetProxy()->numSamples() == 1) {
             // We are mixed sampled. We need to either enable conservative raster (preferred) or
             // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
             // the cover geometry, the stencil test is still multisampled and will still produce
@@ -377,7 +377,7 @@ void GrPathTessellateOp::prePreparePipelineForFills(const PrePrepareArgs& args) 
     }
 
     fPipelineForFills = GrSimpleMeshDrawOpHelper::CreatePipeline(
-            args.fCaps, args.fArena, args.fWriteView->swizzle(), std::move(*args.fClip),
+            args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(*args.fClip),
             *args.fDstProxyView, std::move(fProcessors), pipelineFlags);
 }
 

@@ -134,7 +134,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 GrPipeline::InputFlags pipelineFlags) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->writeView()->swizzle(),
+                          flushState->writeView().swizzle(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           std::move(processorSet),
@@ -144,7 +144,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
 const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(GrOpFlushState* flushState) {
     return CreatePipeline(&flushState->caps(),
                           flushState->allocator(),
-                          flushState->writeView()->swizzle(),
+                          flushState->writeView().swizzle(),
                           flushState->detachAppliedClip(),
                           flushState->dstProxyView(),
                           this->detachProcessorSet(),
@@ -169,7 +169,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(
 GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             const GrCaps* caps,
             SkArenaAlloc* arena,
-            const GrSurfaceProxyView* writeView,
+            const GrSurfaceProxyView& writeView,
             GrAppliedClip&& appliedClip,
             const GrXferProcessor::DstProxyView& dstProxyView,
             GrGeometryProcessor* geometryProcessor,
@@ -180,7 +180,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             const GrUserStencilSettings* stencilSettings) {
     auto pipeline = CreatePipeline(caps,
                                    arena,
-                                   writeView->swizzle(),
+                                   writeView.swizzle(),
                                    std::move(appliedClip),
                                    dstProxyView,
                                    std::move(processorSet),
@@ -192,17 +192,17 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
 
 GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                                            const GrPipeline* pipeline,
-                                                           const GrSurfaceProxyView* writeView,
+                                                           const GrSurfaceProxyView& writeView,
                                                            GrGeometryProcessor* geometryProcessor,
                                                            GrPrimitiveType primitiveType,
                                                            GrXferBarrierFlags xferBarrierFlags,
                                                            const GrUserStencilSettings* stencilSettings) {
-    GrRenderTargetProxy* outputProxy = writeView->asRenderTargetProxy();
+    GrRenderTargetProxy* outputProxy = writeView.asRenderTargetProxy();
 
     auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
                                           outputProxy->numStencilSamples(),
                                           outputProxy->backendFormat(),
-                                          writeView->origin(),
+                                          writeView.origin(),
                                           pipeline,
                                           stencilSettings,
                                           geometryProcessor,
@@ -215,7 +215,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
 GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                                             const GrCaps* caps,
                                             SkArenaAlloc* arena,
-                                            const GrSurfaceProxyView* writeView,
+                                            const GrSurfaceProxyView& writeView,
                                             GrAppliedClip&& appliedClip,
                                             const GrXferProcessor::DstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
