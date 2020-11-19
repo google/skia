@@ -518,9 +518,6 @@ GrSubRun* DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables
     GlyphVector::Variant* glyphIDs =
             alloc->makeArray<GlyphVector::Variant>(drawables.size());
 
-    // The lower bounds of drawing is always (0, 0). Since glyphs from the atlas can be at most
-    // 256x256, use kMinPos to eliminate glyphs that have no pixels on the device.
-    constexpr SkScalar kMinPos = 0 - SkStrikeCommon::kSkSideTooBigForAtlas;
     // Because this is the direct case, the maximum width or height is the size that fits in the
     // atlas. This boundary is checked below to ensure that the call to SkGlyphRect below will
     // not overflow.
@@ -533,7 +530,7 @@ GrSubRun* DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables
         // Ensure that the .offset() call below does not overflow. And, at this point none of the
         // rectangles are empty because they were culled before the run was created. Basically,
         // cull all the glyphs that can't appear on the screen.
-        if (kMinPos < x && x < kMaxPos && kMinPos  < y && y < kMaxPos) {
+        if (-kMaxPos < x && x < kMaxPos && -kMaxPos  < y && y < kMaxPos) {
             const SkGlyph* const skGlyph = variant;
             const SkGlyphRect deviceBounds =
                     skGlyph->glyphRect().offset(SkScalarRoundToInt(x), SkScalarRoundToInt(y));
