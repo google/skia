@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6d4d0e6_e98e8719",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-19T15:07:24Z",
+      "side": 1,
+      "message": "You\u0027re absolutely right that this is diminishing returns. I ran it through DM with some breakpoints last night. I found that the `half4(1).rgb` simple case was hit fairly often (this was definitely the biggest bang for the buck, bar none). The complex path was only hit rarely, most often when executing randomly-generated FP trees. I\u0027m happy that this change improves codegen for complex zero-one swizzles, like `foo.x0y1`, but in practice we don\u0027t tend to leverage these much.\n\nI\u0027m done with this CL chain; I\u0027m not planning on going any further (not even sure what else could be done!). TBH my first swing at this task was straight to the end state--no chain of CLs, just one big ball of code--but it was just too large of a CL to reason about. It affected too many tests at once and it wasn\u0027t something I would have felt comfortable +1ing as a reviewer. I split it up specifically to keep review reasonable and so that the test files were changing in predictable ways at each iteration.",
+      "parentUuid": "b091bce2_9e4e3f19",
+      "revId": "bdcd3c4e4e20516bf794a46803407dc1203bc930",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2488dd62_6858b47c",
