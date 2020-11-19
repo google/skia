@@ -417,7 +417,7 @@ static void check_mipmaps(GrDirectContext* dContext, const GrBackendTexture& bac
     SkCanvas* canvas = surf->getCanvas();
 
     SkPaint p;
-    p.setFilterQuality(kHigh_SkFilterQuality);
+    p.setFilterQuality(kMedium_SkFilterQuality);    // to force mipMapping
 
     int numMipLevels = 6;
 

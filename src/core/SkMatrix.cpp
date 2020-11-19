@@ -1829,6 +1829,7 @@ void SkRSXform::toTriStrip(SkScalar width, SkScalar height, SkPoint strip[4]) co
 
 SkFilterQuality SkMatrixPriv::AdjustHighQualityFilterLevel(const SkMatrix& matrix,
                                                            bool matrixIsInverse) {
+#ifdef SK_SUPPORT_LEGACY_ADJUSTHQHEURISTIC
     if (matrix.isIdentity()) {
         return kNone_SkFilterQuality;
     }
@@ -1854,7 +1855,7 @@ SkFilterQuality SkMatrixPriv::AdjustHighQualityFilterLevel(const SkMatrix& matri
             return kLow_SkFilterQuality;
         }
     }
-
+#endif
     return kHigh_SkFilterQuality;
 }
 

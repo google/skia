@@ -73,7 +73,7 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
     SkCanvas* canvas = surf->getCanvas();
 
     SkPaint p;
-    p.setFilterQuality(kHigh_SkFilterQuality); // to force mipMapping
+    p.setFilterQuality(kMedium_SkFilterQuality); // to force mipMapping
     p.setBlendMode(SkBlendMode::kSrc);
 
     int numMipLevels = 1;
