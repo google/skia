@@ -534,6 +534,16 @@ public:
                           const SkGlyphRunList& glyphRunList);
 
     /**
+     * Draw the text specified by the SkGlyphRunList.
+     *
+     * @param viewMatrix      transformationMatrix
+     * @param glyphRunList    text, text positions, and paint.
+     */
+    void drawGlyphRunListDirectly(const GrClip*,
+                                  const SkMatrixProvider& viewMatrix,
+                                  const SkGlyphRunList& glyphRunList);
+
+    /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
      * command stream.
      */
