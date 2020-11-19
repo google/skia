@@ -22,6 +22,30 @@
       },
       "revId": "979dc08022b895b27625ba1ae5a54d26303e0ce4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5210ae1_a2c95609",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-19T15:54:20Z",
+      "side": 1,
+      "message": "I don\u0027t know of a way to bit pun at compile time (otherwise we could just bit pun 1-2*kEpsilon to uint32_t). What do you think about just runtime asserting if GR_TEST_UTILS is defined?",
+      "parentUuid": "38dc6a39_09883f5c",
+      "range": {
+        "startLine": 596,
+        "startChar": 4,
+        "endLine": 599,
+        "endChar": 0
+      },
+      "revId": "979dc08022b895b27625ba1ae5a54d26303e0ce4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
