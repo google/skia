@@ -63,7 +63,7 @@ class GrRenderTargetContext : public GrSurfaceContext {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
-            GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps = true);
+            GrSurfaceOrigin, const SkSurfaceProps*, bool flushTimeOpsTask = false);
 
     static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
                                                        GrColorType,
@@ -713,7 +713,7 @@ private:
     sk_sp<GrOpsTask> fOpsTask;
 
     SkSurfaceProps fSurfaceProps;
-    bool fManagedOpsTask;
+    bool fFlushTimeOpsTask;
 
     int fNumStencilSamples = 0;
 
