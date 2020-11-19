@@ -83,7 +83,7 @@ void Pool::detachFromThread() {
     set_thread_local_memory_pool(nullptr);
 }
 
-void* Pool::AllocIRNode(size_t size) {
+void* Pool::AllocMemory(size_t size) {
     // Is a pool attached?
     MemoryPool* memPool = get_thread_local_memory_pool();
     if (memPool) {
@@ -98,7 +98,7 @@ void* Pool::AllocIRNode(size_t size) {
     return node;
 }
 
-void Pool::FreeIRNode(void* node) {
+void Pool::FreeMemory(void* node) {
     // Is a pool attached?
     MemoryPool* memPool = get_thread_local_memory_pool();
     if (memPool) {
