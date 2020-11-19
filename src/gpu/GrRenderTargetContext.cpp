@@ -99,7 +99,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         sk_sp<GrSurfaceProxy> proxy,
         GrSurfaceOrigin origin,
         const SkSurfaceProps* surfaceProps,
-        bool managedOps) {
+        bool flushTimeOpsTask) {
     if (!proxy) {
         return nullptr;
     }
@@ -116,7 +116,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
 
     return std::make_unique<GrRenderTargetContext>(context, std::move(readView),
                                                    std::move(writeView), colorType,
-                                                   std::move(colorSpace), surfaceProps, managedOps);
+                                                   std::move(colorSpace), surfaceProps,
+                                                   flushTimeOpsTask);
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
@@ -148,7 +149,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     }
 
     auto rtc = GrRenderTargetContext::Make(context, colorType, std::move(colorSpace),
-                                           std::move(proxy), origin, surfaceProps, true);
+                                           std::move(proxy), origin, surfaceProps);
     if (!rtc) {
         return nullptr;
     }
@@ -301,12 +302,12 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              GrColorType colorType,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
-                                             bool managedOpsTask)
+                                             bool flushTimeOpsTask)
         : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
                            std::move(colorSpace))
         , fWriteView(std::move(writeView))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fManagedOpsTask(managedOpsTask)
+        , fFlushTimeOpsTask(flushTimeOpsTask)
         , fGlyphPainter(*this) {
     fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
@@ -351,8 +352,8 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpsTask || fOpsTask->isClosed()) {
-        sk_sp<GrOpsTask> newOpsTask =
-                this->drawingManager()->newOpsTask(this->writeSurfaceView(), fManagedOpsTask);
+        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(this->writeSurfaceView(),
+                                                                         fFlushTimeOpsTask);
         if (fOpsTask && fNumStencilSamples > 0) {
             // Store the stencil values in memory upon completion of fOpsTask.
             fOpsTask->setMustPreserveStencil();

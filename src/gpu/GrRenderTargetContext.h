@@ -63,7 +63,7 @@ class GrRenderTargetContext : public GrSurfaceContext {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
-            GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps = true);
+            GrSurfaceOrigin, const SkSurfaceProps*, bool flushTimeOpsTask = false);
 
     static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
                                                        GrColorType,
@@ -138,7 +138,7 @@ public:
 
     GrRenderTargetContext(GrRecordingContext*, GrSurfaceProxyView readView,
                           GrSurfaceProxyView writeView, GrColorType, sk_sp<SkColorSpace>,
-                          const SkSurfaceProps*, bool managedOpsTask = true);
+                          const SkSurfaceProps*, bool flushTimeOpsTask = false);
 
     ~GrRenderTargetContext() override;
 
@@ -599,7 +599,6 @@ private:
 
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrClipStack;                   // ""
-    friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
     friend class GrRenderTargetContextPriv;
 
@@ -713,7 +712,7 @@ private:
     sk_sp<GrOpsTask> fOpsTask;
 
     SkSurfaceProps fSurfaceProps;
-    bool fManagedOpsTask;
+    bool fFlushTimeOpsTask;
 
     int fNumStencilSamples = 0;
 
