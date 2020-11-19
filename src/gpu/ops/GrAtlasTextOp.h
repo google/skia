@@ -34,31 +34,35 @@ public:
                  SkPoint drawOrigin,
                  SkIRect clipRect,
                  sk_sp<GrTextBlob> blob,
+                 GrAtlasSubRunOwner subRunOwner,
                  const SkPMColor4f& color)
             : fSubRun{subRun}
+            , fBlob{std::move(blob)}
+            , fSubRunDtor{std::move(subRunOwner)}
             , fDrawMatrix{drawMatrix}
             , fDrawOrigin{drawOrigin}
             , fClipRect{clipRect}
-            , fBlob{std::move(blob)}
             , fColor{color} {}
 
-        static Geometry* Make(GrRecordingContext* rc,
-                              const GrAtlasSubRun& subRun,
-                              const SkMatrix& drawMatrix,
-                              SkPoint drawOrigin,
-                              SkIRect clipRect,
-                              sk_sp<GrTextBlob> blob,
-                              const SkPMColor4f& color);
+        static Geometry* MakeForBlob(GrRecordingContext* rc,
+                                     const GrAtlasSubRun& subRun,
+                                     const SkMatrix& drawMatrix,
+                                     SkPoint drawOrigin,
+                                     SkIRect clipRect,
+                                     sk_sp<GrTextBlob> blob,
+                                     const SkPMColor4f& color);
+
         void fillVertexData(void* dst, int offset, int count) const;
 
         const GrAtlasSubRun& fSubRun;
+        sk_sp<GrTextBlob> fBlob;  // mutable to make unref call in Op dtor.
+        GrAtlasSubRunOwner fSubRunDtor;
         const SkMatrix fDrawMatrix;
         const SkPoint fDrawOrigin;
 
         // fClipRect is only used in the DirectMaskSubRun case to do geometric clipping.
         // TransformedMaskSubRun, and SDFTSubRun don't use this field, and expect an empty rect.
         const SkIRect fClipRect;
-        sk_sp<GrTextBlob> fBlob;  // mutable to make unref call in Op dtor.
 
         // Color is updated after processor analysis if it was determined the shader resolves to
         // a constant color that we then evaluate on the CPU.
