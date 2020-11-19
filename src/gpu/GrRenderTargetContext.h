@@ -547,6 +547,16 @@ public:
                           const SkGlyphRunList& glyphRunList);
 
     /**
+     * Draw the text specified by the SkGlyphRunList.
+     *
+     * @param viewMatrix      transformationMatrix
+     * @param glyphRunList    text, text positions, and paint.
+     */
+    void drawGlyphRunListDirectly(const GrClip*,
+                                  const SkMatrixProvider& viewMatrix,
+                                  const SkGlyphRunList& glyphRunList);
+
+    /**
      * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
