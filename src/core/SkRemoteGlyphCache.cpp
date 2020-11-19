@@ -823,12 +823,18 @@ protected:
         GrSDFTOptions options =
                 {ctxOptions.fMinDistanceFieldFontSize, ctxOptions.fGlyphsAsPathsFontSize};
 
-        fPainter.processGlyphRunList(glyphRunList,
+        const SkPoint drawOrigin = glyphRunList.origin();
+        const SkPaint& drawPaint = glyphRunList.paint();
+        for (auto& glyphRun : glyphRunList) {
+            fPainter.processGlyphRun(glyphRun,
                                      this->localToDevice(),
+                                     drawOrigin,
+                                     drawPaint,
                                      this->surfaceProps(),
                                      fDFTSupport,
                                      options,
                                      nullptr);
+        }
         #endif  // SK_SUPPORT_GPU
     }
 
