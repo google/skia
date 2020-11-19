@@ -49,12 +49,12 @@ private:
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags) override;
 
     struct PrePrepareArgs {
         SkArenaAlloc* fArena;
-        const GrSurfaceProxyView* fWriteView;
+        const GrSurfaceProxyView& fWriteView;
         const GrAppliedHardClip* fHardClip;
         GrAppliedClip* fClip;
         const GrXferProcessor::DstProxyView* fDstProxyView;

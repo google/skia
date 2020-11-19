@@ -208,8 +208,8 @@ public:
      * onPrePrepare must be prepared to handle both cases (when onPrePrepare has been called
      * ahead of time and when it has not been called).
      */
-    void prePrepare(GrRecordingContext* context, GrSurfaceProxyView* dstView, GrAppliedClip* clip,
-                    const GrXferProcessor::DstProxyView& dstProxyView,
+    void prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
+                    GrAppliedClip* clip, const GrXferProcessor::DstProxyView& dstProxyView,
                     GrXferBarrierFlags renderPassXferBarriers) {
         this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers);
     }
@@ -341,7 +341,7 @@ private:
 
     // TODO: the parameters to onPrePrepare mirror GrOpFlushState::OpArgs - fuse the two?
     virtual void onPrePrepare(GrRecordingContext*,
-                              const GrSurfaceProxyView* writeView,
+                              const GrSurfaceProxyView& writeView,
                               GrAppliedClip*,
                               const GrXferProcessor::DstProxyView&,
                               GrXferBarrierFlags renderPassXferBarriers) = 0;

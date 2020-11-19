@@ -172,7 +172,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& clip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers) override {
@@ -440,7 +440,7 @@ private:
 
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
-                             const GrSurfaceProxyView* writeView,
+                             const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers) override;
@@ -516,7 +516,7 @@ private:
 
 void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
                                          SkArenaAlloc* arena,
-                                         const GrSurfaceProxyView* writeView,
+                                         const GrSurfaceProxyView& writeView,
                                          GrAppliedClip&& appliedClip,
                                          const GrXferProcessor::DstProxyView& dstProxyView,
                                          GrXferBarrierFlags renderPassXferBarriers) {

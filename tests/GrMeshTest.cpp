@@ -431,7 +431,7 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
@@ -574,7 +574,7 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
                                                          hasVertexBuffer);
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(), fState->proxy()->numStencilSamples(),
-                              fState->proxy()->backendFormat(), fState->writeView()->origin(),
+                              fState->proxy()->backendFormat(), fState->writeView().origin(),
                               pipeline, &GrUserStencilSettings::kUnused, mtp, primitiveType, 0,
                               fState->renderPassBarriers());
 

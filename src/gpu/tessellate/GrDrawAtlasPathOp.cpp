@@ -142,7 +142,7 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
 }
 
 void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,
-                                     const GrSurfaceProxyView* writeView,
+                                     const GrSurfaceProxyView& writeView,
                                      GrAppliedClip*,
                                      const GrXferProcessor::DstProxyView&,
                                      GrXferBarrierFlags renderPassXferBarriers) {}
@@ -169,7 +169,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     }
     initArgs.fCaps = &state->caps();
     initArgs.fDstProxyView = state->drawOpArgs().dstProxyView();
-    initArgs.fWriteSwizzle = state->drawOpArgs().writeSwizzle();
+    initArgs.fWriteSwizzle = state->drawOpArgs().writeView().swizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), state->detachAppliedClip());
 
     GrSwizzle swizzle = state->caps().getReadSwizzle(fAtlasProxy->backendFormat(),
@@ -179,7 +179,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     SkASSERT(shader.instanceStride() == Instance::Stride(fUsesLocalCoords));
 
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                              state->proxy()->backendFormat(), state->writeView()->origin(),
+                              state->proxy()->backendFormat(), state->writeView().origin(),
                               &pipeline, &GrUserStencilSettings::kUnused, &shader,
                               GrPrimitiveType::kTriangleStrip, 0, state->renderPassBarriers());
 

@@ -81,7 +81,7 @@ GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* al
 
 void GrStrokeOp::prePrepareColorProgram(SkArenaAlloc* arena,
                                         GrStrokeTessellateShader* strokeTessellateShader,
-                                        const GrSurfaceProxyView* writeView, GrAppliedClip&& clip,
+                                        const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers,
                                         const GrCaps& caps) {
@@ -89,7 +89,7 @@ void GrStrokeOp::prePrepareColorProgram(SkArenaAlloc* arena,
     auto pipelineFlags = GrPipeline::InputFlags::kNone;
     if (GrAAType::kNone != fAAType) {
         pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-        SkASSERT(writeView->asRenderTargetProxy()->numSamples() > 1);  // No mixed samples yet.
+        SkASSERT(writeView.asRenderTargetProxy()->numSamples() > 1);  // No mixed samples yet.
         SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples yet.
     }
     fColorProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,

@@ -34,7 +34,7 @@ public:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
 
     static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
-                                          const GrSurfaceProxyView* writeView,
+                                          const GrSurfaceProxyView& writeView,
                                           GrPipeline::InputFlags pipelineFlags,
                                           GrProcessorSet&& processors, GrAppliedClip&& appliedClip,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
@@ -42,22 +42,22 @@ public:
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         auto* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
-                &caps, arena, writeView->swizzle(), std::move(appliedClip), dstProxyView,
+                &caps, arena, writeView.swizzle(), std::move(appliedClip), dstProxyView,
                 std::move(processors), pipelineFlags);
         return MakeProgramInfo(shader, arena, writeView, pipeline, dstProxyView,
                                renderPassXferBarriers, stencil, caps);
     }
 
     static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
-                                          const GrSurfaceProxyView* writeView,
+                                          const GrSurfaceProxyView& writeView,
                                           const GrPipeline* pipeline,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
-        GrRenderTargetProxy* proxy = writeView->asRenderTargetProxy();
+        GrRenderTargetProxy* proxy = writeView.asRenderTargetProxy();
         return arena->make<GrProgramInfo>(proxy->numSamples(), proxy->numStencilSamples(),
-                                          proxy->backendFormat(), writeView->origin(), pipeline,
+                                          proxy->backendFormat(), writeView.origin(), pipeline,
                                           stencil, shader, shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
                                           renderPassXferBarriers);

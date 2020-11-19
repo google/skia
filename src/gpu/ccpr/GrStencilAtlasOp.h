@@ -53,7 +53,7 @@ public:
 
 private:
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}

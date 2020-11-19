@@ -57,7 +57,7 @@ protected:
 
 private:
     void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView* writeView,
+                      const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) final {}
@@ -98,7 +98,7 @@ public:
         bool hasScissor = flushState->appliedClip() &&
                           flushState->appliedClip()->scissorState().enabled();
         GrPipeline pipeline(hasScissor ? GrScissorTest::kEnabled : GrScissorTest::kDisabled,
-                            SkBlendMode::kSrc, flushState->drawOpArgs().writeSwizzle());
+                            SkBlendMode::kSrc, flushState->drawOpArgs().writeView().swizzle());
 
         pathProc.drawPaths(flushState, pipeline, *fSrcProxy, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
@@ -137,7 +137,7 @@ public:
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         ProcessorType proc;
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().writeSwizzle());
+                            flushState->drawOpArgs().writeView().swizzle());
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, &proc, fStrokeBatchID, fDrawBounds);
     }

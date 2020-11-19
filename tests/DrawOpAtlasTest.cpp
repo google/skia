@@ -226,7 +226,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     GrSurfaceProxyView surfaceView = rtc->writeSurfaceView();
     GrOpFlushState::OpArgs opArgs(op.get(),
-                                  &surfaceView,
+                                  surfaceView,
                                   nullptr,
                                   GrXferProcessor::DstProxyView(),
                                   GrXferBarrierFlags::kNone);

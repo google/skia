@@ -45,7 +45,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
-    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView, GrAppliedClip*,
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView& writeView, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
 

@@ -28,7 +28,7 @@ void GrMeshDrawOp::createProgramInfo(Target* target) {
 // This onPrepareDraws implementation assumes the derived Op only has a single programInfo -
 // which is the majority of the cases.
 void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
-                                     const GrSurfaceProxyView* writeView,
+                                     const GrSurfaceProxyView& writeView,
                                      GrAppliedClip* clip,
                                      const GrXferProcessor::DstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers) {
