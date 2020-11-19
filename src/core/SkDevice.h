@@ -484,7 +484,6 @@ public:
                            props) {
         // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
-
         this->setOrigin(SkM44(), bounds.left(), bounds.top());
         this->resetClipStack();
     }
@@ -535,7 +534,7 @@ protected:
                            const SkImageFilter* filter, const SkPaint& paint) override {}
 
 private:
-struct ClipState {
+    struct ClipState {
         SkConservativeClip fClip;
         int fDeferredSaveCount = 0;
 
@@ -545,7 +544,6 @@ struct ClipState {
 
     const SkConservativeClip& clip() const { return fClipStack.back().fClip; }
     SkConservativeClip& writableClip();
-
     void resetClipStack() {
         fClipStack.reset();
         fDeviceClipRestriction.setEmpty();
