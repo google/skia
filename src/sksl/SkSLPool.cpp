@@ -83,33 +83,33 @@ void Pool::detachFromThread() {
     set_thread_local_memory_pool(nullptr);
 }
 
-void* Pool::AllocIRNode(size_t size) {
+void* Pool::AllocMemory(size_t size) {
     // Is a pool attached?
     MemoryPool* memPool = get_thread_local_memory_pool();
     if (memPool) {
-        void* node = memPool->allocate(size);
-        VLOG("ALLOC  Pool:0x%016llX  0x%016llX\n", (uint64_t)memPool, (uint64_t)node);
-        return node;
+        void* ptr = memPool->allocate(size);
+        VLOG("ALLOC  Pool:0x%016llX  0x%016llX\n", (uint64_t)memPool, (uint64_t)ptr);
+        return ptr;
     }
 
-    // There's no pool attached. Allocate nodes using the system allocator.
-    void* node = ::operator new(size);
-    VLOG("ALLOC  Pool:__________________  0x%016llX\n", (uint64_t)node);
-    return node;
+    // There's no pool attached. Allocate memory using the system allocator.
+    void* ptr = ::operator new(size);
+    VLOG("ALLOC  Pool:__________________  0x%016llX\n", (uint64_t)ptr);
+    return ptr;
 }
 
-void Pool::FreeIRNode(void* node) {
+void Pool::FreeMemory(void* ptr) {
     // Is a pool attached?
     MemoryPool* memPool = get_thread_local_memory_pool();
     if (memPool) {
-        VLOG("FREE   Pool:0x%016llX  0x%016llX\n", (uint64_t)memPool, (uint64_t)node);
-        memPool->release(node);
+        VLOG("FREE   Pool:0x%016llX  0x%016llX\n", (uint64_t)memPool, (uint64_t)ptr);
+        memPool->release(ptr);
         return;
     }
 
     // There's no pool attached. Free it using the system allocator.
-    VLOG("FREE   Pool:__________________  0x%016llX\n", (uint64_t)node);
-    ::operator delete(node);
+    VLOG("FREE   Pool:__________________  0x%016llX\n", (uint64_t)ptr);
+    ::operator delete(ptr);
 }
 
 }  // namespace SkSL
