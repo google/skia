@@ -108,6 +108,7 @@ public:
     UNIMPL(GrAppliedClip detachAppliedClip())
     UNIMPL(const GrXferProcessor::DstProxyView& dstProxyView() const)
     UNIMPL(GrXferBarrierFlags renderPassBarriers() const)
+    UNIMPL(GrLoadOp colorLoadOp() const)
     UNIMPL(GrStrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
     UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())

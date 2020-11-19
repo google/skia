@@ -139,6 +139,7 @@ public:
                                             GrGeometryProcessor*,
                                             GrPrimitiveType,
                                             GrXferBarrierFlags renderPassXferBarriers,
+                                            GrLoadOp colorLoadOp,
                                             const GrUserStencilSettings*
                                                                 = &GrUserStencilSettings::kUnused);
 
@@ -154,6 +155,7 @@ public:
                                             GrProcessorSet&&,
                                             GrPrimitiveType,
                                             GrXferBarrierFlags renderPassXferBarriers,
+                                            GrLoadOp colorLoadOp,
                                             GrPipeline::InputFlags pipelineFlags
                                                                 = GrPipeline::InputFlags::kNone,
                                             const GrUserStencilSettings*
@@ -166,7 +168,8 @@ public:
                                      const GrXferProcessor::DstProxyView&,
                                      GrGeometryProcessor*,
                                      GrPrimitiveType,
-                                     GrXferBarrierFlags renderPassXferBarriers);
+                                     GrXferBarrierFlags renderPassXferBarriers,
+                                     GrLoadOp colorLoadOp);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
