@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4c0fff6_04ff5ab8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T21:17:44Z",
+      "side": 1,
+      "message": "canary-chrome failure appears to be because this was based on top of a known prior commit that had prevented the chrome roll, so it\u0027s a non-issue now that that was reverted.",
+      "revId": "41a5599070f29c31e91fbfbeba4cb7f047629a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c71b1a8e_b768d76e",
@@ -31,6 +48,30 @@
       "writtenOn": "2020-11-19T19:50:51Z",
       "side": 1,
       "message": "unrelated to this CL, but:\n\nwhy is stashed not 4x4?",
+      "range": {
+        "startLine": 1153,
+        "startChar": 41,
+        "endLine": 1154,
+        "endChar": 9
+      },
+      "revId": "41a5599070f29c31e91fbfbeba4cb7f047629a40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e3e3790_487c5eed",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-19T21:17:44Z",
+      "side": 1,
+      "message": "Not sure, but the good news is, the stashed matrix will go away entirely when this finally sticks https://skia-review.googlesource.com/c/skia/+/334040",
+      "parentUuid": "c71b1a8e_b768d76e",
       "range": {
         "startLine": 1153,
         "startChar": 41,
