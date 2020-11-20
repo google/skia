@@ -16,6 +16,23 @@
       "message": "this one might be nice explicit too?",
       "revId": "79a933759601587dccdaf5cc58692e7832661480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "604e0747_44e84bfe",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-20T22:25:35Z",
+      "side": 1,
+      "message": "Yeah, I really like the changes to this file.  👍",
+      "revId": "79a933759601587dccdaf5cc58692e7832661480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
