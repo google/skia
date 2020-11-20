@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79a615d5_4512b285",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T15:19:11Z",
+      "side": 1,
+      "message": "Opinions on SkSamplingMode -vs- SkFilterEnum (for nearest/linear)?",
+      "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db801dc1_5c110188",
@@ -32,6 +49,24 @@
       "side": 1,
       "message": "Don\u0027t feel strongly but lean towards this one as well. Don\u0027t like FlatSamplingEnum very much.",
       "parentUuid": "db801dc1_5c110188",
+      "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d31b150_50b8c79c",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T15:19:11Z",
+      "side": 1,
+      "message": "sg",
+      "parentUuid": "861be64b_c0b052a9",
       "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
