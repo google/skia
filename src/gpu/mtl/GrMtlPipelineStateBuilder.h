@@ -53,13 +53,12 @@ private:
                                             SkSL::Program::Kind kind,
                                             const SkSL::Program::Settings& settings,
                                             SkSL::String* msl,
-                                            SkSL::Program::Inputs* inputs,
-                                            GrContextOptions::ShaderErrorHandler* errorHandler);
+                                            SkSL::Program::Inputs* inputs);
     id<MTLLibrary> compileMtlShaderLibrary(const SkSL::String& shader,
-                                           SkSL::Program::Inputs inputs,
-                                           GrContextOptions::ShaderErrorHandler* errorHandler);
+                                           SkSL::Program::Inputs inputs);
     void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
                              bool isSkSL);
+    bool loadShadersFromCache(SkReadBuffer* cached, __strong id<MTLLibrary> outLibraries[]);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
