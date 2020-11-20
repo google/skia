@@ -74,4 +74,27 @@ struct SkSamplingOptions {
     static SkSamplingOptions Make(SkFilterQuality);
 };
 
+struct SkSamplingOptions2 {
+    bool             fUseCubic;
+    SkSamplingMode   fFiltering;
+    SkMipmapMode     fMipmap;
+    SkCubicResampler fCubic;
+};
+
+enum FlatSamplingEnum {
+    kNearestFilter_NoMipmap,
+    kLinearFilter_NoMipmap,
+    kNearestFilter_NearestMipmap,
+    kLinearFilter_NearestMipmap,
+    kNearestFilter_LinearMipmap,
+    kLinearFilter_LinearMipmap,
+
+    kCubicResample,
+};
+
+struct SkSamplingOptions3 {
+    FlatSamplingEnum fEnum;
+    SkCubicResampler fCubic;
+};
+
 #endif
