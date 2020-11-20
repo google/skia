@@ -6,32 +6,35 @@
 */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/ios/Window_ios.h"
-#include "tools/timer/Timer.h"
 
+#import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
-using sk_app::Application;
+#if __has_feature(objc_arc)
+#error "File should not be compiled with ARC."
+#endif
+
+namespace {
+
+static int gArgc;
+static char** gArgv;
+
+}
 
 ////////////////////////////////////////////////////////////////////
 
 @interface AppDelegate : UIResponder<UIApplicationDelegate>
 
-@property (nonatomic, assign) BOOL done;
-@property (strong, nonatomic) UIWindow *window;
-
 @end
 
-@implementation AppDelegate
-
-@synthesize done = _done;
-@synthesize window = _window;
-
-- (void)applicationWillTerminate:(UIApplication *)sender {
-    _done = TRUE;
+@implementation AppDelegate {
+    CADisplayLink* fDisplayLink; // Owned by the run loop.
+    std::unique_ptr<sk_app::Application> fApp;
 }
+
+#pragma mark - UIApplicationDelegate
 
 - (void)applicationWillResignActive:(UIApplication *)sender {
     sk_app::Window_ios* mainWindow = sk_app::Window_ios::MainWindow();
@@ -47,71 +50,35 @@ using sk_app::Application;
     }
 }
 
-- (void)launchApp {
-    // Extract argc and argv from NSProcessInfo
-    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
-    int argc = arguments.count;
-    char** argv = (char **)malloc((argc+1) * sizeof(char *));
-    int i = 0;
-    for (NSString* string in arguments) {
-        size_t bufferSize = (string.length+1) * sizeof(char);
-        argv[i] = (char*)malloc(bufferSize);
-        [string getCString:argv[i]
-                 maxLength:bufferSize
-                  encoding:NSUTF8StringEncoding];
-        ++i;
-    }
-    argv[i] = NULL;
-    [arguments release];
-
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
-    Application* app = Application::Create(argc, argv, nullptr);
-
-    // Free the memory we used for argc and argv
-    for (i = 0; i < argc; i++) {
-        free(argv[i]);
-    }
-    free(argv);
-
-    sk_app::Window_ios* mainWindow = sk_app::Window_ios::MainWindow();
-    if (!mainWindow) {
-        return;
-    }
-    self.window = mainWindow->uiWindow();
-    mainWindow->onActivate(
-            UIApplication.sharedApplication.applicationState == UIApplicationStateActive);
-
-    // take over the main event loop
-    bool done = false;
-    while (!done) {
-        // TODO: consider using a dispatch queue or CADisplayLink instead of this
-        const CFTimeInterval kSeconds = 0.000002;
-        CFRunLoopRunResult result;
-        do {
-            result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, kSeconds, TRUE);
-        } while (result == kCFRunLoopRunHandledSource);
-
-        [pool drain];
-        pool = [[NSAutoreleasePool alloc] init];
-
-        // TODO: is this the right approach for iOS?
-        // Rather than depending on an iOS event to drive this, we treat our window
-        // invalidation flag as a separate event stream. Window::onPaint() will clear
-        // the invalidation flag, effectively removing it from the stream.
-        sk_app::Window_ios::PaintWindow();
-
-        app->onIdle();
-    }
-    delete app;
+- (void)applicationWillTerminate:(UIApplication *)sender {
+    // Display link retains us, so we break the cycle now.
+    // Note: dealloc is never called.
+    [fDisplayLink invalidate];
+    fDisplayLink = nil;
+    fApp.reset();
 }
 
 - (BOOL)application:(UIApplication *)application
         didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // let the system event loop run once, then launch into our main loop
-    [self performSelector:@selector(launchApp) withObject:nil afterDelay:0.0];
+    fApp = std::unique_ptr<sk_app::Application>(sk_app::Application::Create(gArgc, gArgv, nullptr));
+
+    auto mainWindow = sk_app::Window_ios::MainWindow();
+    mainWindow->onActivate(application.applicationState == UIApplicationStateActive);
+
+    fDisplayLink = [CADisplayLink displayLinkWithTarget:self
+                                               selector:@selector(displayLinkFired)];
+    [fDisplayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
 
     return YES;
+}
+
+- (void)displayLinkFired {
+    // TODO: Hook into CAMetalLayer's drawing event loop or our own run loop observer.
+    // Need to handle animated slides/redraw mode, so we need something that will wake up the
+    // run loop.
+    sk_app::Window_ios::PaintWindow();
+
+    fApp->onIdle();
 }
 
 @end
@@ -119,10 +86,7 @@ using sk_app::Application;
 ///////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv) {
-    /* Give over control to run loop, AppDelegate will handle most things from here */
-    @autoreleasepool {
-        UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
-    }
-
-    return EXIT_SUCCESS;
+    gArgc = argc;
+    gArgv = argv;
+    return UIApplicationMain(argc, argv, nil, @"AppDelegate");
 }
