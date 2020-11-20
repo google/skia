@@ -166,6 +166,12 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
     }
 
     if (fHasBackground) {
+        // TODO: Flutter only change
+        // Background boxes should ignore line height and height multiplier
+        auto ascentStyle = this->fAscentStyle;
+        auto descentStyle = this->fDescentStyle;
+        this->fAscentStyle = LineMetricStyle::Typographic;
+        this->fDescentStyle = LineMetricStyle::Typographic;
         this->iterateThroughVisualRuns(false,
             [textCanvas, x, y, this]
             (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
@@ -176,6 +182,8 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
                 });
             return true;
             });
+        this->fAscentStyle = ascentStyle;
+        this->fDescentStyle = descentStyle;
     }
 
     if (fHasShadows) {
