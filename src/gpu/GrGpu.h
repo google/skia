@@ -875,9 +875,6 @@ private:
 
     virtual bool onSubmitToGpu(bool syncCpu) = 0;
 
-    void reportSubmitHistograms();
-    virtual void onReportSubmitHistograms() {}
-
 #ifdef SK_ENABLE_DUMP_GPU
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
