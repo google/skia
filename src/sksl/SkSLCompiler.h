@@ -226,6 +226,9 @@ public:
     const ParsedModule& moduleForProgramKind(Program::Kind kind);
 
 private:
+    const ParsedModule& loadGPUModule();
+    const ParsedModule& loadFragmentModule();
+    const ParsedModule& loadVertexModule();
     const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
