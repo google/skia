@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Removed deperated version of MakeFromYUVATextures. Use the version
+    that takes GrYUVABackendTextures instead.
+    https://review.skia.org/336959
+
   * Add MTLBinaryArchive parameter to GrMtlBackendContext. This allows
     Skia to cache PipelineStates in the given archive for faster
     shader compiles on future runs. The client must handle loading and
