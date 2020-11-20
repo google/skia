@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "681e0a2d_109cf95d",
+        "filename": "src/core/SkYUVAIndex.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-20T16:49:43Z",
+      "side": 1,
+      "message": "kIndexCount?",
+      "range": {
+        "startLine": 47,
+        "startChar": 62,
+        "endLine": 47,
+        "endChar": 63
+      },
+      "revId": "66f184b1742c99b7671a0102195b98a47c771121",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

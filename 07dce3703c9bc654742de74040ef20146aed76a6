@@ -22,6 +22,30 @@
       },
       "revId": "07dce3703c9bc654742de74040ef20146aed76a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be93e0f2_2184f469",
+        "filename": "include/core/SkYUVAInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-20T16:49:43Z",
+      "side": 0,
+      "message": "Maybe an enum in a central header that all these classes and SkYUVAIndex use?",
+      "parentUuid": "b1c813af_2038a7c8",
+      "range": {
+        "startLine": 119,
+        "startChar": 51,
+        "endLine": 119,
+        "endChar": 75
+      },
+      "revId": "07dce3703c9bc654742de74040ef20146aed76a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
