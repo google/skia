@@ -16,6 +16,29 @@
       "message": "Now that https://skia-review.googlesource.com/c/skia/+/335866 (Remove uses of SkCanvas::flush) has landed this CL should be able to re-land.",
       "revId": "a08e0a9d8979fb62de5ecf9c49dd38fc233d21b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89686b55_aa65a913",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-20T23:30:19Z",
+      "side": 1,
+      "message": "Use:\n dContext-\u003eflushAndSubmit()\n\n?",
+      "range": {
+        "startLine": 610,
+        "startChar": 0,
+        "endLine": 611,
+        "endChar": 27
+      },
+      "revId": "a08e0a9d8979fb62de5ecf9c49dd38fc233d21b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
