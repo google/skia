@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b199436d_d145331c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T22:20:14Z",
+      "side": 1,
+      "message": "This didn\u0027t revert cleanly - thus the manual revert.",
+      "revId": "bece33a4009159ce58c50c0b0e7112c4a89d4865",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
