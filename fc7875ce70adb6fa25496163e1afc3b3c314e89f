@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92400518_324d1bd2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T13:55:35Z",
+      "side": 1,
+      "message": "opinions?\n\nseparately, I might want to rename SkSamplingMode to SkFilterMode (for nearest / linear), but maybe I\u0027m just married to the name filter...",
+      "revId": "fc7875ce70adb6fa25496163e1afc3b3c314e89f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
