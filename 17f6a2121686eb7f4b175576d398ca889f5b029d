@@ -70,6 +70,30 @@
       },
       "revId": "17f6a2121686eb7f4b175576d398ca889f5b029d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98568357_345f7ea7",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-20T20:09:26Z",
+      "side": 1,
+      "message": "Only comment then is that Skia uses a different tolerance for nearly zero: \n\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/shaders/gradients/SkGradientShader.cpp;l\u003d919?q\u003dkdegeneratethreshold\u0026ss\u003dchromium%2Fchromium%2Fsrc:third_party%2Fskia%2F",
+      "parentUuid": "592749c5_1589423f",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 26
+      },
+      "revId": "17f6a2121686eb7f4b175576d398ca889f5b029d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
