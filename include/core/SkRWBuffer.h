@@ -96,6 +96,8 @@ public:
 
     std::unique_ptr<SkStreamAsset> makeStreamSnapshot() const;
 
+    bool HasNoSnapshots() const;
+
 #ifdef SK_DEBUG
     void validate() const;
 #else

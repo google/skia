@@ -362,3 +362,8 @@ private:
 std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
     return std::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
 }
+
+bool HasNoSnapshots() const {
+  return fHead->fRefCnt.load(std::memory_order_relaxed) == 1;
+}
+
