@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4004a27_8f7cf8d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-20T20:07:06Z",
+      "side": 1,
+      "message": "This should be a no-op, but I did see two GMs with tiny invisible diffs.\n\nI think that\u0027s got to be from the premul() multiplies being in-play to fuse with a subsequent add into an FMA, where previously the multiplies were done outside the SkVM machinery and couldn\u0027t fuse.",
+      "revId": "99cc8216f828b822fb8046badc18e682d5235f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
