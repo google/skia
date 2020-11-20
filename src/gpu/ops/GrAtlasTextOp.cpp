@@ -471,7 +471,8 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
         return nullptr;
     }
 
-    GrAtlasSubRun* subRun = static_cast<GrAtlasSubRun*>(blob->subRunList().head());
+    GrAtlasSubRun* subRun = blob->subRunList().head()->testingOnly_atlasSubRun();
+    SkASSERT(subRun);
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
     return op;
