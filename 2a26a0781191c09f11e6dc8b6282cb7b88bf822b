@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47feddc1_82ca0101",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-20T17:50:14Z",
+      "side": 1,
+      "message": "Not for actual review. This is a total hack for experimenting. To run the sample:\n\n  out/debug/viewer --match TessellatedWedge -b gl --msaa 8 --pr tess",
+      "revId": "2a26a0781191c09f11e6dc8b6282cb7b88bf822b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
