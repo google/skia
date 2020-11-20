@@ -144,9 +144,17 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                                         : SK_ARRAY_COUNT(kOctoIndicesAsTris);
     auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
 
+<<<<<<< HEAD
     GrProgramInfo programInfo(flushState->writeView(), &pipeline, &GrUserStencilSettings::kUnused,
                               this, primitiveType, 0, flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
+=======
+    GrRenderTargetProxy* rtProxy = flushState->proxy();
+    GrProgramInfo programInfo(rtProxy->numSamples(), rtProxy->numStencilSamples(),
+                              rtProxy->backendFormat(), flushState->writeView().origin(),
+                              &pipeline, &GrUserStencilSettings::kUnused, this, primitiveType, 0,
+                              flushState->renderPassBarriers());
+>>>>>>> parent of 42dbca51f4a... Pass in the color load op to GrProgramInfo.
 
     flushState->bindPipelineAndScissorClip(programInfo, bounds);
     flushState->bindTextures(*this, atlasProxy, pipeline);

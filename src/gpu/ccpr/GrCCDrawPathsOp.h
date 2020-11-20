@@ -75,8 +75,7 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers,
-                      GrLoadOp colorLoadOp) override {}
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
 
     friend class GrOp;
 

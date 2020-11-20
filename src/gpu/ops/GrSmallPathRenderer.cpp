@@ -166,8 +166,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override {
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         // We cannot surface the SmallPathOp's programInfo at record time. As currently
         // implemented, the GP is modified at flush time based on the number of pages in the
         // atlas.
@@ -177,8 +176,7 @@ private:
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&,
-                           GrXferBarrierFlags renderPassXferBarriers,
-                           GrLoadOp colorLoadOp) override {
+                           GrXferBarrierFlags renderPassXferBarriers) override {
         // TODO [PI]: implement
     }
 
