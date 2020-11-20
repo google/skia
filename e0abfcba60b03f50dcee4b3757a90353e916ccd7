@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d5c23bc_b9cb3b55",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-20T15:36:07Z",
+      "side": 1,
+      "message": "I\u0027d put the word histogram in here somewhere since we have other things called \"stats\" that we collect in our tooling that aren\u0027t related to the UMA/histogram integration. (Though, we should probably look at some unification here if it makes sense and lean on the histogram macros more).",
+      "range": {
+        "startLine": 878,
+        "startChar": 0,
+        "endLine": 879,
+        "endChar": 41
+      },
+      "revId": "e0abfcba60b03f50dcee4b3757a90353e916ccd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
