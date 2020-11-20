@@ -98,27 +98,27 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     // the majority of pixels in a single render pass.
     SkScalar scales[2];
     SkAssertResult(fViewMatrix.getMinMaxScales(scales));  // Will fail if perspective.
-    const SkRect& bounds = fPath.getBounds();
-    float gpuFragmentWork = bounds.height() * scales[0] * bounds.width() * scales[1];
-    float cpuTessellationWork = (float)numVerbs * SkNextLog2(numVerbs);  // N log N.
-    if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
-        bool isLinear;
-        // This will fail if the inner triangles do not form a simple polygon (e.g., self
-        // intersection, double winding).
-        if (this->prePrepareInnerPolygonTriangulation(args, &isLinear)) {
-            if (!isLinear) {
-                // Always use indirect draws for cubics instead of tessellation here. Our goal in
-                // this mode is to maximize GPU performance, and the middle-out topology used by our
-                // indirect draws is easier on the rasterizer than a tessellated fan. There also
-                // seems to be a small amount of fixed tessellation overhead that this avoids.
-                this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
-                // We will need one final pass to cover the convex hulls of the cubics after
-                // drawing the inner triangles.
-                this->prePrepareFillCubicHullsProgram(args);
-            }
-            return;
-        }
-    }
+    // const SkRect& bounds = fPath.getBounds();
+    // float gpuFragmentWork = bounds.height() * scales[0] * bounds.width() * scales[1];
+    // float cpuTessellationWork = (float)numVerbs * SkNextLog2(numVerbs);  // N log N.
+    // if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
+    //     bool isLinear;
+    //     // This will fail if the inner triangles do not form a simple polygon (e.g., self
+    //     // intersection, double winding).
+    //     if (this->prePrepareInnerPolygonTriangulation(args, &isLinear)) {
+    //         if (!isLinear) {
+    //             // Always use indirect draws for cubics instead of tessellation here. Our goal in
+    //             // this mode is to maximize GPU performance, and the middle-out topology used by our
+    //             // indirect draws is easier on the rasterizer than a tessellated fan. There also
+    //             // seems to be a small amount of fixed tessellation overhead that this avoids.
+    //             this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
+    //             // We will need one final pass to cover the convex hulls of the cubics after
+    //             // drawing the inner triangles.
+    //             this->prePrepareFillCubicHullsProgram(args);
+    //         }
+    //         return;
+    //     }
+    // }
 
     // If we didn't triangulate the inner fan then the fill program will be a simple bounding box.
     this->prePrepareFillBoundingBoxProgram(args);
@@ -126,14 +126,14 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     // When there are only a few verbs, it seems to always be fastest to make a single indirect draw
     // that contains both the inner triangles and the outer cubics, instead of using hardware
     // tessellation. Also take this path if tessellation is not supported.
-    bool drawTrianglesAsIndirectCubicDraw = (numVerbs < 50);
-    if (drawTrianglesAsIndirectCubicDraw || (fOpFlags & OpFlags::kDisableHWTessellation)) {
-        if (!drawTrianglesAsIndirectCubicDraw) {
-            this->prePrepareStencilTrianglesProgram(args);
-        }
-        this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
-        return;
-    }
+    // bool drawTrianglesAsIndirectCubicDraw = (numVerbs < 50);
+    // if (drawTrianglesAsIndirectCubicDraw || (fOpFlags & OpFlags::kDisableHWTessellation)) {
+    //     if (!drawTrianglesAsIndirectCubicDraw) {
+    //         this->prePrepareStencilTrianglesProgram(args);
+    //     }
+    //     this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
+    //     return;
+    // }
 
     // The caller should have sent Flags::kDisableHWTessellation if it was not supported.
     SkASSERT(args.fCaps->shaderCaps()->tessellationSupport());
@@ -143,12 +143,12 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     // large margin on complex paths, but also causes greater CPU overhead due to the extra shader
     // switches and draw calls.
     // NOTE: Raster-edge work is 1-dimensional, so we sum height and width instead of multiplying.
-    float rasterEdgeWork = (bounds.height() + bounds.width()) * scales[1] * fPath.countVerbs();
-    if (rasterEdgeWork > 300 * 300) {
-        this->prePrepareStencilTrianglesProgram(args);
-        this->prePrepareStencilCubicsProgram<GrCubicTessellateShader>(args);
-        return;
-    }
+    // float rasterEdgeWork = (bounds.height() + bounds.width()) * scales[1] * fPath.countVerbs();
+    // if (rasterEdgeWork > 300 * 300) {
+    //     this->prePrepareStencilTrianglesProgram(args);
+    //     this->prePrepareStencilCubicsProgram<GrCubicTessellateShader>(args);
+    //     return;
+    // }
 
     // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
     this->prePrepareStencilCubicsProgram<GrWedgeTessellateShader>(args);
@@ -750,28 +750,22 @@ void GrPathTessellateOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* tar
                 case SkPathVerb::kClose:
                     continue;  // Ignore. We can assume an implicit close at the end.
                 case SkPathVerb::kLine:
-                    GrPathUtils::convertLineToCubic(pts[0], pts[1], vertexData + fCubicVertexCount);
-                    lastPoint = pts[1];
-                    break;
                 case SkPathVerb::kQuad:
-                    GrPathUtils::convertQuadToCubic(pts, vertexData + fCubicVertexCount);
-                    lastPoint = pts[2];
-                    break;
                 case SkPathVerb::kCubic:
-                    memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 4);
-                    lastPoint = pts[3];
-                    break;
+                    continue;
                 case SkPathVerb::kConic:
-                    SkUNREACHABLE;
+                    memcpy(vertexData + fCubicVertexCount, pts, sizeof(SkPoint) * 3);
+                    vertexData[fCubicVertexCount + 3] = {*w,0};
+                    break;
             }
             vertexData[fCubicVertexCount + 4] = midpoint;
             fCubicVertexCount += 5;
         }
-        if (lastPoint != startPoint) {
-            GrPathUtils::convertLineToCubic(lastPoint, startPoint, vertexData + fCubicVertexCount);
-            vertexData[fCubicVertexCount + 4] = midpoint;
-            fCubicVertexCount += 5;
-        }
+        // if (lastPoint != startPoint) {
+        //     GrPathUtils::convertLineToCubic(lastPoint, startPoint, vertexData + fCubicVertexCount);
+        //     vertexData[fCubicVertexCount + 4] = midpoint;
+        //     fCubicVertexCount += 5;
+        // }
     }
 
     vertexAlloc.unlock(fCubicVertexCount);

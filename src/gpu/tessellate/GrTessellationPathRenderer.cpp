@@ -61,7 +61,7 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
         return;
     }
 
-    fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
+    fStencilAtlasFlags = OpFlags::kStencilOnly/*  | OpFlags::kDisableHWTessellation */;
     fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
 
     // The atlas usually does better with hardware tessellation. If hardware tessellation is
@@ -118,7 +118,7 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
     SkASSERT(SkScalarNearlyEqual(GrWangsFormula::worst_case_cubic(
             kLinearizationIntolerance, worstCaseWidth, worstCaseHeight), s, 1));
 #endif
-    fStencilAtlasFlags &= ~OpFlags::kDisableHWTessellation;
+    // fStencilAtlasFlags &= ~OpFlags::kDisableHWTessellation;
     fMaxAtlasPathWidth = std::min(fMaxAtlasPathWidth, (int)worstCaseWidth);
 }
 
@@ -182,17 +182,17 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                 args.fAAType, &devIBounds, &locationInAtlas, &transposedInAtlas)) {
         // The atlas is not compatible with DDL. We should only be using it on direct contexts.
         SkASSERT(args.fContext->asDirectContext());
-#ifdef SK_DEBUG
-        // If using hardware tessellation in the atlas, make sure the max number of segments is
-        // sufficient for this path. fMaxAtlasPathWidth should have been tuned for this to always be
-        // the case.
-        if (!(fStencilAtlasFlags & OpFlags::kDisableHWTessellation)) {
-            int worstCaseNumSegments = GrWangsFormula::worst_case_cubic(kLinearizationIntolerance,
-                                                                        devIBounds.width(),
-                                                                        devIBounds.height());
-            SkASSERT(worstCaseNumSegments <= shaderCaps.maxTessellationSegments());
-        }
-#endif
+// #ifdef SK_DEBUG
+//         // If using hardware tessellation in the atlas, make sure the max number of segments is
+//         // sufficient for this path. fMaxAtlasPathWidth should have been tuned for this to always be
+//         // the case.
+//         if (!(fStencilAtlasFlags & OpFlags::kDisableHWTessellation)) {
+//             int worstCaseNumSegments = GrWangsFormula::worst_case_cubic(kLinearizationIntolerance,
+//                                                                         devIBounds.width(),
+//                                                                         devIBounds.height());
+//             SkASSERT(worstCaseNumSegments <= shaderCaps.maxTessellationSegments());
+//         }
+// #endif
         auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
                 renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
@@ -276,12 +276,12 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     auto drawPathFlags = OpFlags::kNone;
-    if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
-        // The path is too large for hardware tessellation; a curve in this bounding box could
-        // potentially require more segments than are supported by the hardware. Fall back on
-        // indirect draws.
-        drawPathFlags |= OpFlags::kDisableHWTessellation;
-    }
+    // if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
+    //     // The path is too large for hardware tessellation; a curve in this bounding box could
+    //     // potentially require more segments than are supported by the hardware. Fall back on
+    //     // indirect draws.
+    //     drawPathFlags |= OpFlags::kDisableHWTessellation;
+    // }
 
     auto op = GrOp::Make<GrPathTessellateOp>(
             args.fContext, *args.fViewMatrix, path, std::move(args.fPaint),
