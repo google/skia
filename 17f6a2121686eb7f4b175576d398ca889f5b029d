@@ -22,6 +22,30 @@
       },
       "revId": "17f6a2121686eb7f4b175576d398ca889f5b029d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71c90522_0dbd6f15",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-20T20:00:22Z",
+      "side": 1,
+      "message": "Uh oh, dueling CLs: https://skia-review.googlesource.com/c/skia/+/337178. I\u0027m happy either way.",
+      "parentUuid": "6e1b4955_e4935f1c",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 26
+      },
+      "revId": "17f6a2121686eb7f4b175576d398ca889f5b029d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
