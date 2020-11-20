@@ -325,11 +325,11 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     static constexpr int kMaxRenderTasksBeforeFlush = 100;
 
     // Execute the onFlush renderTasks first, if any.
-    for (sk_sp<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
+    for (std::unique_ptr<GrRenderTask>& onFlushRenderTask : fOnFlushRenderTasks) {
         if (!onFlushRenderTask->execute(flushState)) {
             SkDebugf("WARNING: onFlushRenderTask failed to execute.\n");
         }
-        SkASSERT(onFlushRenderTask->unique());
+//        SkASSERT(onFlushRenderTask->unique());
         onFlushRenderTask->disown(this);
         onFlushRenderTask = nullptr;
         (*numRenderTasksExecuted)++;
@@ -376,10 +376,9 @@ void GrDrawingManager::removeRenderTasks(int startIndex, int stopIndex) {
         if (!task) {
             continue;
         }
-        if (!task->unique() || task->requiresExplicitCleanup()) {
-            // TODO: Eventually uniqueness should be guaranteed: http://skbug.com/7111.
-            // DDLs, however, will always require an explicit notification for when they
-            // can clean up resources.
+        if (/*!task->unique()*/ task->requiresExplicitCleanup()) {
+            // DDL tasks require an explicit notification to clean up resources since the
+            // lifetime of the sub-tasks is governed by the DDL object
             task->endFlush(this);
         }
         task->disown(this);
@@ -424,7 +423,7 @@ void GrDrawingManager::closeAllTasks() {
     }
 }
 
-GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::insertTaskBeforeLast(std::unique_ptr<GrRenderTask> task) {
     SkASSERT(!fDAG.empty());
     if (!task) {
         return nullptr;
@@ -437,7 +436,7 @@ GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
     return (fDAG[fDAG.count() - 2] = std::move(task)).get();
 }
 
-GrRenderTask* GrDrawingManager::appendTask(sk_sp<GrRenderTask> task) {
+GrRenderTask* GrDrawingManager::appendTask(std::unique_ptr<GrRenderTask> task) {
     if (!task) {
         return nullptr;
     }
@@ -618,10 +617,10 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     }
 
     // Add a task to handle drawing and lifetime management of the DDL.
-    SkDEBUGCODE(auto ddlTask =) this->appendTask(sk_make_sp<GrDDLTask>(this,
-                                                                       sk_ref_sp(newDest),
-                                                                       std::move(ddl),
-                                                                       offset));
+    SkDEBUGCODE(auto ddlTask =) this->appendTask(std::make_unique<GrDDLTask>(this,
+                                                                             sk_ref_sp(newDest),
+                                                                             std::move(ddl),
+                                                                             offset));
     SkASSERT(ddlTask->isClosed());
 
     SkDEBUGCODE(this->validate());
@@ -675,31 +674,34 @@ void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) 
     }
 }
 
-sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
-                                              bool flushTimeOpsTask) {
+GrOpsTask* GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
+                                        bool flushTimeOpsTask) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     GrSurfaceProxy* proxy = surfaceView.proxy();
     this->closeRenderTasksForNewRenderTask(proxy);
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas(),
-                                           std::move(surfaceView),
-                                           fContext->priv().auditTrail()));
+    std::unique_ptr<GrOpsTask> opsTask = std::make_unique<GrOpsTask>(this,
+                                                                     fContext->priv().arenas(),
+                                                                     std::move(surfaceView),
+                                                                     fContext->priv().auditTrail());
     SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
 
+    GrOpsTask* tmp;
     if (flushTimeOpsTask) {
-        fOnFlushRenderTasks.push_back(opsTask);
+        fOnFlushRenderTasks.push_back(std::move(opsTask));
+        tmp = (GrOpsTask*) fOnFlushRenderTasks.back().get();
     } else {
-        this->appendTask(opsTask);
+        tmp = (GrOpsTask*) this->appendTask(std::move(opsTask));
 
         if (!fReduceOpsTaskSplitting) {
-            fActiveOpsTask = opsTask.get();
+            fActiveOpsTask = tmp;
         }
     }
 
     SkDEBUGCODE(this->validate());
-    return opsTask;
+    return tmp;
 }
 
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
@@ -712,7 +714,7 @@ GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const 
     // Add the new textureResolveTask before the fActiveOpsTask (if not in
     // sorting/opsTask-splitting-reduction mode) because it will depend upon this resolve task.
     // NOTE: Putting it here will also reduce the amount of work required by the topological sort.
-    GrRenderTask* task = this->insertTaskBeforeLast(sk_make_sp<GrTextureResolveRenderTask>());
+    GrRenderTask* task = this->insertTaskBeforeLast(std::make_unique<GrTextureResolveRenderTask>());
     return static_cast<GrTextureResolveRenderTask*>(task);
 }
 
@@ -724,7 +726,9 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
 
     const GrCaps& caps = *fContext->priv().caps();
 
-    sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
+    GrRenderTask* tmp;
+    std::unique_ptr<GrWaitRenderTask> waitTask = std::make_unique<GrWaitRenderTask>(
+                                                                    GrSurfaceProxyView(proxy),
                                                                     std::move(semaphores),
                                                                     numSemaphores);
     if (fReduceOpsTaskSplitting) {
@@ -754,11 +758,11 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             }
             this->setLastRenderTask(proxy.get(), waitTask.get());
         }
-        this->appendTask(waitTask);
+        tmp = this->appendTask(std::move(waitTask));
     } else {
         if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
             SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
-            this->insertTaskBeforeLast(waitTask);
+            tmp = this->insertTaskBeforeLast(std::move(waitTask));
             // In this case we keep the current renderTask open but just insert the new waitTask
             // before it in the list. The waitTask will never need to trigger any resolves or mip
             // map generation which is the main advantage of going through the proxy version.
@@ -771,8 +775,8 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
 
             // Make sure we add the dependencies of fActiveOpsTask to waitTask first or else we'll
             // get a circular self dependency of waitTask on waitTask.
-            waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
-            fActiveOpsTask->addDependency(waitTask.get());
+            tmp->addDependenciesFromOtherTask(fActiveOpsTask);
+            fActiveOpsTask->addDependency(tmp);
         } else {
             // In this case we just close the previous RenderTask and start and append the waitTask
             // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
@@ -784,10 +788,10 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             }
             this->setLastRenderTask(proxy.get(), waitTask.get());
             this->closeRenderTasksForNewRenderTask(proxy.get());
-            this->appendTask(waitTask);
+            tmp = this->appendTask(std::move(waitTask));
         }
     }
-    waitTask->makeClosed(caps);
+    tmp->makeClosed(caps);
 
     SkDEBUGCODE(this->validate());
 }
@@ -803,7 +807,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // This copies from srcProxy to dstBuffer so it doesn't have a real target.
     this->closeRenderTasksForNewRenderTask(nullptr);
 
-    GrRenderTask* task = this->appendTask(sk_make_sp<GrTransferFromRenderTask>(
+    GrRenderTask* task = this->appendTask(std::make_unique<GrTransferFromRenderTask>(
             srcProxy, srcRect, surfaceColorType, dstColorType,
             std::move(dstBuffer), dstOffset));
 
