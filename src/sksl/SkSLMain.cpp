@@ -285,88 +285,57 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         puts(errorText);
     };
 
+    auto compileProgram = [&](SkSL::Compiler::Flags flags, const auto& writeFn) -> ResultCode {
+        SkSL::FileOutputStream out(outputPath);
+        SkSL::Compiler compiler(caps, flags);
+        if (!out.isValid()) {
+            printf("error writing '%s'\n", outputPath.c_str());
+            return ResultCode::kOutputError;
+        }
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        if (!program || !writeFn(compiler, *program, out)) {
+            emitCompileError(out, compiler.errorText().c_str());
+            return ResultCode::kCompileError;
+        }
+        if (!out.close()) {
+            printf("error writing '%s'\n", outputPath.c_str());
+            return ResultCode::kOutputError;
+        }
+        return ResultCode::kSuccess;
+    };
+
     if (outputPath.endsWith(".spirv")) {
-        SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        if (!program || !compiler.toSPIRV(*program, out)) {
-            emitCompileError(out, compiler.errorText().c_str());
-            return ResultCode::kCompileError;
-        }
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
+        return compileProgram(
+                SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toSPIRV(program, out);
+                });
     } else if (outputPath.endsWith(".glsl")) {
-        SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        if (!program || !compiler.toGLSL(*program, out)) {
-            emitCompileError(out, compiler.errorText().c_str());
-            return ResultCode::kCompileError;
-        }
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
+        return compileProgram(
+                SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toGLSL(program, out);
+                });
     } else if (outputPath.endsWith(".metal")) {
-        SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        if (!program || !compiler.toMetal(*program, out)) {
-            emitCompileError(out, compiler.errorText().c_str());
-            return ResultCode::kCompileError;
-        }
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
+        return compileProgram(
+                SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toMetal(program, out);
+                });
     } else if (outputPath.endsWith(".h")) {
-        SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps, SkSL::Compiler::kPermitInvalidStaticTests_Flag);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
         settings.fReplaceSettings = false;
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        if (!program || !compiler.toH(*program, base_name(inputPath.c_str(), "Gr", ".fp"), out)) {
-            emitCompileError(out, compiler.errorText().c_str());
-            return ResultCode::kCompileError;
-        }
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
+        return compileProgram(
+                SkSL::Compiler::kPermitInvalidStaticTests_Flag,
+                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toH(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
+                });
     } else if (outputPath.endsWith(".cpp")) {
-        SkSL::FileOutputStream out(outputPath);
-        SkSL::Compiler compiler(caps, SkSL::Compiler::kPermitInvalidStaticTests_Flag);
-        if (!out.isValid()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
         settings.fReplaceSettings = false;
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
-        if (!program || !compiler.toCPP(*program, base_name(inputPath.c_str(), "Gr", ".fp"), out)) {
-            emitCompileError(out, compiler.errorText().c_str());
-            return ResultCode::kCompileError;
-        }
-        if (!out.close()) {
-            printf("error writing '%s'\n", outputPath.c_str());
-            return ResultCode::kOutputError;
-        }
+        return compileProgram(
+                SkSL::Compiler::kPermitInvalidStaticTests_Flag,
+                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
+                });
     } else if (outputPath.endsWith(".dehydrated.sksl")) {
         SkSL::FileOutputStream out(outputPath);
         SkSL::Compiler compiler(caps);
