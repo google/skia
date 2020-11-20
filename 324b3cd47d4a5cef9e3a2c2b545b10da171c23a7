@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73a5749c_57ac157c",
+        "filename": "tests/sksl/shared/golden/Operators.asm.frag",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-20T22:03:17Z",
+      "side": 1,
+      "message": "I suspect these are \u0026\u0026\u003d ||\u003d ^^\u003d which are in fact not real tokens, and unsupported in GLSL and Metal even though we emit them.\nIt\u0027ll be a good excuse to remove them.",
+      "parentUuid": "95c11c3e_4ff91e4f",
+      "revId": "324b3cd47d4a5cef9e3a2c2b545b10da171c23a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7bb879a4_ca77764b",
