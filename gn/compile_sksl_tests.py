@@ -21,6 +21,9 @@ def makeEmptyFile(path):
     except OSError:
         pass
 
+def extensionForSpirvAsm(ext):
+    return ext if (ext == 'frag' or ext == 'vert' or ext == 'geom') else 'frag'
+
 if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
 
@@ -29,7 +32,7 @@ worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False)
 
 # Convert the list of command-line inputs into a worklist file sfor skslc.
 for input in inputs:
-    noExt, _ = os.path.splitext(input)
+    noExt, ext = os.path.splitext(input)
     head, tail = os.path.split(noExt)
     targetDir = os.path.join(head, "golden")
     if not os.path.isdir(targetDir):
@@ -56,8 +59,12 @@ for input in inputs:
         worklist.write(input + "\n")
         worklist.write(target + ".metal\n")
         worklist.write(settings + "\n\n")
+    elif lang == "--spirv":
+        worklist.write(input + "\n")
+        worklist.write(target + ".asm." + extensionForSpirvAsm(ext) + "\n")
+        worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --fp --glsl --metal, got " + lang)
+        sys.exit("### Expected one of: --fp --glsl --metal --spirv, got " + lang)
 
 # Invoke skslc, passing in the worklist.
 worklist.close()
