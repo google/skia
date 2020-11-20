@@ -172,14 +172,15 @@ private:
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&& appliedClip,
                                      const GrXferProcessor::DstProxyView& dstProxyView,
-                                     GrXferBarrierFlags renderPassXferBarriers) const {
+                                     GrXferBarrierFlags renderPassXferBarriers,
+                                     GrLoadOp colorLoadOp) const {
         GrGeometryProcessor* geomProc = FwidthSquircleTestProcessor::Make(arena, fViewMatrix);
 
         return sk_gpu_test::CreateProgramInfo(caps, arena, writeView,
                                               std::move(appliedClip), dstProxyView,
                                               geomProc, SkBlendMode::kSrcOver,
                                               GrPrimitiveType::kTriangleStrip,
-                                              renderPassXferBarriers);
+                                              renderPassXferBarriers, colorLoadOp);
     }
 
     GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) const {
@@ -188,14 +189,16 @@ private:
                                        flushState->writeView(),
                                        flushState->detachAppliedClip(),
                                        flushState->dstProxyView(),
-                                       flushState->renderPassBarriers());
+                                       flushState->renderPassBarriers(),
+                                       flushState->colorLoadOp());
     }
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView,
-                      GrXferBarrierFlags renderPassXferBarriers) final {
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) final {
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
@@ -203,7 +206,7 @@ private:
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
                                                std::move(appliedClip), dstProxyView,
-                                               renderPassXferBarriers);
+                                               renderPassXferBarriers, colorLoadOp);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }

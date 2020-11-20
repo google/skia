@@ -146,7 +146,8 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers) override {}
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
@@ -167,7 +168,8 @@ private:
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,
                                   GrPrimitiveType::kTriangleStrip, 0,
-                                  flushState->renderPassBarriers());
+                                  flushState->renderPassBarriers(),
+                                  flushState->colorLoadOp());
 
         flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
         for (int i = 0; i < 4; ++i) {

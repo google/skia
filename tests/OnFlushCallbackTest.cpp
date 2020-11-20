@@ -104,7 +104,8 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers) override {
+                             GrXferBarrierFlags renderPassXferBarriers,
+                             GrLoadOp colorLoadOp) override {
         using namespace GrDefaultGeoProcFactory;
 
         GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(
@@ -121,7 +122,7 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                                  dstProxyView, gp, GrPrimitiveType::kTriangles,
-                                                 renderPassXferBarriers);
+                                                 renderPassXferBarriers, colorLoadOp);
     }
 
     void onPrepareDraws(Target* target) override {

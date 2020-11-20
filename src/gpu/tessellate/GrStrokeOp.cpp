@@ -84,6 +84,7 @@ void GrStrokeOp::prePrepareColorProgram(SkArenaAlloc* arena,
                                         const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers,
+                                        GrLoadOp colorLoadOp,
                                         const GrCaps& caps) {
     SkASSERT(!fColorProgram);
     auto pipelineFlags = GrPipeline::InputFlags::kNone;
@@ -95,6 +96,6 @@ void GrStrokeOp::prePrepareColorProgram(SkArenaAlloc* arena,
     fColorProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
                                                   pipelineFlags, std::move(fProcessors),
                                                   std::move(clip), dstProxyView,
-                                                  renderPassXferBarriers,
+                                                  renderPassXferBarriers, colorLoadOp,
                                                   &GrUserStencilSettings::kUnused, caps);
 }

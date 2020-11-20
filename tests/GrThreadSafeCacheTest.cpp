@@ -456,7 +456,8 @@ private:
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&& appliedClip,
                                      const GrXferProcessor::DstProxyView& dstProxyView,
-                                     GrXferBarrierFlags renderPassXferBarriers) const {
+                                     GrXferBarrierFlags renderPassXferBarriers,
+                                     GrLoadOp colorLoadOp) const {
         using namespace GrDefaultGeoProcFactory;
 
         Color color({ 0.0f, 0.0f, 1.0f, 1.0f });
@@ -470,7 +471,7 @@ private:
                                               std::move(appliedClip), dstProxyView,
                                               gp, SkBlendMode::kSrcOver,
                                               GrPrimitiveType::kTriangleStrip,
-                                              renderPassXferBarriers);
+                                              renderPassXferBarriers, colorLoadOp);
     }
 
     GrProgramInfo* createProgramInfo(GrOpFlushState* flushState) const {
@@ -479,7 +480,8 @@ private:
                                        flushState->writeView(),
                                        flushState->detachAppliedClip(),
                                        flushState->dstProxyView(),
-                                       flushState->renderPassBarriers());
+                                       flushState->renderPassBarriers(),
+                                       flushState->colorLoadOp());
     }
 
     void findOrCreateVertices(GrRecordingContext* rContext, bool failLookup, bool failFillingIn) {
@@ -546,7 +548,8 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView,
-                      GrXferBarrierFlags renderPassXferBarriers) override {
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) override {
         SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
@@ -554,7 +557,7 @@ private:
 
         fProgramInfo = this->createProgramInfo(rContext->priv().caps(), arena, writeView,
                                                std::move(appliedClip), dstProxyView,
-                                               renderPassXferBarriers);
+                                               renderPassXferBarriers, colorLoadOp);
 
         rContext->priv().recordProgramInfo(fProgramInfo);
 

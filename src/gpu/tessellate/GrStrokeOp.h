@@ -35,8 +35,9 @@ protected:
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
     void prePrepareColorProgram(SkArenaAlloc* arena, GrStrokeTessellateShader*,
-                                const GrSurfaceProxyView&, GrAppliedClip&&, const
-                                GrXferProcessor::DstProxyView&, GrXferBarrierFlags, const GrCaps&);
+                                const GrSurfaceProxyView&, GrAppliedClip&&,
+                                const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
+                                GrLoadOp colorLoadOp, const GrCaps&);
 
     static float NumCombinedSegments(float numParametricSegments, float numRadialSegments) {
         // The first and last edges are shared by both the parametric and radial sets of edges, so

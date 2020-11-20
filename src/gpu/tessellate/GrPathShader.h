@@ -39,13 +39,14 @@ public:
                                           GrProcessorSet&& processors, GrAppliedClip&& appliedClip,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
+                                          GrLoadOp colorLoadOp,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         auto* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
                 &caps, arena, writeView.swizzle(), std::move(appliedClip), dstProxyView,
                 std::move(processors), pipelineFlags);
         return MakeProgramInfo(shader, arena, writeView, pipeline, dstProxyView,
-                               renderPassXferBarriers, stencil, caps);
+                               renderPassXferBarriers, colorLoadOp, stencil, caps);
     }
 
     static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
@@ -53,6 +54,7 @@ public:
                                           const GrPipeline* pipeline,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
+                                          GrLoadOp colorLoadOp,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         GrRenderTargetProxy* proxy = writeView.asRenderTargetProxy();
@@ -60,7 +62,7 @@ public:
                                           proxy->backendFormat(), writeView.origin(), pipeline,
                                           stencil, shader, shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
-                                          renderPassXferBarriers);
+                                          renderPassXferBarriers, colorLoadOp);
     }
 
 private:
