@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "06d3161e_153cda58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T17:55:36Z",
+      "side": 1,
+      "message": "Maybe add some unit tests ?",
+      "revId": "d802bf27430558e96bfb6e4b5b6c5423f8cb2a24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "37bb5143_19ae193e",
         "filename": "src/gpu/GrOpsTask.cpp",
         "patchSetId": 1
@@ -14,6 +31,40 @@
       "writtenOn": "2020-11-19T17:10:04Z",
       "side": 1,
       "message": "Note: After review.skia.org/336451 this will just be this-\u003etarget(0). For right now it wants a mutable pointer :(",
+      "revId": "d802bf27430558e96bfb6e4b5b6c5423f8cb2a24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2b9d63a_fa24806a",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T17:55:36Z",
+      "side": 1,
+      "message": "Can this be made private? It seems to only be used internally and getting the index doesn\u0027t seem useful outside of the class.",
+      "revId": "d802bf27430558e96bfb6e4b5b6c5423f8cb2a24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fcc8bf1_b6ac6c89",
+        "filename": "src/gpu/GrRenderTask.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T17:55:36Z",
+      "side": 1,
+      "message": "These don\u0027t appear to be used anywhere",
       "revId": "d802bf27430558e96bfb6e4b5b6c5423f8cb2a24",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
