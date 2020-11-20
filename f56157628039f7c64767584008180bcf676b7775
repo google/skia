@@ -16,6 +16,23 @@
       "message": "So the main change is that GrProgramInfo and GrFlushState have a colorLoadOp field. Everything else is plumbing through functions",
       "revId": "f56157628039f7c64767584008180bcf676b7775",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd10c4c5_f9e2bcb7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T15:11:14Z",
+      "side": 1,
+      "message": "That\u0027s a lot of plumbing 😊",
+      "revId": "f56157628039f7c64767584008180bcf676b7775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
