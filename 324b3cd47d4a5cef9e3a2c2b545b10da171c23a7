@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95c11c3e_4ff91e4f",
+        "filename": "tests/sksl/shared/golden/Operators.asm.frag",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T21:48:28Z",
+      "side": 1,
+      "message": "Ooh, exciting!",
+      "revId": "324b3cd47d4a5cef9e3a2c2b545b10da171c23a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bb879a4_ca77764b",
+        "filename": "tests/sksl/shared/golden/OutParamsTricky.asm.frag",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T21:48:28Z",
+      "side": 1,
+      "message": "Looks like another fun one.",
+      "revId": "324b3cd47d4a5cef9e3a2c2b545b10da171c23a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fe2b428_264eb125",
+        "filename": "tests/sksl/shared/golden/ResizeMatrix.asm.frag",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T21:48:28Z",
+      "side": 1,
+      "message": "I like the ones with no error message at all.",
+      "revId": "324b3cd47d4a5cef9e3a2c2b545b10da171c23a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
