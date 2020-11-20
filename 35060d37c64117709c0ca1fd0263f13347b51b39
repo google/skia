@@ -73,6 +73,30 @@
       },
       "revId": "35060d37c64117709c0ca1fd0263f13347b51b39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "814f6ea5_fd49a870",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T21:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "354280d4_707fe093",
+      "range": {
+        "startLine": 51,
+        "startChar": 1,
+        "endLine": 56,
+        "endChar": 6
+      },
+      "revId": "35060d37c64117709c0ca1fd0263f13347b51b39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
