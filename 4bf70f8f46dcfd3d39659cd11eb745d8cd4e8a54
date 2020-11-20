@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7e2959b_a97df7c0",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-20T18:09:50Z",
+      "side": 1,
+      "message": "We don\u0027t generally name variables this way, or methods that have a \u0027this\u0027. \n\ndoDotProduct, doLength?\n\n(For that matter, the only thing that prevents this from being a normal method is the capture on `count`... maybe consider just making these into private methods? Don\u0027t feel strongly about it.)",
+      "range": {
+        "startLine": 1252,
+        "startChar": 13,
+        "endLine": 1252,
+        "endChar": 27
+      },
+      "revId": "4bf70f8f46dcfd3d39659cd11eb745d8cd4e8a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10b20cfb_4b8a2b71",
+        "filename": "src/sksl/sksl_public.sksl",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-20T18:09:50Z",
+      "side": 1,
+      "message": "We do this dot three times in a row--is it worth calculating `dot(N,I) in a temp var for reuse? It\u0027s probably fine, they\u0027re about as fast as any vector instruction can be...",
+      "range": {
+        "startLine": 121,
+        "startChar": 35,
+        "endLine": 121,
+        "endChar": 44
+      },
+      "revId": "4bf70f8f46dcfd3d39659cd11eb745d8cd4e8a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
