@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8bb4f46_df784349",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-20T20:07:31Z",
+      "side": 0,
+      "message": "The default Skia behavior only matches SVG for kClamp.  E.g. https://fiddle.skia.org/c/4bac56456da49c50f0e5c3c84fda7772",
+      "revId": "0f46450775492febbf2c6ab9d7a6740d870d16ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
