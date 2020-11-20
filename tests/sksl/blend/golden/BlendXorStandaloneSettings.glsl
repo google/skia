@@ -7,7 +7,6 @@ void main() {
     {
         _0_blend_xor = (1.0 - dst.w) * src + (1.0 - src.w) * dst;
     }
-
     sk_FragColor = _0_blend_xor;
 
 }

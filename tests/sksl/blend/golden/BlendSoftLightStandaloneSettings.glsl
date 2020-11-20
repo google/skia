@@ -32,7 +32,6 @@ void main() {
     {
         _0_blend_soft_light = dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _0_blend_soft_light;
 
 }

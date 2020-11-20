@@ -97,7 +97,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
 
     }
-
     _out->sk_FragColor = _0_blend_hue;
 
     return *_out;

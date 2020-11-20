@@ -57,7 +57,6 @@ half4 _0_unpremul;
 {
     _0_unpremul = half4(inColor.xyz / max(inColor.w, 9.9999997473787516e-05), inColor.w);
 }
-
 half4 color = _0_unpremul;
 
 @if (%s) {

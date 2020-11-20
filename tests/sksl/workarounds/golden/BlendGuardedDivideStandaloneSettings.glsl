@@ -67,21 +67,18 @@ void main() {
     {
         _0_blend_color_dodge = vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _0_blend_color_dodge;
 
     vec4 _1_blend_color_burn;
     {
         _1_blend_color_burn = vec4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _1_blend_color_burn;
 
     vec4 _2_blend_soft_light;
     {
         _2_blend_soft_light = dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _2_blend_soft_light;
 
 }

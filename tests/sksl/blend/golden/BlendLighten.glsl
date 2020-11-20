@@ -14,7 +14,6 @@ void main() {
         _2_result.xyz = max(_2_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
         _0_blend_lighten = _2_result;
     }
-
     sk_FragColor = _0_blend_lighten;
 
 }

@@ -42,7 +42,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         _0_blend_color = float4((((_4_blend_set_color_luminance + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
 
     }
-
     _out->sk_FragColor = _0_blend_color;
 
     return *_out;

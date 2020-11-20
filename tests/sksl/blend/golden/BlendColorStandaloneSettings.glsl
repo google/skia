@@ -32,7 +32,6 @@ void main() {
         _0_blend_color = vec4((((_4_blend_set_color_luminance + dst.xyz) - _3_dsa) + src.xyz) - _2_sda, (src.w + dst.w) - _1_alpha);
 
     }
-
     sk_FragColor = _0_blend_color;
 
 }
