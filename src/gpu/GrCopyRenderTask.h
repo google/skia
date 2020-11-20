@@ -12,20 +12,20 @@
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:
-    static sk_sp<GrRenderTask> Make(GrDrawingManager*,
-                                    GrSurfaceProxyView srcView,
-                                    const SkIRect& srcRect,
-                                    GrSurfaceProxyView dstView,
-                                    const SkIPoint& dstPoint,
-                                    const GrCaps*);
+    static  std::unique_ptr<GrRenderTask> Make(GrDrawingManager*,
+                                               GrSurfaceProxyView srcView,
+                                               const SkIRect& srcRect,
+                                               GrSurfaceProxyView dstView,
+                                               const SkIPoint& dstPoint,
+                                               const GrCaps*);
 
-private:
     GrCopyRenderTask(GrDrawingManager*,
                      GrSurfaceProxyView srcView,
                      const SkIRect& srcRect,
                      GrSurfaceProxyView dstView,
                      const SkIPoint& dstPoint);
 
+private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         return proxy == fSrcView.proxy();
     }

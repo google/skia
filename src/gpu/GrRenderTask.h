@@ -24,10 +24,10 @@ class GrTextureResolveRenderTask;
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
 // contents. (e.g., an opsTask that executes a command buffer, a task to regenerate mipmaps, etc.)
-class GrRenderTask : public SkRefCnt {
+class GrRenderTask {
 public:
     GrRenderTask();
-    SkDEBUGCODE(~GrRenderTask() override);
+    virtual ~GrRenderTask();
 
     void makeClosed(const GrCaps&);
 

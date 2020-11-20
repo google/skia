@@ -20,7 +20,7 @@ GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
         , fOffset(offset) {
     (void) fOffset;  // fOffset will be used shortly
 
-    for (const sk_sp<GrRenderTask>& task : fDDL->priv().renderTasks()) {
+    for (const std::unique_ptr<GrRenderTask>& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
         for (int i = 0; i < task->numTargets(); ++i) {

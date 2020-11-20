@@ -309,7 +309,8 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fFlushTimeOpsTask(flushTimeOpsTask)
         , fGlyphPainter(*this) {
-    fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
+    //$$$
+    fOpsTask1 = context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy());
     SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
     SkASSERT(this->origin() == fWriteView.origin());
 
@@ -318,8 +319,8 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
 
 #ifdef SK_DEBUG
 void GrRenderTargetContext::onValidate() const {
-    if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask.get());
+    if (fOpsTask1 && !fOpsTask1->isClosed()) {
+        SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask1);
     }
 }
 #endif
@@ -351,21 +352,21 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
-    if (!fOpsTask || fOpsTask->isClosed()) {
-        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(this->writeSurfaceView(),
-                                                                         fFlushTimeOpsTask);
-        if (fOpsTask && fNumStencilSamples > 0) {
+    if (!fOpsTask1 || fOpsTask1->isClosed()) {
+        GrOpsTask* newOpsTask = this->drawingManager()->newOpsTask(this->writeSurfaceView(),
+                                                                   fFlushTimeOpsTask);
+        if (fOpsTask1 && fNumStencilSamples > 0) {
             // Store the stencil values in memory upon completion of fOpsTask.
-            fOpsTask->setMustPreserveStencil();
+            fOpsTask1->setMustPreserveStencil();
             // Reload the stencil buffer content at the beginning of newOpsTask.
             // FIXME: Could the topo sort insert a task between these two that modifies the stencil
             // values?
             newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
         }
-        fOpsTask = std::move(newOpsTask);
+        fOpsTask1 = newOpsTask;
     }
-    SkASSERT(!fOpsTask->isClosed());
-    return fOpsTask.get();
+    SkASSERT(!fOpsTask1->isClosed());
+    return fOpsTask1;
 }
 
 static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
