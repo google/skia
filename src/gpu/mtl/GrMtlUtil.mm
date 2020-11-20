@@ -10,7 +10,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkMutex.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
@@ -22,6 +21,8 @@
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
+
+#define PRINT_MSL 0 // print out the MSL code generated
 
 NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
     NSDictionary* userInfo = [NSDictionary dictionaryWithObject:description
@@ -47,55 +48,55 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     return texDesc;
 }
 
-// Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
-static const bool gPrintMSL = false;
+#if PRINT_MSL
+void print_msl(const char* source) {
+    SkTArray<SkString> lines;
+    SkStrSplit(source, "\n", kStrict_SkStrSplitMode, &lines);
+    for (int i = 0; i < lines.count(); i++) {
+        SkString& line = lines[i];
+        line.prependf("%4i\t", i + 1);
+        SkDebugf("%s\n", line.c_str());
+    }
+}
+#endif
 
 id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
-                                          const SkSL::String& sksl,
-                                          SkSL::Program::Kind programKind,
+                                          const SkSL::String& shaderString,
+                                          SkSL::Program::Kind kind,
                                           const SkSL::Program::Settings& settings,
-                                          SkSL::String* msl,
-                                          SkSL::Program::Inputs* outInputs,
-                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
-#ifdef SK_DEBUG
-    SkSL::String src = GrShaderUtils::PrettyPrint(sksl);
-#else
-    const SkSL::String& src = sksl;
-#endif
-    SkSL::Compiler* compiler = gpu->shaderCompiler();
+                                          SkSL::String* mslShader,
+                                          SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program =
-            gpu->shaderCompiler()->convertProgram(programKind,
-                                                  src,
+            gpu->shaderCompiler()->convertProgram(kind,
+                                                  shaderString,
                                                   settings);
-    if (!program || !compiler->toMetal(*program, msl)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
+
+    if (!program) {
+        SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
+        SkASSERT(false);
         return nil;
     }
 
-    if (gPrintSKSL || gPrintMSL) {
-        GrShaderUtils::PrintShaderBanner(programKind);
-        if (gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
-        }
-        if (gPrintMSL) {
-            SkDebugf("MSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*msl));
-        }
+    *outInputs = program->fInputs;
+    if (!gpu->shaderCompiler()->toMetal(*program, mslShader)) {
+        SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
+        SkASSERT(false);
+        return nil;
     }
 
-    *outInputs = program->fInputs;
-    return GrCompileMtlShaderLibrary(gpu, *msl, errorHandler);
+    return GrCompileMtlShaderLibrary(gpu, *mslShader);
 }
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const SkSL::String& msl,
-                                         GrContextOptions::ShaderErrorHandler* errorHandler) {
-    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                   length:msl.size()
+                                         const SkSL::String& shaderString) {
+    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(shaderString.c_str())
+                                                   length:shaderString.size()
                                                  encoding:NSUTF8StringEncoding
                                              freeWhenDone:NO];
+#if PRINT_MSL
+    print_msl(nsSource.UTF8String);
+#endif
+
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource,
@@ -106,7 +107,9 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                                    error:&error];
 #endif
     if (!compiledLibrary) {
-        errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
+        SkDebugf("Error compiling MSL shader: %s\n%s\n",
+                 shaderString.c_str(),
+                 error.debugDescription.UTF8String);
         return nil;
     }
 

@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "src/sksl/SkSLString.h"
-#include "src/sksl/ir/SkSLProgram.h"
 
 namespace GrShaderUtils {
 
@@ -28,8 +27,6 @@ inline void PrintLineByLine(const SkSL::String& text) {
 }
 
 GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler();
-
-void PrintShaderBanner(SkSL::Program::Kind programKind);
 
 }  // namespace GrShaderUtils
 
