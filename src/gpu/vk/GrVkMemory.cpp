@@ -14,19 +14,6 @@
 using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
 using BufferUsage = GrVkMemoryAllocator::BufferUsage;
 
-static void report_memory_usage(GrVkMemoryAllocator* allocator) {
-#if SK_HISTOGRAMS_ENABLED
-    uint64_t allocatedMemory = allocator->totalAllocatedMemory();
-    uint64_t usedMemory = allocator->totalUsedMemory();
-    SkASSERT(usedMemory <= allocatedMemory);
-    SK_HISTOGRAM_PERCENTAGE("VulkanMemoryAllocator.PercentUsed",
-                            (usedMemory * 100) / allocatedMemory);
-    // allocatedMemory is in bytes and need to be reported it in kilobytes. SK_HISTOGRAM_MEMORY_KB
-    // supports samples up to around 500MB which should support the amounts of memory we allocate.
-    SK_HISTOGRAM_MEMORY_KB("VulkanMemoryAllocator.AmountAllocated", allocatedMemory >> 10);
-#endif
-}
-
 static BufferUsage get_buffer_usage(GrVkBuffer::Type type, bool dynamic) {
     switch (type) {
         case GrVkBuffer::kVertex_Type: // fall through
@@ -85,8 +72,6 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
         return false;
     }
 
-    report_memory_usage(allocator);
-
     return true;
 }
 
@@ -138,8 +123,6 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
         FreeImageMemory(gpu, linearTiling, *alloc);
         return false;
     }
-
-    report_memory_usage(allocator);
 
     return true;
 }
