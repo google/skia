@@ -17,17 +17,6 @@
 static const bool gPrintSKSL = false;
 static const bool gPrintGLSL = false;
 
-void print_shader_banner(SkSL::Program::Kind programKind) {
-    const char* typeName = "Unknown";
-    switch (programKind) {
-        case SkSL::Program::kVertex_Kind:   typeName = "Vertex";   break;
-        case SkSL::Program::kGeometry_Kind: typeName = "Geometry"; break;
-        case SkSL::Program::kFragment_Kind: typeName = "Fragment"; break;
-        default: break;
-    }
-    SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
-}
-
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
                                             SkSL::Program::Kind programKind,
                                             const SkSL::String& sksl,
@@ -48,7 +37,7 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
     }
 
     if (gPrintSKSL || gPrintGLSL) {
-        print_shader_banner(programKind);
+        GrShaderUtils::PrintShaderBanner(programKind);
         if (gPrintSKSL) {
             SkDebugf("SKSL:\n");
             GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));

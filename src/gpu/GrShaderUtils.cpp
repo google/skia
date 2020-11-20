@@ -214,4 +214,15 @@ GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler() {
     return &gHandler;
 }
 
+void PrintShaderBanner(SkSL::Program::Kind programKind) {
+    const char* typeName = "Unknown";
+    switch (programKind) {
+        case SkSL::Program::kVertex_Kind:   typeName = "Vertex";   break;
+        case SkSL::Program::kGeometry_Kind: typeName = "Geometry"; break;
+        case SkSL::Program::kFragment_Kind: typeName = "Fragment"; break;
+        default: break;
+    }
+    SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
+}
+
 }  // namespace GrShaderUtils
