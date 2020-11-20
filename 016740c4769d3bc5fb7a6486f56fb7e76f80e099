@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "412ac91b_0fb921d9",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-20T15:11:51Z",
+      "side": 1,
+      "message": "Is this block moved intentionally? Looks like we\u0027re doing more work for kHQ now (throwing away an inverse computation).",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 334,
+        "endChar": 5
+      },
+      "revId": "016740c4769d3bc5fb7a6486f56fb7e76f80e099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
