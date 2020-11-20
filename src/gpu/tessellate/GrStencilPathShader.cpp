@@ -169,8 +169,10 @@ SkString GrWedgeTessellateShader::getTessControlShaderGLSL(const GrGLSLPrimitive
             out vec2 fanpoint[];
 
             void main() {
-                // Calculate how many triangles we need to linearize the curve.
-                float num_segments = wangs_formula_cubic(P[0], P[1], P[2], P[3]);
+                /********************* wang's formula *********************************/
+                float w = P[3].x;
+                float k = (2 * 1) / (8.f * MAX_LINEARIZATION_ERROR);
+                float num_segments = sqrt(k * length(P[0] - 2*P[1] + P[2]));
 
                 // Tessellate the first side of the patch into num_segments triangles.
                 gl_TessLevelOuter[0] = num_segments;
@@ -206,6 +208,12 @@ SkString GrWedgeTessellateShader::getTessEvaluationShaderGLSL(
             in vec4 Y[];
             in vec2 fanpoint[];
 
+            vec3 eval_quad(vec3 p0, vec3 p1, vec3 p2, float T) {
+                vec3 ab = mix(p0, p1, T);
+                vec3 bc = mix(p1, p2, T);
+                return mix(ab, bc, T);
+            }
+
             void main() {
                 // Locate our parametric point of interest. It is equal to the barycentric
                 // y-coordinate if we are a vertex on the tessellated edge of the triangle patch,
@@ -213,14 +221,18 @@ SkString GrWedgeTessellateShader::getTessEvaluationShaderGLSL(
                 // NOTE: We are on the tessellated edge when the barycentric x-coordinate == 0.
                 float T = (gl_TessCoord.x == 0.0) ? gl_TessCoord.y : 0.5;
 
-                mat4x2 P = transpose(mat2x4(X[0], Y[0]));
-                vec2 vertexpos = eval_cubic(P, T);
+                // Evaluate the conic.
+                mat3x2 P = transpose(mat2x3(X[0].xyz, Y[0].xyz));
+                float w = X[0].w;
+                vec3 conic = eval_quad(vec3(P[0], 1), vec3(P[1]*w, w), vec3(P[2], 1), T);
+                vec2 vertexpos = conic.xy / conic.z;
+
                 if (gl_TessCoord.x == 1.0) {
                     // We are the anchor point that fans from the center of the curve's contour.
                     vertexpos = fanpoint[0];
                 } else if (gl_TessCoord.x != 0.0) {
                     // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
-                    vertexpos = (P[0] + vertexpos + P[3]) / 3.0;
+                    vertexpos = (P[0] + vertexpos + P[2]) / 3.0;
                 }
 
                 gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
