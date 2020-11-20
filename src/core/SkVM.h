@@ -423,7 +423,7 @@ namespace skvm {
         M(gte_f32) M(gt_f32) M(gt_i32) M(gt_q14)                     \
         M(bit_and)     M(bit_or)     M(bit_xor)     M(bit_clear)     \
         M(bit_and_q14) M(bit_or_q14) M(bit_xor_q14) M(bit_clear_q14) \
-        M(select) M(select_q14) M(pack)                              \
+        M(select) M(select_q14)
     // End of SKVM_OPS
 
     enum class Op : int {
@@ -786,7 +786,7 @@ namespace skvm {
         Q14 select(Q14a cond, Q14a t, Q14a f) { return select(_(cond), _(t), _(f)); }
 
         I32 extract(I32 x, int bits, I32 z);   // (x>>bits) & z
-        I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
+        I32 pack   (I32 x, I32 y, int bits);   // x | (y<<bits)
 
         I32 extract(I32a x, int bits, I32a z) { return extract(_(x), bits, _(z)); }
         I32 pack   (I32a x, I32a y, int bits) { return pack   (_(x), _(y), bits); }

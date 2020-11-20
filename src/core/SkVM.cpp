@@ -350,7 +350,6 @@ namespace skvm {
 
             case Op::select:     write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
             case Op::select_q14: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::pack:  write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
 
             case Op::ceil:      write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             case Op::floor:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
@@ -502,7 +501,6 @@ namespace skvm {
 
                 case Op::select:     write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
                 case Op::select_q14: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
-                case Op::pack: write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
                 case Op::ceil:      write(o, R{d}, "=", op, R{x}); break;
                 case Op::floor:     write(o, R{d}, "=", op, R{x}); break;
@@ -1194,8 +1192,7 @@ namespace skvm {
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
-        if (int X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X|(Y<<bits)); }
-        return {this, this->push(Op::pack, x.id,y.id,NA, 0,bits)};
+        return bit_or(x, shl(y, bits));
     }
 
     F32 Builder::ceil(F32 x) {
@@ -2758,8 +2755,6 @@ namespace skvm {
                 case Op::bit_xor:   vals[i] = b->CreateXor(vals[x], vals[y]); break;
                 case Op::bit_clear: vals[i] = b->CreateAnd(vals[x], b->CreateNot(vals[y])); break;
 
-                case Op::pack: vals[i] = b->CreateOr(vals[x], b->CreateShl(vals[y], immz)); break;
-
                 case Op::select:
                     vals[i] = b->CreateSelect(b->CreateTrunc(vals[x], I1), vals[y], vals[z]);
                     break;
@@ -3390,6 +3385,7 @@ namespace skvm {
                       z = inst.z;
             const int immy = inst.immy,
                       immz = inst.immz;
+            (void)immz;  // not yet used on arm64
 
             // alloc_tmp() returns a temporary register, freed manually with free_tmp().
             auto alloc_tmp = [&]() -> Reg {
@@ -3899,11 +3895,6 @@ namespace skvm {
                 case Op:: gt_f32: a->vcmpltps (dst(y), r(y), any(x)); break;
                 case Op::gte_f32: a->vcmpleps (dst(y), r(y), any(x)); break;
 
-                // It's safe to alias dst(y) only when y != x.  Otherwise we'd overwrite x!
-                case Op::pack: a->vpslld(dst(y != x ? y : NA),  r(y), immz);
-                               a->vpor  (dst(), dst(), any(x));
-                               break;
-
                 case Op::ceil:
                     if (in_reg(x)) { a->vroundps(dst(x),  r(x), Assembler::CEIL); }
                     else           { a->vroundps(dst(), any(x), Assembler::CEIL); }
@@ -4044,12 +4035,6 @@ namespace skvm {
 
                 case Op::eq_i32: a->cmeq4s(dst(), r(x), r(y)); break;
                 case Op::gt_i32: a->cmgt4s(dst(), r(x), r(y)); break;
-
-                case Op::pack:
-                    if (try_alias(x)) { a->sli4s ( r(x),  r(y), immz); }
-                    else              { a->shl4s (dst(),  r(y), immz);
-                                        a->orr16b(dst(), dst(), r(x)); }
-                                        break;
 
                 case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
