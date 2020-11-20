@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af1fe745_4cf19683",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15369
+      },
+      "writtenOn": "2020-11-20T21:16:54Z",
+      "side": 1,
+      "message": "LGTM!\n\nPlease wait for this to be copied to blink before submitting (CL here: https://chromium-review.googlesource.com/c/chromium/src/+/2551847).",
+      "revId": "fa2a1d4b4e97b6581ced3b510a99215a0b21a9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
