@@ -63,45 +63,43 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              SkTileMode tmx, SkTileMode tmy,
+                             const SkSamplingOptions* sampling,
                              const SkMatrix* localMatrix,
-                             FilterEnum filtering,
                              bool clampAsIfUnpremul)
     : INHERITED(localMatrix)
     , fImage(std::move(img))
+    , fSampling(sampling ? *sampling : SkSamplingOptions())
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
-    , fFilterEnum(filtering)
     , fClampAsIfUnpremul(clampAsIfUnpremul)
-    , fFilterOptions({})    // ignored
-{
-    SkASSERT(filtering != kUseFilterOptions);
-}
-
-SkImageShader::SkImageShader(sk_sp<SkImage> img,
-                             SkTileMode tmx, SkTileMode tmy,
-                             const SkSamplingOptions& options,
-                             const SkMatrix* localMatrix)
-    : INHERITED(localMatrix)
-    , fImage(std::move(img))
-    , fTileModeX(optimize(tmx, fImage->width()))
-    , fTileModeY(optimize(tmy, fImage->height()))
-    , fFilterEnum(options.fUseCubic ? FilterEnum::kUseCubicResampler
-                                    : FilterEnum::kUseFilterOptions)
-    , fClampAsIfUnpremul(false)
-    , fFilterOptions(options.fFilter)
-    , fCubic(options.fCubic)
+    , fUseSamplingOptions(sampling != nullptr)
 {}
 
-// fClampAsIfUnpremul is always false when constructed through public APIs,
-// so there's no need to read or write it here.
+// just used for legacy-unflattening
+enum class LegacyFilterEnum {
+    kNone,
+    kLow,
+    kMedium,
+    kHigh,
+    // this is the special value for backward compatibility
+    kInheritFromPaint,
+    // this signals we should use the new SkFilterOptions
+    kUseFilterOptions,
+    // use fCubic and ignore FilterOptions
+    kUseCubicResampler,
 
-sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
+    kLast = kUseCubicResampler,
+};
+
+sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isVersionLT(SkPicturePriv::kSamplingInImageShader_Version));
+
     auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
 
-    FilterEnum fe = kInheritFromPaint;
+    LegacyFilterEnum fe = LegacyFilterEnum::kInheritFromPaint;
     if (!buffer.isVersionLT(SkPicturePriv::kFilterEnumInImageShader_Version)) {
-        fe = buffer.read32LE<FilterEnum>(kLast);
+        fe = buffer.read32LE<LegacyFilterEnum>(LegacyFilterEnum::kLast);
     }
 
     SkSamplingOptions op;
@@ -114,12 +112,12 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
         }
     } else {
         switch (fe) {
-            case kUseFilterOptions:
+            case LegacyFilterEnum::kUseFilterOptions:
                 op.fUseCubic = false;
                 op.fFilter.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
                 op.fFilter.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
                 break;
-            case kUseCubicResampler:
+            case LegacyFilterEnum::kUseCubicResampler:
                 op.fUseCubic = true;
                 op.fCubic.B = buffer.readScalar();
                 op.fCubic.C = buffer.readScalar();
@@ -137,31 +135,77 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     }
 
     switch (fe) {
-        case kUseFilterOptions:
-        case kUseCubicResampler:
-            return SkImageShader::Make(std::move(img), tmx, tmy, op, &localMatrix);
+        case LegacyFilterEnum::kUseFilterOptions:
+        case LegacyFilterEnum::kUseCubicResampler:
+            return SkImageShader::Make(std::move(img), tmx, tmy, &op, &localMatrix);
         default:
             break;
     }
-    return SkImageShader::Make(std::move(img), tmx, tmy, &localMatrix, fe);
+    return SkImageShader::Make(std::move(img), tmx, tmy, nullptr, &localMatrix);
+}
+
+static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
+    buffer.writeBool(sampling.fUseCubic);
+    if (sampling.fUseCubic) {
+        buffer.writeScalar(sampling.fCubic.B);
+        buffer.writeScalar(sampling.fCubic.C);
+    } else {
+        buffer.writeUInt((unsigned)sampling.fFilter.fSampling);
+        buffer.writeUInt((unsigned)sampling.fFilter.fMipmap);
+    }
+}
+
+static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
+    SkSamplingOptions sampling;
+    sampling.fUseCubic = buffer.readBool();
+    if (sampling.fUseCubic) {
+        sampling.fCubic.B = buffer.readScalar();
+        sampling.fCubic.C = buffer.readScalar();
+    } else {
+        sampling.fFilter.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
+        sampling.fFilter.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+    }
+    return sampling;
+}
+
+// fClampAsIfUnpremul is always false when constructed through public APIs,
+// so there's no need to read or write it here.
+
+sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
+    if (buffer.isVersionLT(SkPicturePriv::kSamplingInImageShader_Version)) {
+        return PreSamplingCreate(buffer);
+    }
+
+    auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+    auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
+
+    SkSamplingOptions sampling,
+                      *samplingPtr = nullptr;
+
+    if (buffer.readBool()) {    // fUseSamplingOptions
+        sampling = read_sampling(buffer);
+        samplingPtr = &sampling;
+    }
+
+    SkMatrix localMatrix;
+    buffer.readMatrix(&localMatrix);
+    sk_sp<SkImage> img = buffer.readImage();
+    if (!img) {
+        return nullptr;
+    }
+
+    return SkImageShader::Make(std::move(img), tmx, tmy, samplingPtr, &localMatrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((unsigned)fTileModeX);
     buffer.writeUInt((unsigned)fTileModeY);
-    buffer.writeUInt((unsigned)fFilterEnum);
-    switch (fFilterEnum) {
-        case kUseCubicResampler:
-            buffer.writeScalar(fCubic.B);
-            buffer.writeScalar(fCubic.C);
-            break;
-        case kUseFilterOptions:
-            buffer.writeUInt((unsigned)fFilterOptions.fSampling);
-            buffer.writeUInt((unsigned)fFilterOptions.fMipmap);
-            break;
-        default:
-            break;
+
+    buffer.writeBool(fUseSamplingOptions);
+    if (fUseSamplingOptions) {
+        write_sampling(buffer, fSampling);
     }
+
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
@@ -170,6 +214,43 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
 bool SkImageShader::isOpaque() const {
     return fImage->isOpaque() &&
            fTileModeX != SkTileMode::kDecal && fTileModeY != SkTileMode::kDecal;
+}
+
+constexpr SkCubicResampler kDefaultCubicResampler{1.0f/3, 1.0f/3};
+
+static bool is_default_cubic_resampler(SkCubicResampler cubic) {
+    return SkScalarNearlyEqual(cubic.B, kDefaultCubicResampler.B) &&
+           SkScalarNearlyEqual(cubic.C, kDefaultCubicResampler.C);
+}
+
+static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* quality) {
+    int q = -1; // not a legal quality enum
+
+    if (sampling.fUseCubic) {
+        if (is_default_cubic_resampler(sampling.fCubic)) {
+            q = kHigh_SkFilterQuality;
+        }
+    } else {
+        switch (sampling.fFilter.fMipmap) {
+            case SkMipmapMode::kNone:
+                q = sampling.fFilter.fSampling == SkSamplingMode::kLinear ?
+                    kLow_SkFilterQuality :
+                    kNone_SkFilterQuality;
+                break;
+            case SkMipmapMode::kNearest:
+                if (sampling.fFilter.fSampling == SkSamplingMode::kLinear) {
+                    q = kMedium_SkFilterQuality;
+                }
+                break;
+            case SkMipmapMode::kLinear:
+                break;
+        }
+    }
+    if (q >= 0) {
+        *quality = (SkFilterQuality)q;
+        return true;
+    }
+    return false;
 }
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -199,16 +280,6 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    // we only support the old SkFilterQuality setting
-    if (fFilterEnum > kInheritFromPaint) {
-        return nullptr;
-    }
-
-    auto quality = this->resolveFiltering(rec.fPaint->getFilterQuality());
-
-    if (quality == kHigh_SkFilterQuality) {
-        return nullptr;
-    }
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -219,6 +290,19 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
     if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
+        return nullptr;
+    }
+
+    SkFilterQuality quality = rec.fPaint->getFilterQuality();
+    if (fUseSamplingOptions) {
+        // we turn our sampling backwards into a quality (if possible)
+        // Note: if/when we can retool the legacy shader to explicitly take SkFilterOptions
+        //       we can skip this funny step.
+        if (!sampling_to_quality(fSampling, &quality)) {
+            return nullptr;
+        }
+    }
+    if (quality == kHigh_SkFilterQuality) {
         return nullptr;
     }
 
@@ -273,26 +357,14 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
 
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     SkTileMode tmx, SkTileMode tmy,
+                                    const SkSamplingOptions* options,
                                     const SkMatrix* localMatrix,
-                                    FilterEnum filtering,
                                     bool clampAsIfUnpremul) {
-    if (!image) {
-        return sk_make_sp<SkEmptyShader>();
-    }
-    return sk_sp<SkShader>{
-        new SkImageShader(image, tmx, tmy, localMatrix, filtering, clampAsIfUnpremul)
-    };
-}
-
-sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
-                                    SkTileMode tmx, SkTileMode tmy,
-                                    const SkSamplingOptions& options,
-                                    const SkMatrix* localMatrix) {
     auto is_unit = [](float x) {
         return x >= 0 && x <= 1;
     };
-    if (options.fUseCubic) {
-        if (!is_unit(options.fCubic.B) || !is_unit(options.fCubic.C)) {
+    if (options && options->fUseCubic) {
+        if (!is_unit(options->fCubic.B) || !is_unit(options->fCubic.C)) {
             return nullptr;
         }
     }
@@ -300,7 +372,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
         return sk_make_sp<SkEmptyShader>();
     }
     return sk_sp<SkShader>{
-        new SkImageShader(image, tmx, tmy, options, localMatrix)
+        new SkImageShader(image, tmx, tmy, options, localMatrix, clampAsIfUnpremul)
     };
 }
 
@@ -373,40 +445,34 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     // quality setting. This completely ignores the complexity of the drawVertices case
     // where explicit local coords are provided by the caller.
     bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
-    GrSamplerState::Filter fm;
-    GrSamplerState::MipmapMode mm;
+    GrSamplerState::Filter     fm = GrSamplerState::Filter::kNearest;
+    GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
     bool bicubic;
     SkCubicResampler kernel = GrBicubicEffect::gMitchell;
 
-    switch (fFilterEnum) {
-        case FilterEnum::kUseFilterOptions:
-            bicubic = false;
-            switch (fFilterOptions.fSampling) {
+    if (fUseSamplingOptions) {
+        bicubic = fSampling.fUseCubic;
+        if (bicubic) {
+            kernel = fSampling.fCubic;
+        } else {
+            switch (fSampling.fFilter.fSampling) {
                 case SkSamplingMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
                 case SkSamplingMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
             }
-            switch (fFilterOptions.fMipmap) {
+            switch (fSampling.fFilter.fMipmap) {
                 case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
                 case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
                 case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
             }
-            break;
-        case FilterEnum::kUseCubicResampler:
-            bicubic = true;
-            kernel = fCubic;
-            fm = GrSamplerState::Filter::kNearest;
-            mm = GrSamplerState::MipmapMode::kNone;
-            break;
-        case FilterEnum::kInheritFromPaint:
-        default: // none, low, medium, high
-            std::tie(fm, mm, bicubic) =
-                    GrInterpretFilterQuality(fImage->dimensions(),
-                                             this->resolveFiltering(args.fFilterQuality),
-                                             args.fMatrixProvider.localToDevice(),
-                                             *lm,
-                                             sharpen,
-                                             args.fAllowFilterQualityReduction);
-            break;
+        }
+    } else {    // inherit filterquality from paint
+        std::tie(fm, mm, bicubic) =
+                GrInterpretFilterQuality(fImage->dimensions(),
+                                         args.fFilterQuality,
+                                         args.fMatrixProvider.localToDevice(),
+                                         *lm,
+                                         sharpen,
+                                         args.fAllowFilterQualityReduction);
     }
     std::unique_ptr<GrFragmentProcessor> fp;
     if (bicubic) {
@@ -436,8 +502,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
                                    const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
+    const SkSamplingOptions* inherit_from_paint = nullptr;
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
-                               tmx, tmy, localMatrix, SkImageShader::kInheritFromPaint);
+                               tmx, tmy, inherit_from_paint, localMatrix);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
@@ -533,17 +600,11 @@ static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* mat
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
-    SkFilterQuality quality;
-    switch (fFilterEnum) {
-        case FilterEnum::kUseFilterOptions:
-        case FilterEnum::kUseCubicResampler:
-            return false;   // TODO: support these in stages
-        case FilterEnum::kInheritFromPaint:
-            quality = rec.fPaint.getFilterQuality();
-            break;
-        default:
-            quality = (SkFilterQuality)fFilterEnum;
-            break;
+    SkFilterQuality quality = rec.fPaint.getFilterQuality();
+    if (fUseSamplingOptions) {
+        if (!sampling_to_quality(fSampling, &quality)) {
+            return false;   // TODO: support samplingoptions in stages?
+        }
     }
 
     if (updater && quality == kMedium_SkFilterQuality) {
@@ -840,11 +901,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
     baseInv.normalizePerspective();
 
+    SkCubicResampler cubic = kDefaultCubicResampler;
     const SkPixmap *upper = nullptr,
                    *lower = nullptr;
     SkMatrix        upperInv;
     float           lowerWeight = 0;
-    SamplingEnum    sampling = (SamplingEnum)fFilterOptions.fSampling;
+    SamplingEnum    sampling = (SamplingEnum)fSampling.fFilter.fSampling;
 
     auto post_scale = [&](SkISize level, const SkMatrix& base) {
         return SkMatrix::Scale(SkIntToScalar(level.width())  / fImage->width(),
@@ -852,30 +914,30 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
                 * base;
     };
 
-    if (fFilterEnum == kUseFilterOptions) {
-        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
-                                                     fFilterOptions.fMipmap);
-        upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
-        lowerWeight = access->lowerWeight();
-        if (lowerWeight > 0) {
-            lower = &access->lowerLevel();
+    if (fUseSamplingOptions) {
+        if (fSampling.fUseCubic) {
+            auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
+                                                         SkMipmapMode::kNone);
+            upper = &access->level();
+            upperInv = post_scale(upper->dimensions(), baseInv);
+            sampling = SamplingEnum::kBicubic;
+            cubic = fSampling.fCubic;
+        } else {
+            auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
+                                                         fSampling.fFilter.fMipmap);
+            upper = &access->level();
+            upperInv = post_scale(upper->dimensions(), baseInv);
+            lowerWeight = access->lowerWeight();
+            if (lowerWeight > 0) {
+                lower = &access->lowerLevel();
+            }
         }
-    } else if (fFilterEnum == kUseCubicResampler){
-        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
-                                                     SkMipmapMode::kNone);
-        upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
-        sampling = SamplingEnum::kBicubic;
     } else {
         // Convert from the filter-quality enum to our working description:
         //  sampling : nearest, bilerp, bicubic
         //  miplevel(s) and associated matrices
         //
         SkFilterQuality quality = paintQuality;
-        if (fFilterEnum != kInheritFromPaint) {
-            quality = (SkFilterQuality)fFilterEnum;
-        }
 
         // We use RequestBitmap() to make sure our SkBitmapController::State lives in the alloc.
         // This lets the SkVMBlitter hang on to this state and keep our image alive.
@@ -1048,7 +1110,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             skvm::F32 wx[4],
                       wy[4];
 
-            SkM44 weights = CubicResamplerMatrix(fCubic.B, fCubic.C);
+            SkM44 weights = CubicResamplerMatrix(cubic.B, cubic.C);
 
             auto dot = [](const skvm::F32 a[], const skvm::F32 b[]) {
                 return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
