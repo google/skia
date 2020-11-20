@@ -51,10 +51,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
             ++fCurrUpload;
         }
 
-        GrProgramInfo programInfo(this->proxy()->numSamples(),
-                                  this->proxy()->numStencilSamples(),
-                                  this->proxy()->backendFormat(),
-                                  this->writeView().origin(),
+        GrProgramInfo programInfo(this->writeView(),
                                   pipeline,
                                   userStencilSettings,
                                   fCurrDraw->fGeometryProcessor,

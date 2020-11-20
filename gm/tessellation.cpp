@@ -344,11 +344,10 @@ private:
             shader = std::make_unique<TessellationTestRectShader>(fViewMatrix);
         }
 
-        GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                                  state->proxy()->backendFormat(), state->writeView().origin(),
-                                  &pipeline, &GrUserStencilSettings::kUnused, shader.get(),
-                                  GrPrimitiveType::kPatches, tessellationPatchVertexCount,
-                                  state->renderPassBarriers(), state->colorLoadOp());
+        GrProgramInfo programInfo(state->writeView(), &pipeline, &GrUserStencilSettings::kUnused,
+                                  shader.get(), GrPrimitiveType::kPatches,
+                                  tessellationPatchVertexCount, state->renderPassBarriers(),
+                                  state->colorLoadOp());
 
         state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
         state->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));

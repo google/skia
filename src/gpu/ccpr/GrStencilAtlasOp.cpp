@@ -178,10 +178,7 @@ void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline&
                                    const GrUserStencilSettings* stencil,
                                    const GrPrimitiveProcessor& primProc,
                                    const SkIRect& drawBounds) const {
-    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
-                              flushState->proxy()->numStencilSamples(),
-                              flushState->proxy()->backendFormat(),
-                              flushState->writeView().origin(), &resolvePipeline, stencil,
+    GrProgramInfo programInfo(flushState->writeView(), &resolvePipeline, stencil,
                               &primProc, GrPrimitiveType::kTriangleStrip, 0,
                               flushState->renderPassBarriers(),
                               flushState->colorLoadOp());

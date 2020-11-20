@@ -160,10 +160,7 @@ private:
 
         auto geomProc = GrPipelineDynamicStateTestProcessor::Make(flushState->allocator());
 
-        GrProgramInfo programInfo(flushState->proxy()->numSamples(),
-                                  flushState->proxy()->numStencilSamples(),
-                                  flushState->proxy()->backendFormat(),
-                                  flushState->writeView().origin(),
+        GrProgramInfo programInfo(flushState->writeView(),
                                   &pipeline,
                                   &GrUserStencilSettings::kUnused,
                                   geomProc,

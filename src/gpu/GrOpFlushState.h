@@ -73,7 +73,7 @@ public:
 
         GrOp* op() { return fOp; }
         const GrSurfaceProxyView& writeView() const { return fSurfaceView; }
-        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
+        GrRenderTargetProxy* rtProxy() const { return fRenderTargetProxy; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
@@ -145,7 +145,7 @@ public:
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
     const GrSurfaceProxyView& writeView() const final { return this->drawOpArgs().writeView(); }
-    GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
+    GrRenderTargetProxy* rtProxy() const final { return this->drawOpArgs().rtProxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     const GrAppliedHardClip& appliedHardClip() const {
         return (fOpArgs->appliedClip()) ?

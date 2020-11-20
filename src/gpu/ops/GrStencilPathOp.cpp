@@ -25,14 +25,14 @@ GrOp::Owner GrStencilPathOp::Make(GrRecordingContext* context,
 }
 
 void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    GrRenderTarget* rt = state->drawOpArgs().proxy()->peekRenderTarget();
+    GrRenderTarget* rt = state->drawOpArgs().rtProxy()->peekRenderTarget();
     SkASSERT(rt);
 
     int numStencilBits = rt->numStencilBits();
     GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fPath->getFillType()),
                               fHasStencilClip, numStencilBits);
 
-    GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().proxy(),
+    GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().rtProxy(),
                                           state->drawOpArgs().writeView().origin(),
                                           &fViewMatrix, &fScissor, &stencil);
     state->gpu()->pathRendering()->stencilPath(args, fPath.get());

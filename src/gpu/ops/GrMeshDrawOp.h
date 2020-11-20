@@ -220,7 +220,7 @@ public:
         return this->allocator()->makeArray<const GrSurfaceProxy*>(n);
     }
 
-    virtual GrRenderTargetProxy* proxy() const = 0;
+    virtual GrRenderTargetProxy* rtProxy() const = 0;
     virtual const GrSurfaceProxyView& writeView() const = 0;
 
     virtual const GrAppliedClip* appliedClip() const = 0;

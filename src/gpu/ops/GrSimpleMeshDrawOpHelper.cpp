@@ -199,12 +199,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                                            GrXferBarrierFlags xferBarrierFlags,
                                                            GrLoadOp colorLoadOp,
                                                            const GrUserStencilSettings* stencilSettings) {
-    GrRenderTargetProxy* outputProxy = writeView.asRenderTargetProxy();
-
-    auto tmp = arena->make<GrProgramInfo>(outputProxy->numSamples(),
-                                          outputProxy->numStencilSamples(),
-                                          outputProxy->backendFormat(),
-                                          writeView.origin(),
+    auto tmp = arena->make<GrProgramInfo>(writeView,
                                           pipeline,
                                           stencilSettings,
                                           geometryProcessor,
