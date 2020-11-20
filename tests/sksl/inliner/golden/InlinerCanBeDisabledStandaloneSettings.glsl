@@ -75,64 +75,58 @@ vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
 }
 uniform vec4 color;
 void main() {
-    float _3_fma;
+    float _1_fma;
     {
-        float _4_0_mul;
+        float _2_0_mul;
         {
-            _4_0_mul = color.x * color.y;
+            _2_0_mul = color.x * color.y;
         }
-
-        float _5_1_add;
+        float _15_add;
         {
-            float _6_2_c = _4_0_mul + color.z;
-            _5_1_add = _6_2_c;
+            float _16_c = _2_0_mul + color.z;
+            _15_add = _16_c;
         }
+        _1_fma = _15_add;
 
-        _3_fma = _5_1_add;
 
     }
-
-    sk_FragColor = vec4(_3_fma);
+    sk_FragColor = vec4(_1_fma);
 
     sk_FragColor *= 1.25;
 
-    vec4 _8_blend_src_in;
+    vec4 _4_blend_src_in;
     {
-        _8_blend_src_in = color.xxyy * color.w;
+        _4_blend_src_in = color.xxyy * color.w;
     }
+    sk_FragColor *= _4_blend_src_in;
 
-    sk_FragColor *= _8_blend_src_in;
-
-    vec4 _9_blend_dst_in;
+    vec4 _5_blend_dst_in;
     {
-        vec4 _10_0_blend_src_in;
+        vec4 _6_0_blend_src_in;
         {
-            _10_0_blend_src_in = color.zzww * color.y;
+            _6_0_blend_src_in = color.zzww * color.y;
         }
-        _9_blend_dst_in = _10_0_blend_src_in;
+        _5_blend_dst_in = _6_0_blend_src_in;
 
     }
+    sk_FragColor *= _5_blend_dst_in;
 
-    sk_FragColor *= _9_blend_dst_in;
+    vec4 _7_blend_hue;
+    {
+        float _8_alpha = color.w * color.w;
+        vec3 _9_sda = color.xyz * color.w;
+        vec3 _10_dsa = color.www * color.w;
+        _7_blend_hue = vec4((((_blend_set_color_luminance(_blend_set_color_saturation(_9_sda, _10_dsa), _8_alpha, _10_dsa) + color.www) - _10_dsa) + color.xyz) - _9_sda, (color.w + color.w) - _8_alpha);
+    }
+    sk_FragColor *= _7_blend_hue;
 
     vec4 _11_blend_hue;
     {
-        float _12_alpha = color.w * color.w;
-        vec3 _13_sda = color.xyz * color.w;
-        vec3 _14_dsa = color.www * color.w;
-        _11_blend_hue = vec4((((_blend_set_color_luminance(_blend_set_color_saturation(_13_sda, _14_dsa), _12_alpha, _14_dsa) + color.www) - _14_dsa) + color.xyz) - _13_sda, (color.w + color.w) - _12_alpha);
+        float _12_alpha = color.x * color.w;
+        vec3 _13_sda = color.xyz * color.x;
+        vec3 _14_dsa = color.wzy * color.w;
+        _11_blend_hue = vec4((((_blend_set_color_luminance(_blend_set_color_saturation(_13_sda, _14_dsa), _12_alpha, _14_dsa) + color.wzy) - _14_dsa) + color.xyz) - _13_sda, (color.w + color.x) - _12_alpha);
     }
-
     sk_FragColor *= _11_blend_hue;
-
-    vec4 _15_blend_hue;
-    {
-        float _16_alpha = color.x * color.w;
-        vec3 _17_sda = color.xyz * color.x;
-        vec3 _18_dsa = color.wzy * color.w;
-        _15_blend_hue = vec4((((_blend_set_color_luminance(_blend_set_color_saturation(_17_sda, _18_dsa), _16_alpha, _18_dsa) + color.wzy) - _18_dsa) + color.xyz) - _17_sda, (color.w + color.x) - _16_alpha);
-    }
-
-    sk_FragColor *= _15_blend_hue;
 
 }
