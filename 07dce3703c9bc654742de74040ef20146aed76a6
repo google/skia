@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1c813af_2038a7c8",
+        "filename": "include/core/SkYUVAInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-20T16:22:04Z",
+      "side": 0,
+      "message": "This could stay but we\u0027d have to put SkYUVAIndex in include/private and include it here. Didn\u0027t seem worth it to me. I guess could also define a different enum in this class, like kYUVAChannelCount.",
+      "range": {
+        "startLine": 119,
+        "startChar": 51,
+        "endLine": 119,
+        "endChar": 75
+      },
+      "revId": "07dce3703c9bc654742de74040ef20146aed76a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
