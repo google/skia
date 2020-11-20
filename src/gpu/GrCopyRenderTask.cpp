@@ -11,12 +11,12 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
-sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
-                                           GrSurfaceProxyView srcView,
-                                           const SkIRect& srcRect,
-                                           GrSurfaceProxyView dstView,
-                                           const SkIPoint& dstPoint,
-                                           const GrCaps* caps) {
+ std::unique_ptr<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
+                                                      GrSurfaceProxyView srcView,
+                                                      const SkIRect& srcRect,
+                                                      GrSurfaceProxyView dstView,
+                                                      const SkIPoint& dstPoint,
+                                                      const GrCaps* caps) {
     SkASSERT(dstView.proxy());
     SkASSERT(srcView.proxy());
     SkIRect clippedSrcRect;
@@ -41,9 +41,11 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
         clippedDstPoint.fY = dstProxy->height() - clippedDstPoint.fY - rectHeight;
     }
 
-    sk_sp<GrCopyRenderTask> task(new GrCopyRenderTask(
-            drawingMgr, std::move(srcView), clippedSrcRect, std::move(dstView), clippedDstPoint));
-    return std::move(task);
+    return std::make_unique<GrCopyRenderTask>(drawingMgr,
+                                              std::move(srcView),
+                                              clippedSrcRect,
+                                              std::move(dstView),
+                                              clippedDstPoint);
 }
 
 GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
