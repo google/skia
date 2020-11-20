@@ -17,6 +17,8 @@
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
+#include "spirv-tools/libspirv.hpp"
+
 #include <fstream>
 #include <limits.h>
 #include <stdarg.h>
@@ -38,6 +40,7 @@ enum class ResultCode {
     kCompileError = 1,
     kInputError = 2,
     kOutputError = 3,
+    kConfigurationError = 4,
 };
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
@@ -310,6 +313,28 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toSPIRV(program, out);
                 });
+    } else if (outputPath.endsWith(".asm.frag") || outputPath.endsWith(".asm.vert") ||
+               outputPath.endsWith(".asm.geom")) {
+        return compileProgram(
+                SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    // Compile program to SPIR-V assembly in a string-stream.
+                    SkSL::StringStream assembly;
+                    if (!compiler.toSPIRV(program, assembly)) {
+                        return false;
+                    }
+                    // Convert the string-stream to a SPIR-V disassembly.
+                    spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
+                    const SkSL::String& spirv(assembly.str());
+                    std::string disassembly;
+                    if (!tools.Disassemble((const uint32_t*)spirv.data(),
+                                           spirv.size() / 4, &disassembly)) {
+                        return false;
+                    }
+                    // Finally, write the disassembly to our output stream.
+                    out.write(disassembly.data(), disassembly.size());
+                    return true;
+                });
     } else if (outputPath.endsWith(".glsl")) {
         return compileProgram(
                 SkSL::Compiler::kNone_Flags,
@@ -364,8 +389,9 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             return ResultCode::kOutputError;
         }
     } else {
-        printf("expected output filename to end with '.spirv', '.glsl', '.cpp', '.h', or '.metal'");
-        return ResultCode::kInputError;  // the "output filename" is still an input argument
+        printf("expected output path to end with one of: .glsl, .metal, .spirv, .asm.frag, "
+               ".asm.vert, .asm.geom, .cpp, .h (got '%s')\n", outputPath.c_str());
+        return ResultCode::kConfigurationError;
     }
     return ResultCode::kSuccess;
 }
@@ -378,7 +404,7 @@ ResultCode processWorklist(const char* worklistPath) {
     if (!inputPath.endsWith(".worklist")) {
         printf("expected .worklist file, found: %s\n\n", worklistPath);
         show_usage();
-        return ResultCode::kInputError;
+        return ResultCode::kConfigurationError;
     }
 
     // The worklist contains one line per argument to pass to skslc. When a blank line is reached,
