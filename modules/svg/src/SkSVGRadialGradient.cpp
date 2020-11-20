@@ -40,8 +40,10 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
         fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
                       : center.y());
 
-    // TODO: Handle r == 0 which has a specific meaning according to the spec
-    SkASSERT(r != 0);
+    if (r == 0) {
+        const auto last_color = count > 0 ? colors[count - 1] : SK_ColorBLACK;
+        return SkShaders::Color(last_color);
+    }
 
     return center == focal
         ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)
