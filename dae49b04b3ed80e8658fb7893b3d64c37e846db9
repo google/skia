@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ae719c6_bcb2c5b8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T16:04:08Z",
+      "side": 1,
+      "message": "Just jam this inline ?",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50997663_7ea971ee",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T16:04:08Z",
+      "side": 1,
+      "message": "inline also ? and maybe in following cases too ?",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c094de6_3a9426ef",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T16:04:08Z",
+      "side": 1,
+      "message": "but there are 5 in the following list. Did you mean to split this into atlased and non-atlased?",
+      "range": {
+        "startLine": 200,
+        "startChar": 63,
+        "endLine": 200,
+        "endChar": 67
+      },
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bfaffa9_c0f2f18a",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-20T16:04:08Z",
+      "side": 1,
+      "message": "#if GR_TEST_UTILS ?",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
