@@ -219,8 +219,8 @@ class CubicResamplerDemo : public Sample {
             lm.postTranslate(r.width() + 10, 0);
 
             paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
-                                               SkFilterOptions{ SkSamplingMode::kLinear,
-                                                                SkMipmapMode::kNone },
+                                               SkSamplingOptions{ SkFilterMode::kLinear,
+                                                                  SkMipmapMode::kNone },
                                                &lm));
             canvas->drawRect(r, paint);
 
