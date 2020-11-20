@@ -89,10 +89,11 @@ public:
         kFilterOptionsInImageShader_Version = 77,
         kSerializeMipmaps_Version           = 78,
         kCubicResamplerImageShader_Version  = 79,
+        kSamplingInImageShader_Version      = 80,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kEdgeAAQuadColor4f_Version,
-        kCurrent_Version = kCubicResamplerImageShader_Version
+        kCurrent_Version = kSamplingInImageShader_Version
     };
 
     static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,
