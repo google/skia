@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bda89c8_09505b14",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-20T20:52:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8ae719c6_bcb2c5b8",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50997663_7ea971ee",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-20T16:04:08Z",
       "side": 1,
       "message": "inline also ? and maybe in following cases too ?",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04807162_c39fc672",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-20T20:52:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "50997663_7ea971ee",
       "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -58,6 +94,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d1ff1e0_494c5a95",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-20T20:52:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c094de6_3a9426ef",
+      "range": {
+        "startLine": 200,
+        "startChar": 63,
+        "endLine": 200,
+        "endChar": 67
+      },
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4bfaffa9_c0f2f18a",
@@ -71,6 +131,24 @@
       "writtenOn": "2020-11-20T16:04:08Z",
       "side": 1,
       "message": "#if GR_TEST_UTILS ?",
+      "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aab51399_b0866290",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-11-20T20:52:59Z",
+      "side": 1,
+      "message": "This will hit many code sites. I think I\u0027m going to try to restructure the code first.",
+      "parentUuid": "4bfaffa9_c0f2f18a",
       "revId": "dae49b04b3ed80e8658fb7893b3d64c37e846db9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
