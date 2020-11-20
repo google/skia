@@ -10,7 +10,7 @@
 
 #include "include/core/SkFilterQuality.h"
 
-enum class SkSamplingMode {
+enum class SkFilterMode {
     kNearest,   // single sample point (nearest neighbor)
     kLinear,    // interporate between 2x2 sample points (bilinear interpolation)
 };
@@ -42,36 +42,34 @@ struct SkCubicResampler {
     float B, C;
 };
 
-struct SkFilterOptions {
-    SkSamplingMode  fSampling;
-    SkMipmapMode    fMipmap;
-};
-
 struct SkSamplingOptions {
     bool             fUseCubic;
-    SkCubicResampler fCubic;     //!< use if fUseCubic is true
-    SkFilterOptions  fFilter;    //!< use if fUseCubic is false
+    SkCubicResampler fCubic;        // ignored if not fUseCubic
+    SkFilterMode     fFilter;       // ignored if fUseCubic
+    SkMipmapMode     fMipmap;       // ignored if fUseCubic
 
     SkSamplingOptions()
         : fUseCubic(false)
-        , fCubic({0,0})
-        , fFilter({SkSamplingMode::kNearest, SkMipmapMode::kNone})
+        , fCubic({0,0})     // ignored
+        , fFilter(SkFilterMode::kNearest)
+        , fMipmap(SkMipmapMode::kNone)
     {}
 
-    SkSamplingOptions(const SkFilterOptions& filter)
+    SkSamplingOptions(SkFilterMode fm, SkMipmapMode mm)
         : fUseCubic(false)
         , fCubic({0,0})     // ignored
-        , fFilter(filter)
+        , fFilter(fm)
+        , fMipmap(mm)
     {}
 
     SkSamplingOptions(const SkCubicResampler& cubic)
         : fUseCubic(true)
         , fCubic(cubic)
-        , fFilter({SkSamplingMode::kNearest, SkMipmapMode::kNone})  // ignored
+        , fFilter(SkFilterMode::kNearest)   // ignored
+        , fMipmap(SkMipmapMode::kNone)      // ignored
     {}
 
-    // Soon to go away
-    static SkSamplingOptions Make(SkFilterQuality);
+    SkSamplingOptions(SkFilterQuality);
 };
 
 #endif
