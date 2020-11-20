@@ -10,6 +10,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
 #include "tests/Test.h"
 
@@ -42,19 +43,28 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
 }
 
 static void test_layers(skiatest::Reporter* reporter) {
-    SkCanvas canvas(100, 100);
+    // Layers require a real device under the canvas, or a subclass that uses the kNoLayer_Strategy
+    SkBitmap dst;
+    dst.allocN32Pixels(100, 100);
+    dst.eraseColor(SK_ColorTRANSPARENT);
+    SkCanvas concreteCanvas(dst);
+    SkNoDrawCanvas nodrawCanvas(100, 100);
 
-    SkRect r = SkRect::MakeWH(10, 10);
-    REPORTER_ASSERT(reporter, false == canvas.quickReject(r));
+    SkCanvas* canvases[] = {&concreteCanvas, &nodrawCanvas};
 
-    r.offset(300, 300);
-    REPORTER_ASSERT(reporter, true == canvas.quickReject(r));
+    for (SkCanvas* canvas : canvases) {
+        SkRect r = SkRect::MakeWH(10, 10);
+        REPORTER_ASSERT(reporter, false == canvas->quickReject(r));
 
-    // Test that saveLayer updates quickReject
-    SkRect bounds = SkRect::MakeLTRB(50, 50, 70, 70);
-    canvas.saveLayer(&bounds, nullptr);
-    REPORTER_ASSERT(reporter, true == canvas.quickReject(SkRect::MakeWH(10, 10)));
-    REPORTER_ASSERT(reporter, false == canvas.quickReject(SkRect::MakeWH(60, 60)));
+        r.offset(300, 300);
+        REPORTER_ASSERT(reporter, true == canvas->quickReject(r));
+
+        // Test that saveLayer updates quickReject
+        SkRect bounds = SkRect::MakeLTRB(50, 50, 70, 70);
+        canvas->saveLayer(&bounds, nullptr);
+        REPORTER_ASSERT(reporter, true == canvas->quickReject(SkRect::MakeWH(10, 10)));
+        REPORTER_ASSERT(reporter, false == canvas->quickReject(SkRect::MakeWH(60, 60)));
+    }
 }
 
 static void test_quick_reject(skiatest::Reporter* reporter) {
