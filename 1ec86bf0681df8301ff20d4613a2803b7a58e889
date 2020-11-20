@@ -16,6 +16,24 @@
       "message": "I like this one.",
       "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "861be64b_c0b052a9",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-20T15:14:16Z",
+      "side": 1,
+      "message": "Don\u0027t feel strongly but lean towards this one as well. Don\u0027t like FlatSamplingEnum very much.",
+      "parentUuid": "db801dc1_5c110188",
+      "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
