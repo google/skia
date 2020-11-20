@@ -16,10 +16,7 @@ class GrStencilSettings;
 
 class GrProgramInfo {
 public:
-    GrProgramInfo(int numSamples,
-                  int numStencilSamples,
-                  const GrBackendFormat& backendFormat,
-                  GrSurfaceOrigin origin,
+    GrProgramInfo(const GrSurfaceProxyView& targetView,
                   const GrPipeline* pipeline,
                   const GrUserStencilSettings* userStencilSettings,
                   const GrPrimitiveProcessor* primProc,
@@ -27,10 +24,10 @@ public:
                   uint8_t tessellationPatchVertexCount,
                   GrXferBarrierFlags renderPassXferBarriers,
                   GrLoadOp colorLoadOp)
-            : fNumSamples(numSamples)
-            , fNumStencilSamples(numStencilSamples)
-            , fBackendFormat(backendFormat)
-            , fOrigin(origin)
+            : fNumSamples(targetView.asRenderTargetProxy()->numSamples())
+            , fNumStencilSamples(targetView.asRenderTargetProxy()->numStencilSamples())
+            , fBackendFormat(targetView.proxy()->backendFormat())
+            , fOrigin(targetView.origin())
             , fPipeline(pipeline)
             , fUserStencilSettings(userStencilSettings)
             , fPrimProc(primProc)
@@ -38,7 +35,7 @@ public:
             , fTessellationPatchVertexCount(tessellationPatchVertexCount)
             , fRenderPassXferBarriers(renderPassXferBarriers)
             , fColorLoadOp(colorLoadOp)
-            , fIsMixedSampled(this->isStencilEnabled() && numStencilSamples > numSamples) {
+            , fIsMixedSampled(this->isStencilEnabled() && fNumStencilSamples > fNumSamples) {
         SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
