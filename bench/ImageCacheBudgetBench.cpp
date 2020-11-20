@@ -122,6 +122,8 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+
         for (int i = 0; i < loops; ++i) {
             for (int frame = 0; frame < kSimulatedFrames; ++frame) {
                 for (int j = 0; j < kImagesToDraw; ++j) {
@@ -134,7 +136,9 @@ protected:
                     draw_image(canvas, fImages[idx].get());
                 }
                 // Simulate a frame boundary by flushing. This should notify GrResourceCache.
-                canvas->flush();
+                if (dContext) {
+                    dContext->flush();
+                }
            }
         }
     }
@@ -217,6 +221,8 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+
         int delta = 0;
         switch (fMode) {
             case Mode::kPingPong:
@@ -238,7 +244,9 @@ protected:
                     imgsToDraw += 2 * delta;
                 }
                 // Simulate a frame boundary by flushing. This should notify GrResourceCache.
-                canvas->flush();
+                if (dContext) {
+                    dContext->flush();
+                }
             }
         }
     }

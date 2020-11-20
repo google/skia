@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 
@@ -216,7 +217,10 @@ protected:
                 }
             }
             // Prevent any batching between composited "frames".
-            canvas->flush();
+            auto surface = canvas->getSurface();
+            if (surface) {
+                surface->flush();
+            }
         }
         canvas->restore();
     }
