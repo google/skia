@@ -799,9 +799,6 @@ MetalCodeGenerator::Precedence MetalCodeGenerator::GetBinaryPrecedence(Token::Ki
         case Token::Kind::TK_PERCENTEQ:    // fall through
         case Token::Kind::TK_SHLEQ:        // fall through
         case Token::Kind::TK_SHREQ:        // fall through
-        case Token::Kind::TK_LOGICALANDEQ: // fall through
-        case Token::Kind::TK_LOGICALXOREQ: // fall through
-        case Token::Kind::TK_LOGICALOREQ:  // fall through
         case Token::Kind::TK_BITWISEANDEQ: // fall through
         case Token::Kind::TK_BITWISEXOREQ: // fall through
         case Token::Kind::TK_BITWISEOREQ:  return MetalCodeGenerator::kAssignment_Precedence;

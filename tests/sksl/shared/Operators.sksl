@@ -8,9 +8,6 @@ void main() {
     x += 12;
     x -= 12;
     x *= y /= z = 10;
-    b ||= false;
-    b &&= true;
-    b ^^= false;
     z |= 0;
     z &= -1;
     z ^= 0;
