@@ -33,6 +33,46 @@
       "message": "... if so, I\u0027ll apply this after my other Cl lands (and doesn\u0027t break the world)\n\nhttps://skia-review.googlesource.com/c/skia/+/335218",
       "revId": "35060d37c64117709c0ca1fd0263f13347b51b39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b3e84c2_ed78ac63",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-20T20:21:15Z",
+      "side": 1,
+      "message": " yeah, this lgtm, with one suggestion",
+      "revId": "35060d37c64117709c0ca1fd0263f13347b51b39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "354280d4_707fe093",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-20T20:21:15Z",
+      "side": 1,
+      "message": "Why don\u0027t we fold some of these into field initializers,\nso the other constructors can focus on only the fields important to them, e.g.\n\n    struct SkSamplingOptions {\n        bool             fUseCubic \u003d false;\n        SkCubicResampler fCubic    \u003d {0,0};\n        SkFilterMode     fFilter   \u003d SkFilterMode::kNearest;\n        SkMipmapMode     fMipmap   \u003d SkMipmapMode::kNone;\n\n        SkSamplingOptions() \u003d default;\n\n        SkSamplingOptions(SkFilterMode fm, SkMipmapMode mm)\n            : fUseCubic(false)\n            , fFilter(fm)\n            , fMipmap(mm) {}\n\n        explicit SkSamplingOptions(SkCubicResampler cubic)\n            : fUseCubic(true)\n            , fCubic(cubic) {}\n\n        explicit SkSamplingOptions(SkFilterQuality);\n    };\n\nThat might make things clear enough that comments aren\u0027t needed?",
+      "range": {
+        "startLine": 51,
+        "startChar": 1,
+        "endLine": 56,
+        "endChar": 6
+      },
+      "revId": "35060d37c64117709c0ca1fd0263f13347b51b39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
