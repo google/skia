@@ -206,7 +206,8 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers) override {
+                             GrXferBarrierFlags renderPassXferBarriers,
+                             GrLoadOp colorLoadOp) override {
         const VertexSpec vertexSpec = this->vertexSpec();
 
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
@@ -216,20 +217,21 @@ private:
                                                             std::move(appliedClip),
                                                             dstProxyView, gp,
                                                             vertexSpec.primitiveType(),
-                                                            renderPassXferBarriers);
+                                                            renderPassXferBarriers, colorLoadOp);
     }
 
     void onPrePrepareDraws(GrRecordingContext* rContext,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView,
-                           GrXferBarrierFlags renderPassXferBarriers) override {
+                           GrXferBarrierFlags renderPassXferBarriers,
+                           GrLoadOp colorLoadOp) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkASSERT(!fPrePreparedVertices);
 
         INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
-                                     renderPassXferBarriers);
+                                     renderPassXferBarriers, colorLoadOp);
 
         SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
 

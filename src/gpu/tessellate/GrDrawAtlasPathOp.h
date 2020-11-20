@@ -46,7 +46,8 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers) override;
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) override;
 
     struct Instance {
         constexpr static size_t Stride(bool usesLocalCoords) {

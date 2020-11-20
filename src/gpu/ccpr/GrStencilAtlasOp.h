@@ -56,7 +56,8 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers) override {}
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
     void drawResolve(GrOpFlushState*, const GrPipeline&, const GrUserStencilSettings*,

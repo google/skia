@@ -205,7 +205,8 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers) override {
+                             GrXferBarrierFlags renderPassXferBarriers,
+                             GrLoadOp colorLoadOp) override {
         GrGeometryProcessor* gp = create_lines_only_gp(arena,
                                                        fHelper.compatibleWithCoverageAsAlpha(),
                                                        fHelper.usesLocalCoords(),
@@ -218,7 +219,7 @@ private:
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip), dstProxyView,
                                                             gp, GrPrimitiveType::kTriangles,
-                                                            renderPassXferBarriers);
+                                                            renderPassXferBarriers, colorLoadOp);
     }
 
     void recordDraw(Target* target,

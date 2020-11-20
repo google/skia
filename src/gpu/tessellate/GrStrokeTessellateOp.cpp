@@ -17,12 +17,14 @@ using Patch = GrStrokeTessellateShader::Patch;
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
-                                        GrXferBarrierFlags renderPassXferBarriers) {
+                                        GrXferBarrierFlags renderPassXferBarriers,
+                                        GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 fStroke, fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
     this->prePrepareColorProgram(arena, strokeTessellateShader, writeView, std::move(*clip),
-                                 dstProxyView, renderPassXferBarriers, *context->priv().caps());
+                                 dstProxyView, renderPassXferBarriers, colorLoadOp,
+                                 *context->priv().caps());
     context->priv().recordProgramInfo(fColorProgram);
 }
 
@@ -34,7 +36,7 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
         this->prePrepareColorProgram(flushState->allocator(), strokeTessellateShader,
                                      flushState->writeView(), flushState->detachAppliedClip(),
                                      flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                     flushState->caps());
+                                     flushState->colorLoadOp(), flushState->caps());
     }
 
     fTarget = flushState;

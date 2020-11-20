@@ -31,7 +31,8 @@ private:
     }
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags) override;
+                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
+                      GrLoadOp colorLoadOp) override;
 
     enum class JoinType {
         kFromStroke,  // The shader will use the join type defined in our fStrokeRec.

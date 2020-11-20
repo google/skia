@@ -94,7 +94,8 @@ protected:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers) override {
+                             GrXferBarrierFlags renderPassXferBarriers,
+                             GrLoadOp colorLoadOp) override {
         auto gp = this->makeGP(*caps, arena);
         if (!gp) {
             return;
@@ -108,6 +109,7 @@ protected:
                                                                    std::move(fProcessorSet),
                                                                    GrPrimitiveType::kTriangles,
                                                                    renderPassXferBarriers,
+                                                                   colorLoadOp,
                                                                    flags);
     }
 

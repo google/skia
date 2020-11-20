@@ -35,6 +35,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  SkBlendMode,
                                  GrPrimitiveType,
                                  GrXferBarrierFlags renderPassXferBarriers,
+                                 GrLoadOp colorLoadOp,
                                  GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone,
                                  const GrUserStencilSettings* stencil =
                                                                 &GrUserStencilSettings::kUnused);

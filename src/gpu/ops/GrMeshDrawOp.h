@@ -42,9 +42,10 @@ protected:
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip&& appliedClip,
                            const GrXferProcessor::DstProxyView& dstProxyView,
-                           GrXferBarrierFlags renderPassXferBarriers) {
+                           GrXferBarrierFlags renderPassXferBarriers,
+                           GrLoadOp colorLoadOp) {
         this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
-                                  renderPassXferBarriers);
+                                  renderPassXferBarriers, colorLoadOp);
     }
 
     void createProgramInfo(Target* target);
@@ -106,7 +107,8 @@ protected:
                                    const GrSurfaceProxyView& writeView,
                                    GrAppliedClip*,
                                    const GrXferProcessor::DstProxyView&,
-                                   GrXferBarrierFlags renderPassXferBarriers);
+                                   GrXferBarrierFlags renderPassXferBarriers,
+                                   GrLoadOp colorLoadOp);
 
 private:
     virtual GrProgramInfo* programInfo() = 0;
@@ -117,14 +119,17 @@ private:
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&,
-                                     GrXferBarrierFlags renderPassXferBarriers) = 0;
+                                     GrXferBarrierFlags renderPassXferBarriers,
+                                     GrLoadOp colorLoadOp) = 0;
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip* clip,
                       const GrXferProcessor::DstProxyView& dstProxyView,
-                      GrXferBarrierFlags renderPassXferBarriers) final {
-        this->onPrePrepareDraws(context, writeView, clip, dstProxyView, renderPassXferBarriers);
+                      GrXferBarrierFlags renderPassXferBarriers,
+                      GrLoadOp colorLoadOp) final {
+        this->onPrePrepareDraws(context, writeView, clip, dstProxyView, renderPassXferBarriers,
+                                colorLoadOp);
     }
     void onPrepare(GrOpFlushState* state) final;
 
@@ -224,6 +229,8 @@ public:
     virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
 
     virtual GrXferBarrierFlags renderPassBarriers() const = 0;
+
+    virtual GrLoadOp colorLoadOp() const = 0;
 
     virtual GrThreadSafeCache* threadSafeCache() const = 0;
     virtual GrResourceProvider* resourceProvider() const = 0;

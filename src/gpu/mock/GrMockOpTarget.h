@@ -32,6 +32,7 @@ public:
     GrAppliedClip detachAppliedClip() override { return GrAppliedClip::Disabled(); }
     const GrXferProcessor::DstProxyView& dstProxyView() const override { return fDstProxyView; }
     GrXferBarrierFlags renderPassBarriers() const override { return GrXferBarrierFlags::kNone; }
+    GrLoadOp colorLoadOp() const override { return GrLoadOp::kLoad; }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) override {
