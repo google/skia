@@ -16,6 +16,29 @@
       "message": "Please ignore the intermediate abandon! This is still an important fix to get in place, but it\u0027s not time critical anymore since the problem CL has been reverted instead. When relanding that CL, I\u0027ll update it to just use clipRect instead of replaceClip, but this change will prevent similar surprises from coming up in the future.",
       "revId": "248211e4dff4b2b12e6fc007cf7da944633794fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "959c9e15_e03eb947",
+        "filename": "src/core/SkRasterClipStack.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T18:09:15Z",
+      "side": 1,
+      "message": "devRect?",
+      "range": {
+        "startLine": 136,
+        "startChar": 40,
+        "endLine": 136,
+        "endChar": 44
+      },
+      "revId": "248211e4dff4b2b12e6fc007cf7da944633794fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
