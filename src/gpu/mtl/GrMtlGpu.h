@@ -26,6 +26,8 @@
 
 #import <Metal/Metal.h>
 
+#include "include/ports/SkCFObject.h"
+
 class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
@@ -44,7 +46,7 @@ public:
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
-    id<MTLDevice> device() const { return fDevice; }
+    id<MTLDevice> device() const { return fDevice.get(); }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -86,7 +88,7 @@ public:
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 #if GR_METAL_SDK_VERSION >= 230
     id<MTLBinaryArchive> binaryArchive() const SK_API_AVAILABLE(macos(11.0), ios(14.0)) {
-        return fBinaryArchive;
+        return fBinaryArchive.get();
     }
 #endif
 
@@ -272,8 +274,8 @@ private:
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
-    id<MTLDevice> fDevice;
-    id<MTLCommandQueue> fQueue;
+    sk_cfp<id<MTLDevice>> fDevice;
+    sk_cfp<id<MTLCommandQueue>> fQueue;
 
     sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
 
@@ -288,7 +290,7 @@ private:
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
 #if GR_METAL_SDK_VERSION >= 230
-    id<MTLBinaryArchive> fBinaryArchive SK_API_AVAILABLE(macos(11.0), ios(14.0));
+    sk_cfp<id<MTLBinaryArchive>> fBinaryArchive SK_API_AVAILABLE(macos(11.0), ios(14.0));
 #endif
 
     GrMtlResourceProvider fResourceProvider;
