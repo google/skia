@@ -57,10 +57,11 @@ public:
                                           GrLoadOp colorLoadOp,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
-        GrRenderTargetProxy* proxy = writeView.asRenderTargetProxy();
-        return arena->make<GrProgramInfo>(proxy->numSamples(), proxy->numStencilSamples(),
-                                          proxy->backendFormat(), writeView.origin(), pipeline,
-                                          stencil, shader, shader->fPrimitiveType,
+        return arena->make<GrProgramInfo>(writeView,
+                                          pipeline,
+                                          stencil,
+                                          shader,
+                                          shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
                                           renderPassXferBarriers, colorLoadOp);
     }

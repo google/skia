@@ -179,11 +179,9 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     DrawAtlasPathShader shader(fAtlasProxy.get(), swizzle, fUsesLocalCoords);
     SkASSERT(shader.instanceStride() == Instance::Stride(fUsesLocalCoords));
 
-    GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                              state->proxy()->backendFormat(), state->writeView().origin(),
-                              &pipeline, &GrUserStencilSettings::kUnused, &shader,
-                              GrPrimitiveType::kTriangleStrip, 0, state->renderPassBarriers(),
-                              state->colorLoadOp());
+    GrProgramInfo programInfo(state->writeView(), &pipeline, &GrUserStencilSettings::kUnused,
+                              &shader, GrPrimitiveType::kTriangleStrip, 0,
+                              state->renderPassBarriers(), state->colorLoadOp());
 
     state->bindPipelineAndScissorClip(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);

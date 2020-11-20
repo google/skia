@@ -82,7 +82,7 @@ public:
     UNIMPL(uint16_t* makeIndexSpace(int, sk_sp<const GrBuffer>*, int*))
     UNIMPL(uint16_t* makeIndexSpaceAtLeast(int, int, sk_sp<const GrBuffer>*, int*, int*))
     UNIMPL(void putBackIndices(int))
-    UNIMPL(GrRenderTargetProxy* proxy() const)
+    UNIMPL(GrRenderTargetProxy* rtProxy() const)
     UNIMPL(const GrSurfaceProxyView& writeView() const)
     UNIMPL(const GrAppliedClip* appliedClip() const)
     UNIMPL(GrStrikeCache* strikeCache() const)

@@ -58,7 +58,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
                                 GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().appliedClip();
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
-    GrRenderTarget* rt = flushState.drawOpArgs().proxy()->peekRenderTarget();
+    GrRenderTarget* rt = flushState.drawOpArgs().rtProxy()->peekRenderTarget();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
                    rt->numStencilBits());
 }
@@ -85,11 +85,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
-    GrRenderTargetProxy* proxy = flushState->proxy();
-    GrProgramInfo programInfo(proxy->numSamples(),
-                              proxy->numStencilSamples(),
-                              proxy->backendFormat(),
-                              flushState->writeView().origin(),
+    GrProgramInfo programInfo(flushState->writeView(),
                               pipeline,
                               &kCoverPass,
                               pathProc.get(),
@@ -103,7 +99,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*flushState, this->fillType(), &stencil);
-    flushState->gpu()->pathRendering()->drawPath(proxy->peekRenderTarget(),
+    flushState->gpu()->pathRendering()->drawPath(flushState->rtProxy()->peekRenderTarget(),
                                                  programInfo, stencil, fPath.get());
 }
 
