@@ -202,11 +202,11 @@ public:
     }
 
     // Helper functions for TopoSortBench & TopoSortTest
-    static void AllocNodes(SkTArray<sk_sp<ToolUtils::TopoTestNode>>* graph, int num) {
+    static void AllocNodes(SkTArray<std::unique_ptr<ToolUtils::TopoTestNode>>* graph, int num) {
         graph->reserve_back(num);
 
         for (int i = 0; i < num; ++i) {
-            graph->push_back(sk_sp<TopoTestNode>(new TopoTestNode(i)));
+            graph->push_back(std::make_unique<TopoTestNode>(i));
         }
     }
 
@@ -220,7 +220,7 @@ public:
 #endif
 
     // randomize the array
-    static void Shuffle(SkTArray<sk_sp<TopoTestNode>>* graph, SkRandom* rand) {
+    static void Shuffle(SkTArray<std::unique_ptr<TopoTestNode>>* graph, SkRandom* rand) {
         for (int i = graph->count() - 1; i > 0; --i) {
             int swap = rand->nextU() % (i + 1);
 
