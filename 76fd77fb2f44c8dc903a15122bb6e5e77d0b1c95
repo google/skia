@@ -16,6 +16,29 @@
       "message": "PTAL",
       "revId": "76fd77fb2f44c8dc903a15122bb6e5e77d0b1c95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a733ee87_8deb64b3",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-11-20T16:35:47Z",
+      "side": 1,
+      "message": "There\u0027s two failure states here -- I\u0027m not sure if they should be separated out. It\u0027s possible that we load shaders from the cache but then they don\u0027t compile (maybe they time out). Do you think we should have a different recovery mode in that case?",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 52
+      },
+      "revId": "76fd77fb2f44c8dc903a15122bb6e5e77d0b1c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
