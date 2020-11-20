@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87561eb3_7844393f",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T20:27:19Z",
+      "side": 1,
+      "message": "isn\u0027t any value possibly too big? How should we set this?\n\nDo we really crash if r \u003d\u003d 0.0000000000001 ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 53,
+        "endLine": 45,
+        "endChar": 63
+      },
+      "revId": "122a0ff27f9684758f8210a796f9cd06d2e0b17a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
