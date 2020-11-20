@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c5163c4f_44dd2d7c",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T18:30:50Z",
+      "side": 1,
+      "message": "I renamed them. At one point I had them as private functions, when I was implementing reflect and refract in the byte code generator. But those got to be pretty outrageously large. Balancing the code-size against the heap usage of the repeated definitions in sksl _public.sksl is part of what got me investigating heap usage, and led to https://skia-review.googlesource.com/c/skia/+/337176\n\nLooks like this CL adds about 20 KB to the runtime effect module, after rehydration.",
+      "parentUuid": "b7e2959b_a97df7c0",
+      "range": {
+        "startLine": 1252,
+        "startChar": 13,
+        "endLine": 1252,
+        "endChar": 27
+      },
+      "revId": "4bf70f8f46dcfd3d39659cd11eb745d8cd4e8a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "10b20cfb_4b8a2b71",
         "filename": "src/sksl/sksl_public.sksl",
         "patchSetId": 8
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-20T18:09:50Z",
       "side": 1,
       "message": "We do this dot three times in a row--is it worth calculating `dot(N,I) in a temp var for reuse? It\u0027s probably fine, they\u0027re about as fast as any vector instruction can be...",
+      "range": {
+        "startLine": 121,
+        "startChar": 35,
+        "endLine": 121,
+        "endChar": 44
+      },
+      "revId": "4bf70f8f46dcfd3d39659cd11eb745d8cd4e8a54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3a27ad9_9f0c6427",
+        "filename": "src/sksl/sksl_public.sksl",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T18:30:50Z",
+      "side": 1,
+      "message": "Yeah, I thought about that - it was going to make my scratch variable thing slightly more complicated, and I was trying to balance stack usage vs. calculation. Once we\u0027re in skvm, it\u0027s going to eliminate all of this redundant work anyway. Also: this might be the least-used GLSL intrinsic ever. 😉",
+      "parentUuid": "10b20cfb_4b8a2b71",
       "range": {
         "startLine": 121,
         "startChar": 35,
