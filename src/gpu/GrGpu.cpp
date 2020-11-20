@@ -661,12 +661,6 @@ bool GrGpu::submitToGpu(bool syncCpu) {
 
     this->callSubmittedProcs(submitted);
 
-    this->reportSubmitHistograms();
-
-    return submitted;
-}
-
-void GrGpu::reportSubmitHistograms() {
 #if SK_HISTOGRAMS_ENABLED
     // The max allowed value for SK_HISTOGRAM_EXACT_LINEAR is 100. If we want to support higher
     // values we can add SK_HISTOGRAM_CUSTOM_COUNTS but this has a number of buckets that is less
@@ -678,7 +672,7 @@ void GrGpu::reportSubmitHistograms() {
     fCurrentSubmitRenderPassCount = 0;
 #endif
 
-    this->onReportSubmitHistograms();
+    return submitted;
 }
 
 bool GrGpu::checkAndResetOOMed() {
