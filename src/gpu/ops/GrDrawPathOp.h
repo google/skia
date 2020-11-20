@@ -58,8 +58,7 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers,
-                      GrLoadOp colorLoadOp) final {}
+                      GrXferBarrierFlags renderPassXferBarriers) final {}
 
     void onPrepare(GrOpFlushState*) final {}
 

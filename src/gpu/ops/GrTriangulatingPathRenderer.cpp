@@ -457,8 +457,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override {
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -501,19 +500,18 @@ private:
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                              std::move(appliedClip), dstProxyView,
                                                              gp, primitiveType,
-                                                             renderPassXferBarriers, colorLoadOp);
+                                                             renderPassXferBarriers);
     }
 
     void onPrePrepareDraws(GrRecordingContext* rContext,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView,
-                           GrXferBarrierFlags renderPassXferBarriers,
-                           GrLoadOp colorLoadOp) override {
+                           GrXferBarrierFlags renderPassXferBarriers) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView,
-                                     renderPassXferBarriers, colorLoadOp);
+                                     renderPassXferBarriers);
 
         if (fAntiAlias) {
             // TODO: pull the triangulation work forward to the recording thread for the AA case

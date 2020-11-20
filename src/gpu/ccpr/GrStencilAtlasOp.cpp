@@ -180,8 +180,7 @@ void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline&
                                    const SkIRect& drawBounds) const {
     GrProgramInfo programInfo(flushState->writeView(), &resolvePipeline, stencil,
                               &primProc, GrPrimitiveType::kTriangleStrip, 0,
-                              flushState->renderPassBarriers(),
-                              flushState->colorLoadOp());
+                              flushState->renderPassBarriers());
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
     flushState->setScissorRect(drawBounds);
     flushState->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);

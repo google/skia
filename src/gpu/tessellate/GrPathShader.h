@@ -39,14 +39,13 @@ public:
                                           GrProcessorSet&& processors, GrAppliedClip&& appliedClip,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
-                                          GrLoadOp colorLoadOp,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         auto* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
                 &caps, arena, writeView.swizzle(), std::move(appliedClip), dstProxyView,
                 std::move(processors), pipelineFlags);
         return MakeProgramInfo(shader, arena, writeView, pipeline, dstProxyView,
-                               renderPassXferBarriers, colorLoadOp, stencil, caps);
+                               renderPassXferBarriers, stencil, caps);
     }
 
     static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
@@ -54,7 +53,6 @@ public:
                                           const GrPipeline* pipeline,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
-                                          GrLoadOp colorLoadOp,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         return arena->make<GrProgramInfo>(writeView,
@@ -63,7 +61,7 @@ public:
                                           shader,
                                           shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
-                                          renderPassXferBarriers, colorLoadOp);
+                                          renderPassXferBarriers);
     }
 
 private:

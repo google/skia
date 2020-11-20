@@ -175,8 +175,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& clip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override {
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -193,7 +192,7 @@ private:
 
         fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(clip),
                                                  dstProxyView, gp, primType,
-                                                 renderPassXferBarriers, colorLoadOp);
+                                                 renderPassXferBarriers);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -444,8 +443,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override;
+                             GrXferBarrierFlags renderPassXferBarriers) override;
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
@@ -521,8 +519,7 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
                                          const GrSurfaceProxyView& writeView,
                                          GrAppliedClip&& appliedClip,
                                          const GrXferProcessor::DstProxyView& dstProxyView,
-                                         GrXferBarrierFlags renderPassXferBarriers,
-                                         GrLoadOp colorLoadOp) {
+                                         GrXferBarrierFlags renderPassXferBarriers) {
 
     GrGeometryProcessor* gp = create_aa_stroke_rect_gp(arena,
                                                        fHelper.compatibleWithCoverageAsAlpha(),
@@ -541,8 +538,7 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
                                              dstProxyView,
                                              gp,
                                              GrPrimitiveType::kTriangles,
-                                             renderPassXferBarriers,
-                                             colorLoadOp);
+                                             renderPassXferBarriers);
 }
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) {
