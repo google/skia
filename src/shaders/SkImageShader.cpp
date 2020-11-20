@@ -107,15 +107,15 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
     if (buffer.isVersionLT(SkPicturePriv::kCubicResamplerImageShader_Version)) {
         if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
             op.fUseCubic = false;
-            op.fFilter.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
-            op.fFilter.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+            op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+            op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
         }
     } else {
         switch (fe) {
             case LegacyFilterEnum::kUseFilterOptions:
                 op.fUseCubic = false;
-                op.fFilter.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
-                op.fFilter.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+                op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+                op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
                 break;
             case LegacyFilterEnum::kUseCubicResampler:
                 op.fUseCubic = true;
@@ -150,8 +150,8 @@ static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
         buffer.writeScalar(sampling.fCubic.B);
         buffer.writeScalar(sampling.fCubic.C);
     } else {
-        buffer.writeUInt((unsigned)sampling.fFilter.fSampling);
-        buffer.writeUInt((unsigned)sampling.fFilter.fMipmap);
+        buffer.writeUInt((unsigned)sampling.fFilter);
+        buffer.writeUInt((unsigned)sampling.fMipmap);
     }
 }
 
@@ -162,8 +162,8 @@ static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
         sampling.fCubic.B = buffer.readScalar();
         sampling.fCubic.C = buffer.readScalar();
     } else {
-        sampling.fFilter.fSampling = buffer.read32LE<SkSamplingMode>(SkSamplingMode::kLinear);
-        sampling.fFilter.fMipmap   = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        sampling.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+        sampling.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
     }
     return sampling;
 }
@@ -231,14 +231,14 @@ static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* qua
             q = kHigh_SkFilterQuality;
         }
     } else {
-        switch (sampling.fFilter.fMipmap) {
+        switch (sampling.fMipmap) {
             case SkMipmapMode::kNone:
-                q = sampling.fFilter.fSampling == SkSamplingMode::kLinear ?
+                q = sampling.fFilter == SkFilterMode::kLinear ?
                     kLow_SkFilterQuality :
                     kNone_SkFilterQuality;
                 break;
             case SkMipmapMode::kNearest:
-                if (sampling.fFilter.fSampling == SkSamplingMode::kLinear) {
+                if (sampling.fFilter == SkFilterMode::kLinear) {
                     q = kMedium_SkFilterQuality;
                 }
                 break;
@@ -455,11 +455,11 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         if (bicubic) {
             kernel = fSampling.fCubic;
         } else {
-            switch (fSampling.fFilter.fSampling) {
-                case SkSamplingMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
-                case SkSamplingMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
+            switch (fSampling.fFilter) {
+                case SkFilterMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
+                case SkFilterMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
             }
-            switch (fSampling.fFilter.fMipmap) {
+            switch (fSampling.fMipmap) {
                 case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
                 case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
                 case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
@@ -885,8 +885,8 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
 }
 
 enum class SamplingEnum {
-    kNearest,
-    kLinear,
+    kNearest,   // matches SkFilterMode::kNearest
+    kLinear,    // matches SkFilterMode::kLinear
     kBicubic,
 };
 
@@ -906,7 +906,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
                    *lower = nullptr;
     SkMatrix        upperInv;
     float           lowerWeight = 0;
-    SamplingEnum    sampling = (SamplingEnum)fSampling.fFilter.fSampling;
+    SamplingEnum    sampling = (SamplingEnum)fSampling.fFilter;
 
     auto post_scale = [&](SkISize level, const SkMatrix& base) {
         return SkMatrix::Scale(SkIntToScalar(level.width())  / fImage->width(),
@@ -924,7 +924,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             cubic = fSampling.fCubic;
         } else {
             auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
-                                                         fSampling.fFilter.fMipmap);
+                                                         fSampling.fMipmap);
             upper = &access->level();
             upperInv = post_scale(upper->dimensions(), baseInv);
             lowerWeight = access->lowerWeight();
