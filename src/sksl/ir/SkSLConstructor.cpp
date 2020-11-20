@@ -63,13 +63,13 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
     return true;
 }
 
-template <typename resultType>
-resultType Constructor::getVecComponent(int index) const {
+template <typename ResultType>
+ResultType Constructor::getVecComponent(int index) const {
     SkASSERT(this->type().typeKind() == Type::TypeKind::kVector);
     if (this->arguments().size() == 1 &&
         this->arguments()[0]->type().typeKind() == Type::TypeKind::kScalar) {
         // This constructor just wraps a scalar. Propagate out the value.
-        if (std::is_floating_point<resultType>::value) {
+        if (std::is_floating_point<ResultType>::value) {
             return this->arguments()[0]->getConstantFloat();
         } else {
             return this->arguments()[0]->getConstantInt();
@@ -87,7 +87,7 @@ resultType Constructor::getVecComponent(int index) const {
         if (arg->type().typeKind() == Type::TypeKind::kScalar) {
             if (index == current) {
                 // We're on the proper argument, and it's a scalar; fetch it.
-                if (std::is_floating_point<resultType>::value) {
+                if (std::is_floating_point<ResultType>::value) {
                     return arg->getConstantFloat();
                 } else {
                     return arg->getConstantInt();
@@ -103,11 +103,9 @@ resultType Constructor::getVecComponent(int index) const {
                 if (current + constructor.type().columns() > index) {
                     // We've found a constructor that overlaps the proper argument. Descend into
                     // it, honoring the type.
-                    if (constructor.type().componentType().isFloat()) {
-                        return resultType(constructor.getVecComponent<SKSL_FLOAT>(index - current));
-                    } else {
-                        return resultType(constructor.getVecComponent<SKSL_INT>(index - current));
-                    }
+                    return constructor.type().componentType().isFloat()
+                              ? ResultType(constructor.getVecComponent<SKSL_FLOAT>(index - current))
+                              : ResultType(constructor.getVecComponent<SKSL_INT>(index - current));
                 }
                 break;
             }
@@ -119,15 +117,15 @@ resultType Constructor::getVecComponent(int index) const {
                     // we shouldn't see any other tokens here.
                     SkASSERT(prefix.getOperator() == Token::Kind::TK_MINUS);
 
-                    // We expect the - prefix to always be attached to a constructor.
-                    const Constructor& constructor = prefix.operand()->as<Constructor>();
-
-                    // Descend into this constructor, honoring the type.
-                    if (constructor.type().componentType().isFloat()) {
-                        return -resultType(constructor.getVecComponent<SKSL_FLOAT>(index -
-                                                                                   current));
+                    const Expression& operand = *prefix.operand();
+                    if (operand.type().typeKind() == Type::TypeKind::kVector) {
+                        return operand.type().componentType().isFloat()
+                                ? -ResultType(operand.getVecComponent<SKSL_FLOAT>(index - current))
+                                : -ResultType(operand.getVecComponent<SKSL_INT>(index - current));
                     } else {
-                        return -resultType(constructor.getVecComponent<SKSL_INT>(index - current));
+                        return operand.type().isFloat()
+                                ? -ResultType(operand.getConstantFloat())
+                                : -ResultType(operand.getConstantInt());
                     }
                 }
                 break;
