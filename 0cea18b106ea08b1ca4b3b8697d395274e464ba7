@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4218475a_0986277a",
+        "filename": "tools/sk_app/ios/main_ios.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-20T19:23:03Z",
+      "side": 1,
+      "message": "Nope! Removed.",
+      "parentUuid": "56abd9f0_90bf240d",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 20
+      },
+      "revId": "0cea18b106ea08b1ca4b3b8697d395274e464ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89407f37_fcf87040",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-20T18:29:30Z",
       "side": 1,
       "message": "I think I had this before -- I don\u0027t recall why I changed it.",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 17
+      },
+      "revId": "0cea18b106ea08b1ca4b3b8697d395274e464ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8a6149d_508e9e65",
+        "filename": "tools/sk_app/ios/main_ios.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-11-20T19:23:03Z",
+      "side": 1,
+      "message": "Talked offline and we can leave this since it\u0027s working. It may have been a different change Jim was thinking of.",
+      "parentUuid": "89407f37_fcf87040",
       "range": {
         "startLine": 94,
         "startChar": 4,
