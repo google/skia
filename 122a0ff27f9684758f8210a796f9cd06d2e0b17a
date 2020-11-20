@@ -46,6 +46,30 @@
       },
       "revId": "122a0ff27f9684758f8210a796f9cd06d2e0b17a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b61481d_bf9b95c9",
+        "filename": "modules/svg/src/SkSVGRadialGradient.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T20:43:08Z",
+      "side": 1,
+      "message": "Agreed, I\u0027m nervous about the tolerance.",
+      "parentUuid": "66b93936_ea6eb431",
+      "range": {
+        "startLine": 45,
+        "startChar": 53,
+        "endLine": 45,
+        "endChar": 63
+      },
+      "revId": "122a0ff27f9684758f8210a796f9cd06d2e0b17a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
