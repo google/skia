@@ -177,25 +177,45 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
 
     fRootModule = {fRootSymbolTable, /*fIntrinsics=*/nullptr};
     fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
-
-    fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
-    fVertexModule = this->parseModule(Program::kVertex_Kind, MODULE_DATA(vert), fGPUModule);
-    fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag), fGPUModule);
 }
 
 Compiler::~Compiler() {}
 
+const ParsedModule& Compiler::loadGPUModule() {
+    if (!fGPUModule.fSymbols) {
+        fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
+    }
+    return fGPUModule;
+}
+
+const ParsedModule& Compiler::loadFragmentModule() {
+    if (!fFragmentModule.fSymbols) {
+        fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag),
+                                            this->loadGPUModule());
+    }
+    return fFragmentModule;
+}
+
+const ParsedModule& Compiler::loadVertexModule() {
+    if (!fVertexModule.fSymbols) {
+        fVertexModule = this->parseModule(Program::kVertex_Kind, MODULE_DATA(vert),
+                                          this->loadGPUModule());
+    }
+    return fVertexModule;
+}
+
 const ParsedModule& Compiler::loadGeometryModule() {
     if (!fGeometryModule.fSymbols) {
-        fGeometryModule = this->parseModule(Program::kGeometry_Kind, MODULE_DATA(geom), fGPUModule);
+        fGeometryModule = this->parseModule(Program::kGeometry_Kind, MODULE_DATA(geom),
+                                            this->loadGPUModule());
     }
     return fGeometryModule;
 }
 
 const ParsedModule& Compiler::loadFPModule() {
     if (!fFPModule.fSymbols) {
-        fFPModule =
-                this->parseModule(Program::kFragmentProcessor_Kind, MODULE_DATA(fp), fGPUModule);
+        fFPModule = this->parseModule(Program::kFragmentProcessor_Kind, MODULE_DATA(fp),
+                                      this->loadGPUModule());
     }
     return fFPModule;
 }
@@ -252,8 +272,8 @@ const ParsedModule& Compiler::loadInterpreterModule() {
 
 const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
     switch (kind) {
-        case Program::kVertex_Kind:            return fVertexModule;                 break;
-        case Program::kFragment_Kind:          return fFragmentModule;               break;
+        case Program::kVertex_Kind:            return this->loadVertexModule();      break;
+        case Program::kFragment_Kind:          return this->loadFragmentModule();    break;
         case Program::kGeometry_Kind:          return this->loadGeometryModule();    break;
         case Program::kFragmentProcessor_Kind: return this->loadFPModule();          break;
         case Program::kPipelineStage_Kind:     return this->loadPipelineModule();    break;
