@@ -182,6 +182,8 @@ public:
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
+    GrAtlasSubRun* testingOnly_atlasSubRun() override;
+
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           bool isAntiAliased,
                           const SkStrikeSpec& strikeSpec,
@@ -295,6 +297,10 @@ auto PathSubRun::Make(
 
     return alloc->make<PathSubRun>(
             isAntiAliased, strikeSpec, blob, SkSpan(pathData, drawables.size()));
+}
+
+GrAtlasSubRun* PathSubRun::testingOnly_atlasSubRun() {
+    return nullptr;
 };
 
 // -- PathSubRun::PathGlyph ------------------------------------------------------------------------
@@ -438,7 +444,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
 }
 
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
-class DirectMaskSubRun final : public GrAtlasSubRun {
+class DirectMaskSubRun final : public GrSubRun, public GrAtlasSubRun {
 public:
     using DevicePosition = skvx::Vec<2, int16_t>;
 
@@ -461,6 +467,8 @@ public:
               GrRenderTargetContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+
+    GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
     size_t vertexStride() const override;
 
@@ -796,8 +804,12 @@ SkRect DirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrig
     return outBounds;
 }
 
+GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() {
+    return this;
+}
+
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
-class TransformedMaskSubRun final : public GrAtlasSubRun {
+class TransformedMaskSubRun final : public GrSubRun, public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
@@ -824,6 +836,8 @@ public:
               GrRenderTargetContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+
+    GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
@@ -896,7 +910,7 @@ GrSubRun* TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& draw
     SkSpan<VertexData> vertexData{
             alloc->makeInitializedArray<VertexData>(vertexCount, initializer), vertexCount};
 
-    GrAtlasSubRun* subRun = alloc->make<TransformedMaskSubRun>(
+    GrSubRun* subRun = alloc->make<TransformedMaskSubRun>(
             format, blob, bounds, vertexData,
             GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
 
@@ -1053,8 +1067,12 @@ SkRect TransformedMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint dra
     return drawMatrix.mapRect(outBounds);
 }
 
+GrAtlasSubRun* TransformedMaskSubRun::testingOnly_atlasSubRun() {
+    return this;
+}
+
 // -- SDFTSubRun -----------------------------------------------------------------------------------
-class SDFTSubRun final : public GrAtlasSubRun {
+class SDFTSubRun final : public GrSubRun, public GrAtlasSubRun {
 public:
     struct VertexData {
         const SkPoint pos;
@@ -1082,6 +1100,8 @@ public:
               GrRenderTargetContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
+
+    GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
@@ -1329,6 +1349,10 @@ SkRect SDFTSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) co
     SkRect outBounds = fVertexBounds;
     outBounds.offset(drawOrigin);
     return drawMatrix.mapRect(outBounds);
+}
+
+GrAtlasSubRun* SDFTSubRun::testingOnly_atlasSubRun() {
+    return this;
 }
 }  // namespace
 

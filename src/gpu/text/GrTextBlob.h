@@ -156,10 +156,8 @@ private:
     SkArenaAlloc fAlloc;
 };
 
-// -- GrSubRun -------------------------------------------------------------------------------------
-// There are several types of subrun, which can be broken into two broad classes:
-//   * PathSubRun - handle very large single color glyphs using paths to render the glyph.
-//   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
+// -- GrAtlasSubRun --------------------------------------------------------------------------------
+// GrAtlasSubRun is the API that GrAtlasTextOp uses to generate vertex data for drawing.
 //     There are three different ways GrAtlasSubRun is specialized.
 //      * DirectMaskSubRun - this is by far the most common type of subrun. The mask pixels are
 //        in 1:1 correspondence with the pixels on the device. The destination rectangles in this
@@ -170,29 +168,12 @@ private:
 //        space.
 //      * SDFTSubRun - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct subruns, and path subruns. The destination
-//        rectangles are in source space.
-class GrSubRun {
-public:
-    virtual ~GrSubRun() = default;
-
-    // Produce GPU ops for this subRun.
-    virtual void draw(const GrClip* clip,
-                      const SkMatrixProvider& viewMatrix,
-                      const SkGlyphRunList& glyphRunList,
-                      GrRenderTargetContext* rtc) const = 0;
-
-    // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
-    // position.
-    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) = 0;
-
-private:
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
-};
-
-// -- GrAtlasSubRun --------------------------------------------------------------------------------
-class GrAtlasSubRun : public GrSubRun {
+class GrAtlasSubRun  {
 public:
     static constexpr int kVerticesPerGlyph = 4;
+
+    virtual ~GrAtlasSubRun() = default;
+
     virtual size_t vertexStride() const = 0;
     virtual int glyphCount() const = 0;
 
@@ -212,5 +193,36 @@ public:
     // is single threaded.
     virtual std::tuple<bool, int> regenerateAtlas(
             int begin, int end, GrMeshDrawOp::Target* target) const = 0;
+};
+
+// -- GrSubRun -------------------------------------------------------------------------------------
+// GrSubRun is the API the GrTextBlob uses for the subruns.
+// There are several types of subrun, which can be broken into five classes:
+//   * PathSubRun - handle very large single color glyphs using paths to render the glyph.
+//   * DirectMaskSubRun - handle the majority of the glyphs where the cache entry's pixels are in
+//     1:1 correspondence to the device pixels.
+//   * TransformedMaskSubRun - handle large bitmap/argb glyphs that need to be scaled to the screen.
+//   * SDFTSubRun - use signed distance fields to draw largish glyphs to the screen.
+//   * GrAtlasSubRun - this is an abstract class used for atlas drawing.
+class GrSubRun {
+public:
+    virtual ~GrSubRun() = default;
+
+    // Produce GPU ops for this subRun.
+    virtual void draw(const GrClip* clip,
+                      const SkMatrixProvider& viewMatrix,
+                      const SkGlyphRunList& glyphRunList,
+                      GrRenderTargetContext* rtc) const = 0;
+
+    // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
+    // position.
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) = 0;
+
+    // Return the underlying atlas subrun if it exists. Otherwise, return nullptr.
+    // * Don't use this API. It is only to support testing.
+    virtual GrAtlasSubRun* testingOnly_atlasSubRun() = 0;
+
+private:
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
 };
 #endif  // GrTextBlob_DEFINED
