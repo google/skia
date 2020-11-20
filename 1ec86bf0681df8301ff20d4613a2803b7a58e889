@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db801dc1_5c110188",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-20T14:34:55Z",
+      "side": 1,
+      "message": "I like this one.",
+      "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
