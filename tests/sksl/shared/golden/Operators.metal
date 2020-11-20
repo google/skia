@@ -16,13 +16,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     x = -6.0;
     y = -1.0;
     z = 8;
-    bool b = false == true || 2.0 >= sqrt(2.0);
     x += 12.0;
     x -= 12.0;
     x *= (y /= float(z = 10));
-    b ||= false;
-    b &&= true;
-    b ^^= false;
     z |= 0;
     z &= -1;
     z ^= 0;

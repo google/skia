@@ -1555,10 +1555,7 @@ static bool determine_binary_type(const Context& context,
             break;
         case Token::Kind::TK_LOGICALOR: // fall through
         case Token::Kind::TK_LOGICALAND: // fall through
-        case Token::Kind::TK_LOGICALXOR: // fall through
-        case Token::Kind::TK_LOGICALOREQ: // fall through
-        case Token::Kind::TK_LOGICALANDEQ: // fall through
-        case Token::Kind::TK_LOGICALXOREQ:
+        case Token::Kind::TK_LOGICALXOR:
             *outLeftType = context.fBool_Type.get();
             *outRightType = context.fBool_Type.get();
             *outResultType = context.fBool_Type.get();
