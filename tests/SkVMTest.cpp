@@ -2508,3 +2508,32 @@ DEF_TEST(SkVM_Q14, r) {
     }
 
 }
+
+DEF_TEST(SkVM_badpack, r) {
+    // Test case distilled from actual failing draw,
+    // originally with a bad arm64 implementation of pack().
+    skvm::Builder p;
+    {
+        skvm::Arg uniforms = p.uniform(),
+                  dst      = p.varying<uint16_t>();
+
+        skvm::I32 r = round(bit_cast(p.uniform32(uniforms, 8)) * 15),
+                  a = p.splat(0xf);
+
+        skvm::I32 _4444 = p.splat(0);
+        _4444 = pack(_4444, r, 12);
+        _4444 = pack(_4444, a,  0);
+        store16(dst, _4444);
+    }
+
+    test_jit_and_interpreter(p.done(), [&](const skvm::Program& program){
+        const float uniforms[] = { 0.0f, 0.0f,
+                                   1.0f, 0.0f, 0.0f, 1.0f };
+
+        uint16_t dst[17] = {0};
+        program.eval(17, uniforms,dst);
+        for (int i = 0; i < 17; i++) {
+            REPORTER_ASSERT(r, dst[i] == 0xf00f, "got %04x, want %04x\n", dst[i], 0xf00f);
+        }
+    });
+}
