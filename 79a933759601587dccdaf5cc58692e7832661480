@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd67413f_3be6d748",
+        "filename": "include/core/SkSamplingOptions.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T23:47:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e7f74d4_05378b93",
+      "revId": "79a933759601587dccdaf5cc58692e7832661480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "604e0747_44e84bfe",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-20T22:25:35Z",
       "side": 1,
       "message": "Yeah, I really like the changes to this file.  👍",
+      "revId": "79a933759601587dccdaf5cc58692e7832661480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69755729_4d55ca6a",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T23:47:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "604e0747_44e84bfe",
       "revId": "79a933759601587dccdaf5cc58692e7832661480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
