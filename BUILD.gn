@@ -575,6 +575,7 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
     deps = [
       ":run_sksllex",
       "//third_party/spirv-tools:spvtools",
+      "//third_party/spirv-tools:spvtools_val",
     ]
   }
 
@@ -758,6 +759,15 @@ if (skia_compile_sksl_tests) {
     lang = "--metal"
     settings = "--settings"
   }
+  compile_sksl("spirv_tests") {
+    sources = sksl_spirv_tests_sources
+    outputPatterns = [ [
+          "/golden/",
+          ".spirv",
+        ] ]
+    lang = "--spirv"
+    settings = "--settings"
+  }
 } else {
   group("compile_sksl_fp_tests") {
   }
@@ -766,6 +776,8 @@ if (skia_compile_sksl_tests) {
   group("compile_sksl_glsl_nosettings_tests") {
   }
   group("compile_sksl_metal_tests") {
+  }
+  group("compile_sksl_spirv_tests") {
   }
 }
 
@@ -777,6 +789,7 @@ optional("gpu") {
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
     ":compile_sksl_metal_tests",
+    ":compile_sksl_spirv_tests",
     ":dehydrate_sksl",
     ":run_sksllex",
   ]

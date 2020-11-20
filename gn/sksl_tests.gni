@@ -375,3 +375,7 @@ sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 # generate a .metal output file.
 sksl_metal_tests_sources =
     sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
+
+# Tests in sksl_spirv_tests_sources will be compiled with --settings on, and are expected to
+# generate a .asm.(frag|vert|geom) output file.
+sksl_spirv_tests_sources = sksl_blend_tests + sksl_shared_tests
