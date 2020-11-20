@@ -8,7 +8,6 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "tests/Test.h"

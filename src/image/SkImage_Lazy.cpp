@@ -16,11 +16,11 @@
 #include "src/core/SkNextID.h"
 
 #if SK_SUPPORT_GPU
-#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "src/core/SkResourceCache.h"
+#include "src/core/SkYUVAIndex.h"
 #include "src/core/SkYUVPlanesCache.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
@@ -268,7 +268,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
         return {};
     }
 
-    GrSurfaceProxyView yuvViews[SkYUVASizeInfo::kMaxCount];
+    GrSurfaceProxyView yuvViews[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < yuvaPixmaps.numPlanes(); ++i) {
         // If the sizes of the components are not all the same we choose to create exact-match
         // textures for the smaller ones rather than add a texture domain to the draw.

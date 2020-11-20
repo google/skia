@@ -11,9 +11,10 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkYUVAIndex.h"
 
 #include <tuple>
+
+struct SkYUVAIndex;
 
 /**
  * Specifies the structure of planes for a YUV image with optional alpha. The actual planar data
@@ -116,7 +117,7 @@ public:
      */
     static bool GetYUVAIndices(PlaneConfig,
                                const uint32_t planeChannelFlags[kMaxPlanes],
-                               SkYUVAIndex indices[SkYUVAIndex::kIndexCount]);
+                               SkYUVAIndex indices[4]);
 
     /** Does the PlaneConfig have alpha values? */
     static bool HasAlpha(PlaneConfig);
@@ -183,7 +184,7 @@ public:
      * representation. Fails if the channel flags aren't valid for the PlaneConfig (i.e. don't have
      * enough channels in a plane).
      */
-    bool toYUVAIndices(const uint32_t channelFlags[4], SkYUVAIndex indices[4]) const {
+    bool toYUVAIndices(const uint32_t channelFlags[kMaxPlanes], SkYUVAIndex indices[4]) const {
         return GetYUVAIndices(fPlaneConfig, channelFlags, indices);
     }
 

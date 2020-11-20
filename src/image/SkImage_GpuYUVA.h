@@ -15,7 +15,6 @@
 class GrDirectContext;
 class GrRecordingContext;
 class GrTexture;
-struct SkYUVASizeInfo;
 
 // Wraps the 3 or 4 planes of a YUVA image for consumption by the GPU.
 // Initially any direct rendering will be done by passing the individual planes to a shader.

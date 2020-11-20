@@ -7,10 +7,9 @@
 
 #include "include/core/SkYUVAPixmaps.h"
 
-#include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkYUVAIndex.h"
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrImageContext.h"
@@ -294,27 +293,4 @@ bool SkYUVAPixmaps::toYUVAIndices(SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCou
     bool result = fYUVAInfo.toYUVAIndices(channelFlags, yuvaIndices);
     SkASSERT(result == this->isValid());
     return result;
-}
-
-bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndices[4]) const {
-    if (!this->isValid()) {
-        return false;
-    }
-    SkYUVAIndex tempIndices[4];
-    if (!yuvaIndices) {
-        yuvaIndices = tempIndices;
-    }
-    if (!this->toYUVAIndices(yuvaIndices)) {
-        return false;
-    }
-
-    if (yuvaSizeInfo) {
-        yuvaSizeInfo->fOrigin = fYUVAInfo.origin();
-        int n = fYUVAInfo.numPlanes();
-        for (int i = 0; i < n; ++i) {
-            yuvaSizeInfo->fSizes[i] = fPlanes[i].dimensions();
-            yuvaSizeInfo->fWidthBytes[i] = fPlanes[i].rowBytes();
-        }
-    }
-    return true;
 }

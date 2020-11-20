@@ -9,9 +9,9 @@
 #define SkImage_GpuBase_DEFINED
 
 #include "include/core/SkDeferredDisplayListRecorder.h"
-#include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkYUVAIndex.h"
 #include "src/image/SkImage_Base.h"
 
 class GrColorSpaceXform;

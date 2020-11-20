@@ -22,9 +22,7 @@ struct SK_API SkYUVAIndex {
         return this->fIndex == that.fIndex && this->fChannel == that.fChannel;
     }
 
-    bool operator!=(const SkYUVAIndex& that) const {
-        return !(*this == that);
-    }
+    bool operator!=(const SkYUVAIndex& that) const { return !(*this == that); }
 
     // Index in the array of SkYUVAIndex
     // TODO: rename as Component
@@ -41,7 +39,7 @@ struct SK_API SkYUVAIndex {
     /** The index is a number between -1..3 which defines which image source to read from, where -1
      * means the image source doesn't exist. The assumption is we will always have image sources for
      * each of YUV planes, but optionally have image source for A plane. */
-    int            fIndex;
+    int fIndex;
     /** The channel describes from which channel to read the info from. Currently we only deal with
      * YUV and NV12 and channel info is ignored. */
     SkColorChannel fChannel;
@@ -51,15 +49,15 @@ struct SK_API SkYUVAIndex {
         // This means it can always be used to process the backing resources (but be careful
         // of empty intervening slots).
         int maxSlotUsed = -1;
-        bool used[4] = { false, false, false, false };
+        bool used[4] = {false, false, false, false};
         bool valid = true;
         for (int i = 0; i < 4; ++i) {
             if (yuvaIndices[i].fIndex < 0) {
                 if (SkYUVAIndex::kA_Index != i) {
-                    valid = false; // only the 'A' plane can be omitted
+                    valid = false;  // only the 'A' plane can be omitted
                 }
             } else if (yuvaIndices[i].fIndex > 3) {
-                valid = false; // A maximum of four input textures is allowed
+                valid = false;  // A maximum of four input textures is allowed
             } else {
                 maxSlotUsed = std::max(yuvaIndices[i].fIndex, maxSlotUsed);
                 used[i] = true;

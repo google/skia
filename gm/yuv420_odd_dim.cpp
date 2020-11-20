@@ -12,12 +12,11 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCachedData.h"
+#include "src/core/SkYUVAIndex.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/gpu/YUVUtils.h"
 

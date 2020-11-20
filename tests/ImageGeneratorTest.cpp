@@ -10,8 +10,8 @@
 
 #include "include/core/SkGraphics.h"
 #include "include/core/SkImageGenerator.h"
-#include "include/core/SkYUVAIndex.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkYUVAIndex.h"
 #include "tests/Test.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

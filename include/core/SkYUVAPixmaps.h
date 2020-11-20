@@ -18,7 +18,6 @@
 #include <bitset>
 
 class GrImageContext;
-struct SkYUVASizeInfo;
 struct SkYUVAIndex;
 
 /**
@@ -244,15 +243,10 @@ public:
      * Computes a SkYUVAIndex representation of the planar layout. Returns true on success and
      * false on failure. Will succeed whenever this->isValid() is true.
      */
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    bool toYUVAIndices(SkYUVAIndex[4]) const;
 
     /** Does this SkPixmaps own the backing store of the planes? */
     bool ownsStorage() const { return SkToBool(fData); }
-
-    /**
-     * Conversion to legacy SkYUVA data structures.
-     */
-    bool toLegacy(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
 
 private:
     SkYUVAPixmaps(const SkYUVAPixmapInfo&, sk_sp<SkData>);

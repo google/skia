@@ -7,6 +7,8 @@
 
 #include "include/gpu/GrYUVABackendTextures.h"
 
+#include "src/core/SkYUVAIndex.h"
+
 static int num_channels(const GrBackendFormat& format) {
     switch (format.channelMask()) {
         case kRed_SkColorChannelFlag  : return 1;

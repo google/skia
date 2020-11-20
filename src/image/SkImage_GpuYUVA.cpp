@@ -10,7 +10,6 @@
 #include <type_traits>
 
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrYUVABackendTextures.h"
@@ -287,7 +286,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
     }
 
     SkYUVAIndex yuvaIndices[4];
-    if (!pixmaps.toLegacy(nullptr, yuvaIndices)) {
+    if (!pixmaps.toYUVAIndices(yuvaIndices)) {
         return nullptr;
     }
 

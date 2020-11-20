@@ -13,7 +13,6 @@
 
 #include <tuple>
 
-struct SkYUVASizeInfo;
 struct SkYUVAIndex;
 
 /**
@@ -66,7 +65,7 @@ public:
      */
     bool isValid() const { return fYUVAInfo.isValid(); }
 
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    bool toYUVAIndices(SkYUVAIndex[4]) const;
 
 private:
     SkYUVAInfo fYUVAInfo;
@@ -108,7 +107,7 @@ public:
 
     bool isValid() const { return fYUVAInfo.isValid(); }
 
-    bool toYUVAIndices(SkYUVAIndex[SkYUVAIndex::kIndexCount]) const;
+    bool toYUVAIndices(SkYUVAIndex[4]) const;
 
 private:
     SkYUVAInfo fYUVAInfo;

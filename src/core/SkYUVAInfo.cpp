@@ -7,6 +7,7 @@
 
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkSafeMath.h"
+#include "src/core/SkYUVAIndex.h"
 
 #include <algorithm>
 
