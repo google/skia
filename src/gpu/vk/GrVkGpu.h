@@ -299,6 +299,8 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
 
+    void onReportSubmitHistograms() override;
+
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
     // work in the queue to finish before returning. If this GrVkGpu object has any semaphores in
