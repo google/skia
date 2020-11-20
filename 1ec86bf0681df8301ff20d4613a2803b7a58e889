@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a8630e8_ff8bb3e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-20T15:52:10Z",
+      "side": 1,
+      "message": "Renaming SkSamplingMode-\u003eSkFilterMode? I guess Filter distinguishes it more from SkSamplingOptions. Sampling \u003d level filtering mode + mip map mode?",
+      "parentUuid": "97b0585a_a72a90bd",
+      "revId": "1ec86bf0681df8301ff20d4613a2803b7a58e889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db801dc1_5c110188",
