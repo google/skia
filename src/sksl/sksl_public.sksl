@@ -93,12 +93,15 @@ $genHType smoothstep(half      edge0, half      edge1, $genHType x);
 // 8.4 : Geometric Functions
 float length($genType  x);
 half  length($genHType x);
-float distance($genType  p0, $genType  p1);
-half  distance($genHType p0, $genHType p1);
+
+float distance(float2 a, float2 b) { return length(a - b); }
+float distance(float3 a, float3 b) { return length(a - b); }
+float distance(float4 a, float4 b) { return length(a - b); }
+
 float dot($genType  x, $genType  y);
 half  dot($genHType x, $genHType y);
 
-inline float3 cross(float3 a, float3 b) {
+float3 cross(float3 a, float3 b) {
     return float3(a.y * b.z - a.z * b.y,
                   a.z * b.x - a.x * b.z,
                   a.x * b.y - a.y * b.x);
@@ -106,37 +109,9 @@ inline float3 cross(float3 a, float3 b) {
 
 $genType  normalize($genType  x);
 $genHType normalize($genHType x);
-
-inline float  faceforward(float  N, float  I, float  Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float2 faceforward(float2 N, float2 I, float2 Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float3 faceforward(float3 N, float3 I, float3 Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float4 faceforward(float4 N, float4 I, float4 Nref) { return dot(Nref, I) < 0 ? N : -N; }
-
-inline float  reflect(float  I, float  N) { return I - 2 * dot(N, I) * N; }
-inline float2 reflect(float2 I, float2 N) { return I - 2 * dot(N, I) * N; }
-inline float3 reflect(float3 I, float3 N) { return I - 2 * dot(N, I) * N; }
-inline float4 reflect(float4 I, float4 N) { return I - 2 * dot(N, I) * N; }
-
-inline float refract(float I, float N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-}
-inline float2 refract(float2 I, float2 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float2(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-}
-inline float3 refract(float3 I, float3 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float3(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-}
-inline float4 refract(float4 I, float4 N, float eta) {
-    float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float4(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-}
+// TODO: faceforward(N, I, Nref)
+// TODO: reflect(I, N)
+// TODO: refract(I, N, eta)
 
 // 8.5 : Matrix Functions
 // TODO: matrixCompMult(x, y)
