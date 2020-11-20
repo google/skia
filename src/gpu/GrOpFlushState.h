@@ -60,14 +60,13 @@ public:
         // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
         explicit OpArgs(GrOp* op, const GrSurfaceProxyView& surfaceView, GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxyView& dstProxyView,
-                        GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp)
+                        GrXferBarrierFlags renderPassXferBarriers)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
                 , fRenderTargetProxy(surfaceView.asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView)
-                , fRenderPassXferBarriers(renderPassXferBarriers)
-                , fColorLoadOp(colorLoadOp) {
+                , fRenderPassXferBarriers(renderPassXferBarriers) {
             SkASSERT(surfaceView.asRenderTargetProxy());
         }
 
@@ -78,7 +77,6 @@ public:
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
         GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
-        GrLoadOp colorLoadOp() const { return fColorLoadOp; }
 
 #ifdef SK_DEBUG
         void validate() const {
@@ -94,7 +92,6 @@ public:
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
         GrXferBarrierFlags            fRenderPassXferBarriers;
-        GrLoadOp                      fColorLoadOp;
     };
 
     void setOpArgs(OpArgs* opArgs) { fOpArgs = opArgs; }
@@ -158,10 +155,6 @@ public:
 
     GrXferBarrierFlags renderPassBarriers() const final {
         return this->drawOpArgs().renderPassBarriers();
-    }
-
-    GrLoadOp colorLoadOp() const final {
-        return this->drawOpArgs().colorLoadOp();
     }
 
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }

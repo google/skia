@@ -743,8 +743,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
                              const GrXferProcessor::DstProxyView& dstProxyView,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override {
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         SkMatrix invert;
         if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
             return;
@@ -758,7 +757,7 @@ private:
                                                             std::move(appliedClip),
                                                             dstProxyView, quadProcessor,
                                                             GrPrimitiveType::kTriangles,
-                                                            renderPassXferBarriers, colorLoadOp);
+                                                            renderPassXferBarriers);
     }
 
     void onPrepareDraws(Target* target) override {

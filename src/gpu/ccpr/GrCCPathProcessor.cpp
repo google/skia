@@ -144,9 +144,9 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                                         : SK_ARRAY_COUNT(kOctoIndicesAsTris);
     auto enablePrimitiveRestart = GrPrimitiveRestart(flushState->caps().usePrimitiveRestart());
 
-    GrProgramInfo programInfo(flushState->writeView(), &pipeline, &GrUserStencilSettings::kUnused,
-                              this, primitiveType, 0, flushState->renderPassBarriers(),
-                              flushState->colorLoadOp());
+    GrProgramInfo programInfo(flushState->writeView(),
+                              &pipeline, &GrUserStencilSettings::kUnused, this, primitiveType, 0,
+                              flushState->renderPassBarriers());
 
     flushState->bindPipelineAndScissorClip(programInfo, bounds);
     flushState->bindTextures(*this, atlasProxy, pipeline);

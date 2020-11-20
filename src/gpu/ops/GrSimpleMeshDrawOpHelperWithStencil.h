@@ -29,8 +29,7 @@ public:
                                                 const GrXferProcessor::DstProxyView&,
                                                 GrGeometryProcessor*,
                                                 GrPrimitiveType,
-                                                GrXferBarrierFlags renderPassXferBarriers,
-                                                GrLoadOp colorLoadOp);
+                                                GrXferBarrierFlags renderPassXferBarriers);
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

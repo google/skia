@@ -68,7 +68,6 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkBlendMode blendMode,
                                  GrPrimitiveType primitiveType,
                                  GrXferBarrierFlags renderPassXferBarriers,
-                                 GrLoadOp colorLoadOp,
                                  GrPipeline::InputFlags flags,
                                  const GrUserStencilSettings* stencilSettings) {
 
@@ -85,8 +84,8 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
     return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                        std::move(appliedClip), dstProxyView,
                                                        geomProc, std::move(processors),
-                                                       primitiveType, renderPassXferBarriers,
-                                                       colorLoadOp, flags, stencilSettings);
+                                                       primitiveType, renderPassXferBarriers, flags,
+                                                       stencilSettings);
 }
 
 
