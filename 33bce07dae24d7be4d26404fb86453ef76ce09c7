@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8ff50839_c063272a",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T14:22:04Z",
+      "side": 1,
+      "message": "Actually, I did want it to stand out (to make it easier to remove later), but maybe that isn\u0027t important.",
+      "parentUuid": "e9c15612_eac44914",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 242,
+        "endChar": 8
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7a2983b4_024c157f",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 9
@@ -54,6 +78,24 @@
       "writtenOn": "2020-11-19T22:52:33Z",
       "side": 1,
       "message": "Also clearer with `SkSamplingOptions sampling \u003d ...` here I think?",
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e45f265_283b3fde",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T14:22:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a2983b4_024c157f",
       "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -71,6 +113,30 @@
       "writtenOn": "2020-11-19T22:52:33Z",
       "side": 1,
       "message": "can\u0027t this be just a value?\n\n   static const SkCubicResampler kDefaultCubicResampler{1/3.0f, 1/3.0f};\n\n?",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 1
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c00b62f1_243f4ba1",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T14:22:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0b0713c_d59a48f0",
       "range": {
         "startLine": 226,
         "startChar": 0,
@@ -104,6 +170,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "862e79bc_9ae3dda1",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T14:22:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc909590_31790a82",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "044a4263_519f7b89",
@@ -117,6 +207,30 @@
       "writtenOn": "2020-11-19T22:52:33Z",
       "side": 1,
       "message": "I always get myself confused by the relationship between the types in SkSamplingOptions.h... it sort of feels like it\u0027s more nested than necessary.  With this CL is there anything we can do in there to condense now?  Like trimming out middle types like SkFilterOptions?",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 85,
+        "endChar": 32
+      },
+      "revId": "33bce07dae24d7be4d26404fb86453ef76ce09c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2e04b00_672b8f61",
+        "filename": "src/shaders/SkImageShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-20T14:22:04Z",
+      "side": 1,
+      "message": "Exploring ideas in separate CL",
+      "parentUuid": "044a4263_519f7b89",
       "range": {
         "startLine": 85,
         "startChar": 0,
