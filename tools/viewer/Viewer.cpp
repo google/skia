@@ -1785,7 +1785,7 @@ void Viewer::drawImGui() {
                 ImGui::SameLine();
                 ImGui::RadioButton("Dawn", &newBackend, sk_app::Window::kDawn_BackendType);
 #endif
-#if defined(SK_VULKAN)
+#if defined(SK_VULKAN) && !defined(SK_BUILD_FOR_MAC)
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
 #endif

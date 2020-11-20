@@ -25,14 +25,10 @@ struct MacWindowInfo {
     NSView*   fMainView;
 };
 
-#ifdef SK_VULKAN
-std::unique_ptr<WindowContext> MakeVulkanForMac(const MacWindowInfo&, const DisplayParams&);
-#else
 inline std::unique_ptr<WindowContext> MakeVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
     // No Vulkan support on Mac.
     return nullptr;
 }
-#endif
 
 std::unique_ptr<WindowContext> MakeGLForMac(const MacWindowInfo&, const DisplayParams&);
 
