@@ -68,14 +68,12 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override {}
+                             GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
                            const GrXferProcessor::DstProxyView&,
-                           GrXferBarrierFlags renderPassXferBarriers,
-                           GrLoadOp colorLoadOp) override {}
+                           GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrepareDraws(Target* target) override { return; }
     void onExecute(GrOpFlushState*, const SkRect&) override { return; }
 

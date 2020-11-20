@@ -105,8 +105,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) final;
+                             GrXferBarrierFlags renderPassXferBarriers) final;
 
     Helper         fHelper;
     SkPMColor4f    fColor;
@@ -856,14 +855,13 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       const GrSurfaceProxyView& writeView,
                                       GrAppliedClip&& appliedClip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
-                                      GrXferBarrierFlags renderPassXferBarriers,
-                                      GrLoadOp colorLoadOp) {
+                                      GrXferBarrierFlags renderPassXferBarriers) {
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
     SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
 
     fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, GrPrimitiveType::kTriangles,
-                                             renderPassXferBarriers, colorLoadOp);
+                                             renderPassXferBarriers);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

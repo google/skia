@@ -468,8 +468,7 @@ private:
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
                              const GrXferProcessor::DstProxyView&,
-                             GrXferBarrierFlags renderPassXferBarriers,
-                             GrLoadOp colorLoadOp) override;
+                             GrXferBarrierFlags renderPassXferBarriers) override;
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
@@ -637,12 +636,11 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
                                          const GrSurfaceProxyView& writeView,
                                          GrAppliedClip&& appliedClip,
                                          const GrXferProcessor::DstProxyView& dstProxyView,
-                                         GrXferBarrierFlags renderPassXferBarriers,
-                                         GrLoadOp colorLoadOp) {
+                                         GrXferBarrierFlags renderPassXferBarriers) {
     GrGeometryProcessor* gp = this->makeGP(arena);
     fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, this->primitiveType(),
-                                             renderPassXferBarriers, colorLoadOp);
+                                             renderPassXferBarriers);
 }
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {

@@ -113,8 +113,7 @@ public:
                           const GrSurfaceProxyView& writeView,
                           GrAppliedClip*,
                           const GrXferProcessor::DstProxyView&,
-                          GrXferBarrierFlags renderPassXferBarriers,
-                          GrLoadOp colorLoadOp) override {}
+                          GrXferBarrierFlags renderPassXferBarriers) override {}
 
         void onPrepare(GrOpFlushState*) override {}
 
@@ -361,8 +360,7 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers,
-                      GrLoadOp colorLoadOp) override {}
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         *fTestExecuteValue = 2;

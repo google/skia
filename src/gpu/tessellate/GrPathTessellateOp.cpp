@@ -62,15 +62,13 @@ private:
 void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
                                       const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
-                                      GrXferBarrierFlags renderPassXferBarriers,
-                                      GrLoadOp colorLoadOp) {
+                                      GrXferBarrierFlags renderPassXferBarriers) {
     SkArenaAlloc* recordTimeAllocator = context->priv().recordTimeAllocator();
     GrAppliedHardClip hardClip = GrAppliedHardClip(
             (clip) ? clip->hardClip() : GrAppliedHardClip::Disabled());
     CpuTriangleAllocator cpuTriangleAllocator(recordTimeAllocator, &fOffThreadInnerTriangulation);
     PrePrepareArgs args{recordTimeAllocator, writeView, &hardClip, clip, &dstProxyView,
-                        renderPassXferBarriers, colorLoadOp, context->priv().caps(),
-                        &cpuTriangleAllocator};
+                        renderPassXferBarriers, context->priv().caps(), &cpuTriangleAllocator};
 
     this->prePreparePrograms(args);
 
@@ -218,8 +216,7 @@ void GrPathTessellateOp::prePrepareStencilTrianglesProgram(const PrePrepareArgs&
     auto* shader = args.fArena->make<GrStencilTriangleShader>(fViewMatrix);
     fStencilTrianglesProgram = GrPathShader::MakeProgramInfo(
             shader, args.fArena, args.fWriteView, fPipelineForStencils, *args.fDstProxyView,
-            args.fXferBarrierFlags, args.fColorLoadOp, stencil_pass_settings(fPath.getFillType()),
-            *args.fCaps);
+            args.fXferBarrierFlags, stencil_pass_settings(fPath.getFillType()), *args.fCaps);
 }
 
 template<typename ShaderType>
@@ -231,8 +228,7 @@ void GrPathTessellateOp::prePrepareStencilCubicsProgram(const PrePrepareArgs& ar
     auto* shader = args.fArena->make<ShaderType>(fViewMatrix);
     fStencilCubicsProgram = GrPathShader::MakeProgramInfo(
             shader, args.fArena, args.fWriteView, fPipelineForStencils, *args.fDstProxyView,
-            args.fXferBarrierFlags, args.fColorLoadOp, stencil_pass_settings(fPath.getFillType()),
-            *args.fCaps);
+            args.fXferBarrierFlags, stencil_pass_settings(fPath.getFillType()), *args.fCaps);
 }
 
 void GrPathTessellateOp::prePreparePipelineForStencils(const PrePrepareArgs& args) {
@@ -321,7 +317,7 @@ void GrPathTessellateOp::prePrepareFillTrianglesProgram(const PrePrepareArgs& ar
     auto* fillTriangleShader = args.fArena->make<GrFillTriangleShader>(fViewMatrix, fColor);
     fFillTrianglesProgram = GrPathShader::MakeProgramInfo(
             fillTriangleShader, args.fArena, args.fWriteView, fPipelineForFills,
-            *args.fDstProxyView, args.fXferBarrierFlags, args.fColorLoadOp, stencil, *args.fCaps);
+            *args.fDstProxyView, args.fXferBarrierFlags, stencil, *args.fCaps);
 }
 
 void GrPathTessellateOp::prePrepareFillCubicHullsProgram(const PrePrepareArgs& args) {
@@ -336,8 +332,7 @@ void GrPathTessellateOp::prePrepareFillCubicHullsProgram(const PrePrepareArgs& a
     auto* fillCubicHullsShader = args.fArena->make<GrFillCubicHullShader>(fViewMatrix, fColor);
     fFillPathProgram = GrPathShader::MakeProgramInfo(
             fillCubicHullsShader, args.fArena, args.fWriteView, fPipelineForFills,
-            *args.fDstProxyView, args.fXferBarrierFlags, args.fColorLoadOp, &kTestAndResetStencil,
-            *args.fCaps);
+            *args.fDstProxyView, args.fXferBarrierFlags, &kTestAndResetStencil, *args.fCaps);
 }
 
 void GrPathTessellateOp::prePrepareFillBoundingBoxProgram(const PrePrepareArgs& args) {
@@ -353,8 +348,7 @@ void GrPathTessellateOp::prePrepareFillBoundingBoxProgram(const PrePrepareArgs& 
                                                                              fPath.getBounds());
     fFillPathProgram = GrPathShader::MakeProgramInfo(
             fillBoundingBoxShader, args.fArena, args.fWriteView, fPipelineForFills,
-            *args.fDstProxyView, args.fXferBarrierFlags, args.fColorLoadOp, &kTestAndResetStencil,
-            *args.fCaps);
+            *args.fDstProxyView, args.fXferBarrierFlags, &kTestAndResetStencil, *args.fCaps);
 }
 
 void GrPathTessellateOp::prePreparePipelineForFills(const PrePrepareArgs& args) {
@@ -401,8 +395,8 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
         GrAppliedClip clip = flushState->detachAppliedClip();
         PrePrepareArgs args{flushState->allocator(), flushState->writeView(), &hardClip,
                             &clip, &flushState->dstProxyView(),
-                            flushState->renderPassBarriers(), flushState->colorLoadOp(),
-                            &flushState->caps(), &innerTriangleAllocator};
+                            flushState->renderPassBarriers(), &flushState->caps(),
+                            &innerTriangleAllocator};
         this->prePreparePrograms(args);
     }
 

@@ -314,8 +314,7 @@ private:
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers,
-                      GrLoadOp colorLoadOp) override {}
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
 
     void onPrepare(GrOpFlushState* flushState) override {
         if (fTriPositions) {
@@ -348,7 +347,7 @@ private:
                                   state->proxy()->backendFormat(), state->writeView().origin(),
                                   &pipeline, &GrUserStencilSettings::kUnused, shader.get(),
                                   GrPrimitiveType::kPatches, tessellationPatchVertexCount,
-                                  state->renderPassBarriers(), state->colorLoadOp());
+                                  state->renderPassBarriers());
 
         state->bindPipeline(programInfo, SkRect::MakeIWH(kWidth, kHeight));
         state->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));

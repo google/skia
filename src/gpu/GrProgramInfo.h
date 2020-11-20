@@ -25,8 +25,7 @@ public:
                   const GrPrimitiveProcessor* primProc,
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount,
-                  GrXferBarrierFlags renderPassXferBarriers,
-                  GrLoadOp colorLoadOp)
+                  GrXferBarrierFlags renderPassXferBarriers)
             : fNumSamples(numSamples)
             , fNumStencilSamples(numStencilSamples)
             , fBackendFormat(backendFormat)
@@ -37,7 +36,6 @@ public:
             , fPrimitiveType(primitiveType)
             , fTessellationPatchVertexCount(tessellationPatchVertexCount)
             , fRenderPassXferBarriers(renderPassXferBarriers)
-            , fColorLoadOp(colorLoadOp)
             , fIsMixedSampled(this->isStencilEnabled() && numStencilSamples > numSamples) {
         SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
@@ -78,8 +76,6 @@ public:
 
     GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
 
-    GrLoadOp colorLoadOp() const { return fColorLoadOp; }
-
     uint16_t primitiveTypeKey() const {
         return ((uint16_t)fPrimitiveType << 8) | fTessellationPatchVertexCount;
     }
@@ -115,7 +111,6 @@ private:
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
     GrXferBarrierFlags                    fRenderPassXferBarriers;
-    GrLoadOp                              fColorLoadOp;
     const bool                            fIsMixedSampled;
 };
 

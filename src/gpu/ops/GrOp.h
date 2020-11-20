@@ -210,9 +210,8 @@ public:
      */
     void prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
                     GrAppliedClip* clip, const GrXferProcessor::DstProxyView& dstProxyView,
-                    GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
-        this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers,
-                           colorLoadOp);
+                    GrXferBarrierFlags renderPassXferBarriers) {
+        this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers);
     }
 
     /**
@@ -345,8 +344,7 @@ private:
                               const GrSurfaceProxyView& writeView,
                               GrAppliedClip*,
                               const GrXferProcessor::DstProxyView&,
-                              GrXferBarrierFlags renderPassXferBarriers,
-                              GrLoadOp colorLoadOp) = 0;
+                              GrXferBarrierFlags renderPassXferBarriers) = 0;
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.

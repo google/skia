@@ -145,8 +145,7 @@ void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip*,
                                      const GrXferProcessor::DstProxyView&,
-                                     GrXferBarrierFlags renderPassXferBarriers,
-                                     GrLoadOp colorLoadOp) {}
+                                     GrXferBarrierFlags renderPassXferBarriers) {}
 
 void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* state) {
     size_t instanceStride = Instance::Stride(fUsesLocalCoords);
@@ -182,8 +181,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                               state->proxy()->backendFormat(), state->writeView().origin(),
                               &pipeline, &GrUserStencilSettings::kUnused, &shader,
-                              GrPrimitiveType::kTriangleStrip, 0, state->renderPassBarriers(),
-                              state->colorLoadOp());
+                              GrPrimitiveType::kTriangleStrip, 0, state->renderPassBarriers());
 
     state->bindPipelineAndScissorClip(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);
