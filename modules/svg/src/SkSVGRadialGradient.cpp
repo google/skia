@@ -40,9 +40,6 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
         fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
                       : center.y());
 
-    // TODO: Handle r == 0 which has a specific meaning according to the spec
-    SkASSERT(r != 0);
-
     return center == focal
         ? SkGradientShader::MakeRadial(center, r, colors, pos, count, tm, 0, &m)
         : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, pos, count, tm, 0, &m);
