@@ -39,6 +39,30 @@
       },
       "revId": "76fd77fb2f44c8dc903a15122bb6e5e77d0b1c95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdacca12_663cf529",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-20T17:36:44Z",
+      "side": 1,
+      "message": "Interesting. I think the first failure mode (UnpackCachedShaders) is good as-is. That guards against corrupted or obsolete blobs, and silently ignoring those makes sense.\n\nFor the second case, I think compiling the cached shaders should be treated as close to compiling from scratch as possible -- whether the cached MSL times out, vs. us generating new MSL and having that time-out seems unrelated to the caching aspect? (Unless we do some kind of retry mechanism in the non-cached case? I guess if these fail in that way, we *will* end up doing a retry?)\n\nIn any case, I think this is better than what we had, and the errors will be reported via the errorHandler in the second case, which is the only one that ought to do so.",
+      "parentUuid": "a733ee87_8deb64b3",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 52
+      },
+      "revId": "76fd77fb2f44c8dc903a15122bb6e5e77d0b1c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
