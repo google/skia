@@ -16,6 +16,38 @@ class GrStencilSettings;
 
 class GrProgramInfo {
 public:
+    GrProgramInfo(const GrSurfaceProxyView& targetView,
+                  const GrPipeline* pipeline,
+                  const GrUserStencilSettings* userStencilSettings,
+                  const GrPrimitiveProcessor* primProc,
+                  GrPrimitiveType primitiveType,
+                  uint8_t tessellationPatchVertexCount,
+                  GrXferBarrierFlags renderPassXferBarriers,
+                  GrLoadOp colorLoadOp)
+            : fNumSamples(targetView.asRenderTargetProxy()->numSamples())
+            , fNumStencilSamples(targetView.asRenderTargetProxy()->numStencilSamples())
+            , fBackendFormat(targetView.proxy()->backendFormat())
+            , fOrigin(targetView.origin())
+            , fPipeline(pipeline)
+            , fUserStencilSettings(userStencilSettings)
+            , fPrimProc(primProc)
+            , fPrimitiveType(primitiveType)
+            , fTessellationPatchVertexCount(tessellationPatchVertexCount)
+            , fRenderPassXferBarriers(renderPassXferBarriers)
+            , fColorLoadOp(colorLoadOp)
+            , fIsMixedSampled(this->isStencilEnabled() && fNumStencilSamples > fNumSamples) {
+        SkASSERT(this->numRasterSamples() > 0);
+        SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
+                 (fTessellationPatchVertexCount > 0));
+        fRequestedFeatures = fPrimProc->requestedFeatures();
+        for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
+            fRequestedFeatures |= fPipeline->getFragmentProcessor(i).requestedFeatures();
+        }
+        fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
+
+        SkDEBUGCODE(this->validate(false);)
+    }
+
     GrProgramInfo(int numSamples,
                   int numStencilSamples,
                   const GrBackendFormat& backendFormat,
@@ -26,7 +58,7 @@ public:
                   GrPrimitiveType primitiveType,
                   uint8_t tessellationPatchVertexCount,
                   GrXferBarrierFlags renderPassXferBarriers,
-                  GrLoadOp colorLoadOp)
+                  GrLoadOp colorLoadOp, bool foo)
             : fNumSamples(numSamples)
             , fNumStencilSamples(numStencilSamples)
             , fBackendFormat(backendFormat)
