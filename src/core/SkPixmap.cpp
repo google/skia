@@ -239,7 +239,7 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
                                               SkMatrix::kFill_ScaleToFit);
 
     // We'll create a shader to do this draw so we have control over the bicubic clamp.
-    SkSamplingOptions sampling = SkSamplingOptions::Make(quality);
+    auto sampling = SkSamplingOptions(quality);
     sk_sp<SkShader> shader = SkImageShader::Make(SkImage::MakeFromBitmap(bitmap),
                                                  SkTileMode::kClamp,
                                                  SkTileMode::kClamp,

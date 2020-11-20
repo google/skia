@@ -346,15 +346,15 @@ class ShowMipLevels3 : public skiagm::GM {
 
         canvas->translate(10, 10);
         for (auto mm : {SkMipmapMode::kNone, SkMipmapMode::kNearest, SkMipmapMode::kLinear}) {
-            for (auto sa : {SkSamplingMode::kNearest, SkSamplingMode::kLinear}) {
-                canvas->translate(0, draw_downscaling(canvas, {sa, mm}));
+            for (auto fm : {SkFilterMode::kNearest, SkFilterMode::kLinear}) {
+                canvas->translate(0, draw_downscaling(canvas, {fm, mm}));
             }
         }
         return DrawResult::kOk;
     }
 
 private:
-    SkScalar draw_downscaling(SkCanvas* canvas, SkFilterOptions options) {
+    SkScalar draw_downscaling(SkCanvas* canvas, SkSamplingOptions sampling) {
         SkAutoCanvasRestore acr(canvas, true);
 
         SkPaint paint;
@@ -362,7 +362,7 @@ private:
         for (float scale = 1; scale >= 0.1f; scale *= 0.7f) {
             SkMatrix matrix = SkMatrix::Scale(scale, scale);
             paint.setShader(fImg->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                             options, &matrix));
+                                             sampling, &matrix));
             canvas->drawRect(r, paint);
             canvas->translate(r.width() + 10, 0);
         }

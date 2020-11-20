@@ -40,7 +40,8 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
         { 1.0f/3, 1.0f/3 },
     };
     for (auto c : cubics) {
-        paint.setShader(img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, c));
+        paint.setShader(img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
+                                        SkSamplingOptions(c)));
         canvas->drawRect(r, paint);
         canvas->translate(0, img->height() + 1.0f);
     }

@@ -20,6 +20,13 @@
 #include "include/gpu/GrTypes.h"
 #include <functional>  // std::function
 
+// DEPRECATED -- use SkSamplingOptions
+enum class SkSamplingMode { kNearest, kLinear };
+struct SkFilterOptions {
+    SkSamplingMode  fSampling;
+    SkMipmapMode    fMipmap;
+};
+
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #include <android/hardware_buffer.h>
 #endif
@@ -718,6 +725,8 @@ public:
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &localMatrix);
     }
 
+    // DEPRECATED -- use SkSamplingOptions
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkFilterOptions&) const;
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return
