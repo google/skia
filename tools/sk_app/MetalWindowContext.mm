@@ -57,21 +57,25 @@ void MetalWindowContext::initializeContext() {
     fValid = this->onInitializeContext();
 
 #if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
-        MTLBinaryArchiveDescriptor* desc = [MTLBinaryArchiveDescriptor new];
-        desc.url = CacheURL(); // try to load
-        NSError* error;
-        fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
-        if (!fPipelineArchive) {
-            desc.url = nil; // create new
+    if (fDisplayParams.fEnableBinaryArchive) {
+        if (@available(macOS 11.0, iOS 14.0, *)) {
+            MTLBinaryArchiveDescriptor* desc = [MTLBinaryArchiveDescriptor new];
+            desc.url = CacheURL(); // try to load
             NSError* error;
             fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
             if (!fPipelineArchive) {
-                SkDebugf("Error creating MTLBinaryArchive:\n%s\n",
-                         error.debugDescription.UTF8String);
+                desc.url = nil; // create new
+                NSError* error;
+                fPipelineArchive = [fDevice newBinaryArchiveWithDescriptor:desc error:&error];
+                if (!fPipelineArchive) {
+                    SkDebugf("Error creating MTLBinaryArchive:\n%s\n",
+                             error.debugDescription.UTF8String);
+                }
             }
+            [desc release];
         }
-        [desc release];
+    } else {
+        fPipelineArchive = nil;
     }
 #endif
 
