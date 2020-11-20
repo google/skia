@@ -790,8 +790,12 @@ void SkCanvas::internalSave() {
     FOR_EACH_TOP_DEVICE(device->save());
 }
 
-bool SkCanvas::clipRectBounds(const SkRect* bounds, SkIRect* intersection,
-                              const SkImageFilter* imageFilter) {
+bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
+    return !(saveLayerFlags & SkCanvasPriv::kDontClipToLayer_SaveLayerFlag);
+}
+
+bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
+                              SkIRect* intersection, const SkImageFilter* imageFilter) {
     // clipRectBounds() is called to determine the input layer size needed for a given image filter.
     // The coordinate space of the rectangle passed to filterBounds(kReverse) is meant to be in the
     // filtering layer space. Here, 'clipBounds' is always in the true device space. When an image
@@ -849,9 +853,20 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SkIRect* intersection,
 
     // early exit if the layer's bounds are clipped out
     if (!clippedSaveLayerBounds.intersect(clipBounds)) {
+        if (BoundsAffectsClip(saveLayerFlags)) {
+            fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
+            fMCRec->fRasterClip.setEmpty();
+            fQuickRejectBounds.setEmpty();
+        }
         return false;
     }
     SkASSERT(!clippedSaveLayerBounds.isEmpty());
+
+    if (BoundsAffectsClip(saveLayerFlags)) {
+        // Simplify the current clips since they will be applied properly during restore()
+        fMCRec->fRasterClip.setRect(clippedSaveLayerBounds);
+        fQuickRejectBounds = qr_clip_bounds(clippedSaveLayerBounds);
+    }
 
     if (intersection) {
         *intersection = clippedSaveLayerBounds;
@@ -1121,21 +1136,34 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     this->internalSave();
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, &ir, imageFilter)) {
-        // No layer to draw
-        ir.setEmpty();
-        strategy = kNoLayer_SaveLayerStrategy;
+    if (!this->clipRectBounds(bounds, saveLayerFlags, &ir, imageFilter)) {
+        if (modifiedRec) {
+            // In this case there will be no layer in which to stash the matrix so we need to
+            // revert the prior MCRec to its earlier state.
+            modifiedRec->fMatrix = SkM44(stashedMatrix);
+        }
+        return;
+    }
+
+    // FIXME: do willSaveLayer() overriders returning kNoLayer_SaveLayerStrategy really care about
+    // the clipRectBounds() call above?
+    if (kNoLayer_SaveLayerStrategy == strategy) {
+        return;
     }
 
     SkBaseDevice* priorDevice = this->getTopDevice();
+    if (nullptr == priorDevice) {   // Do we still need this check???
+        SkDebugf("Unable to find device for layer.");
+        return;
+    }
+
+    SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), paint);
+    if (rec.fSaveLayerFlags & kF16ColorType) {
+        info = info.makeColorType(kRGBA_F16_SkColorType);
+    }
+
     sk_sp<SkBaseDevice> newDevice;
-    if (strategy == kFullLayer_SaveLayerStrategy && priorDevice) {
-        SkASSERT(!ir.isEmpty());
-        SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(),
-                                           paint);
-        if (rec.fSaveLayerFlags & kF16ColorType) {
-            info = info.makeColorType(kRGBA_F16_SkColorType);
-        }
+    {
         SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
 
         SkPixelGeometry geo = saveLayerFlags & kPreserveLCDText_SaveLayerFlag
@@ -1149,29 +1177,15 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                                          trackCoverage,
                                                          fAllocator.get());
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
-    }
-
-    bool boundsAffectsClip = !(saveLayerFlags & SkCanvasPriv::kDontClipToLayer_SaveLayerFlag);
-    if (!newDevice) {
-        if (modifiedRec) {
-            // In this case there will be no layer in which to stash the matrix so we need to
-            // revert the prior MCRec to its earlier state.
-            modifiedRec->fMatrix = SkM44(stashedMatrix);
+        if (!newDevice) {
+            return;
         }
-        // Replacing the clip on the older top devices simulates the area where the layer would have
-        // been drawn to, and keeps state sync'ed between canvas and device
-        if (boundsAffectsClip) {
-            UPDATE_DEVICE_CLIP(device->replaceClip(ir),
-                               setRect(ir));
-        }
-        return;
+        newDevice->setMarkerStack(fMarkerStack.get());
     }
-
-    newDevice->setMarkerStack(fMarkerStack.get());
     DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix);
 
     // only have a "next" if this new layer doesn't affect the clip (rare)
-    layer->fNext = boundsAffectsClip ? nullptr : fMCRec->fTopLayer;
+    layer->fNext = BoundsAffectsClip(saveLayerFlags) ? nullptr : fMCRec->fTopLayer;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
@@ -1181,12 +1195,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
 
     newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
-    newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
-    if (boundsAffectsClip) {
-        fMCRec->fRasterClip.setRect(ir);
-        fQuickRejectBounds = qr_clip_bounds(ir);
-    }
 
+    newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
     if (layer->fNext) {
         // need to punch a hole in the previous device, so we don't draw there, given that
         // the new top-layer will allow drawing to happen "below" it.
