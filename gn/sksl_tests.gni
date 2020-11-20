@@ -115,6 +115,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/Ossfuzz26700.sksl",
   "$_tests/sksl/errors/Ossfuzz26759.sksl",
   "$_tests/sksl/errors/Ossfuzz27650.sksl",
+  "$_tests/sksl/errors/Ossfuzz27663.sksl",
   "$_tests/sksl/errors/OverflowIntLiteral.sksl",
   "$_tests/sksl/errors/OverflowUintLiteral.sksl",
   "$_tests/sksl/errors/PrivateTypes.sksl",
