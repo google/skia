@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7733607_a07772f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15374
+      },
+      "writtenOn": "2020-11-20T09:18:39Z",
+      "side": 1,
+      "message": "Thanks!\n\nSkRwBuffer has tests in tests/DataRefTests.cpp\n\nCan you add a test for this?",
+      "revId": "a80181fa05610bf055225669adff514fa8fce3f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77225940_531ff7c0",
+        "filename": "include/core/SkRWBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 15374
+      },
+      "writtenOn": "2020-11-20T09:18:39Z",
+      "side": 1,
+      "message": "Can you add a comment explaining what this does? In particular, emphasize that it should be called on the same thread where the snapshots are created.",
+      "revId": "a80181fa05610bf055225669adff514fa8fce3f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43472ef9_fe1e46ba",
+        "filename": "src/core/SkRWBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 15374
+      },
+      "writtenOn": "2020-11-20T09:18:39Z",
+      "side": 1,
+      "message": "This should be a std::memory_order_acquire load. This is required because you need to makes sure that all side effects before the reference count decrement are visible before this returns true.\n\nSee SkRefCntBase::unique() or base::AtomicRefCount::IsOne() in Chrome.\n\nPlease also add a comment explaining why this is required as well.",
+      "revId": "a80181fa05610bf055225669adff514fa8fce3f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
