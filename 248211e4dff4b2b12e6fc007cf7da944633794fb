@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d1000cc_a6fad231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-20T18:04:08Z",
+      "side": 1,
+      "message": "Please ignore the intermediate abandon! This is still an important fix to get in place, but it\u0027s not time critical anymore since the problem CL has been reverted instead. When relanding that CL, I\u0027ll update it to just use clipRect instead of replaceClip, but this change will prevent similar surprises from coming up in the future.",
+      "revId": "248211e4dff4b2b12e6fc007cf7da944633794fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
