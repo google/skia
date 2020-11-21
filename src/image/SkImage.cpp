@@ -155,13 +155,6 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                localMatrix);
 }
 
-// DEPRECATED
-sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                    const SkFilterOptions& options) const {
-    return this->makeShader(tmx, tmy, SkSamplingOptions((SkFilterMode)options.fSampling,
-                                                        options.fMipmap));
-}
-
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     // Context TODO: Elevate GrDirectContext requirement to public API.
     auto dContext = as_IB(this)->directContext();
