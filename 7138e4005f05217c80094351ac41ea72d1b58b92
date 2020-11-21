@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f8d6bb8_b00fe74e",
+        "filename": "tests/sksl/shared/Operators.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-21T14:48:04Z",
+      "side": 1,
+      "message": "This line is getting stripped out now. Is there some other follow-up operation we can do so the generated code still shows it\u0027s working?",
+      "revId": "7138e4005f05217c80094351ac41ea72d1b58b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
