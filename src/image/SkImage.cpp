@@ -148,13 +148,6 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                &sampling, localMatrix);
 }
 
-sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                    const SkMatrix* localMatrix, SkFilterQuality filtering) const {
-    auto sampling = SkSamplingOptions(filtering);
-    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, &sampling,
-                               localMatrix);
-}
-
 // DEPRECATED
 sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkFilterOptions& options) const {
