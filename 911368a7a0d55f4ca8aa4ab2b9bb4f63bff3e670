@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ca47077_1330bcec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-21T17:06:39Z",
+      "side": 1,
+      "message": "Anyway we can do more explicit sharing between SkSamplingOptions / SkFilterMode / SkMipmapMode and their Gr equivalents?",
+      "revId": "911368a7a0d55f4ca8aa4ab2b9bb4f63bff3e670",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
