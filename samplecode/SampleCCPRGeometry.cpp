@@ -67,8 +67,10 @@ class CCPRGeometryView : public Sample {
 
     PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
 
-    SkPoint fPoints[4] = {
-            {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
+    SkPoint fPoints[6] = {
+            {100.05f, 100.05f}, {400.75f, 100.05f},
+            {400.75f, 200}, {400.75f, 300.95f},
+            {300, 300.95f}, {200, 300.95f}};
 
     float fConicWeight = .5;
     float fStrokeWidth = 40;
@@ -224,12 +226,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     pointsPaint.setStrokeWidth(8);
     pointsPaint.setAntiAlias(true);
 
-    if (PrimitiveType::kCubics == fPrimitiveType) {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
-    } else {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, fPoints, pointsPaint);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
-    }
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 6, fPoints, pointsPaint);
 
     SkFont font(nullptr, 20);
     SkPaint captionPaint;
@@ -310,7 +307,8 @@ void CCPRGeometryView::updateGpuData() {
                 fPoints[0], fPoints[1], fPoints[3], Sk2f(0, 0),
                 TriPointInstance::Ordering::kXYTransposed);
         fPath.lineTo(fPoints[1]);
-        fPath.lineTo(fPoints[3]);
+        fPath.quadTo(fPoints[2], fPoints[3]);
+        fPath.cubicTo(fPoints[4], fPoints[5], fPoints[0]);
         fPath.close();
     }
 }
@@ -384,7 +382,7 @@ public:
         if (fPtIdx >= 0) {
             points[fPtIdx] += fCurr - fPrev;
         } else {
-            for (int i = 0; i < 4; ++i) {
+            for (int i = 0; i < 6; ++i) {
                 points[i] += fCurr - fPrev;
             }
         }
@@ -395,10 +393,7 @@ private:
 };
 
 Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) {
-    for (int i = 0; i < 4; ++i) {
-        if (PrimitiveType::kCubics != fPrimitiveType && 2 == i) {
-            continue;
-        }
+    for (int i = 0; i < 6; ++i) {
         if (fabs(x - fPoints[i].x()) < 20 && fabsf(y - fPoints[i].y()) < 20) {
             return new Click(i);
         }

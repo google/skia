@@ -19,18 +19,23 @@ static bool is_linear(const SkPoint p[4]) {
 }
 
 static void check_cubic_convex_180(skiatest::Reporter* r, const SkPoint p[4]) {
+    bool areCusps = false;
     float inflectT[2], convex180T[2];
     if (int inflectN = SkFindCubicInflections(p, inflectT)) {
         // The curve has inflections. findCubicConvex180Chops should return the inflection
         // points.
-        int convex180N = GrPathUtils::findCubicConvex180Chops(p, convex180T);
+        int convex180N = GrPathUtils::findCubicConvex180Chops(p, convex180T, &areCusps);
         REPORTER_ASSERT(r, inflectN == convex180N);
+        if (!areCusps) {
+            REPORTER_ASSERT(r, inflectN == 1 ||
+                            fabsf(inflectT[0] - inflectT[1]) >= SK_ScalarNearlyZero);
+        }
         for (int i = 0; i < convex180N; ++i) {
             REPORTER_ASSERT(r, SkScalarNearlyEqual(inflectT[i], convex180T[i]));
         }
     } else {
         float totalRotation = SkMeasureNonInflectCubicRotation(p);
-        int convex180N = GrPathUtils::findCubicConvex180Chops(p, convex180T);
+        int convex180N = GrPathUtils::findCubicConvex180Chops(p, convex180T, &areCusps);
         SkPoint chops[10];
         SkChopCubicAt(p, chops, convex180T, convex180N);
         float radsSum = 0;
@@ -53,6 +58,9 @@ static void check_cubic_convex_180(skiatest::Reporter* r, const SkPoint p[4]) {
                 REPORTER_ASSERT(r, SkScalarNearlyEqual(
                     SkMeasureNonInflectCubicRotation(chops + 3), totalRotation - SK_ScalarPI));
             }
+            REPORTER_ASSERT(r, !areCusps);
+        } else {
+            REPORTER_ASSERT(r, areCusps);
         }
     }
 }

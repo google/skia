@@ -42,6 +42,17 @@ public:
         std::array<SkPoint, 4> fPts;
     };
 
+    struct IndirectInstance {
+        std::array<SkPoint, 4> fPts;
+        SkPoint fLastControlPoint;
+        float fNumTotalEdges;
+    };
+
+    enum class Mode : bool {
+        kTessellation,
+        kDrawIndirect
+    };
+
     // 'parametricIntolerance' controls the number of parametric segments we add for each curve.
     // We add enough parametric segments so that the center of each one falls within
     // 1/parametricIntolerance local path units from the true curve.
@@ -51,29 +62,38 @@ public:
     // smoothness.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(const SkStrokeRec& stroke, float parametricIntolerance,
+    GrStrokeTessellateShader(Mode mode, const SkStrokeRec& stroke, float parametricIntolerance,
                              float numRadialSegmentsPerRadian, const SkMatrix& viewMatrix,
                              SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
-                           GrPrimitiveType::kPatches, 1)
+                           (mode == Mode::kTessellation) ? GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
+                           (mode == Mode::kTessellation) ? 1 : 0)
+            , fMode(mode)
             , fStroke(stroke)
             , fParametricIntolerance(parametricIntolerance)
             , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
             , fColor(color) {
         SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
-        constexpr static Attribute kInputPointAttribs[] = {
-                {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
-                {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
-        this->setVertexAttributes(kInputPointAttribs, SK_ARRAY_COUNT(kInputPointAttribs));
-        SkASSERT(this->vertexStride() == sizeof(Patch));
+        if (fMode == Mode::kTessellation) {
+            constexpr static Attribute kTessellationAttribs[] = {
+                    {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+                    {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+            this->setVertexAttributes(kTessellationAttribs, SK_ARRAY_COUNT(kTessellationAttribs));
+            SkASSERT(this->vertexStride() == sizeof(Patch));
+        } else {
+            constexpr static Attribute kDrawIndirectAttribs[] = {
+                    {"pts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    {"pts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    {"args", kFloat3_GrVertexAttribType, kFloat3_GrSLType}};
+            this->setInstanceAttributes(kDrawIndirectAttribs, SK_ARRAY_COUNT(kDrawIndirectAttribs));
+            SkASSERT(this->instanceStride() == sizeof(IndirectInstance));
+        }
     }
 
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(this->viewMatrix().isIdentity());
-    }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
@@ -85,12 +105,14 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
+    const Mode fMode;
     const SkStrokeRec fStroke;
     const float fParametricIntolerance;
     const float fNumRadialSegmentsPerRadian;
     const SkPMColor4f fColor;
 
-    class Impl;
+    class DrawIndirectImpl;
+    class TessellationImpl;
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrResolveLevelCounter.h"
+#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
@@ -239,3 +240,55 @@ private:
 
 DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
 DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
+
+class GrStrokeIndirectOp::TestingOnly_Benchmark : public Benchmark {
+public:
+    TestingOnly_Benchmark(const char* nameSuffix, const std::array<SkPoint, 4>& pts) : fPts(pts) {
+        fName.printf("tessellate_GrStrokeIndirectOpBench%s", nameSuffix);
+    }
+
+private:
+    const char* onGetName() override { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+
+    void onDelayedSetup() override {
+        fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());
+        fPath.reset().moveTo(fPts[0]);
+        for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
+            fPath.cubicTo(fPts[1], fPts[2], fPts[3]);
+            fPath.cubicTo(fPts[2], fPts[1], fPts[0]);
+        }
+        fStrokeRec.setStrokeStyle(8);
+        fStrokeRec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kMiter_Join, 4);
+    }
+
+    void onDraw(int loops, SkCanvas*) final {
+        if (!fTarget->mockContext()) {
+            SkDebugf("ERROR: could not create mock context.");
+            return;
+        }
+        for (int i = 0; i < loops; ++i) {
+            GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), fStrokeRec, fPath, GrPaint());
+            op.prePrepareResolveLevels(fTarget->allocator());
+            op.prepareBuffers(fTarget.get());
+        }
+    }
+
+    SkString fName;
+    std::array<SkPoint, 4> fPts;
+    std::unique_ptr<GrMockOpTarget> fTarget;
+    SkPath fPath;
+    SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
+};
+
+DEF_BENCH( return new GrStrokeIndirectOp::TestingOnly_Benchmark(
+                   "_inflect1", {SkPoint{0,0}, {100,0}, {0,100}, {100,100}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::TestingOnly_Benchmark(
+                   "_inflect2", {SkPoint{37,162}, {412,160}, {249,65}, {112,360}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::TestingOnly_Benchmark(
+                   "_loop", {SkPoint{0,0}, {100,0}, {0,100}, {0,0}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::TestingOnly_Benchmark(
+                   "_nochop", {SkPoint{0,0}, {50,0}, {100,50}, {100,100}}); )
