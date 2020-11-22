@@ -286,13 +286,19 @@ private:
 
     template <typename Bits>
     AI static T FromBits(Bits bits) {
-        static_assert(std::is_pod<T   >::value &&
-                      std::is_pod<Bits>::value &&
-                      sizeof(T) <= sizeof(Bits), "");
         T val;
-        memcpy(&val, &bits, sizeof(T));
+        FromBits(val, bits);
         return val;
     }
+    template <typename U, typename Bits>
+    AI static void FromBits(U& v, Bits bits) {
+        static_assert(std::is_integral<U   >::value &&
+                      std::is_integral<Bits>::value);
+        v = bits;
+    }
+    AI static void FromBits(float& v, int32_t bits)  { memcpy(&v, &bits, sizeof(v)); }
+    AI static void FromBits(double& v, int64_t bits) { memcpy(&v, &bits, sizeof(v)); }
+
 };
 
 // Allow scalars on the left or right of binary operators, and things like +=, &=, etc.
