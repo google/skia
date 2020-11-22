@@ -20,11 +20,11 @@ void main() {
     sk_FragColor = vec4(vec2(v), 1.0, 1.0);
     sk_FragColor = vec4(v);
     sk_FragColor = vec3(fn(v), 123.0, 456.0).yyzz;
-    sk_FragColor = vec3(fn(v), vec2(123.0, 456.0)).yyzz;
+    sk_FragColor = vec3(fn(v), 123.0, 456.0).yyzz;
     sk_FragColor = vec4(123.0, 456.0, 456.0, fn(v));
-    sk_FragColor = vec4(vec3(123.0, 456.0, 456.0), fn(v));
+    sk_FragColor = vec4(123.0, 456.0, 456.0, fn(v));
     sk_FragColor = vec3(fn(v), 123.0, 456.0).yxxz;
-    sk_FragColor = vec3(fn(v), vec2(123.0, 456.0)).yxxz;
+    sk_FragColor = vec3(fn(v), 123.0, 456.0).yxxz;
     sk_FragColor = vec4(1.0, 1.0, 2.0, 3.0);
     sk_FragColor = vec4(colRGB, 1.0);
     sk_FragColor = vec4(colRGB.x, 1.0, colRGB.yz);
