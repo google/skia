@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bccc32d_1e9f9a2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-23T15:02:36Z",
+      "side": 1,
+      "message": "PTAL. Just added a check for divide by zero. We never hit this before cause we only reported when Skia made an actual allocation. Especially on chrome tests its possibly for chrome to submit Skia without have asking Skia to draw anything that would cause an allocation.",
+      "revId": "acf07386029f16edae3115698092f10b4249f72f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
