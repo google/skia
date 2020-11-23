@@ -26,8 +26,74 @@ float wangs_formula_cubic(vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
     return max(1.0, ceil(sqrt(k * sqrt(m))));
 })";
 
+constexpr static char kWangsFormulaRationalCubicFn[] = R"(
+float min4(float a, float b, float c, float d) {
+    return min(min(a, b), min(c, d));
+}
+
+float max4(float a, float b, float c, float d) {
+    return max(max(a, b), max(c, d));
+}
+
+float2 bb_center(float4x2 P) {
+    float2 lt = float2(min4(P[0].x, P[1].x, P[2].x, P[3].x),
+                       min4(P[0].y, P[1].y, P[2].y, P[3].y));
+    float2 rb = float2(max4(P[0].x, P[1].x, P[2].x, P[3].x),
+                       max4(P[0].y, P[1].y, P[2].y, P[3].y));
+    return float2(0.5 * lt.x + 0.5 * rb.x,
+                  0.5 * lt.y + 0.5 * rb.y);
+}
+
+float max_len(float4x2 P) {
+    float len = max4(length_pow2(P[0]), length_pow2(P[1]),
+                     length_pow2(P[2]), length_pow2(P[3]));
+    return sqrt(len);
+}
+
+float2 fwdiff2(vec2 p0, vec2 p1, vec2 p2) {
+    return p2 - 2*p1 + p0;
+}
+
+float fwdiff2(float p0, float p1, float p2) {
+    return p2 - 2*p1 + p0;
+}
+
+// Returns number of segments for linearized cubic rational. This is an analogue
+// to Wang's formula, taken from:
+//   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
+//   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
+// See Thm 3, Corollary 1.
+float wangs_formula_rational_cubic(float4x3 P) {
+    // Note: by construction P[1].z == P[2].z
+    float w = P[1].z;
+    float min_w = min(w, 1);
+    float eps = MAX_LINEARIZATION_ERROR;
+
+    float4x2 projP = float4x2(P[0].xy, P[1].xy/w, P[2].xy/w, P[3].xy);
+    float2 C = bb_center(projP);
+    float4x2 transP = float4x2(projP[0] - C, projP[1] - C, projP[2] - C, projP[3] - C);
+    float r = max_len(transP);
+
+    float4x2 wTransP = float4x2(transP[0], transP[1] * w, transP[2] * w, transP[3]);
+
+    float a = sqrt(length_pow2(fwdiff2(wTransP[0], wTransP[1], wTransP[2])))
+              + (r - eps) * abs(fwdiff2(P[0].z, P[1].z, P[2].z));
+    float b = sqrt(length_pow2(fwdiff2(wTransP[1], wTransP[2], wTransP[3])))
+              + (r - eps) * abs(fwdiff2(P[1].z, P[2].z, P[3].z));
+    float denom = 3 * max(a, b);
+
+    float numer = 4 * min_w * eps;
+    float delta = sqrt(numer / denom);
+
+    // 'delta' is the step size in parametric space, so 1/delta is the number of
+    // segments assuming parametric domain [0,1].
+    float tmin = 0, tmax = 1;
+    return max(1, ceil((tmax - tmin) / delta));
+})";
+
 constexpr static char kSkSLTypeDefs[] = R"(
 #define float4x3 mat4x3
+#define float4x2 mat4x2
 #define float3 vec3
 #define float2 vec2
 )";
@@ -206,6 +272,7 @@ SkString GrWedgeTessellateShader::getTessControlShaderGLSL(const GrGLSLPrimitive
     SkString code(versionAndExtensionDecls);
     code.append(kWangsFormulaCubicFn);
     code.append(kSkSLTypeDefs);
+    code.append(kWangsFormulaRationalCubicFn);
     code.append(kUnpackRationalCubicFn);
     code.append(R"(
     layout(vertices = 1) out;
@@ -219,10 +286,8 @@ SkString GrWedgeTessellateShader::getTessControlShaderGLSL(const GrGLSLPrimitive
     void main() {
         mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
 
-        // Figure out how many segments to divide the curve into. To do this we simply call Wang's
-        // formula for integral cubics with the down-projected points. This appears to be an upper
-        // bound on what the actual number of subdivisions would have been.
-        float num_segments = wangs_formula_cubic(P[0].xy, P[1].xy/P[1].z, P[2].xy/P[2].z, P[3].xy);
+        // Figure out how many segments to divide the curve into.
+        float num_segments = wangs_formula_rational_cubic(P);
 
         // Tessellate the first side of the patch into num_segments triangles.
         gl_TessLevelOuter[0] = num_segments;
