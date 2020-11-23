@@ -205,6 +205,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/FunctionArgumentMatch.sksl",
   "$_tests/sksl/shared/FunctionPrototype.sksl",
   "$_tests/sksl/shared/Functions.sksl",
+  "$_tests/sksl/shared/GaussianBlur.sksl",
   "$_tests/sksl/shared/Geometry.geom",
   "$_tests/sksl/shared/GeometryExtension.geom",
   "$_tests/sksl/shared/GeometryGSInvocations.geom",
