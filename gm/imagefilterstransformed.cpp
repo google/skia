@@ -216,3 +216,101 @@ private:
 };
 
 DEF_GM(return new ImageFilterMatrixWLocalMatrix();)
+
+class ImageFilterComposedTransform : public skiagm::GM {
+public:
+
+    // Start at 70 degrees since that highlighted the issue in skbug.com/10888
+    ImageFilterComposedTransform() : fDegrees(70.f) {}
+
+protected:
+    SkString onShortName() override {
+        return SkString("imagefilter_composed_transform");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(512, 512);
+    }
+
+    bool onAnimate(double nanos) override {
+        // Animate the rotation angle to test a variety of transformations
+        fDegrees = TimeUtils::Scaled(1e-9f * nanos, 360.f);
+        return true;
+    }
+
+    void onOnceBeforeDraw() override {
+        fImage = GetResourceAsImage("images/mandrill_256.png");
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkMatrix matrix = SkMatrix::RotateDeg(fDegrees);
+        // All four quadrants should render the same
+        this->drawFilter(canvas, 0.f, 0.f, this->makeDirectFilter(matrix));
+        this->drawFilter(canvas, 256.f, 0.f, this->makeEarlyComposeFilter(matrix));
+        this->drawFilter(canvas, 0.f, 256.f, this->makeLateComposeFilter(matrix));
+        this->drawFilter(canvas, 256.f, 256.f, this->makeFullComposeFilter(matrix));
+    }
+
+private:
+    SkScalar fDegrees;
+    sk_sp<SkImage> fImage;
+
+    void drawFilter(SkCanvas* canvas, SkScalar tx, SkScalar ty, sk_sp<SkImageFilter> filter) const {
+        SkPaint p;
+        p.setImageFilter(std::move(filter));
+
+        canvas->save();
+        canvas->translate(tx, ty);
+        canvas->clipRect(SkRect::MakeIWH(256, 256));
+        canvas->scale(0.5f, 0.5f);
+        canvas->translate(128, 128);
+        canvas->drawImage(fImage, 0, 0, &p);
+        canvas->restore();
+    }
+
+    // offset(matrix(offset))
+    sk_sp<SkImageFilter> makeDirectFilter(const SkMatrix& matrix) const {
+        SkPoint v = {fImage->width() / 2.f, fImage->height() / 2.f};
+        sk_sp<SkImageFilter> filter = SkImageFilters::Offset(-v.fX, -v.fY, nullptr);
+        filter = SkImageFilters::MatrixTransform(matrix, SkFilterQuality::kLow_SkFilterQuality,
+                                                 std::move(filter));
+        filter = SkImageFilters::Offset(v.fX, v.fY, std::move(filter));
+        return filter;
+    }
+
+    // offset(compose(matrix, offset))
+    sk_sp<SkImageFilter> makeEarlyComposeFilter(const SkMatrix& matrix) const {
+        SkPoint v = {fImage->width() / 2.f, fImage->height() / 2.f};
+        sk_sp<SkImageFilter> offset = SkImageFilters::Offset(-v.fX, -v.fY, nullptr);
+        sk_sp<SkImageFilter> filter = SkImageFilters::MatrixTransform(
+                matrix, SkFilterQuality::kLow_SkFilterQuality, nullptr);
+        filter = SkImageFilters::Compose(std::move(filter), std::move(offset));
+        filter = SkImageFilters::Offset(v.fX, v.fY, std::move(filter));
+        return filter;
+    }
+
+    // compose(offset, matrix(offset))
+    sk_sp<SkImageFilter> makeLateComposeFilter(const SkMatrix& matrix) const {
+        SkPoint v = {fImage->width() / 2.f, fImage->height() / 2.f};
+        sk_sp<SkImageFilter> filter = SkImageFilters::Offset(-v.fX, -v.fY, nullptr);
+        filter = SkImageFilters::MatrixTransform(matrix, SkFilterQuality::kLow_SkFilterQuality,
+                                                 std::move(filter));
+        sk_sp<SkImageFilter> offset = SkImageFilters::Offset(v.fX, v.fY, nullptr);
+        filter = SkImageFilters::Compose(std::move(offset), std::move(filter));
+        return filter;
+    }
+
+    // compose(offset, compose(matrix, offset))
+    sk_sp<SkImageFilter> makeFullComposeFilter(const SkMatrix& matrix) const {
+        SkPoint v = {fImage->width() / 2.f, fImage->height() / 2.f};
+        sk_sp<SkImageFilter> offset = SkImageFilters::Offset(-v.fX, -v.fY, nullptr);
+        sk_sp<SkImageFilter> filter = SkImageFilters::MatrixTransform(
+                matrix, SkFilterQuality::kLow_SkFilterQuality, nullptr);
+        filter = SkImageFilters::Compose(std::move(filter), std::move(offset));
+        offset = SkImageFilters::Offset(v.fX, v.fY, nullptr);
+        filter = SkImageFilters::Compose(std::move(offset), std::move(filter));
+        return filter;
+    }
+};
+
+DEF_GM(return new ImageFilterComposedTransform();)

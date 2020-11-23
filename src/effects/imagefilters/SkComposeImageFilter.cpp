@@ -116,7 +116,16 @@ SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMat
     const SkImageFilter* outer = this->getInput(0);
     const SkImageFilter* inner = this->getInput(1);
 
-    const SkIRect innerRect = inner->filterBounds(src, ctm, dir, inputRect);
-    return outer->filterBounds(innerRect, ctm, dir,
-                               kReverse_MapDirection == dir ? &innerRect : nullptr);
+    if (dir == kReverse_MapDirection) {
+        // The output 'src' is processed by the outer filter, producing its required input bounds,
+        // which is then the output bounds required of the inner filter. We pass the inputRect to
+        // outer and not inner to match the default recursion logic of onGetInputLayerBounds
+        const SkIRect outerRect = outer->filterBounds(src, ctm, dir, inputRect);
+        return inner->filterBounds(outerRect, ctm, dir);
+    } else {
+        // The input 'src' is processed by the inner filter, producing the input bounds for the
+        // outer filter of the composition, which then produces the final forward output bounds
+        const SkIRect innerRect = inner->filterBounds(src, ctm, dir);
+        return outer->filterBounds(innerRect, ctm, dir);
+    }
 }
