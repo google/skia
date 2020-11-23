@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a5be9fa_6b70529e",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-23T18:51:51Z",
+      "side": 1,
+      "message": "yes, done",
+      "parentUuid": "e9d6011b_b66a8947",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 34
+      },
+      "revId": "e376627471e8be14070c83daaf6ac1a3a71e1fe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86f5c7ac_2fede5cb",
@@ -37,6 +61,24 @@
       "writtenOn": "2020-11-23T18:24:17Z",
       "side": 1,
       "message": "nit: keep each line at \u003c 100 characters here and elsewhere in this file.",
+      "revId": "e376627471e8be14070c83daaf6ac1a3a71e1fe3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2af914a0_463c2510",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieAnimation.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-23T18:51:51Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "86f5c7ac_2fede5cb",
       "revId": "e376627471e8be14070c83daaf6ac1a3a71e1fe3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
