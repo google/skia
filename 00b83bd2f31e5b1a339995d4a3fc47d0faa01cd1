@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c68ad2_63566667",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T21:06:15Z",
+      "side": 1,
+      "message": "Hard to gauge visually but it looks like this one actually produces more segments in some w\u003e1 cases. It might be the case that regular Wang\u0027s formula is not sufficient. Either way it seems useful to have this version to play around with.\n\nPS - shader newbie so any comments are welcome.",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d976064e_e5f7ccf4",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T21:06:15Z",
+      "side": 1,
+      "message": "-C is what makes this translation invariant",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d74d1c78_93693970",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T21:06:15Z",
+      "side": 1,
+      "message": "NB pass these in if not on domain [0,1]",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
