@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9bf374b_12ba02ba",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-23T21:42:46Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "a8ce4f01_b1fefffd",
+      "revId": "7880f60f333037adb8819dfe1e07f5b865e5a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0f14cd57_8e2af85c",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-23T19:12:14Z",
       "side": 1,
       "message": "nit: indentation",
+      "revId": "7880f60f333037adb8819dfe1e07f5b865e5a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cebcff97_ca686167",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-11-23T21:42:46Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "0f14cd57_8e2af85c",
       "revId": "7880f60f333037adb8819dfe1e07f5b865e5a0a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
