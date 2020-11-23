@@ -106,6 +106,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79ee73c3_359fe951",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:06:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0e494b9_df189cb0",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e9903b3_41de2c29",
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "Ah, you know I didn\u0027t really pay attention that each of these was returning. So yes, we wouldn\u0027t need to have the double (!fUseCubic \u0026\u0026 \u003d\u003d kLinear) -- which is what I typed before creating \"Technique\"",
       "parentUuid": "1e9903b3_41de2c29",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b6586ea_199cf081",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:06:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3dc1fd2_0754d643",
       "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -254,6 +290,24 @@
       "side": 1,
       "message": "Yea, I was doing that before calling tweak. Checkout outside seems fine.",
       "parentUuid": "97582034_259ad462",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a923106_2ac3d49b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:06:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc8ad3c6_407439e3",
       "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
