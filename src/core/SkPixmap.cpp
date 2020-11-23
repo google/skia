@@ -197,7 +197,7 @@ bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* su
     return true;
 }
 
-bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) const {
+bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& sampling) const {
     // We may need to tweak how we interpret these just a little below, so we make copies.
     SkPixmap src = *this,
              dst = actualDst;
@@ -238,8 +238,6 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
                                               SkRect::Make(dst.bounds()),
                                               SkMatrix::kFill_ScaleToFit);
 
-    // We'll create a shader to do this draw so we have control over the bicubic clamp.
-    auto sampling = SkSamplingOptions(quality);
     sk_sp<SkShader> shader = SkImageShader::Make(SkImage::MakeFromBitmap(bitmap),
                                                  SkTileMode::kClamp,
                                                  SkTileMode::kClamp,
@@ -256,11 +254,16 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) c
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setFilterQuality(quality);
     paint.setShader(std::move(shader));
     surface->getCanvas()->drawPaint(paint);
     return true;
 }
+
+#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
+bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality fq) const {
+    return this->scalePixels(dst, SkSamplingOptions(fq));
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
