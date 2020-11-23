@@ -14,6 +14,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include <limits>
 
  // This is a common base class for shaders in the GPU tessellator.
 class GrPathShader : public GrGeometryProcessor {
@@ -64,6 +65,14 @@ public:
                                           shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
                                           renderPassXferBarriers, colorLoadOp);
+    }
+
+    // Fills in a 4-point patch in such a way that the shader will recognize it as a conic.
+    static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
+        // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
+        // patch[3].y as NaN to flag this patch as a conic.
+        memcpy(patch, pts, sizeof(SkPoint) * 3);
+        patch[3].set(w, std::numeric_limits<float>::quiet_NaN());
     }
 
 private:

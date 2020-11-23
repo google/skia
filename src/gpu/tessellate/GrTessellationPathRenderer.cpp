@@ -139,11 +139,11 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 
     SkPath path;
     shape.asPath(&path);
-    if (SkPathPriv::ConicWeightCnt(path)) {
-        return CanDrawPath::kNo;
-    }
 
     if (!shape.style().isSimpleFill()) {
+        if (SkPathPriv::ConicWeightCnt(path)) {
+            return CanDrawPath::kNo;
+        }
         SkPMColor4f constantColor;
         // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
         // of them will eventually go away.
