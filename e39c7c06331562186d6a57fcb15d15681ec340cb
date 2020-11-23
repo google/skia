@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ee096465_c4e63b7e",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:04:36Z",
+      "side": 1,
+      "message": "No, the would have been kHigh_SkFilterQuality, which just passes through in this code.",
+      "parentUuid": "5af5d042_4aa6b6b8",
+      "range": {
+        "startLine": 581,
+        "startChar": 8,
+        "endLine": 581,
+        "endChar": 27
+      },
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e0e494b9_df189cb0",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 5
@@ -101,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f3dc1fd2_0754d643",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:04:36Z",
+      "side": 1,
+      "message": "Ah, you know I didn\u0027t really pay attention that each of these was returning. So yes, we wouldn\u0027t need to have the double (!fUseCubic \u0026\u0026 \u003d\u003d kLinear) -- which is what I typed before creating \"Technique\"",
+      "parentUuid": "1e9903b3_41de2c29",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bea2513f_e4d25d08",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 5
@@ -112,6 +154,30 @@
       "writtenOn": "2020-11-23T14:20:07Z",
       "side": 1,
       "message": "This one I might even just do unconditionally now that I\u0027m looking at it.  There\u0027s so much complex logic going on in here that I think it might improve things to just always scoot the alloc pointer over to make room for a SamplerCtx, even if it won\u0027t be used.",
+      "range": {
+        "startLine": 837,
+        "startChar": 3,
+        "endLine": 841,
+        "endChar": 0
+      },
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11bc5070_15b7b838",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:04:36Z",
+      "side": 1,
+      "message": "I\u0027ll try that.",
+      "parentUuid": "bea2513f_e4d25d08",
       "range": {
         "startLine": 837,
         "startChar": 3,
@@ -139,6 +205,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc66ca16_a8e4ba2b",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:04:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2085a8e_f4d8362a",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97582034_259ad462",
@@ -152,6 +236,24 @@
       "writtenOn": "2020-11-23T14:20:07Z",
       "side": 1,
       "message": "This feels pretty weird to \"turn off\" just because we\u0027ve already handled it... there\u0027s going to be code now that draws with mipmaps at points where sampling.fMipmap holds false, right?  That feels like we\u0027re setting ourselves up for confusion down the line.\n\nIs the concern just tweak_sampling_and_inv_matrix()?  If so, maybe let\u0027s change it to \n\n  void tweak_filtering_and_inv_matrix(SkFilterMode*, SkMatrix*) {\n      ...\n  }\n\nand then guard calling it instead of early-out inside the function?\n\n   if (sampling.fMipmap \u003d\u003d SkMipmapMode::kNone) {\n       tweak_filtering_and_inv_matrix(\u0026sampling.fFilter, ...);\n   }",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc8ad3c6_407439e3",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:04:36Z",
+      "side": 1,
+      "message": "Yea, I was doing that before calling tweak. Checkout outside seems fine.",
+      "parentUuid": "97582034_259ad462",
       "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
