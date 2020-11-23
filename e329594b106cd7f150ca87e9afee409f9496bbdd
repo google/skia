@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0438c99_370aca22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T13:13:45Z",
+      "side": 1,
+      "message": "PS1 gold images show the failure case. PS2 gold images show that the change to SkComposeImageFilter fixed it. PS3 adds some comments and fixed the starting rotation angle (so final gold images won\u0027t be exactly like in PS2, but the gist is the same).",
+      "revId": "e329594b106cd7f150ca87e9afee409f9496bbdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
