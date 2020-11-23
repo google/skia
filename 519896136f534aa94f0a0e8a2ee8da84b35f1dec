@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19d06ca6_6ecf917d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-11-23T18:39:50Z",
+      "side": 1,
+      "message": "I didn\u0027t want to drag one more parameter through all the calls so I tried to localize the change...",
+      "revId": "519896136f534aa94f0a0e8a2ee8da84b35f1dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
