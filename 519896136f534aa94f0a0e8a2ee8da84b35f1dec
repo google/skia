@@ -16,6 +16,46 @@
       "message": "I didn\u0027t want to drag one more parameter through all the calls so I tried to localize the change...",
       "revId": "519896136f534aa94f0a0e8a2ee8da84b35f1dec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b10fd53d_4e25e53c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-23T18:53:13Z",
+      "side": 1,
+      "message": "I suppose this is fine so long as it is known TextLine isn\u0027t tread safe.",
+      "revId": "519896136f534aa94f0a0e8a2ee8da84b35f1dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b187722_14c4b9e6",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-23T18:53:13Z",
+      "side": 1,
+      "message": "nit: two more space indent?",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 6
+      },
+      "revId": "519896136f534aa94f0a0e8a2ee8da84b35f1dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
