@@ -229,7 +229,7 @@ cc_defaults {
         "skia_pgo_no_profile_use"
     ],
     shared_libs: [
-        "libandroidicu",
+        "libicu",
         "libharfbuzz_ng",
     ],
     static_libs: [
