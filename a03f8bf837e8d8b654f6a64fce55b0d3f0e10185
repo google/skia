@@ -16,6 +16,24 @@
       "message": "\"do not land\"\n\nShould we revert this?\n\nAndroid\u0027s internal main (master) branch is pretty broken at the moment, and I\u0027m seeing errors like:\n\n  frameworks/native/libs/renderengine/skia/SkiaGLRenderEngine.cpp:660:44: error: no matching constructor for initialization of \u0027SkSamplingOptions\u0027\n                                           SkSamplingOptions(\n                                           ^\n  external/skia/include/core/SkSamplingOptions.h:45:8: note: candidate constructor\n (the implicit copy constructor) not viable: cannot convert initializer list argument to \u0027const SkSamplingOptions\u0027\n  struct SkSamplingOptions {\n",
       "revId": "a03f8bf837e8d8b654f6a64fce55b0d3f0e10185",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2346a5d3_66e489f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T21:09:17Z",
+      "side": 1,
+      "message": "Ignore the leftover \"do not land\".\n\nIs there something we\u0027ve missed on our roller (https://skia-autoroll.corp.goog/r/android-master-autoroll) to prevent breaking whatever\u0027s broken?",
+      "parentUuid": "74f1566f_ca310044",
+      "revId": "a03f8bf837e8d8b654f6a64fce55b0d3f0e10185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
