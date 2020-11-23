@@ -171,6 +171,24 @@
       "message": "I think there\u0027s two distinct kinds of things going on in there,\n   \n   1) recognizing that bilerp mechanically becomes nearest neighbor when the sample points are in just the right spots\n   2) some sort of Chrome bug fix for edges I don\u0027t really understand (Florin?)\n\nI\u0027ve got no problem applying 1) any time it\u0027s legal... it\u0027s free math.  2) I don\u0027t understand enough to have an opinion on.  I would like to know if there\u0027s somewhere higher-level that logic can live... it\u0027s another why-do-this-if-Ganesh-doesn\u0027t question.",
       "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2776f609_f6dec4c6",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-23T15:08:27Z",
+      "side": 1,
+      "message": "\u003e    2) some sort of Chrome bug fix for edges I don\u0027t really understand (Florin?)\n\u003e \n\u003e I\u0027ve got no problem applying 1) any time it\u0027s legal... it\u0027s free math.  2) I don\u0027t understand enough to have an opinion on.  I would like to know if there\u0027s somewhere higher-level that logic can live... it\u0027s another why-do-this-if-Ganesh-doesn\u0027t question.\n\nIIRC it has to do with mid-point rounding: geometry (and the sprite code path) rounds a certain direction, while nearest neighbor used to round the opposite (not because it was written differently but because the sampling transform is an inverse mapping).  So e.g. nine-piece images would look all misaligned when drawn at 0.5.\n\nGanesh is consistent in this regard (presumably because it doesn\u0027t have a \"sprite\" fast path).  If you look at gm:image_scale_aligned, the GPU results do look pretty ugly (missing edges) - but that\u0027s arguably OK as long as there aren\u0027t any inconsistencies between the caps and the mid section.  IIUC GL makes no rounding guarantees other than consistency.",
+      "parentUuid": "820f2bea_e4f119cd",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
