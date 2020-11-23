@@ -353,6 +353,7 @@ public:
         @return  true if matrix has only finite elements
     */
     bool isFinite() const { return SkScalarsAreFinite(fMat, 16); }
+    bool isScaleTranslate() const { return false; }
 
     /** If this is invertible, return that in inverse and return true. If it is
      *  not invertible, return false and leave the inverse parameter unchanged.

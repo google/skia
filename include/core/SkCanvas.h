@@ -867,6 +867,7 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_setMatrix
     */
     void setMatrix(const SkMatrix& matrix);
+    void setMatrix(const SkM44& matrix);
 
     /** Sets SkMatrix to the identity matrix.
         Any prior matrix state is overwritten.
@@ -2664,6 +2665,7 @@ private:
     void doSave();
     void checkForDeferredSave();
     void internalSetMatrix(const SkMatrix&);
+    void internalSetMatrix(const SkM44&);
 
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
