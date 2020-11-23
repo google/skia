@@ -34,6 +34,24 @@
       "parentUuid": "74f1566f_ca310044",
       "revId": "a03f8bf837e8d8b654f6a64fce55b0d3f0e10185",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e158af8_719ad34d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-11-23T21:26:30Z",
+      "side": 1,
+      "message": "It looks like https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/native/+/13081308 is what\u0027s being rolled back to fix this breakage.\n\nI don\u0027t know if it\u0027s just these two CLs merging independently fine, but not working well together.  The other CL passed presubmit builds.",
+      "parentUuid": "2346a5d3_66e489f8",
+      "revId": "a03f8bf837e8d8b654f6a64fce55b0d3f0e10185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
