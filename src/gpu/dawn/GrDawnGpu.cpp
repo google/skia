@@ -130,8 +130,7 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fStagingBufferManager(this)
         , fRenderPipelineCache(kMaxRenderPipelineEntries)
         , fFinishCallbacks(this) {
-    fCaps.reset(new GrDawnCaps(options));
-    fCompiler.reset(new SkSL::Compiler(fCaps->shaderCaps()));
+    this->initCaps(new GrDawnCaps(options));
 }
 
 GrDawnGpu::~GrDawnGpu() {

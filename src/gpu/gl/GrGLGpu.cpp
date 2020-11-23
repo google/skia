@@ -351,8 +351,7 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* direct)
     // Toss out any pre-existing OOM that was hanging around before we got started.
     this->checkAndResetOOMed();
 
-    fCaps = sk_ref_sp(fGLContext->caps());
-    fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
+    this->initCaps(fGLContext->caps());
 
     fHWTextureUnitBindings.reset(this->numTextureUnits());
 

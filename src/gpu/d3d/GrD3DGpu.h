@@ -25,10 +25,6 @@ class GrPipeline;
 struct IDXGraphicsAnalysis;
 #endif
 
-namespace SkSL {
-    class Compiler;
-}
-
 class GrD3DGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(const GrD3DBackendContext& backendContext, const GrContextOptions&,
@@ -122,10 +118,6 @@ public:
     void submit(GrOpsRenderPass* renderPass) override;
 
     void checkFinishProcs() override { this->checkForFinishedCommandLists(); }
-
-    SkSL::Compiler* shaderCompiler() const {
-        return fCompiler.get();
-    }
 
 private:
     enum class SyncQueue {
@@ -304,8 +296,6 @@ private:
 #if GR_TEST_UTILS
     IDXGraphicsAnalysis* fGraphicsAnalysis;
 #endif
-
-    std::unique_ptr<SkSL::Compiler> fCompiler;
 
     using INHERITED = GrGpu;
 };
