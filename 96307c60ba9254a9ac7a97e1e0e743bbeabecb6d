@@ -117,6 +117,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15cddeed_8d1bdc91",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:59:41Z",
+      "side": 1,
+      "message": "Ahh, got it, thanks.",
+      "parentUuid": "269bfcd7_f9daf6c1",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d73adad_3adf3e96",
@@ -154,6 +172,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "efc4216e_2fb2e011",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:59:41Z",
+      "side": 1,
+      "message": "Ok, last question then (pardon the catch-me-up questions): abcd.z is the interpolated weight of the final point. Is that equal to the sum of the weights of the input points? I.e. is abcd.z \u003d\u003d sum_i { P[i].z }?",
+      "parentUuid": "16ed6dc1_857811b5",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b15f1165_6dc1951c",
         "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
         "patchSetId": 10
@@ -183,6 +219,24 @@
       "side": 1,
       "message": "Updated the comment. Is that more clear?",
       "parentUuid": "b15f1165_6dc1951c",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53c9ff3c_07f826f8",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:59:41Z",
+      "side": 1,
+      "message": "Thanks, that\u0027s great",
+      "parentUuid": "dacd1a31_903af88b",
       "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
