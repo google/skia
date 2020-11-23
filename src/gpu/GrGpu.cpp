@@ -33,6 +33,7 @@
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTracing.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/utils/SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,11 @@ GrGpu::GrGpu(GrDirectContext* direct) : fResetBits(kAll_GrBackendState), fContex
 
 GrGpu::~GrGpu() {
     this->callSubmittedProcs(false);
+}
+
+void GrGpu::initCapsAndCompiler(sk_sp<const GrCaps> caps) {
+    fCaps = std::move(caps);
+    fCompiler = std::make_unique<SkSL::Compiler>(fCaps->shaderCaps());
 }
 
 void GrGpu::disconnect(DisconnectType type) {}
