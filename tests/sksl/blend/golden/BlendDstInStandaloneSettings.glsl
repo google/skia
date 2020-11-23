@@ -12,6 +12,7 @@ void main() {
         _0_blend_dst_in = _1_0_blend_src_in;
 
     }
+
     sk_FragColor = _0_blend_dst_in;
 
 }

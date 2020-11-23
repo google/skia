@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLInliner.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -97,6 +98,7 @@ class IRGenerator {
 public:
     IRGenerator(const Context* context,
                 const ShaderCapsClass* caps,
+                Inliner* inliner,
                 ErrorReporter& errorReporter);
 
     struct IRBundle {
@@ -235,6 +237,7 @@ private:
     const ShaderCapsClass* fCaps = nullptr;
     Program::Kind fKind;
 
+    Inliner* fInliner = nullptr;
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;

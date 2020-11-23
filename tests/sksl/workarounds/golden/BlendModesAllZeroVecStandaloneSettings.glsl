@@ -7,6 +7,7 @@ void main() {
     {
         _0_blend_src_in = src * dst.w;
     }
+
     sk_FragColor = _0_blend_src_in;
 
     vec4 _1_blend_dst_in;
@@ -18,6 +19,7 @@ void main() {
         _1_blend_dst_in = _2_0_blend_src_in;
 
     }
+
     sk_FragColor = _1_blend_dst_in;
 
 }

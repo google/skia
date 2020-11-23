@@ -8,11 +8,13 @@ void main() {
     {
         _0_flip = color.yzyx;
     }
+
     sk_FragColor = _0_flip;
 
     {
         color = color.wzyx;
     }
+
 
     sk_FragColor = color;
 }

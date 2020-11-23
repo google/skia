@@ -8,6 +8,7 @@ void main() {
         {
             _0_ifBody = color + vec4(0.125);
         }
+
         c = _0_ifBody;
     }
     sk_FragColor = c;
