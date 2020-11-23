@@ -921,11 +921,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             lower = &access->lowerLevel();
         }
 
-        // should we do this all the  time (not use in UseSampling?)
-        if (!fUseSamplingOptions) {
-            if (!sampling.fUseCubic) {
-                tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
-            }
+        if (!sampling.fUseCubic) {
+            tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
         }
     }
 
