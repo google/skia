@@ -1,0 +1,6 @@
+void main() {
+    sk_FragColor.x = (float(true), 1);
+    sk_FragColor.y = (float2(1), 1);
+    sk_FragColor.z = (half3(1), 1);
+    sk_FragColor.w = (float2x2(1), 1);
+}

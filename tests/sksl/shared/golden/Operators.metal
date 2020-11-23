@@ -27,7 +27,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     z <<= 4;
     z %= 5;
     x = float((float2(sqrt(1.0)) , 6));
-    y = b ? 1.0 : 0.0;
+    y = (b ? 1.0 : 0.0 , 6.0);
     z = (float2(sqrt(1.0)) , 6);
     return *_out;
 }

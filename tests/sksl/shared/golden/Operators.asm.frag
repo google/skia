@@ -45,6 +45,7 @@ OpDecorate %66 RelaxedPrecision
 %v2float = OpTypeVector %float 2
 %int_6 = OpConstant %int 6
 %float_0 = OpConstant %float 0
+%float_6 = OpConstant %float 6
 %main = OpFunction %void None %7
 %8 = OpLabel
 %x = OpVariable %_ptr_Function_float Function
@@ -106,11 +107,11 @@ OpStore %z %59
 OpStore %x %60
 %66 = OpLoad %bool %b
 %67 = OpSelect %float %66 %float_1 %float_0
-OpStore %y %67
-%69 = OpExtInst %float %1 Sqrt %float_1
-%70 = OpCompositeConstruct %v2float %69 %69
-%71 = OpCompositeConstruct %v2float %int_6 %int_6
-OpStore %z %71
+OpStore %y %float_6
+%70 = OpExtInst %float %1 Sqrt %float_1
+%71 = OpCompositeConstruct %v2float %70 %70
+%72 = OpCompositeConstruct %v2float %int_6 %int_6
+OpStore %z %72
 OpReturn
 OpFunctionEnd
 

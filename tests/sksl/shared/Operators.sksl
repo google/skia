@@ -15,6 +15,6 @@ void main() {
     z <<= 4;
     z %= 5;
     x = (float2(sqrt(1)), 6);
-    y = float(b);
+    y = (float(b), 6.0);
     z = (float2(sqrt(1)), 6);
 }

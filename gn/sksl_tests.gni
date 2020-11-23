@@ -223,6 +223,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/InterfaceBlockNamed.sksl",
   "$_tests/sksl/shared/Matrices.sksl",
   "$_tests/sksl/shared/MatrixFolding.sksl",
+  "$_tests/sksl/shared/MixedTypeCommaOperator.sksl",
   "$_tests/sksl/shared/MultipleAssignments.sksl",
   "$_tests/sksl/shared/NegatedVectorLiteral.sksl",
   "$_tests/sksl/shared/NoFragCoordsPos.vert",
