@@ -16,6 +16,29 @@
       "message": "PS1 gold images show the failure case. PS2 gold images show that the change to SkComposeImageFilter fixed it. PS3 adds some comments and fixed the starting rotation angle (so final gold images won\u0027t be exactly like in PS2, but the gist is the same).",
       "revId": "e329594b106cd7f150ca87e9afee409f9496bbdd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "989bfcf3_2ec467d3",
+        "filename": "src/effects/imagefilters/SkComposeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-23T14:29:11Z",
+      "side": 1,
+      "message": "I\u0027m confused about inputRect and its relationship to src in reverse mode.  So |src| is in local coordinates and |inputRect| is some super-clip, always in device space?  Can you comment on why it\u0027s ok to ignore/pass nullptr here?",
+      "range": {
+        "startLine": 122,
+        "startChar": 69,
+        "endLine": 122,
+        "endChar": 76
+      },
+      "revId": "e329594b106cd7f150ca87e9afee409f9496bbdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
