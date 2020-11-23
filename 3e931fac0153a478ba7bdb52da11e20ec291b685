@@ -33,6 +33,24 @@
       "message": "If you\u0027re having to mark functions as SKVX_ALWAYS_INLINE, something\u0027s gone wrong.\n\nTry as a default to mark all of them as `static inline`.  The `static` makes your code correct, and the extra `inline` should only prevent warnings about unused functions.  inline\u0027s C++ meaning of allowing two identical definitions is the super dangerous property you don\u0027t want, but it\u0027s also irrelevant when combined with static, which makes every copy of the function unique.",
       "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e65ae33e_cbac6586",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T20:44:25Z",
+      "side": 1,
+      "message": "I don\u0027t trust \"inline\".\n\nWhen I changed fast_madd from inline to SVKX_ALWAYS_INLINE I saw a huge perf increase. I\u0027d like to keep it as \"always inline\".",
+      "parentUuid": "d824699b_0c37c418",
+      "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
