@@ -2193,7 +2193,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             }
             return result;
         } else {
-            SkASSERT(false);
+            fErrors.error(leftType.fOffset, "unsupported mixed-type expression");
             return -1;
         }
     } else {
