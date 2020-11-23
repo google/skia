@@ -114,10 +114,10 @@ struct SkottieAnimation {
 
 extern "C" JNIEXPORT jlong
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nCreateProxy(JNIEnv *env,
-                                                                           jobject clazz,
-                                                                           jlong runner,
-                                                                           jobject bufferObj) {
+Java_org_skia_skottie_SkottieAnimation_nCreateProxy(JNIEnv *env,
+                                                    jobject clazz,
+                                                    jlong runner,
+                                                    jobject bufferObj) {
 
     if (!runner) {
         return 0;
@@ -163,8 +163,8 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nCreateProxy(JNIEnv *e
 
 extern "C" JNIEXPORT void
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDeleteProxy(JNIEnv *env, jclass clazz,
-                                                                       jlong nativeProxy) {
+Java_org_skia_skottie_SkottieAnimation_nDeleteProxy(JNIEnv *env, jclass clazz,
+                                                    jlong nativeProxy) {
     if (!nativeProxy) {
         return;
     }
@@ -174,13 +174,13 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDeleteProxy(JNIEnv *e
 
 extern "C" JNIEXPORT bool
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
-                                                                     jlong nativeProxy, jint width,
-                                                                     jint height,
-                                                                     jboolean wideColorGamut,
-                                                                     jfloat progress,
-                                                                     jint backgroundColor,
-                                                                     jboolean forceDraw) {
+Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
+                                                  jlong nativeProxy, jint width,
+                                                  jint height,
+                                                  jboolean wideColorGamut,
+                                                  jfloat progress,
+                                                  jint backgroundColor,
+                                                  jboolean forceDraw) {
     ATRACE_NAME("SkottieDrawFrame");
     if (!nativeProxy) {
         return false;
@@ -234,9 +234,9 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nDrawFrame(JNIEnv *env
 
 extern "C" JNIEXPORT jlong
 JNICALL
-Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nGetDuration(JNIEnv *env,
-                                                                           jclass clazz,
-                                                                           jlong nativeProxy) {
+Java_org_skia_skottie_SkottieAnimation_nGetDuration(JNIEnv *env,
+                                                    jclass clazz,
+                                                    jlong nativeProxy) {
     if (!nativeProxy) {
         return 0;
     }
