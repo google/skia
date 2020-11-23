@@ -80,6 +80,57 @@
       },
       "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e06d0e4f_4fae0831",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:08:40Z",
+      "side": 1,
+      "message": "For my own understanding, can you explain a bit what\u0027s happening here? To elevate the degree of a rational curve (e.g. conic -\u003e rational cubic), you need to elevate the numerator and denominator separately, and then use your new weight vector (the new denominator) to get the projected coords of the elevated curve. That may be what you\u0027re doing here already, but I wanted to check.",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d73adad_3adf3e96",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:08:40Z",
+      "side": 1,
+      "message": "Are these P[] coords in projected or unprojected space?",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b15f1165_6dc1951c",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T16:08:40Z",
+      "side": 1,
+      "message": "Not sure I follow the logic on how this curve eval is correct",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
