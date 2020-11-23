@@ -1616,10 +1616,7 @@ ASTNode::ID Parser::assignmentExpression() {
             case Token::Kind::TK_SHREQ:        // fall through
             case Token::Kind::TK_BITWISEANDEQ: // fall through
             case Token::Kind::TK_BITWISEXOREQ: // fall through
-            case Token::Kind::TK_BITWISEOREQ:  // fall through
-            case Token::Kind::TK_LOGICALANDEQ: // fall through
-            case Token::Kind::TK_LOGICALXOREQ: // fall through
-            case Token::Kind::TK_LOGICALOREQ: {
+            case Token::Kind::TK_BITWISEOREQ: {
                 if (!depth.increase()) {
                     return ASTNode::ID::Invalid();
                 }

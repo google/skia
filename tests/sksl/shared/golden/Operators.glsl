@@ -11,9 +11,6 @@ void main() {
     x += 12.0;
     x -= 12.0;
     x *= (y /= float(z = 10));
-    b ||= false;
-    b &&= true;
-    b ^^= false;
     z |= 0;
     z &= -1;
     z ^= 0;
@@ -21,5 +18,6 @@ void main() {
     z <<= 4;
     z %= 5;
     x = float((vec2(sqrt(1.0)) , 6));
+    y = b ? 1.0 : 0.0;
     z = (vec2(sqrt(1.0)) , 6);
 }

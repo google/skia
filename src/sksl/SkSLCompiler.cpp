@@ -2029,9 +2029,6 @@ const char* Compiler::OperatorName(Token::Kind op) {
         case Token::Kind::TK_PERCENTEQ:    return "%=";
         case Token::Kind::TK_SHLEQ:        return "<<=";
         case Token::Kind::TK_SHREQ:        return ">>=";
-        case Token::Kind::TK_LOGICALANDEQ: return "&&=";
-        case Token::Kind::TK_LOGICALOREQ:  return "||=";
-        case Token::Kind::TK_LOGICALXOREQ: return "^^=";
         case Token::Kind::TK_BITWISEANDEQ: return "&=";
         case Token::Kind::TK_BITWISEOREQ:  return "|=";
         case Token::Kind::TK_BITWISEXOREQ: return "^=";
@@ -2056,10 +2053,7 @@ bool Compiler::IsAssignment(Token::Kind op) {
         case Token::Kind::TK_SHREQ:        // fall through
         case Token::Kind::TK_BITWISEOREQ:  // fall through
         case Token::Kind::TK_BITWISEXOREQ: // fall through
-        case Token::Kind::TK_BITWISEANDEQ: // fall through
-        case Token::Kind::TK_LOGICALOREQ:  // fall through
-        case Token::Kind::TK_LOGICALXOREQ: // fall through
-        case Token::Kind::TK_LOGICALANDEQ:
+        case Token::Kind::TK_BITWISEANDEQ:
             return true;
         default:
             return false;
@@ -2078,9 +2072,6 @@ Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
         case Token::Kind::TK_BITWISEOREQ:  return Token::Kind::TK_BITWISEOR;
         case Token::Kind::TK_BITWISEXOREQ: return Token::Kind::TK_BITWISEXOR;
         case Token::Kind::TK_BITWISEANDEQ: return Token::Kind::TK_BITWISEAND;
-        case Token::Kind::TK_LOGICALOREQ:  return Token::Kind::TK_LOGICALOR;
-        case Token::Kind::TK_LOGICALXOREQ: return Token::Kind::TK_LOGICALXOR;
-        case Token::Kind::TK_LOGICALANDEQ: return Token::Kind::TK_LOGICALAND;
         default: return op;
     }
 }
