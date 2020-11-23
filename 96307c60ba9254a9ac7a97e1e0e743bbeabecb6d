@@ -101,6 +101,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "269bfcd7_f9daf6c1",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T16:34:24Z",
+      "side": 1,
+      "message": "Yes, that\u0027s what we\u0027re doing. P[N] is 3d vector. P[N].xy is the numerator and P[N].z is the denominator. Later on we divide by z when working with this bezier.",
+      "parentUuid": "e06d0e4f_4fae0831",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2d73adad_3adf3e96",
         "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
         "patchSetId": 10
@@ -118,6 +136,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "16ed6dc1_857811b5",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T16:34:24Z",
+      "side": 1,
+      "message": "P is a float4x3, so 4 3d vectors in homogeneous space. At the end of the function we divide by z to down-project.",
+      "parentUuid": "2d73adad_3adf3e96",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b15f1165_6dc1951c",
         "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
         "patchSetId": 10
@@ -129,6 +165,24 @@
       "writtenOn": "2020-11-23T16:08:40Z",
       "side": 1,
       "message": "Not sure I follow the logic on how this curve eval is correct",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dacd1a31_903af88b",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T16:34:24Z",
+      "side": 1,
+      "message": "Updated the comment. Is that more clear?",
+      "parentUuid": "b15f1165_6dc1951c",
       "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
