@@ -16,7 +16,8 @@ void draw(SkCanvas* canvas) {
         std::vector<int32_t> dstPixels;
         dstPixels.resize(image->height() * rowBytes);
         SkPixmap dstmap(info, &dstPixels.front(), rowBytes);
-        pixmap.scalePixels(dstmap, kMedium_SkFilterQuality);
+        pixmap.scalePixels(dstmap, SkSamplingOptions(SkFilterMode::kLinear,
+                                                     SkMipmapMode::kNearest));
         SkBitmap bitmap;
         bitmap.installPixels(dstmap);
         canvas->translate(32, 32);

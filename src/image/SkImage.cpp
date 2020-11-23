@@ -102,7 +102,8 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                    context);
 }
 
-bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingHint chint) const {
+bool SkImage::scalePixels(const SkPixmap& dst, const SkSamplingOptions& sampling,
+                          CachingHint chint) const {
     // Context TODO: Elevate GrDirectContext requirement to public API.
     auto dContext = as_IB(this)->directContext();
     if (this->width() == dst.width() && this->height() == dst.height()) {
@@ -119,7 +120,7 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
         //       is (currently) only being applied to the getROPixels. If we get a request to
         //       also attempt to cache the final (scaled) result, we would add that logic here.
         //
-        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, sampling);
     }
     return false;
 }
@@ -146,13 +147,6 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkMatrix* localMatrix) const {
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy,
                                &sampling, localMatrix);
-}
-
-sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
-                                    const SkMatrix* localMatrix, SkFilterQuality filtering) const {
-    auto sampling = SkSamplingOptions(filtering);
-    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy, &sampling,
-                               localMatrix);
 }
 
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {

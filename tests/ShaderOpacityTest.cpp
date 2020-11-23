@@ -131,7 +131,8 @@ DEF_TEST(image_shader_filtering, reporter) {
         for (auto scale : scales) {
             SkMatrix m = SkMatrix::Scale(scale, scale);
             paint.setFilterQuality(kNone_SkFilterQuality); // this setting should be ignored
-            paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m, q));
+            paint.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                            SkSamplingOptions(q), &m));
             auto img0 = make_img(paint);
 
             paint.setFilterQuality(q);  // this should (still) be ignored

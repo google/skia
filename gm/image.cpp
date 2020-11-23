@@ -204,7 +204,7 @@ static void show_scaled_pixels(SkCanvas* canvas, SkImage* image) {
     for (auto ch : chints) {
         canvas->save();
         for (auto q : qualities) {
-            if (image->scalePixels(storage, q, ch)) {
+            if (image->scalePixels(storage, SkSamplingOptions(q), ch)) {
                 draw_pixmap(canvas, storage);
             }
             canvas->translate(70, 0);
@@ -407,7 +407,7 @@ DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
     };
 
     for (auto fq : qualities) {
-        pm.scalePixels(pm2, fq);
+        pm.scalePixels(pm2, SkSamplingOptions(fq));
         slam_ff(pm2);
         draw_pixmap(canvas, pm2, 10, 10);
         canvas->translate(pm2.width() + 10.0f, 0);
