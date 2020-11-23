@@ -10,24 +10,24 @@ struct Outputs {
 };
 float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
-        float _11_guarded_divide;
-        float _12_n = (d.x * d.x) * (s.y - 2.0 * s.x);
+        float _7_guarded_divide;
+        float _8_n = (d.x * d.x) * (s.y - 2.0 * s.x);
         {
-            _11_guarded_divide = _12_n / d.y;
+            _7_guarded_divide = _8_n / d.y;
         }
-        return (_11_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
+        return (_7_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
 
     } else if (4.0 * d.x <= d.y) {
         float DSqd = d.x * d.x;
         float DCub = DSqd * d.x;
         float DaSqd = d.y * d.y;
         float DaCub = DaSqd * d.y;
-        float _13_guarded_divide;
-        float _14_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
+        float _9_guarded_divide;
+        float _10_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
         {
-            _13_guarded_divide = _14_n / DaSqd;
+            _9_guarded_divide = _10_n / DaSqd;
         }
-        return _13_guarded_divide;
+        return _9_guarded_divide;
 
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
