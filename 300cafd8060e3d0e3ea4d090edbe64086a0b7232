@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f15931cc_c3122b74",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T19:13:01Z",
+      "side": 1,
+      "message": "This seems to fix all my compiler warnings, and it\u0027s also what SK_ALWAYS_INLINE does.\n\nMike, thoughts on adding this in either this CL or a separate one?",
+      "revId": "300cafd8060e3d0e3ea4d090edbe64086a0b7232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
