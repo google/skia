@@ -46,6 +46,29 @@
       },
       "revId": "6762a09bad081f01792500a0b191919166c40d3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f104e8a_83c258ea",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T18:35:37Z",
+      "side": 1,
+      "message": "The key to making these safe and legal is static, or if that\u0027s impossible, forced inline.\n\nNormal inline actually makes them significantly more dangerous.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "6762a09bad081f01792500a0b191919166c40d3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
