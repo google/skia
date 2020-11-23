@@ -8,7 +8,7 @@
 #ifndef GrVx_DEFINED
 #define GrVx_DEFINED
 
-// If more headers are required, then the desired functionality might not belong in this file.
+#include "include/core/SkTypes.h"
 #include "include/private/SkVx.h"
 
 // grvx is Ganesh's addendum to skvx, Skia's SIMD library. Here we introduce functions that are
@@ -35,12 +35,12 @@ template<int N> using uvec = skvx::Vec<N, uint32_t>;
 using uint2 = uvec<2>;
 using uint4 = uvec<4>;
 
-static inline float dot(float2 a, float2 b) {
+static SK_ALWAYS_INLINE float dot(float2 a, float2 b) {
     float2 ab = a*b;
     return ab[0] + ab[1];
 }
 
-static inline float cross(float2 a, float2 b) {
+static SK_ALWAYS_INLINE float cross(float2 a, float2 b) {
     float2 x = a*skvx::shuffle<1,0>(b);
     return x[0] - x[1];
 }
@@ -48,7 +48,7 @@ static inline float cross(float2 a, float2 b) {
 // Returns f*m + a. The actual implementation may or may not be fused, depending on hardware
 // support. We call this method "fast_madd" to draw attention to the fact that the operation may
 // give different results on different platforms.
-template<int N> vec<N> inline fast_madd(vec<N> f, vec<N> m, vec<N> a) {
+template<int N> SK_ALWAYS_INLINE vec<N> fast_madd(vec<N> f, vec<N> m, vec<N> a) {
 #if FP_FAST_FMAF
     return skvx::fma(f,m,a);
 #else
@@ -67,7 +67,7 @@ template<int N> vec<N> inline fast_madd(vec<N> f, vec<N> m, vec<N> a) {
 // NOTE: This function deviates immediately from pi and 0 outside -1 and 1. (The derivatives are
 // infinite at -1 and 1). So the input must still be clamped between -1 and 1.
 #define GRVX_FAST_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
-template<int N> inline vec<N> approx_acos(vec<N> x) {
+template<int N> SK_ALWAYS_INLINE vec<N> approx_acos(vec<N> x) {
     static const vec<N> a = -0.939115566365855f;
     static const vec<N> b =  0.9217841528914573f;
     static const vec<N> c = -1.2845906244690837f;
@@ -87,8 +87,8 @@ template<int N> inline vec<N> approx_acos(vec<N> x) {
 //
 // NOTE: If necessary, we can extend our valid range to 2^(+/-63) by normalizing a and b separately.
 // i.e.: "cosTheta = dot(a,b) / sqrt(dot(a,a)) / sqrt(dot(b,b))".
-template<int N> inline vec<N> approx_angle_between_vectors(vec<N> ax, vec<N> ay, vec<N> bx,
-                                                           vec<N> by) {
+template<int N>
+SK_ALWAYS_INLINE vec<N> approx_angle_between_vectors(vec<N> ax, vec<N> ay, vec<N> bx, vec<N> by) {
     vec<N> ab_cosTheta = fast_madd(ax, bx, ay*by);
     vec<N> ab_pow2 = fast_madd(ay, ay, ax*ax) * fast_madd(by, by, bx*bx);
     vec<N> cosTheta = ab_cosTheta / skvx::sqrt(ab_pow2);
@@ -96,6 +96,111 @@ template<int N> inline vec<N> approx_angle_between_vectors(vec<N> ax, vec<N> ay,
     cosTheta = skvx::max(skvx::min(1, cosTheta), -1);
     return approx_acos(cosTheta);
 }
+
+// De-interleaving load of 4 vectors.
+//
+// WARNING: These are really only supported well on NEON. Consider restructuring your data before
+// resorting to these methods.
+template<typename T>
+SK_ALWAYS_INLINE void strided_load4(const T* v, skvx::Vec<1,T>& a, skvx::Vec<1,T>& b,
+                                    skvx::Vec<1,T>& c, skvx::Vec<1,T>& d) {
+    a.val = v[0];
+    b.val = v[1];
+    c.val = v[2];
+    d.val = v[3];
+}
+template<int N, typename T>
+SK_ALWAYS_INLINE typename std::enable_if<N >= 2, void>::type
+strided_load4(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b, skvx::Vec<N,T>& c,
+              skvx::Vec<N,T>& d) {
+    strided_load4(v, a.lo, b.lo, c.lo, d.lo);
+    strided_load4(v + 4*(N/2), a.hi, b.hi, c.hi, d.hi);
+}
+#if !defined(SKNX_NO_SIMD)
+#if defined(__ARM_NEON)
+#define IMPL_LOAD4_TRANSPOSED(N, T, VLD) \
+template<> \
+SK_ALWAYS_INLINE void strided_load4(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b, \
+                                    skvx::Vec<N,T>& c, skvx::Vec<N,T>& d) { \
+    auto mat = VLD(v); \
+    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
+    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
+    c = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[2]); \
+    d = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[3]); \
+}
+IMPL_LOAD4_TRANSPOSED(2, uint32_t, vld4_u32);
+IMPL_LOAD4_TRANSPOSED(4, uint16_t, vld4_u16);
+IMPL_LOAD4_TRANSPOSED(8, uint8_t, vld4_u8);
+IMPL_LOAD4_TRANSPOSED(2, int32_t, vld4_s32);
+IMPL_LOAD4_TRANSPOSED(4, int16_t, vld4_s16);
+IMPL_LOAD4_TRANSPOSED(8, int8_t, vld4_s8);
+IMPL_LOAD4_TRANSPOSED(2, float, vld4_f32);
+IMPL_LOAD4_TRANSPOSED(4, uint32_t, vld4q_u32);
+IMPL_LOAD4_TRANSPOSED(8, uint16_t, vld4q_u16);
+IMPL_LOAD4_TRANSPOSED(16, uint8_t, vld4q_u8);
+IMPL_LOAD4_TRANSPOSED(4, int32_t, vld4q_s32);
+IMPL_LOAD4_TRANSPOSED(8, int16_t, vld4q_s16);
+IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8);
+IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32);
+#undef IMPL_LOAD4_TRANSPOSED
+#elif defined(__SSE__)
+template<>
+SK_ALWAYS_INLINE void strided_load4(const float* v, float4& a, float4& b, float4& c, float4& d) {
+    using skvx::bit_pun;
+    __m128 a_ = _mm_loadu_ps(v);
+    __m128 b_ = _mm_loadu_ps(v+4);
+    __m128 c_ = _mm_loadu_ps(v+8);
+    __m128 d_ = _mm_loadu_ps(v+12);
+    _MM_TRANSPOSE4_PS(a_, b_, c_, d_);
+    a = bit_pun<float4>(a_);
+    b = bit_pun<float4>(b_);
+    c = bit_pun<float4>(c_);
+    d = bit_pun<float4>(d_);
+}
+#endif
+#endif
+
+// De-interleaving load of 2 vectors.
+//
+// WARNING: These are really only supported well on NEON. Consider restructuring your data before
+// resorting to these methods.
+template<typename T>
+SK_ALWAYS_INLINE void strided_load2(const T* v, skvx::Vec<1,T>& a, skvx::Vec<1,T>& b) {
+    a.val = v[0];
+    b.val = v[1];
+}
+template<int N, typename T>
+SK_ALWAYS_INLINE typename std::enable_if<N >= 2, void>::type
+strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) {
+    strided_load2(v, a.lo, b.lo);
+    strided_load2(v + 2*(N/2), a.hi, b.hi);
+}
+#if !defined(SKNX_NO_SIMD)
+#if defined(__ARM_NEON)
+#define IMPL_LOAD2_TRANSPOSED(N, T, VLD) \
+template<> \
+SK_ALWAYS_INLINE void strided_load2(const T* v, skvx::Vec<N,T>& a, skvx::Vec<N,T>& b) { \
+    auto mat = VLD(v); \
+    a = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[0]); \
+    b = skvx::bit_pun<skvx::Vec<N,T>>(mat.val[1]); \
+}
+IMPL_LOAD2_TRANSPOSED(2, uint32_t, vld2_u32);
+IMPL_LOAD2_TRANSPOSED(4, uint16_t, vld2_u16);
+IMPL_LOAD2_TRANSPOSED(8, uint8_t, vld2_u8);
+IMPL_LOAD2_TRANSPOSED(2, int32_t, vld2_s32);
+IMPL_LOAD2_TRANSPOSED(4, int16_t, vld2_s16);
+IMPL_LOAD2_TRANSPOSED(8, int8_t, vld2_s8);
+IMPL_LOAD2_TRANSPOSED(2, float, vld2_f32);
+IMPL_LOAD2_TRANSPOSED(4, uint32_t, vld2q_u32);
+IMPL_LOAD2_TRANSPOSED(8, uint16_t, vld2q_u16);
+IMPL_LOAD2_TRANSPOSED(16, uint8_t, vld2q_u8);
+IMPL_LOAD2_TRANSPOSED(4, int32_t, vld2q_s32);
+IMPL_LOAD2_TRANSPOSED(8, int16_t, vld2q_s16);
+IMPL_LOAD2_TRANSPOSED(16, int8_t, vld2q_s8);
+IMPL_LOAD2_TRANSPOSED(4, float, vld2q_f32);
+#undef IMPL_LOAD2_TRANSPOSED
+#endif
+#endif
 
 #if defined(__clang__)
     #pragma STDC FP_CONTRACT DEFAULT
