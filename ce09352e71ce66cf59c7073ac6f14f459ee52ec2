@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87775d4d_0cde720e",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-23T17:07:36Z",
+      "side": 1,
+      "message": "I agree there no real cost to always doing it, but I like the nullptr in sampler if we\u0027re not intending to use it. However, I\u0027m ok to remove the check if you like.",
+      "range": {
+        "startLine": 827,
+        "startChar": 30,
+        "endLine": 827,
+        "endChar": 57
+      },
+      "revId": "ce09352e71ce66cf59c7073ac6f14f459ee52ec2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
