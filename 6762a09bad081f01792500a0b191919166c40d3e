@@ -22,6 +22,30 @@
       },
       "revId": "6762a09bad081f01792500a0b191919166c40d3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b7fab0c_c5da9ce2",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T18:17:25Z",
+      "side": 1,
+      "message": "Oops, I forgot to kick off the dry run.\n\nUnfortunately, the only way I\u0027ve found to get around a frustrating array of compiler warnings and link errors surrounding these methods is to mark them as both SKVX_ALWAYS_INLINE and inline.\n\nAnother option might be to pull in Skia headers and use SK_ALWAYS_INLINE, but that makes it more difficult to compile standalone executables from this header and look at assembly.",
+      "parentUuid": "2d0f9aa4_d693f02a",
+      "range": {
+        "startLine": 38,
+        "startChar": 26,
+        "endLine": 38,
+        "endChar": 32
+      },
+      "revId": "6762a09bad081f01792500a0b191919166c40d3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
