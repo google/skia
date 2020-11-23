@@ -69,6 +69,24 @@
       "parentUuid": "e65ae33e_cbac6586",
       "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12e507a7_38d43146",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T21:15:20Z",
+      "side": 1,
+      "message": "Please take some time to learn what static and inline mean and how they interact with templates, headers, translation units, and translation units compiled with different flags.  I won\u0027t keep playing your minder here, and if you screw this up you can break things in ways you\u0027d never expect.",
+      "parentUuid": "74971b13_60e164eb",
+      "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
