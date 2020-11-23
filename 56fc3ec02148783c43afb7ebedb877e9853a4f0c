@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1db7ba2_7ccae66b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-23T21:09:44Z",
+      "side": 1,
+      "message": "It\u0027s too bad (in this and similar cases) that we have to clone anything at all. Mechanically, just want to move all of these nodes to the new constructor\u0027s argument vector, rather than cloning them, and then deleting the original. Is there any way to alter how we do CFG-edits to make these kinds of hoisting operations cheaper?",
+      "range": {
+        "startLine": 1109,
+        "startChar": 0,
+        "endLine": 1112,
+        "endChar": 62
+      },
+      "revId": "56fc3ec02148783c43afb7ebedb877e9853a4f0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
