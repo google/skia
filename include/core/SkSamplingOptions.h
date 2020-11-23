@@ -42,7 +42,7 @@ struct SkCubicResampler {
     float B, C;
 };
 
-struct SkSamplingOptions {
+struct SK_API SkSamplingOptions {
     bool             fUseCubic = false;
     SkCubicResampler fCubic    = {0, 0};
     SkFilterMode     fFilter   = SkFilterMode::kNearest;

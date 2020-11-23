@@ -124,7 +124,8 @@ sk_sp<SkImage> MultiFrameImageAsset::generateFrame(float t) {
             SkBitmap bm;
             if (bm.tryAllocPixels(info, info.minRowBytes()) &&
                     image->scalePixels(bm.pixmap(),
-                                       SkFilterQuality::kMedium_SkFilterQuality,
+                                       SkSamplingOptions(SkFilterMode::kLinear,
+                                                         SkMipmapMode::kNearest),
                                        SkImage::kDisallow_CachingHint)) {
                 image = SkImage::MakeFromBitmap(bm);
             }

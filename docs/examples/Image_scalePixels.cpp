@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     SkFilterQuality qualities[] = { kNone_SkFilterQuality, kLow_SkFilterQuality,
                      kMedium_SkFilterQuality, kHigh_SkFilterQuality };
     for (unsigned index = 0; index < SK_ARRAY_COUNT(qualities); ++index) {
-        image->scalePixels(pixmap, qualities[index]);
+        image->scalePixels(pixmap, SkSamplingOptions(qualities[index]));
         sk_sp<SkImage> filtered = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
         canvas->drawImage(filtered, 16 * index, 0);
     }

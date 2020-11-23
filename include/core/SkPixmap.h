@@ -11,6 +11,11 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSamplingOptions.h"
+
+#ifndef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
+#define SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
+#endif
 
 class SkData;
 struct SkMask;
@@ -654,19 +659,16 @@ public:
 
         Returns false if SkBitmap width() or height() is zero or negative.
 
-        Scales the image, with filterQuality, to match dst.width() and dst.height().
-        filterQuality kNone_SkFilterQuality is fastest, typically implemented with
-        nearest neighbor filter. kLow_SkFilterQuality is typically implemented with
-        bilerp filter. kMedium_SkFilterQuality is typically implemented with
-        bilerp filter, and mip-map filter when size is reduced.
-        kHigh_SkFilterQuality is slowest, typically implemented with bicubic filter.
-
         @param dst            SkImageInfo and pixel address to write to
         @return               true if pixels are scaled to fit dst
 
         example: https://fiddle.skia.org/c/@Pixmap_scalePixels
     */
-    bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const;
+    bool scalePixels(const SkPixmap& dst, const SkSamplingOptions&) const;
+
+#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
+    bool scalePixels(const SkPixmap& dst, SkFilterQuality fq) const;
+#endif
 
     /** Writes color to pixels bounded by subset; returns true on success.
         Returns false if colorType() is kUnknown_SkColorType, or if subset does
