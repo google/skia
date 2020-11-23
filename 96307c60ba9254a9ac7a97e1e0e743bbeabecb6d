@@ -188,6 +188,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f20a114_747c52da",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-23T17:03:11Z",
+      "side": 1,
+      "message": "Actually never mind, I understand. You\u0027re interpolating the weighted points, meaning you end up with a weighted point, and you divide by its weight to project.",
+      "parentUuid": "efc4216e_2fb2e011",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b15f1165_6dc1951c",
