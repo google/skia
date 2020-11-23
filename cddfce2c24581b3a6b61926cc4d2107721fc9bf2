@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e456285f_f9924896",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T22:26:14Z",
+      "side": 0,
+      "message": "Should we keep this comment on the new fCompiler field in GrGPU?",
+      "range": {
+        "startLine": 368,
+        "startChar": 52,
+        "endLine": 369,
+        "endChar": 74
+      },
+      "revId": "cddfce2c24581b3a6b61926cc4d2107721fc9bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

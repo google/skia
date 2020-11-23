@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a1e3a3f_ae914bc3",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T22:26:14Z",
+      "side": 1,
+      "message": "initCaps() feels a bit weird given that it also instantiates the compiler. Maybe just init? or initCapsAndCompiler (dont love that)?\n\nOr we go the other direction and say initCompiler(const GrCaps* caps), and document that the caps are remembered?",
+      "range": {
+        "startLine": 768,
+        "startChar": 9,
+        "endLine": 768,
+        "endChar": 17
+      },
+      "revId": "76de4f915541109dada38d38e8d48de4024b210d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6c1bceb_44ca1829",
+        "filename": "src/gpu/mock/GrMockGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T22:26:14Z",
+      "side": 1,
+      "message": "looks like these caps aren\u0027t getting destructed",
+      "range": {
+        "startLine": 79,
+        "startChar": 19,
+        "endLine": 79,
+        "endChar": 58
+      },
+      "revId": "76de4f915541109dada38d38e8d48de4024b210d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
