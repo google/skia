@@ -8,6 +8,9 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
+    return minMidMax.x < minMidMax.z ? float3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : float3(0.0);
+}
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -21,81 +24,51 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         float3 _4_blend_set_color_saturation;
         float3 _5_hueLumColor = _2_sda;
         {
-            float _6_17_blend_color_saturation;
+            float _6_13_blend_color_saturation;
             {
-                _6_17_blend_color_saturation = max(max(_3_dsa.x, _3_dsa.y), _3_dsa.z) - min(min(_3_dsa.x, _3_dsa.y), _3_dsa.z);
+                _6_13_blend_color_saturation = max(max(_3_dsa.x, _3_dsa.y), _3_dsa.z) - min(min(_3_dsa.x, _3_dsa.y), _3_dsa.z);
             }
-            float _7_sat = _6_17_blend_color_saturation;
+            float _7_sat = _6_13_blend_color_saturation;
 
             if (_5_hueLumColor.x <= _5_hueLumColor.y) {
                 if (_5_hueLumColor.y <= _5_hueLumColor.z) {
-                    float3 _8_18_blend_set_color_saturation_helper;
-                    {
-                        _8_18_blend_set_color_saturation_helper = _5_hueLumColor.x < _5_hueLumColor.z ? float3(0.0, (_7_sat * (_5_hueLumColor.y - _5_hueLumColor.x)) / (_5_hueLumColor.z - _5_hueLumColor.x), _7_sat) : float3(0.0);
-                    }
-                    _5_hueLumColor.xyz = _8_18_blend_set_color_saturation_helper;
-
+                    _5_hueLumColor.xyz = _blend_set_color_saturation_helper(_5_hueLumColor, _7_sat);
                 } else if (_5_hueLumColor.x <= _5_hueLumColor.z) {
-                    float3 _9_19_blend_set_color_saturation_helper;
-                    {
-                        _9_19_blend_set_color_saturation_helper = _5_hueLumColor.x < _5_hueLumColor.y ? float3(0.0, (_7_sat * (_5_hueLumColor.z - _5_hueLumColor.x)) / (_5_hueLumColor.y - _5_hueLumColor.x), _7_sat) : float3(0.0);
-                    }
-                    _5_hueLumColor.xzy = _9_19_blend_set_color_saturation_helper;
-
+                    _5_hueLumColor.xzy = _blend_set_color_saturation_helper(_5_hueLumColor.xzy, _7_sat);
                 } else {
-                    float3 _10_20_blend_set_color_saturation_helper;
-                    {
-                        _10_20_blend_set_color_saturation_helper = _5_hueLumColor.z < _5_hueLumColor.y ? float3(0.0, (_7_sat * (_5_hueLumColor.x - _5_hueLumColor.z)) / (_5_hueLumColor.y - _5_hueLumColor.z), _7_sat) : float3(0.0);
-                    }
-                    _5_hueLumColor.zxy = _10_20_blend_set_color_saturation_helper;
-
+                    _5_hueLumColor.zxy = _blend_set_color_saturation_helper(_5_hueLumColor.zxy, _7_sat);
                 }
             } else if (_5_hueLumColor.x <= _5_hueLumColor.z) {
-                float3 _11_21_blend_set_color_saturation_helper;
-                {
-                    _11_21_blend_set_color_saturation_helper = _5_hueLumColor.y < _5_hueLumColor.z ? float3(0.0, (_7_sat * (_5_hueLumColor.x - _5_hueLumColor.y)) / (_5_hueLumColor.z - _5_hueLumColor.y), _7_sat) : float3(0.0);
-                }
-                _5_hueLumColor.yxz = _11_21_blend_set_color_saturation_helper;
-
+                _5_hueLumColor.yxz = _blend_set_color_saturation_helper(_5_hueLumColor.yxz, _7_sat);
             } else if (_5_hueLumColor.y <= _5_hueLumColor.z) {
-                float3 _12_22_blend_set_color_saturation_helper;
-                {
-                    _12_22_blend_set_color_saturation_helper = _5_hueLumColor.y < _5_hueLumColor.x ? float3(0.0, (_7_sat * (_5_hueLumColor.z - _5_hueLumColor.y)) / (_5_hueLumColor.x - _5_hueLumColor.y), _7_sat) : float3(0.0);
-                }
-                _5_hueLumColor.yzx = _12_22_blend_set_color_saturation_helper;
-
+                _5_hueLumColor.yzx = _blend_set_color_saturation_helper(_5_hueLumColor.yzx, _7_sat);
             } else {
-                float3 _13_23_blend_set_color_saturation_helper;
-                {
-                    _13_23_blend_set_color_saturation_helper = _5_hueLumColor.z < _5_hueLumColor.x ? float3(0.0, (_7_sat * (_5_hueLumColor.y - _5_hueLumColor.z)) / (_5_hueLumColor.x - _5_hueLumColor.z), _7_sat) : float3(0.0);
-                }
-                _5_hueLumColor.zyx = _13_23_blend_set_color_saturation_helper;
-
+                _5_hueLumColor.zyx = _blend_set_color_saturation_helper(_5_hueLumColor.zyx, _7_sat);
             }
             _4_blend_set_color_saturation = _5_hueLumColor;
         }
-        float3 _14_blend_set_color_luminance;
+        float3 _8_blend_set_color_luminance;
         {
-            float _15_15_blend_color_luminance;
+            float _9_11_blend_color_luminance;
             {
-                _15_15_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
+                _9_11_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
             }
-            float _16_lum = _15_15_blend_color_luminance;
+            float _10_lum = _9_11_blend_color_luminance;
 
-            float _17_16_blend_color_luminance;
+            float _11_12_blend_color_luminance;
             {
-                _17_16_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _4_blend_set_color_saturation);
+                _11_12_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _4_blend_set_color_saturation);
             }
-            float3 _18_result = (_16_lum - _17_16_blend_color_luminance) + _4_blend_set_color_saturation;
+            float3 _12_result = (_10_lum - _11_12_blend_color_luminance) + _4_blend_set_color_saturation;
 
-            float _19_minComp = min(min(_18_result.x, _18_result.y), _18_result.z);
-            float _20_maxComp = max(max(_18_result.x, _18_result.y), _18_result.z);
-            if (_19_minComp < 0.0 && _16_lum != _19_minComp) {
-                _18_result = _16_lum + ((_18_result - _16_lum) * _16_lum) / (_16_lum - _19_minComp);
+            float _13_minComp = min(min(_12_result.x, _12_result.y), _12_result.z);
+            float _14_maxComp = max(max(_12_result.x, _12_result.y), _12_result.z);
+            if (_13_minComp < 0.0 && _10_lum != _13_minComp) {
+                _12_result = _10_lum + ((_12_result - _10_lum) * _10_lum) / (_10_lum - _13_minComp);
             }
-            _14_blend_set_color_luminance = _20_maxComp > _1_alpha && _20_maxComp != _16_lum ? _16_lum + ((_18_result - _16_lum) * (_1_alpha - _16_lum)) / (_20_maxComp - _16_lum) : _18_result;
+            _8_blend_set_color_luminance = _14_maxComp > _1_alpha && _14_maxComp != _10_lum ? _10_lum + ((_12_result - _10_lum) * (_1_alpha - _10_lum)) / (_14_maxComp - _10_lum) : _12_result;
         }
-        _0_blend_hue = float4((((_14_blend_set_color_luminance + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
+        _0_blend_hue = float4((((_8_blend_set_color_luminance + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
 
 
     }

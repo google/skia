@@ -785,7 +785,6 @@ struct InlineCandidate {
     std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
     std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
     FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
-    bool fIsLargeFunction;                        // does candidate exceed the inline threshold?
 };
 
 struct InlineCandidateList {
@@ -1072,15 +1071,16 @@ public:
                                 find_parent_statement(fEnclosingStmtStack),
                                 fEnclosingStmtStack.back(),
                                 candidate,
-                                fEnclosingFunction,
-                                /*isLargeFunction=*/false});
+                                fEnclosingFunction});
     }
 };
 
-bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
-    const FunctionDeclaration& funcDecl =
-                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+static const FunctionDeclaration& candidate_func(const InlineCandidate& candidate) {
+    return (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+}
 
+bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
+    const FunctionDeclaration& funcDecl = candidate_func(candidate);
     auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
@@ -1091,24 +1091,17 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, Inlinabili
     return iter->second;
 }
 
-bool Inliner::isLargeFunction(const FunctionDefinition* functionDef) {
-    return Analysis::NodeCountExceeds(*functionDef, fSettings->fInlineThreshold);
-}
-
-bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
-    const FunctionDeclaration& funcDecl =
-                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
-
-    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCache* cache) {
+    auto [iter, wasInserted] = cache->insert({&funcDecl, 0});
     if (wasInserted) {
-        iter->second = this->isLargeFunction(funcDecl.definition());
+        iter->second = Analysis::NodeCountUpToLimit(*funcDecl.definition(),
+                                                    fSettings->fInlineThreshold);
     }
-
     return iter->second;
 }
 
 void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                                 SymbolTable* symbols,
+                                 SymbolTable* symbols, ProgramUsage* usage,
                                  InlineCandidateList* candidateList) {
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
     // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
@@ -1127,12 +1120,38 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
                                     }),
                      candidates.end());
 
-    // Determine whether each candidate function exceeds our inlining size threshold or not. These
-    // can still be valid candidates if they are only called one time, so we don't remove them from
-    // the candidate list, but they will not be inlined if they're called more than once.
-    LargeFunctionCache largeFunctionCache;
-    for (InlineCandidate& candidate : candidates) {
-        candidate.fIsLargeFunction = this->isLargeFunction(candidate, &largeFunctionCache);
+    if (fSettings->fInlineThreshold < INT_MAX) {
+        // Remove candidates on a per-function basis if the effect of inlining would be to make more
+        // than `inlineThreshold` nodes. (i.e. if Func() would be inlined six times and its size is
+        // 10 nodes, it should be inlined if the inlineThreshold is 60 or higher.)
+        FunctionSizeCache functionSizeCache;
+        FunctionSizeCache candidateTotalCost;
+        for (InlineCandidate& candidate : candidates) {
+            const FunctionDeclaration& fnDecl = candidate_func(candidate);
+            candidateTotalCost[&fnDecl] += this->getFunctionSize(fnDecl, &functionSizeCache);
+        }
+
+        candidates.erase(
+                std::remove_if(candidates.begin(),
+                               candidates.end(),
+                               [&](const InlineCandidate& candidate) {
+                                   const FunctionDeclaration& fnDecl = candidate_func(candidate);
+                                   if (fnDecl.modifiers().fFlags & Modifiers::kInline_Flag) {
+                                       // Functions marked `inline` ignore size limitations.
+                                       return false;
+                                   }
+                                   if (usage->get(fnDecl) == 1) {
+                                       // If a function is only used once, it's cost-free to inline.
+                                       return false;
+                                   }
+                                   if (candidateTotalCost[&fnDecl] <= fSettings->fInlineThreshold) {
+                                       // We won't exceed the inline threshold by inlining this.
+                                       return false;
+                                   }
+                                   // Inlining this function will add too many IRNodes.
+                                   return true;
+                               }),
+                candidates.end());
     }
 }
 
@@ -1150,21 +1169,13 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
     }
 
     InlineCandidateList candidateList;
-    this->buildCandidateList(elements, symbols, &candidateList);
+    this->buildCandidateList(elements, symbols, usage, &candidateList);
 
     // Inline the candidates where we've determined that it's safe to do so.
     std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
     bool madeChanges = false;
     for (const InlineCandidate& candidate : candidateList.fCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration& funcDecl = funcCall.function();
-
-        // If the function is large, not marked `inline`, and is called more than once, it's a bad
-        // idea to inline it.
-        if (candidate.fIsLargeFunction &&
-            !(funcDecl.modifiers().fFlags & Modifiers::kInline_Flag) && usage->get(funcDecl) > 1) {
-            continue;
-        }
 
         // Inlining two expressions using the same enclosing statement in the same inlining pass
         // does not work properly. If this happens, skip it; we'll get it in the next pass.

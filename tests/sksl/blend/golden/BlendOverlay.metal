@@ -8,6 +8,9 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float _blend_overlay_component(float2 s, float2 d) {
+    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
+}
 
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -15,24 +18,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_overlay;
     {
-        float _1_1_blend_overlay_component;
-        {
-            _1_1_blend_overlay_component = 2.0 * _in.dst.x <= _in.dst.w ? (2.0 * _in.src.x) * _in.dst.x : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.x)) * (_in.src.w - _in.src.x);
-        }
-        float _2_75_blend_overlay_component;
-        {
-            _2_75_blend_overlay_component = 2.0 * _in.dst.y <= _in.dst.w ? (2.0 * _in.src.y) * _in.dst.y : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.y)) * (_in.src.w - _in.src.y);
-        }
-        float _3_79_blend_overlay_component;
-        {
-            _3_79_blend_overlay_component = 2.0 * _in.dst.z <= _in.dst.w ? (2.0 * _in.src.z) * _in.dst.z : _in.src.w * _in.dst.w - (2.0 * (_in.dst.w - _in.dst.z)) * (_in.src.w - _in.src.z);
-        }
-        float4 _4_result = float4(_1_1_blend_overlay_component, _2_75_blend_overlay_component, _3_79_blend_overlay_component, _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
-
-
-
-        _4_result.xyz = _4_result.xyz + _in.dst.xyz * (1.0 - _in.src.w) + _in.src.xyz * (1.0 - _in.dst.w);
-        _0_blend_overlay = _4_result;
+        float4 _1_result = float4(_blend_overlay_component(_in.src.xw, _in.dst.xw), _blend_overlay_component(_in.src.yw, _in.dst.yw), _blend_overlay_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
+        _1_result.xyz = _1_result.xyz + _in.dst.xyz * (1.0 - _in.src.w) + _in.src.xyz * (1.0 - _in.dst.w);
+        _0_blend_overlay = _1_result;
     }
     _out->sk_FragColor = _0_blend_overlay;
 

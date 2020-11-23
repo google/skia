@@ -16,12 +16,12 @@ float _color_dodge_component(float2 s, float2 d) {
         if (delta == 0.0) {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
-            float _4_guarded_divide;
-            float _5_n = d.x * s.y;
+            float _3_guarded_divide;
+            float _4_n = d.x * s.y;
             {
-                _4_guarded_divide = _5_n / delta;
+                _3_guarded_divide = _4_n / delta;
             }
-            delta = min(d.y, _4_guarded_divide);
+            delta = min(d.y, _3_guarded_divide);
 
             return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }

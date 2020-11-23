@@ -38,7 +38,7 @@ struct Analysis {
     static bool ReferencesSampleCoords(const Program& program);
     static bool ReferencesFragCoords(const Program& program);
 
-    static bool NodeCountExceeds(const FunctionDefinition& function, int limit);
+    static int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
 
     static std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
     static std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module);
