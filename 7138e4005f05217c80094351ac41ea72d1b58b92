@@ -16,6 +16,24 @@
       "message": "This line is getting stripped out now. Is there some other follow-up operation we can do so the generated code still shows it\u0027s working?",
       "revId": "7138e4005f05217c80094351ac41ea72d1b58b92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2970dd4b_47b4b2be",
+        "filename": "tests/sksl/shared/Operators.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-23T16:08:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f8d6bb8_b00fe74e",
+      "revId": "7138e4005f05217c80094351ac41ea72d1b58b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
