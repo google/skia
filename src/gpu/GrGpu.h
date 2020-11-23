@@ -44,6 +44,10 @@ class GrSurface;
 class GrTexture;
 class SkJSONWriter;
 
+namespace SkSL {
+    class Compiler;
+}
+
 class GrGpu : public SkRefCnt {
 public:
     GrGpu(GrDirectContext* direct);
@@ -63,6 +67,8 @@ public:
     virtual GrStagingBufferManager* stagingBufferManager() { return nullptr; }
 
     virtual GrRingBuffer* uniformsRingBuffer() { return nullptr; }
+
+    SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
     enum class DisconnectType {
         // No cleanup should be attempted, immediately cease making backend API calls
@@ -757,8 +763,9 @@ protected:
 
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
-    // Subclass must initialize this in its constructor.
-    sk_sp<const GrCaps>              fCaps;
+
+    // Subclass must call this to initialize caps & compiler in its constructor.
+    void initCapsAndCompiler(sk_sp<const GrCaps> caps);
 
 private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
@@ -897,6 +904,11 @@ private:
     }
 
     void callSubmittedProcs(bool success);
+
+    sk_sp<const GrCaps>             fCaps;
+    // Compiler used for compiling SkSL into backend shader code. We only want to create the
+    // compiler once, as there is significant overhead to the first compile.
+    std::unique_ptr<SkSL::Compiler> fCompiler;
 
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.

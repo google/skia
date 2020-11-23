@@ -34,10 +34,6 @@ class GrVkSecondaryCommandBuffer;
 class GrVkTexture;
 struct GrVkInterface;
 
-namespace SkSL {
-    class Compiler;
-}  // namespace SkSL
-
 class GrVkGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(const GrVkBackendContext&, const GrContextOptions&, GrDirectContext*);
@@ -131,10 +127,6 @@ public:
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion,
                                VkImageMemoryBarrier* barrier) const;
-
-    SkSL::Compiler* shaderCompiler() const {
-        return fCompiler;
-    }
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
 
@@ -365,10 +357,6 @@ private:
 
     VkPhysicalDeviceProperties                            fPhysDevProps;
     VkPhysicalDeviceMemoryProperties                      fPhysDevMemProps;
-
-    // compiler used for compiling sksl into spirv. We only want to create the compiler once since
-    // there is significant overhead to the first compile of any compiler.
-    SkSL::Compiler*                                       fCompiler;
 
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
