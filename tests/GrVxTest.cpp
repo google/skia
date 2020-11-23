@@ -10,6 +10,7 @@
 #include "src/gpu/GrVx.h"
 #include "tests/Test.h"
 #include <limits>
+#include <numeric>
 
 using namespace grvx;
 using skvx::bit_pun;
@@ -228,4 +229,42 @@ DEF_TEST(grvx_approx_angle_between_vectors, r) {
         mantissas = (mantissas + uint4{123456791, 201345691, 198765433, 156789029}) & ((1<<23) - 1);
         exp = (exp + uint4{79, 83, 199, 7}) & 0xff;
     }
+}
+
+template<int N, typename T> void check_strided_loads(skiatest::Reporter* r) {
+    using Vec = skvx::Vec<N,T>;
+    T values[N*4];
+    std::iota(values, values + N*4, 0);
+    Vec a, b, c, d;
+    grvx::strided_load2(values, a, b);
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(r, a[i] == values[i*2]);
+        REPORTER_ASSERT(r, b[i] == values[i*2 + 1]);
+    }
+    grvx::strided_load4(values, a, b, c, d);
+    for (int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(r, a[i] == values[i*4]);
+        REPORTER_ASSERT(r, b[i] == values[i*4 + 1]);
+        REPORTER_ASSERT(r, c[i] == values[i*4 + 2]);
+        REPORTER_ASSERT(r, d[i] == values[i*4 + 3]);
+    }
+}
+
+template<typename T> void check_strided_loads(skiatest::Reporter* r) {
+    check_strided_loads<1,T>(r);
+    check_strided_loads<2,T>(r);
+    check_strided_loads<4,T>(r);
+    check_strided_loads<8,T>(r);
+    check_strided_loads<16,T>(r);
+    check_strided_loads<32,T>(r);
+}
+
+DEF_TEST(GrVx_strided_loads, r) {
+    check_strided_loads<uint32_t>(r);
+    check_strided_loads<uint16_t>(r);
+    check_strided_loads<uint8_t>(r);
+    check_strided_loads<int32_t>(r);
+    check_strided_loads<int16_t>(r);
+    check_strided_loads<int8_t>(r);
+    check_strided_loads<float>(r);
 }
