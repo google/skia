@@ -343,7 +343,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
             int newWidth  = std::min(static_cast<int>(pixmap->width() *scale), maxTextureSize);
             int newHeight = std::min(static_cast<int>(pixmap->height()*scale), maxTextureSize);
             SkImageInfo info = pixmap->info().makeWH(newWidth, newHeight);
-            if (!resized.tryAlloc(info) || !pixmap->scalePixels(resized, kLow_SkFilterQuality)) {
+            SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
+            if (!resized.tryAlloc(info) || !pixmap->scalePixels(resized, sampling)) {
                 return nullptr;
             }
             pixmap = &resized;
