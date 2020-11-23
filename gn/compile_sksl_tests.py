@@ -22,7 +22,7 @@ def makeEmptyFile(path):
         pass
 
 def extensionForSpirvAsm(ext):
-    return ext if (ext == 'frag' or ext == 'vert' or ext == 'geom') else 'frag'
+    return ext if (ext == '.frag' or ext == '.vert' or ext == '.geom') else '.frag'
 
 if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
@@ -61,7 +61,7 @@ for input in inputs:
         worklist.write(settings + "\n\n")
     elif lang == "--spirv":
         worklist.write(input + "\n")
-        worklist.write(target + ".asm." + extensionForSpirvAsm(ext) + "\n")
+        worklist.write(target + ".asm" + extensionForSpirvAsm(ext) + "\n")
         worklist.write(settings + "\n\n")
     else:
         sys.exit("### Expected one of: --fp --glsl --metal --spirv, got " + lang)
