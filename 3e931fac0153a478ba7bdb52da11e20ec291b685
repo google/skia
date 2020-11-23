@@ -51,6 +51,24 @@
       "parentUuid": "d824699b_0c37c418",
       "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74971b13_60e164eb",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-23T20:52:12Z",
+      "side": 1,
+      "message": "Also, thanks for clarifying that \"static\" is what is needed to keep the function safe. Can I assume templates are always safe and don\u0027t need to be marked static?\n\nOtherwise I can just mark static and bring in SK_ALWAYS_INLINE",
+      "parentUuid": "e65ae33e_cbac6586",
+      "revId": "3e931fac0153a478ba7bdb52da11e20ec291b685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
