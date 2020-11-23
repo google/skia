@@ -1596,7 +1596,7 @@ private:
                 case SkPathVerb::kQuad: return -1;
                 case SkPathVerb::kConic: return -1;
                 case SkPathVerb::kCubic: return -1;
-                case SkPathVerb::kClose: return 0;
+                case SkPathVerb::kClose: return -1;
             }
             SkUNREACHABLE;
         }
