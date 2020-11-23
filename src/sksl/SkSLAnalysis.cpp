@@ -161,17 +161,17 @@ public:
 
     bool visitExpression(const Expression& e) override {
         ++fCount;
-        return (fCount > fLimit) || INHERITED::visitExpression(e);
+        return (fCount >= fLimit) || INHERITED::visitExpression(e);
     }
 
     bool visitProgramElement(const ProgramElement& p) override {
         ++fCount;
-        return (fCount > fLimit) || INHERITED::visitProgramElement(p);
+        return (fCount >= fLimit) || INHERITED::visitProgramElement(p);
     }
 
     bool visitStatement(const Statement& s) override {
         ++fCount;
-        return (fCount > fLimit) || INHERITED::visitStatement(s);
+        return (fCount >= fLimit) || INHERITED::visitStatement(s);
     }
 
 private:
@@ -361,8 +361,8 @@ bool Analysis::ReferencesFragCoords(const Program& program) {
     return Analysis::ReferencesBuiltin(program, SK_FRAGCOORD_BUILTIN);
 }
 
-bool Analysis::NodeCountExceeds(const FunctionDefinition& function, int limit) {
-    return NodeCountVisitor{limit}.visit(*function.body()) > limit;
+int Analysis::NodeCountUpToLimit(const FunctionDefinition& function, int limit) {
+    return NodeCountVisitor{limit}.visit(*function.body());
 }
 
 std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {

@@ -8,14 +8,14 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %_soft_light_component "_soft_light_component"
-OpName %_11_guarded_divide "_11_guarded_divide"
-OpName %_12_n "_12_n"
+OpName %_7_guarded_divide "_7_guarded_divide"
+OpName %_8_n "_8_n"
 OpName %DSqd "DSqd"
 OpName %DCub "DCub"
 OpName %DaSqd "DaSqd"
 OpName %DaCub "DaCub"
-OpName %_13_guarded_divide "_13_guarded_divide"
-OpName %_14_n "_14_n"
+OpName %_9_guarded_divide "_9_guarded_divide"
+OpName %_10_n "_10_n"
 OpName %main "main"
 OpName %_0_blend_soft_light "_0_blend_soft_light"
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -174,14 +174,14 @@ OpDecorate %235 RelaxedPrecision
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
-%_11_guarded_divide = OpVariable %_ptr_Function_float Function
-%_12_n = OpVariable %_ptr_Function_float Function
+%_7_guarded_divide = OpVariable %_ptr_Function_float Function
+%_8_n = OpVariable %_ptr_Function_float Function
 %DSqd = OpVariable %_ptr_Function_float Function
 %DCub = OpVariable %_ptr_Function_float Function
 %DaSqd = OpVariable %_ptr_Function_float Function
 %DaCub = OpVariable %_ptr_Function_float Function
-%_13_guarded_divide = OpVariable %_ptr_Function_float Function
-%_14_n = OpVariable %_ptr_Function_float Function
+%_9_guarded_divide = OpVariable %_ptr_Function_float Function
+%_10_n = OpVariable %_ptr_Function_float Function
 %21 = OpLoad %v2float %17
 %22 = OpCompositeExtract %float %21 0
 %23 = OpFMul %float %float_2 %22
@@ -203,13 +203,13 @@ OpBranchConditional %26 %27 %28
 %42 = OpFMul %float %float_2 %41
 %43 = OpFSub %float %39 %42
 %44 = OpFMul %float %37 %43
-OpStore %_12_n %44
-%45 = OpLoad %float %_12_n
+OpStore %_8_n %44
+%45 = OpLoad %float %_8_n
 %46 = OpLoad %v2float %18
 %47 = OpCompositeExtract %float %46 1
 %48 = OpFDiv %float %45 %47
-OpStore %_11_guarded_divide %48
-%49 = OpLoad %float %_11_guarded_divide
+OpStore %_7_guarded_divide %48
+%49 = OpLoad %float %_7_guarded_divide
 %51 = OpLoad %v2float %18
 %52 = OpCompositeExtract %float %51 1
 %53 = OpFSub %float %float_1 %52
@@ -306,12 +306,12 @@ OpStore %DaCub %101
 %149 = OpCompositeExtract %float %148 0
 %150 = OpFMul %float %147 %149
 %151 = OpFSub %float %146 %150
-OpStore %_14_n %151
-%152 = OpLoad %float %_14_n
+OpStore %_10_n %151
+%152 = OpLoad %float %_10_n
 %153 = OpLoad %float %DaSqd
 %154 = OpFDiv %float %152 %153
-OpStore %_13_guarded_divide %154
-%155 = OpLoad %float %_13_guarded_divide
+OpStore %_9_guarded_divide %154
+%155 = OpLoad %float %_9_guarded_divide
 OpReturnValue %155
 %78 = OpLabel
 %156 = OpLoad %v2float %18
