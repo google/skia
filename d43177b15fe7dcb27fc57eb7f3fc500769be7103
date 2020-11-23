@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22d41e68_965c0c86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-23T15:55:41Z",
+      "side": 1,
+      "message": "Screenshot of Adreno artifacts\n\nhttps://screenshot.googleplex.com/BKsfdTbFRgLaH7b",
+      "revId": "d43177b15fe7dcb27fc57eb7f3fc500769be7103",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
