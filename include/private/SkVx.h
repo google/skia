@@ -39,7 +39,7 @@
 #if defined(_MSC_VER)
     #define SKVX_ALWAYS_INLINE __forceinline
 #else
-    #define SKVX_ALWAYS_INLINE __attribute__((always_inline))
+    #define SKVX_ALWAYS_INLINE __attribute__((always_inline)) inline
 #endif
 
 // ... and all standalone functions must be static.  Please use these helpers:
