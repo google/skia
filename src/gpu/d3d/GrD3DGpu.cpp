@@ -65,10 +65,9 @@ GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptio
         , fStagingBufferManager(this)
         , fConstantsRingBuffer(this, 128 * 1024, kConstantAlignment, GrGpuBufferType::kVertex)
         , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt) {
-    fCaps.reset(new GrD3DCaps(contextOptions,
-                              backendContext.fAdapter.get(),
-                              backendContext.fDevice.get()));
-    fCompiler.reset(new SkSL::Compiler(fCaps->shaderCaps()));
+    this->initCapsAndCompiler(sk_make_sp<GrD3DCaps>(contextOptions,
+                                                    backendContext.fAdapter.get(),
+                                                    backendContext.fDevice.get()));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
     SkASSERT(fCurrentDirectCommandList);
