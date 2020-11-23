@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ebf6f1c_a2068609",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-23T15:08:25Z",
+      "side": 1,
+      "message": "So, I landed https://chromium.googlesource.com/skia/+/b06301ee122799a84d384359eb3628b870cd47d0, which initially hid lots of intrinsics from RTE. That got past the Chromium tests that are supposed to exercise all of the runtime color filters they use. Those tests must be missing some cases, because there are cases that use log() and exp(). Six days later, while I was filling out support for all the TODO intrinsics, I landed this CL. Chrome spun a release in between, which has been crashing on some machines (presumably ones that have monitors/configs hitting that code path).\n\nSo this is a cherry-pick of the declaration of those intrinsics back to M88.",
+      "revId": "48c0c84c0ab75fb6dc3013efb74c2de56365e9e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
