@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "65b87f40_293e7048",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:55:43Z",
+      "side": 1,
+      "message": "ah, I see. we did call it, but it would have had no effect.",
+      "parentUuid": "5af5d042_4aa6b6b8",
+      "range": {
+        "startLine": 581,
+        "startChar": 8,
+        "endLine": 581,
+        "endChar": 27
+      },
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e0e494b9_df189cb0",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 5
