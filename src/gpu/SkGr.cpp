@@ -457,10 +457,14 @@ GrInterpretFilterQuality(SkISize imageDims,
                          const SkMatrix& localM,
                          bool sharpenMipmappedTextures,
                          bool allowFilterQualityReduction) {
+    using Filter = GrSamplerState::Filter;
+    using MipmapMode = GrSamplerState::MipmapMode;
     switch (paintFilterQuality) {
-        case kNone_SkFilterQuality: break;
-        case kLow_SkFilterQuality: break;
-        case kMedium_SkFilterQuality:
+        case kNone_SkFilterQuality:
+            return {Filter::kNearest, MipmapMode::kNone, false};
+        case kLow_SkFilterQuality:
+            return {Filter::kLinear, MipmapMode::kNone, false};
+        case kMedium_SkFilterQuality: {
             if (allowFilterQualityReduction) {
                 SkMatrix matrix;
                 matrix.setConcat(viewM, localM);
@@ -475,22 +479,25 @@ GrInterpretFilterQuality(SkISize imageDims,
                 //        2^0.5/2 = s
                 SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
                 if (matrix.getMinScale() >= mipScale) {
-                    paintFilterQuality = kLow_SkFilterQuality;
+                    return {Filter::kLinear, MipmapMode::kNone, false};
                 }
             }
-            break;
-        case kHigh_SkFilterQuality:
+            return {Filter::kLinear, MipmapMode::kLinear, false};
+        }
+        case kHigh_SkFilterQuality: {
             if (allowFilterQualityReduction) {
                 SkMatrix matrix;
                 matrix.setConcat(viewM, localM);
                 paintFilterQuality = SkMatrixPriv::AdjustHighQualityFilterLevel(matrix);
             }
-            break;
+            switch (paintFilterQuality) {
+                case kNone_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , false};
+                case kLow_SkFilterQuality:    return {Filter::kLinear , MipmapMode::kNone  , false};
+                case kMedium_SkFilterQuality: return {Filter::kLinear , MipmapMode::kLinear, false};
+                case kHigh_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , true };
+            }
+            SkUNREACHABLE;
+        }
     }
-    auto sampling = SkSamplingOptions(paintFilterQuality);
-    return {
-        static_cast<GrSamplerState::Filter>(sampling.fFilter),
-        static_cast<GrSamplerState::MipmapMode>(sampling.fMipmap),
-        sampling.fUseCubic,
-    };
+    SkUNREACHABLE;
 }
