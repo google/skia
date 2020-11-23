@@ -22,7 +22,6 @@
 #include "src/gpu/mtl/GrMtlTexture.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
-#include "src/sksl/SkSLCompiler.h"
 
 #import <simd/simd.h>
 
@@ -144,8 +143,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fStagingBufferManager(this)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
-    fCaps = fMtlCaps;
-    fCompiler.reset(new SkSL::Compiler(fMtlCaps->shaderCaps()));
+    this->initCapsAndCompiler(fMtlCaps);
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
