@@ -10,17 +10,17 @@ void main() {
         vec3 _3_dsa = dst.xyz * src.w;
         vec3 _4_blend_set_color_luminance;
         {
-            float _5_15_blend_color_luminance;
+            float _5_11_blend_color_luminance;
             {
-                _5_15_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
+                _5_11_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
             }
-            float _6_lum = _5_15_blend_color_luminance;
+            float _6_lum = _5_11_blend_color_luminance;
 
-            float _7_16_blend_color_luminance;
+            float _7_12_blend_color_luminance;
             {
-                _7_16_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_sda);
+                _7_12_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_sda);
             }
-            vec3 _8_result = (_6_lum - _7_16_blend_color_luminance) + _2_sda;
+            vec3 _8_result = (_6_lum - _7_12_blend_color_luminance) + _2_sda;
 
             float _9_minComp = min(min(_8_result.x, _8_result.y), _8_result.z);
             float _10_maxComp = max(max(_8_result.x, _8_result.y), _8_result.z);

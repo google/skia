@@ -8,8 +8,8 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %_color_burn_component "_color_burn_component"
-OpName %_6_guarded_divide "_6_guarded_divide"
-OpName %_7_n "_7_n"
+OpName %_5_guarded_divide "_5_guarded_divide"
+OpName %_6_n "_6_n"
 OpName %delta "delta"
 OpName %main "main"
 OpName %_0_blend_color_burn "_0_blend_color_burn"
@@ -100,8 +100,8 @@ OpDecorate %136 RelaxedPrecision
 %17 = OpFunctionParameter %_ptr_Function_v2float
 %18 = OpFunctionParameter %_ptr_Function_v2float
 %19 = OpLabel
-%_6_guarded_divide = OpVariable %_ptr_Function_float Function
-%_7_n = OpVariable %_ptr_Function_float Function
+%_5_guarded_divide = OpVariable %_ptr_Function_float Function
+%_6_n = OpVariable %_ptr_Function_float Function
 %delta = OpVariable %_ptr_Function_float Function
 %20 = OpLoad %v2float %18
 %21 = OpCompositeExtract %float %20 1
@@ -154,15 +154,15 @@ OpReturnValue %60
 %69 = OpLoad %v2float %17
 %70 = OpCompositeExtract %float %69 1
 %71 = OpFMul %float %68 %70
-OpStore %_7_n %71
-%72 = OpLoad %float %_7_n
+OpStore %_6_n %71
+%72 = OpLoad %float %_6_n
 %73 = OpLoad %v2float %17
 %74 = OpCompositeExtract %float %73 0
 %75 = OpFDiv %float %72 %74
-OpStore %_6_guarded_divide %75
+OpStore %_5_guarded_divide %75
 %78 = OpLoad %v2float %18
 %79 = OpCompositeExtract %float %78 1
-%80 = OpLoad %float %_6_guarded_divide
+%80 = OpLoad %float %_5_guarded_divide
 %81 = OpFSub %float %79 %80
 %77 = OpExtInst %float %1 FMax %float_0 %81
 OpStore %delta %77
