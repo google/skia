@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d0f9aa4_d693f02a",
+        "filename": "src/gpu/GrVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-23T18:03:45Z",
+      "side": 1,
+      "message": "can this go? (here and elsewhere)",
+      "range": {
+        "startLine": 38,
+        "startChar": 26,
+        "endLine": 38,
+        "endChar": 32
+      },
+      "revId": "6762a09bad081f01792500a0b191919166c40d3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
