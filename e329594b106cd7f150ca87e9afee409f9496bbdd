@@ -39,6 +39,30 @@
       },
       "revId": "e329594b106cd7f150ca87e9afee409f9496bbdd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e902fc47_c38a810b",
+        "filename": "src/effects/imagefilters/SkComposeImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T15:08:19Z",
+      "side": 1,
+      "message": "I think of reverse mode as computing the required input bounds in order to evaluate the filter on the target output bounds (which is \u0027src\u0027 in this case). The \u0027inputRect\u0027 is the known bounds of the content bounds, or equivalently, the unclipped bounds of the implicit source image that replaces a null filter.\n\nonFilterBounds is the old API that doesn\u0027t have coordinate system annotations, so it\u0027s hard to parse, but all the rects are actually in the same coordinate space, which is the device space of the layer that was drawn into (or simply layer space, since there\u0027s also the device space that the layer will be composed into after filtering...).\n\nBut revisiting this choice of nullptr, I actually have them swapped. The logic for directly composed image filters is that the outer filter computes its required input using the provided inputRect, and then passes that value in as both the \u0027src\u0027 and \u0027inputRect\u0027 to its children. A nullptr with for \u0027inputRect\u0027 automatically is replaced with the \u0027src\u0027 argument. This is now updated to match direct composition.\n\nIt may be worth revisiting the propagation of \u0027inputRect\u0027 after more of the filtering code path has been updated to the new API, since the inputRect is really meant to give filters that use kRepeat or kMirror the chance to keep the source bounds unmodified. If they are deeper in the image filter DAG, a lower filter may have already overridden \u0027inputRect\u0027 with its required input bounds. However, for the time being, this just keeps it consistent with the rest of filter calculation. I\u0027ve captured the propagation issue here: skbug.com/10984",
+      "parentUuid": "989bfcf3_2ec467d3",
+      "range": {
+        "startLine": 122,
+        "startChar": 69,
+        "endLine": 122,
+        "endChar": 76
+      },
+      "revId": "e329594b106cd7f150ca87e9afee409f9496bbdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
