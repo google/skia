@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3abfc0cd_9e64d245",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-23T20:02:51Z",
+      "side": 1,
+      "message": "I\u0027d really like to move the compiler to GrGpu, but we can\u0027t initialize until the derived class constructors (because we need caps). Owned-by-base and init\u0027d-by-derived seems like an antipattern, so going to keep it like this, but probably going to make the accessor virtual, so I can finally reach it via utilities and test code.",
+      "revId": "581a41f79ceb03c7fe1670d7d9ee5ecfa95684e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
