@@ -30,10 +30,6 @@ class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
 
-namespace SkSL {
-    class Compiler;
-}
-
 class GrGLGpu final : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrDirectContext*);
@@ -196,10 +192,6 @@ public:
 
     // Version for programs that aren't GrGLProgram.
     void flushProgram(GrGLuint);
-
-    SkSL::Compiler* shaderCompiler() const {
-        return fCompiler.get();
-    }
 
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrDirectContext*);
@@ -520,8 +512,6 @@ private:
 
     // GL program-related state
     std::unique_ptr<ProgramCache> fProgramCache;
-
-    std::unique_ptr<SkSL::Compiler> fCompiler;
 
     ///////////////////////////////////////////////////////////////////////////
     ///@name Caching of GL State
