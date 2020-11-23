@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d3790c7_de5ce9a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T17:50:41Z",
+      "side": 1,
+      "message": "My only real concern here is pinning down that matrix tweak with Florin.  It sounds like we should be doing this all the time, for all the various qualities and sampling approaches, but it\u0027s only noticeable with nearest neighbors?  (And it\u0027s noticeable with nearest neighbors no matter how we do it as long as we\u0027re inverting a matrix?)",
+      "revId": "ce09352e71ce66cf59c7073ac6f14f459ee52ec2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d94a27fc_f0701bcb",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T17:50:41Z",
+      "side": 1,
+      "message": "If you like this pattern there\u0027s nothing wrong with it, but don\u0027t forget about good old\n\n   SkSamplingOptions sampling{state-\u003equality()};\n\nno question that way if SkSamplingOptions is a type or function, if you like that.",
+      "revId": "ce09352e71ce66cf59c7073ac6f14f459ee52ec2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87775d4d_0cde720e",
@@ -14,6 +48,30 @@
       "writtenOn": "2020-11-23T17:07:36Z",
       "side": 1,
       "message": "I agree there no real cost to always doing it, but I like the nullptr in sampler if we\u0027re not intending to use it. However, I\u0027m ok to remove the check if you like.",
+      "range": {
+        "startLine": 827,
+        "startChar": 30,
+        "endLine": 827,
+        "endChar": 57
+      },
+      "revId": "ce09352e71ce66cf59c7073ac6f14f459ee52ec2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38cea4e8_3cc23bb6",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T17:50:41Z",
+      "side": 1,
+      "message": "I don\u0027t really mind it either way, and I\u0027m certainly happy to follow up on this any any other streamlining.\n\nIt\u0027s just that this area of code has reached a pretty high level of baseline complexity, and when that happens I\u0027m usually looking for ways to make the most important control flow decision points stand out from the unimportant ones, the easiest way of course being to delete the unimportant control flow entirely.\n\nThis do-we-allocate-a-sampler check here feels more a flourish than anything that matters, and I\u0027m sure I wrote it back when the code was still growing from nothing, simple enough back then that this check didn\u0027t distract.  We\u0027ve since piled enough subtlety in here that my default assumption is that this if-statement must be important enough like the others to justify its existence, that it must be subtle too.  But it\u0027s not at all.  And the thing that got me thinking about it is that we\u0027re making it now look more important with this longer, commented condition.",
+      "parentUuid": "87775d4d_0cde720e",
       "range": {
         "startLine": 827,
         "startChar": 30,

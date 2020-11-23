@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5387ca2b_be905801",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T17:50:41Z",
+      "side": 0,
+      "message": "For what it\u0027s worth, this pattern here was me trying to create a dividing line between our inputs and the results of SkBitmapController\u0027s decisions, overwriting matrix/quality to make it difficult to impossible to accidentally use the original inputs instead of the output of SkBitmapController.  It would be a bug if we used paintQuality past the call to RequestBitmap(), right?  But annoyingly it\u0027s still in scope, so there\u0027s a risk we might accidentally pick it up again.  I found overwriting it to be the easiest way to indicate that, though maybe we can introduce some helper functions or just artificial {} scopes to make it really impossible.",
+      "revId": "7d5a4b4a64eb2083e87f8714a6563f7f31fa2250",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

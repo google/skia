@@ -345,6 +345,24 @@
       "parentUuid": "820f2bea_e4f119cd",
       "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c1b219f_e1346a14",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T17:50:41Z",
+      "side": 1,
+      "message": "Ah, that\u0027s subtle.  I think that means this is something we should do all the time then?   It\u0027s definitely independent of whether we\u0027re working with a shader that knows its own quality or pulls that quality from the paint, and probably the decision is totally independent of the various raster pipeline stages we could piece together or SkVM programs we write, right?  It\u0027s a fundamental consequence of the inverse mapping?",
+      "parentUuid": "2776f609_f6dec4c6",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
