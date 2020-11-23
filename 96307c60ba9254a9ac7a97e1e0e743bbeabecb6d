@@ -16,6 +16,46 @@
       "message": "This is actually landable. All the conics look perfect.\n\nTyler, think you can review the math? And Brian, can you give your vote for the Ganesh side?",
       "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1be1d23a_ae782ead",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-23T15:14:55Z",
+      "side": 1,
+      "message": "Assuming the math is legit, everything else lgtm. Very nice.",
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2f733c0_832c721c",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-23T15:14:55Z",
+      "side": 1,
+      "message": "Should this be in GrPathShader.h instead of here?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 17
+      },
+      "revId": "96307c60ba9254a9ac7a97e1e0e743bbeabecb6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
