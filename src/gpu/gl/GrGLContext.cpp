@@ -7,7 +7,6 @@
 
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLGLSL.h"
-#include "src/sksl/SkSLCompiler.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
@@ -90,16 +89,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     return std::unique_ptr<GrGLContext>(new GrGLContext(std::move(args)));
 }
 
-GrGLContext::~GrGLContext() {
-    delete fCompiler;
-}
-
-SkSL::Compiler* GrGLContext::compiler() const {
-    if (!fCompiler) {
-        fCompiler = new SkSL::Compiler(fGLCaps->shaderCaps());
-    }
-    return fCompiler;
-}
+GrGLContext::~GrGLContext() {}
 
 GrGLContextInfo::GrGLContextInfo(ConstructorArgs&& args) {
     fInterface = std::move(args.fInterface);
