@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f2f973e_7a0f71cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "I\u0027m worried that the introduction of Technique here might indicate again that we\u0027ve failed to make SkSamplingOptions as useful as it could be.   If we can\u0027t reason with SkSamplingOptions as the source of truth as it is structured now, let\u0027s change it, e.g. to more closely mirror Technique itself.\n\nLooking at the code, I don\u0027t think it\u0027s impossible to use SkSamplingOptions as-is, but the code wouldn\u0027t be structured quite this way if that data type is our true guide.  I\u0027ve put down some ideas about how to rearrange the code to work with SkSamplingOptions a little more naturally, mostly by checking are-we-cubic? first before anything else.",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5af5d042_4aa6b6b8",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "previous calls here did tweak the matrix even in cubic mode, no?",
+      "range": {
+        "startLine": 581,
+        "startChar": 8,
+        "endLine": 581,
+        "endChar": 27
+      },
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0e494b9_df189cb0",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "I think we might be able to do all this without introducing tech/Technique.  See if you find it as clear without?\n\nThis one would be just sampling.fUseCubic, of course.",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e9903b3_41de2c29",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "Here I think if we move the two cubic cases up and test for them first, then the tests can be `sampling.fUseCubic` for the first two, then after that\u0027s tested, the other two become `sampling.fFilter \u003d\u003d SkFilterMode::kLinear`.",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bea2513f_e4d25d08",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "This one I might even just do unconditionally now that I\u0027m looking at it.  There\u0027s so much complex logic going on in here that I think it might improve things to just always scoot the alloc pointer over to make room for a SamplerCtx, even if it won\u0027t be used.",
+      "range": {
+        "startLine": 837,
+        "startChar": 3,
+        "endLine": 841,
+        "endChar": 0
+      },
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2085a8e_f4d8362a",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "Then here, let\u0027s swap the order of checks?\n\n  if (sampling.fUseCubic) {  ... }\n  else if (sampling.fFilter \u003d\u003d SkFilterMode::kLinear) { ... }\n  else { SkASSERT(kNearest); ... }",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97582034_259ad462",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "This feels pretty weird to \"turn off\" just because we\u0027ve already handled it... there\u0027s going to be code now that draws with mipmaps at points where sampling.fMipmap holds false, right?  That feels like we\u0027re setting ourselves up for confusion down the line.\n\nIs the concern just tweak_sampling_and_inv_matrix()?  If so, maybe let\u0027s change it to \n\n  void tweak_filtering_and_inv_matrix(SkFilterMode*, SkMatrix*) {\n      ...\n  }\n\nand then guard calling it instead of early-out inside the function?\n\n   if (sampling.fMipmap \u003d\u003d SkMipmapMode::kNone) {\n       tweak_filtering_and_inv_matrix(\u0026sampling.fFilter, ...);\n   }",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "820f2bea_e4f119cd",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-23T14:20:07Z",
+      "side": 1,
+      "message": "I think there\u0027s two distinct kinds of things going on in there,\n   \n   1) recognizing that bilerp mechanically becomes nearest neighbor when the sample points are in just the right spots\n   2) some sort of Chrome bug fix for edges I don\u0027t really understand (Florin?)\n\nI\u0027ve got no problem applying 1) any time it\u0027s legal... it\u0027s free math.  2) I don\u0027t understand enough to have an opinion on.  I would like to know if there\u0027s somewhere higher-level that logic can live... it\u0027s another why-do-this-if-Ganesh-doesn\u0027t question.",
+      "revId": "e39c7c06331562186d6a57fcb15d15681ec340cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
