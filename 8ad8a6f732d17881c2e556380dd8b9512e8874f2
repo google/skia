@@ -33,6 +33,23 @@
       "message": "friendly nudge 😊",
       "revId": "8ad8a6f732d17881c2e556380dd8b9512e8874f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e91019c9_658997af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-23T18:47:16Z",
+      "side": 1,
+      "message": "From discussing with @reed, I added skbug.com/10985 to capture the objective of simplifying the logic and client-dependence on reported device clip bounds.",
+      "revId": "8ad8a6f732d17881c2e556380dd8b9512e8874f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
