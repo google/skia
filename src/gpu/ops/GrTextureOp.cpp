@@ -1145,23 +1145,25 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
                                color, saturate, aaType, std::move(quad), subset);
     } else {
         // Emulate complex blending using GrFillRectOp
+        GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, filter, mm);
         GrPaint paint;
         paint.setColor4f(color);
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
         std::unique_ptr<GrFragmentProcessor> fp;
+        const auto& caps = *context->priv().caps();
         if (subset) {
-            const auto& caps = *context->priv().caps();
             SkRect localRect;
             if (quad->fLocal.asRect(&localRect)) {
                 fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
-                                                 filter, *subset, localRect, caps);
+                                                 samplerState, *subset, localRect, caps);
             } else {
                 fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
-                                                 filter, *subset, caps);
+                                                 samplerState, *subset, caps);
             }
         } else {
-            fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
+            fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), samplerState,
+                                       caps);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
