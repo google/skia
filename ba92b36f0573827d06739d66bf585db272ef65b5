@@ -34,6 +34,24 @@
       "parentUuid": "a958202d_a1374524",
       "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bb5dbf2_852420ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T18:32:08Z",
+      "side": 1,
+      "message": "Fascinating.\n\nSo the rational formula seems to want a lot more segments when w\u003c1. Is this accurate? Or is it just the heuristics of the formula from that particular paper? The integral one seemed fine visually when w\u003c1.\n\nAnother interesting test might be to actually just linearize the conic and see what the error is, instead of comparing the two formulas. The max height of a conic always and provably occurs at T\u003d.5, so the test would look like:\n\n  * Chop the conic into N smaller conics\n  * Evaluate each chop at T\u003d.5, and calculate distance from the line P0..P2\n  * Record max distance\n\nThat answers the *real* question, and might give us some insight about how error gets reduced when a conic is chopped in half.\n\nAlso, I forgot we already have this formula in Skia for converting a conic to quadratics!\n\nhttps://github.com/google/skia/blob/master/src/core/SkGeometry.cpp#L1388\n\nIt\u0027s based on the fact that error from just drawing it as a quadratic gets reduced by 1/4 every time you chop a conic in half. (Why it\u0027s calculated iteratively there instead of just computing the log4, or (sk_float_next_log2() + 1)/2, I don\u0027t know).\n\nIf there is also a factor by which conic height gets reduced every time it\u0027s chopped in half, then we could just do a log function on the height of the curve to compute our number of segments.",
+      "parentUuid": "54ad649a_485ad443",
+      "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
