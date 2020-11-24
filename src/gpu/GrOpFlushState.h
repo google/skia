@@ -144,6 +144,10 @@ public:
     }
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
+    void putBackIndirectDraws(int drawCount) final { fDrawIndirectPool.putBack(drawCount); }
+    void putBackIndexedIndirectDraws(int drawCount) final {
+        fDrawIndirectPool.putBackIndexed(drawCount);
+    }
     const GrSurfaceProxyView& writeView() const final { return this->drawOpArgs().writeView(); }
     GrRenderTargetProxy* rtProxy() const final { return this->drawOpArgs().rtProxy(); }
     const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }

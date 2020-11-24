@@ -213,6 +213,8 @@ public:
     /** Helpers for ops which over-allocate and then return excess data to the pool. */
     virtual void putBackIndices(int indices) = 0;
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
+    virtual void putBackIndirectDraws(int count) = 0;
+    virtual void putBackIndexedIndirectDraws(int count) = 0;
 
     GrSimpleMesh* allocMesh() { return this->allocator()->make<GrSimpleMesh>(); }
     GrSimpleMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrSimpleMesh>(n); }
