@@ -199,6 +199,9 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, SkFilterQual
     SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
     SkPaint paint;
     paint.setShader(std::move(shader));
+    // Somewhat opinionated but dithering improves quality, and as an its already being embedded as
+    // an image filter, we're less worried about the performance overhead.
+    paint.setDither(true);
     // For SkImage::makeShader() shaders using SkImageShader::kInheritFromPaint sampling options
     paint.setFilterQuality(filterQuality);
     return SkPaintImageFilter::Make(paint, &r);
