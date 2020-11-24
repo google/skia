@@ -24,11 +24,11 @@ class SkBitmapController : ::SkNoncopyable {
 public:
     class State : ::SkNoncopyable {
     public:
-        State(const SkImage_Base*, const SkMatrix& inv, SkFilterQuality);
+        State(const SkImage_Base*, const SkMatrix& inv, const SkSamplingOptions&);
 
         const SkPixmap& pixmap() const { return fPixmap; }
         const SkMatrix& invMatrix() const { return fInvMatrix; }
-        SkFilterQuality quality() const { return fQuality; }
+        const SkSamplingOptions& sampling() const { return fSampling; }
 
     private:
         bool processHighRequest(const SkImage_Base*);
@@ -36,7 +36,7 @@ public:
 
         SkPixmap              fPixmap;
         SkMatrix              fInvMatrix;
-        SkFilterQuality       fQuality;
+        SkSamplingOptions     fSampling;
 
         // Pixmap storage.
         SkBitmap              fResultBitmap;
@@ -44,8 +44,8 @@ public:
 
     };
 
-    static State* RequestBitmap(const SkImage_Base*, const SkMatrix& inverse, SkFilterQuality,
-                                SkArenaAlloc*);
+    static State* RequestBitmap(const SkImage_Base*, const SkMatrix& inverse,
+                                const SkSamplingOptions&, SkArenaAlloc*);
 
 private:
     SkBitmapController() = delete;

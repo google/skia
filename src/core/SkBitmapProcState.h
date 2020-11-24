@@ -29,8 +29,8 @@ class SkPaint;
 struct SkBitmapProcState {
     SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy);
 
-    bool setup(const SkMatrix& inv, const SkPaint& paint) {
-        return this->init(inv, paint)
+    bool setup(const SkMatrix& inv, SkColor color, const SkSamplingOptions& sampling) {
+        return this->init(inv, color, sampling)
             && this->chooseProcs();
     }
 
@@ -53,7 +53,7 @@ struct SkBitmapProcState {
     SkColor                 fPaintColor;
     SkTileMode              fTileModeX;
     SkTileMode              fTileModeY;
-    SkFilterQuality         fFilterQuality;
+    bool                    fBilerp;
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
@@ -98,7 +98,7 @@ private:
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    bool init(const SkMatrix& inverse, const SkPaint&);
+    bool init(const SkMatrix& inverse, SkColor, const SkSamplingOptions&);
     bool chooseProcs();
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     ShaderProc32 chooseShaderProc32();
@@ -162,16 +162,16 @@ public:
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
 
         SkFixed biasX, biasY;
-        if (s.fFilterQuality == kNone_SkFilterQuality) {
+        if (s.fBilerp) {
+            biasX = s.fFilterOneX >> 1;
+            biasY = s.fFilterOneY >> 1;
+        } else {
             // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
             // consistently WRT geometry.  Note that we only need the bias for positive scales:
             // for negative scales, the rounding is intrinsically correct.
             // We scale it to persist SkFractionalInt -> SkFixed conversions.
             biasX = (s.fInvMatrix.getScaleX() > 0);
             biasY = (s.fInvMatrix.getScaleY() > 0);
-        } else {
-            biasX = s.fFilterOneX >> 1;
-            biasY = s.fFilterOneY >> 1;
         }
 
         // punt to unsigned for defined underflow behavior
