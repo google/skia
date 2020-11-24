@@ -202,6 +202,12 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
 
+    // TODO: Since min and max are calculated differently it's possible to get a rounding error
+    //  that would make min > max. Sort it out later, make it the same for now
+    if (fMaxIntrinsicWidth < fMinIntrinsicWidth) {
+        fMaxIntrinsicWidth = fMinIntrinsicWidth;
+    }
+
     //SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
 }
 
