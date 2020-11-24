@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ddc92195_758e5772",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-24T16:56:16Z",
+      "side": 1,
+      "message": "I\u0027m assuming that it\u0027s just float errors causing this dot product to be slightly outside [-1, 1]?",
+      "range": {
+        "startLine": 391,
+        "startChar": 31,
+        "endLine": 391,
+        "endChar": 54
+      },
+      "revId": "3a1352593d605df7f4c6a21e1f59e1f8b2a181f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bac4c8a8_1252df5f",
         "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
         "patchSetId": 1
