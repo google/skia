@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: UniformConstant id '20' is missing DescriptorSet decoration.
+From Vulkan spec, section 14.5.2:
+These variables must have DescriptorSet and Binding decorations specified
+  %uTextureSampler_0_Stage1 = OpVariable %_ptr_UniformConstant_22 UniformConstant
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -837,3 +844,5 @@ OpStore %output_Stage1 %525
 OpStore %sk_FragColor %526
 OpReturn
 OpFunctionEnd
+
+1 error

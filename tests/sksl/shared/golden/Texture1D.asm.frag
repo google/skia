@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: Operand 3 of TypeImage requires one of these capabilities: Sampled1D Image1D 
+  %13 = OpTypeImage %float 1D 0 0 0 1 Unknown
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -57,3 +62,5 @@ OpStore %b %23
 OpStore %sk_FragColor %35
 OpReturn
 OpFunctionEnd
+
+1 error

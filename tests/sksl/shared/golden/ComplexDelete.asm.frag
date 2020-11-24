@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: Uniform OpVariable <id> '10[%colorXform]' has illegal type.
+From Vulkan spec, section 14.5.2:
+Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
+  %colorXform = OpVariable %_ptr_Uniform_mat4v4float Uniform
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -107,3 +114,5 @@ OpBranch %57
 OpStore %sk_FragColor %80
 OpReturn
 OpFunctionEnd
+
+1 error

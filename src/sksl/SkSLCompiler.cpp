@@ -1944,13 +1944,30 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
         const String& data = buffer.str();
         SkASSERT(0 == data.size() % 4);
-        auto dumpmsg = [](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
-            SkDebugf("SPIR-V validation error: %s\n", m);
+        String errors;
+        auto dumpmsg = [&errors](spv_message_level_t, const char*, const spv_position_t&,
+                                 const char* m) {
+            errors.appendf("SPIR-V validation error: %s\n", m);
         };
         tools.SetMessageConsumer(dumpmsg);
-        // Verify that the SPIR-V we produced is valid. If this SkASSERT fails, check the logs prior
-        // to the failure to see the validation errors.
-        SkAssertResult(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4));
+
+        // Verify that the SPIR-V we produced is valid. At runtime, we will abort() with a message
+        // explaining the error. In standalone mode (skslc), we will send the message, plus the
+        // entire disassembled SPIR-V (for easier context & debugging) as *our* error message.
+        result = tools.Validate((const uint32_t*) data.c_str(), data.size() / 4);
+
+        if (!result) {
+#if defined(SKSL_STANDALONE)
+            // Convert the string-stream to a SPIR-V disassembly.
+            std::string disassembly;
+            if (tools.Disassemble((const uint32_t*)data.data(), data.size() / 4, &disassembly)) {
+                errors.append(disassembly);
+            }
+            this->error(-1, errors);
+#else
+            SkDEBUGFAILF("%s", errors.c_str());
+#endif
+        }
         out.write(data.c_str(), data.size());
     }
 #else
