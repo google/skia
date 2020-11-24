@@ -34,6 +34,24 @@
       "parentUuid": "d3b9dc9d_b457dfa3",
       "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85c37773_4566e536",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-11-24T13:17:45Z",
+      "side": 1,
+      "message": "I don\u0027t think I have seen a CQ on infra/config before but it\u0027s just a branch. Andrii, is that doable?",
+      "parentUuid": "0bf15fac_c7bff85a",
+      "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
