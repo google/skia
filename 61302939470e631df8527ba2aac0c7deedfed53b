@@ -22,6 +22,30 @@
       },
       "revId": "61302939470e631df8527ba2aac0c7deedfed53b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d57046e2_f292bb0a",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-24T20:02:10Z",
+      "side": 1,
+      "message": "Yup, good catch. Note that \"1 / dot(a, b)\" actually changes in value.",
+      "parentUuid": "a678feeb_471ef2a0",
+      "range": {
+        "startLine": 431,
+        "startChar": 0,
+        "endLine": 433,
+        "endChar": 81
+      },
+      "revId": "61302939470e631df8527ba2aac0c7deedfed53b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
