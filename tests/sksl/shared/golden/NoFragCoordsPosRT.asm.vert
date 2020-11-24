@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: Uniform OpVariable <id> '8[%sk_RTAdjust]' has illegal type.
+From Vulkan spec, section 14.5.2:
+Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
+  %sk_RTAdjust = OpVariable %_ptr_Uniform_v4float Uniform
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -56,3 +63,5 @@ OpStore %18 %15
 OpStore %41 %40
 OpReturn
 OpFunctionEnd
+
+1 error

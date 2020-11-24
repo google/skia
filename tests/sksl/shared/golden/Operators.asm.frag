@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: Expected Constituents to be scalars or vectors of the same type as Result Type components
+  %65 = OpCompositeConstruct %v2float %int_6 %int_6
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -108,3 +113,5 @@ OpStore %y %67
 OpStore %z %71
 OpReturn
 OpFunctionEnd
+
+1 error

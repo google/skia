@@ -558,7 +558,10 @@ if (skia_lex) {
 # `Compile Processors` and `Compile SkSL Tests` both rely on skslc.
 if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
-    defines = [ "SKSL_STANDALONE" ]
+    defines = [
+      "SKSL_STANDALONE",
+      "SK_ENABLE_SPIRV_VALIDATION",
+    ]
     sources = [
       "src/core/SkMalloc.cpp",
       "src/core/SkMath.cpp",
