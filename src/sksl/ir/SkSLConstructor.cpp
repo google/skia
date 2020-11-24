@@ -103,7 +103,7 @@ ResultType Constructor::getVecComponent(int index) const {
                 if (current + constructor.type().columns() > index) {
                     // We've found a constructor that overlaps the proper argument. Descend into
                     // it, honoring the type.
-                    return constructor.type().componentType().isFloat()
+                    return constructor.componentType().isFloat()
                               ? ResultType(constructor.getVecComponent<SKSL_FLOAT>(index - current))
                               : ResultType(constructor.getVecComponent<SKSL_INT>(index - current));
                 }

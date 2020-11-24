@@ -84,6 +84,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/BitShiftFloat.sksl",
   "$_tests/sksl/errors/BitShiftFloatMatrix.sksl",
   "$_tests/sksl/errors/BitShiftFloatVector.sksl",
+  "$_tests/sksl/errors/BooleanArithmetic.sksl",
   "$_tests/sksl/errors/BreakOutsideLoop.sksl",
   "$_tests/sksl/errors/CallNonFunction.sksl",
   "$_tests/sksl/errors/CanExitWithoutReturningValue.sksl",
