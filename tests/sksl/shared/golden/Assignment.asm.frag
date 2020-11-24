@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: OpConstantComposite Constituent <id> '99[%99]'s type does not match Result Type <id> '5[%v4float]'s vector element type.
+  %98 = OpConstantComposite %v4float %99 %99 %99 %99
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -224,3 +229,5 @@ OpStore %sk_FragColor %146
 OpStore %sk_FragColor %148
 OpReturn
 OpFunctionEnd
+
+1 error

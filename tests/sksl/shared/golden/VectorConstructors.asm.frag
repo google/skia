@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: OpConstantComposite Constituent <id> count does not match Result Type <id> '22[%v3float]'s vector component count.
+  %23 = OpConstantComposite %v3float %24 %float_1
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -92,3 +97,5 @@ OpStore %v7 %35
 OpStore %63 %62
 OpReturn
 OpFunctionEnd
+
+1 error

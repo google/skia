@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: If OpTypeBool is stored in conjunction with OpVariable, it can only be used with non-externally visible shader Storage Classes: Workgroup, CrossWorkgroup, Private, and Function
+  %3 = OpVariable %_ptr_Uniform_testBlock Uniform
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -66,3 +71,5 @@ OpDecorate %29 RelaxedPrecision
 OpStore %sk_FragColor %31
 OpReturn
 OpFunctionEnd
+
+1 error

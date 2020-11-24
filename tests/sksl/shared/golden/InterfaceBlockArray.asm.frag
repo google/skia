@@ -1,3 +1,10 @@
+### Compilation failed:
+
+error: 1: SPIR-V validation error: Uniform id '5' is missing Block or BufferBlock decoration.
+From Vulkan spec, section 14.5.2:
+Such variables must be identified with a Block or BufferBlock decoration
+  %testBlock = OpTypeStruct %float
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -43,3 +50,5 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpStore %sk_FragColor %24
 OpReturn
 OpFunctionEnd
+
+1 error
