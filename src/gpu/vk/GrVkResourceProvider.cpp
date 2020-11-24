@@ -353,7 +353,17 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
 }
 
 void GrVkResourceProvider::checkCommandBuffers() {
-    for (int i = fActiveCommandPools.count() - 1; i >= 0; --i) {
+    // When resetting a command buffer it can trigger client provided procs (e.g. release or
+    // finished) to be called. During these calls the client could trigger us to abandon the vk
+    // context, e.g. if we are in a DEVICE_LOST state. When we abandon the vk context we will
+    // unref all the fActiveCommandPools and reset the array. Since this can happen in the middle
+    // of the loop here, we need to additionally check that fActiveCommandPools still has pools on
+    // each iteration.
+    //
+    // TODO: We really need to have a more robust way to protect us from client proc calls that
+    // happen in the middle of us doing work. This may be just one of many potential pitfalls that
+    // could happen from the client triggering GrDirectContext changes during a proc call.
+    for (int i = fActiveCommandPools.count() - 1; fActiveCommandPools.count() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
