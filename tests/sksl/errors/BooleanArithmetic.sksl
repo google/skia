@@ -1,0 +1,13 @@
+bool2 add_boolean_vec() { return bool2(false, false) + bool2(true, true); }
+bool2 sub_boolean_vec() { return bool2(false, false) - bool2(true, true); }
+bool2 mul_boolean_vec() { return bool2(false, false) * bool2(true, true); }
+bool2 div_boolean_vec() { return bool2(false, false) / bool2(true, true); }
+bool2 mod_boolean_vec() { return bool2(false, false) % bool2(true, true); }
+
+void main() {
+    add_boolean_vec();
+    sub_boolean_vec();
+    mul_boolean_vec();
+    div_boolean_vec();
+    mod_boolean_vec();
+}

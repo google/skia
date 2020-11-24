@@ -663,23 +663,25 @@ static bool is_constant(const Expression& expr, T value) {
             const Constructor& constructor = expr.as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
                 const Type& constructorType = constructor.type();
-                bool isFloat = constructorType.columns() > 1
-                                       ? constructorType.componentType().isFloat()
-                                       : constructorType.isFloat();
                 switch (constructorType.typeKind()) {
                     case Type::TypeKind::kVector:
-                        for (int i = 0; i < constructorType.columns(); ++i) {
-                            if (isFloat) {
+                        if (constructor.componentType().isFloat()) {
+                            for (int i = 0; i < constructorType.columns(); ++i) {
                                 if (constructor.getFVecComponent(i) != value) {
                                     return false;
                                 }
-                            } else {
+                            }
+                            return true;
+                        } else if (constructor.componentType().isInteger()) {
+                            for (int i = 0; i < constructorType.columns(); ++i) {
                                 if (constructor.getIVecComponent(i) != value) {
                                     return false;
                                 }
                             }
+                            return true;
                         }
-                        return true;
+                        // Other types (e.g. boolean) might occur, but aren't supported here.
+                        return false;
 
                     case Type::TypeKind::kScalar:
                         SkASSERT(constructor.arguments().size() == 1);

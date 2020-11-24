@@ -75,6 +75,12 @@ public:
         return result;
     }
 
+    const Type& componentType() const {
+        // Returns `float` for constructors of type `float(...)` or `floatN(...)`.
+        const Type& type = this->type();
+        return type.columns() == 1 ? type : type.componentType();
+    }
+
     bool isCompileTimeConstant() const override {
         for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             if (!arg->isCompileTimeConstant()) {
@@ -98,13 +104,17 @@ public:
     template <typename resultType>
     resultType getVecComponent(int index) const;
 
+    /**
+     * For a literal vector expression, return the float value of the n'th vector component. It is
+     * an error to call this method on an expression which is not a vector of FloatLiterals.
+     */
     SKSL_FLOAT getFVecComponent(int n) const override {
         return this->getVecComponent<SKSL_FLOAT>(n);
     }
 
     /**
      * For a literal vector expression, return the integer value of the n'th vector component. It is
-     * an error to call this method on an expression which is not a literal vector.
+     * an error to call this method on an expression which is not a vector of IntLiterals.
      */
     SKSL_INT getIVecComponent(int n) const override {
         return this->getVecComponent<SKSL_INT>(n);
