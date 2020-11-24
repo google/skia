@@ -920,7 +920,13 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         if (lowerWeight > 0) {
             lower = &access->lowerLevel();
         }
-        tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
+
+        // should we do this all the  time (not use in UseSampling?)
+        if (!fUseSamplingOptions) {
+            if (!sampling.fUseCubic) {
+                tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
+            }
+        }
     }
 
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
