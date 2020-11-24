@@ -33,21 +33,21 @@ vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
             {
                 _18_blend_set_color_saturation_helper = hueLumColor.x < hueLumColor.z ? vec3(0.0, (sat * (hueLumColor.y - hueLumColor.x)) / (hueLumColor.z - hueLumColor.x), sat) : vec3(0.0);
             }
-            hueLumColor.xyz = _18_blend_set_color_saturation_helper;
+            return _18_blend_set_color_saturation_helper;
 
         } else if (hueLumColor.x <= hueLumColor.z) {
             vec3 _19_blend_set_color_saturation_helper;
             {
                 _19_blend_set_color_saturation_helper = hueLumColor.x < hueLumColor.y ? vec3(0.0, (sat * (hueLumColor.z - hueLumColor.x)) / (hueLumColor.y - hueLumColor.x), sat) : vec3(0.0);
             }
-            hueLumColor.xzy = _19_blend_set_color_saturation_helper;
+            return _19_blend_set_color_saturation_helper.xzy;
 
         } else {
             vec3 _20_blend_set_color_saturation_helper;
             {
                 _20_blend_set_color_saturation_helper = hueLumColor.z < hueLumColor.y ? vec3(0.0, (sat * (hueLumColor.x - hueLumColor.z)) / (hueLumColor.y - hueLumColor.z), sat) : vec3(0.0);
             }
-            hueLumColor.zxy = _20_blend_set_color_saturation_helper;
+            return _20_blend_set_color_saturation_helper.yzx;
 
         }
     } else if (hueLumColor.x <= hueLumColor.z) {
@@ -55,24 +55,23 @@ vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
         {
             _21_blend_set_color_saturation_helper = hueLumColor.y < hueLumColor.z ? vec3(0.0, (sat * (hueLumColor.x - hueLumColor.y)) / (hueLumColor.z - hueLumColor.y), sat) : vec3(0.0);
         }
-        hueLumColor.yxz = _21_blend_set_color_saturation_helper;
+        return _21_blend_set_color_saturation_helper.yxz;
 
     } else if (hueLumColor.y <= hueLumColor.z) {
         vec3 _22_blend_set_color_saturation_helper;
         {
             _22_blend_set_color_saturation_helper = hueLumColor.y < hueLumColor.x ? vec3(0.0, (sat * (hueLumColor.z - hueLumColor.y)) / (hueLumColor.x - hueLumColor.y), sat) : vec3(0.0);
         }
-        hueLumColor.yzx = _22_blend_set_color_saturation_helper;
+        return _22_blend_set_color_saturation_helper.zxy;
 
     } else {
         vec3 _23_blend_set_color_saturation_helper;
         {
             _23_blend_set_color_saturation_helper = hueLumColor.z < hueLumColor.x ? vec3(0.0, (sat * (hueLumColor.y - hueLumColor.z)) / (hueLumColor.x - hueLumColor.z), sat) : vec3(0.0);
         }
-        hueLumColor.zyx = _23_blend_set_color_saturation_helper;
+        return _23_blend_set_color_saturation_helper.zyx;
 
     }
-    return hueLumColor;
 }
 uniform vec4 color;
 void main() {
