@@ -2129,29 +2129,35 @@ Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
 }
 
 Position Compiler::position(int offset) {
-    SkASSERT(fSource);
-    int line = 1;
-    int column = 1;
-    for (int i = 0; i < offset; i++) {
-        if ((*fSource)[i] == '\n') {
-            ++line;
-            column = 1;
+    if (fSource) {
+        int line = 1;
+        int column = 1;
+        for (int i = 0; i < offset; i++) {
+            if ((*fSource)[i] == '\n') {
+                ++line;
+                column = 1;
+            }
+            else {
+                ++column;
+            }
         }
-        else {
-            ++column;
-        }
+        return Position(line, column);
+    } else {
+        return Position(-1, -1);
     }
-    return Position(line, column);
 }
 
 void Compiler::error(int offset, String msg) {
     fErrorCount++;
     Position pos = this->position(offset);
-    fErrorText += "error: " + to_string(pos.fLine) + ": " + msg.c_str() + "\n";
+    fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg.c_str() +
+                  "\n";
 }
 
-String Compiler::errorText() {
-    this->writeErrorCount();
+String Compiler::errorText(bool showCount) {
+    if (showCount) {
+        this->writeErrorCount();
+    }
     fErrorCount = 0;
     String result = fErrorText;
     return result;
