@@ -13,10 +13,6 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSamplingOptions.h"
 
-#ifndef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-#define SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-#endif
-
 class SkData;
 struct SkMask;
 
