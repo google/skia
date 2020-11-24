@@ -20,6 +20,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3a303005_db1c870a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T00:13:30Z",
+      "side": 1,
+      "message": "Just a few questions here:\n\n* Do we know whether this formula is equivalent to Wang\u0027s when w\u003d\u003d1 all throughout?\n* Would it be faster to either compute this value separately for rational quadratics, or else take advantage of the fact that w0\u003d\u003dw3\u003d\u003d1 and w1\u003d\u003dw2?\n* If going this route, we will also need to update GrWangsFormula on the CPU side and handle conics separately\n* You mentioned some cases where running wang\u0027s on the down-projected points wasn\u0027t sufficient. Do you know what these conics are and what their w values are?",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d976064e_e5f7ccf4",
         "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
         "patchSetId": 1
