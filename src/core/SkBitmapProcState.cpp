@@ -183,7 +183,8 @@ static bool valid_for_filtering(unsigned dimension) {
     return (dimension & ~0x3FFF) == 0;
 }
 
-bool SkBitmapProcState::init(const SkMatrix& inv, const SkPaint& paint) {
+bool SkBitmapProcState::init(const SkMatrix& inv, SkColor paintColor,
+                             const SkSamplingOptions& sampling) {
     SkASSERT(!inv.hasPerspective());
     SkASSERT(SkOpts::S32_alpha_D32_filter_DXDY || inv.isScaleTranslate());
 
@@ -191,7 +192,7 @@ bool SkBitmapProcState::init(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fBilerp = false;
 
-    fBMState = SkBitmapController::RequestBitmap(fImage, inv, paint.getFilterQuality(), &fAlloc);
+    fBMState = SkBitmapController::RequestBitmap(fImage, inv, sampling, &fAlloc);
 
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
     if (nullptr == fBMState || fBMState->pixmap().info().isEmpty()) {
@@ -199,9 +200,10 @@ bool SkBitmapProcState::init(const SkMatrix& inv, const SkPaint& paint) {
     }
     fPixmap = fBMState->pixmap();
     fInvMatrix = fBMState->invMatrix();
-    fPaintColor = paint.getColor();
-    SkASSERT(fBMState->quality() <= kLow_SkFilterQuality);
-    fBilerp = fBMState->quality() == kLow_SkFilterQuality;
+    fPaintColor = paintColor;
+    SkASSERT(!fBMState->sampling().fUseCubic);
+    SkASSERT(fBMState->sampling().fMipmap == SkMipmapMode::kNone);
+    fBilerp = fBMState->sampling().fFilter == SkFilterMode::kLinear;
     SkASSERT(fPixmap.addr());
 
     bool integral_translate_only = just_trans_integral(fInvMatrix);
