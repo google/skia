@@ -32,6 +32,83 @@ static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint
                               (p[1] - p[2]*2 + p[3]).length()));
 }
 
+namespace {
+template <size_t kCols, size_t kRows> using floatNxM = std::array<std::array<float, kRows>, kCols>;
+using float4x2 = floatNxM<4, 2>;
+using vec2 = std::array<float, 2>;
+}  // namespace
+
+static float wangs_formula_rational_cubic_reference_impl(float intolerance,
+                                                         const SkPoint P[4],
+                                                         const float wts[4]) {
+    const auto bb_center = [](const float4x2& P) {
+        float min_x = std::numeric_limits<float>::max(),
+              max_x = std::numeric_limits<float>::lowest(),
+              min_y = std::numeric_limits<float>::max(),
+              max_y = std::numeric_limits<float>::lowest();
+        for (auto [x, y] : P) {
+            min_x = std::min(min_x, x);
+            max_x = std::max(max_x, x);
+            min_y = std::min(min_y, y);
+            max_y = std::max(max_y, y);
+        }
+        return SkPoint::Make(0.5f * (min_x + max_x), 0.5f * (min_y + max_y));
+    };
+
+    const auto length = [](const vec2& p) {
+        const SkPoint pt{p[0], p[1]};
+        return pt.length();
+    };
+
+    const auto max_len = [&length](const float4x2& P) {
+        float max = std::numeric_limits<float>::lowest();
+        for (size_t j = 0; j < P.size(); j++) {
+            max = std::max(max, length(P[j]));
+        }
+        return max;
+    };
+
+    const auto fwdiff2 = [](const vec2& p0, const vec2& p1, const vec2& p2) {
+        return vec2{p2[0] - 2 * p1[0] + p0[0],
+                    p2[1] - 2 * p1[1] + p0[1]};
+    };
+
+    const auto fwdiff2_scalar = [](float p0, float p1, float p2) { return p2 - 2 * p1 + p0; };
+
+    SkASSERT(wts[0] == 1 && wts[1] == wts[2] && wts[3] == 1);
+    const float w = wts[1];
+    const float min_w = std::min(w, 1.f);
+    const float eps = 1.f / intolerance;
+
+    const float4x2 projP = {{{P[0].fX    , P[0].fY         },
+                             {P[1].fX / w, P[1].fY / w},
+                             {P[2].fX / w, P[2].fY / w},
+                             {P[3].fX    , P[3].fY         }}};
+    const SkPoint C = bb_center(projP);
+    const float4x2 transP = {{{projP[0][0] - C.fX, projP[0][1] - C.fY},
+                              {projP[1][0] - C.fX, projP[1][1] - C.fY},
+                              {projP[2][0] - C.fX, projP[2][1] - C.fY},
+                              {projP[3][0] - C.fX, projP[3][1] - C.fY}}};
+    const float r = max_len(transP);
+
+    const float4x2 wTransP = {{{transP[0][0]    , transP[0][1]    },
+                               {transP[1][0] * w, transP[1][1] * w},
+                               {transP[2][0] * w, transP[2][1] * w},
+                               {transP[3][0]    , transP[3][1]    }}};
+
+    const float a = length(fwdiff2(wTransP[0], wTransP[1], wTransP[2])) +
+                    (r - eps) * std::abs(fwdiff2_scalar(wts[0], wts[1], wts[2]));
+    const float b = length(fwdiff2(wTransP[1], wTransP[2], wTransP[3])) +
+                    (r - eps) * std::abs(fwdiff2_scalar(wts[1], wts[2], wts[3]));
+    const float denom = 3 * std::max(a, b);
+
+    const float numer = 4 * min_w * eps;
+    const float delta = sqrtf(numer / denom);
+
+    constexpr float tmin = 0, tmax = 1;
+    return (tmax - tmin) / delta;
+}
+
 static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
     SkMatrix m;
     m.setIdentity();
@@ -292,6 +369,24 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
     for (int i = 0; i < 100; ++i) {
         for_random_beziers(4, &rand, [&](const SkPoint pts[]) {
             check_worst_case_cubic(pts);
+        });
+    }
+}
+
+// Ensure the specialized version for rational cubics reduces to regular Wang's
+// formula when all weights are equal to one
+DEF_TEST(WangsFormula_rational_cubic_reduces, r) {
+    constexpr static float kTessellationTolerance = 1/128.f;
+
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        for_random_beziers(4, &rand, [&r](const SkPoint pts[]) {
+            const float wts[4] = {1, 1, 1, 1};
+            const float rational_nsegs =
+                    wangs_formula_rational_cubic_reference_impl(kIntolerance, pts, wts);
+            const float integral_nsegs = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(
+                    r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
         });
     }
 }
