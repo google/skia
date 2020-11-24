@@ -45,6 +45,7 @@ public:
     ~GrVkGpu() override;
 
     void disconnect(DisconnectType) override;
+    bool disconnected() const { return fDisconnected; }
 
     const GrVkInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
