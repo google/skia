@@ -276,8 +276,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                       "variables of type '" + baseType->displayName() + "' must be global");
     }
     if (fKind != Program::kFragmentProcessor_Kind) {
-        if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
-            baseType->typeKind() == Type::TypeKind::kMatrix) {
+        if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
             fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
         }
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
@@ -327,7 +326,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                           "'srgb_unpremul' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
-            return t.typeKind() == Type::TypeKind::kVector && t.componentType().isFloat() &&
+            return t.isVector() && t.componentType().isFloat() &&
                    (t.columns() == 3 || t.columns() == 4);
         };
         if (!validColorXformType(*baseType) && !(baseType->typeKind() == Type::TypeKind::kArray &&
@@ -342,8 +341,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");
         }
         if (!baseType->isFloat() &&
-            !(baseType->typeKind() == Type::TypeKind::kVector &&
-              baseType->componentType().isFloat())) {
+            !(baseType->isVector() && baseType->componentType().isFloat())) {
             fErrors.error(decls.fOffset, "'varying' must be float scalar or vector");
         }
     }
@@ -1465,7 +1463,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
                                      expr->type().displayName() + "'");
         return nullptr;
     }
-    if (type.typeKind() == Type::TypeKind::kScalar) {
+    if (type.isScalar()) {
         ExpressionArray args;
         args.push_back(std::move(expr));
         std::unique_ptr<Expression> ctor;
@@ -1495,12 +1493,10 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
 }
 
 static bool is_matrix_multiply(const Type& left, const Type& right) {
-    if (left.typeKind() == Type::TypeKind::kMatrix) {
-        return right.typeKind() == Type::TypeKind::kMatrix ||
-               right.typeKind() == Type::TypeKind::kVector;
+    if (left.isMatrix()) {
+        return right.isMatrix() || right.isVector();
     }
-    return left.typeKind() == Type::TypeKind::kVector &&
-           right.typeKind() == Type::TypeKind::kMatrix;
+    return left.isVector() && right.isMatrix();
 }
 
 /**
@@ -1576,7 +1572,7 @@ static bool determine_binary_type(const Context& context,
                     int leftRows = left.rows();
                     int rightColumns;
                     int rightRows;
-                    if (right.typeKind() == Type::TypeKind::kVector) {
+                    if (right.isVector()) {
                         // matrix * vector treats the vector as a column vector, so we need to
                         // transpose it
                         rightColumns = right.rows();
@@ -1637,13 +1633,11 @@ static bool determine_binary_type(const Context& context,
             break;
     }
 
-    bool leftIsVectorOrMatrix  = left.typeKind()  == Type::TypeKind::kVector ||
-                                 left.typeKind()  == Type::TypeKind::kMatrix,
-         rightIsVectorOrMatrix = right.typeKind() == Type::TypeKind::kVector ||
-                                 right.typeKind() == Type::TypeKind::kMatrix;
+    bool leftIsVectorOrMatrix = left.isVector() || left.isMatrix(),
+         rightIsVectorOrMatrix = right.isVector() || right.isMatrix();
 
     if (leftIsVectorOrMatrix && validMatrixOrVectorOp &&
-        right.typeKind() == Type::TypeKind::kScalar) {
+        right.isScalar()) {
         if (determine_binary_type(context, allowNarrowing, op, left.componentType(), right,
                                   outLeftType, outRightType, outResultType)) {
             *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
@@ -1657,7 +1651,7 @@ static bool determine_binary_type(const Context& context,
     }
 
     if (!isAssignment && rightIsVectorOrMatrix && validMatrixOrVectorOp &&
-        left.typeKind() == Type::TypeKind::kScalar) {
+        left.isScalar()) {
         if (determine_binary_type(context, allowNarrowing, op, left, right.componentType(),
                                   outLeftType, outRightType, outResultType)) {
             *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
@@ -1674,9 +1668,7 @@ static bool determine_binary_type(const Context& context,
     CoercionCost leftToRightCost = isAssignment ? CoercionCost::Impossible()
                                                 : left.coercionCost(right);
 
-    if ((left.typeKind() == Type::TypeKind::kScalar &&
-         right.typeKind() == Type::TypeKind::kScalar) ||
-        (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
+    if ((left.isScalar() && right.isScalar()) || (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
         if (isBitwise) {
             const Type& leftNumberType(leftIsVectorOrMatrix ? left.componentType() : left);
             const Type& rightNumberType(rightIsVectorOrMatrix ? right.componentType() : right);
@@ -1896,16 +1888,14 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     const Type& leftType = left.type();
     const Type& rightType = right.type();
-    if (leftType.typeKind() == Type::TypeKind::kVector && leftType == rightType) {
+    if (leftType.isVector() && leftType == rightType) {
         if (leftType.componentType().isFloat()) {
             return constantFoldVector<SKSL_FLOAT>(left, op, right);
         } else if (leftType.componentType().isInteger()) {
             return constantFoldVector<SKSL_INT>(left, op, right);
         }
     }
-    if (leftType.typeKind() == Type::TypeKind::kMatrix &&
-        rightType.typeKind() == Type::TypeKind::kMatrix &&
-        left.kind() == right.kind()) {
+    if (leftType.isMatrix() && rightType.isMatrix() && left.kind() == right.kind()) {
         switch (op) {
             case Token::Kind::TK_EQEQ:
                 return std::make_unique<BoolLiteral>(fContext, left.fOffset,
@@ -2264,10 +2254,8 @@ static int component_count(const Type& type) {
 std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
                                                                     const Type& type,
                                                                     ExpressionArray args) {
-    SkASSERT(type.typeKind() == Type::TypeKind::kVector ||
-             type.typeKind() == Type::TypeKind::kMatrix);
-    if (type.typeKind() == Type::TypeKind::kMatrix && args.size() == 1 &&
-        args[0]->type().typeKind() == Type::TypeKind::kMatrix) {
+    SkASSERT(type.isVector() || type.isMatrix());
+    if (type.isMatrix() && args.size() == 1 && args[0]->type().isMatrix()) {
         // matrix from matrix is always legal
         return std::unique_ptr<Expression>(new Constructor(offset, &type, std::move(args)));
     }
@@ -2277,7 +2265,7 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
         type.componentType().isNumber() != args[0]->type().componentType().isNumber()) {
         for (size_t i = 0; i < args.size(); i++) {
             const Type& argType = args[i]->type();
-            if (argType.typeKind() == Type::TypeKind::kVector) {
+            if (argType.isVector()) {
                 if (type.componentType().isNumber() !=
                     argType.componentType().isNumber()) {
                     fErrors.error(offset, "'" + argType.displayName() + "' is not a valid "
@@ -2286,9 +2274,9 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(int offset,
                     return nullptr;
                 }
                 actual += argType.columns();
-            } else if (argType.typeKind() == Type::TypeKind::kScalar) {
+            } else if (argType.isScalar()) {
                 actual += 1;
-                if (type.typeKind() != Type::TypeKind::kScalar) {
+                if (!type.isScalar()) {
                     args[i] = this->coerce(std::move(args[i]), type.componentType());
                     if (!args[i]) {
                         return nullptr;
@@ -2348,7 +2336,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
     const Type& baseType = base->type();
     switch (expression.getToken().fKind) {
         case Token::Kind::TK_PLUS:
-            if (!baseType.isNumber() && baseType.typeKind() != Type::TypeKind::kVector &&
+            if (!baseType.isNumber() && !baseType.isVector() &&
                 baseType != *fContext.fFloatLiteral_Type) {
                 fErrors.error(expression.fOffset,
                               "'+' cannot operate on '" + baseType.displayName() + "'");
@@ -2365,7 +2353,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
                 return std::make_unique<FloatLiteral>(fContext, base->fOffset,
                                                       -base->as<FloatLiteral>().value());
             }
-            if (!baseType.isNumber() && baseType.typeKind() != Type::TypeKind::kVector) {
+            if (!baseType.isNumber() && !baseType.isVector()) {
                 fErrors.error(expression.fOffset,
                               "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -2438,8 +2426,8 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
     }
     const Type& baseType = base->type();
     if (baseType.typeKind() != Type::TypeKind::kArray &&
-        baseType.typeKind() != Type::TypeKind::kMatrix &&
-        baseType.typeKind() != Type::TypeKind::kVector) {
+        !baseType.isMatrix() &&
+        !baseType.isVector()) {
         fErrors.error(base->fOffset, "expected array, but found '" + baseType.displayName() +
                                      "'");
         return nullptr;
@@ -2490,7 +2478,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                                                         StringFragment fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
-    if (baseType.typeKind() != Type::TypeKind::kVector && !baseType.isNumber()) {
+    if (!baseType.isVector() && !baseType.isNumber()) {
         fErrors.error(offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
         return nullptr;
     }

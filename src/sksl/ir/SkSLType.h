@@ -419,6 +419,18 @@ public:
         return fIsArrayed;
     }
 
+    bool isScalar() const {
+        return fTypeKind == TypeKind::kScalar;
+    }
+
+    bool isVector() const {
+        return fTypeKind == TypeKind::kVector;
+    }
+
+    bool isMatrix() const {
+        return fTypeKind == TypeKind::kMatrix;
+    }
+
     bool isMultisampled() const {
         SkASSERT(TypeKind::kSampler == fTypeKind || TypeKind::kTexture == fTypeKind);
         return fIsMultisampled;

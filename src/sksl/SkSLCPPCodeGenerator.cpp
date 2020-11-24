@@ -220,7 +220,7 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         }
         return type.name() + "(%f, %f, %f, %f)";
     }
-    if (type.typeKind() == Type::TypeKind::kMatrix) {
+    if (type.isMatrix()) {
         SkASSERT(type.componentType() == *fContext.fFloat_Type ||
                  type.componentType() == *fContext.fHalf_Type);
 
@@ -1385,7 +1385,7 @@ void CPPCodeGenerator::writeGetKey() {
                     }
                     break;
                 case Layout::kIdentity_Key:
-                    if (varType.typeKind() != Type::TypeKind::kMatrix) {
+                    if (!varType.isMatrix()) {
                         fErrors.error(var.fOffset, "layout(key=identity) requires matrix type");
                     }
                     this->writef("    b->add32(%s.isIdentity() ? 1 : 0);\n",

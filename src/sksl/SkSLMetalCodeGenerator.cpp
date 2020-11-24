@@ -596,7 +596,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
 
     fExtraFunctions.printf(") {\n    return float%dx%d(", columns, rows);
 
-    if (args.size() == 1 && args.front()->type().typeKind() == Type::TypeKind::kMatrix) {
+    if (args.size() == 1 && args.front()->type().isMatrix()) {
         this->assembleMatrixFromMatrix(args.front()->type(), rows, columns);
     } else {
         this->assembleMatrixFromExpressions(args, rows, columns);
@@ -618,7 +618,7 @@ bool MetalCodeGenerator::canCoerce(const Type& t1, const Type& t2) {
 
 bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
     // A matrix construct helper is only necessary if we are, in fact, constructing a matrix.
-    if (c.type().typeKind() != Type::TypeKind::kMatrix) {
+    if (!c.type().isMatrix()) {
         return false;
     }
 
@@ -646,7 +646,7 @@ bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
     int position = 0;
     for (const std::unique_ptr<Expression>& expr : c.arguments()) {
         // If an input argument is a matrix, we need a helper function.
-        if (expr->type().typeKind() == Type::TypeKind::kMatrix) {
+        if (expr->type().isMatrix()) {
             return true;
         }
         position += expr->type().columns();
@@ -677,7 +677,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
 
         // Metal supports creating matrices with a scalar on the diagonal via the single-argument
         // matrix constructor.
-        if (constructorType.typeKind() == Type::TypeKind::kMatrix && argType.isNumber()) {
+        if (constructorType.isMatrix() && argType.isNumber()) {
             const Type& matrix = constructorType;
             this->write("float");
             this->write(to_string(matrix.columns()));
@@ -713,7 +713,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
         const Type& argType = arg->type();
         this->write(separator);
         separator = ", ";
-        if (constructorType.typeKind() == Type::TypeKind::kMatrix &&
+        if (constructorType.isMatrix() &&
             argType.columns() < constructorType.rows()) {
             // Merge scalars and smaller vectors together.
             if (!scalarCount) {
@@ -879,13 +879,13 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     bool needParens = precedence >= parentPrecedence;
     switch (op) {
         case Token::Kind::TK_EQEQ:
-            if (leftType.typeKind() == Type::TypeKind::kVector) {
+            if (leftType.isVector()) {
                 this->write("all");
                 needParens = true;
             }
             break;
         case Token::Kind::TK_NEQ:
-            if (leftType.typeKind() == Type::TypeKind::kVector) {
+            if (leftType.isVector()) {
                 this->write("any");
                 needParens = true;
             }
@@ -903,8 +903,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         // dereference it here.
         this->write("*");
     }
-    if (op == Token::Kind::TK_STAREQ && leftType.typeKind() == Type::TypeKind::kMatrix &&
-        rightType.typeKind() == Type::TypeKind::kMatrix) {
+    if (op == Token::Kind::TK_STAREQ && leftType.isMatrix() && rightType.isMatrix()) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
     this->writeExpression(left, precedence);

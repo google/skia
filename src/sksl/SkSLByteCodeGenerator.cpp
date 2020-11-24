@@ -717,10 +717,8 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
     }
     const Type& lType = left.type();
     const Type& rType = right.type();
-    bool lVecOrMtx = (lType.typeKind() == Type::TypeKind::kVector ||
-                      lType.typeKind() == Type::TypeKind::kMatrix);
-    bool rVecOrMtx = (rType.typeKind() == Type::TypeKind::kVector ||
-                      rType.typeKind() == Type::TypeKind::kMatrix);
+    bool lVecOrMtx = (lType.isVector() || lType.isMatrix());
+    bool rVecOrMtx = (rType.isVector() || rType.isMatrix());
     std::unique_ptr<LValue> lvalue;
     if (Compiler::IsAssignment(op)) {
         lvalue = this->getLValue(left);
@@ -798,8 +796,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
     }
     // Special case for M*V, V*M, M*M (but not V*V!)
     if (op == Token::Kind::TK_STAR && lVecOrMtx && rVecOrMtx &&
-        !(lType.typeKind() == Type::TypeKind::kVector &&
-          rType.typeKind() == Type::TypeKind::kVector)) {
+        !(lType.isVector() && rType.isVector())) {
         this->write(ByteCodeInstruction::kMatrixMultiply,
                     SlotCount(b.type()) - (SlotCount(lType) + SlotCount(rType)));
         int rCols = rType.columns(),
@@ -807,7 +804,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             lCols = lType.columns(),
             lRows = lType.rows();
         // M*V treats the vector as a column
-        if (rType.typeKind() == Type::TypeKind::kVector) {
+        if (rType.isVector()) {
             std::swap(rCols, rRows);
         }
         SkASSERT(lCols == rRows);
@@ -956,8 +953,7 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
                 SkASSERT(false);
             }
         }
-        if (inType.typeKind() == Type::TypeKind::kMatrix &&
-            outType.typeKind() == Type::TypeKind::kMatrix) {
+        if (inType.isMatrix() && outType.isMatrix()) {
             this->write(ByteCodeInstruction::kMatrixToMatrix,
                         SlotCount(outType) - SlotCount(inType));
             this->write8(inType.columns());
@@ -966,12 +962,12 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
             this->write8(outType.rows());
         } else if (inCount != outCount) {
             SkASSERT(inCount == 1);
-            if (outType.typeKind() == Type::TypeKind::kMatrix) {
+            if (outType.isMatrix()) {
                 this->write(ByteCodeInstruction::kScalarToMatrix, SlotCount(outType) - 1);
                 this->write8(outType.columns());
                 this->write8(outType.rows());
             } else {
-                SkASSERT(outType.typeKind() == Type::TypeKind::kVector);
+                SkASSERT(outType.isVector());
                 for (; inCount != outCount; ++inCount) {
                     this->write(ByteCodeInstruction::kDup, 1);
                 }
