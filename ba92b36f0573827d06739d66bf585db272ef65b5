@@ -70,6 +70,24 @@
       "parentUuid": "4bb5dbf2_852420ae",
       "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3bdb15d_57a891d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-24T19:43:54Z",
+      "side": 1,
+      "message": "Ok, thanks for that update. I was trying briefly to come up with a proof for your other statement (error of representing a conic as a quad gets reduced by 1/4 each time you split in half) since I\u0027m curious about why that works. Do you happen to have a link to any resources on that?",
+      "parentUuid": "d87a0256_d99ae6e2",
+      "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
