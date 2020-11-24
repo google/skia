@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ac753397_28714c06",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-24T14:13:30Z",
+      "side": 1,
+      "message": "\u003e * Do we know whether this formula is equivalent to Wang\u0027s when w\u003d\u003d1 all throughout?\n\nWe do, and it does reduce to regular Wang\u0027s formula -- the paper has a nice simple proof of that as well (pg 8).\n\n\u003e * Would it be faster to either compute this value separately for rational quadratics, or else take advantage of the fact that w0\u003d\u003dw3\u003d\u003d1 and w1\u003d\u003dw2?\n\nI\u0027m betting the answer is yes, although probably we should write some benchmarks to test that theory. Also it would increase shader codesize, I don\u0027t know how important that is.\n\n\u003e * If going this route, we will also need to update GrWangsFormula on the CPU side and handle conics separately\n\nLMK what you\u0027d like to do -- obviously deferring to your judgement here. We can also land this somewhere unused while we play around with it, and remove it later if we decide we don\u0027t want it.\n\n\u003e * You mentioned some cases where running wang\u0027s on the down-projected points wasn\u0027t sufficient. Do you know what these conics are and what their w values are?\n\nI\u0027ll do some investigation today and see if I can come up with some examples for us to ponder, as this is a key question.",
+      "parentUuid": "3a303005_db1c870a",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55789eec_807d5815",
         "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
         "patchSetId": 1
@@ -48,6 +66,30 @@
       "writtenOn": "2020-11-24T00:30:50Z",
       "side": 1,
       "message": "I\u0027m curious what changes if we just take the midpoint?\n\n  \"float2 midpoint \u003d float4x2(P) * float4(.25);\"\n\nI understand that isn\u0027t what\u0027s in the paper.. Does it cause the result to be larger?\n\nI guess what I really want to know is, is this the exact provable value to translate by? Or is it more of an arbitrary thing to help the end result be nicer?",
+      "range": {
+        "startLine": 38,
+        "startChar": 7,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "097ea3b6_113798d0",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-24T14:13:30Z",
+      "side": 1,
+      "message": "It seems to be a heuristic at best unfortunately. The goal is to minimize r \u003d max_i{length(P_i)}, meaning even with subtracting the center point C, you can always come up with an adversarial curve with a control point super far away, growing r arbitrarily.\n\nOnce we have some time to understand the original Wang\u0027s formula more deeply, I\u0027m curious if we\u0027ll discover a similar \"vulnerability\" to far-away control points.\n\nAnyway, we could certainly try your midpoint idea, or perhaps a median instead of averaging.",
+      "parentUuid": "55789eec_807d5815",
       "range": {
         "startLine": 38,
         "startChar": 7,
