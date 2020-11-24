@@ -388,8 +388,8 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // more than 180 degrees or inflect, so the inverse cosine has enough range.
         vec2 tan0norm = normalize(tangents[0]);
         vec2 tan1norm = normalize(tangents[1]);
-        float cosTheta = dot(tan1norm, tan0norm);
-        float rotation = acos(clamp(cosTheta, -1, +1));
+        float cosTheta = clamp(dot(tan1norm, tan0norm), -1, +1);
+        float rotation = acos(cosTheta);
 
         // Adjust sign of rotation to match the direction the curve turns.
         // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
