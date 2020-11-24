@@ -35,6 +35,52 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "55789eec_807d5815",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T00:30:50Z",
+      "side": 1,
+      "message": "I\u0027m curious what changes if we just take the midpoint?\n\n  \"float2 midpoint \u003d float4x2(P) * float4(.25);\"\n\nI understand that isn\u0027t what\u0027s in the paper.. Does it cause the result to be larger?\n\nI guess what I really want to know is, is this the exact provable value to translate by? Or is it more of an arbitrary thing to help the end result be nicer?",
+      "range": {
+        "startLine": 38,
+        "startChar": 7,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3ae56aa_8c3b41a2",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T00:30:50Z",
+      "side": 1,
+      "message": "You could write this in parallel, and then maybe the max4/min4 functions aren\u0027t as necessary:\n\n(And then max4 takes float2 instead of float)\n\n  float lt \u003d min(min(P[0], P[1]), min(P[2], P[3]));\n  float rb \u003d max(max(P[0], P[1]), max(P[2], P[3]));\n  return (lt + rb) * .5;",
+      "range": {
+        "startLine": 39,
+        "startChar": 23,
+        "endLine": 39,
+        "endChar": 27
+      },
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d976064e_e5f7ccf4",
@@ -48,6 +94,47 @@
       "writtenOn": "2020-11-23T21:06:15Z",
       "side": 1,
       "message": "-C is what makes this translation invariant",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01b89e4a_851c92bb",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T00:30:50Z",
+      "side": 1,
+      "message": "Got it",
+      "parentUuid": "d976064e_e5f7ccf4",
+      "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85349931_c24f3b9c",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T00:30:50Z",
+      "side": 1,
+      "message": "This could just be: \"length(fwdiff2(wTransP[0], wTransP[1], wTransP[2]))\"",
+      "range": {
+        "startLine": 79,
+        "startChar": 14,
+        "endLine": 79,
+        "endChar": 30
+      },
       "revId": "00b83bd2f31e5b1a339995d4a3fc47d0faa01cd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
