@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac4c8a8_1252df5f",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T16:51:03Z",
+      "side": 1,
+      "message": "This is the spot that needed to be clamped.",
+      "range": {
+        "startLine": 418,
+        "startChar": 30,
+        "endLine": 418,
+        "endChar": 38
+      },
+      "revId": "3a1352593d605df7f4c6a21e1f59e1f8b2a181f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
