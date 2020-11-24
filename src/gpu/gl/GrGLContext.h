@@ -16,6 +16,9 @@
 #include "src/gpu/glsl/GrGLSL.h"
 
 struct GrContextOptions;
+namespace SkSL {
+    class Compiler;
+}  // namespace SkSL
 
 /**
  * Encapsulates information about an OpenGL context including the OpenGL
@@ -79,7 +82,7 @@ protected:
 };
 
 /**
- * Extension of GrGLContextInfo that also provides access to GrGLInterface.
+ * Extension of GrGLContextInfo that also provides access to GrGLInterface and SkSL::Compiler.
  */
 class GrGLContext : public GrGLContextInfo {
 public:
@@ -91,10 +94,14 @@ public:
 
     const GrGLInterface* glInterface() const { return fInterface.get(); }
 
+    SkSL::Compiler* compiler() const;
+
     ~GrGLContext() override;
 
 private:
-    GrGLContext(ConstructorArgs&& args) : INHERITED(std::move(args)) {}
+    GrGLContext(ConstructorArgs&& args) : INHERITED(std::move(args)), fCompiler(nullptr) {}
+
+    mutable SkSL::Compiler* fCompiler;
 
     using INHERITED = GrGLContextInfo;
 };
