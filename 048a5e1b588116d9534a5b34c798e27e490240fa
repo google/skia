@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63e541c4_f5cfacfa",
+        "filename": "tests/sksl/shared/golden/Operators.asm.frag",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-24T22:02:26Z",
+      "side": 1,
+      "message": "whoopsie!",
+      "range": {
+        "startLine": 3,
+        "startChar": 10,
+        "endLine": 3,
+        "endChar": 27
+      },
+      "revId": "048a5e1b588116d9534a5b34c798e27e490240fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
