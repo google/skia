@@ -488,7 +488,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
         SpvId result = this->nextId();
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
-                if (type == *fContext.fBool_Type) {
+                if (type.isBoolean()) {
                     this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
                 } else if (type == *fContext.fInt_Type || type == *fContext.fShort_Type ||
                            type == *fContext.fIntLiteral_Type) {
@@ -2022,7 +2022,7 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
         this->writeInstruction(ifInt, this->getType(resultType), result, lhs, rhs, out);
     } else if (is_unsigned(fContext, operandType)) {
         this->writeInstruction(ifUInt, this->getType(resultType), result, lhs, rhs, out);
-    } else if (operandType == *fContext.fBool_Type) {
+    } else if (operandType.isBoolean()) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
         return result; // skip RelaxedPrecision check
     } else {
@@ -2210,7 +2210,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdEqual,
                                                    SpvOpIEqual, SpvOpAll, SpvOpLogicalAnd, out);
             }
-            SkASSERT(resultType == *fContext.fBool_Type);
+            SkASSERT(resultType.isBoolean());
             const Type* tmpType;
             if (operandType->isVector()) {
                 tmpType = &fContext.fBool_Type->toCompound(fContext,
@@ -2229,7 +2229,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdNotEqual,
                                                    SpvOpINotEqual, SpvOpAny, SpvOpLogicalOr, out);
             }
-            SkASSERT(resultType == *fContext.fBool_Type);
+            [[fallthrough]];
+        case Token::Kind::TK_LOGICALXOR:
+            SkASSERT(resultType.isBoolean());
             const Type* tmpType;
             if (operandType->isVector()) {
                 tmpType = &fContext.fBool_Type->toCompound(fContext,
@@ -2244,21 +2246,21 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                                                                out),
                                     *operandType, SpvOpAny, out);
         case Token::Kind::TK_GT:
-            SkASSERT(resultType == *fContext.fBool_Type);
+            SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThan, SpvOpSGreaterThan,
                                               SpvOpUGreaterThan, SpvOpUndef, out);
         case Token::Kind::TK_LT:
-            SkASSERT(resultType == *fContext.fBool_Type);
+            SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFOrdLessThan,
                                               SpvOpSLessThan, SpvOpULessThan, SpvOpUndef, out);
         case Token::Kind::TK_GTEQ:
-            SkASSERT(resultType == *fContext.fBool_Type);
+            SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdGreaterThanEqual, SpvOpSGreaterThanEqual,
                                               SpvOpUGreaterThanEqual, SpvOpUndef, out);
         case Token::Kind::TK_LTEQ:
-            SkASSERT(resultType == *fContext.fBool_Type);
+            SkASSERT(resultType.isBoolean());
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                               SpvOpFOrdLessThanEqual, SpvOpSLessThanEqual,
                                               SpvOpULessThanEqual, SpvOpUndef, out);
@@ -2474,7 +2476,7 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             return result;
         }
         case Token::Kind::TK_LOGICALNOT: {
-            SkASSERT(p.operand()->type() == *fContext.fBool_Type);
+            SkASSERT(p.operand()->type().isBoolean());
             SpvId result = this->nextId();
             this->writeInstruction(SpvOpLogicalNot, this->getType(type), result,
                                    this->writeExpression(*p.operand(), out), out);
