@@ -16,6 +16,24 @@
       "message": "You should include the steps here you followed to do this so you have this as a reference for next time.",
       "revId": "17492855cdb4fa43d03c892a76df946a79a4c948",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb0c7767_d5e20829",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-11-24T18:54:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46ff18f0_a43772cc",
+      "revId": "17492855cdb4fa43d03c892a76df946a79a4c948",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
