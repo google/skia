@@ -29,8 +29,8 @@ class SkPaint;
 struct SkBitmapProcState {
     SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy);
 
-    bool setup(const SkMatrix& inv, const SkPaint& paint) {
-        return this->init(inv, paint)
+    bool setup(const SkMatrix& inv, SkColor color, const SkSamplingOptions& sampling) {
+        return this->init(inv, color, sampling)
             && this->chooseProcs();
     }
 
@@ -98,7 +98,7 @@ private:
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
-    bool init(const SkMatrix& inverse, const SkPaint&);
+    bool init(const SkMatrix& inverse, SkColor, const SkSamplingOptions&);
     bool chooseProcs();
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     ShaderProc32 chooseShaderProc32();
