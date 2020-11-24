@@ -32,20 +32,19 @@ vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
 
     if (hueLumColor.x <= hueLumColor.y) {
         if (hueLumColor.y <= hueLumColor.z) {
-            hueLumColor.xyz = _blend_set_color_saturation_helper(hueLumColor, sat);
+            return _blend_set_color_saturation_helper(hueLumColor, sat);
         } else if (hueLumColor.x <= hueLumColor.z) {
-            hueLumColor.xzy = _blend_set_color_saturation_helper(hueLumColor.xzy, sat);
+            return _blend_set_color_saturation_helper(hueLumColor.xzy, sat).xzy;
         } else {
-            hueLumColor.zxy = _blend_set_color_saturation_helper(hueLumColor.zxy, sat);
+            return _blend_set_color_saturation_helper(hueLumColor.zxy, sat).yzx;
         }
     } else if (hueLumColor.x <= hueLumColor.z) {
-        hueLumColor.yxz = _blend_set_color_saturation_helper(hueLumColor.yxz, sat);
+        return _blend_set_color_saturation_helper(hueLumColor.yxz, sat).yxz;
     } else if (hueLumColor.y <= hueLumColor.z) {
-        hueLumColor.yzx = _blend_set_color_saturation_helper(hueLumColor.yzx, sat);
+        return _blend_set_color_saturation_helper(hueLumColor.yzx, sat).zxy;
     } else {
-        hueLumColor.zyx = _blend_set_color_saturation_helper(hueLumColor.zyx, sat);
+        return _blend_set_color_saturation_helper(hueLumColor.zyx, sat).zyx;
     }
-    return hueLumColor;
 }
 vec4 blend_hue(vec4 src, vec4 dst) {
     float alpha = dst.w * src.w;
