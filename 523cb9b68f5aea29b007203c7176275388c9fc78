@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "938b98e8_3370ea8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-11-24T20:49:41Z",
+      "side": 1,
+      "message": "Adlai you won the roulette for this simple change since other backed folks are out :)",
+      "revId": "523cb9b68f5aea29b007203c7176275388c9fc78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
