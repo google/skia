@@ -6,6 +6,8 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Added dither control to the SkImageFilters::Shader factory.
+    https://review.skia.org/338156
 
   * Add MTLBinaryArchive parameter to GrMtlBackendContext. This allows
     Skia to cache PipelineStates in the given archive for faster

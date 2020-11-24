@@ -304,6 +304,11 @@ public:
         return Picture(std::move(pic), target);
     }
 
+    enum class Dither : bool {
+        kNo = false,
+        kYes = true
+    };
+
     /**
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader. The
      *  shader is defined in the image filter's local coordinate system, so will automatically
@@ -315,12 +320,17 @@ public:
      *  @param shader The shader that fills the result image
      */
     static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const CropRect& cropRect = {}) {
-        return Shader(std::move(shader), kNone_SkFilterQuality, cropRect);
+        return Shader(std::move(shader), Dither::kNo, cropRect);
+    }
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
+                                       const CropRect& cropRect = {}) {
+        return Shader(std::move(shader), dither, kNone_SkFilterQuality, cropRect);
     }
     // As above, but the filter quality defines what is used in image shaders that defer to the
     // quality stored on an SkPaint. NOTE: this default behavior is deprecated, so prefer creating
-    // image shaders with explicit sampling parameters and call the 2-arg Shader() factory instead.
-    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, SkFilterQuality filterQuality,
+    // image shaders with explicit sampling parameters and call the other Shader() factory instead.
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, Dither dither,
+                                       SkFilterQuality filterQuality,
                                        const CropRect& cropRect = {});
 
     /**
