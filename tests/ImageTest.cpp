@@ -1303,7 +1303,8 @@ static void test_scale_pixels(skiatest::Reporter* reporter, const SkImage* image
     for (auto chint : { SkImage::kDisallow_CachingHint, SkImage::kAllow_CachingHint }) {
         SkAutoPixmapStorage scaled;
         scaled.alloc(info);
-        if (!image->scalePixels(scaled, kLow_SkFilterQuality, chint)) {
+        if (!image->scalePixels(scaled, SkSamplingOptions(SkFilterMode::kLinear,
+                                                          SkMipmapMode::kNone), chint)) {
             ERRORF(reporter, "Failed to scale image");
             continue;
         }
