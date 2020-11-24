@@ -311,22 +311,13 @@ array of the test names and what they drew.
     'ZeroSizedProxyTest',
     'skbug5221_GPU',
 
-    // These tests are failing
+    // These tests are failing because they can't make an SkSurface
     'ApplyGamma',
     'BlurMaskBiggerThanDest',
-    'Codec_GifPreMap',
-    'Codec_AnimatedTransparentGif',
-    'FILEStreamWithOffset',
-    'Gif',
     'RepeatedClippedBlurTest',
-    'SkTraceMemoryDump_ownedGLRenderTarget',
-    'SurfaceClear_Gpu',
-    'SurfaceSnapshotAlphaType_Gpu',
-    'TestGpuAllContexts',
-    'TestGpuRenderingContexts',
-    'TestMockContext',
-    'TextBlobAbnormal',
-    'TextBlobCache'
+
+    // These tests are failing
+    'FILEStreamWithOffset',
   ]);
 
   async function RunTests(GM) {
