@@ -17,23 +17,23 @@ static TypeCategory type_category(const Type& type) {
         case Type::TypeKind::kMatrix:
             return type_category(type.componentType());
         default:
-            const StringFragment& name = type.name();
-            if (name == "bool") {
+            if (type.isBoolean()) {
                 return TypeCategory::kBool;
-            } else if (name == "int" ||
-                       name == "short" ||
-                       name == "$intLiteral") {
-                return TypeCategory::kSigned;
-            } else if (name == "uint" ||
-                       name == "ushort") {
-                return TypeCategory::kUnsigned;
-            } else {
-                SkASSERT(name == "float" ||
-                         name == "half" ||
-                         name == "$floatLiteral");
-                return TypeCategory::kFloat;
             }
-            ABORT("unsupported type: %s\n", type.displayName().c_str());
+            const StringFragment& name = type.name();
+            if (name == "int" ||
+                name == "short" ||
+                name == "$intLiteral") {
+                return TypeCategory::kSigned;
+            }
+            if (name == "uint" ||
+                name == "ushort") {
+                return TypeCategory::kUnsigned;
+            }
+            SkASSERT(name == "float" ||
+                     name == "half" ||
+                     name == "$floatLiteral");
+            return TypeCategory::kFloat;
     }
 }
 

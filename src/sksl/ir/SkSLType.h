@@ -91,6 +91,7 @@ public:
         kFloat,
         kSigned,
         kUnsigned,
+        kBoolean,
         kNonnumeric
     };
 
@@ -261,10 +262,17 @@ public:
     }
 
     /**
+     * Returns true if this type is a bool.
+     */
+    bool isBoolean() const {
+        return fNumberKind == NumberKind::kBoolean;
+    }
+
+    /**
      * Returns true if this is a numeric scalar type.
      */
     bool isNumber() const {
-        return fNumberKind != NumberKind::kNonnumeric;
+        return this->isFloat() || this->isInteger();
     }
 
     /**
@@ -292,7 +300,7 @@ public:
      * Returns true if this is a signed or unsigned integer.
      */
     bool isInteger() const {
-        return isSigned() || isUnsigned();
+        return this->isSigned() || this->isUnsigned();
     }
 
     /**

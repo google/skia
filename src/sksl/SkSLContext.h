@@ -58,7 +58,7 @@ public:
     , fByte2_Type(new Type("byte2", *fByte_Type, 2))
     , fByte3_Type(new Type("byte3", *fByte_Type, 3))
     , fByte4_Type(new Type("byte4", *fByte_Type, 4))
-    , fBool_Type(new Type("bool", Type::NumberKind::kNonnumeric, -1))
+    , fBool_Type(new Type("bool", Type::NumberKind::kBoolean, -1))
     , fBool2_Type(new Type("bool2", *fBool_Type, 2))
     , fBool3_Type(new Type("bool3", *fBool_Type, 3))
     , fBool4_Type(new Type("bool4", *fBool_Type, 4))

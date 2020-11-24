@@ -103,7 +103,7 @@ public:
     size_t size(const Type& type) const {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
-                if (type.name() == "bool") {
+                if (type.isBoolean()) {
                     return 1;
                 }
                 // FIXME need to take precision into account, once we figure out how we want to
