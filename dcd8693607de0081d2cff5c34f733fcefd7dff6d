@@ -16,6 +16,24 @@
       "message": "Ugh, no CQ commit got me again",
       "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bf15fac_c7bff85a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-11-24T11:49:13Z",
+      "side": 1,
+      "message": "Ravi, is there any technical reason we can\u0027t add a CQ for this branch?",
+      "parentUuid": "d3b9dc9d_b457dfa3",
+      "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
