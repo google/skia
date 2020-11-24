@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a678feeb_471ef2a0",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-24T19:53:57Z",
+      "side": 1,
+      "message": "Should we parenthesize this? I\u0027m struggling to think of a case where it\u0027s strictly required, but the lack of parens does subtly change the order of operations for some expressions.\n\n   -dot(a,b)   --\u003e   -a * b",
+      "range": {
+        "startLine": 431,
+        "startChar": 0,
+        "endLine": 433,
+        "endChar": 81
+      },
+      "revId": "61302939470e631df8527ba2aac0c7deedfed53b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
