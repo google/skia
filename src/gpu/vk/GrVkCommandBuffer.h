@@ -53,7 +53,6 @@ public:
     void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
 
     void bindDescriptorSets(const GrVkGpu* gpu,
-                            GrVkPipelineState*,
                             VkPipelineLayout layout,
                             uint32_t firstSet,
                             uint32_t setCount,
