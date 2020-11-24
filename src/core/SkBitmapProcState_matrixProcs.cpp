@@ -474,7 +474,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
 
     if( fTileModeX == fTileModeY ) {
         // Check for our special case translate methods when there is no scale/affine/perspective.
-        if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
+        if (translate_only_matrix && !fBilerp) {
             switch (fTileModeX) {
                 default: SkASSERT(false); [[fallthrough]];
                 case SkTileMode::kClamp:  return  clampx_nofilter_trans<int_clamp>;
@@ -484,7 +484,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
         }
 
         // The arrays are all [ nofilter, filter ].
-        int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
+        int index = fBilerp ? 1 : 0;
         if (!fInvMatrix.isScaleTranslate()) {
             index |= 2;
         }

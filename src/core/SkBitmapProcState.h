@@ -53,7 +53,7 @@ struct SkBitmapProcState {
     SkColor                 fPaintColor;
     SkTileMode              fTileModeX;
     SkTileMode              fTileModeY;
-    SkFilterQuality         fFilterQuality;
+    bool                    fBilerp;
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
@@ -162,16 +162,16 @@ public:
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
 
         SkFixed biasX, biasY;
-        if (s.fFilterQuality == kNone_SkFilterQuality) {
+        if (s.fBilerp) {
+            biasX = s.fFilterOneX >> 1;
+            biasY = s.fFilterOneY >> 1;
+        } else {
             // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
             // consistently WRT geometry.  Note that we only need the bias for positive scales:
             // for negative scales, the rounding is intrinsically correct.
             // We scale it to persist SkFractionalInt -> SkFixed conversions.
             biasX = (s.fInvMatrix.getScaleX() > 0);
             biasY = (s.fInvMatrix.getScaleY() > 0);
-        } else {
-            biasX = s.fFilterOneX >> 1;
-            biasY = s.fFilterOneY >> 1;
         }
 
         // punt to unsigned for defined underflow behavior
