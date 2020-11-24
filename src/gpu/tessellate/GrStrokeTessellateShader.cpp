@@ -620,9 +620,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
                 maxRotation = min(maxRotation, kPI);
                 // Is rotation <= maxRotation? (i.e., is the number of complete radial segments
                 // behind testT, + testParametricID <= localEdgeID?)
-                // NOTE: We bias cos(maxRotation) downward for fp32 error. Otherwise a flat section
-                // following a 180 degree turn might not render properly.
-                if (cosRotation >= cos(maxRotation) - 1e-5) {
+                if (cosRotation >= cos(maxRotation)) {
                     // testParametricID is on or before the localEdgeID. Keep it!
                     lastParametricEdgeID = testParametricID;
                 }
