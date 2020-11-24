@@ -648,8 +648,40 @@ static skvm::Color program_fn(skvm::Builder* p,
 
             // Comparisons all should write their results to the main data stack;
             // maskpush moves them from there onto the mask stack as needed.
+            case Inst::kCompareFEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x==y); });
+                break;
+            case Inst::kCompareFNEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x!=y); });
+                break;
+            case Inst::kCompareFGT:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x>y); });
+                break;
+            case Inst::kCompareFGTEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x>=y); });
+                break;
             case Inst::kCompareFLT:
                 binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<y); });
+                break;
+            case Inst::kCompareFLTEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<=y); });
+                break;
+
+            case Inst::kCompareIEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)==bit_cast(y)); });
+                break;
+            case Inst::kCompareINEQ:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)!=bit_cast(y)); });
+                break;
+
+            case Inst::kAndB:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)&bit_cast(y)); });
+                break;
+            case Inst::kOrB:
+                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)|bit_cast(y)); });
+                break;
+            case Inst::kNotB:
+                unary([](skvm::F32 x) { return bit_cast(~bit_cast(x)); });
                 break;
 
             case Inst::kMaskBlend: {

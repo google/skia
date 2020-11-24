@@ -269,3 +269,98 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_geometric,
     plot(canvas, "refract(v1.x0, v1.0x, x).x", 0.0f, 1.0f, -1.0f, 1.0f, "refract().x"); col(canvas);
     plot(canvas, "refract(v1.x0, v1.0x, x).y", 0.0f, 1.0f, -1.0f, 1.0f, "refract().y"); row(canvas);
 }
+
+/*
+  Specialized shader for testing relational operators.
+*/
+static SkString make_bvec_sksl(const char* fn) {
+    return SkStringPrintf(
+            "half4 main(float2 p) {"
+            "    float2 v1 = float2(1.0);"
+            "    p.x = p.x < 0.33 ? 0.0 : (p.x < 0.66 ? 1.0 : 2.0);"
+            "    p.y = p.y < 0.33 ? 0.0 : (p.y < 0.66 ? 1.0 : 2.0);"
+            "    bool2 cmp = %s;"
+            "    return half4(cmp.x ? 1.0 : 0.0, cmp.y ? 1.0 : 0.0, 0, 1);"
+            "}",
+            fn);
+}
+
+static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label = nullptr) {
+    canvas->save();
+
+    SkFont font(ToolUtils::create_portable_typeface());
+    SkPaint p(SkColors::kBlack);
+    SkRect bounds;
+    if (!label) {
+        label = fn;
+    }
+    font.measureText(label, strlen(label), SkTextEncoding::kUTF8, &bounds);
+
+    canvas->drawSimpleText(label, strlen(label), SkTextEncoding::kUTF8,
+                           (kBoxSize - bounds.width()) * 0.5f,
+                           (kLabelHeight + bounds.height()) * 0.5f, font, p);
+    canvas->translate(0, kLabelHeight);
+
+    {
+        auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(fn));
+        if (!effect) {
+            SkDebugf("Error: %s\n", error.c_str());
+            return;
+        }
+
+        SkRuntimeShaderBuilder builder(effect);
+
+        SkPaint paint;
+        paint.setShader(builder.makeShader(nullptr, false));
+
+        SkImageInfo info = SkImageInfo::MakeN32Premul({ kBoxSize, kBoxSize});
+        auto surface = canvas->makeSurface(info);
+        if (!surface) {
+            surface = SkSurface::MakeRaster(info);
+        }
+
+        surface->getCanvas()->clear(SK_ColorWHITE);
+        surface->getCanvas()->scale(kBoxSize, kBoxSize);
+        surface->getCanvas()->drawRect({0, 0, 1, 1}, paint);
+
+        SkBitmap bitmap;
+        bitmap.allocPixels(info);
+        surface->readPixels(bitmap, 0, 0);
+
+        canvas->drawBitmap(bitmap, 0, 0);
+    }
+
+    canvas->restore();
+}
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.6
+DEF_SIMPLE_GM_BG(runtime_intrinsics_relational,
+                 canvas,
+                 columns_to_width(2),
+                 rows_to_height(6),
+                 SK_ColorWHITE) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    // TODO: ivec versions of these. (Not declared in sksl_public.sksl yet).
+
+    plot_bvec(canvas, "lessThan(p, v1)",      "lessThan");      col(canvas);
+    plot_bvec(canvas, "lessThanEqual(p, v1)", "lessThanEqual"); row(canvas);
+
+    plot_bvec(canvas, "greaterThan(p, v1)",      "greaterThan");      col(canvas);
+    plot_bvec(canvas, "greaterThanEqual(p, v1)", "greaterThanEqual"); row(canvas);
+
+    plot_bvec(canvas, "equal(p, v1)",    "equal");    col(canvas);
+    plot_bvec(canvas, "notEqual(p, v1)", "notEqual"); row(canvas);
+
+    plot_bvec(canvas, "equal(lessThanEqual(p, v1), greaterThanEqual(p, v1))",
+                      "equal(bvec)"); col(canvas);
+    plot_bvec(canvas, "notEqual(lessThanEqual(p, v1), greaterThanEqual(p, v1))",
+                      "notequal(bvec)"); row(canvas);
+
+    plot_bvec(canvas, "not(notEqual(p, v1))", "not(notEqual)"); col(canvas);
+    plot_bvec(canvas, "not(equal(p, v1))",    "not(equal)");    row(canvas);
+
+    plot_bvec(canvas, "bool2(any(equal(p, v1)))", "any(equal)"); col(canvas);
+    plot_bvec(canvas, "bool2(all(equal(p, v1)))", "all(equal)"); row(canvas);
+}
