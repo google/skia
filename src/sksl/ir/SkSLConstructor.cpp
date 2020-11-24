@@ -35,7 +35,7 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
     const Type& myType = this->type();
     const Type& otherType = c.type();
     SkASSERT(myType == otherType);
-    if (otherType.typeKind() == Type::TypeKind::kVector) {
+    if (otherType.isVector()) {
         bool isFloat = otherType.columns() > 1 ? otherType.componentType().isFloat()
                                              : otherType.isFloat();
         for (int i = 0; i < myType.columns(); i++) {
@@ -52,7 +52,7 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
     // shouldn't be possible to have a constant constructor that isn't a vector or matrix;
     // a constant scalar constructor should have been collapsed down to the appropriate
     // literal
-    SkASSERT(myType.typeKind() == Type::TypeKind::kMatrix);
+    SkASSERT(myType.isMatrix());
     for (int col = 0; col < myType.columns(); col++) {
         for (int row = 0; row < myType.rows(); row++) {
             if (getMatComponent(col, row) != c.getMatComponent(col, row)) {
@@ -65,9 +65,9 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
 
 template <typename ResultType>
 ResultType Constructor::getVecComponent(int index) const {
-    SkASSERT(this->type().typeKind() == Type::TypeKind::kVector);
+    SkASSERT(this->type().isVector());
     if (this->arguments().size() == 1 &&
-        this->arguments()[0]->type().typeKind() == Type::TypeKind::kScalar) {
+        this->arguments()[0]->type().isScalar()) {
         // This constructor just wraps a scalar. Propagate out the value.
         if (std::is_floating_point<ResultType>::value) {
             return this->arguments()[0]->getConstantFloat();
@@ -84,7 +84,7 @@ ResultType Constructor::getVecComponent(int index) const {
             break;
         }
 
-        if (arg->type().typeKind() == Type::TypeKind::kScalar) {
+        if (arg->type().isScalar()) {
             if (index == current) {
                 // We're on the proper argument, and it's a scalar; fetch it.
                 if (std::is_floating_point<ResultType>::value) {
@@ -118,7 +118,7 @@ ResultType Constructor::getVecComponent(int index) const {
                     SkASSERT(prefix.getOperator() == Token::Kind::TK_MINUS);
 
                     const Expression& operand = *prefix.operand();
-                    if (operand.type().typeKind() == Type::TypeKind::kVector) {
+                    if (operand.type().isVector()) {
                         return operand.type().componentType().isFloat()
                                 ? -ResultType(operand.getVecComponent<SKSL_FLOAT>(index - current))
                                 : -ResultType(operand.getVecComponent<SKSL_INT>(index - current));
@@ -150,11 +150,11 @@ template float Constructor::getVecComponent(int) const;
 SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
     SkDEBUGCODE(const Type& myType = this->type();)
     SkASSERT(this->isCompileTimeConstant());
-    SkASSERT(myType.typeKind() == Type::TypeKind::kMatrix);
+    SkASSERT(myType.isMatrix());
     SkASSERT(col < myType.columns() && row < myType.rows());
     if (this->arguments().size() == 1) {
         const Type& argType = this->arguments()[0]->type();
-        if (argType.typeKind() == Type::TypeKind::kScalar) {
+        if (argType.isScalar()) {
             // single scalar argument, so matrix is of the form:
             // x 0 0
             // 0 x 0
@@ -162,7 +162,7 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
             // return x if col == row
             return col == row ? this->arguments()[0]->getConstantFloat() : 0.0;
         }
-        if (argType.typeKind() == Type::TypeKind::kMatrix) {
+        if (argType.isMatrix()) {
             SkASSERT(this->arguments()[0]->kind() == Expression::Kind::kConstructor);
             // single matrix argument. make sure we're within the argument's bounds.
             if (col < argType.columns() && row < argType.rows()) {
@@ -199,7 +199,7 @@ int64_t Constructor::getConstantInt() const {
 
     // The inner argument might actually be a float! `int(1.0)` is a valid cast.
     const Expression& expr = *this->arguments().front();
-    SkASSERT(expr.type().typeKind() == Type::TypeKind::kScalar);
+    SkASSERT(expr.type().isScalar());
     return expr.type().isInteger() ? expr.getConstantInt() : (int64_t)expr.getConstantFloat();
 }
 
@@ -211,7 +211,7 @@ SKSL_FLOAT Constructor::getConstantFloat() const {
 
     // The inner argument might actually be an integer! `float(1)` is a valid cast.
     const Expression& expr = *this->arguments().front();
-    SkASSERT(expr.type().typeKind() == Type::TypeKind::kScalar);
+    SkASSERT(expr.type().isScalar());
     return expr.type().isFloat() ? expr.getConstantFloat() : (SKSL_FLOAT)expr.getConstantInt();
 }
 
