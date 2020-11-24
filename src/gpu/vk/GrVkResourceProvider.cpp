@@ -353,12 +353,25 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
 }
 
 void GrVkResourceProvider::checkCommandBuffers() {
-    for (int i = fActiveCommandPools.count() - 1; i >= 0; --i) {
+    // When resetting a command buffer it can trigger client provided procs (e.g. release or
+    // finished) to be called. During these calls the client could trigger us to abandon the vk
+    // context, e.g. if we are in a DEVICE_LOST state. When we abandon the vk context we will
+    // unref all the fActiveCommandPools and reset the array. Since this can happen in the middle
+    // of the loop here, we need to additionally check that fActiveCommandPools still has pools on
+    // each iteration.
+    //
+    // TODO: We really need to have a more robust way to protect us from client proc calls that
+    // happen in the middle of us doing work. This may be just one of many potential pitfalls that
+    // could happen from the client triggering GrDirectContext changes during a proc call.
+    for (int i = fActiveCommandPools.count() - 1; fActiveCommandPools.count() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
             if (buffer->finished(fGpu)) {
                 fActiveCommandPools.removeShuffle(i);
+                // This passes ownership of the pool to the backgroundReset call. The pool should
+                // not be used again from this function.
+                // TODO: We should see if we can use sk_sps here to make this more explicit.
                 this->backgroundReset(pool);
             }
         }
@@ -452,6 +465,13 @@ void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
     pool->releaseResources();
+    // After releasing resources we may have called a client callback proc which may have
+    // disconnected the GrVkGpu. In that case we do not want to push the pool back onto the cache,
+    // but instead just drop the pool.
+    if (fGpu->disconnected()) {
+        pool->unref();
+        return;
+    }
     SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
     if (taskGroup) {
         taskGroup->add([this, pool]() {
