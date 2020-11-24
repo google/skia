@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "samplecode/Sample.h"
+#include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "tools/ToolUtils.h"
 
@@ -19,6 +20,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrWangsFormula.h"
 
 static float kConicWeight = .5;
 
@@ -149,9 +151,39 @@ Sample::Click* TessellatedWedge::onFindClickHandler(SkScalar x, SkScalar y, skui
     return new Click(-1);
 }
 
+static float find_conic_max_error(const SkConic& conic, int numChops) {
+    if (numChops > 1) {
+        int leftChops = numChops / 2;
+        SkConic halves[2];
+        if (conic.chopAt((float)leftChops/numChops, halves)) {
+            return std::max(find_conic_max_error(halves[0], leftChops),
+                            find_conic_max_error(halves[1], numChops - leftChops));
+        }
+    }
+
+    const SkPoint* p = conic.fPts;
+    float w = conic.fW;
+    SkVector n = {p[2].fY - p[0].fY, p[0].fX - p[2].fX};
+    float h1 = (p[1] - p[0]).dot(n) / n.length();
+    float h = h1*w / (1 + w);
+    return h;
+}
+
+static void dump_conic_max_errors(const SkPath& path) {
+    SkPath path_;
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        if (verb == SkPathVerb::kConic) {
+            int n = GrWangsFormula::quadratic(4, pts);
+            float err = find_conic_max_error(SkConic(pts, *w), n);
+            SkDebugf("CONIC MAX ERROR:  %f\n", err);
+        }
+    }
+}
+
 bool TessellatedWedge::onClick(Sample::Click* click) {
     Click* myClick = (Click*)click;
     myClick->doClick(&fPath);
+    dump_conic_max_errors(fPath);
     return true;
 }
 
@@ -178,6 +210,7 @@ static SkPath update_weight(const SkPath& path) {
                 SkUNREACHABLE;
         }
     }
+    dump_conic_max_errors(path);
     return path_;
 }
 
