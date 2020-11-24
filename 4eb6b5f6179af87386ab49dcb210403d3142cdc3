@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dcd015f_49c24fb9",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-24T14:42:35Z",
+      "side": 1,
+      "message": "purposes",
+      "range": {
+        "startLine": 640,
+        "startChar": 83,
+        "endLine": 640,
+        "endChar": 91
+      },
+      "revId": "4eb6b5f6179af87386ab49dcb210403d3142cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43481fc0_97eb58e4",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-24T14:42:35Z",
+      "side": 1,
+      "message": "else if?",
+      "range": {
+        "startLine": 664,
+        "startChar": 4,
+        "endLine": 665,
+        "endChar": 6
+      },
+      "revId": "4eb6b5f6179af87386ab49dcb210403d3142cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e71c0bcb_64c309c1",
+        "filename": "src/gpu/geometry/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-24T14:42:35Z",
+      "side": 1,
+      "message": "after this update, can we assert that discr_over_4 \u003e cuspThreshold?",
+      "range": {
+        "startLine": 696,
+        "startChar": 8,
+        "endLine": 696,
+        "endChar": 74
+      },
+      "revId": "4eb6b5f6179af87386ab49dcb210403d3142cdc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
