@@ -52,6 +52,24 @@
       "parentUuid": "0bf15fac_c7bff85a",
       "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5765258a_2ee9997e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-11-24T14:32:50Z",
+      "side": 1,
+      "message": "of course. CQ doesn\u0027t care which ref you want it to watch, so long as you set ACLs right. Here is V8 having separate infra/config CQ: https://chromium.googlesource.com/v8/v8/+/refs/heads/infra/config/cq.star#11",
+      "parentUuid": "85c37773_4566e536",
+      "revId": "dcd8693607de0081d2cff5c34f733fcefd7dff6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
