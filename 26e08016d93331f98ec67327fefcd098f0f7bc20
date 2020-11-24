@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "493fc063_09f974f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-24T16:44:32Z",
+      "side": 1,
+      "message": "lgtm with nits",
+      "revId": "26e08016d93331f98ec67327fefcd098f0f7bc20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d89fd189_21fec9e0",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-24T16:44:32Z",
+      "side": 1,
+      "message": "nit: differently",
+      "range": {
+        "startLine": 205,
+        "startChar": 46,
+        "endLine": 205,
+        "endChar": 56
+      },
+      "revId": "26e08016d93331f98ec67327fefcd098f0f7bc20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c224883_181653f0",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-24T16:44:32Z",
+      "side": 1,
+      "message": "These values are actually the width of everything laid out on one line (calling that \u0027max\u0027) and the maximum width of everything laid out on as many lines as natural (calling that \u0027min\u0027). But these are just different measurements. Currently what\u0027s allowing this to mostly work is the idea of chopping up a single line into bits, but in the general case nothing at all is making one of these measurements bigger or smaller than the other (not just rounding). It\u0027s actually unfortunate that these measurements are thought of as \u0027min\u0027 and \u0027max\u0027 since they\u0027re actually just unrelated measurements that happen to often be ordered that way.\n\nIn any event, I suppose its fine to always yank the max up to the min.",
+      "revId": "26e08016d93331f98ec67327fefcd098f0f7bc20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
