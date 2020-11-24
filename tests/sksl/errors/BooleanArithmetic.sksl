@@ -6,7 +6,7 @@ bool2 mod_boolean_vec()    { return bool2(false, false) % bool2(true, true); }
 bool2 shl_boolean_vec()    { return bool2(false, false) << bool2(true, true); }
 bool2 shr_boolean_vec()    { return bool2(false, false) >> bool2(true, true); }
 bool2 not_boolean_vec()    { return !bool2(false, false); }
-bool2 neg_boolean_vec()    { return -bool2(false, false); }  // TODO: unary minus not caught
+bool2 neg_boolean_vec()    { return -bool2(false, false); }
 bool2 bitnot_boolean_vec() { return ~bool2(false, false); }
 bool2 bitand_boolean_vec() { return bool2(false, false) & bool2(true, true); }
 bool2 bitor_boolean_vec()  { return bool2(false, false) | bool2(true, true); }
