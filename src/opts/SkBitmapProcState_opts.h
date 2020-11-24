@@ -42,7 +42,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
         SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(s.fBilerp);
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
 
@@ -174,7 +174,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
         SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(s.fBilerp);
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
 
@@ -313,7 +313,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
         SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(s.fBilerp);
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
 
@@ -475,7 +475,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, SkPMColor* colors) {
         SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(s.fBilerp);
         SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
         SkASSERT(s.fAlphaScale <= 256);
 
@@ -504,7 +504,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
                                    const uint32_t* xy, int count, SkPMColor* colors) {
         SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fFilterQuality != kNone_SkFilterQuality);
+        SkASSERT(s.fBilerp);
         SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
         SkASSERT(s.fAlphaScale <= 256);
 
