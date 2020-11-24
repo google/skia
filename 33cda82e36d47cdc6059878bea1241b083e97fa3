@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006367972",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/338320?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "b222b5ab_87c0575b",
+        "filename": "tests/sksl/shared/golden/Texture1D.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-11-24T20:52:51Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 111,
+        "endLine": 3,
+        "endChar": 112
+      },
+      "revId": "33cda82e36d47cdc6059878bea1241b083e97fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006367972",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/338320?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "161b7ad4_fdc899d9",
+        "filename": "tests/sksl/shared/golden/TextureSharpen.asm.frag",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-11-24T20:52:51Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 111,
+        "endLine": 3,
+        "endChar": 112
+      },
+      "revId": "33cda82e36d47cdc6059878bea1241b083e97fa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
