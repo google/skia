@@ -16,6 +16,23 @@
       "message": "PTAL at newest PS.",
       "revId": "e41573eec45f025a4981e2c8230a1ae7b5f65f94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a86c78bb_371f159f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-24T19:06:20Z",
+      "side": 1,
+      "message": "Still lgtm",
+      "revId": "e41573eec45f025a4981e2c8230a1ae7b5f65f94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
