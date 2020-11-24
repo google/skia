@@ -160,7 +160,7 @@ inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
 //
 //   - Otherwise the T value is the point at which rotation reaches 180 degrees, iff in [0 < T < 1].
 //
-int findCubicConvex180Chops(const SkPoint[], float T[2]);
+int findCubicConvex180Chops(const SkPoint[], float T[2], bool* areCusps = nullptr);
 
 }  // namespace GrPathUtils
 
