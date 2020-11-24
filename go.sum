@@ -266,6 +266,7 @@ github.com/aws/aws-sdk-go v1.35.18/go.mod h1:tlPOdRjfxPBpNIwqDj61rmsnA85v9jc0Ps9
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/bazelbuild/bazel-gazelle v0.21.1/go.mod h1:xM5AuwJJYa2OUDBT+YqrZrcD8DW//aauZ+U424Wadlo=
 github.com/bazelbuild/buildtools v0.0.0-20190731111112-f720930ceb60/go.mod h1:5JP0TXzWDHXv8qvxRC4InIazwdyDseBDbzESUMKk1yU=
+github.com/bazelbuild/buildtools v0.0.0-20201102150426-f0f162f0456b/go.mod h1:5JP0TXzWDHXv8qvxRC4InIazwdyDseBDbzESUMKk1yU=
 github.com/bazelbuild/remote-apis v0.0.0-20200904140912-1aeb39973178 h1:qDZ7lr7knlTckZgbKwWD1PHTY6WYe5V+DqILuzpMHPY=
 github.com/bazelbuild/remote-apis v0.0.0-20200904140912-1aeb39973178/go.mod h1:9Y+1FnaNUGVV6wKE0Jdh+mguqDUsyd9uUqokalrC7DQ=
 github.com/bazelbuild/remote-apis v0.0.0-20201017154855-ddca4b2c4487 h1:tEvrBD4qzFkN9Npd8RU6iCmNv1rcd51UIKM7ghI3tNg=
@@ -1534,6 +1535,9 @@ go.skia.org/infra v0.0.0-20201119140725-137eb7f64dfc h1:06CrKLElcBVwZbz2G5kH3pdb
 go.skia.org/infra v0.0.0-20201119140725-137eb7f64dfc/go.mod h1:oU/fFSg6ls3dhtf8znJiyV6igl/Usj8dyAKwOW8mqBs=
 go.skia.org/infra v0.0.0-20201121180522-93bdbc7a75f1 h1:G54ibWX1ZUTtXtxbJa9cSwnpnpWczairKt0gVYk1Ilw=
 go.skia.org/infra v0.0.0-20201121180522-93bdbc7a75f1/go.mod h1:oU/fFSg6ls3dhtf8znJiyV6igl/Usj8dyAKwOW8mqBs=
+go.skia.org/infra v0.0.0-20201124180436-e5c4a9cfc497 h1:e+mgl62r///L7xONfLvHoICWVuBgDHojouuSp2kMDQM=
+go.skia.org/infra v0.0.0-20201124180436-e5c4a9cfc497/go.mod h1:oFkIcc1CyrdaKdUCEdzTaEYrZ5VQilTafssIyqmDX5c=
+go.starlark.net v0.0.0-20201118183435-e55f603d8c79/go.mod h1:5YFcFnRptTN+41758c2bMPiqpGg4zBfYji1IQz8wNFk=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.5.0/go.mod h1:sABNBOSYdrvTF6hTgEIbc7YasKWGhgEQZyfxyTvoXHQ=

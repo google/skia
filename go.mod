@@ -37,7 +37,7 @@ require (
 	github.com/vektra/mockery v1.1.2 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20201121180522-93bdbc7a75f1
+	go.skia.org/infra v0.0.0-20201124180436-e5c4a9cfc497
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
