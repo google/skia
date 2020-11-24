@@ -114,12 +114,6 @@ public:
     void setClipVizColor(SkColor clipVizColor);
     void setDrawGpuOpBounds(bool drawGpuOpBounds);
 
-private:
-    // This class is basically a map from (frame, node) to draw-event
-    // during recording, at the beginning of any frame, one or more layers could have been drawn on.
-    // every draw event was recorded, and when reading the mskp file they are stored and organized
-    // here.
-
     struct LayerKey{
         int frame; // frame of animation on which this event was recorded.
         int nodeId; // the render node id of the layer which was drawn to.
@@ -128,6 +122,15 @@ private:
             return this->frame==b.frame && this->nodeId==b.nodeId;
         }
     };
+
+    // return list of keys that identify layer update events
+    const std::vector<DebugLayerManager::LayerKey>& getKeys() const { return keys; }
+
+private:
+    // This class is basically a map from (frame, node) to draw-event
+    // during recording, at the beginning of any frame, one or more layers could have been drawn on.
+    // every draw event was recorded, and when reading the mskp file they are stored and organized
+    // here.
 
     struct DrawEvent {
         // true the pic's clip equals the layer bounds.
