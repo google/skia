@@ -35,44 +35,48 @@ public:
     GrLoadOp colorLoadOp() const override { return GrLoadOp::kLoad; }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
-                          int* /*startVertex*/) override {
+                          int* startVertex) override {
         if (vertexSize * vertexCount > sizeof(fStaticVertexData)) {
             SK_ABORT("FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
                      vertexSize * vertexCount, sizeof(fStaticVertexData));
         }
+        *startVertex = 0;
         return fStaticVertexData;
     }
 
     void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
-                                 sk_sp<const GrBuffer>*, int* /*startVertex*/,
+                                 sk_sp<const GrBuffer>*, int* startVertex,
                                  int* actualVertexCount) override {
         if (vertexSize * minVertexCount > sizeof(fStaticVertexData)) {
             SK_ABORT("FATAL: wanted %zu bytes of static vertex data; only have %zu.\n",
                      vertexSize * minVertexCount, sizeof(fStaticVertexData));
         }
+        *startVertex = 0;
         *actualVertexCount = sizeof(fStaticVertexData) / vertexSize;
         return fStaticVertexData;
     }
 
     GrDrawIndirectCommand* makeDrawIndirectSpace(int drawCount, sk_sp<const GrBuffer>* buffer,
-                                                 size_t* /*offsetInBytes*/) override {
+                                                 size_t* offsetInBytes) override {
         int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndirectData);
         if (drawCount > staticBufferCount) {
             SK_ABORT("FATAL: wanted %i static drawIndirect elements; only have %i.\n",
                      drawCount, staticBufferCount);
         }
+        *offsetInBytes = 0;
         return fStaticDrawIndirectData;
     }
 
     void putBackIndirectDraws(int count) override { /* no-op */ }
 
     GrDrawIndexedIndirectCommand* makeDrawIndexedIndirectSpace(
-            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* /*offsetInBytes*/) override {
+            int drawCount, sk_sp<const GrBuffer>* buffer, size_t* offsetInBytes) override {
         int staticBufferCount = (int)SK_ARRAY_COUNT(fStaticDrawIndexedIndirectData);
         if (drawCount > staticBufferCount) {
             SK_ABORT("FATAL: wanted %i static drawIndexedIndirect elements; only have %i.\n",
                      drawCount, staticBufferCount);
         }
+        *offsetInBytes = 0;
         return fStaticDrawIndexedIndirectData;
     }
 
