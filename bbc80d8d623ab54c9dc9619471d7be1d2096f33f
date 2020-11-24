@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a69f012f_fd9bac54",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-24T22:21:20Z",
+      "side": 1,
+      "message": "think it\u0027s worth a pass through all these changed files renaming things?",
+      "range": {
+        "startLine": 41,
+        "startChar": 39,
+        "endLine": 41,
+        "endChar": 50
+      },
+      "revId": "bbc80d8d623ab54c9dc9619471d7be1d2096f33f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
