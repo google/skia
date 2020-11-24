@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3534dc3_52642c71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-24T19:43:27Z",
+      "side": 1,
+      "message": "Pulled out these fixes to a separate CL and test. Prior to the fixes, Metal and SPIRV output were both incorrect.",
+      "revId": "8242ba0c8b742657b9787a7b511fca789a862792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
