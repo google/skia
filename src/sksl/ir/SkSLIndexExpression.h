@@ -18,7 +18,7 @@ namespace SkSL {
  * Given a type, returns the type that will result from extracting an array value from it.
  */
 static const Type& index_type(const Context& context, const Type& type) {
-    if (type.typeKind() == Type::TypeKind::kMatrix) {
+    if (type.isMatrix()) {
         if (type.componentType() == *context.fFloat_Type) {
             switch (type.rows()) {
                 case 2: return *context.fFloat2_Type;

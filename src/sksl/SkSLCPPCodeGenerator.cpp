@@ -220,7 +220,7 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
         }
         return type.name() + "(%f, %f, %f, %f)";
     }
-    if (type.typeKind() == Type::TypeKind::kMatrix) {
+    if (type.isMatrix()) {
         SkASSERT(type.componentType() == *fContext.fFloat_Type ||
                  type.componentType() == *fContext.fHalf_Type);
 
