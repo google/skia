@@ -16,7 +16,6 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/core/SkMatrixProvider.h"
-#include "src/core/SkRasterClip.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkBitmap;
@@ -52,8 +51,6 @@ public:
         return fSurfaceProps;
     }
 
-    SkIRect bounds() const { return SkIRect::MakeWH(this->width(), this->height()); }
-
     /**
      *  Return the bounds of the device in the coordinate space of the root
      *  canvas. The root device will have its top-left at 0,0, but other devices
@@ -61,7 +58,7 @@ public:
      */
     void getGlobalBounds(SkIRect* bounds) const {
         SkASSERT(bounds);
-        SkRect localBounds = SkRect::Make(this->bounds());
+        SkRect localBounds = SkRect::MakeIWH(this->width(), this->height());
         fDeviceToGlobal.mapRect(&localBounds);
         *bounds = localBounds.roundOut();
     }
@@ -486,38 +483,35 @@ public:
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
 
         this->setOrigin(SkM44(), bounds.left(), bounds.top());
-        this->resetClipStack();
     }
 
     void resetForNextPicture(const SkIRect& bounds) {
         //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
         this->privateResize(bounds.width(), bounds.height());
         this->setOrigin(SkM44(), bounds.left(), bounds.top());
-        this->resetClipStack();
     }
 
 protected:
-    // SkNoPixelsDevice tracks the clip conservatively in order to respond to some queries as
-    // accurately as possible while emphasizing performance
-    void onSave() override;
-    void onRestore() override;
-    void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override;
-    void onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) override;
-    void onClipPath(const SkPath& path, SkClipOp op, bool aa) override;
-    void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
-    void onClipShader(sk_sp<SkShader> shader) override;
-    void onReplaceClip(const SkIRect& rect) override;
-    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
-    bool onClipIsAA() const override { return this->clip().isAA(); }
-    bool onClipIsWideOpen() const override {
-        return this->clip().isRect() &&
-               this->onDevClipBounds() == this->bounds();
-    }
+    // We don't track the clip at all (for performance), but we have to respond to some queries.
+    // We pretend to be wide-open. We could pretend to always be empty, but that *seems* worse.
+    void onSave() override {}
+    void onRestore() override {}
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}
+    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {}
+    bool onClipIsAA() const override { return false; }
+    bool onClipIsWideOpen() const override { return true; }
     void onAsRgnClip(SkRegion* rgn) const override {
-        rgn->setRect(this->onDevClipBounds());
+        rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
     }
-    ClipType onGetClipType() const override;
-    SkIRect onDevClipBounds() const override { return this->clip().getBounds(); }
+    ClipType onGetClipType() const override {
+        return ClipType::kRect;
+    }
+    SkIRect onDevClipBounds() const override {
+        return SkIRect::MakeWH(this->width(), this->height());
+    }
 
     void drawPaint(const SkPaint& paint) override {}
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
@@ -535,28 +529,6 @@ protected:
                            const SkImageFilter* filter, const SkPaint& paint) override {}
 
 private:
-struct ClipState {
-        SkConservativeClip fClip;
-        int fDeferredSaveCount = 0;
-
-        ClipState() = default;
-        explicit ClipState(const SkConservativeClip& clip) : fClip(clip) {}
-    };
-
-    const SkConservativeClip& clip() const { return fClipStack.back().fClip; }
-    SkConservativeClip& writableClip();
-
-    void resetClipStack() {
-        fClipStack.reset();
-        fDeviceClipRestriction.setEmpty();
-        ClipState& state = fClipStack.push_back();
-        state.fClip.setRect(this->bounds());
-        state.fClip.setDeviceClipRestriction(&fDeviceClipRestriction);
-    }
-
-    SkIRect fDeviceClipRestriction;
-    SkSTArray<4, ClipState> fClipStack;
-
     using INHERITED = SkBaseDevice;
 };
 

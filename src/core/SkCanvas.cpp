@@ -230,6 +230,7 @@ public:
     */
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
+    SkConservativeClip fRasterClip;
     SkM44 fMatrix;
     int fDeferredSaveCount;
 
@@ -242,7 +243,7 @@ public:
         // don't bother initializing fNext
         inc_rec();
     }
-    MCRec(const MCRec& prev) : fMatrix(prev.fMatrix) {
+    MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip), fMatrix(prev.fMatrix) {
         fLayer = nullptr;
         fTopLayer = prev.fTopLayer;
         fDeferredSaveCount = 0;
@@ -255,12 +256,13 @@ public:
         dec_rec();
     }
 
-    void reset() {
+    void reset(const SkIRect& bounds) {
         SkASSERT(fLayer);
         SkASSERT(fDeferredSaveCount == 0);
         fLayer->validate();
 
         fMatrix.setIdentity();
+        fRasterClip.setRect(bounds);
     }
 };
 
@@ -469,16 +471,18 @@ private:
 
 #define DRAW_END    }
 
-#define UPDATE_DEVICE_CLIP(code)                                          \
+// TODO: conservativeUpdate is temporary to stage moving bounds tracking into SkNoPixelsDevice
+#define UPDATE_DEVICE_CLIP(code, conservativeUpdate)                      \
     do {                                                                  \
     AutoValidateClip avc(this);                                           \
     FOR_EACH_TOP_DEVICE(code);                                            \
-    fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds()); \
+    fMCRec->fRasterClip.conservativeUpdate;                               \
+    fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds()); \
     } while(0)
 
 ////////////////////////////////////////////////////////////////////////////
 
-static inline SkRect qr_clip_bounds(const SkRect& bounds) {
+static inline SkRect qr_clip_bounds(const SkIRect& bounds) {
     if (bounds.isEmpty()) {
         return SkRect::MakeEmpty();
     }
@@ -486,18 +490,18 @@ static inline SkRect qr_clip_bounds(const SkRect& bounds) {
     // Expand bounds out by 1 in case we are anti-aliasing.  We store the
     // bounds as floats to enable a faster quick reject implementation.
     SkRect dst;
-    (Sk4f::Load(&bounds.fLeft) + Sk4f(-1.f, -1.f, 1.f, 1.f)).store(&dst.fLeft);
+    SkNx_cast<float>(Sk4i::Load(&bounds.fLeft) + Sk4i(-1,-1,1,1)).store(&dst.fLeft);
     return dst;
 }
 
 void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     this->restoreToCount(1);
-    fMCRec->reset();
+    fMCRec->reset(bounds);
 
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
     static_cast<SkNoPixelsDevice*>(fMCRec->fLayer->fDevice.get())->resetForNextPicture(bounds);
-    fQuickRejectBounds = qr_clip_bounds(SkRect::Make(bounds));
+    fQuickRejectBounds = qr_clip_bounds(bounds);
     fIsScaleTranslate = true;
 }
 
@@ -515,6 +519,7 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec;
+    fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
     fIsScaleTranslate = true;
 
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
@@ -523,15 +528,19 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
 
     fSurfaceBase = nullptr;
+    fQuickRejectBounds = {0, 0, 0, 0};
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
         SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
+        fMCRec->fRasterClip.setRect(device->getGlobalBounds());
+        fQuickRejectBounds = qr_clip_bounds(device->getGlobalBounds());
+
         device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+
         device->setMarkerStack(fMarkerStack.get());
     }
 
-    fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
     fScratchGlyphRunBuilder = std::make_unique<SkGlyphRunBuilder>();
 }
 
@@ -1158,13 +1167,15 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                 //    replaceClip() simulates what a new top-level device's canvas would be in
                 //    the non-recording scenario. This allows the canvas to report the expanding
                 //    effects of image filters on the temporary clip bounds.
-                UPDATE_DEVICE_CLIP(device->replaceClip(ir));
+                UPDATE_DEVICE_CLIP(device->replaceClip(ir),
+                                   setRect(ir));
             } else {
                 // else the layer device failed to be created, so the saveLayer() effectively
                 // becomes just a save(). The clipRegion() explicitly applies the bounds of the
                 // failed layer, without resetting the clip of the prior device that all subsequent
                 // nested draw calls need to respect.
-                UPDATE_DEVICE_CLIP(device->clipRegion(SkRegion(ir), SkClipOp::kIntersect));
+                UPDATE_DEVICE_CLIP(device->clipRegion(SkRegion(ir), SkClipOp::kIntersect),
+                                   opRegion(SkRegion(ir), SkRegion::kIntersect_Op));
             }
         }
         return;
@@ -1185,6 +1196,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
 
     newDevice->setOrigin(fMCRec->fMatrix, ir.fLeft, ir.fTop);
     newDevice->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+    if (boundsAffectsClip) {
+        fMCRec->fRasterClip.setRect(ir);
+        fQuickRejectBounds = qr_clip_bounds(ir);
+    }
 
     if (layer->fNext) {
         // need to punch a hole in the previous device, so we don't draw there, given that
@@ -1195,8 +1210,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             layer->fDevice->clipRegion(hole, SkClipOp::kDifference);
         } while (layer->fNext);
     }
-
-    fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
@@ -1304,10 +1317,7 @@ void SkCanvas::internalRestore() {
 
     if (fMCRec) {
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
-        // Update the quick-reject bounds in case the restore changed the top device or the
-        // removed save record had included modifications to the clip stack.
-        fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
-        this->validateClip();
+        fQuickRejectBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
     }
 }
 
@@ -1576,7 +1586,8 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkASSERT(rect.isSorted());
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(device->clipRect(rect, op, isAA));
+    UPDATE_DEVICE_CLIP(device->clipRect(rect, op, isAA), \
+                       opRect(rect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op) op, isAA));
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
@@ -1586,12 +1597,14 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
         // removing it (i.e. rect is empty).
         this->checkForDeferredSave();
     }
-    UPDATE_DEVICE_CLIP(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+    UPDATE_DEVICE_CLIP(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect),\
+                       opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op));
 }
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     this->checkForDeferredSave();
-    UPDATE_DEVICE_CLIP(device->replaceClip(rect));
+    UPDATE_DEVICE_CLIP(device->replaceClip(rect), \
+                       setRect(rect));
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
@@ -1606,7 +1619,8 @@ void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(device->clipRRect(rrect, op, isAA));
+    UPDATE_DEVICE_CLIP(device->clipRRect(rrect, op, isAA), \
+                       opRRect(rrect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op)op, isAA));
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
@@ -1636,7 +1650,8 @@ void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(device->clipPath(path, op, isAA));
+    UPDATE_DEVICE_CLIP(device->clipPath(path, op, isAA), \
+                       opPath(path, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(), (SkRegion::Op)op, isAA));
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
@@ -1657,7 +1672,8 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
 }
 
 void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
-    UPDATE_DEVICE_CLIP(device->clipShader(sh, op));
+    UPDATE_DEVICE_CLIP(device->clipShader(sh, op),
+                       opShader(sh));
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
@@ -1666,12 +1682,13 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    UPDATE_DEVICE_CLIP(device->clipRegion(rgn, op));
+    UPDATE_DEVICE_CLIP(device->clipRegion(rgn, op),
+                       opRegion(rgn, (SkRegion::Op) op));
 }
 
 void SkCanvas::validateClip() const {
 #ifdef SK_DEBUG
-    SkRect tmp = qr_clip_bounds(this->computeDeviceClipBounds());
+    SkRect tmp = qr_clip_bounds(this->fMCRec->fRasterClip.getBounds());
     if (this->isClipEmpty()) {
         SkASSERT(fQuickRejectBounds.isEmpty());
     } else {
@@ -1718,9 +1735,14 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::isClipEmpty() const {
+    return fMCRec->fRasterClip.isEmpty();
+
+    // TODO: should we only use the conservative answer in a recording canvas?
+#if 0
     SkBaseDevice* dev = this->getTopDevice();
     // if no device we return true
-    return !dev || dev->onGetClipType() == SkBaseDevice::ClipType::kEmpty;
+    return !dev || dev->onGetClipType() == SkBaseDevice::kEmpty_ClipType;
+#endif
 }
 
 bool SkCanvas::isClipRect() const {
@@ -1819,28 +1841,7 @@ SkRect SkCanvas::getLocalClipBounds() const {
 }
 
 SkIRect SkCanvas::getDeviceClipBounds() const {
-    return this->computeDeviceClipBounds().roundOut();
-}
-
-SkRect SkCanvas::computeDeviceClipBounds() const {
-    if (this->isClipEmpty()) {
-        return SkRect::MakeEmpty();
-    }
-
-    // Compute the union of all top devices' device bounds, mapped into the global coordinate system
-    DeviceCM* layer = fMCRec->fTopLayer;
-    SkRect totalBounds = SkRect::MakeEmpty();
-    while (layer) {
-        if (layer->fDevice) {
-            SkIRect devClipBounds = layer->fDevice->devClipBounds();
-            SkRect layerBounds =
-                    layer->fDevice->deviceToGlobal().mapRect(SkRect::Make(devClipBounds));
-            totalBounds.join(layerBounds);
-        }
-        layer = layer->fNext;
-    }
-
-    return totalBounds;
+    return fMCRec->fRasterClip.getBounds();
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -2452,10 +2453,7 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
     SkPoint pt;
     ctm.mapXY(x, y, &pt);
     SkIRect ir = SkIRect::MakeXYWH(SkScalarRoundToInt(pt.x()), SkScalarRoundToInt(pt.y()), w, h);
-    // quick bounds have been outset by 1px compared to overall device bounds, so this makes the
-    // contains check equivalent to between ir and device bounds
-    ir.outset(1, 1);
-    return ir.contains(fQuickRejectBounds);
+    return ir.contains(fMCRec->fRasterClip.getBounds());
 }
 
 // Given storage for a real paint, and an optional paint parameter, clean-up the param (if non-null)
