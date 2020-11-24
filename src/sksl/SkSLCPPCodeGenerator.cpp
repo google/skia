@@ -116,7 +116,7 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
 }
 
 static String default_value(const Type& type) {
-    if (type.name() == "bool") {
+    if (type.isBoolean()) {
         return "false";
     }
     switch (type.typeKind()) {
