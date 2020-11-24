@@ -1,0 +1,21 @@
+float scalar(float x, float y) {
+    x = length(x);
+    x = distance(x, y);
+    x = dot(x, y);
+    x = normalize(x);
+    return x;
+}
+
+float2 vector(float2 x, float2 y) {
+    x = length(x).xx;
+    x = distance(x, y).xx;
+    x = dot(x, y).xx;
+    x = normalize(x);
+    return x;
+}
+
+void main() {
+    float x = scalar(1, 2);
+    float2 y = vector(float2(1, 2), float2(3, 4));
+    sk_FragColor = half4(half(x), half2(y), 1);
+}

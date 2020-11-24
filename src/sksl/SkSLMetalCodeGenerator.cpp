@@ -32,8 +32,12 @@ public:
 void MetalCodeGenerator::setupIntrinsics() {
 #define METAL(x) std::make_pair(kMetal_IntrinsicKind, k ## x ## _MetalIntrinsic)
 #define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
-    fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
+    fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
+    fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
+    fIntrinsicMap[String("length")]             = SPECIAL(Length);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
+    fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
+    fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
     fIntrinsicMap[String("lessThan")]           = METAL(LessThan);
@@ -403,6 +407,51 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write(", " + tmpY + " = ");
             this->writeExpression(*arguments[1], kSequence_Precedence);
             this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
+            break;
+        }
+        // GLSL declares scalar versions of most geometric intrinsics, but these don't exist in MSL
+        case kDistance_SpecialIntrinsic: {
+            if (arguments[0]->type().columns() == 1) {
+                this->write("abs(");
+                this->writeExpression(*arguments[0], kAdditive_Precedence);
+                this->write(" - ");
+                this->writeExpression(*arguments[1], kAdditive_Precedence);
+                this->write(")");
+            } else {
+                this->write("distance(");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(")");
+            }
+            break;
+        }
+        case kDot_SpecialIntrinsic: {
+            if (arguments[0]->type().columns() == 1) {
+                this->write("(");
+                this->writeExpression(*arguments[0], kMultiplicative_Precedence);
+                this->write(" * ");
+                this->writeExpression(*arguments[1], kMultiplicative_Precedence);
+                this->write(")");
+            } else {
+                this->write("dot(");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(")");
+            }
+            break;
+        }
+        case kLength_SpecialIntrinsic: {
+            this->write(arguments[0]->type().columns() == 1 ? "abs(" : "length(");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(")");
+            break;
+        }
+        case kNormalize_SpecialIntrinsic: {
+            this->write(arguments[0]->type().columns() == 1 ? "sign(" : "normalize(");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(")");
             break;
         }
         default:

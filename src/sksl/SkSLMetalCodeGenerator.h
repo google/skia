@@ -104,8 +104,12 @@ protected:
     };
 
     enum SpecialIntrinsic {
-        kTexture_SpecialIntrinsic,
+        kDistance_SpecialIntrinsic,
+        kDot_SpecialIntrinsic,
+        kLength_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
+        kNormalize_SpecialIntrinsic,
+        kTexture_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {
