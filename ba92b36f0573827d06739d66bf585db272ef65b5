@@ -16,6 +16,24 @@
       "message": "\u003e\u003e add test for rational version \u003d\u003d Wang\u0027s with all weights 1\n\nVery cool! Can we also use this test to find cases where the down-projected version isn\u0027t enough, and understand by how much?",
       "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54ad649a_485ad443",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-24T17:40:00Z",
+      "side": 1,
+      "message": "Indeed! Check out this plot for some initial data: https://screenshot.googleplex.com/B5Fm2XRQXRCRH85\n\nThat just plots nsegs from the two methods with increasing conic w value (same control points always: {100, 300}, {300, 100}, {500, 300})\n\nI should double check that this data is accurate, since I threw it together pretty quickly. But it looks like the summary is there\u0027s no simple relationship, and it probably depends on the input geometry.",
+      "parentUuid": "a958202d_a1374524",
+      "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
