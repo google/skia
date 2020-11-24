@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98232d13_b715c24d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-24T15:11:29Z",
+      "side": 1,
+      "message": "still can\u0027t delete the device-loop yet?",
+      "revId": "52de65da5902e322756b9de5a9b95f6d5cd8a48a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
