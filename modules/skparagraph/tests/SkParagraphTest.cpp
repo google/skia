@@ -5555,3 +5555,24 @@ DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
 
 #endif
 }
+
+DEF_TEST(SkParagraph_Intrinsic, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    SkString text(std::string(3000, 'a'));
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Google Sans")});
+    text_style.setFontSize(12.0f);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text.c_str());
+
+    auto paragraph = builder.Build();
+    paragraph->layout(300000.0f);
+    REPORTER_ASSERT(reporter, paragraph->getMinIntrinsicWidth() <= paragraph->getMaxIntrinsicWidth());
+}
