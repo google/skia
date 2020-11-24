@@ -16,6 +16,70 @@
       "message": "Where was this solved more robustly?",
       "revId": "8386b84d279887e6655ba126e83fa03f68d8b7dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea461d09_abca9ac0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T17:05:35Z",
+      "side": 1,
+      "message": "The indirect shader will use the cusp detection you just reviewed, and will drop circles on the cusp points.\n\nThe tessellation shader handles flat line cusps at the spot I commented on above.",
+      "parentUuid": "4217a9c7_fb6d7881",
+      "revId": "8386b84d279887e6655ba126e83fa03f68d8b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b9fb7b8_ac1ce422",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T17:05:35Z",
+      "side": 1,
+      "message": "The tessellation shader chops these flat lines at their cusp points and makes sure the tangent vector rotates smoothly.",
+      "range": {
+        "startLine": 139,
+        "startChar": 16,
+        "endLine": 139,
+        "endChar": 38
+      },
+      "revId": "8386b84d279887e6655ba126e83fa03f68d8b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e13b5e13_40ed60f6",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T17:05:35Z",
+      "side": 1,
+      "message": "Here is where we give an exact tangent angle to use instead of just trying to compute it on the curve at a point where it might be undefined.",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 25
+      },
+      "revId": "8386b84d279887e6655ba126e83fa03f68d8b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
