@@ -52,6 +52,24 @@
       "parentUuid": "54ad649a_485ad443",
       "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d87a0256_d99ae6e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-11-24T19:35:11Z",
+      "side": 1,
+      "message": "I just coded up a test to see how much the error gets reduced every time a conic is chopped in half, and found the reduction to be highly dependent on the arrangement of points and w value. (Not too surprisingly.) So that\u0027s probably not a good avenue to explore.",
+      "parentUuid": "4bb5dbf2_852420ae",
+      "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
