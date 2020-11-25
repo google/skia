@@ -85,7 +85,8 @@ SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
     }
 
     SkBitmapProcState* state = alloc->make<SkBitmapProcState>(image, tmx, tmy);
-    if (!state->setup(totalInverse, *rec.fPaint)) {
+    if (!state->setup(totalInverse, rec.fPaint->getColor(),
+                      SkSamplingOptions(rec.fPaint->getFilterQuality()))) {
         return nullptr;
     }
     return alloc->make<BitmapProcShaderContext>(shader, rec, state);
