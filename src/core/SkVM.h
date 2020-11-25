@@ -423,7 +423,7 @@ namespace skvm {
         M(index)                                                     \
         M(load8)    M(load16)    M(load32)  M(load64) M(load128)     \
         M(gather8)  M(gather16)  M(gather32)                         \
-        M(uniform8) M(uniform16) M(uniform32)                        \
+                                 M(uniform32)                        \
         M(splat)                                                     \
         M(add_f32) M(add_i32)                                        \
         M(sub_f32) M(sub_i32)                                        \
@@ -631,9 +631,7 @@ namespace skvm {
         I32 load64 (Arg ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
         I32 load128(Arg ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
-        // Load u8,u16,i32 uniform with byte-count offset.
-        I32 uniform8 (Arg ptr, int offset);
-        I32 uniform16(Arg ptr, int offset);
+        // Load i32/f32 uniform with byte-count offset.
         I32 uniform32(Arg ptr, int offset);
         F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
@@ -649,8 +647,6 @@ namespace skvm {
         }
 
         // Convenience methods for working with skvm::Uniform(s).
-        I32 uniform8 (Uniform u)            { return this->uniform8 (u.ptr, u.offset); }
-        I32 uniform16(Uniform u)            { return this->uniform16(u.ptr, u.offset); }
         I32 uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
         F32 uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
         I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }

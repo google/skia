@@ -242,8 +242,6 @@ namespace skvm {
             case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
             case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
 
-            case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
-            case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
             case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
 
             case Op::splat: write(o, V{id}, "=", op, Splat{immy}); break;
@@ -356,8 +354,6 @@ namespace skvm {
                 case Op::gather16: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
                 case Op::gather32: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}, R{x}); break;
 
-                case Op::uniform8:  write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
-                case Op::uniform16: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
                 case Op::uniform32: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
 
                 case Op::splat:     write(o, R{d}, "=", op, Splat{immy}); break;
@@ -664,12 +660,6 @@ namespace skvm {
         return {this, push(Op::gather32, index.id,NA,NA, ptr.ix,offset)};
     }
 
-    I32 Builder::uniform8(Arg ptr, int offset) {
-        return {this, push(Op::uniform8, NA,NA,NA, ptr.ix, offset)};
-    }
-    I32 Builder::uniform16(Arg ptr, int offset) {
-        return {this, push(Op::uniform16, NA,NA,NA, ptr.ix, offset)};
-    }
     I32 Builder::uniform32(Arg ptr, int offset) {
         return {this, push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
@@ -2551,14 +2541,11 @@ namespace skvm {
 
                 case Op::splat: vals[i] = llvm::ConstantInt::get(I32, immy); break;
 
-                case Op::uniform8:  t = i8 ; goto uniform;
-                case Op::uniform16: t = i16; goto uniform;
-                case Op::uniform32: t = i32; goto uniform;
-                uniform: {
+                case Op::uniform32: {
                     llvm::Value* ptr = b->CreateBitCast(b->CreateConstInBoundsGEP1_32(nullptr,
                                                                                       args[immy],
                                                                                       immz),
-                                                        t->getPointerTo());
+                                                        i32->getPointerTo());
                     llvm::Value* val = b->CreateZExt(b->CreateAlignedLoad(ptr, 1), i32);
                     vals[i] = I32->isVectorTy() ? b->CreateVectorSplat(K, val)
                                                 : val;
@@ -3575,16 +3562,6 @@ namespace skvm {
                 }
                 break;
 
-                case Op::uniform8: a->movzbq(GP0, A::Mem{arg[immy], immz});
-                                   a->vmovd((A::Xmm)dst(), GP0);
-                                   a->vbroadcastss(dst(), dst());
-                                   break;
-
-                case Op::uniform16: a->movzwq(GP0, A::Mem{arg[immy], immz});
-                                    a->vmovd((A::Xmm)dst(), GP0);
-                                    a->vbroadcastss(dst(), dst());
-                                    break;
-
                 case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immy], immz});
                                     break;
 
@@ -3777,17 +3754,6 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
-
-                case Op::uniform8: a->add(GP0, arg[immy], immz);
-                                   a->ld1r16b(dst(), GP0);
-                                   a->uxtlb2h(dst(), dst());
-                                   a->uxtlh2s(dst(), dst());
-                                   break;
-
-                case Op::uniform16: a->add(GP0, arg[immy], immz);
-                                    a->ld1r8h(dst(), GP0);
-                                    a->uxtlh2s(dst(), dst());
-                                    break;
 
                 case Op::uniform32: a->add(GP0, arg[immy], immz);
                                     a->ld1r4s(dst(), GP0);

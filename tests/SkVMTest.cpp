@@ -854,10 +854,10 @@ DEF_TEST(SkVM_NewOps, r) {
         const size_t kPtr = sizeof(const int*);
 
         x = b.add(x, b.uniform32(uniforms, kPtr+0));
-        x = b.mul(x, b.uniform8 (uniforms, kPtr+4));
-        x = b.sub(x, b.uniform16(uniforms, kPtr+6));
+        x = b.mul(x, b.uniform32(uniforms, kPtr+4));
+        x = b.sub(x, b.uniform32(uniforms, kPtr+8));
 
-        skvm::I32 limit = b.uniform32(uniforms, kPtr+8);
+        skvm::I32 limit = b.uniform32(uniforms, kPtr+12);
         x = b.select(b.lt(x, b.splat(0)), b.splat(0), x);
         x = b.select(b.gt(x, limit     ), limit     , x);
 
@@ -889,8 +889,8 @@ DEF_TEST(SkVM_NewOps, r) {
         struct {
             const uint8_t* img;
             int      add   = 5;
-            uint8_t  mul   = 3;
-            uint16_t sub   = 18;
+            int      mul   = 3;
+            int      sub   = 18;
             int      limit = M-1;
         } uniforms{img};
 

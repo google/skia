@@ -33,7 +33,7 @@ namespace {
     static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
     static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
 
-    enum class Coverage { Full, UniformA8, MaskA8, MaskLCD16, Mask3D };
+    enum class Coverage { Full, UniformF, MaskA8, MaskLCD16, Mask3D };
 
     struct Params {
         sk_sp<SkShader>         shader;
@@ -198,7 +198,7 @@ namespace {
         //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
         //    - MaskA8:    8-bit coverage varying
         //    - MaskLCD16: 565 coverage varying
-        //    - UniformA8: 8-bit coverage uniform
+        //    - UniformF:  float coverage uniform
 
         skvm::Coord device = device_coord(p, uniforms);
         skvm::Color paint = p->uniformColor(params.paint, uniforms);
@@ -259,8 +259,8 @@ namespace {
                 cov.r = cov.g = cov.b = cov.a = p->splat(1.0f);
                 break;
 
-            case Coverage::UniformA8:
-                cov.r = cov.g = cov.b = cov.a = from_unorm(8, p->uniform8(p->uniform(), 0));
+            case Coverage::UniformF:
+                cov.r = cov.g = cov.b = cov.a = p->uniformF(p->uniform(), 0);
                 break;
 
             case Coverage::Mask3D:
@@ -581,7 +581,7 @@ namespace {
                     }
                 };
                 cache_program(std::move(fBlitH),         Coverage::Full);
-                cache_program(std::move(fBlitAntiH),     Coverage::UniformA8);
+                cache_program(std::move(fBlitAntiH),     Coverage::UniformF);
                 cache_program(std::move(fBlitMaskA8),    Coverage::MaskA8);
                 cache_program(std::move(fBlitMask3D),    Coverage::Mask3D);
                 cache_program(std::move(fBlitMaskLCD16), Coverage::MaskLCD16);
@@ -675,14 +675,15 @@ namespace {
 
         void blitAntiH(int x, int y, const SkAlpha cov[], const int16_t runs[]) override {
             if (fBlitAntiH.empty()) {
-                fBlitAntiH = this->buildProgram(Coverage::UniformA8);
+                fBlitAntiH = this->buildProgram(Coverage::UniformF);
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
                 this->updateUniforms(x+run, y);
+                const float covF = *cov * (1/255.0f);
                 if (const void* sprite = this->isSprite(x,y)) {
-                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, cov);
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, &covF);
                 } else {
-                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), cov);
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), &covF);
                 }
                 x    += run;
                 runs += run;
