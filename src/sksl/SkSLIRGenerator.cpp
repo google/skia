@@ -2384,7 +2384,8 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
                 return std::make_unique<FloatLiteral>(fContext, base->fOffset,
                                                       -base->as<FloatLiteral>().value());
             }
-            if (!baseType.isNumber() && !baseType.isVector()) {
+            if (!baseType.isNumber() &&
+                !(baseType.isVector() && baseType.componentType().isNumber())) {
                 fErrors.error(expression.fOffset,
                               "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
@@ -2414,7 +2415,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             break;
         case Token::Kind::TK_LOGICALNOT:
-            if (baseType != *fContext.fBool_Type) {
+            if (!baseType.isBoolean()) {
                 fErrors.error(expression.fOffset,
                               String("'") + Compiler::OperatorName(expression.getToken().fKind) +
                               "' cannot operate on '" + baseType.displayName() + "'");
