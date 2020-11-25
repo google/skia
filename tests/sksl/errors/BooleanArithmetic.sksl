@@ -1,8 +1,16 @@
-bool2 add_boolean_vec() { return bool2(false, false) + bool2(true, true); }
-bool2 sub_boolean_vec() { return bool2(false, false) - bool2(true, true); }
-bool2 mul_boolean_vec() { return bool2(false, false) * bool2(true, true); }
-bool2 div_boolean_vec() { return bool2(false, false) / bool2(true, true); }
-bool2 mod_boolean_vec() { return bool2(false, false) % bool2(true, true); }
+bool2 add_boolean_vec()    { return bool2(false, false) + bool2(true, true); }
+bool2 sub_boolean_vec()    { return bool2(false, false) - bool2(true, true); }
+bool2 mul_boolean_vec()    { return bool2(false, false) * bool2(true, true); }
+bool2 div_boolean_vec()    { return bool2(false, false) / bool2(true, true); }
+bool2 mod_boolean_vec()    { return bool2(false, false) % bool2(true, true); }
+bool2 shl_boolean_vec()    { return bool2(false, false) << bool2(true, true); }
+bool2 shr_boolean_vec()    { return bool2(false, false) >> bool2(true, true); }
+bool2 not_boolean_vec()    { return !bool2(false, false); }
+bool2 neg_boolean_vec()    { return -bool2(false, false); }  // TODO: unary minus not caught
+bool2 bitnot_boolean_vec() { return ~bool2(false, false); }
+bool2 bitand_boolean_vec() { return bool2(false, false) & bool2(true, true); }
+bool2 bitor_boolean_vec()  { return bool2(false, false) | bool2(true, true); }
+bool2 bitxor_boolean_vec() { return bool2(false, false) ^ bool2(true, true); }
 
 void main() {
     add_boolean_vec();
@@ -10,4 +18,12 @@ void main() {
     mul_boolean_vec();
     div_boolean_vec();
     mod_boolean_vec();
+    shl_boolean_vec();
+    shr_boolean_vec();
+    not_boolean_vec();
+    neg_boolean_vec();
+    bitnot_boolean_vec();
+    bitand_boolean_vec();
+    bitor_boolean_vec();
+    bitxor_boolean_vec();
 }

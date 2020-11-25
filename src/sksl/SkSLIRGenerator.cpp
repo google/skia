@@ -1492,11 +1492,81 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     return std::make_unique<Constructor>(/*offset=*/-1, &type, std::move(args));
 }
 
-static bool is_matrix_multiply(const Type& left, const Type& right) {
+static bool is_matrix_multiply(const Type& left, Token::Kind op, const Type& right) {
+    if (op != Token::Kind::TK_STAR && op != Token::Kind::TK_STAREQ) {
+        return false;
+    }
     if (left.isMatrix()) {
         return right.isMatrix() || right.isVector();
     }
     return left.isVector() && right.isMatrix();
+}
+
+/**
+ * Defines the set of logical (comparison) operators.
+ */
+static bool op_is_logical(Token::Kind op) {
+    switch (op) {
+        case Token::Kind::TK_LT:
+        case Token::Kind::TK_GT:
+        case Token::Kind::TK_LTEQ:
+        case Token::Kind::TK_GTEQ:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Defines the set of operators which perform bitwise math.
+ */
+static bool op_is_bitwise(Token::Kind op) {
+    switch (op) {
+        case Token::Kind::TK_SHL:
+        case Token::Kind::TK_SHR:
+        case Token::Kind::TK_BITWISEAND:
+        case Token::Kind::TK_BITWISEOR:
+        case Token::Kind::TK_BITWISEXOR:
+        case Token::Kind::TK_SHLEQ:
+        case Token::Kind::TK_SHREQ:
+        case Token::Kind::TK_BITWISEANDEQ:
+        case Token::Kind::TK_BITWISEOREQ:
+        case Token::Kind::TK_BITWISEXOREQ:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Defines the set of operators which perform vector/matrix math.
+ */
+static bool op_valid_for_matrix_or_vector(Token::Kind op) {
+    switch (op) {
+        case Token::Kind::TK_PLUS:
+        case Token::Kind::TK_MINUS:
+        case Token::Kind::TK_STAR:
+        case Token::Kind::TK_SLASH:
+        case Token::Kind::TK_PERCENT:
+        case Token::Kind::TK_SHL:
+        case Token::Kind::TK_SHR:
+        case Token::Kind::TK_BITWISEAND:
+        case Token::Kind::TK_BITWISEOR:
+        case Token::Kind::TK_BITWISEXOR:
+        case Token::Kind::TK_PLUSEQ:
+        case Token::Kind::TK_MINUSEQ:
+        case Token::Kind::TK_STAREQ:
+        case Token::Kind::TK_SLASHEQ:
+        case Token::Kind::TK_PERCENTEQ:
+        case Token::Kind::TK_SHLEQ:
+        case Token::Kind::TK_SHREQ:
+        case Token::Kind::TK_BITWISEANDEQ:
+        case Token::Kind::TK_BITWISEOREQ:
+        case Token::Kind::TK_BITWISEXOREQ:
+            return true;
+        default:
+            return false;
+    }
 }
 
 /**
@@ -1511,19 +1581,15 @@ static bool determine_binary_type(const Context& context,
                                   const Type** outLeftType,
                                   const Type** outRightType,
                                   const Type** outResultType) {
-    bool isLogical = false;
-    bool isBitwise = false;
-    bool validMatrixOrVectorOp = false;
-    bool isAssignment = Compiler::IsAssignment(op);
-
     switch (op) {
-        case Token::Kind::TK_EQ:
+        case Token::Kind::TK_EQ:  // left = right
             *outLeftType = &left;
             *outRightType = &left;
             *outResultType = &left;
             return right.canCoerceTo(left, allowNarrowing);
-        case Token::Kind::TK_EQEQ: // fall through
-        case Token::Kind::TK_NEQ: {
+
+        case Token::Kind::TK_EQEQ:   // left == right
+        case Token::Kind::TK_NEQ: {  // left != right
             CoercionCost rightToLeft = right.coercionCost(left),
                          leftToRight = left.coercionCost(right);
             if (rightToLeft < leftToRight) {
@@ -1543,121 +1609,88 @@ static bool determine_binary_type(const Context& context,
             }
             return false;
         }
-        case Token::Kind::TK_LT:   // fall through
-        case Token::Kind::TK_GT:   // fall through
-        case Token::Kind::TK_LTEQ: // fall through
-        case Token::Kind::TK_GTEQ:
-            isLogical = true;
-            break;
-        case Token::Kind::TK_LOGICALOR: // fall through
-        case Token::Kind::TK_LOGICALAND: // fall through
-        case Token::Kind::TK_LOGICALXOR:
+        case Token::Kind::TK_LOGICALOR:   // left || right
+        case Token::Kind::TK_LOGICALAND:  // left && right
+        case Token::Kind::TK_LOGICALXOR:  // left ^^ right
             *outLeftType = context.fBool_Type.get();
             *outRightType = context.fBool_Type.get();
             *outResultType = context.fBool_Type.get();
             return left.canCoerceTo(*context.fBool_Type, allowNarrowing) &&
                    right.canCoerceTo(*context.fBool_Type, allowNarrowing);
-        case Token::Kind::TK_STAREQ: // fall through
-        case Token::Kind::TK_STAR:
-            if (is_matrix_multiply(left, right)) {
-                // determine final component type
-                if (determine_binary_type(context, allowNarrowing, op,
-                                          left.componentType(), right.componentType(),
-                                          outLeftType, outRightType, outResultType)) {
-                    *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
-                                                                 left.rows());
-                    *outRightType = &(*outResultType)->toCompound(context, right.columns(),
-                                                                  right.rows());
-                    int leftColumns = left.columns();
-                    int leftRows = left.rows();
-                    int rightColumns;
-                    int rightRows;
-                    if (right.isVector()) {
-                        // matrix * vector treats the vector as a column vector, so we need to
-                        // transpose it
-                        rightColumns = right.rows();
-                        rightRows = right.columns();
-                        SkASSERT(rightColumns == 1);
-                    } else {
-                        rightColumns = right.columns();
-                        rightRows = right.rows();
-                    }
-                    if (rightColumns > 1) {
-                        *outResultType = &(*outResultType)->toCompound(context, rightColumns,
-                                                                       leftRows);
-                    } else {
-                        // result was a column vector, transpose it back to a row
-                        *outResultType = &(*outResultType)->toCompound(context, leftRows,
-                                                                       rightColumns);
-                    }
-                    if (isAssignment && ((*outResultType)->columns() != leftColumns ||
-                                         (*outResultType)->rows() != leftRows)) {
-                        return false;
-                    }
-                    return leftColumns == rightRows;
-                } else {
-                    return false;
-                }
-            }
-            validMatrixOrVectorOp = true;
-            break;
-        case Token::Kind::TK_SHLEQ:
-        case Token::Kind::TK_SHREQ:
-        case Token::Kind::TK_BITWISEANDEQ:
-        case Token::Kind::TK_BITWISEOREQ:
-        case Token::Kind::TK_BITWISEXOREQ:
-        case Token::Kind::TK_SHL:
-        case Token::Kind::TK_SHR:
-        case Token::Kind::TK_BITWISEAND:
-        case Token::Kind::TK_BITWISEOR:
-        case Token::Kind::TK_BITWISEXOR:
-            isBitwise = true;
-            validMatrixOrVectorOp = true;
-            break;
-        case Token::Kind::TK_PLUSEQ:
-        case Token::Kind::TK_MINUSEQ:
-        case Token::Kind::TK_SLASHEQ:
-        case Token::Kind::TK_PERCENTEQ:
-        case Token::Kind::TK_PLUS:
-        case Token::Kind::TK_MINUS:
-        case Token::Kind::TK_SLASH:
-        case Token::Kind::TK_PERCENT:
-            validMatrixOrVectorOp = true;
-            break;
-        case Token::Kind::TK_COMMA:
+
+        case Token::Kind::TK_COMMA:  // left, right
             *outLeftType = &left;
             *outRightType = &right;
             *outResultType = &right;
             return true;
+
         default:
             break;
     }
 
-    bool leftIsVectorOrMatrix = left.isVector() || left.isMatrix(),
-         rightIsVectorOrMatrix = right.isVector() || right.isMatrix();
+    // Boolean types only support the operators listed above (, = == != || && ^^).
+    // If we've gotten this far with a boolean, we have an unsupported operator.
+    const Type& leftComponentType(left.columns() > 1 ? left.componentType() : left);
+    const Type& rightComponentType(right.columns() > 1 ? right.componentType() : right);
+    if (leftComponentType.isBoolean() || rightComponentType.isBoolean()) {
+        return false;
+    }
 
-    if (leftIsVectorOrMatrix && validMatrixOrVectorOp &&
-        right.isScalar()) {
+    bool isAssignment = Compiler::IsAssignment(op);
+    if (is_matrix_multiply(left, op, right)) {  // left * right
+        // Determine final component type.
+        if (!determine_binary_type(context, allowNarrowing, op,
+                                   left.componentType(), right.componentType(),
+                                   outLeftType, outRightType, outResultType)) {
+            return false;
+        }
+        *outLeftType = &(*outResultType)->toCompound(context, left.columns(), left.rows());
+        *outRightType = &(*outResultType)->toCompound(context, right.columns(), right.rows());
+        int leftColumns = left.columns(), leftRows = left.rows();
+        int rightColumns = right.columns(), rightRows = right.rows();
+        if (right.isVector()) {
+            // `matrix * vector` treats the vector as a column vector; we need to transpose it.
+            std::swap(rightColumns, rightRows);
+            SkASSERT(rightColumns == 1);
+        }
+        if (rightColumns > 1) {
+            *outResultType = &(*outResultType)->toCompound(context, rightColumns, leftRows);
+        } else {
+            // The result was a column vector. Transpose it back to a row.
+            *outResultType = &(*outResultType)->toCompound(context, leftRows, rightColumns);
+        }
+        if (isAssignment && ((*outResultType)->columns() != leftColumns ||
+                             (*outResultType)->rows() != leftRows)) {
+            return false;
+        }
+        return leftColumns == rightRows;
+    }
+
+    bool leftIsVectorOrMatrix = left.isVector() || left.isMatrix();
+    bool validMatrixOrVectorOp = op_valid_for_matrix_or_vector(op);
+
+    if (leftIsVectorOrMatrix && validMatrixOrVectorOp && right.isScalar()) {
         if (determine_binary_type(context, allowNarrowing, op, left.componentType(), right,
                                   outLeftType, outRightType, outResultType)) {
             *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
-            if (!isLogical) {
-                *outResultType =
-                        &(*outResultType)->toCompound(context, left.columns(), left.rows());
+            if (!op_is_logical(op)) {
+                *outResultType = &(*outResultType)->toCompound(context, left.columns(),
+                                                               left.rows());
             }
             return true;
         }
         return false;
     }
 
-    if (!isAssignment && rightIsVectorOrMatrix && validMatrixOrVectorOp &&
-        left.isScalar()) {
+    bool rightIsVectorOrMatrix = right.isVector() || right.isMatrix();
+
+    if (!isAssignment && rightIsVectorOrMatrix && validMatrixOrVectorOp && left.isScalar()) {
         if (determine_binary_type(context, allowNarrowing, op, left, right.componentType(),
                                   outLeftType, outRightType, outResultType)) {
             *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
-            if (!isLogical) {
-                *outResultType =
-                        &(*outResultType)->toCompound(context, right.columns(), right.rows());
+            if (!op_is_logical(op)) {
+                *outResultType = &(*outResultType)->toCompound(context, right.columns(),
+                                                               right.rows());
             }
             return true;
         }
@@ -1669,10 +1702,8 @@ static bool determine_binary_type(const Context& context,
                                                 : left.coercionCost(right);
 
     if ((left.isScalar() && right.isScalar()) || (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
-        if (isBitwise) {
-            const Type& leftNumberType(leftIsVectorOrMatrix ? left.componentType() : left);
-            const Type& rightNumberType(rightIsVectorOrMatrix ? right.componentType() : right);
-            if (!leftNumberType.isInteger() || !rightNumberType.isInteger()) {
+        if (op_is_bitwise(op)) {
+            if (!leftComponentType.isInteger() || !rightComponentType.isInteger()) {
                 return false;
             }
         }
@@ -1689,7 +1720,7 @@ static bool determine_binary_type(const Context& context,
         } else {
             return false;
         }
-        if (isLogical) {
+        if (op_is_logical(op)) {
             *outResultType = context.fBool_Type.get();
         }
         return true;
