@@ -15,6 +15,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #ifndef SKSL_STANDALONE
@@ -156,31 +157,37 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
     }
 }
 
+bool GLSLCodeGenerator::writeStructDefinition(const Type& type) {
+    for (const Type* search : fWrittenStructs) {
+        if (*search == type) {
+            // already written
+            return false;
+        }
+    }
+    fWrittenStructs.push_back(&type);
+    this->write("struct ");
+    this->write(type.name());
+    this->writeLine(" {");
+    fIndentation++;
+    for (const auto& f : type.fields()) {
+        this->writeModifiers(f.fModifiers, false);
+        this->writeTypePrecision(*f.fType);
+        // sizes (which must be static in structs) are part of the type name here
+        this->writeType(*f.fType);
+        this->write(" ");
+        this->write(f.fName);
+        this->writeLine(";");
+    }
+    fIndentation--;
+    this->write("}");
+    return true;
+}
+
 void GLSLCodeGenerator::writeType(const Type& type) {
     if (type.typeKind() == Type::TypeKind::kStruct) {
-        for (const Type* search : fWrittenStructs) {
-            if (*search == type) {
-                // already written
-                this->write(type.name());
-                return;
-            }
+        if (!this->writeStructDefinition(type)) {
+            this->write(type.name());
         }
-        fWrittenStructs.push_back(&type);
-        this->write("struct ");
-        this->write(type.name());
-        this->writeLine(" {");
-        fIndentation++;
-        for (const auto& f : type.fields()) {
-            this->writeModifiers(f.fModifiers, false);
-            this->writeTypePrecision(*f.fType);
-            // sizes (which must be static in structs) are part of the type name here
-            this->writeType(*f.fType);
-            this->write(" ");
-            this->write(f.fName);
-            this->writeLine(";");
-        }
-        fIndentation--;
-        this->write("}");
     } else {
         this->write(this->getTypeName(type));
     }
@@ -1536,6 +1543,11 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         }
         case ProgramElement::Kind::kEnum:
+            break;
+        case ProgramElement::Kind::kStructDefinition:
+            if (this->writeStructDefinition(e.as<StructDefinition>().type())) {
+                this->writeLine(";");
+            }
             break;
         default:
             SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());

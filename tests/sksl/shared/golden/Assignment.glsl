@@ -1,5 +1,11 @@
 
 out vec4 sk_FragColor;
+struct S {
+    float f;
+    float[5] af;
+    vec4 h4;
+    vec4[5] ah4;
+};
 void main() {
     vec4 x;
     x.w = 0.0;
@@ -15,12 +21,7 @@ void main() {
     vec4 af4[1];
     af4[0].x = 0.0;
     af4[0].ywxz = vec4(1.0);
-    struct S {
-        float f;
-        float[5] af;
-        vec4 h4;
-        vec4[5] ah4;
-    } s;
+    S s;
     s.f = 0.0;
     s.af[1] = 0.0;
     s.h4.zxy = vec3(9.0);

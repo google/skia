@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -192,6 +193,9 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
             return this->convertContinue(statement);
         case ASTNode::Kind::kDiscard:
             return this->convertDiscard(statement);
+        case ASTNode::Kind::kType:
+            // TODO: add IRNode for struct definition inside a function
+            return nullptr;
         default:
             // it's an expression
             std::unique_ptr<Statement> result = this->convertExpressionStatement(statement);
@@ -1072,6 +1076,20 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
 }
 
+std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const ASTNode& node) {
+    SkASSERT(node.fKind == ASTNode::Kind::kType);
+
+    const Type* type = this->convertType(node);
+    if (!type) {
+        return nullptr;
+    }
+    if (type->typeKind() != Type::TypeKind::kStruct) {
+        fErrors.error(node.fOffset, "expected a struct here, found '" + type->name() + "'");
+        return nullptr;
+    }
+    return std::make_unique<StructDefinition>(node.fOffset, *type);
+}
+
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
@@ -1209,8 +1227,9 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     int64_t currentValue = 0;
     Layout layout;
-    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
-                     ASTNode::TypeData(e.getString(), false, false));
+    ASTNode enumType(
+            e.fNodes, e.fOffset, ASTNode::Kind::kType,
+            ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false, /*isNullable=*/false));
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
@@ -3006,6 +3025,13 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
             }
             case ASTNode::Kind::kSection: {
                 std::unique_ptr<Section> s = this->convertSection(decl);
+                if (s) {
+                    fProgramElements->push_back(std::move(s));
+                }
+                break;
+            }
+            case ASTNode::Kind::kType: {
+                std::unique_ptr<StructDefinition> s = this->convertStructDefinition(decl);
                 if (s) {
                     fProgramElements->push_back(std::move(s));
                 }

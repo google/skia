@@ -113,6 +113,8 @@ public:
         kReturn_Command,
         // String name, Expression value
         kSetting_Command,
+        // uint16 id, Type structType
+        kStructDefinition_Command,
         // uint16 id, String name, uint8 fieldCount, (Modifiers, String, Type)[] fields
         kStructType_Command,
         // bool isStatic, SymbolTable symbols, Expression value, uint8 caseCount,
