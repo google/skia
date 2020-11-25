@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c581f5ca_8aa027f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15399
+      },
+      "writtenOn": "2020-11-25T14:50:24Z",
+      "side": 1,
+      "message": "Hey Mike!\n\nThis is my first change IN skia \\o/. Do I need to add a test? Also, my feelings won\u0027t be hurt if y\u0027all wanna just do this on your own. I just wanted to try.",
+      "revId": "c48e2178046df4bce2dfb434179b246d2bd9a106",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
