@@ -22,6 +22,30 @@
       },
       "revId": "a8678acd9b6c1c53b4baf261e0a520a323b28b3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6abd1bd3_503118c1",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-25T18:46:25Z",
+      "side": 1,
+      "message": "It\u0027ll have to stay until chrome makes all their image shaders w/ samplingoptions, then it can go",
+      "parentUuid": "35ac4801_8de02d7e",
+      "range": {
+        "startLine": 198,
+        "startChar": 44,
+        "endLine": 198,
+        "endChar": 73
+      },
+      "revId": "a8678acd9b6c1c53b4baf261e0a520a323b28b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
