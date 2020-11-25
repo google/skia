@@ -24,13 +24,14 @@ public:
         kExtension,
         kFunction,
         kFunctionPrototype,
+        kGlobalVar,
         kInterfaceBlock,
         kModifiers,
         kSection,
-        kGlobalVar,
+        kStructDefinition,
 
         kFirst = kEnum,
-        kLast = kGlobalVar
+        kLast = kStructDefinition
     };
 
     ProgramElement(int offset, Kind kind)

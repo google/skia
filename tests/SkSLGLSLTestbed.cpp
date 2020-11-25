@@ -24,7 +24,7 @@ static void test(skiatest::Reporter* r,
     } else {
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
         REPORTER_ASSERT(r, output != "");
-        //SkDebugf("GLSL output:\n\n%s", output.c_str());
+        SkDebugf("GLSL output:\n\n%s", output.c_str());
     }
 }
 

@@ -36,6 +36,7 @@
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -567,6 +568,12 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kSection:
             SkASSERT(false);
             break;
+        case ProgramElement::Kind::kStructDefinition: {
+            const StructDefinition& structDef = e.as<StructDefinition>();
+            this->writeCommand(Rehydrator::kStructDefinition_Command);
+            this->write(structDef.type());
+            break;
+        }
         case ProgramElement::Kind::kGlobalVar: {
             const GlobalVarDeclaration& v = e.as<GlobalVarDeclaration>();
             this->writeCommand(Rehydrator::kVarDeclarations_Command);
