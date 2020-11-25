@@ -180,6 +180,36 @@ DEF_TEST(TypefaceAxes, reporter) {
     constexpr int numberOfAxesInDistortable = 1;
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    auto test = [&](SkTypeface* typeface, const SkFontArguments::VariationPosition::Coordinate& expected) {
+        if (!typeface) {
+            return;  // Not all SkFontMgr can makeFromStream().
+        }
+
+        int count = typeface->getVariationDesignPosition(nullptr, 0);
+        if (count == -1) {
+            return;  // The number of axes is unknown.
+        }
+        REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
+
+        // Variable font conservative bounds don't vary, so ensure they aren't reported.
+        REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
+
+        SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
+        count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+        if (count == -1) {
+            return;  // The position cannot be determined.
+        }
+        REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
+
+        REPORTER_ASSERT(reporter, positionRead[0].axis == expected.axis);
+
+        // Convert to fixed for "almost equal".
+        SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
+        SkFixed fixedOriginal = SkScalarToFixed(expected.value);
+        REPORTER_ASSERT(reporter, SkTAbs(fixedRead - fixedOriginal) < 2 || // variation set correctly
+                                  SkTAbs(fixedRead - SK_Fixed1    ) < 2);  // variation remained default
+    };
+
     // The position may be over specified. If there are multiple values for a given axis,
     // ensure the last one since that's what css-fonts-4 requires.
     const SkFontArguments::VariationPosition::Coordinate position[] = {
@@ -189,35 +219,13 @@ DEF_TEST(TypefaceAxes, reporter) {
     SkFontArguments params;
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
     // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(distortable->duplicate(), params);
+    test(typeface.get(), position[1]);
 
-    if (!typeface) {
-        return;  // Not all SkFontMgr can makeFromStream().
-    }
-
-    int count = typeface->getVariationDesignPosition(nullptr, 0);
-    if (count == -1) {
-        return;  // The number of axes is unknown.
-    }
-    REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
-
-    // Variable font conservative bounds don't vary, so ensure they aren't reported.
-    REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
-
-    SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
-    count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
-    if (count == -1) {
-        return;  // The position cannot be determined.
-    }
-    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
-
-    REPORTER_ASSERT(reporter, positionRead[0].axis == position[1].axis);
-
-    // Convert to fixed for "almost equal".
-    SkFixed fixedRead = SkScalarToFixed(positionRead[0].value);
-    SkFixed fixedOriginal = SkScalarToFixed(position[1].value);
-    REPORTER_ASSERT(reporter, SkTAbs(fixedRead - fixedOriginal) < 2 || // variation set correctly
-                              SkTAbs(fixedRead - SK_Fixed1    ) < 2);  // variation remained default
+    const SkFontArguments::VariationPosition::Coordinate defaultPosition =
+        { SkSetFourByteTag('w','g','h','t'), 1.0f };
+    sk_sp<SkTypeface> typeface_default = fm->makeFromStream(std::move(distortable));
+    test(typeface_default.get(), defaultPosition);
 }
 
 DEF_TEST(TypefaceVariationIndex, reporter) {
