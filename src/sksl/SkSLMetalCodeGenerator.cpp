@@ -1740,6 +1740,9 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(), true);
             this->writeLine(";");
             break;
+        case ProgramElement::Kind::kStructDefinition:
+            this->writeLine("// struct definition goes here");
+            break;
         default:
 #ifdef SK_DEBUG
             ABORT("unsupported program element: %s\n", e.description().c_str());

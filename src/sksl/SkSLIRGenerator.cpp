@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -1072,6 +1073,17 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
 }
 
+std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const ASTNode& node) {
+    SkASSERT(node.fKind == ASTNode::Kind::kType);
+
+    const Type* type = this->convertType(node);
+    if (!type) {
+        return nullptr;
+    }
+
+    return nullptr; // std::make_unique<StructDefinition>(node.fOffset, *type, fSymbolTable);
+}
+
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
@@ -1209,8 +1221,9 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     int64_t currentValue = 0;
     Layout layout;
-    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
-                     ASTNode::TypeData(e.getString(), false, false));
+    ASTNode enumType(
+            e.fNodes, e.fOffset, ASTNode::Kind::kType,
+            ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false, /*isNullable=*/false));
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
@@ -3005,6 +3018,13 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
             }
             case ASTNode::Kind::kSection: {
                 std::unique_ptr<Section> s = this->convertSection(decl);
+                if (s) {
+                    fProgramElements->push_back(std::move(s));
+                }
+                break;
+            }
+            case ASTNode::Kind::kType: {
+                std::unique_ptr<StructDefinition> s = this->convertStructDefinition(decl);
                 if (s) {
                     fProgramElements->push_back(std::move(s));
                 }

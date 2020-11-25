@@ -1537,6 +1537,9 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         }
         case ProgramElement::Kind::kEnum:
             break;
+        case ProgramElement::Kind::kStructDefinition:
+            this->writeLine("// struct definition goes here");
+            break;
         default:
             SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());
             break;
