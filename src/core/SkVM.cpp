@@ -2208,7 +2208,9 @@ namespace skvm {
     void Assembler::fdiv4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11111'1, n, d); }
     void Assembler::fmin4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11110'1, n, d); }
     void Assembler::fmax4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11110'1, n, d); }
-    void Assembler::fneg4s(V d, V n)      { this->op(0b0'1'1'01110'1'0'10000'01111'10,  n, d); }
+
+    void Assembler::fneg4s (V d, V n) { this->op(0b0'1'1'01110'1'0'10000'01111'10, n,d); }
+    void Assembler::fsqrt4s(V d, V n) { this->op(0b0'1'1'01110'1'0'10000'11111'10, n,d); }
 
     void Assembler::fcmeq4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b1110'0'1, n, d); }
     void Assembler::fcmgt4s(V d, V n, V m) { this->op(0b0'1'1'01110'1'0'1, m, 0b1110'0'1, n, d); }
@@ -2238,6 +2240,8 @@ namespace skvm {
     void Assembler::scvtf4s (V d, V n) { this->op(0b0'1'0'01110'0'0'10000'11101'10, n,d); }
     void Assembler::fcvtzs4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1101'1'10, n,d); }
     void Assembler::fcvtns4s(V d, V n) { this->op(0b0'1'0'01110'0'0'10000'1101'0'10, n,d); }
+    void Assembler::frintp4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1100'0'10, n,d); }
+    void Assembler::frintm4s(V d, V n) { this->op(0b0'1'0'01110'0'0'10000'1100'1'10, n,d); }
 
     void Assembler::xtns2h(V d, V n) { this->op(0b0'0'0'01110'01'10000'10010'10, n,d); }
     void Assembler::xtnh2b(V d, V n) { this->op(0b0'0'0'01110'00'10000'10010'10, n,d); }
@@ -2344,6 +2348,10 @@ namespace skvm {
     void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
         this->op(0b10'011'1'00'00000000000000, (V)0, dst, (imm19 & 19_mask) << 5);
+    }
+
+    void Assembler::dup4s(V dst, X src) {
+        this->op(0b0'1'0'01110000'00100'0'0001'1, src, dst);
     }
 
     void Assembler::ld1r4s(V dst, X src) {
@@ -3260,12 +3268,10 @@ namespace skvm {
                 return r;
             };
 
-        #if defined(__x86_64__) || defined(_M_X64)  // Nothing special... just unused on ARM.
             auto free_tmp = [&](Reg r) {
                 SkASSERT(regs[r] == TMP);
                 regs[r] = NA;
             };
-        #endif
 
             // Which register holds dst,x,y,z for this instruction?  NA if none does yet.
             int rd = NA,
@@ -3710,11 +3716,13 @@ namespace skvm {
                     break;
 
             #elif defined(__aarch64__)
-                default:  // TODO
-                    if (false) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;
+                case Op::store64:
+                case Op::store128:
+                case Op::load64:
+                case Op::load128:
+                case Op::to_half:
+                case Op::from_half:
+                    return false;  // TODO
 
                 case Op::assert_true: {
                     a->uminv4s(dst(), r(x));   // uminv acts like an all() across the vector.
@@ -3723,6 +3731,14 @@ namespace skvm {
                     a->cbnz(GP0, &all_true);
                     a->brk(0);
                     a->label(&all_true);
+                } break;
+
+                case Op::index: {
+                    A::V tmp = alloc_tmp();
+                    a->ldrq (tmp, &iota);
+                    a->dup4s(dst(), N);
+                    a->sub4s(dst(), dst(), tmp);
+                    free_tmp(tmp);
                 } break;
 
                 case Op::store8: a->xtns2h(dst(), r(x));
@@ -3801,6 +3817,8 @@ namespace skvm {
                 case Op::mul_f32: a->fmul4s(dst(), r(x), r(y)); break;
                 case Op::div_f32: a->fdiv4s(dst(), r(x), r(y)); break;
 
+                case Op::sqrt_f32: a->fsqrt4s(dst(), r(x)); break;
+
                 case Op::fma_f32: // fmla.4s is z += x*y
                     if (try_alias(z)) { a->fmla4s( r(z), r(x), r(y)); }
                     else              { a->orr16b(dst(), r(z), r(z));
@@ -3864,8 +3882,8 @@ namespace skvm {
                 case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
                 case Op::round:  a->fcvtns4s(dst(), r(x)); break;
-                // TODO: fcvtns.4s rounds to nearest even.
-                // I think we actually want frintx -> fcvtzs to round to current mode.
+                case Op::ceil:   a->frintp4s(dst(), r(x)); break;
+                case Op::floor:  a->frintm4s(dst(), r(x)); break;
             #endif
             }
 
