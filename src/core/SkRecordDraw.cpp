@@ -93,6 +93,7 @@ template <> void Draw::draw(const DrawBehind& r) {
 
 DRAW(MarkCTM, markCTM(r.name.c_str()));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
+DRAW(SetM44, setMatrix(SkM44(fInitialCTM) * r.matrix));
 DRAW(Concat44, concat(r.matrix));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
@@ -251,6 +252,7 @@ private:
     template <typename T> void updateCTM(const T&) {}
     void updateCTM(const Restore& op)   { fCTM = op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
+    void updateCTM(const SetM44& op)    { fCTM = op.matrix.asM33(); }
     void updateCTM(const Concat44& op)  { fCTM.preConcat(op.matrix.asM33()); }
     void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
     void updateCTM(const Scale& op)     { fCTM.preScale(op.sx, op.sy); }
@@ -269,6 +271,7 @@ private:
 
     void trackBounds(const MarkCTM&)           { this->pushControl(); }
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
+    void trackBounds(const SetM44&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
     void trackBounds(const Concat44&)          { this->pushControl(); }
     void trackBounds(const Scale&)             { this->pushControl(); }
