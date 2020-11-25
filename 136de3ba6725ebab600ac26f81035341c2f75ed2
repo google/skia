@@ -104,6 +104,30 @@
       },
       "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcf0dd29_e256acf7",
+        "filename": "tests/sksl/shared/golden/Operators.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T15:17:34Z",
+      "side": 1,
+      "message": "Ack (but this does serve as a good reminder that our Metal outputs aren\u0027t actually validated as correct)",
+      "parentUuid": "052aaebf_16fd46e5",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
