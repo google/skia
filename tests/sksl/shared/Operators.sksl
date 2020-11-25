@@ -19,10 +19,6 @@ void main() {
     z <<= 4;
     z %= 5;
     x = (float2(sqrt(1)), 6);
-<<<<<<< HEAD
-    y = (float(b), 6.0);
-=======
-    y = float(b) * float(c) * float(d) * float(e) * float(f);
->>>>>>> 0a85d57fa0 (Detect invalid boolean binary expressions.)
+    y = (float(b) * float(c) * float(d) * float(e) * float(f), 6.0);
     z = (float2(sqrt(1)), 6);
 }
