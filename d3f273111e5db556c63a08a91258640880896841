@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "848884f8_dd0fe6af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-25T15:56:07Z",
+      "side": 1,
+      "message": "Cause for revert is explained in commit description, as well as the update to this CL, but it\u0027s a small enough fix that I\u0027m just landing this with TBR for those interested.",
+      "revId": "d3f273111e5db556c63a08a91258640880896841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
