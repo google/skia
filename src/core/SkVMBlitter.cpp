@@ -260,7 +260,7 @@ namespace {
                 break;
 
             case Coverage::UniformA8:
-                cov.r = cov.g = cov.b = cov.a = from_unorm(8, p->uniform8(p->uniform(), 0));
+                cov.r = cov.g = cov.b = cov.a = from_unorm(8, p->uniform32(p->uniform(), 0));
                 break;
 
             case Coverage::Mask3D:
@@ -679,10 +679,11 @@ namespace {
             }
             for (int16_t run = *runs; run > 0; run = *runs) {
                 this->updateUniforms(x+run, y);
+                uint32_t cov32 = *cov;
                 if (const void* sprite = this->isSprite(x,y)) {
-                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, cov);
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), sprite, &cov32);
                 } else {
-                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), cov);
+                    fBlitAntiH.eval(run, fUniforms.buf.data(), fDevice.addr(x,y), &cov32);
                 }
                 x    += run;
                 runs += run;
