@@ -80,6 +80,30 @@
       },
       "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6ae1b60_8aa7203c",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T21:14:10Z",
+      "side": 1,
+      "message": "yeah, it looks pretty plain-old-C-struct-y for sure.  this looks great to me.",
+      "parentUuid": "48c92b93_22a96b54",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 17
+      },
+      "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
