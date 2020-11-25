@@ -101,6 +101,8 @@ protected:
 
     virtual String getTypeName(const Type& type);
 
+    bool writeStructDefinition(const Type& type);
+
     void writeType(const Type& type);
 
     void writeExtension(const String& name);

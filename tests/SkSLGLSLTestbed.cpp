@@ -24,7 +24,7 @@ static void test(skiatest::Reporter* r,
     } else {
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
         REPORTER_ASSERT(r, output != "");
-        //SkDebugf("GLSL output:\n\n%s", output.c_str());
+        SkDebugf("GLSL output:\n\n%s", output.c_str());
     }
 }
 
@@ -33,8 +33,13 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+struct S { float f; };
+
+void not_a_field()    { S s; s.missing = 123; }
+void not_a_function() { S s; s.f(); }
+void not_a_bvec()     { S s; s.f = bool3(true); }
+void not_a_struct()   { S s; s.f.missing; }
+void not_an_array()   { S s; s.f[0]; }
+
          )__SkSL__");
 }
