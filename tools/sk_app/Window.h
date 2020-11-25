@@ -16,6 +16,8 @@
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
 
+#include <functional>
+
 class GrDirectContext;
 class SkCanvas;
 class SkSurface;
