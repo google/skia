@@ -56,6 +56,30 @@
       },
       "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48c92b93_22a96b54",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-25T21:11:18Z",
+      "side": 1,
+      "message": "The 2nd one is nice, but it suggest (to me at least) that it\u0027s *not* changing fUseCubic -- even though I know it is calling a constructor that does set it to false.",
+      "parentUuid": "c7ca3955_237c3d25",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 17
+      },
+      "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
