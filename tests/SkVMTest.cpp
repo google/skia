@@ -1768,10 +1768,14 @@ DEF_TEST(SkVM_Assembler, r) {
         a.scvtf4s (A::v4, A::v3);
         a.fcvtzs4s(A::v4, A::v3);
         a.fcvtns4s(A::v4, A::v3);
+        a.frintp4s(A::v4, A::v3);
+        a.frintm4s(A::v4, A::v3);
     },{
         0x64,0xd8,0x21,0x4e,
         0x64,0xb8,0xa1,0x4e,
         0x64,0xa8,0x21,0x4e,
+        0x64,0x88,0xa1,0x4e,
+        0x64,0x98,0x21,0x4e,
     });
 
     test_asm(r, [&](A& a) {

@@ -2238,6 +2238,8 @@ namespace skvm {
     void Assembler::scvtf4s (V d, V n) { this->op(0b0'1'0'01110'0'0'10000'11101'10, n,d); }
     void Assembler::fcvtzs4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1101'1'10, n,d); }
     void Assembler::fcvtns4s(V d, V n) { this->op(0b0'1'0'01110'0'0'10000'1101'0'10, n,d); }
+    void Assembler::frintp4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1100'0'10, n,d); }
+    void Assembler::frintm4s(V d, V n) { this->op(0b0'1'0'01110'0'0'10000'1100'1'10, n,d); }
 
     void Assembler::xtns2h(V d, V n) { this->op(0b0'0'0'01110'01'10000'10010'10, n,d); }
     void Assembler::xtnh2b(V d, V n) { this->op(0b0'0'0'01110'00'10000'10010'10, n,d); }
@@ -3710,11 +3712,15 @@ namespace skvm {
                     break;
 
             #elif defined(__aarch64__)
-                default:  // TODO
-                    if (false) {
-                        SkDEBUGFAILF("\nOp::%s (%d) not yet implemented\n", name(op), op);
-                    }
-                    return false;
+                case Op::store64:
+                case Op::store128:
+                case Op::index:
+                case Op::load64:
+                case Op::load128:
+                case Op::sqrt_f32:
+                case Op::to_half:
+                case Op::from_half:
+                    return false;  // TODO
 
                 case Op::assert_true: {
                     a->uminv4s(dst(), r(x));   // uminv acts like an all() across the vector.
@@ -3864,8 +3870,8 @@ namespace skvm {
                 case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
                 case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
                 case Op::round:  a->fcvtns4s(dst(), r(x)); break;
-                // TODO: fcvtns.4s rounds to nearest even.
-                // I think we actually want frintx -> fcvtzs to round to current mode.
+                case Op::ceil:   a->frintp4s(dst(), r(x)); break;
+                case Op::floor:  a->frintm4s(dst(), r(x)); break;
             #endif
             }
 
