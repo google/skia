@@ -307,9 +307,12 @@ namespace skvm {
         using DOpN = void(V d, V n);
         DOpN not16b,    // d = ~n
              fneg4s,    // d = -n
+             fsqrt4s,   // d = sqrtf(n)
              scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
              fcvtns4s,  // round float -> int  (nearest even)
+             frintp4s,  // round float -> int as float, toward plus infinity  (ceil)
+             frintm4s,  // round float -> int as float, toward minus infinity (floor)
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
              uxtlb2h,   // u8 -> u16    (TODO: this is a special case of ushll.8h)
