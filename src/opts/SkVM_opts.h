@@ -210,14 +210,8 @@ namespace SK_OPTS_NS {
                         r[d].i32 = n - I32::Load(iota);
                     } break;
 
-                    CASE(Op::uniform8):
-                        r[d].i32 = *(const uint8_t* )( (const char*)args[immy] + immz );
-                        break;
-                    CASE(Op::uniform16):
-                        r[d].i32 = *(const uint16_t*)( (const char*)args[immy] + immz );
-                        break;
                     CASE(Op::uniform32):
-                        r[d].i32 = *(const int*     )( (const char*)args[immy] + immz );
+                        r[d].i32 = *(const int*)( (const char*)args[immy] + immz );
                         break;
 
                     CASE(Op::splat): r[d].i32 = immy; break;
