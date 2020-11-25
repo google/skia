@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9de87a58_739d74e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T20:58:53Z",
+      "side": 1,
+      "message": "(This is 1 of 3 cleanups in this relation chain, with some interesting stuff in the fourth CL stacked on the very top.)",
+      "revId": "c38648bfdbe6ab5fa49556635222257c631c4d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
