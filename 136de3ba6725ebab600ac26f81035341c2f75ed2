@@ -56,6 +56,30 @@
       },
       "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e79ce93_98df586e",
+        "filename": "tests/sksl/shared/golden/Operators.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T15:06:21Z",
+      "side": 1,
+      "message": "AFAICS it doesn\u0027t add any value over !\u003d and we don\u0027t use it anywhere in our code, so the only loss would be Runtime Effects diverging from GLSL in one more small way.",
+      "parentUuid": "a89a05e5_933589c7",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
