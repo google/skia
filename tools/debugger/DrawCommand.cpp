@@ -2110,3 +2110,15 @@ void SetMatrixCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     MakeJsonMatrix(writer, fMatrix);
     writeMatrixType(writer, fMatrix);
 }
+
+SetM44Command::SetM44Command(const SkM44& matrix) : INHERITED(kSetM44_OpType) {
+    fMatrix = matrix;
+}
+
+void SetM44Command::execute(SkCanvas* canvas) const { canvas->setMatrix(fMatrix); }
+
+void SetM44Command::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_MATRIX);
+    MakeJsonMatrix44(writer, fMatrix);
+}

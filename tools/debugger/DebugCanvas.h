@@ -142,8 +142,11 @@ protected:
     void              willRestore() override;
 
     void didConcat44(const SkM44&) override;
+    void didSetM44(const SkM44&) override;
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
+#endif
     void didScale(SkScalar, SkScalar) override;
     void didTranslate(SkScalar, SkScalar) override;
 
