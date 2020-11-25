@@ -34,6 +34,7 @@ namespace SkSL {
 
 class ExternalValue;
 class FunctionCall;
+class StructDefinition;
 struct ParsedModule;
 struct Swizzle;
 
@@ -209,6 +210,7 @@ private:
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertPostfixExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertScopeExpression(const ASTNode& expression);
+    std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,

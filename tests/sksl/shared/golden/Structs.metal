@@ -1,21 +1,23 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+struct A {
+    int x;
+    int y;
+};
+struct B {
+    float x;
+    float y[2];
+    A z;
+};
 struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 struct Globals {
-    struct A {
-    int x;
-    int y;
-} a1;
-    struct B {
-    float x;
-    float y[2];
-    A z;
-} b1;
+    A a1;
+    B b1;
 };
 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
