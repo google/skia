@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "530f21e3_d33aaabf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T21:14:48Z",
+      "side": 1,
+      "message": "This one\u0027s the interesting new stuff.",
+      "revId": "01ac1d70f62a0cc7cb49ca6160b43acd864f986a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
