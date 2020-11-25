@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80906576_eae1fd0d",
+        "filename": "src/opts/SkChecksum_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T15:39:36Z",
+      "side": 1,
+      "message": "Are these leftover from local testing?",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 9
+      },
+      "revId": "6f02f9e9fffd22e0f458decb565bb9708bec3e31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
