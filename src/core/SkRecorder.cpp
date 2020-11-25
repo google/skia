@@ -40,22 +40,41 @@ void SkDrawableList::append(SkDrawable* drawable) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+static SkIRect safe_picture_bounds(const SkRect& bounds) {
+    SkIRect picBounds = bounds.roundOut();
+    // roundOut() saturates the float edges to +/-SK_MaxS32FitsInFloat (~2billion), but this is
+    // large enough that width/height calculations will overflow, leading to negative dimensions.
+    static constexpr int32_t kSafeEdge = SK_MaxS32FitsInFloat / 2 - 1;
+    static constexpr SkIRect kSafeBounds = {-kSafeEdge, -kSafeEdge, kSafeEdge, kSafeEdge};
+    static_assert((kSafeBounds.fRight - kSafeBounds.fLeft) >= 0 &&
+                  (kSafeBounds.fBottom - kSafeBounds.fTop) >= 0);
+    if (!picBounds.intersect(kSafeBounds)) {
+        picBounds.setEmpty();
+    }
+    return picBounds;
+}
+
 SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
-    : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(width, height)
-    , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record)
-    , fMiniRecorder(mr) {}
+        : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(width, height)
+        , fApproxBytesUsedBySubPictures(0)
+        , fRecord(record)
+        , fMiniRecorder(mr) {
+    SkASSERT(this->imageInfo().width() >= 0 && this->imageInfo().height() >= 0);
+}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
-    : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(bounds.roundOut())
-    , fApproxBytesUsedBySubPictures(0)
-    , fRecord(record)
-    , fMiniRecorder(mr) {}
+        : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(safe_picture_bounds(bounds))
+        , fApproxBytesUsedBySubPictures(0)
+        , fRecord(record)
+        , fMiniRecorder(mr) {
+    SkASSERT(this->imageInfo().width() >= 0 && this->imageInfo().height() >= 0);
+}
 
 void SkRecorder::reset(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr) {
     this->forgetRecord();
     fRecord = record;
-    this->resetCanvas(bounds.roundOut());
+    this->resetCanvas(safe_picture_bounds(bounds));
+    SkASSERT(this->imageInfo().width() >= 0 && this->imageInfo().height() >= 0);
     fMiniRecorder = mr;
 }
 
