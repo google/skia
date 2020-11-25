@@ -214,47 +214,7 @@ namespace skvm {
         }
     }  // namespace
 
-    void Builder::dot(SkWStream* o) const {
-        SkDebugfStream debug;
-        if (!o) { o = &debug; }
-
-        std::vector<OptimizedInstruction> optimized = this->optimize();
-
-        o->writeText("digraph {\n");
-        for (Val id = 0; id < (Val)optimized.size(); id++) {
-            auto [op, x,y,z, immy,immz, death,can_hoist] = optimized[id];
-
-            switch (op) {
-                default:
-                    write(o, "\t", V{id}, " [label = \"", V{id}, op);
-                    // Not a perfect heuristic; sometimes y/z == NA and there is no immy/z.
-                    // On the other hand, sometimes immy/z=0 is meaningful and should be printed.
-                    if (y == NA) { write(o, "", Hex{immy}); }
-                    if (z == NA) { write(o, "", Hex{immz}); }
-                    write(o, "\"]\n");
-
-                    write(o, "\t", V{id}, " -> {");
-                    // In contrast to the heuristic imm labels, these dependences are exact.
-                    if (x != NA) { write(o, "", V{x}); }
-                    if (y != NA) { write(o, "", V{y}); }
-                    if (z != NA) { write(o, "", V{z}); }
-                    write(o, " }\n");
-
-                    break;
-
-                // That default: impl works pretty well for most instructions,
-                // but some are nicer to see with a specialized label.
-
-                case Op::splat:
-                    write(o, "\t", V{id}, " [label = \"", V{id}, op, Splat{immy}, "\"]\n");
-                    break;
-            }
-        }
-        o->writeText("}\n");
-    }
-
-    template <typename I, typename... Fs>
-    static void write_one_instruction(Val id, const I& inst, SkWStream* o, Fs... fs) {
+    static void write_one_instruction(Val id, const OptimizedInstruction& inst, SkWStream* o) {
         Op  op = inst.op;
         Val  x = inst.x,
              y = inst.y,
@@ -262,102 +222,102 @@ namespace skvm {
         int immy = inst.immy,
             immz = inst.immz;
         switch (op) {
-            case Op::assert_true: write(o, op, V{x}, V{y}, fs(id)...); break;
+            case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
-            case Op::store8:   write(o, op, Arg{immy}   , V{x},                  fs(id)...); break;
-            case Op::store16:  write(o, op, Arg{immy}   , V{x},                  fs(id)...); break;
-            case Op::store32:  write(o, op, Arg{immy}   , V{x},                  fs(id)...); break;
-            case Op::store64:  write(o, op, Arg{immz}   , V{x},V{y},             fs(id)...); break;
-            case Op::store128: write(o, op, Arg{immz>>1}, V{x},V{y},Hex{immz&1}, fs(id)...); break;
+            case Op::store8:   write(o, op, Arg{immy}   , V{x}                 ); break;
+            case Op::store16:  write(o, op, Arg{immy}   , V{x}                 ); break;
+            case Op::store32:  write(o, op, Arg{immy}   , V{x}                 ); break;
+            case Op::store64:  write(o, op, Arg{immz}   , V{x},V{y}            ); break;
+            case Op::store128: write(o, op, Arg{immz>>1}, V{x},V{y},Hex{immz&1}); break;
 
-            case Op::index: write(o, V{id}, "=", op, fs(id)...); break;
+            case Op::index: write(o, V{id}, "=", op); break;
 
-            case Op::load8:   write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load16:  write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load32:  write(o, V{id}, "=", op, Arg{immy}, fs(id)...); break;
-            case Op::load64:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-            case Op::load128: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
+            case Op::load8:   write(o, V{id}, "=", op, Arg{immy}); break;
+            case Op::load16:  write(o, V{id}, "=", op, Arg{immy}); break;
+            case Op::load32:  write(o, V{id}, "=", op, Arg{immy}); break;
+            case Op::load64:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+            case Op::load128: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
 
-            case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
-            case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
-            case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}, fs(id)...); break;
+            case Op::gather8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+            case Op::gather16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
+            case Op::gather32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, V{x}); break;
 
-            case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-            case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
-            case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
+            case Op::uniform8:  write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+            case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
+            case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}); break;
 
-            case Op::splat:     write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
-            case Op::splat_q14: write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
+            case Op::splat:     write(o, V{id}, "=", op, Splat{immy}); break;
+            case Op::splat_q14: write(o, V{id}, "=", op, Splat{immy}); break;
 
-            case Op::add_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::sub_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::mul_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::div_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::min_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-
-
-            case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-
-            case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::gte_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: add_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: sub_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: mul_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: div_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: min_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: max_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
+            case Op:: fma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+            case Op:: fms_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+            case Op::fnma_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
 
 
-            case Op::add_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}); break;
 
-            case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-
-            case Op::eq_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: eq_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::neq_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op:: gt_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::gte_f32: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
 
-            case Op::add_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::sub_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::mul_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::add_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::sub_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::mul_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::shl_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::shr_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::sra_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::shl_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+            case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+            case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
 
-            case Op:: min_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: max_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::uavg_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::eq_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::gt_i32: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::eq_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::gt_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
-            case Op::bit_and_q14  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_or_q14   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_xor_q14  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_clear_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::add_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::sub_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::mul_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::from_q14: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::  to_q14: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::shl_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+            case Op::shr_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
+            case Op::sra_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}); break;
 
-            case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: min_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op:: max_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::uavg_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::select:     write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::select_q14: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+            case Op::eq_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::gt_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
 
-            case Op::ceil:      write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::floor:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::to_f32:    write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::to_half:   write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::from_half: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::trunc:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
-            case Op::round:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::bit_and_q14  : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_or_q14   : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_xor_q14  : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_clear_q14: write(o, V{id}, "=", op, V{x}, V{y}); break;
+
+            case Op::from_q14: write(o, V{id}, "=", op, V{x}); break;
+            case Op::  to_q14: write(o, V{id}, "=", op, V{x}); break;
+
+            case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}); break;
+            case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}); break;
+
+            case Op::select:     write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+            case Op::select_q14: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
+
+            case Op::ceil:      write(o, V{id}, "=", op, V{x}); break;
+            case Op::floor:     write(o, V{id}, "=", op, V{x}); break;
+            case Op::to_f32:    write(o, V{id}, "=", op, V{x}); break;
+            case Op::to_half:   write(o, V{id}, "=", op, V{x}); break;
+            case Op::from_half: write(o, V{id}, "=", op, V{x}); break;
+            case Op::trunc:     write(o, V{id}, "=", op, V{x}); break;
+            case Op::round:     write(o, V{id}, "=", op, V{x}); break;
         }
 
         write(o, "\n");
@@ -376,18 +336,6 @@ namespace skvm {
             const OptimizedInstruction& inst = optimized[id];
             write(o, inst.can_hoist ? "↑ " : "  ");
             write_one_instruction(id, inst, o);
-        }
-    }
-
-    template <typename... Fs>
-    void dump_instructions(const std::vector<Instruction>& instructions, SkWStream* o, Fs... fs)  {
-        SkDebugfStream debug;
-        if (o == nullptr) {
-            o = &debug;
-        }
-        write(o, Attr{"Instruction count:", (int)instructions.size()});
-        for (Val id = 0; id < (Val)instructions.size(); id++) {
-            write_one_instruction(id, instructions[id], o, std::forward<Fs>(fs)...);
         }
     }
 
@@ -1819,67 +1767,6 @@ namespace skvm {
                 return non_sep(R, G, B);
             }
         }
-    }
-
-    // For a given program we'll store each Instruction's users contiguously in a table,
-    // and track where each Instruction's span of users starts and ends in another index.
-    // Here's a simple program that loads x and stores kx+k:
-    //
-    //  v0 = splat(k)
-    //  v1 = load(...)
-    //  v2 = mul(v1, v0)
-    //  v3 = add(v2, v0)
-    //  v4 = store(..., v3)
-    //
-    // This program has 5 instructions v0-v4.
-    //    - v0 is used by v2 and v3
-    //    - v1 is used by v2
-    //    - v2 is used by v3
-    //    - v3 is used by v4
-    //    - v4 has a side-effect
-    //
-    // For this program we fill out these two arrays:
-    //     table:  [v2,v3, v2, v3, v4]
-    //     index:  [0,     2,  3,  4,  5]
-    //
-    // The table is just those "is used by ..." I wrote out above in order,
-    // and the index tracks where an Instruction's span of users starts, table[index[id]].
-    // The span continues up until the start of the next Instruction, table[index[id+1]].
-    SkSpan<const Val> Usage::operator[](Val id) const {
-        int begin = fIndex[id];
-        int end   = fIndex[id + 1];
-        return SkSpan(fTable.data() + begin, end - begin);
-    }
-
-    Usage::Usage(const std::vector<Instruction>& program) {
-        // uses[id] counts the number of times each Instruction is used.
-        std::vector<int> uses(program.size(), 0);
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            Instruction inst = program[id];
-            if (inst.x != NA) { ++uses[inst.x]; }
-            if (inst.y != NA) { ++uses[inst.y]; }
-            if (inst.z != NA) { ++uses[inst.z]; }
-        }
-
-        // Build our index into fTable, with an extra entry marking the final Instruction's end.
-        fIndex.reserve(program.size() + 1);
-        int total_uses = 0;
-        for (int n : uses) {
-            fIndex.push_back(total_uses);
-            total_uses += n;
-        }
-        fIndex.push_back(total_uses);
-
-        // Tick down each Instruction's uses to fill in fTable.
-        fTable.resize(total_uses, NA);
-        for (Val id = (Val)program.size(); id --> 0; ) {
-            Instruction inst = program[id];
-            if (inst.x != NA) { fTable[fIndex[inst.x] + --uses[inst.x]] = id; }
-            if (inst.y != NA) { fTable[fIndex[inst.y] + --uses[inst.y]] = id; }
-            if (inst.z != NA) { fTable[fIndex[inst.z] + --uses[inst.z]] = id; }
-        }
-        for (int n  : uses  ) { (void)n;  SkASSERT(n  == 0 ); }
-        for (Val id : fTable) { (void)id; SkASSERT(id != NA); }
     }
 
     // ~~~~ Program::eval() and co. ~~~~ //

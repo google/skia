@@ -866,7 +866,6 @@ namespace skvm {
         Color to_rgba(HSLA);
 
         void dump(SkWStream* = nullptr) const;
-        void dot (SkWStream* = nullptr) const;
 
         uint64_t hash() const;
 
@@ -916,28 +915,11 @@ namespace skvm {
         std::vector<int>                              fStrides;
     };
 
-    template <typename... Fs>
-    void dump_instructions(const std::vector<Instruction>& instructions,
-                           SkWStream* o = nullptr,
-                           Fs... fs);
-
     // Optimization passes and data structures normally used by Builder::optimize(),
     // extracted here so they can be unit tested.
     std::vector<Instruction>          eliminate_dead_code(std::vector<Instruction>);
     std::vector<Instruction>          schedule           (std::vector<Instruction>);
     std::vector<OptimizedInstruction> finalize           (std::vector<Instruction>);
-
-    class Usage {
-    public:
-        Usage(const std::vector<Instruction>&);
-
-        // Return a sorted span of Vals which use result of Instruction id.
-        SkSpan<const Val> operator[](Val id) const;
-
-    private:
-        std::vector<int> fIndex;
-        std::vector<Val> fTable;
-    };
 
     using Reg = int;
 
