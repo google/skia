@@ -18,7 +18,7 @@
 
 #if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>
-    static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return _mm_crc32_u8 (seed, v); }
+    static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return _mm_crc32_u8(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) {
     #if 1 && (defined(__x86_64__) || defined(_M_X64))
         return _mm_crc32_u64(seed, v);
@@ -39,7 +39,7 @@
             std::array<uint32_t, 256> t;
             for (int i = 0; i < 256; i++) {
                 t[i] = i;
-                for (int rounds = 8; rounds --> 0; ) {
+                for (int bits = 8; bits --> 0; ) {
                     t[i] = (t[i] & 1) ? (t[i] >> 1) ^ 0x82f63b78
                                       : (t[i] >> 1);
                 }
@@ -104,7 +104,6 @@ namespace SK_OPTS_NS {
 
         // Handle the bulk with a few data-parallel independent hashes,
         // taking advantage of pipelining and superscalar execution.
-        // TODO: four parallel hashes looks faster than three?
         if (len >= 24) {
             uint32_t a = seed,
                      b = seed,
