@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b114cb1f_53f58995",
+        "filename": "tests/sksl/shared/StructMaxDepth.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T19:51:38Z",
+      "side": 1,
+      "message": "This was changed as the original array dimensions were emitting errors about overflowing the maximum memory layout.",
+      "range": {
+        "startLine": 15,
+        "startChar": 18,
+        "endLine": 15,
+        "endChar": 39
+      },
+      "revId": "cc1795038ef06563edbfa363c35856c3bba0788c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
