@@ -80,6 +80,30 @@
       },
       "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "052aaebf_16fd46e5",
+        "filename": "tests/sksl/shared/golden/Operators.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T15:16:22Z",
+      "side": 1,
+      "message": "D\u0027oh. I forgot that it was a GLSL-ism. Sigh. Ignore my suggestion.",
+      "parentUuid": "5e79ce93_98df586e",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
