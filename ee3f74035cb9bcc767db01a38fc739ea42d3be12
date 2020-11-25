@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41d67d7f_847c0408",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T20:23:15Z",
+      "side": 1,
+      "message": "This seems to mirror the idea in convertInterfaceBlock, right? I was going to say that the table we\u0027re ref\u0027ing in that case actually holds the types introduced within the scope of the block (eg, new array types), but now I can\u0027t see exactly how that works there. In any case, is that the idea here? If so, do we need to introduce a new child symbol table to hold the symbols being introduced?",
+      "range": {
+        "startLine": 1091,
+        "startChar": 67,
+        "endLine": 1091,
+        "endChar": 79
+      },
+      "revId": "ee3f74035cb9bcc767db01a38fc739ea42d3be12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d644db52_4e2fa40c",
+        "filename": "src/sksl/ir/SkSLStructDefinition.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T20:23:15Z",
+      "side": 1,
+      "message": "Does this need a WrapIfBuiltin ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 73,
+        "endLine": 45,
+        "endChar": 90
+      },
+      "revId": "ee3f74035cb9bcc767db01a38fc739ea42d3be12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
