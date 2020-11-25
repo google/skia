@@ -3,13 +3,14 @@ out vec4 sk_FragColor;
 in float val;
 uniform int ui;
 uniform vec4 uh4;
+struct S {
+    vec4[1] ah4;
+    float[1] ah;
+    vec4 h4;
+    float h;
+};
 void main() {
-    struct S {
-        vec4[1] ah4;
-        float[1] ah;
-        vec4 h4;
-        float h;
-    } s;
+    S s;
     s.ah4[0] = vec4(val);
     s.ah[0] = val;
     s.h4 = vec4(val);
