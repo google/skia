@@ -1,6 +1,12 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+struct S {
+    float f;
+    float af[5];
+    float4 h4;
+    float4 ah4[5];
+};
 struct Inputs {
 };
 struct Outputs {
@@ -23,12 +29,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float4 af4[1];
     af4[0].x = 0.0;
     af4[0].ywxz = float4(1.0);
-    struct S {
-        float f;
-        float af[5];
-        float4 h4;
-        float4 ah4[5];
-    } s;
+    S s;
     s.f = 0.0;
     s.af[1] = 0.0;
     s.h4.zxy = float3(9.0);

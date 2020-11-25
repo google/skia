@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <algorithm>
@@ -111,21 +112,27 @@ String MetalCodeGenerator::typeName(const Type& type) {
     }
 }
 
+bool MetalCodeGenerator::writeStructDefinition(const Type& type) {
+    for (const Type* search : fWrittenStructs) {
+        if (*search == type) {
+            // already written
+            return false;
+        }
+    }
+    fWrittenStructs.push_back(&type);
+    this->writeLine("struct " + type.name() + " {");
+    fIndentation++;
+    this->writeFields(type.fields(), type.fOffset);
+    fIndentation--;
+    this->write("}");
+    return true;
+}
+
 void MetalCodeGenerator::writeType(const Type& type) {
     if (type.typeKind() == Type::TypeKind::kStruct) {
-        for (const Type* search : fWrittenStructs) {
-            if (*search == type) {
-                // already written
-                this->write(type.name());
-                return;
-            }
+        if (!this->writeStructDefinition(type)) {
+            this->write(type.name());
         }
-        fWrittenStructs.push_back(&type);
-        this->writeLine("struct " + type.name() + " {");
-        fIndentation++;
-        this->writeFields(type.fields(), type.fOffset);
-        fIndentation--;
-        this->write("}");
     } else {
         this->write(this->typeName(type));
     }
@@ -1587,6 +1594,26 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
     }
 }
 
+void MetalCodeGenerator::writeStructDefinitions() {
+    for (const ProgramElement* e : fProgram.elements()) {
+        if (e->is<StructDefinition>()) {
+            if (this->writeStructDefinition(e->as<StructDefinition>().type())) {
+                this->writeLine(";");
+            }
+        } else if (e->is<GlobalVarDeclaration>()) {
+            // If a global var declaration introduces a struct type, we need to write that type
+            // here, since globals are all embedded in a sub-struct.
+            const Type* type = &e->as<GlobalVarDeclaration>().declaration()
+                                 ->as<VarDeclaration>().baseType();
+            if (type->typeKind() == Type::TypeKind::kStruct) {
+                if (this->writeStructDefinition(*type)) {
+                    this->writeLine(";");
+                }
+            }
+        }
+    }
+}
+
 void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
     // Visit the interface blocks.
     for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
@@ -1736,6 +1763,9 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
         }
         case ProgramElement::Kind::kInterfaceBlock:
             // handled in writeInterfaceBlocks, do nothing
+            break;
+        case ProgramElement::Kind::kStructDefinition:
+            // Handled in writeStructDefinitions. Do nothing.
             break;
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
@@ -1919,6 +1949,7 @@ bool MetalCodeGenerator::generateCode() {
     fOut = &fHeader;
     fProgramKind = fProgram.fKind;
     this->writeHeader();
+    this->writeStructDefinitions();
     this->writeUniformStruct();
     this->writeInputStruct();
     this->writeOutputStruct();

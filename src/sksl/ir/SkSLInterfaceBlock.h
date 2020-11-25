@@ -8,6 +8,8 @@
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
+#include <memory>
+
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"

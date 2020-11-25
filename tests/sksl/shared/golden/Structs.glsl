@@ -8,7 +8,8 @@ struct B {
     float x;
     float[2] y;
     layout (binding = 1) A z;
-} b1;
+};
+B b1;
 void main() {
     a1.x = 0;
     b1.x = 0.0;

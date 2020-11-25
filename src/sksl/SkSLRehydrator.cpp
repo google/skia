@@ -38,6 +38,7 @@
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -339,9 +340,13 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             std::unique_ptr<Statement> decl = this->statement();
             return std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl));
         }
+        case Rehydrator::kStructDefinition_Command: {
+            const Symbol* type = this->symbol();
+            SkASSERT(type && type->is<Type>());
+            return std::make_unique<StructDefinition>(/*offset=*/-1, type->as<Type>());
+        }
         case Rehydrator::kElementsComplete_Command:
             return nullptr;
-
         default:
             SkDEBUGFAILF("unsupported element %d\n", kind);
             return nullptr;

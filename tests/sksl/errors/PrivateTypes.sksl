@@ -8,4 +8,3 @@ struct S {
 
 void func($ivec iv) {}
 void func2() { $genType g; }
-void func3() { S s; }

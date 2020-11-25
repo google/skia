@@ -572,7 +572,8 @@ ASTNode::ID Parser::structDeclaration() {
     }
     fSymbols.add(std::move(newType));
     return this->createNode(name.fOffset, ASTNode::Kind::kType,
-                            ASTNode::TypeData(this->text(name), true, false));
+                            ASTNode::TypeData(this->text(name),
+                                              /*isStructDeclaration=*/true, /*isNullable=*/false));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -586,7 +587,7 @@ ASTNode::ID Parser::structVarDeclaration(Modifiers modifiers) {
         return this->varDeclarationEnd(modifiers, std::move(type), this->text(name));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return ASTNode::ID::Invalid();
+    return type;
 }
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
@@ -1143,7 +1144,7 @@ ASTNode::ID Parser::type() {
         return ASTNode::ID::Invalid();
     }
     ASTNode::ID result = this->createNode(type.fOffset, ASTNode::Kind::kType);
-    ASTNode::TypeData td(this->text(type), false, false);
+    ASTNode::TypeData td(this->text(type), /*isStructDeclaration=*/false, /*isNullable=*/false);
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
         if (this->peek().fKind != Token::Kind::TK_RBRACKET) {
             SKSL_INT i;
