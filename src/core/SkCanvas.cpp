@@ -1532,6 +1532,13 @@ void SkCanvas::concat(const SkM44& m) {
     this->didConcat44(m);
 }
 
+void SkCanvas::internalSetMatrix(const SkM44& matrix) {
+    fMCRec->fMatrix = matrix;
+    fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
+
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+}
+
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fMCRec->fMatrix = SkM44(matrix);
     fIsScaleTranslate = matrix.isScaleTranslate();
@@ -1541,8 +1548,14 @@ void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     this->checkForDeferredSave();
-    this->internalSetMatrix(matrix);
+    this->internalSetMatrix(SkM44(matrix));
     this->didSetMatrix(matrix);
+}
+
+void SkCanvas::setMatrix(const SkM44& matrix) {
+    this->checkForDeferredSave();
+    this->internalSetMatrix(matrix);
+    this->didSetMatrix(matrix.asM33());
 }
 
 void SkCanvas::resetMatrix() {
