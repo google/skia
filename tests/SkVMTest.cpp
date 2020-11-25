@@ -1670,7 +1670,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.fdiv4s(A::v4, A::v3, A::v1);
         a.fmin4s(A::v4, A::v3, A::v1);
         a.fmax4s(A::v4, A::v3, A::v1);
-        a.fneg4s(A::v4, A::v3);
+
+        a.fneg4s (A::v4, A::v3);
+        a.fsqrt4s(A::v4, A::v3);
 
         a.fmla4s(A::v4, A::v3, A::v1);
         a.fmls4s(A::v4, A::v3, A::v1);
@@ -1702,7 +1704,9 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0xfc,0x21,0x6e,
         0x64,0xf4,0xa1,0x4e,
         0x64,0xf4,0x21,0x4e,
+
         0x64,0xf8,0xa0,0x6e,
+        0x64,0xf8,0xa1,0x6e,
 
         0x64,0xcc,0x21,0x4e,
         0x64,0xcc,0xa1,0x4e,
@@ -1768,10 +1772,14 @@ DEF_TEST(SkVM_Assembler, r) {
         a.scvtf4s (A::v4, A::v3);
         a.fcvtzs4s(A::v4, A::v3);
         a.fcvtns4s(A::v4, A::v3);
+        a.frintp4s(A::v4, A::v3);
+        a.frintm4s(A::v4, A::v3);
     },{
         0x64,0xd8,0x21,0x4e,
         0x64,0xb8,0xa1,0x4e,
         0x64,0xa8,0x21,0x4e,
+        0x64,0x88,0xa1,0x4e,
+        0x64,0x98,0x21,0x4e,
     });
 
     test_asm(r, [&](A& a) {
@@ -1928,10 +1936,12 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.dup4s  (A::v0, A::x8);
         a.ld1r4s (A::v0, A::x8);  // echo 'ld1r.4s {v0}, [x8]' | llvm-mc --show-encoding
         a.ld1r8h (A::v0, A::x8);
         a.ld1r16b(A::v0, A::x8);
     },{
+        0x00,0x0d,0x04,0x4e,
         0x00,0xc9,0x40,0x4d,
         0x00,0xc5,0x40,0x4d,
         0x00,0xc1,0x40,0x4d,
