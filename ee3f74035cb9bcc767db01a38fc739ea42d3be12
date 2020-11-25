@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "21bb5cc9_1d49433b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T20:26:06Z",
+      "side": 1,
+      "message": "Ah, I think you\u0027re right. I\u0027ll add a new symbol table like we do in convertInterfaceBlock.",
+      "parentUuid": "41d67d7f_847c0408",
+      "range": {
+        "startLine": 1091,
+        "startChar": 67,
+        "endLine": 1091,
+        "endChar": 79
+      },
+      "revId": "ee3f74035cb9bcc767db01a38fc739ea42d3be12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d644db52_4e2fa40c",
         "filename": "src/sksl/ir/SkSLStructDefinition.h",
         "patchSetId": 7
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-25T20:23:15Z",
       "side": 1,
       "message": "Does this need a WrapIfBuiltin ?",
+      "range": {
+        "startLine": 45,
+        "startChar": 73,
+        "endLine": 45,
+        "endChar": 90
+      },
+      "revId": "ee3f74035cb9bcc767db01a38fc739ea42d3be12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32d8e2ee_033938b2",
+        "filename": "src/sksl/ir/SkSLStructDefinition.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T20:26:06Z",
+      "side": 1,
+      "message": "Great catch. I should have thought of that.",
+      "parentUuid": "d644db52_4e2fa40c",
       "range": {
         "startLine": 45,
         "startChar": 73,
