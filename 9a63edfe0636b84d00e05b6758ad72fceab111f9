@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da6c1885_77676e2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T21:09:08Z",
+      "side": 1,
+      "message": "3 of 3 cleanups, but this one is worth reading SkVMBlitter.cpp at least.",
+      "revId": "9a63edfe0636b84d00e05b6758ad72fceab111f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
