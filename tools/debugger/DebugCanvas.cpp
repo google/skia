@@ -369,17 +369,27 @@ void DebugCanvas::didConcat44(const SkM44& m) {
 }
 
 void DebugCanvas::didScale(SkScalar x, SkScalar y) {
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     this->didConcat(SkMatrix::Scale(x, y));
+#else
+    this->didConcat44(SkM44::Scale(x, y));
+#endif
 }
 
 void DebugCanvas::didTranslate(SkScalar x, SkScalar y) {
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     this->didConcat(SkMatrix::Translate(x, y));
+#else
+    this->didConcat44(SkM44::Translate(x, y));
+#endif
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
 void DebugCanvas::didConcat(const SkMatrix& matrix) {
     this->addDrawCommand(new ConcatCommand(matrix));
     this->INHERITED::didConcat(matrix);
 }
+#endif
 
 void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
     // Parse layer-releated annotations added in SkiaPipeline.cpp and RenderNodeDrawable.cpp
@@ -598,10 +608,17 @@ bool DebugCanvas::onDoSaveBehind(const SkRect* subset) {
     return false;
 }
 
+void DebugCanvas::didSetM44(const SkM44& matrix) {
+    this->addDrawCommand(new SetM44Command(matrix));
+    this->INHERITED::didSetM44(matrix);
+}
+
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
 void DebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->addDrawCommand(new SetMatrixCommand(matrix));
     this->INHERITED::didSetMatrix(matrix);
 }
+#endif
 
 void DebugCanvas::toggleCommand(int index, bool toggle) {
     SkASSERT(index < fCommandVector.count());

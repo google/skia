@@ -47,6 +47,7 @@ namespace SkRecords {
     M(SaveBehind)                                                   \
     M(MarkCTM)                                                      \
     M(SetMatrix)                                                    \
+    M(SetM44)                                                       \
     M(Translate)                                                    \
     M(Scale)                                                        \
     M(Concat)                                                       \
@@ -175,6 +176,8 @@ RECORD(MarkCTM, 0,
        SkString name);
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);
+RECORD(SetM44, 0,
+        SkM44 matrix);
 RECORD(Concat, 0,
         TypedMatrix matrix);
 RECORD(Concat44, 0,

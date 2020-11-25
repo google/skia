@@ -334,6 +334,11 @@ void SkRecorder::didConcat44(const SkM44& m) {
     this->append<SkRecords::Concat44>(m);
 }
 
+void SkRecorder::didSetM44(const SkM44& m) {
+    this->append<SkRecords::SetM44>(m);
+}
+
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
 void SkRecorder::didConcat(const SkMatrix& matrix) {
     this->append<SkRecords::Concat>(matrix);
 }
@@ -341,6 +346,7 @@ void SkRecorder::didConcat(const SkMatrix& matrix) {
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     this->append<SkRecords::SetMatrix>(matrix);
 }
+#endif
 
 void SkRecorder::didScale(SkScalar sx, SkScalar sy) {
     this->append<SkRecords::Scale>(sx, sy);

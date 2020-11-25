@@ -36,7 +36,10 @@ public:
     void removeCanvas(SkCanvas*) override { SkDEBUGFAIL("Invalid Op"); }
 
 protected:
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     void didSetMatrix(const SkMatrix&) override;
+#endif
+    void didSetM44(const SkM44&) override;
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;

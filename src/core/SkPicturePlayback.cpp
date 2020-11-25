@@ -602,6 +602,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkScalar sy = reader->readScalar();
             canvas->scale(sx, sy);
         } break;
+        case SET_M44: {
+            SkM44 m;
+            reader->read(&m);
+            canvas->setMatrix(SkM44(initialMatrix) * m);
+        } break;
         case SET_MATRIX: {
             SkMatrix matrix;
             reader->readMatrix(&matrix);
