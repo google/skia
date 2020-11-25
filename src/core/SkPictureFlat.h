@@ -107,8 +107,9 @@ enum DrawType {
     CONCAT44,
     CLIP_SHADER_IN_PAINT,
     MARK_CTM,
+    SET_M44,
 
-    LAST_DRAWTYPE_ENUM = MARK_CTM,
+    LAST_DRAWTYPE_ENUM = SET_M44,
 };
 
 enum DrawVertexFlags {
