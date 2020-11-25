@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d06a483d_86d5d850",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T15:24:03Z",
+      "side": 1,
+      "message": "Great :) It\u0027s still pretty beefy as functions go--further opportunities to improve for sure.",
+      "parentUuid": "9b8b7600_78f6b55e",
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "12981305_0d2ecad2",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-25T14:24:54Z",
       "side": 1,
       "message": "micro-nit: In op_is_bitwise, you listed the EQ variants first. Here, they\u0027re last.",
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42366be0_27021976",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T15:24:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12981305_0d2ecad2",
       "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
