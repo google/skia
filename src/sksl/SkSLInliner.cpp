@@ -1110,8 +1110,13 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(elements, symbols, candidateList);
 
-    // Remove candidates that are not safe to inline.
+    // Early out if there are no inlining candidates.
     std::vector<InlineCandidate>& candidates = candidateList->fCandidates;
+    if (candidates.empty()) {
+        return;
+    }
+
+    // Remove candidates that are not safe to inline.
     InlinabilityCache cache;
     candidates.erase(std::remove_if(candidates.begin(),
                                     candidates.end(),
@@ -1120,39 +1125,43 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
                                     }),
                      candidates.end());
 
-    if (fSettings->fInlineThreshold < INT_MAX) {
-        // Remove candidates on a per-function basis if the effect of inlining would be to make more
-        // than `inlineThreshold` nodes. (i.e. if Func() would be inlined six times and its size is
-        // 10 nodes, it should be inlined if the inlineThreshold is 60 or higher.)
-        FunctionSizeCache functionSizeCache;
-        FunctionSizeCache candidateTotalCost;
-        for (InlineCandidate& candidate : candidates) {
-            const FunctionDeclaration& fnDecl = candidate_func(candidate);
-            candidateTotalCost[&fnDecl] += this->getFunctionSize(fnDecl, &functionSizeCache);
-        }
-
-        candidates.erase(
-                std::remove_if(candidates.begin(),
-                               candidates.end(),
-                               [&](const InlineCandidate& candidate) {
-                                   const FunctionDeclaration& fnDecl = candidate_func(candidate);
-                                   if (fnDecl.modifiers().fFlags & Modifiers::kInline_Flag) {
-                                       // Functions marked `inline` ignore size limitations.
-                                       return false;
-                                   }
-                                   if (usage->get(fnDecl) == 1) {
-                                       // If a function is only used once, it's cost-free to inline.
-                                       return false;
-                                   }
-                                   if (candidateTotalCost[&fnDecl] <= fSettings->fInlineThreshold) {
-                                       // We won't exceed the inline threshold by inlining this.
-                                       return false;
-                                   }
-                                   // Inlining this function will add too many IRNodes.
-                                   return true;
-                               }),
-                candidates.end());
+    // If the inline threshold is unlimited, or if we have no candidates left, our candidate list is
+    // complete.
+    if (fSettings->fInlineThreshold == INT_MAX || candidates.empty()) {
+        return;
     }
+
+    // Remove candidates on a per-function basis if the effect of inlining would be to make more
+    // than `inlineThreshold` nodes. (i.e. if Func() would be inlined six times and its size is
+    // 10 nodes, it should be inlined if the inlineThreshold is 60 or higher.)
+    FunctionSizeCache functionSizeCache;
+    FunctionSizeCache candidateTotalCost;
+    for (InlineCandidate& candidate : candidates) {
+        const FunctionDeclaration& fnDecl = candidate_func(candidate);
+        candidateTotalCost[&fnDecl] += this->getFunctionSize(fnDecl, &functionSizeCache);
+    }
+
+    candidates.erase(
+            std::remove_if(candidates.begin(),
+                           candidates.end(),
+                           [&](const InlineCandidate& candidate) {
+                               const FunctionDeclaration& fnDecl = candidate_func(candidate);
+                               if (fnDecl.modifiers().fFlags & Modifiers::kInline_Flag) {
+                                   // Functions marked `inline` ignore size limitations.
+                                   return false;
+                               }
+                               if (usage->get(fnDecl) == 1) {
+                                   // If a function is only used once, it's cost-free to inline.
+                                   return false;
+                               }
+                               if (candidateTotalCost[&fnDecl] <= fSettings->fInlineThreshold) {
+                                   // We won't exceed the inline threshold by inlining this.
+                                   return false;
+                               }
+                               // Inlining this function will add too many IRNodes.
+                               return true;
+                           }),
+            candidates.end());
 }
 
 bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
