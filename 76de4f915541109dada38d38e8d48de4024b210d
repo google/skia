@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c82d9b06_960352cd",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T18:43:52Z",
+      "side": 1,
+      "message": "Went with initCapsAndCompiler, to be as clear as possible.",
+      "parentUuid": "0a1e3a3f_ae914bc3",
+      "range": {
+        "startLine": 768,
+        "startChar": 9,
+        "endLine": 768,
+        "endChar": 17
+      },
+      "revId": "76de4f915541109dada38d38e8d48de4024b210d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6c1bceb_44ca1829",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-23T22:26:14Z",
       "side": 1,
       "message": "looks like these caps aren\u0027t getting destructed",
+      "range": {
+        "startLine": 79,
+        "startChar": 19,
+        "endLine": 79,
+        "endChar": 58
+      },
+      "revId": "76de4f915541109dada38d38e8d48de4024b210d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c96f6e9_a5876e8e",
+        "filename": "src/gpu/mock/GrMockGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T18:43:52Z",
+      "side": 1,
+      "message": "Yeah, I had several related bugs here, because of the strange ownership transfer. Some GPUs were relying on the base class to hold the (only) ref, while others just had the base class pointing at something they had allocated. I\u0027ve fixed it so that the function takes sk_sp, to make it clearer, and then adjusted so that derived classes call sk_make_sp, or pass an sk_sp that points to their already allocated object, depending.",
+      "parentUuid": "d6c1bceb_44ca1829",
       "range": {
         "startLine": 79,
         "startChar": 19,
