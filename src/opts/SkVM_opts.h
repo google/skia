@@ -7,36 +7,6 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkVM.h"
 
-// Ideally this is (x*y + 0x2000)>>14,
-// but to let use vpmulhrsw we'll approximate that as ((x*y + 0x4000)>>15)<<1.
-template <int N>
-static inline skvx::Vec<N,int16_t> mul_q14(const skvx::Vec<N,int16_t>& x,
-                                           const skvx::Vec<N,int16_t>& y) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    if constexpr (N == 16) {
-        return skvx::bit_pun<skvx::Vec<N,int16_t>>(_mm256_mulhrs_epi16(skvx::bit_pun<__m256i>(x),
-                                                                       skvx::bit_pun<__m256i>(y)))
-            << 1;
-    }
-#endif
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-    if constexpr (N == 8) {
-        return skvx::bit_pun<skvx::Vec<N,int16_t>>(_mm_mulhrs_epi16(skvx::bit_pun<__m128i>(x),
-                                                                    skvx::bit_pun<__m128i>(y)))
-            << 1;
-    }
-#endif
-    // TODO: NEON specialization with vqrdmulh.s16?
-
-    // Try to recurse onto the specializations above.
-    if constexpr (N > 8) {
-        return join(mul_q14(x.lo, y.lo),
-                    mul_q14(x.hi, y.hi));
-    }
-    return skvx::cast<int16_t>((skvx::cast<int>(x) *
-                                skvx::cast<int>(y) + 0x4000)>>15 ) <<1;
-}
-
 template <int N>
 static inline skvx::Vec<N,int> gather32(const int* ptr, const skvx::Vec<N,int>& ix) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
@@ -301,41 +271,6 @@ namespace SK_OPTS_NS {
                     CASE(Op::from_half):
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
-
-                    CASE(Op::splat_q14): r[d].i16 = immy; break;
-
-                    CASE(Op::add_q14): r[d].i16 = r[x].i16 + r[y].i16; break;
-                    CASE(Op::sub_q14): r[d].i16 = r[x].i16 - r[y].i16; break;
-                    CASE(Op::mul_q14): r[d].i16 = mul_q14(r[x].i16, r[y].i16); break;
-
-                    CASE(Op::shl_q14): r[d].i16 = r[x].i16 << immy; break;
-                    CASE(Op::sra_q14): r[d].i16 = r[x].i16 >> immy; break;
-                    CASE(Op::shr_q14): r[d].u16 = r[x].u16 >> immy; break;
-
-                    CASE(Op::eq_q14): r[d].i16 = r[x].i16 == r[y].i16; break;
-                    CASE(Op::gt_q14): r[d].i16 = r[x].i16 >  r[y].i16; break;
-
-                    CASE(Op::min_q14): r[d].i16 = min(r[x].i16, r[y].i16); break;
-                    CASE(Op::max_q14): r[d].i16 = max(r[x].i16, r[y].i16); break;
-
-                    CASE(Op::bit_and_q14):   r[d].i16 = r[x].i16 &  r[y].i16; break;
-                    CASE(Op::bit_or_q14 ):   r[d].i16 = r[x].i16 |  r[y].i16; break;
-                    CASE(Op::bit_xor_q14):   r[d].i16 = r[x].i16 ^  r[y].i16; break;
-                    CASE(Op::bit_clear_q14): r[d].i16 = r[x].i16 & ~r[y].i16; break;
-
-                    CASE(Op::select_q14):
-                        r[d].i16 = skvx::if_then_else(r[x].i16, r[y].i16, r[z].i16);
-                        break;
-
-                    // Happily, Clang can see through this one and generates perfect code
-                    // using vpavgw without any help from us!
-                    CASE(Op::uavg_q14):
-                        r[d].u16 = skvx::cast<uint16_t>( (skvx::cast<int>(r[x].u16) +
-                                                          skvx::cast<int>(r[y].u16) + 1)>>1 );
-                        break;
-
-                    CASE(Op::to_q14):   r[d].i16 = skvx::cast<int16_t>(r[x].i32); break;
-                    CASE(Op::from_q14): r[d].i32 = skvx::cast<int32_t>(r[x].i16); break;
 
                 #undef CASE
                 }
