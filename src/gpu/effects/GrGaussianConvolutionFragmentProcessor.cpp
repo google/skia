@@ -57,10 +57,10 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fragBuilder->codeAppendf("%s = half4(0, 0, 0, 0);", args.fOutputColor);
+    fragBuilder->codeAppendf("%s = half4(0);", args.fOutputColor);
 
     fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", args.fSampleCoord, ce.fRadius, inc);
-    fragBuilder->codeAppend("float2 coordSampled = half2(0, 0);");
+    fragBuilder->codeAppend("float2 coordSampled = half2(0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     static constexpr const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};

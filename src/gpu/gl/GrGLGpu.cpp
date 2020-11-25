@@ -3137,7 +3137,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     vshaderTxt.append(
         "// Mipmap Program VS\n"
         "void main() {"
-        "  sk_Position.xy = a_vertex * half2(2, 2) - half2(1, 1);"
+        "  sk_Position.xy = a_vertex * half2(2) - half2(1);"
         "  sk_Position.zw = half2(0, 1);"
     );
 
