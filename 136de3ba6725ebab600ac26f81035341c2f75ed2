@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b8b7600_78f6b55e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T14:24:54Z",
+      "side": 1,
+      "message": "I like the refactor.",
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12981305_0d2ecad2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T14:24:54Z",
+      "side": 1,
+      "message": "micro-nit: In op_is_bitwise, you listed the EQ variants first. Here, they\u0027re last.",
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a89a05e5_933589c7",
+        "filename": "tests/sksl/shared/golden/Operators.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-25T14:24:54Z",
+      "side": 1,
+      "message": "This isn\u0027t part of Metal either, AFAICT. Rather than the upcoming SPIR-V fix, I propose we just remove it.",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "136de3ba6725ebab600ac26f81035341c2f75ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
