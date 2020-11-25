@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35ac4801_8de02d7e",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-25T17:01:40Z",
+      "side": 1,
+      "message": "nit: do we still need this, since folks can make their imageshaders w/ samplingoptions?",
+      "range": {
+        "startLine": 198,
+        "startChar": 44,
+        "endLine": 198,
+        "endChar": 73
+      },
+      "revId": "a8678acd9b6c1c53b4baf261e0a520a323b28b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
