@@ -22,6 +22,30 @@
       },
       "revId": "6f02f9e9fffd22e0f458decb565bb9708bec3e31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00e9037b_05b48276",
+        "filename": "src/opts/SkChecksum_opts.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T15:48:28Z",
+      "side": 1,
+      "message": "They are, but also kind of a reminder that it\u0027s optional... any of these 1\u0027s can be swapped to 0 with the only side effect being lost speed.",
+      "parentUuid": "80906576_eae1fd0d",
+      "range": {
+        "startLine": 19,
+        "startChar": 4,
+        "endLine": 19,
+        "endChar": 9
+      },
+      "revId": "6f02f9e9fffd22e0f458decb565bb9708bec3e31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
