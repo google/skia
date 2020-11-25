@@ -31,40 +31,26 @@ static sk_sp<const SkMipmap> try_load_mips(const SkImage_Base* image) {
 
 SkBitmapController::State* SkBitmapController::RequestBitmap(const SkImage_Base* image,
                                                              const SkMatrix& inv,
-                                                             SkFilterQuality quality,
+                                                             const SkSamplingOptions& sampling,
                                                              SkArenaAlloc* alloc) {
-    auto* state = alloc->make<SkBitmapController::State>(image, inv, quality);
+    auto* state = alloc->make<SkBitmapController::State>(image, inv, sampling);
 
     return state->pixmap().addr() ? state : nullptr;
-}
-
-bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
-    if (fQuality != kHigh_SkFilterQuality) {
-        return false;
-    }
-
-    if (SkMatrixPriv::AdjustHighQualityFilterLevel(fInvMatrix, true) != kHigh_SkFilterQuality) {
-        fQuality = kMedium_SkFilterQuality;
-        return false;
-    }
-
-    (void)image->getROPixels(nullptr, &fResultBitmap);
-    return true;
 }
 
 /*
  *  Modulo internal errors, this should always succeed *if* the matrix is downscaling
  *  (in this case, we have the inverse, so it succeeds if fInvMatrix is upscaling)
  */
-bool SkBitmapController::State::processMediumRequest(const SkImage_Base* image) {
-    SkASSERT(fQuality <= kMedium_SkFilterQuality);
-    if (fQuality != kMedium_SkFilterQuality) {
+bool SkBitmapController::State::extractMipLevel(const SkImage_Base* image) {
+    SkASSERT(!fSampling.fUseCubic);
+    if (fSampling.fMipmap != SkMipmapMode::kNearest) {
         return false;
     }
 
     // Our default return state is to downgrade the request to Low, w/ or w/o setting fBitmap
     // to a valid bitmap.
-    fQuality = kLow_SkFilterQuality;
+    fSampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
 
     SkSize invScaleSize;
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
@@ -99,11 +85,17 @@ bool SkBitmapController::State::processMediumRequest(const SkImage_Base* image) 
 
 SkBitmapController::State::State(const SkImage_Base* image,
                                  const SkMatrix& inv,
-                                 SkFilterQuality qual) {
-    fInvMatrix = inv;
-    fQuality = qual;
+                                 const SkSamplingOptions& sampling)
+    : fInvMatrix(inv)
+    , fSampling(sampling)
+{
+    if (fSampling.fUseCubic &&
+        SkMatrixPriv::AdjustHighQualityFilterLevel(fInvMatrix, true) != kHigh_SkFilterQuality)
+    {
+        fSampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+    }
 
-    if (this->processHighRequest(image) || this->processMediumRequest(image)) {
+    if (!fSampling.fUseCubic && this->extractMipLevel(image)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)image->getROPixels(nullptr, &fResultBitmap);
