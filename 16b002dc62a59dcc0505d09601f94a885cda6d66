@@ -16,6 +16,24 @@
       "message": "I assume the intent is to actually fix this at some point?",
       "revId": "16b002dc62a59dcc0505d09601f94a885cda6d66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "858d5bb1_66fea2c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-25T15:11:07Z",
+      "side": 1,
+      "message": "It seems like a much lower priority compared to some of the other SPIR-V bugs, but yes, ideally it\u0027d work like it does in all the other backends. (In practice you can avoid this issue by not writing goofy code.) I don\u0027t have any immediate plans to target this but I can cut a bug.",
+      "parentUuid": "a7e582f9_9d165fc0",
+      "revId": "16b002dc62a59dcc0505d09601f94a885cda6d66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
