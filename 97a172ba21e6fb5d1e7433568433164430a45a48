@@ -33,6 +33,29 @@
       "message": "ptal",
       "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7ca3955_237c3d25",
+        "filename": "src/core/SkBitmapController.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T21:03:35Z",
+      "side": 1,
+      "message": "Might be clearer overwriting using the constructor?\n\n  fSampling \u003d SkSamplingOptions{SkFilterMode::kLinear, SkMipmapMode::kNearest};\n\nor maybe even this if it compiles,\n\n  fSampling \u003d {SkFilterMode::kLinear, SkMipmapMode::kNearest};",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 17
+      },
+      "revId": "97a172ba21e6fb5d1e7433568433164430a45a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
