@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2829c2c9_0db87d76",
+        "filename": "src/core/SkRecorder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-11-25T19:07:15Z",
+      "side": 1,
+      "message": "Think it makes sense to express this in terms of SK_MaxS32FitsInFloat?  Something like SK_Max.../2 - 1?",
+      "revId": "5258c53f573992fd2222a9a7779de3e9ee554d26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
