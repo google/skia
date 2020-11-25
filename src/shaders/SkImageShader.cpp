@@ -600,14 +600,20 @@ static void tweak_filter_and_inv_matrix(SkFilterMode* filter, SkMatrix* matrix) 
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
-    SkFilterQuality paintQuality = rec.fPaint.getFilterQuality();
-    if (fUseSamplingOptions) {
-        if (!sampling_to_quality(fSampling, &paintQuality)) {
-            return false;   // TODO: support samplingoptions in stages?
+    auto sampling = fUseSamplingOptions ? fSampling
+                                        : SkSamplingOptions(rec.fPaint.getFilterQuality());
+
+    // We only support certain sampling options in stages so far
+    if (sampling.fUseCubic) {
+        if (!is_default_cubic_resampler(sampling.fCubic)) {
+            return false;
         }
+    } else if (sampling.fMipmap == SkMipmapMode::kLinear) {
+        return false;
     }
 
-    if (updater && paintQuality == kMedium_SkFilterQuality) {
+
+    if (updater && (sampling.fMipmap != SkMipmapMode::kNone)) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly
         return false;
     }
@@ -621,17 +627,15 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     }
 
     const auto* state = SkBitmapController::RequestBitmap(as_IB(fImage.get()),
-                                                          matrix, paintQuality, alloc);
+                                                          matrix, sampling, alloc);
     if (!state) {
         return false;
     }
 
     const SkPixmap& pm = state->pixmap();
-    matrix  = state->invMatrix();
+    matrix    = state->invMatrix();
+    sampling  = state->sampling();
     auto info = pm.info();
-
-    // from here down, we don't look at paintQuality, only sampling.
-    SkSamplingOptions sampling(state->quality());
 
     p->append(SkRasterPipeline::seed_shader);
 
