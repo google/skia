@@ -223,6 +223,7 @@ static bool is_default_cubic_resampler(SkCubicResampler cubic) {
            SkScalarNearlyEqual(cubic.C, kDefaultCubicResampler.C);
 }
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* quality) {
     int q = -1; // not a legal quality enum
 
@@ -253,7 +254,6 @@ static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* qua
     return false;
 }
 
-#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
 
