@@ -203,6 +203,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/DependentInitializers.sksl",
   "$_tests/sksl/shared/DerivativesUnused.sksl",
   "$_tests/sksl/shared/Discard.sksl",
+  "$_tests/sksl/shared/Enum.sksl",
   "$_tests/sksl/shared/FloatFolding.sksl",
   "$_tests/sksl/shared/FrExp.sksl",
   "$_tests/sksl/shared/FragCoordsFlipY.sksl",
