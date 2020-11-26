@@ -1,0 +1,48 @@
+// Declare a user enum.
+enum class E {
+    kZero      = 0,
+    kOne       = 1,
+    kTwo       = 2,
+    kThree     = 3
+};
+
+void main() {
+    // Test that the user enum is subject to the same optimizations as a plain int.
+    E e = E::kZero;
+    if (e == E::kZero)  { sk_FragColor = half4(1); }
+    @if (e == E::kZero) { sk_FragColor = half4(2); }
+    @if (e != E::kZero) { sk_FragColor = half4(3); }
+    if (e == E::kOne)   { sk_FragColor = half4(4); }
+    @if (e == E::kOne)  { sk_FragColor = half4(5); }
+    @if (e != E::kOne)  { sk_FragColor = half4(6); }
+
+    sk_FragColor = (e == E::kZero) ? half4(7)  : half4(-7);
+    sk_FragColor = (e != E::kZero) ? half4(8)  : half4(-8);
+    sk_FragColor = (e == E::kOne)  ? half4(9)  : half4(-9);
+    sk_FragColor = (e != E::kOne)  ? half4(10) : half4(-10);
+
+    switch (e) {
+        case E::kZero: sk_FragColor = half4(11); break;
+        case E::kOne:  sk_FragColor = half4(12); break;
+    }
+    @switch (e) {
+        case E::kZero: sk_FragColor = half4(13); break;
+        case E::kOne:  sk_FragColor = half4(14); break;
+    }
+
+    // Test that built-in enums work equally well.
+    SkBlendMode m = SkBlendMode::kClear;
+    if (m == SkBlendMode::kClear)  { sk_FragColor = half4(15); }
+    @if (m == SkBlendMode::kClear) { sk_FragColor = half4(16); }
+    if (m == SkBlendMode::kSrc)    { sk_FragColor = half4(17); }
+    @if (m != SkBlendMode::kDst)   { sk_FragColor = half4(18); }
+
+    sk_FragColor = (m == SkBlendMode::kClear) ? half4(19)  : half4(-19);
+    sk_FragColor = (m != SkBlendMode::kSrc)   ? half4(20)  : half4(-20);
+
+    @switch (m) {
+        case SkBlendMode::kClear: sk_FragColor = half4(21); break;
+        case SkBlendMode::kSrc:   sk_FragColor = half4(22); break;
+        case SkBlendMode::kDst:   sk_FragColor = half4(23); break;
+    }
+}
