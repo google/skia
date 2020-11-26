@@ -330,6 +330,7 @@ sksl_blend_tests = [
   "$_tests/sksl/blend/BlendDstIn.sksl",
   "$_tests/sksl/blend/BlendDstOut.sksl",
   "$_tests/sksl/blend/BlendDstOver.sksl",
+  "$_tests/sksl/blend/BlendEnum.sksl",
   "$_tests/sksl/blend/BlendExclusion.sksl",
   "$_tests/sksl/blend/BlendHardLight.sksl",
   "$_tests/sksl/blend/BlendHue.sksl",

@@ -98,6 +98,8 @@ String MetalCodeGenerator::typeName(const Type& type) {
                                   to_string(type.rows());
         case Type::TypeKind::kSampler:
             return "texture2d<float>"; // FIXME - support other texture types;
+        case Type::TypeKind::kEnum:
+            return "int";
         default:
             if (type == *fContext.fHalf_Type) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.

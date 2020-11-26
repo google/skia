@@ -502,6 +502,9 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                     SkASSERT(false);
                 }
                 break;
+            case Type::TypeKind::kEnum:
+                this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
+                break;
             case Type::TypeKind::kVector:
                 this->writeInstruction(SpvOpTypeVector, result,
                                        this->getType(type.componentType(), layout),
@@ -2547,7 +2550,7 @@ SpvId SPIRVCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 SpvId SPIRVCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     const Type& type = i.type();
     ConstantType constantType;
-    if (type == *fContext.fInt_Type) {
+    if (type == *fContext.fInt_Type || type.typeKind() == Type::TypeKind::kEnum) {
         constantType = ConstantType::kInt;
     } else if (type == *fContext.fUInt_Type) {
         constantType = ConstantType::kUInt;
