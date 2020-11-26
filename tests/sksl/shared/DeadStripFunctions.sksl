@@ -1,0 +1,27 @@
+/*#pragma settings NoInline*/
+
+half4 dead_fn(half4 a, half4 b) {
+    return a * b;
+}
+
+half4 live_fn(half4 a, half4 b) {
+    return a + b;
+}
+
+void main() {
+    @switch (999) {
+        // Dead stripping a user function.
+        case 0: sk_FragColor = dead_fn(half4(0.5), half4(2)); break;
+
+        // A live user function.
+        case 999: sk_FragColor = live_fn(half4(3), half4(-3)); break;
+    }
+
+    @switch (777) {
+        // Dead stripping a built-in function.
+        case 0: sk_FragColor = blend_modulate(half4(1), half4(-1)); break;
+
+        // A live built-in function.
+        case 777: sk_FragColor = blend_dst(half4(7), half4(-7)); break;
+    }
+}
