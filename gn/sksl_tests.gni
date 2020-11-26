@@ -200,6 +200,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/DeadDoWhileLoop.sksl",
   "$_tests/sksl/shared/DeadIfStatement.sksl",
   "$_tests/sksl/shared/DeadLoopVariable.sksl",
+  "$_tests/sksl/shared/DeadStripFunctions.sksl",
   "$_tests/sksl/shared/DependentInitializers.sksl",
   "$_tests/sksl/shared/DerivativesUnused.sksl",
   "$_tests/sksl/shared/Discard.sksl",
