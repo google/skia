@@ -1,0 +1,30 @@
+enum class E {
+    kZero      = 0,
+    kOne       = 1,
+    kTwo       = 2,
+    kThree     = 3
+};
+
+void main() {
+    E e = E::kZero;
+    if (e == E::kZero)  { sk_FragColor = half4(1); }
+    @if (e == E::kZero) { sk_FragColor = half4(2); }
+    @if (e != E::kZero) { sk_FragColor = half4(3); }
+    if (e == E::kOne)   { sk_FragColor = half4(4); }
+    @if (e == E::kOne)  { sk_FragColor = half4(5); }
+    @if (e != E::kOne)  { sk_FragColor = half4(6); }
+
+    sk_FragColor = (e == E::kZero) ? half4(7)  : half4(-7);
+    sk_FragColor = (e != E::kZero) ? half4(8)  : half4(-8);
+    sk_FragColor = (e == E::kOne)  ? half4(9)  : half4(-9);
+    sk_FragColor = (e != E::kOne)  ? half4(10) : half4(-10);
+
+    switch (e) {
+        case E::kZero: sk_FragColor = half4(11); break;
+        case E::kOne:  sk_FragColor = half4(12); break;
+    }
+    @switch (e) {
+        case E::kZero: sk_FragColor = half4(13); break;
+        case E::kOne:  sk_FragColor = half4(14); break;
+    }
+}
