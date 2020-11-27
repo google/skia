@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2e61241_0bec2864",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-27T02:22:03Z",
+      "side": 1,
+      "message": "The client in this case is making assumptions about how SkCanvas handles calls,\nand which virtuals it calls. This is fragile, and hampers Skia. Client needs to\nfind a different way to test...",
+      "revId": "6637242cbea92474575a5bcf242cf3e88f9e35fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
