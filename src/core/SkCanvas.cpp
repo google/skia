@@ -1502,11 +1502,11 @@ void SkCanvas::skew(SkScalar sx, SkScalar sy) {
 }
 
 void SkCanvas::concat(const SkMatrix& matrix) {
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     if (matrix.isIdentity()) {
         return;
     }
 
+#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
     this->checkForDeferredSave();
     fMCRec->fMatrix.preConcat(matrix);
 
