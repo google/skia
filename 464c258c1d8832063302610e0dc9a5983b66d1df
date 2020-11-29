@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d97e32b_b6216ee6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-29T16:04:57Z",
+      "side": 1,
+      "message": "OK, tell me all the reasons this can be this simple...",
+      "revId": "464c258c1d8832063302610e0dc9a5983b66d1df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
