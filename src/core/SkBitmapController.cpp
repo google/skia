@@ -48,9 +48,8 @@ bool SkBitmapController::State::extractMipLevel(const SkImage_Base* image) {
         return false;
     }
 
-    // Our default return state is to downgrade the request to Low, w/ or w/o setting fBitmap
-    // to a valid bitmap.
-    fSampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+    // We will extract the right level here, so mark fSampling to know that has already happened.
+    fSampling.fMipmap = SkMipmapMode::kNone;
 
     SkSize invScaleSize;
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
