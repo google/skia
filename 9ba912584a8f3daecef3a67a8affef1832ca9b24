@@ -22,6 +22,30 @@
       },
       "revId": "9ba912584a8f3daecef3a67a8affef1832ca9b24",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4780bd70_568f322c",
+        "filename": "tests/sksl/shared/ArrayReturnTypes.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-30T18:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80c10281_ba5aaf19",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 53
+      },
+      "revId": "9ba912584a8f3daecef3a67a8affef1832ca9b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
