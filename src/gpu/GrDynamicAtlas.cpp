@@ -13,7 +13,7 @@
 #include "src/gpu/GrRectanizerPow2.h"
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 
 // Each Node covers a sub-rectangle of the final atlas. When a GrDynamicAtlas runs out of room, we
 // create a new Node the same size as all combined nodes in the atlas as-is, and then place the new
@@ -199,6 +199,6 @@ std::unique_ptr<GrRenderTargetContext> GrDynamicAtlas::instantiate(
     }
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    rtc->priv().clearAtLeast(clearRect, SK_PMColor4fTRANSPARENT);
+    rtc->clearAtLeast(clearRect, SK_PMColor4fTRANSPARENT);
     return rtc;
 }

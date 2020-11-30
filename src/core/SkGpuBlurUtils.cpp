@@ -13,7 +13,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
@@ -236,7 +235,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     auto clear = [&](SkIRect rect) {
         // Transform rect into the render target's coord system.
         rect.offset(-rtcToSrcOffset);
-        dstRenderTargetContext->priv().clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
+        dstRenderTargetContext->clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
     };
 
     // Doing mid separately will cause two draws to occur (left and right batch together). At

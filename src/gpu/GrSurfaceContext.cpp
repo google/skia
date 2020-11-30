@@ -127,9 +127,7 @@ const GrDrawingManager* GrSurfaceContext::drawingManager() const {
 }
 
 #ifdef SK_DEBUG
-GrSingleOwner* GrSurfaceContext::singleOwner() {
-    return fContext->priv().singleOwner();
-}
+GrSingleOwner* GrSurfaceContext::singleOwner() const { return fContext->priv().singleOwner(); }
 #endif
 
 bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& origDstInfo,

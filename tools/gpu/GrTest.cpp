@@ -20,7 +20,6 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
@@ -51,34 +50,6 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
     return count;
 }
 #endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fRenderTargetContext->singleOwner())
-
-uint32_t GrRenderTargetContextPriv::testingOnly_getOpsTaskID() {
-    return fRenderTargetContext->getOpsTask()->uniqueID();
-}
-
-void GrRenderTargetContextPriv::testingOnly_addDrawOp(GrOp::Owner op) {
-    this->testingOnly_addDrawOp(nullptr, std::move(op), {});
-}
-
-void GrRenderTargetContextPriv::testingOnly_addDrawOp(
-        const GrClip* clip,
-        GrOp::Owner op,
-        const std::function<GrRenderTargetContext::WillAddOpFn>& willAddFn) {
-    ASSERT_SINGLE_OWNER
-    if (fRenderTargetContext->fContext->abandoned()) {
-        return;
-    }
-    SkDEBUGCODE(fRenderTargetContext->validate());
-    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->auditTrail(),
-                              "GrRenderTargetContext::testingOnly_addDrawOp");
-    fRenderTargetContext->addDrawOp(clip, std::move(op), willAddFn);
-}
-
-#undef ASSERT_SINGLE_OWNER
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -203,6 +174,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     // Creating a GrAtlasTextOp my not produce an op if for example, it is totally outside the
     // render target context.
     if (op) {
-        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+        renderTargetContext->addDrawOp(std::move(op));
     }
 }
