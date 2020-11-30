@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "975021eb_2de8bb7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-11-30T21:44:10Z",
+      "side": 1,
+      "message": "Not sure where to put this but the existing \u0027Distortable.ttf\u0027 is a GX variable font with one axis, the new \u0027Variable.ttf\u0027 font is a OpenType variable font with two axes and a STAT table, the \u0027VaryAlongQuads.ttf\u0027 is an example of a variable font with multiple axes with the same tag (all with the same min, max, and default).\n\nThis change is almost entirely the tests. The actual code change is to delete the implementation of SkFontMgr_DirectWrite::onMakeFromStreamIndex and instead forward to SkFontMgr_DirectWrite::onMakeFromStreamArgs.",
+      "revId": "759a3a9340719f39ea7e896c998cf77cf147b12c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
