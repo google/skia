@@ -23,6 +23,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -238,6 +239,20 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             dContext, rtContext.get(), outerBottomEdge, kColor1, &actualValue, &failX, &failY)) {
         ERRORF(reporter, "Expected 0x%08x but got 0x%08x at (%d, %d).", kColor1, actualValue,
                failX, failY);
+    }
+
+    // Try combining stencil & color clears (re skbug.com/10963)
+    {
+        rtContext = newRTC(dContext, kW, kH);
+        SkASSERT(rtContext);
+
+        static constexpr SkIRect kScissorRect = SkIRect::MakeXYWH(1, 1, 8, 8);
+
+        rtContext->priv().clearStencilClip(kScissorRect, true);
+        // This color clear can combine w/ the preceding stencil clear
+        rtContext->priv().clearAtLeast(kScissorRect, SK_PMColor4fWHITE);
+        // This one, currently, should never combine with the preceding combined clear op
+        rtContext->priv().clearAtLeast(kScissorRect, SK_PMColor4fBLACK);
     }
 }
 
