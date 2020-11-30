@@ -1218,6 +1218,20 @@ bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
     }
 }
 
+void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
+    StatementArray decls = this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
+    for (std::unique_ptr<Statement>& stmt : decls) {
+        const VarDeclaration& varDecl = stmt->as<VarDeclaration>();
+        if (varDecl.baseType().isOpaque() && !varDecl.sizes().empty()) {
+            fErrors.error(decl.fOffset, "opaque type '" + varDecl.baseType().name() +
+                                        "' may not be used in an array");
+            continue;
+        }
+        fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(decl.fOffset,
+                                                                           std::move(stmt)));
+    }
+}
+
 void IRGenerator::convertEnum(const ASTNode& e) {
     if (fKind == Program::kPipelineStage_Kind) {
         fErrors.error(e.fOffset, "enum is not allowed here");
@@ -1283,49 +1297,55 @@ bool IRGenerator::typeContainsPrivateFields(const Type& type) {
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     ASTNode::TypeData td = type.getTypeData();
     const Symbol* result = (*fSymbolTable)[td.fName];
-    if (result && result->is<Type>()) {
-        if (td.fIsNullable) {
-            if (result->as<Type>() == *fContext.fFragmentProcessor_Type) {
-                if (type.begin() != type.end()) {
-                    fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
-                                                "an array");
-                }
-                result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                        String(result->name()) + "?", Type::TypeKind::kNullable,
-                               result->as<Type>()));
-            } else {
-                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
-            }
-        }
-        if (result->as<Type>() == *fContext.fVoid_Type) {
-            if (!allowVoid) {
-                fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
-                return nullptr;
-            }
-            if (type.begin() != type.end()) {
-                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
-                return nullptr;
-            }
-        }
-        if (!fIsBuiltinCode && this->typeContainsPrivateFields(result->as<Type>())) {
-            fErrors.error(type.fOffset, "type '" + td.fName + "' is private");
-            return {};
-        }
-        for (const auto& size : type) {
-            String name(result->name());
-            name += "[";
-            if (size) {
-                name += to_string(size.getInt());
-            }
-            name += "]";
-            result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kArray, result->as<Type>(),
-                                           size ? size.getInt() : Type::kUnsizedArray));
-        }
-        return &result->as<Type>();
+    if (!result || !result->is<Type>()) {
+        fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
+        return nullptr;
     }
-    fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
-    return nullptr;
+    const bool isArray = (type.begin() != type.end());
+    if (td.fIsNullable) {
+        if (result->as<Type>() == *fContext.fFragmentProcessor_Type) {
+            if (isArray) {
+                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
+                                            "an array");
+            }
+            result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                    String(result->name()) + "?", Type::TypeKind::kNullable,
+                           result->as<Type>()));
+        } else {
+            fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
+        }
+    }
+    if (result->as<Type>() == *fContext.fVoid_Type) {
+        if (!allowVoid) {
+            fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
+            return nullptr;
+        }
+        if (isArray) {
+            fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
+            return nullptr;
+        }
+    }
+    if (!fIsBuiltinCode && this->typeContainsPrivateFields(result->as<Type>())) {
+        fErrors.error(type.fOffset, "type '" + td.fName + "' is private");
+        return nullptr;
+    }
+    if (isArray && result->as<Type>().isOpaque()) {
+        fErrors.error(type.fOffset,
+                      "opaque type '" + td.fName + "' may not be used in an array");
+        return nullptr;
+    }
+    for (const auto& size : type) {
+        String name(result->name());
+        name += "[";
+        if (size) {
+            name += to_string(size.getInt());
+        }
+        name += "]";
+        result = fSymbolTable->takeOwnershipOfSymbol(
+                std::make_unique<Type>(name, Type::TypeKind::kArray, result->as<Type>(),
+                                       size ? size.getInt() : Type::kUnsizedArray));
+    }
+    return &result->as<Type>();
 }
 
 std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) {
@@ -2984,23 +3004,18 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     SkASSERT(fFile);
     for (const auto& decl : fFile->root()) {
         switch (decl.fKind) {
-            case ASTNode::Kind::kVarDeclarations: {
-                StatementArray decls = this->convertVarDeclarations(decl,
-                                                                    Variable::Storage::kGlobal);
-                for (auto& varDecl : decls) {
-                    fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(
-                            decl.fOffset, std::move(varDecl)));
-                }
+            case ASTNode::Kind::kVarDeclarations:
+                this->convertGlobalVarDeclarations(decl);
                 break;
-            }
-            case ASTNode::Kind::kEnum: {
+
+            case ASTNode::Kind::kEnum:
                 this->convertEnum(decl);
                 break;
-            }
-            case ASTNode::Kind::kFunction: {
+
+            case ASTNode::Kind::kFunction:
                 this->convertFunction(decl);
                 break;
-            }
+
             case ASTNode::Kind::kModifiers: {
                 std::unique_ptr<ModifiersDeclaration> f = this->convertModifiersDeclaration(decl);
                 if (f) {

@@ -320,6 +320,22 @@ public:
     }
 
     /**
+     * Returns true if this type contains an "opaque type" (an external object which the shader
+     * references in some fashion).
+     */
+    bool containsOpaqueType() const {
+        switch (fTypeKind) {
+            case TypeKind::kArray:
+                return this->componentType().containsOpaqueType();
+            case TypeKind::kStruct:
+                return std::any_of(this->fields().begin(), this->fields().end(),
+                                   [](const Field& f) { return f.fType->containsOpaqueType(); });
+            default:
+                return this->isOpaque();
+        }
+    }
+
+    /**
      * Returns the "priority" of a number type, in order of float > half > int > short.
      * When operating on two number types, the result is the higher-priority type.
      */
