@@ -131,6 +131,30 @@
       },
       "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "371fbcb7_5e4cd75a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2631,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-30T18:24:13Z",
+      "side": 1,
+      "message": "Even better: always bleed here and make the caller make a subset image if they don\u0027t want to bleed.",
+      "parentUuid": "4fdf02ae_15b2d12b",
+      "range": {
+        "startLine": 2623,
+        "startChar": 3,
+        "endLine": 2631,
+        "endChar": 23
+      },
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
