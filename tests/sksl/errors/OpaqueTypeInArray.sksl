@@ -1,0 +1,3 @@
+in sampler x[1];
+in sampler[1] y;
+void main() {}
