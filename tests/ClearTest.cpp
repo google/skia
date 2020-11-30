@@ -239,6 +239,43 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
         ERRORF(reporter, "Expected 0x%08x but got 0x%08x at (%d, %d).", kColor1, actualValue,
                failX, failY);
     }
+
+    // Try combining a pure-color clear w/ a combined stencil & color clear (re skbug.com/10963)
+    {
+        rtContext = newRTC(dContext, kW, kH);
+        SkASSERT(rtContext);
+
+        static constexpr SkIRect kScissorRect = SkIRect::MakeXYWH(1, 1, kW-1, kH-1);
+
+        rtContext->clearStencilClip(kScissorRect, true);
+        // This color clear can combine w/ the preceding stencil clear
+        rtContext->clear(kScissorRect, SK_PMColor4fWHITE);
+
+        // This should combine w/ the prior combined clear and overwrite the color
+        rtContext->clear(kScissorRect, SK_PMColor4fBLACK);
+
+        GrOpsTask* ops = rtContext->getOpsTask();
+        REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+    }
+
+    // Try combining a pure-stencil clear w/ a combined stencil & color clear (re skbug.com/10963)
+    {
+        rtContext = newRTC(dContext, kW, kH);
+        SkASSERT(rtContext);
+
+        static constexpr SkIRect kScissorRect = SkIRect::MakeXYWH(1, 1, kW-1, kH-1);
+
+        rtContext->clearStencilClip(kScissorRect, true);
+        // This color clear can combine w/ the preceding stencil clear
+        rtContext->clear(kScissorRect, SK_PMColor4fWHITE);
+
+        // This should combine w/ the prior combined clear and overwrite the 'insideStencilMask'
+        // field
+        rtContext->clearStencilClip(kScissorRect, true);
+
+        GrOpsTask* ops = rtContext->getOpsTask();
+        REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+    }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {
