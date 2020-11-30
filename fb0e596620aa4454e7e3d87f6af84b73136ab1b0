@@ -35,6 +35,81 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea682b86_bff24aa2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:21:44Z",
+      "side": 1,
+      "message": "It does diminish the value, and in some sense it could be misleading - e.g. for Skottie I would avoid these and cache a shader instead.",
+      "parentUuid": "ec916542_fb949284",
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f8221ba_40be0423",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2543,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:21:44Z",
+      "side": 1,
+      "message": "I was hoping we get to update the existing onDrawImage*, but I guess existing external overrides get in the way?  Something we can do after hiding SkCanvas virtuals?",
+      "range": {
+        "startLine": 2540,
+        "startChar": 0,
+        "endLine": 2543,
+        "endChar": 95
+      },
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f69357a2_28d9e77d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2584,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:21:44Z",
+      "side": 1,
+      "message": "Would clamping be more ergonomic?",
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57dc3327_1cafbfd8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2585,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:21:44Z",
+      "side": 1,
+      "message": "nit:\n\nsampling \u003d SkSamplingOptions();\n\n(to avoid repeating the default values)",
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4fdf02ae_15b2d12b",
