@@ -16,7 +16,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -213,7 +212,7 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
                 ctx.get(), GrColorType::kAlpha_F16, nullptr, SkBackingFit::kExact, {10, 10});
         REPORTER_ASSERT(reporter, mockAtlas);
         LazyProxyTest::Clip clip(&test, mockAtlas->asTextureProxy());
-        rtc->priv().testingOnly_addDrawOp(
+        rtc->addDrawOp(
                 &clip, LazyProxyTest::Op::Make(ctx.get(), proxyProvider, &test, nullTexture));
         ctx->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&test);
     }
@@ -388,7 +387,7 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
 
         int executeTestValue = 0;
-        rtc->priv().testingOnly_addDrawOp(LazyFailedInstantiationTestOp::Make(
+        rtc->addDrawOp(LazyFailedInstantiationTestOp::Make(
                 ctx.get(), proxyProvider, &executeTestValue, failInstantiation));
         ctx->flushAndSubmit();
 

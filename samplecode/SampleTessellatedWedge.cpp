@@ -18,7 +18,6 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -94,7 +93,7 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
         aa = GrAAType::kNone;
     }
 
-    rtc->priv().testingOnly_addDrawOp(GrOp::Make<GrPathTessellateOp>(
+    rtc->addDrawOp(GrOp::Make<GrPathTessellateOp>(
             ctx, canvas->getTotalMatrix(), fPath, std::move(paint), aa, fOpFlags));
 
     // Draw the path points.

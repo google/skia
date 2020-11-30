@@ -23,7 +23,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -103,7 +102,7 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    renderTargetContext->priv().testingOnly_addDrawOp(
+                    renderTargetContext->addDrawOp(
                             GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
                                                         SkMatrix::I(), bounds));
                 }

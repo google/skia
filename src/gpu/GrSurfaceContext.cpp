@@ -127,7 +127,7 @@ const GrDrawingManager* GrSurfaceContext::drawingManager() const {
 }
 
 #ifdef SK_DEBUG
-GrSingleOwner* GrSurfaceContext::singleOwner() {
+GrSingleOwner* GrSurfaceContext::singleOwner() const {
     return fContext->priv().singleOwner();
 }
 #endif

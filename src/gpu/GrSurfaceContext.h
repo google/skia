@@ -182,7 +182,7 @@ protected:
 
     SkDEBUGCODE(void validate() const;)
 
-    SkDEBUGCODE(GrSingleOwner* singleOwner();)
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const;)
 
     GrRecordingContext* fContext;
 
