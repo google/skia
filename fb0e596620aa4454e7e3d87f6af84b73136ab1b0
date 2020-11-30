@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec916542_fb949284",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-11-30T17:35:58Z",
+      "side": 1,
+      "message": "Question: how important is it to push these down to the device? Can we live with always creating a shader up-front?",
+      "revId": "fb0e596620aa4454e7e3d87f6af84b73136ab1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
