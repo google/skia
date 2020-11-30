@@ -196,9 +196,10 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
 
 static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->typeKind() == Type::TypeKind::kArray) {
+        const Type* innerType = copy_if_needed(&src->componentType(), symbolTable);
         return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(src->name(),
                                                                         src->typeKind(),
-                                                                        src->componentType(),
+                                                                        *innerType,
                                                                         src->columns()));
     }
     return src;
