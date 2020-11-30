@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e605dfa7_6d4bea8b",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-30T19:34:10Z",
+      "side": 1,
+      "message": "So, in this CL I didn\u0027t want to really mess w/ the behavior. The asserts in the following if-blocks definitely assume that the two buffers don\u0027t overlap and would still fire even with the return fix.\n\nWhen \u0027other\u0027 has a color part it is probably safe to copy the color into \u0027this\u0027 op. However, if it has a stencil component we would also need to check the \u0027fStencilInsideMask\u0027 field. Given how seldom we hit these cases, since people aren\u0027t really screaming about the asserts, I didn\u0027t think the extra complexity was going to be worth it.",
+      "parentUuid": "e420bbe6_c862b666",
+      "range": {
+        "startLine": 59,
+        "startChar": 43,
+        "endLine": 64,
+        "endChar": 81
+      },
+      "revId": "1295c869b54d30e90861a18a38e046109ce8a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62591dff_a0abe580",
         "filename": "src/gpu/ops/GrClearOp.cpp",
         "patchSetId": 6
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-30T19:19:54Z",
       "side": 1,
       "message": "Gah! That\u0027s a bad mistake on my part",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 38
+      },
+      "revId": "1295c869b54d30e90861a18a38e046109ce8a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a91d21c0_27da1958",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-11-30T19:34:10Z",
+      "side": 1,
+      "message": "I would expect some perf improvement from this fix but I really don\u0027t think we hit this case very often.",
+      "parentUuid": "62591dff_a0abe580",
       "range": {
         "startLine": 74,
         "startChar": 8,
