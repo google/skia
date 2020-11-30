@@ -1184,8 +1184,13 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             fRecursionDepth + 1));
 #endif
     if (++fRecursionDepth > kRecursiveLimits[fFoundTangents]) {
+        // Projected quad is representable, but we've exceeded recursion limit.
+        // We have to live with the quad approximation.
+        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        const SkPoint* stroke = quadPts->fQuad;
+        path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
         DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
-        return false;  // just abort if projected quad isn't representable
+        return true;
     }
     SkQuadConstruct half;
     if (!half.initWithStart(quadPts)) {
