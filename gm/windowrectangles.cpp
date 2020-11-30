@@ -34,7 +34,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
@@ -202,7 +201,7 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
-    if (rtc->priv().maxWindowRectangles() < kNumWindows) {
+    if (rtc->maxWindowRectangles() < kNumWindows) {
         *errorMsg = "Requires at least 8 window rectangles. "
                     "(Are you off FBO 0? Use sRGB to force offscreen rendering.)";
         return DrawResult::kSkip;
@@ -239,9 +238,8 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRende
     GrPaint stencilPaint;
     stencilPaint.setCoverageSetOpXPFactory(SkRegion::kDifference_Op, false);
     GrStencilClip stencilClip = make_stencil_only_clip(maskRTC.get());
-    maskRTC->priv().stencilRect(&stencilClip, &GrUserStencilSettings::kUnused,
-                                std::move(stencilPaint), GrAA::kNo, SkMatrix::I(),
-                                SkRect::Make(maskRTC->dimensions()));
+    maskRTC->stencilRect(&stencilClip, &GrUserStencilSettings::kUnused, std::move(stencilPaint),
+                         GrAA::kNo, SkMatrix::I(), SkRect::Make(maskRTC->dimensions()));
     reducedClip.drawAlphaClipMask(maskRTC.get());
 
     int x = kCoverRect.x() - kDeviceRect.x(),
@@ -288,7 +286,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
         0>()
     );
 
-    rtc->priv().clearStencilClip(SkIRect::MakeSize(rtc->dimensions()), false);
+    rtc->clearStencilClip(SkIRect::MakeSize(rtc->dimensions()), false);
 
     for (int y = 0; y < kDeviceRect.height(); y += kMaskCheckerSize) {
         for (int x = (y & 1) == flip ? 0 : kMaskCheckerSize;
@@ -296,8 +294,8 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, boo
             SkIRect checker = SkIRect::MakeXYWH(x, y, kMaskCheckerSize, kMaskCheckerSize);
             GrPaint paint;
             paint.setXPFactory(GrDisableColorXPFactory::Get());
-            rtc->priv().stencilRect(nullptr, &kSetClip, std::move(paint), GrAA::kNo,
-                                    SkMatrix::I(), SkRect::Make(checker));
+            rtc->stencilRect(nullptr, &kSetClip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                             SkRect::Make(checker));
         }
     }
 }

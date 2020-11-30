@@ -33,7 +33,6 @@ class GrCoverageCountingPathRenderer;
 class GrDrawOp;
 class GrOp;
 class GrRenderTarget;
-class GrRenderTargetContextPriv;
 class GrStyledShape;
 class GrStyle;
 class GrTextureProxy;
@@ -560,6 +559,104 @@ public:
      */
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
 
+    GrOpsTask* getOpsTask();
+
+    // called to note the last clip drawn to the stencil buffer.
+    // TODO: remove after clipping overhaul.
+    void setLastClip(uint32_t clipStackGenID,
+                     const SkIRect& devClipBounds,
+                     int numClipAnalyticElements) {
+        GrOpsTask* opsTask = this->getOpsTask();
+        opsTask->fLastClipStackGenID = clipStackGenID;
+        opsTask->fLastDevClipBounds = devClipBounds;
+        opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
+    }
+
+    // called to determine if we have to render the clip into SB.
+    // TODO: remove after clipping overhaul.
+    bool mustRenderClip(uint32_t clipStackGenID,
+                        const SkIRect& devClipBounds,
+                        int numClipAnalyticElements) {
+        GrOpsTask* opsTask = this->getOpsTask();
+        return opsTask->fLastClipStackGenID != clipStackGenID ||
+               !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
+               opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
+    }
+
+    // Clear at minimum the pixels within 'scissor', but is allowed to clear the full render target
+    // if that is the more performant option.
+    void clearAtLeast(const SkIRect& scissor, const SkPMColor4f& color) {
+        this->internalClear(&scissor, color, /* upgrade to full */ true);
+    }
+
+    void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
+        this->internalStencilClear(&scissor, insideStencilMask);
+    }
+
+    // While this can take a general clip, since GrReducedClip relies on this function, it must take
+    // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
+    // so that path renderers can use this function.
+    void stencilRect(const GrClip* clip,
+                     const GrUserStencilSettings* ss,
+                     GrPaint&& paint,
+                     GrAA doStencilMSAA,
+                     const SkMatrix& viewMatrix,
+                     const SkRect& rect,
+                     const SkMatrix* localMatrix = nullptr) {
+        // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
+        // resolution compared to regular rect draws, which is the main reason it remains separate.
+        DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
+                      localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect),
+                      GrQuadAAFlags::kNone};
+        this->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
+    }
+
+    void stencilPath(const GrHardClip*,
+                     GrAA doStencilMSAA,
+                     const SkMatrix& viewMatrix,
+                     sk_sp<const GrPath>);
+
+    /**
+     * Draws a path, either AA or not, and touches the stencil buffer with the user stencil settings
+     * for each color sample written.
+     */
+    bool drawAndStencilPath(const GrHardClip*,
+                            const GrUserStencilSettings*,
+                            SkRegion::Op op,
+                            bool invert,
+                            GrAA doStencilMSAA,
+                            const SkMatrix& viewMatrix,
+                            const SkPath&);
+
+    SkBudgeted isBudgeted() const;
+
+    int maxWindowRectangles() const;
+
+    SkGlyphRunListPainter* glyphRunPainter() { return &fGlyphPainter; }
+
+    /*
+     * This unique ID will not change for a given RenderTargetContext. However, it is _NOT_
+     * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
+     */
+    GrSurfaceProxy::UniqueID uniqueID() const { return this->asSurfaceProxy()->uniqueID(); }
+
+    void addOp(GrOp::Owner);
+
+    // Allows caller of addDrawOp to know which op list an op will be added to.
+    using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+    // These perform processing specific to GrDrawOp-derived ops before recording them into an
+    // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
+    // will not be called in the event that the op is discarded. Moreover, the op may merge into
+    // another op after the function is called (either before addDrawOp returns or some time later).
+    //
+    // If the clip pointer is null, no clipping will be performed.
+    void addDrawOp(const GrClip*,
+                   GrOp::Owner,
+                   const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
+    void addDrawOp(GrOp::Owner op) { this->addDrawOp(nullptr, std::move(op)); }
+
+    bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
+
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
@@ -582,12 +679,7 @@ public:
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
 
-    // Provides access to functions that aren't part of the public API.
-    GrRenderTargetContextPriv priv();
-    const GrRenderTargetContextPriv priv() const;  // NOLINT(readability-const-return-type)
-
 #if GR_TEST_UTILS
-    bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
@@ -597,29 +689,7 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
-    friend class GrClipStackClip;               // for access to getOpsTask
-    friend class GrClipStack;                   // ""
-
-    friend class GrRenderTargetContextPriv;
-
-    // All the path and text renderers/ops currently make their own ops
-    friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
-    friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
-    friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
-    friend class GrAAHairLinePathRenderer;           // for access to add[Mesh]DrawOp
-    friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp
-    friend class GrSmallPathRenderer;                // for access to add[Mesh]DrawOp
-    friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
-    friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
-    friend class GrTriangulatingPathRenderer;        // for access to add[Mesh]DrawOp
-    friend class GrCCPerFlushResources;              // for access to addDrawOp
-    friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
-    friend class GrFillRectOp;                       // for access to addDrawOp
-    friend class GrTessellationPathRenderer;         // for access to addDrawOp
-    friend class GrTextureOp;                        // for access to addDrawOp
-
     SkDEBUGCODE(void onValidate() const override;)
-
 
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
@@ -680,19 +750,6 @@ private:
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrStyledShape&, bool attemptShapeFallback = true);
 
-    void addOp(GrOp::Owner);
-
-    // Allows caller of addDrawOp to know which op list an op will be added to.
-    using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
-    // These perform processing specific to GrDrawOp-derived ops before recording them into an
-    // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
-    // will not be called in the event that the op is discarded. Moreover, the op may merge into
-    // another op after the function is called (either before addDrawOp returns or some time later).
-    //
-    // If the clip pointer is null, no clipping will be performed.
-    void addDrawOp(const GrClip*, GrOp::Owner,
-                   const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
-
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
@@ -700,8 +757,6 @@ private:
     // The op should have already had setClippedBounds called on it.
     bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op,
                                                  GrXferProcessor::DstProxyView* result);
-
-    GrOpsTask* getOpsTask();
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
