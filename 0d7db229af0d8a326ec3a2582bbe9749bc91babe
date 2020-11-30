@@ -16,6 +16,46 @@
       "message": "@Florin any thoughts on this one?",
       "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5442bf68_11250efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:47:16Z",
+      "side": 1,
+      "message": "LGTM, just a validation nit.",
+      "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95e82422_f6d2f5c2",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T18:47:16Z",
+      "side": 1,
+      "message": "Alternatively, it might be simpler to pin on use instead of on set, WDYT?  Or to not pin at all as I expect Skia to do the sane thing.\n\nTesting, it appears Chromium also allows setting/getting extra-normal opacities.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
