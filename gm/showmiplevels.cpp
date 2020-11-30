@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkNx.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkMipmapBuilder.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>

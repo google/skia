@@ -213,6 +213,7 @@ DEF_TEST(MipMap_F16, reporter) {
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
+#include "src/core/SkMipmapBuilder.h"
 
 static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
     int count = builder->countLevels();

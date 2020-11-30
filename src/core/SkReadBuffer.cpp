@@ -14,6 +14,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMipmapBuilder.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeMath.h"
 
