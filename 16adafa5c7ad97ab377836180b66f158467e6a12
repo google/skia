@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a37b7c59_f999369f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-30T13:03:40Z",
+      "side": 1,
+      "message": "Please add a bit of \"why this fixes things\" to make the commit message more useful.",
+      "revId": "16adafa5c7ad97ab377836180b66f158467e6a12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df05d67f_13b70ac0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-11-30T13:03:40Z",
+      "side": 1,
+      "message": "lgtm, assuming the tryjob passes.",
+      "revId": "16adafa5c7ad97ab377836180b66f158467e6a12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
