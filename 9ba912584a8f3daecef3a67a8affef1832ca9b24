@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80c10281_ba5aaf19",
+        "filename": "tests/sksl/shared/ArrayReturnTypes.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-30T18:39:52Z",
+      "side": 1,
+      "message": "Wanna make this void, and assign this expression to sk_FragColor, to get rid of the SPIR-V validation error?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 53
+      },
+      "revId": "9ba912584a8f3daecef3a67a8affef1832ca9b24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
