@@ -51,6 +51,7 @@
 #include <new>
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/SkGr.h"
 #endif
 
@@ -624,10 +625,13 @@ void SkCanvas::flush() {
 }
 
 void SkCanvas::onFlush() {
-    SkBaseDevice* device = this->getDevice();
-    if (device) {
-        device->flush();
+#if SK_SUPPORT_GPU
+    auto dContext = GrAsDirectContext(this->recordingContext());
+
+    if (dContext) {
+        dContext->flushAndSubmit();
     }
+#endif
 }
 
 SkSurface* SkCanvas::getSurface() const {
