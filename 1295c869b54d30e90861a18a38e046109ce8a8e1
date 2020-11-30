@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2af10d1c_9207d006",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-30T19:54:06Z",
+      "side": 1,
+      "message": "I\u0027d be comfortable with fixing it in this CL, because now that it\u0027s coming back to me, I remember these asserts I had added in an early draft of the stencil+color combining changes (before they were separate ops). Initially, I had thought I needed to keep them distinct, and then realized at the end that we can just merge single buffer ops into a kBoth op if they have the same area.\n\nI think it\u0027d be easy to not add your if-check and delete the asserts. I don\u0027t think we need to check the stencil-inside-mask field, since that\u0027s just the stencil state value we are clearing to, so the new op\u0027s value is preserved, just like we do for the color buffer. Right?",
+      "parentUuid": "e605dfa7_6d4bea8b",
+      "range": {
+        "startLine": 59,
+        "startChar": 43,
+        "endLine": 64,
+        "endChar": 81
+      },
+      "revId": "1295c869b54d30e90861a18a38e046109ce8a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62591dff_a0abe580",
         "filename": "src/gpu/ops/GrClearOp.cpp",
         "patchSetId": 6
