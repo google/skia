@@ -29,7 +29,7 @@ enum {
 // For cubics, we never get close to 75 when running through dm. The limit of 24
 // was chosen because it's close to the peak in a count of cubic recursion depths visited
 // (define DEBUG_CUBIC_RECURSION_DEPTHS) and no diffs were produced on gold when using it.
-static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 };
+static const int kRecursiveLimits[] = { 5*3, 43, 11*3, 11*3 };
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
@@ -1184,8 +1184,13 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             fRecursionDepth + 1));
 #endif
     if (++fRecursionDepth > kRecursiveLimits[fFoundTangents]) {
+        // Projected quad is representable, but we've exceeded recursion limit.
+        // We have to live with the quad approximation.
+        // SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        // const SkPoint* stroke = quadPts->fQuad;
+        // path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
         DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
-        return false;  // just abort if projected quad isn't representable
+        return false;
     }
     SkQuadConstruct half;
     if (!half.initWithStart(quadPts)) {
