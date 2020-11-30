@@ -17,7 +17,7 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -410,7 +410,7 @@ public:
                 paint.setColor4f(op->color());
                 std::unique_ptr<GrDrawOp> drawOp(NonAARectOp::Make(std::move(paint),
                                                                    SkRect::Make(r)));
-                rtc->priv().testingOnly_addDrawOp(std::move(drawOp));
+                rtc->addDrawOp(std::move(drawOp));
 #endif
                 blocksInAtlas++;
 
@@ -484,8 +484,8 @@ static GrSurfaceProxyView make_upstream_image(GrRecordingContext* rContext,
         AtlasedRectOp* sparePtr = (AtlasedRectOp*)op.get();
 
         uint32_t opsTaskID;
-        rtc->priv().testingOnly_addDrawOp(nullptr, std::move(op),
-                                          [&opsTaskID](GrOp* op, uint32_t id) { opsTaskID = id; });
+        rtc->addDrawOp(nullptr, std::move(op),
+                       [&opsTaskID](GrOp* op, uint32_t id) { opsTaskID = id; });
         SkASSERT(SK_InvalidUniqueID != opsTaskID);
 
         object->addOp(opsTaskID, sparePtr);

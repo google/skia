@@ -27,7 +27,6 @@ class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
-class GrSurfaceContextPriv;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
@@ -57,6 +56,8 @@ public:
                      sk_sp<SkColorSpace>);
 
     virtual ~GrSurfaceContext() = default;
+
+    GrRecordingContext* recordingContext() { return fContext; }
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
     GrImageInfo imageInfo() const { return {fColorInfo, fReadView.proxy()->dimensions()}; }
@@ -160,10 +161,6 @@ public:
 
     GrAuditTrail* auditTrail();
 
-    // Provides access to functions that aren't part of the public API.
-    GrSurfaceContextPriv surfPriv();
-    const GrSurfaceContextPriv surfPriv() const;  // NOLINT(readability-const-return-type)
-
 #if GR_TEST_UTILS
     bool testCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
         return this->copy(src, srcRect, dstPoint);
@@ -175,14 +172,12 @@ public:
 #endif
 
 protected:
-    friend class GrSurfaceContextPriv;
-
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;
 
     SkDEBUGCODE(void validate() const;)
 
-    SkDEBUGCODE(GrSingleOwner* singleOwner();)
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const;)
 
     GrRecordingContext* fContext;
 

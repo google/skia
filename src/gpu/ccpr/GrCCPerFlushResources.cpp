@@ -12,7 +12,6 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
@@ -537,9 +536,9 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
             const CopyPathRange& copyRange = fCopyPathRanges[copyRangeIdx];
             int endCopyInstance = baseCopyInstance + copyRange.fCount;
             if (rtc) {
-                auto op = CopyAtlasOp::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcProxy,
-                        baseCopyInstance, endCopyInstance, atlas.drawBounds());
+                auto op = CopyAtlasOp::Make(rtc->recordingContext(), sk_ref_sp(this),
+                                            copyRange.fSrcProxy, baseCopyInstance, endCopyInstance,
+                                            atlas.drawBounds());
                 rtc->addDrawOp(nullptr, std::move(op));
             }
             baseCopyInstance = endCopyInstance;
@@ -567,16 +566,16 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
             GrOp::Owner op;
             if (CoverageType::kA8_Multisample == fRenderedAtlasStack.coverageType()) {
                 op = GrStencilAtlasOp::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        rtc->recordingContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), baseStencilResolveInstance,
                         atlas.getEndStencilResolveInstance(), atlas.drawBounds());
             } else if (onFlushRP->caps()->shaderCaps()->geometryShaderSupport()) {
                 op = RenderAtlasOp<GrGSCoverageProcessor>::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        rtc->recordingContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), atlas.drawBounds());
             } else {
                 op = RenderAtlasOp<GrVSCoverageProcessor>::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),
+                        rtc->recordingContext(), sk_ref_sp(this), atlas.getFillBatchID(),
                         atlas.getStrokeBatchID(), atlas.drawBounds());
             }
             rtc->addDrawOp(nullptr, std::move(op));
