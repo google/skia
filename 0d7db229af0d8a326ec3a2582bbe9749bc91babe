@@ -80,6 +80,30 @@
       },
       "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68c2f42b_ab95c1d9",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-11-30T19:32:42Z",
+      "side": 1,
+      "message": "SG, let\u0027s try removing validation.",
+      "parentUuid": "45286f51_001d804e",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
