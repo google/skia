@@ -20,7 +20,6 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/SkGr.h"
@@ -101,8 +100,8 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    renderTargetContext->priv().stencilRect(clip, &userStencilSettings, std::move(paint), GrAA::kNo,
-                                            viewMatrix, rect, &localMatrix);
+    renderTargetContext->stencilRect(clip, &userStencilSettings, std::move(paint), GrAA::kNo,
+                                     viewMatrix, rect, &localMatrix);
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,

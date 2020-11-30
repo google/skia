@@ -17,7 +17,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -402,12 +401,9 @@ DrawResult TessellationGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext
     borderPaint.setColor4f({1,0,1,1});
     canvas->drawRect(kRect.makeOutset(1.5f, 1.5f), borderPaint);
 
-    rtc->priv().testingOnly_addDrawOp(
-            GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri1));
-    rtc->priv().testingOnly_addDrawOp(
-            GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri2));
-    rtc->priv().testingOnly_addDrawOp(
-            GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), nullptr));
+    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri1));
+    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri2));
+    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), nullptr));
 
     return skiagm::DrawResult::kOk;
 }
