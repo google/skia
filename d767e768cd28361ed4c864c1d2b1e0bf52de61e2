@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a14a752_90017dca",
+        "filename": "tests/sksl/blend/golden/BlendEnum.asm.frag",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-30T14:32:14Z",
+      "side": 1,
+      "message": "This output is wild, but I\u0027m actually really glad to see that it\u0027s passing validation.",
+      "revId": "d767e768cd28361ed4c864c1d2b1e0bf52de61e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
