@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fb2182f_f6a07f3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-11-30T18:15:05Z",
+      "side": 1,
+      "message": "I\u0027ve been experimenting with adding a class in between SurfaceContext and RenderTargetContext that allows only src-mode integer rectangle color-only draws (for creating unpremul content using draws) and GrRenderTargetContextPriv was complicating things. I don\u0027t think we need it.",
+      "revId": "628d3abdc11787093ff3fb23d786e5dde459f835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
