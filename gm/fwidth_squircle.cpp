@@ -31,7 +31,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
@@ -266,7 +265,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fwidth_squircle, ctx, rtc, canvas, errorMsg, 200, 200
 
     // Draw the test directly to the frame buffer.
     canvas->clear(SK_ColorWHITE);
-    rtc->priv().testingOnly_addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
+    rtc->addDrawOp(FwidthSquircleTestOp::Make(ctx, canvas->getTotalMatrix()));
     return skiagm::DrawResult::kOk;
 }
 

@@ -39,7 +39,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrBezierEffect.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
@@ -298,7 +297,7 @@ protected:
 
                 GrOp::Owner op = BezierConicTestOp::Make(context, bounds,
                                                          kOpaqueBlack, klm);
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                renderTargetContext->addDrawOp(std::move(op));
             }
         }
     }
@@ -491,7 +490,7 @@ protected:
 
                 GrOp::Owner op = BezierQuadTestOp::Make(context, bounds,
                                                         kOpaqueBlack, DevToUV);
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                renderTargetContext->addDrawOp(std::move(op));
             }
         }
     }

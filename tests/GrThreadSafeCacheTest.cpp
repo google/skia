@@ -19,7 +19,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "tests/Test.h"
@@ -615,7 +614,7 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
         *createdOp = (GrThreadSafeVertexTestOp*) op.get();
     }
 
-    rtc->priv().testingOnly_addDrawOp(std::move(op));
+    rtc->addDrawOp(std::move(op));
 }
 
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,

@@ -12,7 +12,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #ifdef SK_GL
