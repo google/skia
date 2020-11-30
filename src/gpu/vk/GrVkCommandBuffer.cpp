@@ -283,6 +283,18 @@ void GrVkCommandBuffer::bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pip
     this->addResource(pipeline);
 }
 
+void GrVkCommandBuffer::pushConstants(const GrVkGpu* gpu, VkPipelineLayout layout,
+                                      VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size,
+                                      const void* values) {
+    SkASSERT(fIsActive);
+    GR_VK_CALL(gpu->vkInterface(), CmdPushConstants(fCmdBuffer,
+                                                    layout,
+                                                    stageFlags,
+                                                    offset,
+                                                    size,
+                                                    values));
+}
+
 void GrVkCommandBuffer::drawIndexed(const GrVkGpu* gpu,
                                     uint32_t indexCount,
                                     uint32_t instanceCount,

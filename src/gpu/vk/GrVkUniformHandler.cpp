@@ -352,8 +352,13 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
-                     kUniformBufferDescSet, kUniformBinding);
+        if (fCurrentUBOOffset <= fProgramBuilder->caps()->maxPushConstantsSize()) {
+            out->append("layout (push_constant) ");
+        } else {
+            out->appendf("layout (set=%d, binding=%d) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        }
+        out->append("uniform uniformBuffer\n{\n");
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }

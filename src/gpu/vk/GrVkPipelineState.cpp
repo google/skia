@@ -44,7 +44,10 @@ GrVkPipelineState::GrVkPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fDataManager(uniforms, uniformSize) {
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
+    // Only set up uniform buffer if we can't use push constants
+    if (uniformSize > gpu->caps()->maxPushConstantsSize()) {
+        fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
+    }
 
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
@@ -94,14 +97,16 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                 dstTexture, offset);
     }
 
-    // Get new descriptor set
     if (fUniformBuffer) {
+        // Get new descriptor set
         fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get());
         static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
         commandBuffer->bindDescriptorSets(gpu, fPipeline->layout(), kUniformDSIdx, /*setCount=*/1,
                                           fUniformBuffer->descriptorSet(), /*dynamicOffsetCount=*/0,
                                           /*dynamicOffsets=*/nullptr);
         commandBuffer->addRecycledResource(fUniformBuffer->resource());
+    } else {
+        fDataManager.uploadPushConstants(gpu, fPipeline->layout(), commandBuffer);
     }
     return true;
 }

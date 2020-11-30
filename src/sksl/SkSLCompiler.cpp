@@ -1955,6 +1955,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
             SkDEBUGFAILF("%s", errors.c_str());
 #endif
         }
+        SkAssertResult(validate);
         out.write(data.c_str(), data.size());
     }
 #else
