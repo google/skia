@@ -104,6 +104,30 @@
       },
       "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09492379_3af7e6d4",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-30T20:51:51Z",
+      "side": 1,
+      "message": "Alrighty: done, PTAL. I added a pin in one place in the SVG render context \u0027opacity_to_alpha\u0027 helper.",
+      "parentUuid": "68c2f42b_ab95c1d9",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
