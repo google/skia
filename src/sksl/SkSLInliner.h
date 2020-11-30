@@ -56,6 +56,7 @@ private:
 
     std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,
+                                                 SymbolTable* symbolTableForExpression,
                                                  const Expression& expression);
     std::unique_ptr<Statement> inlineStatement(int offset,
                                                VariableRewriteMap* varMap,
