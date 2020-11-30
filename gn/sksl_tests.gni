@@ -180,6 +180,7 @@ sksl_metal_tests = [
 sksl_spirv_tests = [
   "$_tests/sksl/spirv/LayoutMultipleOf4.sksl",
   "$_tests/sksl/spirv/LayoutOutOfOrder.sksl",
+  "$_tests/sksl/spirv/OpaqueTypeInArray.sksl",
 ]
 
 sksl_shared_tests = [

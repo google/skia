@@ -396,7 +396,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Type::Field& field = type.fields()[i];
-        if (!memoryLayout.layoutIsSupported(*field.fType)) {
+        if (!MemoryLayout::LayoutIsSupported(*field.fType)) {
             fErrors.error(type.fOffset, "type '" + field.fType->name() + "' is not permitted here");
             return;
         }
@@ -516,6 +516,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 this->writeStruct(type, layout, result);
                 break;
             case Type::TypeKind::kArray: {
+                if (!MemoryLayout::LayoutIsSupported(type)) {
+                    fErrors.error(type.fOffset, "type '" + type.name() + "' is not permitted here");
+                    return this->nextId();
+                }
                 if (type.columns() > 0) {
                     IntLiteral count(fContext, -1, type.columns());
                     this->writeInstruction(SpvOpTypeArray, result,
@@ -2715,7 +2719,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                 fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.variable().type();
-    if (!memoryLayout.layoutIsSupported(*type)) {
+    if (!MemoryLayout::LayoutIsSupported(*type)) {
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
         return this->nextId();
     }
