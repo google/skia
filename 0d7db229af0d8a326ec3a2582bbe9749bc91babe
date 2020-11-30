@@ -56,6 +56,30 @@
       },
       "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45286f51_001d804e",
+        "filename": "modules/svg/include/SkSVGNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-11-30T19:03:37Z",
+      "side": 1,
+      "message": "I think it\u0027d be reasonable to just set whatever value we\u0027re given without checking. The only reason I added this \"validator\" concept is that we already were pinning opacity values in [0,1], and I didn\u0027t know how important that was to keep. So I\u0027m happy to remove validation in this CL, what do you think?",
+      "parentUuid": "95e82422_f6d2f5c2",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "0d7db229af0d8a326ec3a2582bbe9749bc91babe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
