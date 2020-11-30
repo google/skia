@@ -16,7 +16,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrStencilMaskHelper.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
@@ -1352,7 +1351,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrRenderTargetCon
     }
 
     // If window rectangles are supported, we can use them to exclude inner bounds of difference ops
-    int maxWindowRectangles = rtc->priv().maxWindowRectangles();
+    int maxWindowRectangles = rtc->maxWindowRectangles();
     GrWindowRectangles windowRects;
 
     // Elements not represented as an analytic FP or skipped will be collected here and later

@@ -22,7 +22,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"

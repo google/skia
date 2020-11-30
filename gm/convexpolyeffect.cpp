@@ -24,7 +24,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "tools/gpu/TestOps.h"
 
@@ -137,7 +136,7 @@ protected:
 
                 auto rect = p.getBounds().makeOutset(kOutset, kOutset);
                 auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), rect);
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                renderTargetContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -177,7 +176,7 @@ protected:
                 auto drawRect = rect.makeOutset(kOutset, kOutset);
                 auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), drawRect);
 
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                renderTargetContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

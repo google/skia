@@ -18,7 +18,6 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
@@ -79,7 +78,7 @@ SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
                              const SkMatrixProvider& matrix,
                              GrMaskFormat grMaskFormat,
                              GrPaint* grPaint) {
-    GrRecordingContext* rContext = rtc->priv().recordingContext();
+    GrRecordingContext* rContext = rtc->recordingContext();
     const GrColorInfo& colorInfo = rtc->colorInfo();
     if (grMaskFormat == kARGB_GrMaskFormat) {
         SkPaintToGrPaintWithPrimitiveColor(rContext, colorInfo, paint, matrix, grPaint);
@@ -244,8 +243,8 @@ void PathSubRun::draw(const GrClip* clip,
             SkPreConcatMatrixProvider strikeToDevice(viewMatrix, pathMatrix);
 
             GrStyledShape shape(path, drawPaint);
-            GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().recordingContext(), rtc, clip, runPaint, strikeToDevice, shape);
+            GrBlurUtils::drawShapeWithMaskFilter(rtc->recordingContext(), rtc, clip, runPaint,
+                                                 strikeToDevice, shape);
         }
     } else {
         // Transform the path to device because the deviceMatrix must be unchanged to
@@ -261,8 +260,8 @@ void PathSubRun::draw(const GrClip* clip,
             path.transform(pathMatrix, &deviceOutline);
             deviceOutline.setIsVolatile(true);
             GrStyledShape shape(deviceOutline, drawPaint);
-            GrBlurUtils::drawShapeWithMaskFilter(
-                    rtc->priv().recordingContext(), rtc, clip, runPaint, viewMatrix, shape);
+            GrBlurUtils::drawShapeWithMaskFilter(rtc->recordingContext(), rtc, clip, runPaint,
+                                                 viewMatrix, shape);
         }
     }
 }
@@ -569,7 +568,7 @@ void DirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMatr
                             const SkGlyphRunList& glyphRunList, GrRenderTargetContext* rtc) const{
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
-        rtc->priv().addDrawOp(drawingClip, std::move(op));
+        rtc->addDrawOp(drawingClip, std::move(op));
     }
 }
 
@@ -664,7 +663,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
             drawingColor
     };
 
-    GrRecordingContext* const context = rtc->priv().recordingContext();
+    GrRecordingContext* const context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
                                                op_mask_type(fMaskFormat),
                                                false,
@@ -923,7 +922,7 @@ void TransformedMaskSubRun::draw(const GrClip* clip,
                                  GrRenderTargetContext* rtc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
-        rtc->priv().addDrawOp(drawingClip, std::move(op));
+        rtc->addDrawOp(drawingClip, std::move(op));
     }
 }
 
@@ -961,7 +960,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             drawingColor
     };
 
-    GrRecordingContext* context = rtc->priv().recordingContext();
+    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             op_mask_type(fMaskFormat),
@@ -1245,7 +1244,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             drawingColor
     };
 
-    GrRecordingContext* context = rtc->priv().recordingContext();
+    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             maskType,
@@ -1267,7 +1266,7 @@ void SDFTSubRun::draw(const GrClip* clip,
                       GrRenderTargetContext* rtc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
-        rtc->priv().addDrawOp(drawingClip, std::move(op));
+        rtc->addDrawOp(drawingClip, std::move(op));
     }
 }
 

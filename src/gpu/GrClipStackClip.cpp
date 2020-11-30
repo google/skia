@@ -20,7 +20,6 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -209,7 +208,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // when drawing rounded div borders.
     constexpr int kMaxAnalyticElements = 4;
 
-    int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
+    int maxWindowRectangles = renderTargetContext->maxWindowRectangles();
     int maxAnalyticElements = kMaxAnalyticElements;
     if (renderTargetContext->numSamples() > 1 || aa == GrAAType::kMSAA || hasUserStencilSettings) {
         // Disable analytic clips when we have MSAA. In MSAA we never conflate coverage and opacity.

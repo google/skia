@@ -9,7 +9,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPath.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrStyle.h"
@@ -97,8 +96,8 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     sk_sp<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
-    args.fRenderTargetContext->priv().stencilPath(
-            args.fClip, args.fDoStencilMSAA, *args.fViewMatrix, std::move(p));
+    args.fRenderTargetContext->stencilPath(args.fClip, args.fDoStencilMSAA, *args.fViewMatrix,
+                                           std::move(p));
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -140,8 +139,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         // Just ignore the analytic FPs (if any) during the stencil pass. They will still clip the
         // final draw and it is meaningless to multiply by coverage when drawing to stencil.
-        args.fRenderTargetContext->priv().stencilPath(
-                &stencilClip, GrAA(stencilAAType == GrAAType::kMSAA), viewMatrix, std::move(path));
+        args.fRenderTargetContext->stencilPath(&stencilClip, GrAA(stencilAAType == GrAAType::kMSAA),
+                                               viewMatrix, std::move(path));
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -174,9 +173,9 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             // We have to suppress enabling MSAA for mixed samples or we will get seams due to
             // coverage modulation along the edge where two triangles making up the rect meet.
             GrAA coverAA = GrAA(args.fAAType == GrAAType::kMSAA);
-            args.fRenderTargetContext->priv().stencilRect(
-                    args.fClip, &kInvertedCoverPass, std::move(args.fPaint), coverAA,
-                    coverMatrix, coverBounds, &localMatrix);
+            args.fRenderTargetContext->stencilRect(args.fClip, &kInvertedCoverPass,
+                                                   std::move(args.fPaint), coverAA, coverMatrix,
+                                                   coverBounds, &localMatrix);
         }
     } else {
         GrOp::Owner op = GrDrawPathOp::Make(

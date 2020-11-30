@@ -14,7 +14,6 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
@@ -446,8 +445,8 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     GrPaint paint;
     paint.setColor4f(SK_PMColor4fWHITE);
 
-    auto coverOp = GrFillRectOp::Make(rtc->surfPriv().getContext(), std::move(paint), aaType,
-                                      &drawQuad, stencil, fillRectFlags);
+    auto coverOp = GrFillRectOp::Make(rtc->recordingContext(), std::move(paint), aaType, &drawQuad,
+                                      stencil, fillRectFlags);
     rtc->addDrawOp(nullptr, std::move(coverOp));
 
     if (rtc->asSurfaceProxy()->requiresManualMSAAResolve()) {

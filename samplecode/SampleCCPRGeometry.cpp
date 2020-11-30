@@ -22,7 +22,6 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
@@ -206,7 +205,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
                 ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
         SkASSERT(ccbuff);
         ccbuff->clear(SK_PMColor4fTRANSPARENT);
-        ccbuff->priv().testingOnly_addDrawOp(GrOp::Make<DrawCoverageCountOp>(ctx, this));
+        ccbuff->addDrawOp(GrOp::Make<DrawCoverageCountOp>(ctx, this));
 
         // Visualize coverage count in main canvas.
         GrPaint paint;

@@ -25,7 +25,7 @@ static std::unique_ptr<GrRenderTargetContext> get_rtc(GrRecordingContext* rConte
 static void check_instantiation_status(skiatest::Reporter* reporter,
                                        GrRenderTargetContext* rtCtx,
                                        bool wrappedExpectation) {
-    REPORTER_ASSERT(reporter, rtCtx->testingOnly_IsInstantiated() == wrappedExpectation);
+    REPORTER_ASSERT(reporter, rtCtx->asRenderTargetProxy()->isInstantiated() == wrappedExpectation);
 
     GrTextureProxy* tProxy = rtCtx->asTextureProxy();
     REPORTER_ASSERT(reporter, tProxy);

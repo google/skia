@@ -22,7 +22,6 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -600,7 +599,7 @@ static void run_test(GrDirectContext* dContext, const char* testName,
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-    rtc->priv().testingOnly_addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
+    rtc->addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
 
     rtc->readPixels(dContext, gold.info(), resultPx, rowBytes, {0, 0});
 

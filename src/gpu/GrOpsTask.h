@@ -241,7 +241,6 @@ private:
     ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
 
     friend class OpsTaskTestingAccess;
-    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
     // The RTC and OpsTask have to work together to handle buffer clears. In most cases, buffer
     // clearing can be done natively, in which case the op list's load ops are sufficient. In other

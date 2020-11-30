@@ -20,7 +20,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGpuDevice.h"
 #include "src/image/SkImage_Base.h"
@@ -114,7 +113,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
 
     GrSurfaceProxyView srcView = rtc->readSurfaceView();
-    if (subset || !srcView.asTextureProxy() || rtc->priv().refsWrappedObjects()) {
+    if (subset || !srcView.asTextureProxy() || rtc->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
         // want to ever retarget the SkSurface at another buffer we create. Force a copy now to
         // avoid copy-on-write.
@@ -148,7 +147,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
     // Context TODO: Elevate direct context requirement to public API.
-    auto dContext = rtc->priv().recordingContext()->asDirectContext();
+    auto dContext = rtc->recordingContext()->asDirectContext();
     if (!dContext) {
         return;
     }
@@ -166,7 +165,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
     // Context TODO: Elevate direct context requirement to public API.
-    auto dContext = rtc->priv().recordingContext()->asDirectContext();
+    auto dContext = rtc->recordingContext()->asDirectContext();
     if (!dContext) {
         return;
     }

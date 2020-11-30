@@ -23,7 +23,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
@@ -169,7 +168,7 @@ protected:
                                                                   drawRect,
                                                                   localRect.makeOffset(kT),
                                                                   SkMatrix::Translate(-kT))) {
-                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                        renderTargetContext->addDrawOp(std::move(op));
                     }
 
                     x += localRect.width() + kTestPad;
@@ -187,7 +186,7 @@ protected:
                                                      caps);
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,
                                                                   localRect)) {
-                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                        renderTargetContext->addDrawOp(std::move(op));
                     }
 
                     if (mx < GrSamplerState::kWrapModeCount - 1) {

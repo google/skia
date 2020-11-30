@@ -33,7 +33,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -145,7 +144,7 @@ protected:
                                                               renderRect.makeOffset(x, y),
                                                               renderRect,
                                                               SkMatrix::I())) {
-                    renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                    renderTargetContext->addDrawOp(std::move(op));
                 }
 
                 // Draw labels for the input to the processor and the processor to the right of

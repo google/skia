@@ -19,7 +19,6 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
@@ -454,12 +453,11 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
         return nullptr;
     }
 
-
-    auto rContext = rtc->priv().recordingContext();
+    auto rContext = rtc->recordingContext();
     GrSDFTOptions SDFOptions = rContext->priv().SDFTOptions();
 
     sk_sp<GrTextBlob> blob = GrTextBlob::Make(glyphRunList, drawMatrix);
-    SkGlyphRunListPainter* painter = rtc->priv().testingOnly_glyphRunPainter();
+    SkGlyphRunListPainter* painter = rtc->glyphRunPainter();
     painter->processGlyphRun(
             *glyphRunList.begin(),
             drawMatrix, glyphRunList.origin(),

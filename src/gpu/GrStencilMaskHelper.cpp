@@ -10,7 +10,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -278,7 +277,7 @@ static void draw_stencil_rect(GrRenderTargetContext* rtc, const GrHardClip& clip
                               const SkRect& rect, GrAA aa) {
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
-    rtc->priv().stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
+    rtc->stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
 static void draw_path(GrRecordingContext* context, GrRenderTargetContext* rtc,
@@ -337,7 +336,7 @@ static GrAA supported_aa(GrRenderTargetContext* rtc, GrAA aa) {
 
 bool GrStencilMaskHelper::init(const SkIRect& bounds, uint32_t genID,
                                const GrWindowRectangles& windowRects, int numFPs) {
-    if (!fRTC->priv().mustRenderClip(genID, bounds, numFPs)) {
+    if (!fRTC->mustRenderClip(genID, bounds, numFPs)) {
         return false;
     }
 
@@ -478,10 +477,10 @@ void GrStencilMaskHelper::clear(bool insideStencil) {
                           GrStencilSettings::SetClipBitSettings(insideStencil), SkMatrix::I(),
                           SkRect::Make(fClip.fixedClip().scissorRect()), GrAA::kNo);
     } else {
-        fRTC->priv().clearStencilClip(fClip.fixedClip().scissorRect(), insideStencil);
+        fRTC->clearStencilClip(fClip.fixedClip().scissorRect(), insideStencil);
     }
 }
 
 void GrStencilMaskHelper::finish() {
-    fRTC->priv().setLastClip(fClip.stencilStackID(), fClip.fixedClip().scissorRect(), fNumFPs);
+    fRTC->setLastClip(fClip.stencilStackID(), fClip.fixedClip().scissorRect(), fNumFPs);
 }

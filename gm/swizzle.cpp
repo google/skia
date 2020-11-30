@@ -15,7 +15,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -37,6 +36,5 @@ DEF_SIMPLE_GPU_GM(swizzle, ctx, rtCtx, canvas, 512, 512) {
     GrPaint grPaint;
     grPaint.setColorFragmentProcessor(std::move(fp));
 
-    rtCtx->priv().testingOnly_addDrawOp(
-        GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));
+    rtCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));
 }

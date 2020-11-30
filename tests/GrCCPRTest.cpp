@@ -22,7 +22,6 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
@@ -45,10 +44,9 @@ private:
     Effect apply(GrRecordingContext* context, GrRenderTargetContext* rtc, GrAAType,
                  bool hasUserStencilSettings, GrAppliedClip* out,
                  SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
-                                                    rtc->priv().testingOnly_getOpsTaskID(), fPath,
-                                                    SkIRect::MakeWH(rtc->width(), rtc->height()),
-                                                    *context->priv().caps()));
+        out->addCoverageFP(fCCPR->makeClipProcessor(
+                /*inputFP=*/nullptr, rtc->getOpsTask()->uniqueID(), fPath,
+                SkIRect::MakeWH(rtc->width(), rtc->height()), *context->priv().caps()));
         return Effect::kClipped;
     }
 

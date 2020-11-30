@@ -8,7 +8,6 @@
 #include "tests/Test.h"
 
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
 static void run_test(skiatest::Reporter*, GrDirectContext*, GrRenderTargetContext*, SkVector a,

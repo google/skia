@@ -10,7 +10,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
 #include "tests/Test.h"
@@ -157,7 +156,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                                overallAA,
                                                &quad,
                                                nullptr);
-            rtc->priv().testingOnly_addDrawOp(nullptr, std::move(op));
+            rtc->addDrawOp(nullptr, std::move(op));
         }
     } else {
         GrTextureOp::AddTextureSetOps(rtc.get(),

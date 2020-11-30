@@ -36,7 +36,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -249,8 +248,8 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
     rtc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.
-    rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-    rtc->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+    rtc->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
+    rtc->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
     GrColorType rtcColorType = rtc->colorInfo().colorType();
@@ -259,8 +258,8 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
                 GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
         rtc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
                          rtc->colorInfo().alphaType(),
@@ -283,8 +282,8 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
                 GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-        topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
         rtc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
                          rtc->colorInfo().alphaType(),

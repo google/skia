@@ -34,7 +34,6 @@
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
@@ -362,15 +361,14 @@ DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrRenderTargetCont
     offscreenRTC->clear({0,1,0,1});
 
     // Stencil.
-    offscreenRTC->priv().testingOnly_addDrawOp(
-            SampleLocationsTestOp::Make(ctx, canvas->getTotalMatrix(), fGradType));
+    offscreenRTC->addDrawOp(SampleLocationsTestOp::Make(ctx, canvas->getTotalMatrix(), fGradType));
 
     // Cover.
     GrPaint coverPaint;
     coverPaint.setColor4f({1,0,0,1});
     coverPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver));
-    rtc->priv().stencilRect(nullptr, &kStencilCover, std::move(coverPaint), GrAA::kNo,
-                            SkMatrix::I(), SkRect::MakeWH(200, 200));
+    rtc->stencilRect(nullptr, &kStencilCover, std::move(coverPaint), GrAA::kNo, SkMatrix::I(),
+                     SkRect::MakeWH(200, 200));
 
     // Copy offscreen texture to canvas.
     rtc->drawTexture(nullptr,

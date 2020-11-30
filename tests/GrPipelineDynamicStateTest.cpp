@@ -20,7 +20,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
@@ -229,8 +228,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
 
     for (GrScissorTest scissorTest : {GrScissorTest::kEnabled, GrScissorTest::kDisabled}) {
         rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-        rtc->priv().testingOnly_addDrawOp(
-            GrPipelineDynamicStateTestOp::Make(dContext, scissorTest, vbuff));
+        rtc->addDrawOp(GrPipelineDynamicStateTestOp::Make(dContext, scissorTest, vbuff));
         auto ii = SkImageInfo::Make(kScreenSize, kScreenSize,
                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         rtc->readPixels(dContext, ii, resultPx, 4 * kScreenSize, {0, 0});
