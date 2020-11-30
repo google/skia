@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8706679_49be213f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-11-30T14:23:16Z",
+      "side": 1,
+      "message": "Do we have a similar test for .fp, to make sure that we elide the emitFunction() call for uncalled functions?",
+      "revId": "475966c53852178689ffbcf7a4ee7cc838562c71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
