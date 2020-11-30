@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "795baefb_c7023f40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-30T22:18:33Z",
+      "side": 1,
+      "message": "+1 to the runtimeintrinsics part.\n\nI\u0027ll let mtklein@ review the SkVM code. I read it and didn\u0027t see anything out of place, but I don\u0027t know SkVM well enough to +1 it. (I wish the bit_casts made it more clear when we were going I32-\u003eF32 versus F32-\u003eI32, but changing that is way outside the scope of this CL)",
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e8b30e3_419541cb",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-11-30T22:18:33Z",
+      "side": 1,
+      "message": "Consider floor(p.x * 3)",
+      "range": {
+        "startLine": 280,
+        "startChar": 23,
+        "endLine": 280,
+        "endChar": 66
+      },
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
