@@ -2900,6 +2900,13 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     }
 
     if (this->caps()->workarounds().restore_scissor_on_fbo_change) {
+        if (fHWStencilTestEnabled == kYes_TriState) {
+            this->flushScissorTest(GrScissorTest::kDisabled);
+            this->flushScissorTest(GrScissorTest::kEnabled);
+        } else if (fHWStencilTestEnabled == kNo_TriState) {
+            this->flushScissorTest(GrScissorTest::kEnabled);
+            this->flushScissorTest(GrScissorTest::kDisabled);
+        }
         // The driver forgets the correct scissor when modifying the FBO binding.
         if (!fHWScissorSettings.fRect.isInvalid()) {
             const GrNativeRect& r = fHWScissorSettings.fRect;
