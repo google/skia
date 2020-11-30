@@ -15,6 +15,7 @@
 #include "include/private/SkVx.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkMipmapBuilder.h"
 #include <new>
 
 //

@@ -42,30 +42,6 @@ class GrYUVABackendTextures;
 
 struct SkYUVAIndex;
 
-class SkMipmapBuilder {
-public:
-    SkMipmapBuilder(const SkImageInfo&);
-    ~SkMipmapBuilder();
-
-    int countLevels() const;
-    SkPixmap level(int index) const;
-
-    /**
-     *  If these levels are compatible with src, return a new Image that combines src's base level
-     *  with these levels as mip levels. If not compatible, this returns nullptr.
-     */
-    sk_sp<SkImage> attachTo(const SkImage* src);
-
-    sk_sp<SkImage> attachTo(sk_sp<SkImage> src) {
-        return this->attachTo(src.get());
-    }
-
-private:
-    sk_sp<SkMipmap> fMM;
-
-    friend class SkImage;
-};
-
 /** \class SkImage
     SkImage describes a two dimensional array of pixels to draw. The pixels may be
     decoded in a raster bitmap, encoded in a SkPicture or compressed data stream,
