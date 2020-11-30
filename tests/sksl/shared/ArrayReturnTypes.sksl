@@ -1,0 +1,7 @@
+half[2][2] fn2() { return half[2][2](half[2](1, 2), half[2](3, 4)); }
+half[2][2] fn()  { return fn2(); }
+
+half4 main() {
+    half[2][2] x = fn();
+    return half4(x[0][0], x[0][1], x[1][0], x[1][1]);
+}
