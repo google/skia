@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e420bbe6_c862b666",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-30T19:19:54Z",
+      "side": 1,
+      "message": "Is this necessary, if we just do the return fix?\n\n\u0027other\u0027 is the new op, and since the scissor rectangles are identical, we know the old and new op covers the same area. Ignoring the extra condition you added, if \u0027other\u0027 clears the color buffer, that\u0027s the new color after merge. If it clears the stencil, that\u0027s the new stencil after merge. \n\nSo, for the unit test added, I would expect a single op that clears stencil and color (black). The fact that we wanted to clear it to white first can be ignored.",
+      "range": {
+        "startLine": 59,
+        "startChar": 43,
+        "endLine": 64,
+        "endChar": 81
+      },
+      "revId": "1295c869b54d30e90861a18a38e046109ce8a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62591dff_a0abe580",
+        "filename": "src/gpu/ops/GrClearOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-11-30T19:19:54Z",
+      "side": 1,
+      "message": "Gah! That\u0027s a bad mistake on my part",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 38
+      },
+      "revId": "1295c869b54d30e90861a18a38e046109ce8a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
