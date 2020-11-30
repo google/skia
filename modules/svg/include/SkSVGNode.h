@@ -94,32 +94,31 @@ public:
     // TODO: consolidate with existing setAttribute
     virtual bool parseAndSetAttribute(const char* name, const char* value);
 
-    void setColor(const SkSVGColorType&);
-    void setFillOpacity(const SkSVGNumberType&);
-    void setOpacity(const SkSVGNumberType&);
-    void setStrokeDashOffset(const SkSVGLength&);
-    void setStrokeOpacity(const SkSVGNumberType&);
-    void setStrokeMiterLimit(const SkSVGNumberType&);
-    void setStrokeWidth(const SkSVGLength&);
-
     // inherited
-    SVG_PRES_ATTR(ClipRule       , SkSVGFillRule  , true)
-    SVG_PRES_ATTR(FillRule       , SkSVGFillRule  , true)
-    SVG_PRES_ATTR(Fill           , SkSVGPaint     , true)
-    SVG_PRES_ATTR(FontFamily     , SkSVGFontFamily, true)
-    SVG_PRES_ATTR(FontSize       , SkSVGFontSize  , true)
-    SVG_PRES_ATTR(FontStyle      , SkSVGFontStyle , true)
-    SVG_PRES_ATTR(FontWeight     , SkSVGFontWeight, true)
-    SVG_PRES_ATTR(Stroke         , SkSVGPaint     , true)
-    SVG_PRES_ATTR(StrokeDashArray, SkSVGDashArray , true)
-    SVG_PRES_ATTR(StrokeLineCap  , SkSVGLineCap   , true)
-    SVG_PRES_ATTR(StrokeLineJoin , SkSVGLineJoin  , true)
-    SVG_PRES_ATTR(TextAnchor     , SkSVGTextAnchor, true)
-    SVG_PRES_ATTR(Visibility     , SkSVGVisibility, true)
+    SVG_PRES_ATTR(ClipRule        , SkSVGFillRule  , true)
+    SVG_PRES_ATTR(Color           , SkSVGColorType , true)
+    SVG_PRES_ATTR(FillRule        , SkSVGFillRule  , true)
+    SVG_PRES_ATTR(Fill            , SkSVGPaint     , true)
+    SVG_PRES_ATTR(FillOpacity     , SkSVGNumberType, true)
+    SVG_PRES_ATTR(FontFamily      , SkSVGFontFamily, true)
+    SVG_PRES_ATTR(FontSize        , SkSVGFontSize  , true)
+    SVG_PRES_ATTR(FontStyle       , SkSVGFontStyle , true)
+    SVG_PRES_ATTR(FontWeight      , SkSVGFontWeight, true)
+    SVG_PRES_ATTR(Stroke          , SkSVGPaint     , true)
+    SVG_PRES_ATTR(StrokeDashArray , SkSVGDashArray , true)
+    SVG_PRES_ATTR(StrokeDashOffset, SkSVGLength    , true)
+    SVG_PRES_ATTR(StrokeLineCap   , SkSVGLineCap   , true)
+    SVG_PRES_ATTR(StrokeLineJoin  , SkSVGLineJoin  , true)
+    SVG_PRES_ATTR(StrokeMiterLimit, SkSVGNumberType, true)
+    SVG_PRES_ATTR(StrokeOpacity   , SkSVGNumberType, true)
+    SVG_PRES_ATTR(StrokeWidth     , SkSVGLength    , true)
+    SVG_PRES_ATTR(TextAnchor      , SkSVGTextAnchor, true)
+    SVG_PRES_ATTR(Visibility      , SkSVGVisibility, true)
 
     // not inherited
-    SVG_PRES_ATTR(ClipPath       , SkSVGClip      , false)
-    SVG_PRES_ATTR(Filter         , SkSVGFilterType, false)
+    SVG_PRES_ATTR(ClipPath        , SkSVGClip      , false)
+    SVG_PRES_ATTR(Filter          , SkSVGFilterType, false)
+    SVG_PRES_ATTR(Opacity         , SkSVGNumberType, false)
 
 protected:
     SkSVGNode(SkSVGTag);
@@ -138,7 +137,7 @@ protected:
 
     virtual SkPath onAsPath(const SkSVGRenderContext&) const = 0;
 
-    virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
+    virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&) {}
 
     virtual bool hasChildren() const { return false; }
 

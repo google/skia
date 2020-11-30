@@ -16,8 +16,6 @@ class SkSVGAttributeParser : public SkNoncopyable {
 public:
     SkSVGAttributeParser(const char[]);
 
-    bool parseColor(SkSVGColorType*);
-    bool parseNumber(SkSVGNumberType*);
     bool parseInteger(SkSVGIntegerType*);
     bool parseViewBox(SkSVGViewBoxType*);
     bool parsePoints(SkSVGPointsType*);
@@ -26,7 +24,6 @@ public:
 
     // TODO: Migrate all parse*() functions to this style (and delete the old version)
     //      so they can be used by parse<T>():
-    bool parse(SkSVGNumberType* v) { return parseNumber(v); }
     bool parse(SkSVGIntegerType* v) { return parseInteger(v); }
 
     template <typename T> using ParseResult = SkTLazy<T>;
