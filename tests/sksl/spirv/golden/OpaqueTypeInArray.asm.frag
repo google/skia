@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: type 'sampler[1]' is not permitted here
+error: 1: opaque type 'sampler' may not be used in an array
 1 error
