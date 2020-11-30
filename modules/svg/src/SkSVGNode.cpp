@@ -76,101 +76,34 @@ void SetInheritedByDefault(SkTLazy<T>& presentation_attribute, const T& value) {
     }
 }
 
-void SkSVGNode::setColor(const SkSVGColorType& color) {
-    // TODO: Color should be inherited by default
-    fPresentationAttributes.fColor.set(color);
-}
-
-void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fFillOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
-}
-
-void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
-}
-
-void SkSVGNode::setStrokeDashOffset(const SkSVGLength& dashOffset) {
-    fPresentationAttributes.fStrokeDashOffset.set(dashOffset);
-}
-
-void SkSVGNode::setStrokeOpacity(const SkSVGNumberType& opacity) {
-    fPresentationAttributes.fStrokeOpacity.set(SkSVGNumberType(SkTPin<SkScalar>(opacity, 0, 1)));
-}
-
-void SkSVGNode::setStrokeMiterLimit(const SkSVGNumberType& ml) {
-    fPresentationAttributes.fStrokeMiterLimit.set(ml);
-}
-
-void SkSVGNode::setStrokeWidth(const SkSVGLength& strokeWidth) {
-    fPresentationAttributes.fStrokeWidth.set(strokeWidth);
-}
-
-void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-    case SkSVGAttribute::kColor:
-        if (const SkSVGColorValue* color = v.as<SkSVGColorValue>()) {
-            this->setColor(*color);
-        }
-        break;
-    case SkSVGAttribute::kFillOpacity:
-        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
-            this->setFillOpacity(*opacity);
-        }
-        break;
-    case SkSVGAttribute::kOpacity:
-        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
-            this->setOpacity(*opacity);
-        }
-        break;
-    case SkSVGAttribute::kStrokeDashOffset:
-        if (const SkSVGLengthValue* dashOffset= v.as<SkSVGLengthValue>()) {
-            this->setStrokeDashOffset(*dashOffset);
-        }
-        break;
-    case SkSVGAttribute::kStrokeOpacity:
-        if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
-            this->setStrokeOpacity(*opacity);
-        }
-        break;
-    case SkSVGAttribute::kStrokeMiterLimit:
-        if (const SkSVGNumberValue* miterLimit = v.as<SkSVGNumberValue>()) {
-            this->setStrokeMiterLimit(*miterLimit);
-        }
-        break;
-    case SkSVGAttribute::kStrokeWidth:
-        if (const SkSVGLengthValue* strokeWidth = v.as<SkSVGLengthValue>()) {
-            this->setStrokeWidth(*strokeWidth);
-        }
-        break;
-    default:
-#if defined(SK_VERBOSE_SVG_PARSING)
-        SkDebugf("attribute ID <%d> ignored for node <%d>\n", attr, fTag);
-#endif
-        break;
-    }
-}
-
 bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
 #define PARSE_AND_SET(svgName, attrName)                                                        \
     this->set##attrName(                                                                        \
             SkSVGAttributeParser::parseProperty<decltype(fPresentationAttributes.f##attrName)>( \
                     svgName, n, v))
 
-    return PARSE_AND_SET(   "clip-path"       , ClipPath)
-           || PARSE_AND_SET("clip-rule"       , ClipRule)
-           || PARSE_AND_SET("fill"            , Fill)
-           || PARSE_AND_SET("fill-rule"       , FillRule)
-           || PARSE_AND_SET("filter"          , Filter)
-           || PARSE_AND_SET("font-family"     , FontFamily)
-           || PARSE_AND_SET("font-size"       , FontSize)
-           || PARSE_AND_SET("font-style"      , FontStyle)
-           || PARSE_AND_SET("font-weight"     , FontWeight)
-           || PARSE_AND_SET("stroke"          , Stroke)
-           || PARSE_AND_SET("stroke-dasharray", StrokeDashArray)
-           || PARSE_AND_SET("stroke-linecap"  , StrokeLineCap)
-           || PARSE_AND_SET("stroke-linejoin" , StrokeLineJoin)
-           || PARSE_AND_SET("text-anchor"     , TextAnchor)
-           || PARSE_AND_SET("visibility"      , Visibility);
+    return PARSE_AND_SET(   "clip-path"        , ClipPath)
+           || PARSE_AND_SET("clip-rule"        , ClipRule)
+           || PARSE_AND_SET("color"            , Color)
+           || PARSE_AND_SET("fill"             , Fill)
+           || PARSE_AND_SET("fill-opacity"     , FillOpacity)
+           || PARSE_AND_SET("fill-rule"        , FillRule)
+           || PARSE_AND_SET("filter"           , Filter)
+           || PARSE_AND_SET("font-family"      , FontFamily)
+           || PARSE_AND_SET("font-size"        , FontSize)
+           || PARSE_AND_SET("font-style"       , FontStyle)
+           || PARSE_AND_SET("font-weight"      , FontWeight)
+           || PARSE_AND_SET("opacity"          , Opacity)
+           || PARSE_AND_SET("stroke"           , Stroke)
+           || PARSE_AND_SET("stroke-dasharray" , StrokeDashArray)
+           || PARSE_AND_SET("stroke-dashoffset", StrokeDashOffset)
+           || PARSE_AND_SET("stroke-linecap"   , StrokeLineCap)
+           || PARSE_AND_SET("stroke-linejoin"  , StrokeLineJoin)
+           || PARSE_AND_SET("stroke-miterlimit", StrokeMiterLimit)
+           || PARSE_AND_SET("stroke-opacity"   , StrokeOpacity)
+           || PARSE_AND_SET("stroke-width"     , StrokeWidth)
+           || PARSE_AND_SET("text-anchor"      , TextAnchor)
+           || PARSE_AND_SET("visibility"       , Visibility);
 
 #undef PARSE_AND_SET
 }
