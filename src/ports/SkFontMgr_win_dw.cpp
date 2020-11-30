@@ -920,51 +920,9 @@ private:
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
                                                                int ttcIndex) const {
-    SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
-    HRN(StreamFontFileLoader::Create(std::move(stream), &fontFileLoader));
-    HRN(fFactory->RegisterFontFileLoader(fontFileLoader.get()));
-    SkAutoIDWriteUnregister<StreamFontFileLoader> autoUnregisterFontFileLoader(
-        fFactory.get(), fontFileLoader.get());
-
-    SkTScopedComPtr<StreamFontCollectionLoader> fontCollectionLoader;
-    HRN(StreamFontCollectionLoader::Create(fontFileLoader.get(), &fontCollectionLoader));
-    HRN(fFactory->RegisterFontCollectionLoader(fontCollectionLoader.get()));
-    SkAutoIDWriteUnregister<StreamFontCollectionLoader> autoUnregisterFontCollectionLoader(
-        fFactory.get(), fontCollectionLoader.get());
-
-    SkTScopedComPtr<IDWriteFontCollection> fontCollection;
-    HRN(fFactory->CreateCustomFontCollection(fontCollectionLoader.get(), nullptr, 0, &fontCollection));
-
-    // Find the first non-simulated font which has the given ttc index.
-    UINT32 familyCount = fontCollection->GetFontFamilyCount();
-    for (UINT32 familyIndex = 0; familyIndex < familyCount; ++familyIndex) {
-        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-        HRN(fontCollection->GetFontFamily(familyIndex, &fontFamily));
-
-        UINT32 fontCount = fontFamily->GetFontCount();
-        for (UINT32 fontIndex = 0; fontIndex < fontCount; ++fontIndex) {
-            SkTScopedComPtr<IDWriteFont> font;
-            HRN(fontFamily->GetFont(fontIndex, &font));
-            if (font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) {
-                continue;
-            }
-
-            SkTScopedComPtr<IDWriteFontFace> fontFace;
-            HRN(font->CreateFontFace(&fontFace));
-
-            int faceIndex = fontFace->GetIndex();
-            if (faceIndex == ttcIndex) {
-                return DWriteFontTypeface::Make(fFactory.get(),
-                                                fontFace.get(), font.get(), fontFamily.get(),
-                                                sk_make_sp<DWriteFontTypeface::Loaders>(
-                                                    fFactory.get(),
-                                                    autoUnregisterFontFileLoader.detatch(),
-                                                    autoUnregisterFontCollectionLoader.detatch()));
-            }
-        }
-    }
-
-    return nullptr;
+    SkFontArguments args;
+    args.setCollectionIndex(ttcIndex);
+    return this->onMakeFromStreamArgs(std::move(stream), args);
 }
 
 static HRESULT apply_fontargument_variation(SkTScopedComPtr<IDWriteFontFace>& fontFace,
