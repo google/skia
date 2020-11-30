@@ -395,6 +395,26 @@ DEF_SIMPLE_GM(bug6083, canvas, 100, 50) {
     canvas->drawPath(path, p);
 }
 
+DEF_SIMPLE_GM(crbug_1152221, canvas, 200, 200) {
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(12);
+
+    SkPath path;
+    path.moveTo(0, 0);
+    path.cubicTo(0, static_cast<SkScalar>(-0.105427357601002e-15), 140, 0, 140, 150);
+    canvas->translate(50, 50);
+    canvas->drawPath(path, p);
+
+    path.rewind();
+    path.moveTo(0, 0);
+    path.cubicTo(0, static_cast<SkScalar>(0.105427357601002e-15), 140, 0, 140, 150);
+    canvas->translate(20, -20);
+    canvas->drawPath(path, p);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new CubicPathGM; )
