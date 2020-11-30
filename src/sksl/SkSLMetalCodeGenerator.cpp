@@ -1240,7 +1240,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
     for (const auto& field: fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
         const Type* fieldType = field.fType;
-        if (!memoryLayout.layoutIsSupported(*fieldType)) {
+        if (!MemoryLayout::LayoutIsSupported(*fieldType)) {
             fErrors.error(parentOffset, "type '" + fieldType->name() + "' is not permitted here");
             return;
         }
