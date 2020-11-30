@@ -121,6 +121,8 @@ protected:
         kGreaterThanEqual_MetalIntrinsic,
     };
 
+    static const char* OperatorName(Token::Kind op);
+
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);
 
