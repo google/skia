@@ -744,10 +744,10 @@ namespace skvm {
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
     F32 Builder::approx_log2(F32 x) {
         // e - 127 is a fair approximation of log2(x) in its own right...
-        F32 e = mul(to_F32(bit_cast(x)), splat(1.0f / (1<<23)));
+        F32 e = mul(to_F32(pun_to_I32(x)), splat(1.0f / (1<<23)));
 
         // ... but using the mantissa to refine its error is _much_ better.
-        F32 m = bit_cast(bit_or(bit_and(bit_cast(x), 0x007fffff),
+        F32 m = pun_to_F32(bit_or(bit_and(pun_to_I32(x), 0x007fffff),
                                 0x3f000000));
         F32 approx = sub(e,        124.225514990f);
             approx = sub(approx, mul(1.498030302f, m));
@@ -762,7 +762,7 @@ namespace skvm {
             approx = sub(approx, mul( 1.490129070f, f));
             approx = add(approx, div(27.728023300f, sub(4.84252568f, f)));
 
-        return bit_cast(round(mul(1.0f * (1<<23), approx)));
+        return pun_to_F32(round(mul(1.0f * (1<<23), approx)));
     }
 
     F32 Builder::approx_powf(F32 x, F32 y) {
@@ -1205,10 +1205,10 @@ namespace skvm {
             case 16: {
                 assert_16byte_is_rgba_f32(f);
                 return {
-                    bit_cast(load128(ptr, 0)),
-                    bit_cast(load128(ptr, 1)),
-                    bit_cast(load128(ptr, 2)),
-                    bit_cast(load128(ptr, 3)),
+                    pun_to_F32(load128(ptr, 0)),
+                    pun_to_F32(load128(ptr, 1)),
+                    pun_to_F32(load128(ptr, 2)),
+                    pun_to_F32(load128(ptr, 3)),
                 };
             }
             default: SkUNREACHABLE;
@@ -1290,8 +1290,8 @@ namespace skvm {
             }
             case 16: {
                 assert_16byte_is_rgba_f32(f);
-                store128(ptr, bit_cast(c.r), bit_cast(c.g), 0);
-                store128(ptr, bit_cast(c.b), bit_cast(c.a), 1);
+                store128(ptr, pun_to_I32(c.r), pun_to_I32(c.g), 0);
+                store128(ptr, pun_to_I32(c.b), pun_to_I32(c.a), 1);
                 return true;
             }
             default: SkUNREACHABLE;
@@ -1301,7 +1301,7 @@ namespace skvm {
 
     void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
         skvm::F32 invA = 1.0f / a,
-                  inf  = bit_cast(splat(0x7f800000));
+                  inf  = pun_to_F32(splat(0x7f800000));
         // If a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
         invA = select(invA < inf, invA
                                 , 0.0f);

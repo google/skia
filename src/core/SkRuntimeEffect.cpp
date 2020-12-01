@@ -529,7 +529,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kPushImmediate: {
-                push(bit_cast(p->splat(u32())));
+                push(pun_to_F32(p->splat(u32())));
             } break;
 
             case Inst::kDup: {
@@ -632,7 +632,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             // in that we're only maintaining mask stack and cond stack, and don't support loops.
 
             case Inst::kMaskPush:
-                cond_stack.push_back(bit_cast(pop()));
+                cond_stack.push_back(pun_to_I32(pop()));
                 mask_stack.push_back(mask_stack.back() & cond_stack.back());
                 break;
 
@@ -649,39 +649,47 @@ static skvm::Color program_fn(skvm::Builder* p,
             // Comparisons all should write their results to the main data stack;
             // maskpush moves them from there onto the mask stack as needed.
             case Inst::kCompareFEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x==y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x==y); });
                 break;
             case Inst::kCompareFNEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x!=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x!=y); });
                 break;
             case Inst::kCompareFGT:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x>y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x>y); });
                 break;
             case Inst::kCompareFGTEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x>=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x>=y); });
                 break;
             case Inst::kCompareFLT:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x<y); });
                 break;
             case Inst::kCompareFLTEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(x<=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x<=y); });
                 break;
 
             case Inst::kCompareIEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)==bit_cast(y)); });
+                binary([](skvm::F32 x, skvm::F32 y) {
+                    return pun_to_F32(pun_to_I32(x) == pun_to_I32(y));
+                });
                 break;
             case Inst::kCompareINEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)!=bit_cast(y)); });
+                binary([](skvm::F32 x, skvm::F32 y) {
+                    return pun_to_F32(pun_to_I32(x) != pun_to_I32(y));
+                });
                 break;
 
             case Inst::kAndB:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)&bit_cast(y)); });
+                binary([](skvm::F32 x, skvm::F32 y) {
+                    return pun_to_F32(pun_to_I32(x) & pun_to_I32(y));
+                });
                 break;
             case Inst::kOrB:
-                binary([](skvm::F32 x, skvm::F32 y) { return bit_cast(bit_cast(x)|bit_cast(y)); });
+                binary([](skvm::F32 x, skvm::F32 y) {
+                    return pun_to_F32(pun_to_I32(x) | pun_to_I32(y));
+                });
                 break;
             case Inst::kNotB:
-                unary([](skvm::F32 x) { return bit_cast(~bit_cast(x)); });
+                unary([](skvm::F32 x) { return pun_to_F32(~pun_to_I32(x)); });
                 break;
 
             case Inst::kMaskBlend: {

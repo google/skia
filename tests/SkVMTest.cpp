@@ -2408,7 +2408,7 @@ DEF_TEST(SkVM_badpack, r) {
         skvm::Arg uniforms = p.uniform(),
                   dst      = p.varying<uint16_t>();
 
-        skvm::I32 r = round(bit_cast(p.uniform32(uniforms, 8)) * 15),
+        skvm::I32 r = round(p.uniformF(uniforms, 8) * 15),
                   a = p.splat(0xf);
 
         skvm::I32 _4444 = p.splat(0);

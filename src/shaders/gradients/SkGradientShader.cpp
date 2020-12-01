@@ -593,10 +593,10 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     }
 
     return {
-        bit_cast(mask & bit_cast(color.r)),
-        bit_cast(mask & bit_cast(color.g)),
-        bit_cast(mask & bit_cast(color.b)),
-        bit_cast(mask & bit_cast(color.a)),
+        pun_to_F32(mask & pun_to_I32(color.r)),
+        pun_to_F32(mask & pun_to_I32(color.g)),
+        pun_to_F32(mask & pun_to_I32(color.b)),
+        pun_to_F32(mask & pun_to_I32(color.a)),
     };
 }
 
