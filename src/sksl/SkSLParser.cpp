@@ -543,6 +543,8 @@ ASTNode::ID Parser::structDeclaration() {
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
             ASTNode& var = *iter;
             ASTNode::VarData vd = var.getVarData();
+            String baseTypeName = type->name();
+            String arrayDims;
             for (int j = vd.fSizeCount - 1; j >= 0; j--) {
                 const ASTNode& size = *(var.begin() + j);
                 if (!size || size.fKind != ASTNode::Kind::kInt) {
@@ -550,10 +552,9 @@ ASTNode::ID Parser::structDeclaration() {
                     return ASTNode::ID::Invalid();
                 }
                 uint64_t columns = size.getInt();
-                String typeName = type->name() + "[" + to_string(columns) + "]";
-                type = fSymbols.takeOwnershipOfSymbol(
-                        std::make_unique<Type>(typeName, Type::TypeKind::kArray, *type,
-                                               (int)columns));
+                arrayDims = "[" + to_string(columns) + "]" + arrayDims;
+                type = fSymbols.takeOwnershipOfSymbol(std::make_unique<Type>(
+                        baseTypeName + arrayDims, Type::TypeKind::kArray, *type, (int)columns));
             }
 
             fields.push_back(Type::Field(modifiers, vd.fName, type));

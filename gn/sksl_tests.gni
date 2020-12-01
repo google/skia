@@ -281,6 +281,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/Texture2D.sksl",
   "$_tests/sksl/shared/TextureSharpen.sksl",
   "$_tests/sksl/shared/UnaryPositiveNegative.sksl",
+  "$_tests/sksl/shared/UniformArray.sksl",
   "$_tests/sksl/shared/UnusedVariables.sksl",
   "$_tests/sksl/shared/VectorConstructors.sksl",
   "$_tests/sksl/shared/VectorFolding.sksl",
