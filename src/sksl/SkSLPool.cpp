@@ -7,12 +7,25 @@
 
 #include "src/sksl/SkSLPool.h"
 
+#include "src/sksl/SkSLDefines.h"
+
 #define VLOG(...) // printf(__VA_ARGS__)
 
 namespace SkSL {
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#if SKSL_USE_THREAD_LOCAL
+
+static thread_local MemoryPool* sMemPool = nullptr;
+
+static MemoryPool* get_thread_local_memory_pool() {
+    return sMemPool;
+}
+
+static void set_thread_local_memory_pool(MemoryPool* memPool) {
+    sMemPool = memPool;
+}
+
+#else
 
 #include <pthread.h>
 
@@ -36,19 +49,7 @@ static void set_thread_local_memory_pool(MemoryPool* poolData) {
     pthread_setspecific(get_pthread_key(), poolData);
 }
 
-#else
-
-static thread_local MemoryPool* sMemPool = nullptr;
-
-static MemoryPool* get_thread_local_memory_pool() {
-    return sMemPool;
-}
-
-static void set_thread_local_memory_pool(MemoryPool* memPool) {
-    sMemPool = memPool;
-}
-
-#endif
+#endif // SKSL_USE_THREAD_LOCAL
 
 Pool::~Pool() {
     if (get_thread_local_memory_pool() == fMemPool.get()) {

@@ -28,6 +28,13 @@
 #define NORETURN __attribute__((__noreturn__))
 #endif
 
+#if defined(SK_BUILD_FOR_IOS) && \
+        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#define SKSL_USE_THREAD_LOCAL 0
+#else
+#define SKSL_USE_THREAD_LOCAL 1
+#endif
+
 using SKSL_INT = int32_t;
 using SKSL_FLOAT = float;
 
