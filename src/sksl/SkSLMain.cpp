@@ -8,6 +8,7 @@
 #define SK_OPTS_NS skslc_standalone
 #include "src/opts/SkChecksum_opts.h"
 
+#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
@@ -360,6 +361,20 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 SkSL::Compiler::kPermitInvalidStaticTests_Flag,
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
+                });
+    } else if (outputPath.endsWith(".bc")) {
+        return compileProgram(
+                SkSL::Compiler::kNone_Flags,
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    // Compile program to ByteCode assembly in a string-stream.
+                    auto byteCode = compiler.toByteCode(program);
+                    if (!byteCode) {
+                        return false;
+                    }
+
+                    // Write the disassembly of the ByteCode to our output stream.
+                    byteCode->disassemble(&out);
+                    return true;
                 });
     } else if (outputPath.endsWith(".dehydrated.sksl")) {
         SkSL::FileOutputStream out(outputPath);
