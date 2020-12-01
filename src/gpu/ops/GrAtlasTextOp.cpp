@@ -236,7 +236,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     for (const Geometry& geo : fGeometries.items()) {
         const GrAtlasSubRun& subRun = geo.fSubRun;
-        SkASSERT((int)subRun.vertexStride() == vertexStride);
+        SkASSERT((int) subRun.vertexStride(geo.fDrawMatrix) == vertexStride);
 
         const int subRunEnd = subRun.glyphCount();
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {

@@ -61,7 +61,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         GrAtlasSubRun* subRun = fBlob->subRunList().head()->testingOnly_atlasSubRun();
         SkASSERT(subRun);
         subRun->testingOnly_packedGlyphIDToGrGlyph(&fCache);
-        fVertices.reset(new char[subRun->vertexStride() * subRun->glyphCount() * 4]);
+        fVertices.reset(new char[subRun->vertexStride(view) * subRun->glyphCount() * 4]);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
