@@ -248,6 +248,7 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
             parameters[coordIndex].max = fontAxisRange[axisIndex].maxValue;
             parameters[coordIndex].setHidden(fontResource->GetFontAxisAttributes(axisIndex) &
                                              DWRITE_FONT_AXIS_ATTRIBUTES_HIDDEN);
+            ++coordIndex;
         }
     }
 

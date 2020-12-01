@@ -15,6 +15,10 @@ struct SkFontParameters {
     struct Variation {
         // Parameters in a variation font axis.
         struct Axis {
+            constexpr Axis() : tag(0), min(0), def(0), max(0), flags(0) {}
+            constexpr Axis(SkFourByteTag tag, float min, float def, float max, bool hidden) :
+                tag(tag), min(min), def(def), max(max), flags(hidden ? HIDDEN : 0) {}
+
             // Four character identifier of the font axis (weight, width, slant, italic...).
             SkFourByteTag tag;
             // Minimum value supported by this axis.
