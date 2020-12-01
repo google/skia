@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75c61c1c_2107b2a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-01T15:00:50Z",
+      "side": 1,
+      "message": "Yeah, agreed... I\u0027ve been meaning to rename these pun_to_T().",
+      "parentUuid": "795baefb_c7023f40",
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e8b30e3_419541cb",
@@ -36,6 +54,29 @@
         "startChar": 23,
         "endLine": 280,
         "endChar": 66
+      },
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79c9e0f8_cfa4f51d",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-01T15:00:50Z",
+      "side": 1,
+      "message": "Not for this CL, but just more thinking out loud, I\u0027m starting to wonder if our stack here should be a vector of `union { skvm::F32; skvm::I32 }`, or I think equivalently two stacks, one for each type?  That might make it easier for us to distinguish between the common \"there\u0027s an int on the stack\" and the rare \"I need the bits of a float\".\n\nI\u0027m close to introducing a new flexible data type for where SkSL tends to use half... an opaque type that might be backed by fp16, bf16, some reasonable 16- or 32-bit fixed point, or an ordinary 32-bit float, whichever gives best performance.",
+      "range": {
+        "startLine": 671,
+        "startChar": 54,
+        "endLine": 671,
+        "endChar": 95
       },
       "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
