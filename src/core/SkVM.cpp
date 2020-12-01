@@ -287,8 +287,8 @@ namespace skvm {
             case Op::ceil:      write(o, V{id}, "=", op, V{x}); break;
             case Op::floor:     write(o, V{id}, "=", op, V{x}); break;
             case Op::to_f32:    write(o, V{id}, "=", op, V{x}); break;
-            case Op::to_half:   write(o, V{id}, "=", op, V{x}); break;
-            case Op::from_half: write(o, V{id}, "=", op, V{x}); break;
+            case Op::to_fp16:   write(o, V{id}, "=", op, V{x}); break;
+            case Op::from_fp16: write(o, V{id}, "=", op, V{x}); break;
             case Op::trunc:     write(o, V{id}, "=", op, V{x}); break;
             case Op::round:     write(o, V{id}, "=", op, V{x}); break;
         }
@@ -397,8 +397,8 @@ namespace skvm {
                 case Op::ceil:      write(o, R{d}, "=", op, R{x}); break;
                 case Op::floor:     write(o, R{d}, "=", op, R{x}); break;
                 case Op::to_f32:    write(o, R{d}, "=", op, R{x}); break;
-                case Op::to_half:   write(o, R{d}, "=", op, R{x}); break;
-                case Op::from_half: write(o, R{d}, "=", op, R{x}); break;
+                case Op::to_fp16:   write(o, R{d}, "=", op, R{x}); break;
+                case Op::from_fp16: write(o, R{d}, "=", op, R{x}); break;
                 case Op::trunc:     write(o, R{d}, "=", op, R{x}); break;
                 case Op::round:     write(o, R{d}, "=", op, R{x}); break;
             }
@@ -1061,13 +1061,13 @@ namespace skvm {
         return {this, this->push(Op::round, x.id)};
     }
 
-    I32 Builder::to_half(F32 x) {
+    I32 Builder::to_fp16(F32 x) {
         if (float X; this->allImm(x.id,&X)) { return splat((int)SkFloatToHalf(X)); }
-        return {this, this->push(Op::to_half, x.id)};
+        return {this, this->push(Op::to_fp16, x.id)};
     }
-    F32 Builder::from_half(I32 x) {
+    F32 Builder::from_fp16(I32 x) {
         if (int X; this->allImm(x.id,&X)) { return splat(SkHalfToFloat(X)); }
-        return {this, this->push(Op::from_half, x.id)};
+        return {this, this->push(Op::from_fp16, x.id)};
     }
 
     F32 Builder::from_unorm(int bits, I32 x) {
@@ -1132,7 +1132,7 @@ namespace skvm {
             I32 channel = extract(x, shift, (1<<bits)-1);
             switch (f.encoding) {
                 case PixelFormat::UNORM: return from_unorm(bits, channel);
-                case PixelFormat::FLOAT: return from_half (      channel);
+                case PixelFormat::FLOAT: return from_fp16 (      channel);
             }
             SkUNREACHABLE;
         };
@@ -1254,7 +1254,7 @@ namespace skvm {
             I32 encoded;
             switch (f.encoding) {
                 case PixelFormat::UNORM: encoded = to_unorm(bits, channel); break;
-                case PixelFormat::FLOAT: encoded = to_half (      channel); break;
+                case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
@@ -3704,12 +3704,12 @@ namespace skvm {
                     else           { a->vcvtps2dq(dst(), any(x)); }
                                      break;
 
-                case Op::to_half:
+                case Op::to_fp16:
                     a->vcvtps2ph(dst(x), r(x), A::CURRENT);  // f32 ymm -> f16 xmm
                     a->vpmovzxwd(dst(), dst());              // f16 xmm -> f16 ymm
                     break;
 
-                case Op::from_half:
+                case Op::from_fp16:
                     a->vpackusdw(dst(x), r(x), r(x));  // f16 ymm -> f16 xmm
                     a->vpermq   (dst(), dst(), 0xd8);  // swap middle two 64-bit lanes
                     a->vcvtph2ps(dst(), dst());        // f16 xmm -> f32 ymm
@@ -3720,8 +3720,8 @@ namespace skvm {
                 case Op::store128:
                 case Op::load64:
                 case Op::load128:
-                case Op::to_half:
-                case Op::from_half:
+                case Op::to_fp16:
+                case Op::from_fp16:
                     return false;  // TODO
 
                 case Op::assert_true: {

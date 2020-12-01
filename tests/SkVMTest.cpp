@@ -2273,7 +2273,7 @@ DEF_TEST(SkVM_halfs, r) {
         skvm::Builder b;
         skvm::Arg src = b.varying<uint16_t>(),
                   dst = b.varying<float>();
-        b.storeF(dst, b.from_half(b.load16(src)));
+        b.storeF(dst, b.from_fp16(b.load16(src)));
 
         test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
             float dst[8];
@@ -2287,7 +2287,7 @@ DEF_TEST(SkVM_halfs, r) {
         skvm::Builder b;
         skvm::Arg src = b.varying<float>(),
                   dst = b.varying<uint16_t>();
-        b.store16(dst, b.to_half(b.loadF(src)));
+        b.store16(dst, b.to_fp16(b.loadF(src)));
 
         test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
             uint16_t dst[8];
