@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "423182a6_3a9e6e99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-01T18:25:14Z",
+      "side": 1,
+      "message": "Yeah, I was going to say that the separate stacks were likely to be tricky for certain operations. I like this better.",
+      "revId": "a656b92622c0c9de24305ffe2f4e72d6553d8f2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
