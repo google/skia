@@ -46,6 +46,30 @@
       },
       "revId": "eed309c70c2c2758a4c9520267bf16a335879166",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42fdb826_852856b6",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T18:46:58Z",
+      "side": 1,
+      "message": "Also, just realized that the FIXME was also encompassing the negation of sk_Position.y. Doh, will fix.",
+      "parentUuid": "4212fc53_0b34346a",
+      "range": {
+        "startLine": 1146,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 1
+      },
+      "revId": "eed309c70c2c2758a4c9520267bf16a335879166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
