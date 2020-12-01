@@ -438,7 +438,7 @@ namespace skvm {
         M(fma_f32) M(fms_f32) M(fnma_f32)                            \
         M(sqrt_f32)                                                  \
         M(shl_i32) M(shr_i32) M(sra_i32)                             \
-        M(ceil) M(floor) M(trunc) M(round) M(to_half) M(from_half)   \
+        M(ceil) M(floor) M(trunc) M(round) M(to_fp16) M(from_fp16)   \
         M(to_f32)                                                    \
         M(neq_f32) M(eq_f32) M(eq_i32)                               \
         M(gte_f32) M(gt_f32) M(gt_i32)                               \
@@ -715,8 +715,8 @@ namespace skvm {
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
         I32 bit_cast(F32 x) { return {x.builder, x.id}; }
 
-        I32   to_half(F32 x);
-        F32 from_half(I32 x);
+        I32   to_fp16(F32 x);
+        F32 from_fp16(I32 x);
 
         F32 norm(F32 x, F32 y) {
             return sqrt(add(mul(x,x),
@@ -1050,8 +1050,8 @@ namespace skvm {
     static inline I32  bit_cast(F32 x) { return x-> bit_cast(x); }
     static inline F32  bit_cast(I32 x) { return x-> bit_cast(x); }
     static inline F32    to_F32(I32 x) { return x->   to_F32(x); }
-    static inline I32   to_half(F32 x) { return x->  to_half(x); }
-    static inline F32 from_half(I32 x) { return x->from_half(x); }
+    static inline I32   to_fp16(F32 x) { return x->  to_fp16(x); }
+    static inline F32 from_fp16(I32 x) { return x->from_fp16(x); }
 
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }

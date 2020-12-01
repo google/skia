@@ -259,10 +259,10 @@ namespace SK_OPTS_NS {
                     CASE(Op::trunc):  r[d].i32 = skvx::cast<int>  (            r[x].f32 ); break;
                     CASE(Op::round):  r[d].i32 = skvx::cast<int>  (skvx::lrint(r[x].f32)); break;
 
-                    CASE(Op::to_half):
+                    CASE(Op::to_fp16):
                         r[d].i32 = skvx::cast<int>(skvx::to_half(r[x].f32));
                         break;
-                    CASE(Op::from_half):
+                    CASE(Op::from_fp16):
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
 
