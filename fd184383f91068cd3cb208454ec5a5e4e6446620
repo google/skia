@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb4016cc_9939d4a0",
+        "filename": "tests/ClearTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-01T22:16:30Z",
+      "side": 1,
+      "message": "Since these use kScissorRect, it\u0027s not a fullscreen clear, so you\u0027ll also need to check performPartialClearsAsDraws(), which is why metal is failing the op check (since it can do fullscreen clears for stencil and color but not partials).",
+      "range": {
+        "startLine": 245,
+        "startChar": 8,
+        "endLine": 246,
+        "endChar": 57
+      },
+      "revId": "fd184383f91068cd3cb208454ec5a5e4e6446620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
