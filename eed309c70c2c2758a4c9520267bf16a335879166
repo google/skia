@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee17c4ec_7c77501b",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-01T17:13:15Z",
+      "side": 1,
+      "message": "Doesn\u0027t look like this will catch something like \u0027if (x) return y; else return z;\u0027. Does that matter?",
+      "range": {
+        "startLine": 1146,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 1
+      },
+      "revId": "eed309c70c2c2758a4c9520267bf16a335879166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
