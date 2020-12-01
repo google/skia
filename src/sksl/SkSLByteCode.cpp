@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_STANDALONE
-
 #include "include/core/SkPoint3.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkUtils.h"   // sk_unaligned_load
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLStringStream.h"
 
 #include <functional>
 #include <vector>
@@ -36,18 +36,18 @@ using U32 = skvx::Vec<VecWidth, uint32_t>;
                      sk_unaligned_load<ByteCodeInstruction>(ip - sizeof(ByteCodeInstruction)))
 
 #define DISASSEMBLE_COUNT(op, text) \
-    case ByteCodeInstruction::op: printf(text " %d", READ8()); break;
+    case ByteCodeInstruction::op: out->printf(text " %d", READ8()); break;
 
-#define DISASSEMBLE_COUNT_SLOT(op, text)  \
-    case ByteCodeInstruction::op: {       \
-        int N    = READ8(),               \
-            slot = READ8();               \
-        printf(text " %d [%d]", N, slot); \
+#define DISASSEMBLE_COUNT_SLOT(op, text)       \
+    case ByteCodeInstruction::op: {            \
+        int N    = READ8(),                    \
+            slot = READ8();                    \
+        out->printf(text " %d [%d]", N, slot); \
     } break;
 
-static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
+static const uint8_t* DisassembleInstruction(const uint8_t* ip, OutputStream* out) {
     auto inst = READ_INST();
-    printf("%02x ", (int)inst);
+    out->printf("%02x ", (int)inst);
     switch (inst) {
         DISASSEMBLE_COUNT(kAbs , "abs")
         DISASSEMBLE_COUNT(kAddF, "addf")
@@ -57,17 +57,17 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kASin, "asin")
         DISASSEMBLE_COUNT(kATan, "atan")
         DISASSEMBLE_COUNT(kATan2, "atan2")
-        case ByteCodeInstruction::kBranch: printf("branch %d", READ16()); break;
-        case ByteCodeInstruction::kCall: printf("call %d", READ8()); break;
+        case ByteCodeInstruction::kBranch: out->printf("branch %d", READ16()); break;
+        case ByteCodeInstruction::kCall: out->printf("call %d", READ8()); break;
         case ByteCodeInstruction::kCallExternal: {
             int argumentCount = READ8();
             int returnCount = READ8();
             int externalValue = READ8();
-            printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
+            out->printf("callexternal %d, %d, %d", argumentCount, returnCount, externalValue);
             break;
         }
         DISASSEMBLE_COUNT(kCeil, "ceil")
-        case ByteCodeInstruction::kClampIndex: printf("clampindex %d", READ8()); break;
+        case ByteCodeInstruction::kClampIndex: out->printf("clampindex %d", READ8()); break;
         DISASSEMBLE_COUNT(kCompareIEQ, "compareieq")
         DISASSEMBLE_COUNT(kCompareINEQ, "compareineq")
         DISASSEMBLE_COUNT(kCompareFEQ, "comparefeq")
@@ -96,9 +96,9 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kExp2, "exp2")
         DISASSEMBLE_COUNT(kFloor, "floor")
         DISASSEMBLE_COUNT(kFract, "fract")
-        case ByteCodeInstruction::kInverse2x2: printf("inverse2x2"); break;
-        case ByteCodeInstruction::kInverse3x3: printf("inverse3x3"); break;
-        case ByteCodeInstruction::kInverse4x4: printf("inverse4x4"); break;
+        case ByteCodeInstruction::kInverse2x2: out->printf("inverse2x2"); break;
+        case ByteCodeInstruction::kInverse3x3: out->printf("inverse3x3"); break;
+        case ByteCodeInstruction::kInverse4x4: out->printf("inverse4x4"); break;
         DISASSEMBLE_COUNT(kInvSqrt, "inversesqrt")
         DISASSEMBLE_COUNT(kLerp, "lerp")
         DISASSEMBLE_COUNT_SLOT(kLoad, "load")
@@ -107,7 +107,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kLoadExtended, "loadextended")
         DISASSEMBLE_COUNT(kLoadExtendedGlobal, "loadextendedglobal")
         DISASSEMBLE_COUNT(kLoadExtendedUniform, "loadextendeduniform")
-        case ByteCodeInstruction::kLoadFragCoord: printf("loadfragcoord"); break;
+        case ByteCodeInstruction::kLoadFragCoord: out->printf("loadfragcoord"); break;
         DISASSEMBLE_COUNT(kLog, "log")
         DISASSEMBLE_COUNT(kLog2, "log2")
         case ByteCodeInstruction::kMatrixToMatrix: {
@@ -115,14 +115,14 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
             int srcRows = READ8();
             int dstCols = READ8();
             int dstRows = READ8();
-            printf("matrixtomatrix %dx%d %dx%d", srcCols, srcRows, dstCols, dstRows);
+            out->printf("matrixtomatrix %dx%d %dx%d", srcCols, srcRows, dstCols, dstRows);
             break;
         }
         case ByteCodeInstruction::kMatrixMultiply: {
             int lCols = READ8();
             int lRows = READ8();
             int rCols = READ8();
-            printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
+            out->printf("matrixmultiply %dx%d %dx%d", lCols, lRows, rCols, lCols);
             break;
         }
         DISASSEMBLE_COUNT(kMaxF, "maxf")
@@ -142,7 +142,7 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         case ByteCodeInstruction::kPushImmediate: {
             uint32_t v = READ32();
             union { uint32_t u; float f; } pun = { v };
-            printf("pushimmediate %s", (to_string(v) + "(" + to_string(pun.f) + ")").c_str());
+            out->printf("pushimmediate %s", (to_string(v) + "(" + to_string(pun.f) + ")").c_str());
             break;
         }
         DISASSEMBLE_COUNT_SLOT(kReadExternal, "readexternal")
@@ -151,18 +151,18 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kRemainderU, "remainderu")
         DISASSEMBLE_COUNT(kReserve, "reserve")
         DISASSEMBLE_COUNT(kReturn, "return")
-        case ByteCodeInstruction::kSample: printf("sample %d", READ8()); break;
-        case ByteCodeInstruction::kSampleExplicit: printf("sampleExplicit %d", READ8()); break;
-        case ByteCodeInstruction::kSampleMatrix: printf("sampleMatrix %d", READ8()); break;
+        case ByteCodeInstruction::kSample: out->printf("sample %d", READ8()); break;
+        case ByteCodeInstruction::kSampleExplicit: out->printf("sampleExplicit %d", READ8()); break;
+        case ByteCodeInstruction::kSampleMatrix: out->printf("sampleMatrix %d", READ8()); break;
         case ByteCodeInstruction::kScalarToMatrix: {
             int cols = READ8();
             int rows = READ8();
-            printf("scalartomatrix %dx%d", cols, rows);
+            out->printf("scalartomatrix %dx%d", cols, rows);
             break;
         }
-        case ByteCodeInstruction::kShiftLeft: printf("shl %d", READ8()); break;
-        case ByteCodeInstruction::kShiftRightS: printf("shrs %d", READ8()); break;
-        case ByteCodeInstruction::kShiftRightU: printf("shru %d", READ8()); break;
+        case ByteCodeInstruction::kShiftLeft: out->printf("shl %d", READ8()); break;
+        case ByteCodeInstruction::kShiftRightS: out->printf("shrs %d", READ8()); break;
+        case ByteCodeInstruction::kShiftRightU: out->printf("shru %d", READ8()); break;
         DISASSEMBLE_COUNT(kSign, "sign")
         DISASSEMBLE_COUNT(kSin, "sin")
         DISASSEMBLE_COUNT(kSqrt, "sqrt")
@@ -174,33 +174,33 @@ static const uint8_t* DisassembleInstruction(const uint8_t* ip) {
         DISASSEMBLE_COUNT(kSubtractF, "subtractf")
         DISASSEMBLE_COUNT(kSubtractI, "subtracti")
         case ByteCodeInstruction::kSwizzle: {
-            printf("swizzle %d, ", READ8());
+            out->printf("swizzle %d, ", READ8());
             int count = READ8();
-            printf("%d", count);
+            out->printf("%d", count);
             for (int i = 0; i < count; ++i) {
-                printf(", %d", READ8());
+                out->printf(", %d", READ8());
             }
             break;
         }
         DISASSEMBLE_COUNT(kTan, "tan")
         DISASSEMBLE_COUNT_SLOT(kWriteExternal, "writeexternal")
         DISASSEMBLE_COUNT(kXorB, "xorb")
-        case ByteCodeInstruction::kMaskPush: printf("maskpush"); break;
-        case ByteCodeInstruction::kMaskPop: printf("maskpop"); break;
-        case ByteCodeInstruction::kMaskNegate: printf("masknegate"); break;
-        case ByteCodeInstruction::kMaskBlend: printf("maskblend %d", READ8()); break;
+        case ByteCodeInstruction::kMaskPush: out->printf("maskpush"); break;
+        case ByteCodeInstruction::kMaskPop: out->printf("maskpop"); break;
+        case ByteCodeInstruction::kMaskNegate: out->printf("masknegate"); break;
+        case ByteCodeInstruction::kMaskBlend: out->printf("maskblend %d", READ8()); break;
         case ByteCodeInstruction::kBranchIfAllFalse:
-            printf("branchifallfalse %d", READ16());
+            out->printf("branchifallfalse %d", READ16());
             break;
-        case ByteCodeInstruction::kLoopBegin: printf("loopbegin"); break;
-        case ByteCodeInstruction::kLoopNext: printf("loopnext"); break;
-        case ByteCodeInstruction::kLoopMask: printf("loopmask"); break;
-        case ByteCodeInstruction::kLoopEnd: printf("loopend"); break;
-        case ByteCodeInstruction::kLoopContinue: printf("loopcontinue"); break;
-        case ByteCodeInstruction::kLoopBreak: printf("loopbreak"); break;
+        case ByteCodeInstruction::kLoopBegin: out->printf("loopbegin"); break;
+        case ByteCodeInstruction::kLoopNext: out->printf("loopnext"); break;
+        case ByteCodeInstruction::kLoopMask: out->printf("loopmask"); break;
+        case ByteCodeInstruction::kLoopEnd: out->printf("loopend"); break;
+        case ByteCodeInstruction::kLoopContinue: out->printf("loopcontinue"); break;
+        case ByteCodeInstruction::kLoopBreak: out->printf("loopbreak"); break;
         default:
             ip -= sizeof(ByteCodeInstruction);
-            printf("unknown(%d)\n", (int) (intptr_t) READ_INST());
+            out->printf("unknown(%d)\n", (int) (intptr_t) READ_INST());
             SkASSERT(false);
     }
     return ip;
@@ -935,13 +935,20 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
 #undef spf
 
-void ByteCodeFunction::disassemble() const {
+void ByteCodeFunction::disassemble(OutputStream* out) const {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
+    StringStream stream;
+    if (!out) { out = &stream; }
+
     const uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
-        printf("%d: ", (int)(ip - fCode.data()));
-        ip = Interpreter::DisassembleInstruction(ip);
-        printf("\n");
+        out->printf("%3d: ", (int)(ip - fCode.data()));
+        ip = Interpreter::DisassembleInstruction(ip, out);
+        out->printf("\n");
+    }
+
+    if (out == &stream) {
+        SkDebugf("%s", stream.str().c_str());
     }
 #endif
 }
@@ -1086,6 +1093,22 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
 #endif
 }
 
-} // namespace SkSL
+void ByteCode::disassemble(OutputStream* out) const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
+    StringStream stream;
+    if (!out) { out = &stream; }
 
+    for (const auto& f : fFunctions) {
+        out->writeString(f->fName);
+        out->writeText("\n");
+        f->disassemble(out);
+        out->writeText("\n");
+    }
+
+    if (out == &stream) {
+        SkDebugf("%s", stream.str().c_str());
+    }
 #endif
+}
+
+} // namespace SkSL

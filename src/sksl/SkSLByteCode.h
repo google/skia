@@ -16,8 +16,9 @@
 
 namespace SkSL {
 
-class  ExternalValue;
+class ExternalValue;
 class FunctionDeclaration;
+class OutputStream;
 
 enum class ByteCodeInstruction : uint8_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned
@@ -178,9 +179,9 @@ public:
     size_t         size() const { return fCode.size(); }
 
     /**
-     * Print bytecode disassembly to stdout.
+     * Print bytecode disassembly to 'out', or SkDebugf if not supplied.
      */
-    void disassemble() const;
+    void disassemble(OutputStream* out = nullptr) const;
 
 private:
     ByteCodeFunction(const FunctionDeclaration* declaration);
@@ -284,6 +285,11 @@ public:
      * They may still be used to convert to other formats, or for reflection of uniforms.
      */
     bool canRun() const { return fChildFPCount == 0 && !fUsesFragCoord; }
+
+    /**
+     * Print bytecode disassembly to 'out', or SkDebugf if not supplied.
+     */
+    void disassemble(OutputStream* out = nullptr) const;
 
 private:
     ByteCode(const ByteCode&) = delete;
