@@ -5,7 +5,7 @@ struct Inputs {
 };
 struct Outputs {
     float4 sk_Position [[position]];
-    int id  [[user(locn-1)]];
+    int id [[user(locn1)]];
     float sk_PointSize [[point_size]];
 };
 
