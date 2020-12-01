@@ -1112,22 +1112,12 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawOval(oPtr, paint);
   };
 
-  // points is either an array of [x, y] where x and y are numbers or
-  // a typed array from Malloc where the even indices will be treated
-  // as x coordinates and the odd indices will be treated as y coordinates.
+  // points is a 1d array of length 2n representing n points where the even indices
+  // will be treated as x coordinates and the odd indices will be treated as y coordinates.
+  // Like other APIs, this accepts a malloced type array or malloc obj.
   CanvasKit.Canvas.prototype.drawPoints = function(mode, points, paint) {
-    var ptr;
-    var n;
-    // This was created with CanvasKit.Malloc, so assume the user has
-    // already been filled with data.
-    if (points['_ck']) {
-      ptr = points.byteOffset;
-      n = points.length/2;
-    } else {
-      ptr = copy2dArray(points, 'HEAPF32');
-      n = points.length;
-    }
-    this._drawPoints(mode, ptr, n, paint);
+    var ptr = copy1dArray(points, 'HEAPF32');
+    this._drawPoints(mode, ptr, points.length / 2, paint);
     freeArraysThatAreNotMallocedByUsers(ptr, points);
   };
 

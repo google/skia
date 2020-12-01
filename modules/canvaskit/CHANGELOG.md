@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `MakeImage` is now documented in the Typescript types (index.d.ts). The parameters have been
    streamlined to align with other, similar APIs.
 
+### Fixed
+ - `Canvas.drawPoints` correctly takes a flattened Array or TypedArray of points (as the
+   documentation says), not a 2D array.
+
 ## [0.20.0] - 2020-11-12
 
 ### Added
