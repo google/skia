@@ -32,6 +32,88 @@ static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint
                               (p[1] - p[2]*2 + p[3]).length()));
 }
 
+// Returns number of segments for linearized cubic rational. This is an analogue
+// to Wang's formula, taken from:
+//   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
+//   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
+// See Thm 3, Corollary 1.
+static float wangs_formula_rational_cubic_reference_impl(float intolerance,
+                                                         const SkPoint P[4],
+                                                         const float wts[4]) {
+    using float4x2 = std::array<std::array<float, 2>, 4>;
+    using vec2 = std::array<float, 2>;
+
+    // Some helper functions for readability
+    const auto bb_center = [](const float4x2& P) {
+        float min_x = std::numeric_limits<float>::max(),
+              max_x = std::numeric_limits<float>::lowest(),
+              min_y = std::numeric_limits<float>::max(),
+              max_y = std::numeric_limits<float>::lowest();
+        for (auto [x, y] : P) {
+            min_x = std::min(min_x, x);
+            max_x = std::max(max_x, x);
+            min_y = std::min(min_y, y);
+            max_y = std::max(max_y, y);
+        }
+        return SkPoint::Make(0.5f * (min_x + max_x), 0.5f * (min_y + max_y));
+    };
+
+    const auto length = [](const vec2& p) {
+        const SkPoint pt{p[0], p[1]};
+        return pt.length();
+    };
+
+    const auto max_len = [&length](const float4x2& P) {
+        float max = std::numeric_limits<float>::lowest();
+        for (size_t j = 0; j < P.size(); j++) {
+            max = std::max(max, length(P[j]));
+        }
+        return max;
+    };
+
+    const auto fwdiff2 = [](const vec2& p0, const vec2& p1, const vec2& p2) {
+        return vec2{p2[0] - 2 * p1[0] + p0[0], p2[1] - 2 * p1[1] + p0[1]};
+    };
+
+    const auto fwdiff2_scalar = [](float p0, float p1, float p2) { return p2 - 2 * p1 + p0; };
+
+    // Get center point of bounding box in projected space
+    SkASSERT(wts[0] == 1 && wts[1] == wts[2] && wts[3] == 1 && wts[1] > 0);
+    const float w = wts[1];
+    const float4x2 projP = {{{P[0].fX, P[0].fY},
+                             {P[1].fX / w, P[1].fY / w},
+                             {P[2].fX / w, P[2].fY / w},
+                             {P[3].fX, P[3].fY}}};
+    const SkPoint C = bb_center(projP);
+
+    // Translate by the center point and re-project
+    const float4x2 transP = {{{projP[0][0] - C.fX, projP[0][1] - C.fY},
+                              {projP[1][0] - C.fX, projP[1][1] - C.fY},
+                              {projP[2][0] - C.fX, projP[2][1] - C.fY},
+                              {projP[3][0] - C.fX, projP[3][1] - C.fY}}};
+    const float4x2 wTransP = {{{transP[0][0], transP[0][1]},
+                               {transP[1][0] * w, transP[1][1] * w},
+                               {transP[2][0] * w, transP[2][1] * w},
+                               {transP[3][0], transP[3][1]}}};
+
+    // Compute forward differences
+    const vec2 av = fwdiff2(wTransP[0], wTransP[1], wTransP[2]),
+               bv = fwdiff2(wTransP[1], wTransP[2], wTransP[3]);
+    const float aw = fwdiff2_scalar(wts[0], wts[1], wts[2]),
+                bw = fwdiff2_scalar(wts[1], wts[2], wts[3]);
+
+    // Compute delta = parametric step size of linearization
+    const float eps = 1.f / intolerance;
+    const float min_w = std::min(w, 1.f);
+    const float r = max_len(transP);
+    const float k = std::max(r - eps, 0.f);
+    const float a = length(av) + k * std::abs(aw), b = length(bv) + k * std::abs(bw);
+    const float delta = sqrtf((4 * min_w * eps) / (3 * std::max(a, b)));
+
+    constexpr float tmin = 0, tmax = 1;
+    return (tmax - tmin) / delta;
+}
+
 static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
     SkMatrix m;
     m.setIdentity();
@@ -292,6 +374,78 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
     for (int i = 0; i < 100; ++i) {
         for_random_beziers(4, &rand, [&](const SkPoint pts[]) {
             check_worst_case_cubic(pts);
+        });
+    }
+}
+
+// Ensure the specialized version for rational cubics reduces to regular Wang's
+// formula when all weights are equal to one
+DEF_TEST(WangsFormula_rational_cubic_reduces, r) {
+    constexpr static float kTessellationTolerance = 1/128.f;
+
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        for_random_beziers(4, &rand, [&r](const SkPoint pts[]) {
+            const float wts[4] = {1, 1, 1, 1};
+            const float rational_nsegs =
+                    wangs_formula_rational_cubic_reference_impl(kIntolerance, pts, wts);
+            const float integral_nsegs = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(
+                    r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
+        });
+    }
+}
+
+// Ensure the rational cubic version (used for conics) produces max error within tolerance.
+DEF_TEST(WangsFormula_conic_within_tol, r) {
+    constexpr static float kTessellationTolerance = 1/128.f;
+
+    // Elevates quad rational -> cubic rational
+    const auto conic_to_cubic = [](const SkPoint conic[3], float w, SkPoint* cubic,
+                                   float* cubic_w) {
+        const SkPoint p0 = conic[0], p1 = conic[1], p2 = conic[2];
+        const SkPoint c = p1 * (2 / 3.f * w);
+
+        cubic[0] = p0;
+        cubic[1] = p0 * (1 / 3.f) + c;
+        cubic[2] = p2 * (1 / 3.f) + c;
+        cubic[3] = p2;
+        *cubic_w = (2*w + 1) / 3.f;
+    };
+
+    SkRandom rand;
+    for (int i = -10; i <= 10; ++i) {
+        const float w = std::ldexp(1 + rand.nextF(), i);
+        for_random_beziers(3, &rand, [&conic_to_cubic, &r, w](const SkPoint pts[]) {
+            float cubicW;
+            SkPoint cubicPts[4];
+            conic_to_cubic(pts, w, &cubicPts[0], &cubicW);
+
+            const float wts[4] = {1, cubicW, cubicW, 1};
+            const int nsegs = static_cast<int>(std::ceil(
+                    wangs_formula_rational_cubic_reference_impl(kIntolerance, cubicPts, wts)));
+
+            const SkConic conic(pts[0], pts[1], pts[2], w);
+            const float tdelta = 1.f / nsegs;
+            for (int j = 0; j < nsegs; ++j) {
+                const float tmin = j * tdelta, tmax = (j + 1) * tdelta;
+
+                // Chop original conic to [tmin, tmax] and evaluate at 0.5
+                SkConic dst;
+                SkPoint p;
+                conic.chopAt(tmin, tmax, &dst);
+                dst.evalAt(0.5f, &p);
+
+                // Get distance of p to baseline
+                const SkPoint n = {dst.fPts[2].fY - dst.fPts[0].fY, dst.fPts[0].fX - dst.fPts[2].fX};
+                const float d = (p - dst.fPts[0]).dot(n) / n.length();
+
+                // Check distance is within tolerance
+                if (d > (1.f/kIntolerance)) {
+                    SkDebugf("failed!\n");
+                }
+                // REPORTER_ASSERT(r, d <= (1.f / kIntolerance), "w=%f, tmin=%f, tmax=%f, %f != %f", w, tmin, tmax, d, 1.f/kIntolerance);
+            }
         });
     }
 }
