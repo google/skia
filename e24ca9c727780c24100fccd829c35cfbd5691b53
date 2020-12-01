@@ -51,6 +51,24 @@
       "parentUuid": "8b54b5fb_3445d323",
       "revId": "e24ca9c727780c24100fccd829c35cfbd5691b53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d280623a_14b85e52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-01T15:53:31Z",
+      "side": 1,
+      "message": "I\u0027ve found the pattern,\n\n  void disassemble(SkWStream* \u003d nullptr) const;\n\nwhere nullptr creates a local SkDebugfStream SkWStream pretty handy,\n\n  SkDebugfStream debug;\n  if (!o) { o \u003d \u0026debug; }",
+      "parentUuid": "f1f935e7_63f05de7",
+      "revId": "e24ca9c727780c24100fccd829c35cfbd5691b53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
