@@ -148,9 +148,9 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
 
     auto apply = [&](skvm::F32 v) -> skvm::F32 {
         // Strip off the sign bit and save it for later.
-        skvm::I32 bits = bit_cast(v),
+        skvm::I32 bits = pun_to_I32(v),
                   sign = bits & 0x80000000;
-        v = bit_cast(bits ^ sign);
+        v = pun_to_F32(bits ^ sign);
 
         switch (classify_transfer_fn(tf)) {
             case Bad_TF: SkASSERT(false); break;
@@ -178,7 +178,7 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
         }
 
         // Re-apply the original sign bit on our way out the door.
-        return bit_cast(sign | bit_cast(v));
+        return pun_to_F32(sign | pun_to_I32(v));
     };
 
     return {apply(c.r), apply(c.g), apply(c.b), c.a};
