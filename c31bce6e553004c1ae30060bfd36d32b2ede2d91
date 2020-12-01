@@ -187,6 +187,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6cb6cb6c_236b6629",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-01T21:52:33Z",
+      "side": 1,
+      "message": "Don\u0027t need the forward decl now that the header\u0027s being included.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 17
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6f6e55a8_7deae91c",
         "filename": "src/sksl/SkSLPool.cpp",
         "patchSetId": 32
@@ -245,6 +268,30 @@
       "writtenOn": "2020-12-01T20:23:37Z",
       "side": 1,
       "message": "This pattern scares me. Having thousands of helper functions in a header seems like a recipe for painful build times and it\u0027s not clear that the linker will reliably strip them out. I don\u0027t think it\u0027s a good idea to have an exhaustive swizzle list just because we can; if we insist on it, I\u0027d suggest converting these to a lighter-weight representation that won\u0027t force the compiler to generate and discard so much chaff. (Prototypes in header, impl in cpp? Get the preprocessor involved somehow?).",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 24
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "208a6a40_7fcc951c",
+        "filename": "src/sksl/dsl/Expression.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-01T21:52:33Z",
+      "side": 1,
+      "message": "I agree. I\u0027d go further and suggest that this is one area where syntactic sugar may not be worth the compile-time headaches at all - we\u0027ve got a few other patterns for dealing with swizzles in Skia, with varying levels of safety and conciseness:\n\n- GrSwizzle is a utility struct that can describe any legal swizzle, and can be constructed from a char[4] (constexpr, so it should fail at compile time if you use an illegal swizzle string).\n- SkNx and SkVx have shuffle\u003c\u003e template methods that use variable length template argument lists (of integers) to do the operation: { skvx::shuffle\u003c0, 2, 1, 3\u003e(color) }\n\nBefore we commit to the syntactic sugar, I think we try to live without it (even just using the Swizzle() functions above.",
+      "parentUuid": "8a1d41ad_024d1474",
       "range": {
         "startLine": 114,
         "startChar": 0,
