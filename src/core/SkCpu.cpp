@@ -115,6 +115,24 @@
         return features;
     }
 
+#elif defined(SK_CPU_ARM64) && __has_include(<sys/sysctl.h>)
+    #include <sys/sysctl.h>
+
+    static uint32_t read_cpu_features() {
+        auto has_feature = [](const char* name) {
+            int32_t feature = 0;
+            size_t size = sizeof(feature);
+            return 0 == sysctlbyname(name, &feature,&size, nullptr,0)
+                && size == sizeof(feature)
+                && feature;
+        };
+        uint32_t features = 0;
+        if (has_feature("hw.optional.armv8_crc32")) { features |= SkCpu::CRC32; }
+        if (has_feature("hw.optional.neon_fp16"  )) { features |= SkCpu::ASIMDHP; }
+        return features;
+    }
+
+
 #elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>) && \
     (!defined(__ANDROID_API__) || __ANDROID_API__ >= 18)
     // sys/auxv.h will always be present in the Android NDK due to unified
