@@ -5642,3 +5642,26 @@ DEF_TEST(SkParagraph_NoCache1, reporter) {
     // Make sure that different strings are not flagged as editing
     test("different strings", "0123456789 0123456789 0123456789 0123456789 0123456789", false);
 }
+
+DEF_TEST(SkParagraph_HeightCalculations, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextHeightBehavior(TextHeightBehavior::kDisableAll);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(14.0f);
+    text_style.setHeight(1.4f);
+    text_style.setHeightOverride(true);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText("Plain");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+    SkDebugf("Height=%f\n", paragraph->getHeight());
+}
