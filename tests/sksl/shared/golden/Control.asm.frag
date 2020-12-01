@@ -37,6 +37,7 @@ OpDecorate %49 RelaxedPrecision
 %int_1 = OpConstant %int 1
 %float_0_25 = OpConstant %float 0.25
 %int_2 = OpConstant %int 2
+%int_100 = OpConstant %int 100
 %main = OpFunction %void None %11
 %12 = OpLabel
 %i = OpVariable %_ptr_Function_int Function
@@ -107,13 +108,22 @@ OpBranchConditional %63 %64 %65
 %64 = OpLabel
 OpBranch %57
 %65 = OpLabel
+%67 = OpLoad %int %i_0
+%69 = OpSGreaterThan %bool %67 %int_100
+OpSelectionMerge %72 None
+OpBranchConditional %69 %70 %71
+%70 = OpLabel
+OpReturn
+%71 = OpLabel
 OpBranch %56
+%72 = OpLabel
+OpBranch %66
 %66 = OpLabel
 OpBranch %56
 %56 = OpLabel
-%67 = OpLoad %int %i_0
-%68 = OpIAdd %int %67 %int_1
-OpStore %i_0 %68
+%73 = OpLoad %int %i_0
+%74 = OpIAdd %int %73 %int_1
+OpStore %i_0 %74
 OpBranch %53
 %57 = OpLabel
 OpReturn

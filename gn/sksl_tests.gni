@@ -284,6 +284,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/UnusedVariables.sksl",
   "$_tests/sksl/shared/VectorConstructors.sksl",
   "$_tests/sksl/shared/VectorFolding.sksl",
+  "$_tests/sksl/shared/VertexEarlyReturn.vert",
   "$_tests/sksl/shared/VertexID.vert",
   "$_tests/sksl/shared/Width.sksl",
 ]
