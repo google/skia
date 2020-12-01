@@ -447,7 +447,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     fAlphabeticBaseline = fLines.empty() ? fEmptyMetrics.alphabeticBaseline() : fLines.front().alphabeticBaseline();
     fIdeographicBaseline = fLines.empty() ? fEmptyMetrics.ideographicBaseline() : fLines.front().ideographicBaseline();
     fExceededMaxLines = textWrapper.exceededMaxLines();
-
+/*
     // Correct the first and the last line ascents/descents if required
     if ((fParagraphStyle.getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent) != 0) {
         auto& firstLine = fLines.front();
@@ -468,6 +468,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
         // It's the last line. There is nothing below to shift
         fHeight += delta;
     }
+*/
 }
 
 void ParagraphImpl::formatLines(SkScalar maxWidth) {
