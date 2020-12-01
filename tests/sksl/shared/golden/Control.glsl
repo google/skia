@@ -15,7 +15,7 @@ void main() {
         sk_FragColor += 0.25;
     } while (sk_FragColor.x < 0.75);
     for (int i = 0;i < 10; i++) {
-        if (i % 2 == 1) break; else continue;
+        if (i % 2 == 1) break; else if (i > 100) return; else continue;
     }
     return;
 }
