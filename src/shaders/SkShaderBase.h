@@ -212,7 +212,7 @@ public:
     }
 
     SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+    skvm::Color program(skvm::Builder*, skvm::Point device, skvm::Point local, skvm::Color paint,
                         const SkMatrixProvider&, const SkMatrix* localM,
                         SkFilterQuality quality, const SkColorInfo& dst,
                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
@@ -242,14 +242,14 @@ protected:
     virtual SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const { return nullptr; }
 
 protected:
-    static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
+    static skvm::Point ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Point, skvm::Uniforms*);
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
     virtual skvm::Color onProgram(skvm::Builder*,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                  skvm::Point device, skvm::Point local, skvm::Color paint,
                                   const SkMatrixProvider&, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;

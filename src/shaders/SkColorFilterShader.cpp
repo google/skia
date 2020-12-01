@@ -63,7 +63,7 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
-                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                           skvm::Point device, skvm::Point local, skvm::Color paint,
                                            const SkMatrixProvider& matrices, const SkMatrix* localM,
                                            SkFilterQuality quality, const SkColorInfo& dst,
                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {

@@ -888,7 +888,7 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
 }
 
 skvm::Color SkImageShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord device, skvm::Coord origLocal, skvm::Color paint,
+                                     skvm::Point device, skvm::Point origLocal, skvm::Color paint,
                                      const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      SkFilterQuality paintQuality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -927,7 +927,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
     }
 
-    skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    skvm::Point upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
 
     // All existing SkColorTypes pass these checks.  We'd only fail here adding new ones.
     skvm::PixelFormat unused;
@@ -1050,7 +1050,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         return c;
     };
 
-    auto sample_level = [&](const SkPixmap& pm, const SkMatrix& inv, skvm::Coord local) {
+    auto sample_level = [&](const SkPixmap& pm, const SkMatrix& inv, skvm::Point local) {
         const Uniforms u = setup_uniforms(pm);
 
         if (sampling.fUseCubic) {

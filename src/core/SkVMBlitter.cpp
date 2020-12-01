@@ -110,7 +110,7 @@ namespace {
 
     static void release_program_cache() { }
 
-    static skvm::Coord device_coord(skvm::Builder* p, skvm::Uniforms* uniforms) {
+    static skvm::Point device_coord(skvm::Builder* p, skvm::Uniforms* uniforms) {
         skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
                      - p->index(),
                   dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
@@ -132,7 +132,7 @@ namespace {
             const SkShaderBase* sb = as_SB(shader);
             skvm::Builder p;
 
-            skvm::Coord device = device_coord(&p, uniforms);
+            skvm::Point device = device_coord(&p, uniforms);
             skvm::Color paint = {
                 p.uniformF(r),
                 p.uniformF(g),
@@ -200,7 +200,7 @@ namespace {
         //    - MaskLCD16: 565 coverage varying
         //    - UniformF:  float coverage uniform
 
-        skvm::Coord device = device_coord(p, uniforms);
+        skvm::Point device = device_coord(p, uniforms);
         skvm::Color paint = p->uniformColor(params.paint, uniforms);
 
         // See note about arguments above: a SpriteShader will call p->arg() once during program().
@@ -359,7 +359,7 @@ namespace {
         bool isOpaque() const override { return fSprite.isOpaque(); }
 
         skvm::Color onProgram(skvm::Builder* p,
-                              skvm::Coord /*device*/, skvm::Coord /*local*/, skvm::Color /*paint*/,
+                              skvm::Point /*device*/, skvm::Point /*local*/, skvm::Color /*paint*/,
                               const SkMatrixProvider&, const SkMatrix* /*localM*/,
                               SkFilterQuality, const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
@@ -386,7 +386,7 @@ namespace {
         bool isOpaque() const override { return fShader->isOpaque(); }
 
         skvm::Color onProgram(skvm::Builder* p,
-                              skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                              skvm::Point device, skvm::Point local, skvm::Color paint,
                               const SkMatrixProvider& matrices, const SkMatrix* localM,
                               SkFilterQuality quality, const SkColorInfo& dst,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
@@ -473,7 +473,7 @@ namespace {
         bool isOpaque() const override { return fIsOpaque; }
 
         skvm::Color onProgram(skvm::Builder*,
-                              skvm::Coord, skvm::Coord, skvm::Color paint,
+                              skvm::Point, skvm::Point, skvm::Color paint,
                               const SkMatrixProvider&, const SkMatrix*,
                               SkFilterQuality, const SkColorInfo&,
                               skvm::Uniforms*, SkArenaAlloc*) const override {

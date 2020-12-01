@@ -421,7 +421,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
-                                            skvm::Coord device, skvm::Coord local,
+                                            skvm::Point device, skvm::Point local,
                                             skvm::Color /*paint*/,
                                             const SkMatrixProvider& mats, const SkMatrix* localM,
                                             SkFilterQuality quality, const SkColorInfo& dstInfo,

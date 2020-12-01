@@ -523,7 +523,7 @@ namespace skvm {
         Builder* operator->()    const { return a.operator->(); }
     };
 
-    struct Coord {
+    struct Point {
         F32 x,y;
         explicit operator bool() const { return x && y; }
         Builder* operator->()    const { return x.operator->(); }

@@ -128,7 +128,7 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
 }
 
 static skvm::Color program_or_paint(const sk_sp<SkShader>& sh, skvm::Builder* p,
-                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                    skvm::Point device, skvm::Point local, skvm::Color paint,
                                     const SkMatrixProvider& mats, const SkMatrix* localM,
                                     SkFilterQuality q, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
@@ -137,7 +137,7 @@ static skvm::Color program_or_paint(const sk_sp<SkShader>& sh, skvm::Builder* p,
 }
 
 skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
-                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                      skvm::Point device, skvm::Point local, skvm::Color paint,
                                       const SkMatrixProvider& mats, const SkMatrix* localM,
                                       SkFilterQuality q, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -178,7 +178,7 @@ bool SkShader_Lerp::onAppendStages(const SkStageRec& orig_rec) const {
 }
 
 skvm::Color SkShader_Lerp::onProgram(skvm::Builder* p,
-                                     skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                     skvm::Point device, skvm::Point local, skvm::Color paint,
                                      const SkMatrixProvider& mats, const SkMatrix* localM,
                                      SkFilterQuality q, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {

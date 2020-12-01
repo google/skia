@@ -196,7 +196,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkShaderBase::program(skvm::Builder* p,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                  skvm::Point device, skvm::Point local, skvm::Color paint,
                                   const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -229,7 +229,7 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
 }
 
 skvm::Color SkShaderBase::onProgram(skvm::Builder*,
-                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                    skvm::Point device, skvm::Point local, skvm::Color paint,
                                     const SkMatrixProvider&, const SkMatrix* localM,
                                     SkFilterQuality quality, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -243,8 +243,8 @@ sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
 }
 
 
-skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
-                                      skvm::Coord coord, skvm::Uniforms* uniforms) {
+skvm::Point SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
+                                      skvm::Point coord, skvm::Uniforms* uniforms) {
     skvm::F32 x = coord.x,
               y = coord.y;
     if (m.isIdentity()) {
@@ -273,7 +273,7 @@ skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
+skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Point, skvm::Point, skvm::Color,
                                      const SkMatrixProvider&, const SkMatrix*,
                                      SkFilterQuality, const SkColorInfo&,
                                      skvm::Uniforms*, SkArenaAlloc*) const {

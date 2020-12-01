@@ -354,14 +354,14 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-using SampleChildFn = std::function<skvm::Color(int, skvm::Coord)>;
+using SampleChildFn = std::function<skvm::Color(int, skvm::Point)>;
 
 static skvm::Color program_fn(skvm::Builder* p,
                               const SkSL::ByteCodeFunction& fn,
                               const std::vector<skvm::F32>& uniform,
                               skvm::Color inColor,
                               SampleChildFn sampleChild,
-                              skvm::Coord device, skvm::Coord local) {
+                              skvm::Point device, skvm::Point local) {
     std::vector<skvm::F32> stack;
 
     auto push = [&](skvm::F32 x) { stack.push_back(x); };
@@ -432,7 +432,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             }
         };
 
-        auto sample = [&](int ix, skvm::Coord coord) {
+        auto sample = [&](int ix, skvm::Point coord) {
             if (skvm::Color c = sampleChild(ix, coord)) {
                 push(c.r);
                 push(c.g);
@@ -870,7 +870,7 @@ public:
             uniform.push_back(p->uniformF(uniforms->pushF(f)));
         }
 
-        auto sampleChild = [&](int ix, skvm::Coord /*coord*/) {
+        auto sampleChild = [&](int ix, skvm::Point /*coord*/) {
             if (fChildren[ix]) {
                 return as_CFB(fChildren[ix])->program(p, c, dstCS, uniforms, alloc);
             } else {
@@ -882,7 +882,7 @@ public:
         // ignored by the child). There should be no way for the color filter to use device coords.
         // Regardless, just to be extra-safe, we pass something valid (0, 0) as both coords, so
         // the builder isn't trying to do math on invalid values.
-        skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
+        skvm::Point zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
         return program_fn(p, *fn, uniform, c, sampleChild,
                           /*device=*/zeroCoord, /*local=*/zeroCoord);
     }
@@ -994,7 +994,7 @@ public:
     }
 
     skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                          skvm::Point device, skvm::Point local, skvm::Color paint,
                           const SkMatrixProvider& matrices, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
@@ -1027,7 +1027,7 @@ public:
         }
         local = SkShaderBase::ApplyMatrix(p,inv,local,uniforms);
 
-        auto sampleChild = [&](int ix, skvm::Coord coord) {
+        auto sampleChild = [&](int ix, skvm::Point coord) {
             if (fChildren[ix]) {
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
                 return as_SB(fChildren[ix])->program(p, device, coord, paint,

@@ -64,7 +64,7 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
 }
 
 skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                      skvm::Coord coord, skvm::I32* mask) const {
+                                      skvm::Point coord, skvm::I32* mask) const {
     skvm::F32 xabs = abs(coord.x),
               yabs = abs(coord.y),
              slope = min(xabs, yabs) / max(xabs, yabs);

@@ -76,7 +76,7 @@ void SkLinearGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline*,
 }
 
 skvm::F32 SkLinearGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
-                                       skvm::Coord coord, skvm::I32* mask) const {
+                                       skvm::Point coord, skvm::I32* mask) const {
     // We've baked getting t in x into the matrix, so this is pretty trivial.
     return coord.x;
 }
