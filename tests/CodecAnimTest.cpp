@@ -82,6 +82,12 @@ SkString to_string(SkCodecAnimation::Blend blend) {
 SkString to_string(SkIRect rect) {
     return SkStringPrintf("{ %i, %i, %i, %i }", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
 }
+SkString to_string(int i) {
+  return SkStringPrintf("%i", i);
+}
+SkString to_string(SkAlphaType alpha) {
+    return SkString(ToolUtils::alphatype_name(alpha));
+}
 
 template <typename T>
 void reporter_assert_equals(skiatest::Reporter* r, const char* name, int i, const char* prop,
@@ -342,36 +348,16 @@ DEF_TEST(Codec_frames, r) {
                         break;
                 }
 
-                if (rec.fDurations[i] != frameInfo.fDuration) {
-                    ERRORF(r, "%s frame %i's durations do not match! expected: %i\tactual: %i",
-                           rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
-                }
-
-                auto to_string = [](SkAlphaType alpha) {
-                    switch (alpha) {
-                        case kUnpremul_SkAlphaType:
-                            return "unpremul";
-                        case kOpaque_SkAlphaType:
-                            return "opaque";
-                        default:
-                            SkASSERT(false);
-                            return "unknown";
-                    }
-                };
+                reporter_assert_equals(r, rec.fName, i, "duration", rec.fDurations[i],
+                                       frameInfo.fDuration);
 
                 auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphas[i-1];
-                auto alpha = frameInfo.fAlphaType;
-                if (expectedAlpha != alpha) {
-                    ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
-                           rec.fName, i, to_string(expectedAlpha), to_string(alpha));
-                }
+                reporter_assert_equals(r, rec.fName, i, "alpha type", expectedAlpha,
+                                       frameInfo.fAlphaType);
 
-                if (0 == i) {
-                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoFrame);
-                } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
-                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
-                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
-                }
+                int expectedRequiredFrame = 0 == i ? SkCodec::kNoFrame : rec.fRequiredFrames[i-1];
+                reporter_assert_equals(r, rec.fName, i, "dependency", expectedRequiredFrame,
+                                       frameInfo.fRequiredFrame);
 
                 REPORTER_ASSERT(r, frameInfo.fDisposalMethod == rec.fDisposalMethods[i]);
 
