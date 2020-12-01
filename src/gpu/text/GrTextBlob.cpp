@@ -469,7 +469,7 @@ public:
 
     GrAtlasSubRun* testingOnly_atlasSubRun() override;
 
-    size_t vertexStride() const override;
+    size_t vertexStride(const SkMatrix& drawMatrix) const override;
 
     int glyphCount() const override;
 
@@ -590,7 +590,7 @@ DirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     return reuse;
 }
 
-size_t DirectMaskSubRun::vertexStride() const {
+size_t DirectMaskSubRun::vertexStride(const SkMatrix&) const {
     if (fMaskFormat != kARGB_GrMaskFormat) {
         return sizeof(Mask2DVertex);
     } else {
@@ -770,21 +770,21 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, Gr
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             generalized_direct_2D(quadData((Quad*)vertexDst), color, integralOriginOffset, &clip);
         }
     }
@@ -853,11 +853,10 @@ public:
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const override;
 
-    size_t vertexStride() const override;
+    size_t vertexStride(const SkMatrix& drawMatrix) const override;
     int glyphCount() const override;
 
 private:
-    bool hasW() const;
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
@@ -995,10 +994,10 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst,
                          fVertexData.subspan(offset, count));
     };
 
-    if (!this->hasW()) {
+    if (!drawMatrix.hasPerspective()) {
         if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
             using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             fill_transformed_vertices_2D(
                     quadData((Quad*) vertexDst),
                     kDstPadding,
@@ -1007,7 +1006,7 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst,
                     matrix);
         } else {
             using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             fill_transformed_vertices_2D(
                     quadData((Quad*) vertexDst),
                     kDstPadding,
@@ -1018,7 +1017,7 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst,
     } else {
         if (fMaskFormat == GrMaskFormat::kARGB_GrMaskFormat) {
             using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             fill_transformed_vertices_3D(
                     quadData((Quad*) vertexDst),
                     kDstPadding,
@@ -1027,7 +1026,7 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst,
                     matrix);
         } else {
             using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+            SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
             fill_transformed_vertices_3D(
                     quadData((Quad*) vertexDst),
                     kDstPadding,
@@ -1038,14 +1037,14 @@ void TransformedMaskSubRun::fillVertexData(void* vertexDst,
     }
 }
 
-size_t TransformedMaskSubRun::vertexStride() const {
+size_t TransformedMaskSubRun::vertexStride(const SkMatrix& drawMatrix) const {
     switch (fMaskFormat) {
         case kA8_GrMaskFormat:
-            return this->hasW() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
+            return drawMatrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
         case kARGB_GrMaskFormat:
-            return this->hasW() ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
+            return drawMatrix.hasPerspective() ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
         default:
-            SkASSERT(!this->hasW());
+            SkASSERT(!drawMatrix.hasPerspective());
             return sizeof(Mask2DVertex);
     }
     SkUNREACHABLE;
@@ -1053,10 +1052,6 @@ size_t TransformedMaskSubRun::vertexStride() const {
 
 int TransformedMaskSubRun::glyphCount() const {
     return fVertexData.count();
-}
-
-bool TransformedMaskSubRun::hasW() const {
-    return fBlob->hasPerspective();
 }
 
 SkRect TransformedMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
@@ -1117,12 +1112,10 @@ public:
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const override;
 
-    size_t vertexStride() const override;
+    size_t vertexStride(const SkMatrix& drawMatrix) const override;
     int glyphCount() const override;
 
 private:
-    bool hasW() const;
-
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
@@ -1297,8 +1290,8 @@ std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target);
 }
 
-size_t SDFTSubRun::vertexStride() const {
-    return this->hasW() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
+size_t SDFTSubRun::vertexStride(const SkMatrix& drawMatrix) const {
+    return drawMatrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
 }
 
 void SDFTSubRun::fillVertexData(
@@ -1314,9 +1307,9 @@ void SDFTSubRun::fillVertexData(
                          fVertexData.subspan(offset, count));
     };
 
-    if (!this->hasW()) {
+    if (!drawMatrix.hasPerspective()) {
         using Quad = Mask2DVertex[4];
-        SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+        SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
         fill_transformed_vertices_2D(
                 quadData((Quad*) vertexDst),
                 SK_DistanceFieldInset,
@@ -1325,7 +1318,7 @@ void SDFTSubRun::fillVertexData(
                 matrix);
     } else {
         using Quad = Mask3DVertex[4];
-        SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
+        SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
         fill_transformed_vertices_3D(
                 quadData((Quad*) vertexDst),
                 SK_DistanceFieldInset,
@@ -1337,10 +1330,6 @@ void SDFTSubRun::fillVertexData(
 
 int SDFTSubRun::glyphCount() const {
     return fVertexData.count();
-}
-
-bool SDFTSubRun::hasW() const {
-        return fBlob->hasPerspective();
 }
 
 SkRect SDFTSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {

@@ -174,7 +174,7 @@ public:
 
     virtual ~GrAtlasSubRun() = default;
 
-    virtual size_t vertexStride() const = 0;
+    virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
     virtual int glyphCount() const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner>
