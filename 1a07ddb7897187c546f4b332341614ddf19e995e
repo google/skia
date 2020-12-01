@@ -16,6 +16,121 @@
       "message": "Now using OutputStream with SkDebugf default.",
       "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0139611_2367a15e",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T16:54:35Z",
+      "side": 1,
+      "message": "Couldn\u0027t this #if wrap the whole function?",
+      "range": {
+        "startLine": 942,
+        "startChar": 0,
+        "endLine": 942,
+        "endChar": 39
+      },
+      "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99462065_6e8a8e49",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T16:54:35Z",
+      "side": 1,
+      "message": "optional: Do we actually use this path anywhere, or have immediate plans to?\n\nIf this is currently dead code, I\u0027d just leave it out (YAGNI principle)\n\nIf this is something we actually intend on using, it seems like a better solution would be an output stream that just transparently passes through write() calls to a file descriptor; let the caller pass in `SkSL::DescriptorOutputStream(stdout)` if that\u0027s what they need.",
+      "range": {
+        "startLine": 951,
+        "startChar": 0,
+        "endLine": 953,
+        "endChar": 5
+      },
+      "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dbab4db_dfb1ac67",
+        "filename": "src/sksl/SkSLByteCode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T16:54:35Z",
+      "side": 1,
+      "message": "Why do we have\n\n  #if defined(SK_ENABLE_SKSL_INTERPRETER)\n\non the first disassemble but not on this one?",
+      "range": {
+        "startLine": 1097,
+        "startChar": 0,
+        "endLine": 1097,
+        "endChar": 4
+      },
+      "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4ece77d_a4f3cc07",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T16:54:35Z",
+      "side": 1,
+      "message": "It looks like SkDebugf actually prints to stderr.",
+      "range": {
+        "startLine": 182,
+        "startChar": 47,
+        "endLine": 182,
+        "endChar": 53
+      },
+      "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ded92783_1d65f2ce",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T16:54:35Z",
+      "side": 1,
+      "message": "stderr",
+      "range": {
+        "startLine": 290,
+        "startChar": 47,
+        "endLine": 290,
+        "endChar": 53
+      },
+      "revId": "1a07ddb7897187c546f4b332341614ddf19e995e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
