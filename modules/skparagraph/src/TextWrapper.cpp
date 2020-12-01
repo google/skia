@@ -228,6 +228,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto endlessLine = !SkScalarIsFinite(maxWidth);
     auto hasEllipsis = parent->paragraphStyle().ellipsized();
 
+    auto disableFirstAscent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent;
+    auto disableLastDescent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableLastDescent;
+    bool firstLine = true; // We only interested in fist line if we have to disable the first ascent
+
     SkScalar softLineMaxIntrinsicWidth = 0;
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
@@ -297,11 +301,22 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         ClusterRange clusters(fEndLine.startCluster() - start, fEndLine.endCluster() - start + 1);
         ClusterRange clustersWithGhosts(fEndLine.startCluster() - start, startLine - start);
+
+        if (disableFirstAscent && firstLine) {
+            fEndLine.metrics().fAscent = fEndLine.metrics().fRawAscent;
+        }
+        if (disableLastDescent && (lastLine || (startLine == end && !fHardLineBreak ))) {
+            fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+        }
+
+        SkScalar lineHeight = fEndLine.metrics().height();
+        firstLine = false;
+
         addLine(text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces,
                 fEndLine.startPos(),
                 fEndLine.endPos(),
                 SkVector::Make(0, fHeight),
-                SkVector::Make(fEndLine.width(), fEndLine.metrics().height()),
+                SkVector::Make(fEndLine.width(), lineHeight),
                 fEndLine.metrics(),
                 needEllipsis && !fHardLineBreak);
 
@@ -312,7 +327,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             softLineMaxIntrinsicWidth = 0;
         }
         // Start a new line
-        fHeight += fEndLine.metrics().height();
+        fHeight += lineHeight;
         if (!fHardLineBreak || startLine != end) {
             fEndLine.clean();
         }

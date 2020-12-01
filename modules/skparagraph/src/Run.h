@@ -315,6 +315,9 @@ public:
         fAscent = a;
         fDescent = d;
         fLeading = l;
+        fRawAscent = a;
+        fRawDescent = d;
+        fRawLeading = l;
         fForceStrut = false;
     }
 
@@ -324,6 +327,9 @@ public:
         fAscent = metrics.fAscent;
         fDescent = metrics.fDescent;
         fLeading = metrics.fLeading;
+        fRawAscent = metrics.fAscent;
+        fRawDescent = metrics.fDescent;
+        fRawLeading = metrics.fLeading;
         fForceStrut = forceStrut;
     }
 
@@ -336,17 +342,28 @@ public:
         fAscent = std::min(fAscent, run->correctAscent());
         fDescent = std::max(fDescent, run->correctDescent());
         fLeading = std::max(fLeading, run->correctLeading());
+
+        fRawAscent = std::min(fRawAscent, run->ascent());
+        fRawDescent = std::max(fRawDescent, run->descent());
+        fRawLeading = std::max(fRawLeading, run->leading());
     }
 
     void add(InternalLineMetrics other) {
         fAscent = std::min(fAscent, other.fAscent);
         fDescent = std::max(fDescent, other.fDescent);
         fLeading = std::max(fLeading, other.fLeading);
+        fRawAscent = std::min(fRawAscent, other.fRawAscent);
+        fRawDescent = std::max(fRawDescent, other.fRawDescent);
+        fRawLeading = std::max(fRawLeading, other.fRawLeading);
     }
+
     void clean() {
         fAscent = 0;
         fDescent = 0;
         fLeading = 0;
+        fRawAscent = 0;
+        fRawDescent = 0;
+        fRawLeading = 0;
     }
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
@@ -356,10 +373,15 @@ public:
             metrics.fAscent = fAscent;
             metrics.fDescent = fDescent;
             metrics.fLeading = fLeading;
+            metrics.fRawAscent = fRawAscent;
+            metrics.fRawDescent = fRawDescent;
+            metrics.fRawLeading = fRawLeading;
         } else {
             // This is another of those flutter changes. To be removed...
             metrics.fAscent = std::min(metrics.fAscent, fAscent - fLeading / 2.0f);
             metrics.fDescent = std::max(metrics.fDescent, fDescent + fLeading / 2.0f);
+            metrics.fRawAscent = std::min(metrics.fRawAscent, fRawAscent - fRawLeading / 2.0f);
+            metrics.fRawDescent = std::max(metrics.fRawDescent, fRawDescent + fRawLeading / 2.0f);
         }
     }
 
@@ -379,6 +401,8 @@ public:
     SkScalar ascent() const { return fAscent; }
     SkScalar descent() const { return fDescent; }
     SkScalar leading() const { return fLeading; }
+    SkScalar rawAscent() const { return fRawAscent; }
+    SkScalar rawDescent() const { return fRawDescent; }
     void setForceStrut(bool value) { fForceStrut = value; }
     bool getForceStrut() const { return fForceStrut; }
 
@@ -390,6 +414,11 @@ private:
     SkScalar fAscent;
     SkScalar fDescent;
     SkScalar fLeading;
+
+    SkScalar fRawAscent;
+    SkScalar fRawDescent;
+    SkScalar fRawLeading;
+
     bool fForceStrut;
 };
 }  // namespace textlayout
