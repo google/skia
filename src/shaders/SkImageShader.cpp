@@ -1040,10 +1040,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
             skvm::I32 mask = p->splat(~0);
             if (fTileModeX == SkTileMode::kDecal) { mask &= (sx == clamped_x); }
             if (fTileModeY == SkTileMode::kDecal) { mask &= (sy == clamped_y); }
-            c.r = bit_cast(p->bit_and(mask, bit_cast(c.r)));
-            c.g = bit_cast(p->bit_and(mask, bit_cast(c.g)));
-            c.b = bit_cast(p->bit_and(mask, bit_cast(c.b)));
-            c.a = bit_cast(p->bit_and(mask, bit_cast(c.a)));
+            c.r = pun_to_F32(p->bit_and(mask, pun_to_I32(c.r)));
+            c.g = pun_to_F32(p->bit_and(mask, pun_to_I32(c.g)));
+            c.b = pun_to_F32(p->bit_and(mask, pun_to_I32(c.b)));
+            c.a = pun_to_F32(p->bit_and(mask, pun_to_I32(c.a)));
             // Notice that even if input_is_opaque, c.a might now be 0.
         }
 

@@ -614,14 +614,14 @@ namespace skvm {
 
         // Assert cond is true, printing debug when not.
         void assert_true(I32 cond, I32 debug);
-        void assert_true(I32 cond, F32 debug) { assert_true(cond, bit_cast(debug)); }
+        void assert_true(I32 cond, F32 debug) { assert_true(cond, pun_to_I32(debug)); }
         void assert_true(I32 cond)            { assert_true(cond, cond); }
 
         // Store {8,16,32,64,128}-bit varying.
         void store8  (Arg ptr, I32 val);
         void store16 (Arg ptr, I32 val);
         void store32 (Arg ptr, I32 val);
-        void storeF  (Arg ptr, F32 val) { store32(ptr, bit_cast(val)); }
+        void storeF  (Arg ptr, F32 val) { store32(ptr, pun_to_I32(val)); }
         void store64 (Arg ptr, I32 lo, I32 hi);            // *ptr = lo|(hi<<32)
         void store128(Arg ptr, I32 lo, I32 hi, int lane);  // 64-bit lane 0-1 at ptr = lo|(hi<<32).
 
@@ -632,13 +632,13 @@ namespace skvm {
         I32 load8  (Arg ptr);
         I32 load16 (Arg ptr);
         I32 load32 (Arg ptr);
-        F32 loadF  (Arg ptr) { return bit_cast(load32(ptr)); }
+        F32 loadF  (Arg ptr) { return pun_to_F32(load32(ptr)); }
         I32 load64 (Arg ptr, int lane);  // Load 32-bit lane 0-1 of  64-bit value.
         I32 load128(Arg ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
         // Load i32/f32 uniform with byte-count offset.
         I32 uniform32(Arg ptr, int offset);
-        F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
+        F32 uniformF (Arg ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
 
         // Push and load this color as a uniform.
         Color uniformColor(SkColor4f, Uniforms*);
@@ -648,7 +648,7 @@ namespace skvm {
         I32 gather16(Arg ptr, int offset, I32 index);
         I32 gather32(Arg ptr, int offset, I32 index);
         F32 gatherF (Arg ptr, int offset, I32 index) {
-            return bit_cast(gather32(ptr, offset, index));
+            return pun_to_F32(gather32(ptr, offset, index));
         }
 
         // Convenience methods for working with skvm::Uniform(s).
@@ -665,7 +665,7 @@ namespace skvm {
         F32 splat(float    f) {
             int bits;
             memcpy(&bits, &f, 4);
-            return bit_cast(splat(bits));
+            return pun_to_F32(splat(bits));
         }
 
         // float math, comparisons, etc.
@@ -704,16 +704,16 @@ namespace skvm {
         F32 clamp(F32a x, F32a lo, F32a hi) { return clamp(_(x), _(lo), _(hi)); }
         F32 clamp01(F32 x) { return clamp(x, 0.0f, 1.0f); }
 
-        F32    abs(F32 x) { return bit_cast(bit_and(bit_cast(x), 0x7fff'ffff)); }
+        F32    abs(F32 x) { return pun_to_F32(bit_and(pun_to_I32(x), 0x7fff'ffff)); }
         F32  fract(F32 x) { return sub(x, floor(x)); }
         F32   ceil(F32);
         F32  floor(F32);
         I32 is_NaN   (F32 x) { return neq(x,x); }
-        I32 is_finite(F32 x) { return lt(bit_and(bit_cast(x), 0x7f80'0000), 0x7f80'0000); }
+        I32 is_finite(F32 x) { return lt(bit_and(pun_to_I32(x), 0x7f80'0000), 0x7f80'0000); }
 
         I32 trunc(F32 x);
         I32 round(F32 x);  // Round to int using current rounding mode (as if lrintf()).
-        I32 bit_cast(F32 x) { return {x.builder, x.id}; }
+        I32 pun_to_I32(F32 x) { return {x.builder, x.id}; }
 
         I32   to_fp16(F32 x);
         F32 from_fp16(I32 x);
@@ -748,7 +748,7 @@ namespace skvm {
         I32 gte(I32 x, I32 y);  I32 gte(I32a x, I32a y) { return gte(_(x), _(y)); }
 
         F32 to_F32(I32 x);
-        F32 bit_cast(I32 x) { return {x.builder, x.id}; }
+        F32 pun_to_F32(I32 x) { return {x.builder, x.id}; }
 
         // Bitwise operations.
         I32 bit_and  (I32, I32);  I32 bit_and  (I32a x, I32a y) { return bit_and  (_(x), _(y)); }
@@ -764,8 +764,8 @@ namespace skvm {
 
         I32 select(I32 cond, I32 t, I32 f);  // cond ? t : f
         F32 select(I32 cond, F32 t, F32 f) {
-            return bit_cast(select(cond, bit_cast(t)
-                                       , bit_cast(f)));
+            return pun_to_F32(select(cond, pun_to_I32(t)
+                                         , pun_to_I32(f)));
         }
         I32 select(I32a cond, I32a t, I32a f) { return select(_(cond), _(t), _(f)); }
         F32 select(I32a cond, F32a t, F32a f) { return select(_(cond), _(t), _(f)); }
@@ -1045,13 +1045,13 @@ namespace skvm {
     static inline I32    is_NaN(F32 x) { return x->   is_NaN(x); }
     static inline I32 is_finite(F32 x) { return x->is_finite(x); }
 
-    static inline I32     trunc(F32 x) { return x->    trunc(x); }
-    static inline I32     round(F32 x) { return x->    round(x); }
-    static inline I32  bit_cast(F32 x) { return x-> bit_cast(x); }
-    static inline F32  bit_cast(I32 x) { return x-> bit_cast(x); }
-    static inline F32    to_F32(I32 x) { return x->   to_F32(x); }
-    static inline I32   to_fp16(F32 x) { return x->  to_fp16(x); }
-    static inline F32 from_fp16(I32 x) { return x->from_fp16(x); }
+    static inline I32      trunc(F32 x) { return x->      trunc(x); }
+    static inline I32      round(F32 x) { return x->      round(x); }
+    static inline I32 pun_to_I32(F32 x) { return x-> pun_to_I32(x); }
+    static inline F32 pun_to_F32(I32 x) { return x-> pun_to_F32(x); }
+    static inline F32     to_F32(I32 x) { return x->     to_F32(x); }
+    static inline I32    to_fp16(F32 x) { return x->    to_fp16(x); }
+    static inline F32  from_fp16(I32 x) { return x->  from_fp16(x); }
 
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
