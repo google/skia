@@ -170,31 +170,32 @@ static bool check_approx_angle_between_vectors(skiatest::Reporter* r, SkVector a
 }
 
 static bool check_approx_angle_between_vectors(skiatest::Reporter* r, SkVector a, SkVector b) {
-    float approxTheta = grvx::approx_angle_between_vectors<1>(a.fX, a.fY, b.fX, b.fY).val;
+    float approxTheta = grvx::approx_angle_between_vectors(bit_pun<float2>(a),
+                                                           bit_pun<float2>(b)).val;
     return check_approx_angle_between_vectors(r, a, b, approxTheta);
 }
 
 DEF_TEST(grvx_approx_angle_between_vectors, r) {
     // Test when a and/or b are zero.
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(0,0,0,0).val));
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(1,1,0,0).val));
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(0,0,1,1).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>({0,0}, {0,0}).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>({1,1}, {0,0}).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>({0,0}, {1,1}).val));
     check_approx_angle_between_vectors(r, {0,0}, {0,0});
     check_approx_angle_between_vectors(r, {1,1}, {0,0});
     check_approx_angle_between_vectors(r, {0,0}, {1,1});
 
     // Test infinities.
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
-            std::numeric_limits<float>::infinity(),1,2,3).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>(
+            {std::numeric_limits<float>::infinity(),1}, {2,3}).val));
 
     // Test NaNs.
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
-            std::numeric_limits<float>::quiet_NaN(),1,2,3).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>(
+            {std::numeric_limits<float>::quiet_NaN(),1}, {2,3}).val));
 
     // Test demorms.
     float epsilon = std::numeric_limits<float>::denorm_min();
-    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<1>(
-            epsilon, epsilon, epsilon, epsilon).val));
+    REPORTER_ASSERT(r, SkScalarNearlyZero(grvx::approx_angle_between_vectors<2>(
+            {epsilon, epsilon}, {epsilon, epsilon}).val));
 
     // Test random floats of all types.
     uint4 mantissas = {0,0,0,0};
@@ -219,7 +220,7 @@ DEF_TEST(grvx_approx_angle_between_vectors, r) {
         float4 y0 = bit_pun<float4>(signs | y0exp | mantissas[1]);
         float4 x1 = bit_pun<float4>(signs | x1exp | mantissas[2]);
         float4 y1 = bit_pun<float4>(signs | y1exp | mantissas[3]);
-        float4 rads = approx_angle_between_vectors(x0, y0, x1, y1);
+        float4 rads = approx_angle_between_vectors(skvx::join(x0, y0), skvx::join(x1, y1));
         for (int j = 0; j < 4; ++j) {
             if (!check_approx_angle_between_vectors(r, {x0[j], y0[j]}, {x1[j], y1[j]}, rads[j])) {
                 return;
