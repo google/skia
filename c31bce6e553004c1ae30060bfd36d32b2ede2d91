@@ -39,6 +39,30 @@
       },
       "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fe7abb7_3b98214b",
+        "filename": "src/sksl/SkSLPool.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-01T18:30:37Z",
+      "side": 1,
+      "message": "Crap, I had already told myself I needed to break that out as a separate change and forgot to do so. Coming right up.",
+      "parentUuid": "6f6e55a8_7deae91c",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
