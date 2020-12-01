@@ -908,11 +908,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (!type) {
             return;
         }
-        for (int j = 1; j <= (int) pd.fSizeCount; j++) {
+        String baseTypeName = type->name();
+        String arrayDims;
+        for (int j = (int) pd.fSizeCount; j >= 1; j--) {
             int size = (param.begin() + j)->getInt();
-            String name = type->name() + "[" + to_string(size) + "]";
-            type = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(std::move(name), Type::TypeKind::kArray, *type, size));
+            arrayDims = "[" + to_string(size) + "]" + arrayDims;
+            type = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                    baseTypeName + arrayDims, Type::TypeKind::kArray, *type, size));
         }
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
@@ -1335,16 +1337,13 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                       "opaque type '" + td.fName + "' may not be used in an array");
         return nullptr;
     }
+    String baseName = result->name();
+    String arrayDims;
     for (const auto& size : type) {
-        String name(result->name());
-        name += "[";
-        if (size) {
-            name += to_string(size.getInt());
-        }
-        name += "]";
-        result = fSymbolTable->takeOwnershipOfSymbol(
-                std::make_unique<Type>(name, Type::TypeKind::kArray, result->as<Type>(),
-                                       size ? size.getInt() : Type::kUnsizedArray));
+        arrayDims = "[" + (size ? to_string(size.getInt()) : "") + "]" + arrayDims;
+        result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
+                baseName + arrayDims, Type::TypeKind::kArray, result->as<Type>(),
+                size ? size.getInt() : Type::kUnsizedArray));
     }
     return &result->as<Type>();
 }
