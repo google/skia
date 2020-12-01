@@ -348,41 +348,142 @@ DEF_TEST(Typeface, reporter) {
 }
 
 DEF_TEST(TypefaceAxesParameters, reporter) {
-    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
-    if (!distortable) {
-        REPORT_FAILURE(reporter, "distortable", SkString());
-        return;
-    }
-    constexpr int numberOfAxesInDistortable = 1;
-    constexpr SkScalar minAxisInDistortable = 0.5;
-    constexpr SkScalar defAxisInDistortable = 1;
-    constexpr SkScalar maxAxisInDistortable = 2;
-    constexpr bool axisIsHiddenInDistortable = true;
+    using Axis = SkFontParameters::Variation::Axis;
+
+    // In DWrite in at least up to 1901 18363.1198 IDWriteFontFace5::GetFontAxisValues and
+    // GetFontAxisValueCount along with IDWriteFontResource::GetFontAxisAttributes and
+    // GetFontAxisCount (and related) seem to incorrectly collapse multiple axes with the same tag.
+    // Since this is a limitation of the underlying implementation, for now allow the test to pass
+    // with the axis tag count (as opposed to the axis count). Eventually all implementations should
+    // pass this test without 'alsoAcceptedAxisTagCount'.
+    auto test = [&](SkTypeface* typeface, const Axis* expected, int expectedCount,
+                    int alsoAcceptedAxisTagCount)
+    {
+        if (!typeface) {
+            return;  // Not all SkFontMgr can makeFromStream().
+        }
+
+        int actualCount = typeface->getVariationDesignParameters(nullptr, 0);
+        if (actualCount == -1) {
+            return;  // The number of axes is unknown.
+        }
+        REPORTER_ASSERT(reporter, actualCount == expectedCount ||
+                                  actualCount == alsoAcceptedAxisTagCount);
+
+        std::unique_ptr<Axis[]> actual(new Axis[actualCount]);
+        actualCount = typeface->getVariationDesignParameters(actual.get(), actualCount);
+        if (actualCount == -1) {
+            return;  // The position cannot be determined.
+        }
+        REPORTER_ASSERT(reporter, actualCount == expectedCount ||
+                                  actualCount == alsoAcceptedAxisTagCount);
+
+        // Every actual must be expected.
+        std::unique_ptr<bool[]> expectedUsed(new bool[expectedCount]());
+        for (int actualIdx = 0; actualIdx < actualCount; ++actualIdx) {
+            bool actualFound = false;
+            for (int expectedIdx = 0; expectedIdx < expectedCount; ++expectedIdx) {
+                if (expectedUsed[expectedIdx]) {
+                    continue;
+                }
+
+                if (actual[actualIdx].tag != expected[expectedIdx].tag) {
+                    continue;
+                }
+
+                // Convert to fixed for "almost equal".
+                SkFixed fixedActualMin = SkScalarToFixed(actual[actualIdx].min);
+                SkFixed fixedExpectedMin = SkScalarToFixed(expected[expectedIdx].min);
+                if (!(SkTAbs(fixedActualMin - fixedExpectedMin) < 2)) {
+                    continue;
+                }
+
+                SkFixed fixedActualMax = SkScalarToFixed(actual[actualIdx].max);
+                SkFixed fixedExpectedMax = SkScalarToFixed(expected[expectedIdx].max);
+                if (!(SkTAbs(fixedActualMax - fixedExpectedMax) < 2)) {
+                    continue;
+                }
+
+                SkFixed fixedActualDefault = SkScalarToFixed(actual[actualIdx].def);
+                SkFixed fixedExpectedDefault = SkScalarToFixed(expected[expectedIdx].def);
+                if (!(SkTAbs(fixedActualDefault - fixedExpectedDefault) < 2)) {
+                    continue;
+                }
+
+                // This seems silly, but allows MSAN to ensure that isHidden is initialized.
+                // In GDI or before macOS 10.12, Win10, or FreeType 2.8.1 API for hidden is missing.
+                if (actual[actualIdx].isHidden() &&
+                    actual[actualIdx].isHidden() != expected[expectedIdx].isHidden())
+                {
+                    continue;
+                }
+
+                // This actual matched an unused expected.
+                actualFound = true;
+                expectedUsed[expectedIdx] = true;
+                break;
+            }
+            REPORTER_ASSERT(reporter, actualFound,
+                "Actual axis '%c%c%c%c' with min %f max %f default %f hidden %s not expected",
+                (actual[actualIdx].tag >> 24) & 0xFF,
+                (actual[actualIdx].tag >> 16) & 0xFF,
+                (actual[actualIdx].tag >>  8) & 0xFF,
+                (actual[actualIdx].tag      ) & 0xFF,
+                actual[actualIdx].min,
+                actual[actualIdx].def,
+                actual[actualIdx].max,
+                actual[actualIdx].isHidden() ? "true" : "false");
+        }
+    };
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
-    SkFontArguments params;
-    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
-
-    if (!typeface) {
-        return;  // Not all SkFontMgr can makeFromStream().
+    // Two axis OpenType variable font.
+    {
+        std::unique_ptr<SkStreamAsset> variable(GetResourceAsStream("fonts/Variable.ttf"));
+        if (!variable) {
+            REPORT_FAILURE(reporter, "variable", SkString());
+            return;
+        }
+        constexpr Axis expected[] = {
+            Axis(SkSetFourByteTag('w','g','h','t'), 100.0f, 400.0f, 900.0f, true ),
+            Axis(SkSetFourByteTag('w','d','t','h'),  50.0f, 100.0f, 200.0f, false),
+        };
+        sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(variable), 0);
+        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), -1);
     }
 
-    SkFontParameters::Variation::Axis parameter[numberOfAxesInDistortable];
-    int count = typeface->getVariationDesignParameters(parameter, SK_ARRAY_COUNT(parameter));
-    if (count == -1) {
-        return;
+    // Multiple axes with the same tag (and min, max, default) works.
+    {
+        std::unique_ptr<SkStreamAsset> dupTags(GetResourceAsStream("fonts/VaryAlongQuads.ttf"));
+        if (!dupTags) {
+            REPORT_FAILURE(reporter, "dupTags", SkString());
+            return;
+        }
+
+        // The position may be over specified. If there are multiple values for a given axis,
+        // ensure the last one since that's what css-fonts-4 requires.
+        constexpr Axis expected[] = {
+            Axis(SkSetFourByteTag('w','g','h','t'), 100.0f, 400.0f, 900.0f, false),
+            Axis(SkSetFourByteTag('w','g','h','t'), 100.0f, 400.0f, 900.0f, false),
+        };
+        sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(dupTags), 0);
+        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), 1);
     }
 
-    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(parameter));
-    REPORTER_ASSERT(reporter, parameter[0].min == minAxisInDistortable);
-    REPORTER_ASSERT(reporter, parameter[0].def == defAxisInDistortable);
-    REPORTER_ASSERT(reporter, parameter[0].max == maxAxisInDistortable);
-    REPORTER_ASSERT(reporter, parameter[0].tag == SkSetFourByteTag('w','g','h','t'));
-    // This seems silly, but allows MSAN to ensure that isHidden is initialized.
-    // With GDI or before macOS 10.12, Win10, or FreeType 2.8.1 the API for hidden is missing.
-    REPORTER_ASSERT(reporter, parameter[0].isHidden() == axisIsHiddenInDistortable ||
-                              parameter[0].isHidden() == false);
+    // Simple single axis GX variable font.
+    {
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+        if (!distortable) {
+            REPORT_FAILURE(reporter, "distortable", SkString());
+            return;
+        }
+        constexpr Axis expected[] = {
+            Axis(SkSetFourByteTag('w','g','h','t'), 0.5f, 1.0f, 2.0f, true),
+        };
+        sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), 0);
+        test(typeface.get(), &expected[0], SK_ARRAY_COUNT(expected), -1);
+    }
 }
 
 static bool count_proc(SkTypeface* face, void* ctx) {
