@@ -449,7 +449,7 @@ public:
 
     DirectMaskSubRun(GrMaskFormat format,
                      GrTextBlob* blob,
-                     const SkRect& bounds,
+                     const SkGlyphRect& deviceBounds,
                      SkSpan<const DevicePosition> devicePositions,
                      GlyphVector glyphs,
                      bool glyphsOutOfBounds);
@@ -493,8 +493,9 @@ private:
 
     const GrMaskFormat fMaskFormat;
     GrTextBlob* const fBlob;
-    // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
-    const SkRect fVertexBounds;
+
+    // The union of all the glyph bounds in device space.
+    const SkGlyphRect fDeviceBounds;
     const SkSpan<const DevicePosition> fLeftTopDevicePos;
     const bool fSomeGlyphsExcluded;
 
@@ -505,13 +506,13 @@ private:
 
 DirectMaskSubRun::DirectMaskSubRun(GrMaskFormat format,
                                    GrTextBlob* blob,
-                                   const SkRect& bounds,
+                                   const SkGlyphRect& deviceBounds,
                                    SkSpan<const DevicePosition> devicePositions,
                                    GlyphVector glyphs,
                                    bool glyphsOutOfBounds)
         : fMaskFormat{format}
         , fBlob{blob}
-        , fVertexBounds{bounds}
+        , fDeviceBounds{deviceBounds}
         , fLeftTopDevicePos{devicePositions}
         , fSomeGlyphsExcluded{glyphsOutOfBounds}
         , fGlyphs{glyphs} {}
@@ -558,7 +559,7 @@ GrSubRun* DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables
     bool glyphsExcluded = goodPosCount != drawables.size();
     SkSpan<const DevicePosition> leftTop{glyphLeftTop, goodPosCount};
     DirectMaskSubRun* subRun = alloc->make<DirectMaskSubRun>(
-            format, blob, runBounds.rect(), leftTop,
+            format, blob, runBounds, leftTop,
             GlyphVector{strikeSpec, {glyphIDs, goodPosCount}}, glyphsExcluded);
 
     return subRun;
@@ -790,17 +791,15 @@ void DirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, Gr
 }
 
 SkRect DirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
-    SkRect outBounds = fVertexBounds;
+    SkIRect outBounds = fDeviceBounds.iRect();
 
     // Calculate the offset from the initial device origin to the current device origin.
     SkVector offset = drawMatrix.mapPoint(drawOrigin) - fBlob->initialMatrix().mapOrigin();
-    // The vertex bounds are already {0, 0} based, so just add the new origin offset.
-    outBounds.offset(offset);
 
-    // Due to floating point numerical inaccuracies, we have to round out here
-    outBounds.roundOut();
+    // The offset should be integer, but make sure.
+    SkIVector iOffset = {SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y())};
 
-    return outBounds;
+    return SkRect::Make(outBounds.makeOffset(iOffset));
 }
 
 GrAtlasSubRun* DirectMaskSubRun::testingOnly_atlasSubRun() {
