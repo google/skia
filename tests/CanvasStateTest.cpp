@@ -21,7 +21,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTLazy.h"
-#include "tests/CanvasStateHelpers.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -29,9 +28,13 @@
 
 class SkCanvasState;
 
-// dlopen and the library flag are only used for tests which require this flag.
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+// Uncomment to include tests of CanvasState across a library boundary.
+// #define SK_TEST_CANVAS_STATE_CROSS_LIBRARY
+
+// dlopen, the library flag and canvas state helpers are only used for tests which require this flag
+#ifdef SK_TEST_CANVAS_STATE_CROSS_LIBRARY
 #include <dlfcn.h>
+#include "tests/CanvasStateHelpers.h"
 
 static DEFINE_string(library, "",
                      "Support library to use for CanvasState test. If empty (the default), "
@@ -186,11 +189,9 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
         compare(reporter, images[0].get(), images[1].get());
     }
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 DEF_TEST(CanvasState_test_complex_clips, reporter) {
     const int WIDTH = 400;
     const int HEIGHT = 400;
@@ -293,7 +294,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
 
     compare(reporter, images[0].get(), images[1].get());
 }
-#endif
+#endif // SK_TEST_CANVAS_STATE_CROSS_LIBRARY
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -312,10 +313,6 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 }
 
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag ==
-                  SkCanvasPriv::kDontClipToLayer_SaveLayerFlag, "");
-#endif
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
@@ -328,20 +325,9 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(LAYER_WIDTH), SkIntToScalar(LAYER_HEIGHT));
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(WIDTH), SkIntToScalar(HEIGHT)));
 
-    SkIRect devClip;
-    // Check that saveLayer without the kClipToLayer_SaveFlag leaves the clip unchanged.
-    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr,
-            (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag));
-    devClip = canvas.getDeviceClipBounds();
-    REPORTER_ASSERT(reporter, canvas.isClipRect());
-    REPORTER_ASSERT(reporter, devClip.width() == WIDTH);
-    REPORTER_ASSERT(reporter, devClip.height() == HEIGHT);
-    canvas.restore();
-
-    // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip
-    // stack to the layer bounds.
+    // Check that saveLayer sets the clip stack to the layer bounds.
     canvas.saveLayer(&bounds, nullptr);
-    devClip = canvas.getDeviceClipBounds();
+    SkIRect devClip = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, canvas.isClipRect());
     REPORTER_ASSERT(reporter, devClip.width() == LAYER_WIDTH);
     REPORTER_ASSERT(reporter, devClip.height() == LAYER_HEIGHT);
