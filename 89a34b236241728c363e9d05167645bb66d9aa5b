@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cef8790c_b9f02cad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-01T22:16:44Z",
+      "side": 1,
+      "message": "So a continuation of https://skia-review.googlesource.com/c/skia/+/247398 .",
+      "revId": "89a34b236241728c363e9d05167645bb66d9aa5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
