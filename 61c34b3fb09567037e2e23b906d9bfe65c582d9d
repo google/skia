@@ -104,6 +104,30 @@
       },
       "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f07b0e4_b72fc3c9",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-01T15:48:36Z",
+      "side": 1,
+      "message": "Yep, skvm is more flexible than its most familiar use in the SkVMBlitter / SkRuntimeEffect ecosystem would indicate.  Programs just take an \"int N\" and an arbitrary bunch of pointers and strides, running the program N times in parallel, stepping with those strides to make sure each instance sees the right value for each pointer.  For varyings today we set stride\u003dsizeof(T), and for uniforms stride\u003d0, but you can do some fun things by setting the stride differently yourself.\n\nThat covers pretty much any stencil-oriented 0- and 1-dimensional functions you might want to write, and 2+ dimension work just becomes ordinary C code calling Program::eval() in loops.  The stencil fixed-inputs-make-fixed-outputs perspective is probably the part that makes fitting arbitrary applications into this model most difficult, exactly like programming in a GPU shader does... we\u0027ll start getting into things like scatters, intra-warp instructions, and atomics when we start wanting non-stencil arbitrarily-variable-output per instance.  But if you can cap the skvm::Program out at a maximum output (e.g. one path verb becomes \u003c\u003d 8 path verbs), then we\u0027re back in the world of trivially easy again.\n\nAs for that flexible half-y type, I\u0027ll almost certainly save SkRuntimeEffect for last there, with adapters to the current F32 as needed until we can plumb through the SkSL precision information we need to decide what values need what types.\n\nskvm\u0027s got good integer support already, so offering that should be as easy as writing CLs like this to connect it up.  Over the last hour I\u0027ve really warmed to the idea of stacks per type, and I\u0027ll try to write that up today to see how we like it.",
+      "parentUuid": "1066ef9c_223e2865",
+      "range": {
+        "startLine": 671,
+        "startChar": 54,
+        "endLine": 671,
+        "endChar": 95
+      },
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
