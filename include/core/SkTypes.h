@@ -467,7 +467,7 @@
 #ifdef SK_DEBUG
     #define SkASSERT(cond) SkASSERT_RELEASE(cond)
     #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
-                                          SkDebugf(fmt"\n", __VA_ARGS__);        \
+                                          SkDebugf(fmt"\n", ##__VA_ARGS__);      \
                                           SK_ABORT("assert(%s)", #cond);         \
                                       }() )
     #define SkDEBUGFAIL(message)        SK_ABORT("%s", message)
