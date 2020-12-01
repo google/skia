@@ -257,6 +257,8 @@ protected:
 
     void writeSwitchStatement(const SwitchStatement& s);
 
+    void writeReturnStatementFromMain();
+
     void writeReturnStatement(const ReturnStatement& r);
 
     void writeProgramElement(const ProgramElement& e);
@@ -296,6 +298,7 @@ protected:
     std::unordered_set<String> fHelpers;
     int fUniformBuffer = -1;
     String fRTHeightName;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
 
     using INHERITED = CodeGenerator;
 };
