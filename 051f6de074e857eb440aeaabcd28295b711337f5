@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67021ba2_06622f49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-01T16:19:41Z",
+      "side": 1,
+      "message": "This is just copypasta. There shouldn\u0027t be any functionality changes.",
+      "revId": "051f6de074e857eb440aeaabcd28295b711337f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
