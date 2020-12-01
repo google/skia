@@ -188,7 +188,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     -I. \
     -DSK_DISABLE_AAA \
     -DSK_FORCE_8_BYTE_ALIGNMENT \
-    -DGR_OP_ALLOCATE_USE_NEW \
     $WASM_GPU \
     -std=c++17 \
     --profiling-funcs \
