@@ -1559,12 +1559,15 @@ void MetalCodeGenerator::writeOutputStruct() {
                 this->writeType(var.type());
                 this->write(" ");
                 this->writeName(var.name());
-                if (fProgram.fKind == Program::kVertex_Kind) {
-                    this->write("  [[user(locn" +
-                                to_string(var.modifiers().fLayout.fLocation) + ")]]");
+
+                int location = var.modifiers().fLayout.fLocation;
+                if (location < 0) {
+                    fErrors.error(var.fOffset,
+                                  "Metal out variables must have 'layout(location=...)'");
+                } else if (fProgram.fKind == Program::kVertex_Kind) {
+                    this->write(" [[user(locn" + to_string(location) + ")]]");
                 } else if (fProgram.fKind == Program::kFragment_Kind) {
-                    this->write(" [[color(" +
-                                to_string(var.modifiers().fLayout.fLocation) +")");
+                    this->write(" [[color(" + to_string(location) + ")");
                     int colorIndex = var.modifiers().fLayout.fIndex;
                     if (colorIndex) {
                         this->write(", index(" + to_string(colorIndex) + ")");
