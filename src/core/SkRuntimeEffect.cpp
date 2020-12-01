@@ -362,10 +362,17 @@ static skvm::Color program_fn(skvm::Builder* p,
                               skvm::Color inColor,
                               SampleChildFn sampleChild,
                               skvm::Coord device, skvm::Coord local) {
-    std::vector<skvm::F32> stack;
+    std::vector<skvm::Val> stack;   // F32 or I32, type-erased
 
-    auto push = [&](skvm::F32 x) { stack.push_back(x); };
-    auto pop  = [&]{ skvm::F32 x = stack.back(); stack.pop_back(); return x; };
+    auto push_Val = [&](skvm::Val id) { stack.push_back(id); };
+    auto  pop_Val = [&]{ skvm::Val id = stack.back(); stack.pop_back(); return id; };
+
+    auto push = [&](auto/*F32 or I32*/ x) {
+        SkASSERT(x && x.builder == p);
+        push_Val(x.id);
+    };
+    auto pop_F32 = [&]{ return skvm::F32{p, pop_Val()}; };
+    auto pop_I32 = [&]{ return skvm::I32{p, pop_Val()}; };
 
     // half4 main() or half4 main(float2 local)
     SkASSERT(fn.getParameterCount() == 0 || fn.getParameterCount() == 2);
@@ -401,34 +408,34 @@ static skvm::Color program_fn(skvm::Builder* p,
 
         auto unary = [&](auto&& fn) {
             int N = u8();
-            std::vector<skvm::F32> a(N);
-            for (int i = N; i --> 0; ) { a[i] = pop(); }
+            std::vector<skvm::Val> a(N);
+            for (int i = N; i --> 0; ) { a[i] = pop_Val(); }
 
             for (int i = 0; i < N; i++) {
-                push(fn(a[i]));
+                push(fn( {p,a[i]} ));
             }
         };
 
         auto binary = [&](auto&& fn) {
             int N = u8();
-            std::vector<skvm::F32> a(N), b(N);
-            for (int i = N; i --> 0; ) { b[i] = pop(); }
-            for (int i = N; i --> 0; ) { a[i] = pop(); }
+            std::vector<skvm::Val> a(N), b(N);
+            for (int i = N; i --> 0; ) { b[i] = pop_Val(); }
+            for (int i = N; i --> 0; ) { a[i] = pop_Val(); }
 
             for (int i = 0; i < N; i++) {
-                push(fn(a[i], b[i]));
+                push(fn( {p,a[i]}, {p,b[i]} ));
             }
         };
 
         auto ternary = [&](auto&& fn) {
             int N = u8();
-            std::vector<skvm::F32> a(N), b(N), c(N);
-            for (int i = N; i --> 0; ) { c[i] = pop(); }
-            for (int i = N; i --> 0; ) { b[i] = pop(); }
-            for (int i = N; i --> 0; ) { a[i] = pop(); }
+            std::vector<skvm::Val> a(N), b(N), c(N);
+            for (int i = N; i --> 0; ) { c[i] = pop_Val(); }
+            for (int i = N; i --> 0; ) { b[i] = pop_Val(); }
+            for (int i = N; i --> 0; ) { a[i] = pop_Val(); }
 
             for (int i = 0; i < N; i++) {
-                push(fn(a[i], b[i], c[i]));
+                push(fn( {p,a[i]}, {p,b[i]}, {p,c[i]} ));
             }
         };
 
@@ -467,7 +474,7 @@ static skvm::Color program_fn(skvm::Builder* p,
 
                 // Stack contains matrix to apply to sample coordinates.
                 skvm::F32 m[9];
-                for (int i = 9; i --> 0; ) { m[i] = pop(); }
+                for (int i = 9; i --> 0; ) { m[i] = pop_F32(); }
 
                 // TODO: Optimize this for simpler matrices
                 skvm::F32 x = m[0]*local.x + m[3]*local.y + m[6],
@@ -486,8 +493,8 @@ static skvm::Color program_fn(skvm::Builder* p,
                 int ix = u8();
 
                 // Stack contains x,y to sample at.
-                skvm::F32 y = pop(),
-                          x = pop();
+                skvm::F32 y = pop_F32(),
+                          x = pop_F32();
 
                 if (!sample(ix, {x,y})) {
                     return {};
@@ -498,7 +505,7 @@ static skvm::Color program_fn(skvm::Builder* p,
                 int N  = u8(),
                     ix = u8();
                 for (int i = 0; i < N; ++i) {
-                    push(stack[ix + i]);
+                    push_Val(stack[ix + i]);
                 }
             } break;
 
@@ -522,38 +529,38 @@ static skvm::Color program_fn(skvm::Builder* p,
                 int N  = u8(),
                     ix = u8();
                 for (int i = N; i --> 0; ) {
-                    skvm::F32 next = pop(),
-                              curr = stack[ix+i];
-                    stack[ix + i] = select(mask_stack.back(), next, curr);
+                    skvm::F32 next = pop_F32(),
+                              curr = skvm::F32{p, stack[ix+i]};
+                    stack[ix + i] = select(mask_stack.back(), next, curr).id;
                 }
             } break;
 
             case Inst::kPushImmediate: {
-                push(pun_to_F32(p->splat(u32())));
+                push(p->splat(u32()));
             } break;
 
             case Inst::kDup: {
                 int N = u8();
                 for (int i = 0; i < N; ++i) {
-                    push(stack[stack.size() - N]);
+                    push_Val(stack[stack.size() - N]);
                 }
             } break;
 
             case Inst::kSwizzle: {
-                skvm::F32 tmp[4];
+                skvm::Val tmp[4];
                 for (int i = u8(); i --> 0;) {
-                    tmp[i] = pop();
+                    tmp[i] = pop_Val();
                 }
                 for (int i = u8(); i --> 0;) {
-                    push(tmp[u8()]);
+                    push_Val(tmp[u8()]);
                 }
             } break;
 
-            case Inst::kAddF:      binary(std::plus<>{});       break;
-            case Inst::kSubtractF: binary(std::minus<>{});      break;
-            case Inst::kMultiplyF: binary(std::multiplies<>{}); break;
-            case Inst::kDivideF:   binary(std::divides<>{});    break;
-            case Inst::kNegateF:    unary(std::negate<>{});     break;
+            case Inst::kAddF:      binary([](skvm::F32 x, skvm::F32 y) { return x+y; }); break;
+            case Inst::kSubtractF: binary([](skvm::F32 x, skvm::F32 y) { return x-y; }); break;
+            case Inst::kMultiplyF: binary([](skvm::F32 x, skvm::F32 y) { return x*y; }); break;
+            case Inst::kDivideF:   binary([](skvm::F32 x, skvm::F32 y) { return x/y; }); break;
+            case Inst::kNegateF:   unary([](skvm::F32 x) { return -x; }); break;
 
             case Inst::kMinF:
                 binary([](skvm::F32 x, skvm::F32 y) { return skvm::min(x,y); });
@@ -615,8 +622,8 @@ static skvm::Color program_fn(skvm::Builder* p,
                     bRows = aCols;
                 std::vector<skvm::F32> A(aCols*aRows),
                                        B(bCols*bRows);
-                for (auto i = B.size(); i --> 0;) { B[i] = pop(); }
-                for (auto i = A.size(); i --> 0;) { A[i] = pop(); }
+                for (auto i = B.size(); i --> 0;) { B[i] = pop_F32(); }
+                for (auto i = A.size(); i --> 0;) { A[i] = pop_F32(); }
 
                 for (int c = 0; c < bCols; ++c)
                 for (int r = 0; r < aRows; ++r) {
@@ -632,7 +639,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             // in that we're only maintaining mask stack and cond stack, and don't support loops.
 
             case Inst::kMaskPush:
-                cond_stack.push_back(pun_to_I32(pop()));
+                cond_stack.push_back(pop_I32());
                 mask_stack.push_back(mask_stack.back() & cond_stack.back());
                 break;
 
@@ -649,47 +656,39 @@ static skvm::Color program_fn(skvm::Builder* p,
             // Comparisons all should write their results to the main data stack;
             // maskpush moves them from there onto the mask stack as needed.
             case Inst::kCompareFEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x==y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x==y; });
                 break;
             case Inst::kCompareFNEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x!=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x!=y; });
                 break;
             case Inst::kCompareFGT:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x>y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x>y; });
                 break;
             case Inst::kCompareFGTEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x>=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x>=y; });
                 break;
             case Inst::kCompareFLT:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x<y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x<y; });
                 break;
             case Inst::kCompareFLTEQ:
-                binary([](skvm::F32 x, skvm::F32 y) { return pun_to_F32(x<=y); });
+                binary([](skvm::F32 x, skvm::F32 y) { return x<=y; });
                 break;
 
             case Inst::kCompareIEQ:
-                binary([](skvm::F32 x, skvm::F32 y) {
-                    return pun_to_F32(pun_to_I32(x) == pun_to_I32(y));
-                });
+                binary([](skvm::I32 x, skvm::I32 y) { return x == y; });
                 break;
             case Inst::kCompareINEQ:
-                binary([](skvm::F32 x, skvm::F32 y) {
-                    return pun_to_F32(pun_to_I32(x) != pun_to_I32(y));
-                });
+                binary([](skvm::I32 x, skvm::I32 y) { return x != y; });
                 break;
 
             case Inst::kAndB:
-                binary([](skvm::F32 x, skvm::F32 y) {
-                    return pun_to_F32(pun_to_I32(x) & pun_to_I32(y));
-                });
+                binary([](skvm::I32 x, skvm::I32 y) { return x & y; });
                 break;
             case Inst::kOrB:
-                binary([](skvm::F32 x, skvm::F32 y) {
-                    return pun_to_F32(pun_to_I32(x) | pun_to_I32(y));
-                });
+                binary([](skvm::I32 x, skvm::I32 y) { return x | y; });
                 break;
             case Inst::kNotB:
-                unary([](skvm::F32 x) { return pun_to_F32(~pun_to_I32(x)); });
+                unary([](skvm::I32 x) { return ~x; });
                 break;
 
             case Inst::kMaskBlend: {
@@ -697,8 +696,8 @@ static skvm::Color program_fn(skvm::Builder* p,
                                        if_false;
 
                 int count = u8();
-                for (int i = 0; i < count; i++) { if_false.push_back(pop()); }
-                for (int i = 0; i < count; i++) { if_true .push_back(pop()); }
+                for (int i = 0; i < count; i++) { if_false.push_back(pop_F32()); }
+                for (int i = 0; i < count; i++) { if_true .push_back(pop_F32()); }
 
                 skvm::I32 cond = cond_stack.back();
                 cond_stack.pop_back();
@@ -745,10 +744,10 @@ static skvm::Color program_fn(skvm::Builder* p,
                     skvm::I32 returns_here = bit_clear(mask_stack.back(),
                                                        result_locked_in);
 
-                    result.a = select(returns_here, pop(), result.a);
-                    result.b = select(returns_here, pop(), result.b);
-                    result.g = select(returns_here, pop(), result.g);
-                    result.r = select(returns_here, pop(), result.r);
+                    result.a = select(returns_here, pop_F32(), result.a);
+                    result.b = select(returns_here, pop_F32(), result.b);
+                    result.g = select(returns_here, pop_F32(), result.g);
+                    result.r = select(returns_here, pop_F32(), result.r);
 
                     result_locked_in |= returns_here;
                 }
