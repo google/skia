@@ -68,9 +68,7 @@ class GrPaint;
 
 class GrOp : private SkNoncopyable {
 public:
-    #if defined(GR_OP_ALLOCATE_USE_NEW)
-        using Owner = std::unique_ptr<GrOp>;
-    #else
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
         struct DeleteFromPool {
             DeleteFromPool() : fPool{nullptr} {}
             DeleteFromPool(GrMemoryPool* pool) : fPool{pool} {}
@@ -78,6 +76,8 @@ public:
             GrMemoryPool* fPool;
         };
         using Owner =  std::unique_ptr<GrOp, DeleteFromPool>;
+    #else
+        using Owner = std::unique_ptr<GrOp>;
     #endif
 
     template<typename Op, typename... Args>
@@ -90,14 +90,7 @@ public:
             GrRecordingContext* context, const SkPMColor4f& color,
             GrPaint&& paint, Args&&... args);
 
-    #if defined(GR_OP_ALLOCATE_USE_NEW)
-        template<typename Op, typename... Args>
-            static Owner MakeWithExtraMemory(
-                    GrRecordingContext* context, size_t extraSize, Args&&... args) {
-                void* bytes = ::operator new(sizeof(Op) + extraSize);
-                return Owner{new (bytes) Op(std::forward<Args>(args)...)};
-            }
-    #else
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
         template<typename Op, typename... Args>
         static Owner MakeWithExtraMemory(
                 GrRecordingContext* context, size_t extraSize, Args&&... args) {
@@ -105,6 +98,13 @@ public:
             void* mem = pool->allocate(sizeof(Op) + extraSize);
             GrOp* op = new (mem) Op(std::forward<Args>(args)...);
             return Owner{op, pool};
+        }
+    #else
+        template<typename Op, typename... Args>
+        static Owner MakeWithExtraMemory(
+                GrRecordingContext* context, size_t extraSize, Args&&... args) {
+            void* bytes = ::operator new(sizeof(Op) + extraSize);
+            return Owner{new (bytes) Op(std::forward<Args>(args)...)};
         }
     #endif
 
@@ -161,23 +161,26 @@ public:
         SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
-    #if defined(GR_OP_ALLOCATE_USE_NEW)
+
+    #if defined(GR_OP_ALLOCATE_USE_POOL)
+        #if defined(SK_DEBUG)
+            // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
+            void* operator new(size_t size);
+            void operator delete(void* target);
+
+            void* operator new(size_t size, void* placement) {
+                return ::operator new(size, placement);
+            }
+            void operator delete(void* target, void* placement) {
+                ::operator delete(target, placement);
+            }
+        #endif
+    #else
         // GrOps are allocated using ::operator new in the GrMemoryPool. Doing this style of memory
         // allocation defeats the delete with size optimization.
         void* operator new(size_t) { SK_ABORT("All GrOps are created by placement new."); }
         void* operator new(size_t, void* p) { return p; }
         void operator delete(void* p) { ::operator delete(p); }
-    #elif defined(SK_DEBUG)
-        // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
-        void* operator new(size_t size);
-        void operator delete(void* target);
-
-        void* operator new(size_t size, void* placement) {
-            return ::operator new(size, placement);
-        }
-        void operator delete(void* target, void* placement) {
-            ::operator delete(target, placement);
-        }
     #endif
 
     /**
