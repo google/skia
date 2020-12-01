@@ -80,6 +80,30 @@
       },
       "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1066ef9c_223e2865",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-01T15:18:50Z",
+      "side": 1,
+      "message": "Having first-class integer support would be a win. Stock ES2 has very limited integer support, but it *does* support them as a type (even if they\u0027re allowed to be floats with limited range/precision under the hood). I haven\u0027t mapped all of the integer operations from ByteCode to skvm yet, but doing so will be easier with either of the ideas you propose. However...\n\nThe second thing is interesting. Today, the extra hoop we go through with ByteCode basically erases knowledge of half precision - the stack-based interpreter (and thus, the byte code) treats all halfs as floats. There are already other reasons to think about removing the ByteCode intermediary, so this could add weight to that argument.\n\nThe flip-side is that the ByteCode supports some arbitrary features for particles, and that we\u0027ve imagined using in a few other \"scripting\" applications - path effects, image filter bounds xforms, skottie expressions. From re-reading, I guess that skvm does support pretty arbitrary function signatures? (That was a key feature of the byte code interpreter). Meh - I\u0027m getting really close to just deleting particles at this point.",
+      "parentUuid": "79c9e0f8_cfa4f51d",
+      "range": {
+        "startLine": 671,
+        "startChar": 54,
+        "endLine": 671,
+        "endChar": 95
+      },
+      "revId": "61c34b3fb09567037e2e23b906d9bfe65c582d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
