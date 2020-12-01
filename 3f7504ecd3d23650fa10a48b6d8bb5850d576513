@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec20ccf_1e9cc46e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-01T15:51:23Z",
+      "side": 1,
+      "message": "Ooh, this puts us temptingly close to merging SkASSERTF() into SkASSERT().",
+      "revId": "3f7504ecd3d23650fa10a48b6d8bb5850d576513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
