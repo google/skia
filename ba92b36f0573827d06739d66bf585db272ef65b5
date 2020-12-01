@@ -105,6 +105,24 @@
       "message": "Going to clean this up a bit and add the current formula to GrWangsFormula.h -- then we can decide whether we want to land this or not.",
       "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b42cc515_f66b53cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-01T16:56:43Z",
+      "side": 1,
+      "message": "I think a good first CL would be to land your reference_impl in WangsFormulaTest, with the quad reduction test you already have as well as one more that verifies max error is within tolerance.\n\nIt would be great to have both those tests so we can work on improving and/or understanding the formula better before enabling it in the tessellator.",
+      "parentUuid": "a7b217f7_1a144ffa",
+      "revId": "ba92b36f0573827d06739d66bf585db272ef65b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
