@@ -16,6 +16,23 @@
       "message": "A one line change with a hundred lines of test...",
       "revId": "9965aa5d57e30d689896f11216c39e17ed8efd7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07bbd776_d0a8e081",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-01T14:56:33Z",
+      "side": 1,
+      "message": "Minor API change to add proper constructor to SkFontParameters.",
+      "revId": "9965aa5d57e30d689896f11216c39e17ed8efd7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
