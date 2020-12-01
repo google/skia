@@ -62,7 +62,7 @@ void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
                 separator = ", ";
             }
             printf(")\n");
-            main->disassemble();
+            printf("%s\n", main->disassemble().c_str());
         }
         REPORTER_ASSERT(r, valid);
     } else {
@@ -129,7 +129,7 @@ void vec_test(skiatest::Reporter* r, const char* src) {
                     out_v[4*i + 0], out_v[4*i + 1], out_v[4*i + 2], out_v[4*i + 3],
                     out_s[4*i + 0], out_s[4*i + 1], out_s[4*i + 2], out_s[4*i + 3]);
         }
-        main->disassemble();
+        printf("%s\n", main->disassemble().c_str());
         REPORT_FAILURE(r, "VecInterpreter mismatch", SkString());
     }
 }
@@ -159,7 +159,7 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
             printf("    expected (%f, %f, %f, %f), but received (%f, %f, %f, %f)\n", expectedR,
                    expectedG, expectedB, expectedA, inoutColor[0], inoutColor[1], inoutColor[2],
                    inoutColor[3]);
-            main->disassemble();
+            printf("%s\n", main->disassemble().c_str());
         }
         REPORTER_ASSERT(r, inoutColor[0] == expectedR);
         REPORTER_ASSERT(r, inoutColor[1] == expectedG);

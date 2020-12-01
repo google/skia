@@ -178,9 +178,9 @@ public:
     size_t         size() const { return fCode.size(); }
 
     /**
-     * Print bytecode disassembly to stdout.
+     * Return a string containing bytecode disassembly.
      */
-    void disassemble() const;
+    SkSL::String disassemble() const;
 
 private:
     ByteCodeFunction(const FunctionDeclaration* declaration);
@@ -284,6 +284,11 @@ public:
      * They may still be used to convert to other formats, or for reflection of uniforms.
      */
     bool canRun() const { return fChildFPCount == 0 && !fUsesFragCoord; }
+
+    /**
+     * Return a string containing bytecode disassembly of all functions.
+     */
+    SkSL::String disassemble() const;
 
 private:
     ByteCode(const ByteCode&) = delete;

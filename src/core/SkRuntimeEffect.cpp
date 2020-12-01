@@ -447,7 +447,7 @@ static skvm::Color program_fn(skvm::Builder* p,
         switch (inst) {
             default:
                 #if DEBUGGING_PROGRAM_FN
-                    fn.disassemble();
+                    SkDebugf("%s\n", fn.disassemble().c_str());
                     SkDebugf("inst %02x unimplemented\n", inst);
                     __builtin_debugtrap();
                 #endif
@@ -684,7 +684,7 @@ static skvm::Color program_fn(skvm::Builder* p,
                     // This is backward jump, e.g. a loop.
                     // We can't handle those yet.
                     #if DEBUGGING_PROGRAM_FN
-                        fn.disassemble();
+                        SkDebugf("%s\n", fn.disassemble().c_str());
                         SkDebugf("inst %02x has a backward jump to %d\n", inst, target);
                         __builtin_debugtrap();
                     #endif
