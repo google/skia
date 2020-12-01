@@ -6,6 +6,7 @@ OpName %sk_InstanceID "sk_InstanceID"
 OpName %id "id"
 OpName %main "main"
 OpDecorate %sk_InstanceID BuiltIn InstanceIndex
+OpDecorate %id Location 1
 %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
 %sk_InstanceID = OpVariable %_ptr_Input_int Input

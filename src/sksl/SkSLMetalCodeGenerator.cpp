@@ -1559,6 +1559,12 @@ void MetalCodeGenerator::writeOutputStruct() {
                 this->writeType(var.type());
                 this->write(" ");
                 this->writeName(var.name());
+
+                const int location = var.modifiers().fLayout.fLocation;
+                if (location < 0) {
+                    fErrors.error(var.fOffset,
+                                  "Metal out variables must have 'layout(location=...)'");
+                }
                 if (fProgram.fKind == Program::kVertex_Kind) {
                     this->write("  [[user(locn" +
                                 to_string(var.modifiers().fLayout.fLocation) + ")]]");
