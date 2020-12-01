@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61a0a5e9_887c9e0c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-01T17:58:27Z",
+      "side": 1,
+      "message": "No. SkGlyphRect has some additional invariants over a normal rect to make union go very fast.",
+      "parentUuid": "3f5cb102_b6a6766c",
+      "range": {
+        "startLine": 452,
+        "startChar": 27,
+        "endLine": 452,
+        "endChar": 38
+      },
+      "revId": "59545c2a345586e932e9a3aba6704b0a231ec41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "69f2cb5d_100c4b7c",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-01T17:31:47Z",
       "side": 1,
       "message": "bounds ?",
+      "range": {
+        "startLine": 497,
+        "startChar": 34,
+        "endLine": 497,
+        "endChar": 40
+      },
+      "revId": "59545c2a345586e932e9a3aba6704b0a231ec41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ab709dd_fbacd4cd",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-01T17:58:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69f2cb5d_100c4b7c",
       "range": {
         "startLine": 497,
         "startChar": 34,
