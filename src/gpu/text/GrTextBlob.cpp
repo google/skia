@@ -1167,10 +1167,10 @@ GrSubRun* SDFTSubRun::Make(
     auto initializer = [&, strikeToSource=strikeSpec.strikeToSourceRatio()](size_t i) {
         auto [variant, pos] = drawables[i];
         SkGlyph* skGlyph = variant;
-        int16_t l = skGlyph->left();
-        int16_t t = skGlyph->top();
-        int16_t r = l + skGlyph->width();
-        int16_t b = t + skGlyph->height();
+        int16_t l = skGlyph->left(),
+                t = skGlyph->top(),
+                r = l + skGlyph->width(),
+                b = t + skGlyph->height();
         SkPoint lt = SkPoint::Make(l, t) * strikeToSource + pos,
                 rb = SkPoint::Make(r, b) * strikeToSource + pos;
 
@@ -1197,6 +1197,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             const SkGlyphRunList& glyphRunList,
                             GrRenderTargetContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
+    SkASSERT(!viewMatrix.localToDevice().hasPerspective());
 
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
@@ -1218,7 +1219,6 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
     uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
     DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
 
@@ -1264,7 +1264,7 @@ void SDFTSubRun::draw(const GrClip* clip,
 
 bool SDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     const SkMatrix& initialMatrix = fBlob->initialMatrix();
-    if (initialMatrix.hasPerspective() != drawMatrix.hasPerspective()) {
+    if (drawMatrix.hasPerspective()) {
         return false;
     }
 
@@ -1291,7 +1291,7 @@ std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
 }
 
 size_t SDFTSubRun::vertexStride(const SkMatrix& drawMatrix) const {
-    return drawMatrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
+    return sizeof(Mask2DVertex);
 }
 
 void SDFTSubRun::fillVertexData(
@@ -1301,31 +1301,16 @@ void SDFTSubRun::fillVertexData(
     SkMatrix matrix = drawMatrix;
     matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         fGlyphs.glyphs().subspan(offset, count),
-                         fVertexData.subspan(offset, count));
-    };
-
-    if (!drawMatrix.hasPerspective()) {
-        using Quad = Mask2DVertex[4];
-        SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
-        fill_transformed_vertices_2D(
-                quadData((Quad*) vertexDst),
-                SK_DistanceFieldInset,
-                fGlyphs.strikeToSourceRatio(),
-                color,
-                matrix);
-    } else {
-        using Quad = Mask3DVertex[4];
-        SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
-        fill_transformed_vertices_3D(
-                quadData((Quad*) vertexDst),
-                SK_DistanceFieldInset,
-                fGlyphs.strikeToSourceRatio(),
-                color,
-                matrix);
-    }
+    using Quad = Mask2DVertex[4];
+    SkASSERT(sizeof(Quad) == this->vertexStride(drawMatrix) * kVerticesPerGlyph);
+    fill_transformed_vertices_2D(
+            SkMakeZip((Quad*)vertexDst,
+                      fGlyphs.glyphs().subspan(offset, count),
+                      fVertexData.subspan(offset, count)),
+            SK_DistanceFieldInset,
+            fGlyphs.strikeToSourceRatio(),
+            color,
+            matrix);
 }
 
 int SDFTSubRun::glyphCount() const {
