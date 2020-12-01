@@ -22,6 +22,30 @@
       },
       "revId": "eed309c70c2c2758a4c9520267bf16a335879166",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4212fc53_0b34346a",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T18:26:02Z",
+      "side": 1,
+      "message": "This is specifically for main() which wouldn\u0027t have a return expression, but might have:\n\n  if (x) { foo(); return; } else { bar(); return; }\n\nThis would become\n\n  if (x) { foo(); return *_out; } else { bar(); return *_out; } return *_out;\n\nTechnically the extraneous return doesn\u0027t actually hurt anything. Maybe we don\u0027t need this check at all; I was trying to answer the FIXME but maybe it\u0027s not worth the added complexity. You can have `return *_out; return *_out;` at the end of a program and it compiles fine.\n\n(I just checked and even with -Wunreachable-code, `return *_out; return *_out;` doesn\u0027t complain! Neither does  `return *_out; return Outputs{};`! It only triggers the warning if you put something else between the two returns, like `int foo \u003d 0;`.)",
+      "parentUuid": "ee17c4ec_7c77501b",
+      "range": {
+        "startLine": 1146,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 1
+      },
+      "revId": "eed309c70c2c2758a4c9520267bf16a335879166",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
