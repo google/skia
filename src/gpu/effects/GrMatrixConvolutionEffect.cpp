@@ -19,6 +19,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/dsl/DSL.h"
 
 class GrGLMatrixConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
@@ -32,7 +33,8 @@ protected:
 private:
     typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
-    void emitKernelBlock(EmitArgs&, SkIPoint);
+    void emitKernelBlock(EmitArgs&, SkIPoint, SkSL::dsl::Var& kernelVar, SkSL::dsl::Var& coord,
+                         SkSL::dsl::Var& sum);
 
     UniformHandle               fKernelUni;
     UniformHandle               fKernelOffsetUni;
@@ -161,45 +163,49 @@ bool GrMatrixConvolutionEffect::KernelWrapper::BiasAndGain::operator==(
 // For sampled kernels, emit a for loop that does all the kernel accumulation.
 // For uniform kernels, emit a single iteration. Function is called repeatedly in a for loop.
 // loc is ignored for sampled kernels.
-void GrGLMatrixConvolutionEffect::emitKernelBlock(EmitArgs& args, SkIPoint loc) {
+void GrGLMatrixConvolutionEffect::emitKernelBlock(EmitArgs& args, SkIPoint loc,
+                                                  SkSL::dsl::Var& kernelVar, SkSL::dsl::Var& coord,
+                                                  SkSL::dsl::Var& sum) {
     const GrMatrixConvolutionEffect& mce = args.fFp.cast<GrMatrixConvolutionEffect>();
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     int kernelWidth = mce.kernelSize().width();
     int kernelHeight = mce.kernelSize().height();
     int kernelArea = kernelWidth * kernelHeight;
 
-    if (mce.kernelIsSampled()) {
-        fragBuilder->codeAppendf("for (int i = 0; i < %d; ++i)", (int)kernelArea);
-    }
+    using namespace SkSL::dsl;
+    SkSL::StatementArray body;
 
-    GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
-
-    fragBuilder->codeAppend("half k;");
-    fragBuilder->codeAppend("half2 sourceOffset;");
+    Block block;
+    Var i(kInt, "i");
+    Var k(kHalf, "k");
+    Var sourceOffset(kHalf2, "sourceOffset");
+    block.append(Declare(k));
+    block.append(Declare(sourceOffset));
     if (mce.kernelIsSampled()) {
-        const char* kernelBias = uniformHandler->getUniformCStr(fKernelBiasUni);
-        SkString kernelCoord = SkStringPrintf("float2(float(i) + 0.5, 0.5)");
-        SkString kernelSample = this->invokeChild(1, args, kernelCoord.c_str());
-        fragBuilder->codeAppendf("k = %s.w + %s;", kernelSample.c_str(), kernelBias);
-        fragBuilder->codeAppendf("sourceOffset.y = floor(i / %d);", kernelWidth);
-        fragBuilder->codeAppendf("sourceOffset.x = i - sourceOffset.y * %d;", kernelWidth);
+        block.append(k = sampleChild(1, Float2(Float(i) + 0.5, 0.5)).w() + kernelVar);
+        block.append(sourceOffset.y() = floor(i / kernelWidth));
+        block.append(sourceOffset.x() = i - sourceOffset.y() * kernelWidth);
     } else {
-        fragBuilder->codeAppendf("sourceOffset = half2(%d, %d);", loc.x(), loc.y());
+        block.append(sourceOffset = Half2(loc.x(), loc.y()));
         int offset = loc.y() * kernelWidth + loc.x();
-        static constexpr const char kVecSuffix[][4] = { ".x", ".y", ".z", ".w" };
-        const char* kernel = uniformHandler->getUniformCStr(fKernelUni);
-        fragBuilder->codeAppendf("k = %s[%d]%s;", kernel, offset / 4,
-                                 kVecSuffix[offset & 0x3]);
+        static constexpr SwizzleComponent kComponent[4] = { X, Y, Z, W };
+        block.append(k = Swizzle(kernelVar[offset / 4], kComponent[offset & 0x3]));
     }
 
-    auto sample = this->invokeChild(0, args, "coord + sourceOffset");
-    fragBuilder->codeAppendf("half4 c = %s;", sample.c_str());
+    Var c(kHalf4, "c");
+    block.append(Declare(c, sampleChild(0, coord + sourceOffset)));
     if (!mce.convolveAlpha()) {
-        fragBuilder->codeAppend("c = unpremul(c);");
-        fragBuilder->codeAppend("c.rgb = saturate(c.rgb);");
+        block.append(c = unpremul(c));
+        block.append(c.rgb() = saturate(c.rgb()));
     }
-    fragBuilder->codeAppend("sum += c * k;");
+    block.append(sum += c * k);
+
+    if (mce.kernelIsSampled()) {
+        fragBuilder->codeAppend(For(Declare(i, 0), i < kernelArea, ++i,
+                                    Statement(std::move(block))));
+    } else {
+        fragBuilder->codeAppend(std::move(block));
+    }
 }
 
 void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
@@ -208,53 +214,51 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     int kernelWidth = mce.kernelSize().width();
     int kernelHeight = mce.kernelSize().height();
 
-    int arrayCount = (kernelWidth * kernelHeight + 3) / 4;
-    SkASSERT(4 * arrayCount >= kernelWidth * kernelHeight);
-
-    GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    if (mce.kernelIsSampled()) {
-        fKernelBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType, "KernelBias");
-    } else {
-        fKernelUni = uniformHandler->addUniformArray(&mce, kFragment_GrShaderFlag,
-                                                     kHalf4_GrSLType, "Kernel", arrayCount);
-    }
-    fKernelOffsetUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                  "KernelOffset");
-    fGainUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Gain");
-    fBiasUni = uniformHandler->addUniform(&mce, kFragment_GrShaderFlag, kHalf_GrSLType, "Bias");
-
-    const char* kernelOffset = uniformHandler->getUniformCStr(fKernelOffsetUni);
-    const char* gain = uniformHandler->getUniformCStr(fGainUni);
-    const char* bias = uniformHandler->getUniformCStr(fBiasUni);
+    using namespace SkSL::dsl;
+    Start(this, &args);
+    Var kernelOffset(Modifiers::kUniform_Flag, kHalf2, "kernelOffset");
+    fKernelOffsetUni = kernelOffset.uniformHandle();
+    Var gain(Modifiers::kUniform_Flag, kHalf, "gain");
+    fGainUni = gain.uniformHandle();
+    Var bias(Modifiers::kUniform_Flag, kHalf, "bias");
+    fBiasUni = bias.uniformHandle();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    fragBuilder->codeAppend("half4 sum = half4(0, 0, 0, 0);");
-    fragBuilder->codeAppendf("float2 coord = %s - %s;", args.fSampleCoord, kernelOffset);
+    Var sum(kHalf4, "sum");
+    fragBuilder->codeAppend(Declare(sum, Half4(0, 0, 0, 0)));
+    Var coord(kFloat2, "coord");
+    fragBuilder->codeAppend(Declare(coord, sk_SampleCoord - kernelOffset));
 
     if (mce.kernelIsSampled()) {
-        this->emitKernelBlock(args, {});
+        Var kernelBias(Modifiers::kUniform_Flag, kHalf, "kernelBias");
+        fKernelBiasUni = kernelBias.uniformHandle();
+        this->emitKernelBlock(args, {}, kernelBias, coord, sum);
     } else {
+        int arrayCount = (kernelWidth * kernelHeight + 3) / 4;
+        SkASSERT(4 * arrayCount >= kernelWidth * kernelHeight);
+        Var kernel(Modifiers::kUniform_Flag, Array(kHalf4, arrayCount), "kernel");
+        fKernelUni = kernel.uniformHandle();
         for (int x = 0; x < kernelWidth; ++x) {
             for (int y = 0; y < kernelHeight; ++y) {
-                this->emitKernelBlock(args, SkIPoint::Make(x, y));
+                this->emitKernelBlock(args, SkIPoint::Make(x, y), kernel, coord, sum);
             }
         }
     }
 
     if (mce.convolveAlpha()) {
-        fragBuilder->codeAppendf("%s = sum * %s + %s;", args.fOutputColor, gain, bias);
-        fragBuilder->codeAppendf("%s.a = saturate(%s.a);", args.fOutputColor, args.fOutputColor);
-        fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
-                                 args.fOutputColor, args.fOutputColor, args.fOutputColor);
+        fragBuilder->codeAppend(sk_OutColor = sum * gain + bias);
+        fragBuilder->codeAppend(sk_OutColor.a() = saturate(sk_OutColor.a()));
+        fragBuilder->codeAppend(sk_OutColor.rgb() = clamp(sk_OutColor.rgb(), 0.0, sk_OutColor.a()));
     } else {
         auto sample = this->invokeChild(0, args);
-        fragBuilder->codeAppendf("half4 c = %s;", sample.c_str());
-        fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
-        fragBuilder->codeAppendf("%s.rgb = saturate(sum.rgb * %s + %s);", args.fOutputColor, gain, bias);
-        fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);
+        Var c(kHalf4, "c");
+        fragBuilder->codeAppend(Declare(c,sampleChild(0)));
+        fragBuilder->codeAppend(sk_OutColor.a() = c.a());
+        fragBuilder->codeAppend(sk_OutColor.rgb() = saturate(sum.rgb() * gain + bias));
+        fragBuilder->codeAppend(sk_OutColor.rgb() *= sk_OutColor.a());
     }
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppend(sk_OutColor *= sk_InColor);
+    End();
 }
 
 void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
