@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed378331_8c892bf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-01T16:50:21Z",
+      "side": 1,
+      "message": "@Mike what do you think about this bug? At head the gm I added does not render anything. I figure we can either re-raise the cubic recursion limit to \u003e\u003d 43, or we can use the quad approximation once we hit the limit (see commented-out lines in SkStroke.cpp in this CL).",
+      "revId": "87763e3f7cbf5c202f3b38faa87e4ccb2fd60219",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
