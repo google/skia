@@ -68,30 +68,30 @@ template<int N> SK_ALWAYS_INLINE vec<N> fast_madd(vec<N> f, vec<N> m, vec<N> a) 
 // infinite at -1 and 1). So the input must still be clamped between -1 and 1.
 #define GRVX_FAST_ACOS_MAX_ERROR SkDegreesToRadians(.96f)
 template<int N> SK_ALWAYS_INLINE vec<N> approx_acos(vec<N> x) {
-    static const vec<N> a = -0.939115566365855f;
-    static const vec<N> b =  0.9217841528914573f;
-    static const vec<N> c = -1.2845906244690837f;
-    static const vec<N> d =  0.295624144969963174f;
-    static const vec<N> pi_over_2 = 1.5707963267948966f;
+    constexpr static float a = -0.939115566365855f;
+    constexpr static float b =  0.9217841528914573f;
+    constexpr static float c = -1.2845906244690837f;
+    constexpr static float d =  0.295624144969963174f;
+    constexpr static float pi_over_2 = 1.5707963267948966f;
     vec<N> xx = x*x;
-    vec<N> numer = fast_madd(b,xx,a);
-    vec<N> denom = fast_madd<N>(xx, fast_madd(d,xx,c), 1);
-    return fast_madd(x, numer/denom, pi_over_2);
+    vec<N> numer = fast_madd<N>(b,xx,a);
+    vec<N> denom = fast_madd<N>(xx, fast_madd<N>(d,xx,c), 1);
+    return fast_madd<N>(x, numer/denom, pi_over_2);
 }
 
-// Approximates the angle between a and b within .96 degrees (GRVX_FAST_ACOS_MAX_ERROR).
+// Approximates the angle between vectors a and b within .96 degrees (GRVX_FAST_ACOS_MAX_ERROR).
+// a (and b) represent "N" (Nx2/2) 2d vectors in SIMD, with the x values found in a.lo, and the
+// y values in a.hi.
 //
-// Due to fp32 overflow, this method is only valid for max(abs(ax), abs(ay)) and
-// max(abs(bx), abs(by)) in the range (2^-31, 2^31) exclusive. Results are undefined if the inputs
-// fall outside this range.
+// Due to fp32 overflow, this method is only valid for magnitudes in the range (2^-31, 2^31)
+// exclusive. Results are undefined if the inputs fall outside this range.
 //
 // NOTE: If necessary, we can extend our valid range to 2^(+/-63) by normalizing a and b separately.
 // i.e.: "cosTheta = dot(a,b) / sqrt(dot(a,a)) / sqrt(dot(b,b))".
-template<int N>
-SK_ALWAYS_INLINE vec<N> approx_angle_between_vectors(vec<N> ax, vec<N> ay, vec<N> bx, vec<N> by) {
-    vec<N> ab_cosTheta = fast_madd(ax, bx, ay*by);
-    vec<N> ab_pow2 = fast_madd(ay, ay, ax*ax) * fast_madd(by, by, bx*bx);
-    vec<N> cosTheta = ab_cosTheta / skvx::sqrt(ab_pow2);
+template<int Nx2>
+SK_ALWAYS_INLINE vec<Nx2/2> approx_angle_between_vectors(vec<Nx2> a, vec<Nx2> b) {
+    auto aa=a*a, bb=b*b, ab=a*b;
+    auto cosTheta = (ab.lo + ab.hi) / skvx::sqrt((aa.lo + aa.hi) * (bb.lo + bb.hi));
     // Clamp cosTheta such that if it is NaN (e.g., if a or b was 0), then we return acos(1) = 0.
     cosTheta = skvx::max(skvx::min(1, cosTheta), -1);
     return approx_acos(cosTheta);
