@@ -53,6 +53,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c07e8781_2b84fbb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T20:23:37Z",
+      "side": 1,
+      "message": "Some of this code is a bit confusing to read because there are competing types SkSL::Expression and SkSL::dsl::Expression, SkSL::Statement vs SkSL::dsl::Statement, etc. Adding to the confusion, the dsl::Xxxxx types act like unique_ptrs that can be released-from, while the SkSL::Xxxxx types are just standard types.\n\nDo you have any preferred techniques for making this clearer? There are lots of ways to disambiguate here, since we control all the names and structures involved. I can suggest things but would rather get your take first.",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cbbb44d_a1a2174c",
@@ -210,6 +227,52 @@
         "startChar": 0,
         "endLine": 16,
         "endChar": 25
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a1d41ad_024d1474",
+        "filename": "src/sksl/dsl/Expression.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T20:23:37Z",
+      "side": 1,
+      "message": "This pattern scares me. Having thousands of helper functions in a header seems like a recipe for painful build times and it\u0027s not clear that the linker will reliably strip them out. I don\u0027t think it\u0027s a good idea to have an exhaustive swizzle list just because we can; if we insist on it, I\u0027d suggest converting these to a lighter-weight representation that won\u0027t force the compiler to generate and discard so much chaff. (Prototypes in header, impl in cpp? Get the preprocessor involved somehow?).",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 24
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a05151c_42a580be",
+        "filename": "src/sksl/dsl/Type.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T20:23:37Z",
+      "side": 1,
+      "message": "I ended up running this through the preprocessor because I didn\u0027t trust what it emitted.\nAFAICS this would be equivalent and totally unambiguous:\n\n  #define TYPE(T)                                              \\\n    Expression T(Expression expr);                             \\\n    Expression T##2(Expression expr);                          \\\n    Expression T##2(Expression x, Expression y);               \\\n    Expression T##3(Expression expr);                          \\\n    Expression T##3(Expression x, Expression y);               \\\n    Expression T##3(Expression x, Expression y, Expression z); \\\n    Expression T##4(Expression expr);                          \\\n    Expression T##4(Expression x, Expression y);               \\\n    Expression T##4(Expression x, Expression y, Expression z); \\\n    Expression T##4(Expression x, Expression y, Expression z, Expression w);\n  \n  TYPE(Bool)\n  TYPE(Float)\n  TYPE(Half)\n  TYPE(Int)\n  TYPE(Short)\n  #undef TYPE\n\nUnfortunately the same pattern exists in the .cpp where it\u0027s not so easy to restructure. I want to think about this a bit. Ideally I\u0027d like to see this using templates anyway; 99% of the time, we shouldn\u0027t use macros for code generation anyway.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 15
       },
       "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
