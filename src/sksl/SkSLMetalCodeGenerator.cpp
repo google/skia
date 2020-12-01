@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLMetalCodeGenerator.h"
 
+#include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -1142,12 +1143,36 @@ void MetalCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
     this->writeLine(";");
 }
 
+static bool is_block_ending_with_return(const Statement* stmt) {
+    // This function detects (potentially nested) blocks that end in a return statement.
+    if (!stmt->is<Block>()) {
+        return false;
+    }
+    const StatementArray& block = stmt->as<Block>().children();
+    for (int index = block.count(); index--; ) {
+        const Statement& stmt = *block[index];
+        if (stmt.is<ReturnStatement>()) {
+            return true;
+        }
+        if (stmt.is<Block>()) {
+            return is_block_ending_with_return(&stmt);
+        }
+        if (!stmt.is<Nop>()) {
+            break;
+        }
+    }
+    return false;
+}
+
 void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if (!this->writeFunctionDeclaration(f.declaration())) {
         return;
     }
+
+    fCurrentFunction = &f.declaration();
+    SkScopeExit clearCurrentFunction([&] { fCurrentFunction = nullptr; });
 
     this->writeLine(" {");
 
@@ -1169,16 +1194,19 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
     }
     if (f.declaration().name() == "main") {
-        switch (fProgram.fKind) {
-            case Program::kFragment_Kind:
-                this->writeLine("return *_out;");
-                break;
-            case Program::kVertex_Kind:
-                this->writeLine("_out->sk_Position.y = -_out->sk_Position.y;");
-                this->writeLine("return *_out;"); // FIXME - detect if function already has return
-                break;
-            default:
-                SkDEBUGFAIL("unsupported kind of program");
+        // If the main function doesn't end with a return, we need to synthesize one here.
+        if (!is_block_ending_with_return(f.body().get())) {
+            switch (fProgram.fKind) {
+                case Program::kFragment_Kind:
+                    this->writeLine("return *_out;");
+                    break;
+                case Program::kVertex_Kind:
+                    this->writeLine("_out->sk_Position.y = -_out->sk_Position.y;");
+                    this->writeLine("return *_out;");
+                    break;
+                default:
+                    SkDEBUGFAIL("unsupported kind of program");
+            }
         }
     }
     fIndentation--;
@@ -1469,7 +1497,11 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write("return");
-    if (r.expression()) {
+    if (fCurrentFunction && fCurrentFunction->name() == "main") {
+        // main functions in Metal return a magic _out parameter that doesn't exist in SkSL.
+        SkASSERT(!r.expression());
+        this->write(" *_out");
+    } else if (r.expression()) {
         this->write(" ");
         this->writeExpression(*r.expression(), kTopLevel_Precedence);
     }

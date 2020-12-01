@@ -25,6 +25,5 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     for (int i = 0;i < 10; i++) {
         if (i % 2 == 1) break; else continue;
     }
-    return;
     return *_out;
 }

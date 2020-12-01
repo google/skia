@@ -296,6 +296,7 @@ protected:
     std::unordered_set<String> fHelpers;
     int fUniformBuffer = -1;
     String fRTHeightName;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
 
     using INHERITED = CodeGenerator;
 };
