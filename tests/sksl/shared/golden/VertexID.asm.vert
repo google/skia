@@ -6,6 +6,7 @@ OpName %sk_VertexID "sk_VertexID"
 OpName %id "id"
 OpName %main "main"
 OpDecorate %sk_VertexID BuiltIn VertexIndex
+OpDecorate %id Location 1
 %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
 %sk_VertexID = OpVariable %_ptr_Input_int Input
