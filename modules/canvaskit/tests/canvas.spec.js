@@ -549,13 +549,14 @@ describe('Canvas Behavior', () => {
     });
 
     gm('drawpoints_canvas', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
         paint.setStrokeWidth(10);
         paint.setColor(CanvasKit.Color(153, 204, 162, 0.82));
 
-        const points = [[32, 16], [48, 48], [16, 32]];
+        const points = [32, 16, 48, 48, 16, 32];
 
         const caps = [CanvasKit.StrokeCap.Round, CanvasKit.StrokeCap.Square,
                       CanvasKit.StrokeCap.Butt];
@@ -585,6 +586,49 @@ describe('Canvas Behavior', () => {
         }
 
         paint.delete();
+    });
+
+    gm('drawPoints in different modes', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+        // From https://bugs.chromium.org/p/skia/issues/detail?id=11012
+        const boxPaint = new CanvasKit.Paint();
+        boxPaint.setStyle(CanvasKit.PaintStyle.Stroke);
+        boxPaint.setStrokeWidth(1);
+
+        const paint = new CanvasKit.Paint();
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(5);
+        paint.setStrokeCap(CanvasKit.StrokeCap.Round);
+        paint.setColorInt(0xFF0000FF); // Blue
+        paint.setAntiAlias(true);
+
+        const points = Float32Array.of(40, 40, 80, 40, 120, 80, 160, 80);
+
+        canvas.drawRect(CanvasKit.LTRBRect(35, 35, 165, 85), boxPaint);
+        canvas.drawPoints(CanvasKit.PointMode.Points, points, paint);
+
+        canvas.translate(0, 50);
+        canvas.drawRect(CanvasKit.LTRBRect(35, 35, 165, 85), boxPaint);
+        canvas.drawPoints(CanvasKit.PointMode.Lines, points, paint);
+
+        canvas.translate(0, 50);
+        canvas.drawRect(CanvasKit.LTRBRect(35, 35, 165, 85), boxPaint);
+        canvas.drawPoints(CanvasKit.PointMode.Polygon, points, paint);
+
+        // The control version using drawPath
+        canvas.translate(0, 50);
+        canvas.drawRect(CanvasKit.LTRBRect(35, 35, 165, 85), boxPaint);
+        const path = new CanvasKit.Path();
+        path.moveTo(40, 40);
+        path.lineTo(80, 40);
+        path.lineTo(120, 80);
+        path.lineTo(160, 80);
+        paint.setColorInt(0xFFFF0000); // RED
+        canvas.drawPath(path, paint);
+
+        paint.delete();
+        path.delete();
+        boxPaint.delete();
     });
 
     gm('drawImageNine_canvas', (canvas, fetchedByteBuffers) => {
