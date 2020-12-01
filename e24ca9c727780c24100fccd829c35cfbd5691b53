@@ -16,6 +16,23 @@
       "message": "Not yet hooked up to any of the tests - many of them use constructs that aren\u0027t legal in runtime effects, and therefore fail in interesting ways in the generator. Might need a different source extension to use kPipelineStage for the initial compile.",
       "revId": "e24ca9c727780c24100fccd829c35cfbd5691b53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b54b5fb_3445d323",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-01T15:40:34Z",
+      "side": 1,
+      "message": "This feels like it\u0027d have been a great fit for OutputStreams, and that\u0027d be more in line with the other generators. Any reason to prefer String here?",
+      "revId": "e24ca9c727780c24100fccd829c35cfbd5691b53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
