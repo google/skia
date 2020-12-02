@@ -201,9 +201,9 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkColor paintColor,
     fPixmap = fBMState->pixmap();
     fInvMatrix = fBMState->invMatrix();
     fPaintColor = paintColor;
-    SkASSERT(!fBMState->sampling().fUseCubic);
-    SkASSERT(fBMState->sampling().fMipmap == SkMipmapMode::kNone);
-    fBilerp = fBMState->sampling().fFilter == SkFilterMode::kLinear;
+    SkASSERT(!fBMState->sampling().useCubic);
+    SkASSERT(fBMState->sampling().mipmap == SkMipmapMode::kNone);
+    fBilerp = fBMState->sampling().filter == SkFilterMode::kLinear;
     SkASSERT(fPixmap.addr());
 
     bool integral_translate_only = just_trans_integral(fInvMatrix);

@@ -43,13 +43,13 @@ SkBitmapController::State* SkBitmapController::RequestBitmap(const SkImage_Base*
  *  (in this case, we have the inverse, so it succeeds if fInvMatrix is upscaling)
  */
 bool SkBitmapController::State::extractMipLevel(const SkImage_Base* image) {
-    SkASSERT(!fSampling.fUseCubic);
-    if (fSampling.fMipmap != SkMipmapMode::kNearest) {
+    SkASSERT(!fSampling.useCubic);
+    if (fSampling.mipmap != SkMipmapMode::kNearest) {
         return false;
     }
 
     // We will extract the right level here, so mark fSampling to know that has already happened.
-    fSampling = SkSamplingOptions(fSampling.fFilter, SkMipmapMode::kNone);
+    fSampling = SkSamplingOptions(fSampling.filter, SkMipmapMode::kNone);
 
     SkSize invScaleSize;
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
@@ -88,13 +88,13 @@ SkBitmapController::State::State(const SkImage_Base* image,
     : fInvMatrix(inv)
     , fSampling(sampling)
 {
-    if (fSampling.fUseCubic &&
+    if (fSampling.useCubic &&
         SkMatrixPriv::AdjustHighQualityFilterLevel(fInvMatrix, true) != kHigh_SkFilterQuality)
     {
         fSampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
     }
 
-    if (!fSampling.fUseCubic && this->extractMipLevel(image)) {
+    if (!fSampling.useCubic && this->extractMipLevel(image)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)image->getROPixels(nullptr, &fResultBitmap);
