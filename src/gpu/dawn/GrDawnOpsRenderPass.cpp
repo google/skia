@@ -59,7 +59,7 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
     }
     auto stencilAttachment = static_cast<GrDawnAttachment*>(fRenderTarget->getStencilAttachment());
 
-    const float *c = fColorInfo.fClearColor.vec();
+    const float* c = fColorInfo.fClearColor.data();
 
     wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
     colorAttachment.attachment = static_cast<GrDawnRenderTarget*>(fRenderTarget)->textureView();
@@ -103,7 +103,7 @@ void GrDawnOpsRenderPass::onClearStencilClip(const GrScissorState& scissor,
     fPassEncoder = beginRenderPass(wgpu::LoadOp::Load, wgpu::LoadOp::Clear);
 }
 
-void GrDawnOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+void GrDawnOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {
     SkASSERT(!scissor.enabled());
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(wgpu::LoadOp::Clear, wgpu::LoadOp::Load);

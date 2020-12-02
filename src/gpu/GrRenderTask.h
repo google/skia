@@ -9,8 +9,7 @@
 #define GrRenderTask_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureResolveManager.h"

@@ -45,7 +45,7 @@ private:
     void onDrawIndexedInstanced(int, int, int, int, int) override { this->dummyDraw(); }
     void onDrawIndirect(const GrBuffer*, size_t, int) override { this->dummyDraw(); }
     void onDrawIndexedIndirect(const GrBuffer*, size_t, int) override { this->dummyDraw(); }
-    void onClear(const GrScissorState& scissor, const SkPMColor4f&) override {
+    void onClear(const GrScissorState& scissor, std::array<float, 4>) override {
         this->markRenderTargetDirty();
     }
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override {}

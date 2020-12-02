@@ -22,7 +22,7 @@ public:
     // A fullscreen or scissored clear, depending on the clip and proxy dimensions
     static GrOp::Owner MakeColor(GrRecordingContext* context,
                                  const GrScissorState& scissor,
-                                 const SkPMColor4f& color);
+                                 std::array<float, 4> color);
 
     static GrOp::Owner MakeStencilClip(GrRecordingContext* context,
                                        const GrScissorState& scissor,
@@ -41,7 +41,10 @@ private:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Buffer);
 
-    GrClearOp(Buffer buffer, const GrScissorState& scissor, const SkPMColor4f& color, bool stencil);
+    GrClearOp(Buffer buffer,
+              const GrScissorState& scissor,
+              std::array<float, 4> color,
+              bool stencil);
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override;
 
@@ -61,15 +64,15 @@ private:
         } else {
             string.append("disabled");
         }
-        string.appendf("], Color: 0x%08x\n", fColor.toBytes_RGBA());
+        string.appendf("], Color: {%g, %g, %g, %g}\n", fColor[0], fColor[1], fColor[2], fColor[3]);
         return string;
     }
 #endif
 
-    GrScissorState fScissor;
-    SkPMColor4f    fColor;
-    bool           fStencilInsideMask;
-    Buffer         fBuffer;
+    GrScissorState       fScissor;
+    std::array<float, 4> fColor;
+    bool                 fStencilInsideMask;
+    Buffer               fBuffer;
 
     using INHERITED = GrOp;
 };
