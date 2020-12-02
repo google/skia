@@ -327,6 +327,14 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
+static size_t row_alignment() {
+    if (@available(macOS 10.12, iOS 10.0, *)) {
+        return 1;
+    } else {
+        return 64;
+    }
+}
+
 bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                                GrColorType dataColorType, const GrMipLevel texels[],
                                int mipLevelCount) {
@@ -368,10 +376,10 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    size_t rowAlignment = row_alignment();
     size_t combinedBufferSize = GrComputeTightCombinedBufferSize(
-            bpp, {width, height}, &individualMipOffsets, mipLevelCount);
+            bpp, {width, height}, &individualMipOffsets, mipLevelCount, rowAlignment);
     SkASSERT(combinedBufferSize);
-
 
     // offset value must be a multiple of the destination texture's pixel size in bytes
 #ifdef SK_BUILD_FOR_MAC
@@ -379,7 +387,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
 #else
     static const size_t kMinAlignment = 1;
 #endif
-    size_t alignment = std::max(bpp, kMinAlignment);
+    size_t alignment = std::max(std::max(bpp, kMinAlignment), rowAlignment);
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
             combinedBufferSize, alignment);
     if (!slice.fBuffer) {
@@ -399,16 +407,17 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
             const size_t trimRowBytes = currentWidth * bpp;
             const size_t rowBytes = texels[currentMipLevel].fRowBytes;
+            const size_t dstRowBytes = GrAlignTo(trimRowBytes, rowAlignment);
 
             // copy data into the buffer, skipping any trailing bytes
             char* dst = bufferData + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texels[currentMipLevel].fPixels;
-            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+            SkRectMemcpy(dst, dstRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
             [blitCmdEncoder copyFromBuffer: mtlBuffer->mtlBuffer()
                               sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
-                         sourceBytesPerRow: trimRowBytes
-                       sourceBytesPerImage: trimRowBytes*currentHeight
+                         sourceBytesPerRow: dstRowBytes
+                       sourceBytesPerImage: dstRowBytes*currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
                                  toTexture: mtlTexture
                           destinationSlice: 0
@@ -680,6 +689,11 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkISize levelDimensions = dimensions;
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
         const size_t levelRowBytes = GrCompressedRowBytes(compressionType, levelDimensions.width());
+        // there's no good way to adjust the rowBytes here without overcomplicating things,
+        // so since this is only a workaround to test on iOS 9, we abort
+        if (levelRowBytes != GrAlignTo(levelRowBytes, row_alignment())) {
+            return nullptr;
+        }
         size_t levelSize = SkCompressedDataSize(compressionType, levelDimensions, nullptr, false);
 
         // TODO: can this all be done in one go?
@@ -857,8 +871,9 @@ void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& indi
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
+        const size_t dstRB = GrAlignTo(trimRB, row_alignment());
         SkASSERT(individualMipOffsets[level] + trimRB * srcData[level].height() <= bufferSize);
-        SkRectMemcpy(dst + individualMipOffsets[level], trimRB,
+        SkRectMemcpy(dst + individualMipOffsets[level], dstRB,
                      srcData[level].addr(), srcData[level].rowBytes(),
                      trimRB, srcData[level].height());
     }
@@ -940,17 +955,19 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     size_t bytesPerPixel = GrMtlFormatBytesPerBlock(mtlFormat);
     SkSTArray<16, size_t> individualMipOffsets;
     size_t combinedBufferSize;
+    size_t rowAlignment = row_alignment();
 
     if (data->type() == BackendTextureData::Type::kColor &&
         compression == SkImage::CompressionType::kNone) {
-        combinedBufferSize = bytesPerPixel*backendTexture.width()*backendTexture.height();
+        size_t rowBytes = GrAlignTo(bytesPerPixel*backendTexture.width(), rowAlignment);
+        combinedBufferSize = rowBytes*backendTexture.height();
         // Reuse the same buffer for all levels. Should be ok since we made the row bytes tight.
         individualMipOffsets.push_back_n(numMipLevels, (size_t)0);
     } else if (compression == SkImage::CompressionType::kNone) {
         combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel,
                                                               backendTexture.dimensions(),
                                                               &individualMipOffsets,
-                                                              numMipLevels);
+                                                              numMipLevels, rowAlignment);
     } else {
         combinedBufferSize = SkCompressedDataSize(compression, backendTexture.dimensions(),
                                                   &individualMipOffsets,
@@ -991,6 +1008,7 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             GrImageInfo ii(colorType, kUnpremul_SkAlphaType, nullptr, backendTexture.dimensions());
             auto rb = ii.minRowBytes();
             SkASSERT(rb == bytesPerPixel*backendTexture.width());
+            rb = GrAlignTo(rb, rowAlignment);
             if (!GrClearImage(ii, buffer, rb, data->color())) {
                 return false;
             }
@@ -1013,7 +1031,8 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         size_t levelSize;
 
         if (compression == SkImage::CompressionType::kNone) {
-            levelRowBytes = levelDimensions.width() * bytesPerPixel;
+            levelRowBytes = GrAlignTo(levelDimensions.width() * bytesPerPixel,
+                                      rowAlignment);
             levelSize = levelRowBytes * levelDimensions.height();
         } else {
             levelRowBytes = GrCompressedRowBytes(compression, levelDimensions.width());
@@ -1226,7 +1245,9 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     }
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
-    size_t transBufferRowBytes = bpp * width;
+    size_t rowAlignment = row_alignment();
+    size_t trimRowBytes = bpp * width;
+    size_t transBufferRowBytes = GrAlignTo(trimRowBytes, rowAlignment);
     size_t transBufferImageBytes = transBufferRowBytes * height;
 
     // TODO: implement some way of reusing buffers instead of making a new one every time.
@@ -1250,7 +1271,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
     const void* mappedMemory = transferBuffer.contents;
 
-    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, trimRowBytes, height);
 
     return true;
 }
@@ -1261,6 +1282,12 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     SkASSERT(texture);
     SkASSERT(transferBuffer);
     if (textureColorType != bufferColorType) {
+        return false;
+    }
+
+    // there's no good way to adjust the rowBytes here without overcomplicating things,
+    // so since this is only a workaround to test on iOS 9, we abort
+    if (rowBytes != GrAlignTo(rowBytes, row_alignment())) {
         return false;
     }
 
@@ -1328,6 +1355,12 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
 bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
                                     GrColorType dstColorType, id<MTLBuffer> transferBuffer,
                                     size_t offset, size_t imageBytes, size_t rowBytes) {
+    // there's no good way to adjust the rowBytes here without overcomplicating things,
+    // so since this is only a workaround to test on iOS 9, we abort
+    if (rowBytes != GrAlignTo(rowBytes, row_alignment())) {
+        return false;
+    }
+
     if (!check_max_blit_width(width)) {
         return false;
     }

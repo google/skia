@@ -278,26 +278,30 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
 #endif
 
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
-                                        SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
+                                        SkTArray<size_t>* individualMipOffsets, int mipLevelCount,
+                                        size_t rowAlignment) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
     SkASSERT(mipLevelCount >= 1);
 
     individualMipOffsets->push_back(0);
 
-    size_t combinedBufferSize = baseDimensions.width() * bytesPerPixel * baseDimensions.height();
+    size_t rowBytes = GrAlignTo(baseDimensions.width() * bytesPerPixel, rowAlignment);
+    size_t combinedBufferSize = rowBytes * baseDimensions.height();
     SkISize levelDimensions = baseDimensions;
 
     // The Vulkan spec for copying a buffer to an image requires that the alignment must be at
     // least 4 bytes and a multiple of the bytes per pixel of the image config.
     SkASSERT(bytesPerPixel == 1 || bytesPerPixel == 2 || bytesPerPixel == 3 ||
              bytesPerPixel == 4 || bytesPerPixel == 8 || bytesPerPixel == 16);
-    int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
+    size_t desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
+    desiredAlignment = std::max(desiredAlignment, rowAlignment);
 
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         levelDimensions = {std::max(1, levelDimensions.width() /2),
                            std::max(1, levelDimensions.height()/2)};
 
-        size_t trimmedSize = levelDimensions.area() * bytesPerPixel;
+        size_t trimRowBytes = GrAlignTo(levelDimensions.width() * bytesPerPixel, rowAlignment);
+        size_t trimmedSize = trimRowBytes * levelDimensions.height();
         const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
         if (alignmentDiff != 0) {
             combinedBufferSize += desiredAlignment - alignmentDiff;
