@@ -67,7 +67,7 @@ class CCPRGeometryView : public Sample {
     PrimitiveType fPrimitiveType = PrimitiveType::kCubics;
 
     SkPoint fPoints[4] = {
-            {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 300.95f}, {100.05f, 300.95f}};
+            {100.05f, 100.05f}, {400.75f, 100.05f}, {400.75f, 100.05f}, {100.05f, 100.05f}};
 
     float fConicWeight = .5;
     float fStrokeWidth = 40;
@@ -381,7 +381,7 @@ public:
 
     void doClick(SkPoint points[]) {
         if (fPtIdx >= 0) {
-            points[fPtIdx] += fCurr - fPrev;
+            points[fPtIdx].fX += fCurr.fX - fPrev.fX;
         } else {
             for (int i = 0; i < 4; ++i) {
                 points[i] += fCurr - fPrev;
