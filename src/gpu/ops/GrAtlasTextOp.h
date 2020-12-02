@@ -20,8 +20,8 @@ public:
     DEFINE_OP_CLASS_ID
 
     ~GrAtlasTextOp() override {
-        for (const auto& g : fGeometries.items()) {
-            g.fBlob->unref();
+        for (const Geometry* g = fHead; g != nullptr; g = g->fNext) {
+            g->fBlob->unref();
         }
     }
 
@@ -41,11 +41,21 @@ public:
             , fClipRect{clipRect}
             , fBlob{blob}
             , fColor{color} {}
+
+        static Geometry* Make(GrRecordingContext* rc,
+                              const GrAtlasSubRun& subRun,
+                              const SkMatrix& drawMatrix,
+                              SkPoint drawOrigin,
+                              SkIRect clipRect,
+                              GrTextBlob* blob,
+                              const SkPMColor4f& color);
         void fillVertexData(void* dst, int offset, int count) const;
 
         const GrAtlasSubRun& fSubRun;
         const SkMatrix fDrawMatrix;
         const SkPoint fDrawOrigin;
+        // fClipRect is only used in the DirectMaskSubRun case to do geometric clipping.
+        // TransformedMaskSubRun, and SDFTSubRun don't use this field, and expect an empty rect.
         const SkIRect fClipRect;
         GrTextBlob* const fBlob;  // mutable to make unref call in Op dtor.
 
@@ -53,6 +63,7 @@ public:
         // a constant color that we then evaluate on the CPU.
         // TODO: This can be made const once processor analysis is separated from op creation.
         SkPMColor4f fColor;
+        Geometry* fNext{nullptr};
     };
 
     const char* name() const override { return "AtlasTextOp"; }
@@ -104,7 +115,7 @@ private:
                   bool needsTransform,
                   int glyphCount,
                   SkRect deviceRect,
-                  const Geometry& geo,
+                  Geometry* geo,
                   GrPaint&& paint);
 
     GrAtlasTextOp(MaskType maskType,
@@ -114,12 +125,20 @@ private:
                   SkColor luminanceColor,
                   bool useGammaCorrectDistanceTable,
                   uint32_t DFGPFlags,
-                  const Geometry& geo,
+                  Geometry* geo,
                   GrPaint&& paint);
 
     GrProgramInfo* programInfo() override {
         // TODO [PI]: implement
         return nullptr;
+    }
+
+    void addGeometry(Geometry* geometry) {
+        *fTail = geometry;
+        // The geometry may have many entries. Find the end.
+        do {
+            fTail = &(*fTail)->fNext;
+        } while (*fTail != nullptr);
     }
 
     void onCreateProgramInfo(const GrCaps*,
@@ -193,14 +212,6 @@ private:
                                           const GrSurfaceProxyView* views,
                                           unsigned int numActiveViews) const;
 
-    // The minimum number of Geometry we will try to allocate as ops are merged together.
-    // The atlas text op holds one Geometry inline. When combined with the linear growth policy,
-    // the total number of geometries follows 6, 18, 36, 60, 90 (the deltas are 6*n).
-    static constexpr auto kMinGeometryAllocated = 6;
-
-    GrTBlockList<Geometry> fGeometries{kMinGeometryAllocated,
-                                       GrBlockAllocator::GrowthPolicy::kLinear};
-
     GrProcessorSet fProcessors;
     int fNumGlyphs; // Sum of glyphs in each geometry's subrun
 
@@ -217,6 +228,9 @@ private:
     // Only used for distance fields; per-channel luminance for LCD, or gamma-corrected luminance
     // for single-channel distance fields.
     const SkColor fLuminanceColor{0};
+
+    Geometry* fHead{nullptr};
+    Geometry** fTail{&fHead};
 
     using INHERITED = GrMeshDrawOp;
 };
