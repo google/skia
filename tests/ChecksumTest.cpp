@@ -73,11 +73,25 @@ DEF_TEST(ChecksumCollisions, r) {
 }
 
 DEF_TEST(ChecksumConsistent, r) {
-    // We've decided to make SkOpts::hash() always return consistent results, so spot check a few:
+    // We've decided to make SkOpts::hash() always return consistent results on a given machine,
+    // so spot check a few:
     uint8_t bytes[256];
     for (int i = 0; i < 256; i++) {
         bytes[i] = i;
     }
+#if defined(SK_BUILD_FOR_IOS) && !defined(SK_ARM_HAS_CRC32)
+    // Test Murmur3.
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,  0) == 0x00000000, "%08x", SkOpts::hash(bytes,  0));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,  1) == 0x514e28b7, "%08x", SkOpts::hash(bytes,  1));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,  2) == 0x70e1a2c0, "%08x", SkOpts::hash(bytes,  2));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,  7) == 0x8d7e4914, "%08x", SkOpts::hash(bytes,  7));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 32) == 0xcac37638, "%08x", SkOpts::hash(bytes, 32));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 63) == 0x14acd341, "%08x", SkOpts::hash(bytes, 63));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 64) == 0x894ea70b, "%08x", SkOpts::hash(bytes, 64));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 99) == 0xb183f8ad, "%08x", SkOpts::hash(bytes, 99));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,255) == 0x6334b600, "%08x", SkOpts::hash(bytes,255));
+#else
+    // Test our custom CRC32c-using hash.
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  0) == 0x00000000, "%08x", SkOpts::hash(bytes,  0));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  1) == 0x00000000, "%08x", SkOpts::hash(bytes,  1));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  2) == 0xf26b8303, "%08x", SkOpts::hash(bytes,  2));
@@ -87,4 +101,5 @@ DEF_TEST(ChecksumConsistent, r) {
     REPORTER_ASSERT(r, SkOpts::hash(bytes, 64) == 0x2e5a06a9, "%08x", SkOpts::hash(bytes, 64));
     REPORTER_ASSERT(r, SkOpts::hash(bytes, 99) == 0x5214485b, "%08x", SkOpts::hash(bytes, 99));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,255) == 0xce206bd3, "%08x", SkOpts::hash(bytes,255));
+#endif
 }
