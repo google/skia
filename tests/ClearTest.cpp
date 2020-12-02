@@ -266,7 +266,8 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
 
             const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
 
-            REPORTER_ASSERT(reporter, clearOp.color() == SK_PMColor4fBLACK);
+            std::array<float, 4> expected = {0, 0, 0, 1};
+            REPORTER_ASSERT(reporter, clearOp.color() == expected);
             REPORTER_ASSERT(reporter, clearOp.stencilInsideMask());
         }
 
@@ -289,7 +290,8 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
 
             const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
 
-            REPORTER_ASSERT(reporter, clearOp.color() == SK_PMColor4fWHITE);
+            std::array<float, 4> expected = {1, 1, 1, 1};
+            REPORTER_ASSERT(reporter, clearOp.color() == expected);
             REPORTER_ASSERT(reporter, !clearOp.stencilInsideMask());
         }
     }

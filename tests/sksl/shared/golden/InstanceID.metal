@@ -5,7 +5,7 @@ struct Inputs {
 };
 struct Outputs {
     float4 sk_Position [[position]];
-    int id [[user(locn1)]];
+    int id  [[user(locn1)]];
     float sk_PointSize [[point_size]];
 };
 
@@ -13,5 +13,6 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     _out->id = sk_InstanceID;
-    return (_out->sk_Position.y = -_out->sk_Position.y, *_out);
+    _out->sk_Position.y = -_out->sk_Position.y;
+    return *_out;
 }

@@ -509,7 +509,7 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
                                            GrSurfaceOrigin origin,
                                            const SkIRect& bounds,
                                            GrLoadOp colorLoadOp,
-                                           const SkPMColor4f& loadClearColor,
+                                           const std::array<float, 4>& loadClearColor,
                                            GrLoadOp stencilLoadOp,
                                            GrStoreOp stencilStoreOp,
                                            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
@@ -653,7 +653,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
-void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
+void GrOpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
     fColorLoadOp = op;
     fLoadClearColor = color;
     if (GrLoadOp::kClear == fColorLoadOp) {
@@ -701,7 +701,11 @@ void GrOpsTask::dump(bool printDependencies) const {
             SkDebugf("kLoad\n");
             break;
         case GrLoadOp::kClear:
-            SkDebugf("kClear (0x%x)\n", fLoadClearColor.toBytes_RGBA());
+            SkDebugf("kClear {%g, %g, %g, %g}\n",
+                     fLoadClearColor[0],
+                     fLoadClearColor[1],
+                     fLoadClearColor[2],
+                     fLoadClearColor[3]);
             break;
         case GrLoadOp::kDiscard:
             SkDebugf("kDiscard\n");
