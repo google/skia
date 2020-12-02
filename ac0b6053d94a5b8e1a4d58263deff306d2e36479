@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "165a8ce6_43cd143c",
+        "filename": "tests/sksl/shared/golden/InterfaceBlockArray.metal",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-02T21:29:07Z",
+      "side": 1,
+      "message": "This test is still pretty messed up. The testBlock is passed as a constant here, but it\u0027s a uniform in the SkSL and is referenced as _uniforms.test below.\n\nFiled as https://crbug.com/skia/11024",
+      "range": {
+        "startLine": 14,
+        "startChar": 57,
+        "endLine": 14,
+        "endChar": 96
+      },
+      "revId": "ac0b6053d94a5b8e1a4d58263deff306d2e36479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
