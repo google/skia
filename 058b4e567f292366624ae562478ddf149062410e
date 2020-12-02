@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "80d02701_60565ac7",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-02T19:35:03Z",
+      "side": 1,
+      "message": "Hehe, just bad dox. It was already defaulting to 0 in the code.",
+      "parentUuid": "26cdc2e4_07419846",
+      "range": {
+        "startLine": 27,
+        "startChar": 5,
+        "endLine": 28,
+        "endChar": 33
+      },
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ebe07dfe_494a9db0",
         "filename": "src/core/SkBitmapProcState.cpp",
         "patchSetId": 6
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-02T16:17:11Z",
       "side": 1,
       "message": "Think it makes sense for upperLevel() and lowerLevel() to return these as a std::pair\u003cSkPixmap, SkMatrix\u003e?  It\u0027s not sound to use one without the other, right?",
+      "range": {
+        "startLine": 196,
+        "startChar": 14,
+        "endLine": 197,
+        "endChar": 43
+      },
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a97c327_cf83da53",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-02T19:35:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebe07dfe_494a9db0",
       "range": {
         "startLine": 196,
         "startChar": 14,
@@ -60,6 +108,30 @@
       "writtenOn": "2020-12-02T16:17:11Z",
       "side": 1,
       "message": "I think this matrix-is-inverse bit is a little unclear to follow.  But this whole function is on its way out right?",
+      "range": {
+        "startLine": 631,
+        "startChar": 22,
+        "endLine": 631,
+        "endChar": 64
+      },
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e870896_e47f6d7f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-02T19:35:03Z",
+      "side": 1,
+      "message": "Yes, all on its way out (I think just need to update flutter now).",
+      "parentUuid": "08f06802_65075cfd",
       "range": {
         "startLine": 631,
         "startChar": 22,
