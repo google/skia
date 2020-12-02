@@ -9,46 +9,11 @@
 #define SkBitmapController_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
-#include "src/core/SkBitmapCache.h"
 #include "src/core/SkMipmap.h"
 
 class SkImage_Base;
-
-/**
- *  Handles request to scale, filter, and lock a bitmap to be rasterized.
- */
-class SkBitmapController : ::SkNoncopyable {
-public:
-    class State : ::SkNoncopyable {
-    public:
-        State(const SkImage_Base*, const SkMatrix& inv, const SkSamplingOptions&);
-
-        const SkPixmap& pixmap() const { return fPixmap; }
-        const SkMatrix& invMatrix() const { return fInvMatrix; }
-        const SkSamplingOptions& sampling() const { return fSampling; }
-
-    private:
-        bool extractMipLevel(const SkImage_Base*);
-
-        SkPixmap              fPixmap;
-        SkMatrix              fInvMatrix;
-        SkSamplingOptions     fSampling;
-
-        // Pixmap storage.
-        SkBitmap              fResultBitmap;
-        sk_sp<const SkMipmap> fCurrMip;
-
-    };
-
-    static State* RequestBitmap(const SkImage_Base*, const SkMatrix& inverse,
-                                const SkSamplingOptions&, SkArenaAlloc*);
-
-private:
-    SkBitmapController() = delete;
-};
 
 class SkMipmapAccessor : ::SkNoncopyable {
 public:
