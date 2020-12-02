@@ -72,6 +72,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2f920c27_44578389",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-02T14:45:51Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s wise to land this without some sort of unit test.\n\nI gave this some thought and it seems like we shouldn\u0027t need anything too elaborate. What if we build DSLs, release them into SkSL, and verify that its description matches expectations? It should be easy to get good coverage this way. Example (using sorta-pseudocode for the DSL):\n\nDEF_TEST(BinaryExpressionOpPlus) {\nVar a(\"a\"), b(\"b\");\nauto x \u003d DslExpression(a + b);\nREPORTER_ASSERT(x.release()-\u003edescription() \u003d\u003d \"a + b\")\n\nauto y \u003d DslExpression(a + 1);\nREPORTER_ASSERT(y.release()-\u003edescription() \u003d\u003d \"a + 1\")\n\nauto z \u003d DslExpression(0.5 + a + (-99));\nREPORTER_ASSERT(z.release()-\u003edescription() \u003d\u003d \"0.5 + a + -99\")\n}\n\nDEF_TEST(StatementWhile) {\nauto x \u003d DslStatement(While(true), Block());\nREPORTER_ASSERT(x.release()-\u003edescription() \u003d\u003d \"while (true) {}\");\n\nauto y \u003d DslStatement(While(a !\u003d b), Block(a++));\nREPORTER_ASSERT(x.release()-\u003edescription() \u003d\u003d \"while (a !\u003d b) { a++; }\");\n}\n\netc.\n",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0cbbb44d_a1a2174c",
         "filename": "src/sksl/SkSLCFGGenerator.cpp",
         "patchSetId": 32
