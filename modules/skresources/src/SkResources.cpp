@@ -88,6 +88,15 @@ private:
 
 } // namespace
 
+ImageAsset::FrameData ImageAsset::getFrameData(float t) {
+    // legacy behavior
+    return {
+        SkMatrix::I(),
+        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
+        this->getFrame(t)
+    };
+}
+
 sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
         return sk_sp<MultiFrameImageAsset>(

@@ -60,6 +60,15 @@ struct SK_API SkSamplingOptions {
         , fCubic(cubic) {}
 
     explicit SkSamplingOptions(SkFilterQuality);
+
+    bool operator==(const SkSamplingOptions& other) const {
+        return fUseCubic == other.fUseCubic
+            && fCubic.B  == other.fCubic.B
+            && fCubic.C  == other.fCubic.C
+            && fFilter   == other.fFilter
+            && fMipmap   == other.fMipmap;
+    }
+    bool operator!=(const SkSamplingOptions& other) const { return !(*this == other); }
 };
 
 #endif

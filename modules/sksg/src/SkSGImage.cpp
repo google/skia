@@ -19,9 +19,19 @@ void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
         return;
     }
 
+    // Ignoring cubic params and trilerp for now.
+    // TODO: convert to drawImage(sampling options) when available.
+    auto legacy_quality = [](const SkSamplingOptions& sampling) {
+        return
+            sampling.fUseCubic                         ? SkFilterQuality::kHigh_SkFilterQuality :
+            sampling.fFilter == SkFilterMode::kNearest ? SkFilterQuality::kNone_SkFilterQuality :
+            sampling.fMipmap == SkMipmapMode::kNone    ? SkFilterQuality::kLow_SkFilterQuality  :
+                                                         SkFilterQuality::kMedium_SkFilterQuality;
+    };
+
     SkPaint paint;
     paint.setAntiAlias(fAntiAlias);
-    paint.setFilterQuality(fQuality);
+    paint.setFilterQuality(legacy_quality(fSamplingOptions));
 
     sksg::RenderNode::ScopedRenderContext local_ctx(canvas, ctx);
     if (ctx) {
