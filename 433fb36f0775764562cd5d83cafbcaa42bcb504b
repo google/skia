@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8ca65e1_1f892884",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-02T18:25:42Z",
+      "side": 1,
+      "message": "This might be right? Doesn\u0027t remove the bots themselves though. Not sure who should do that, or if we want to?",
+      "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
