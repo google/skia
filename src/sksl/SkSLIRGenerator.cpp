@@ -2378,19 +2378,13 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
         // argument is already the right type, just return it
         return std::move(args[0]);
     }
-    Type::TypeKind kind = type.typeKind();
     if (type.isNumber()) {
         return this->convertNumberConstructor(offset, type, std::move(args));
-    } else if (kind == Type::TypeKind::kArray) {
-        const Type& base = type.componentType();
-        for (size_t i = 0; i < args.size(); i++) {
-            args[i] = this->coerce(std::move(args[i]), base);
-            if (!args[i]) {
-                return nullptr;
-            }
-        }
-        return std::make_unique<Constructor>(offset, &type, std::move(args));
-    } else if (kind == Type::TypeKind::kVector || kind == Type::TypeKind::kMatrix) {
+    } else if (type.typeKind() == Type::TypeKind::kArray) {
+        fErrors.error(offset,
+                      "construction of array type '" + type.displayName() + "' is not allowed");
+        return nullptr;
+    } else if (type.isVector() || type.isMatrix()) {
         return this->convertCompoundConstructor(offset, type, std::move(args));
     } else {
         fErrors.error(offset, "cannot construct '" + type.displayName() + "'");

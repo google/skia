@@ -1532,25 +1532,6 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     return result;
 }
 
-SpvId SPIRVCodeGenerator::writeArrayConstructor(const Constructor& c, OutputStream& out) {
-    const Type& type = c.type();
-    SkASSERT(type.typeKind() == Type::TypeKind::kArray);
-    // go ahead and write the arguments so we don't try to write new instructions in the middle of
-    // an instruction
-    std::vector<SpvId> arguments;
-    for (size_t i = 0; i < c.arguments().size(); i++) {
-        arguments.push_back(this->writeExpression(*c.arguments()[i], out));
-    }
-    SpvId result = this->nextId();
-    this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) c.arguments().size(), out);
-    this->writeWord(this->getType(type), out);
-    this->writeWord(result, out);
-    for (SpvId id : arguments) {
-        this->writeWord(id, out);
-    }
-    return result;
-}
-
 SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& out) {
     const Type& type = c.type();
     if (c.arguments().size() == 1 &&
@@ -1573,12 +1554,8 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
             return this->writeVectorConstructor(c, out);
         case Type::TypeKind::kMatrix:
             return this->writeMatrixConstructor(c, out);
-        case Type::TypeKind::kArray:
-            return this->writeArrayConstructor(c, out);
         default:
-#ifdef SK_DEBUG
-            ABORT("unsupported constructor: %s", c.description().c_str());
-#endif
+            fErrors.error(c.fOffset, "unsupported constructor: " + c.description());
             return -1;
     }
 }

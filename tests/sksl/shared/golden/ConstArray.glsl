@@ -1,6 +1,5 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-const float test[] = float[](1.0, 2.0, 3.0, 4.0);
-void main() {
-    sk_FragColor = vec4(test[0], test[1], test[2], test[3]);
-}
+error: 1: construction of array type 'half[]' is not allowed
+error: 4: unknown identifier 'test'
+2 errors
