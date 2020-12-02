@@ -3212,6 +3212,78 @@ private:
     using INHERITED = Sample;
 };
 
+/*
+ *           TextSpan(
+            text: 'אאא בבב גגג דדד ההה',
+            style: TextStyle(fontSize: 30.0),
+            children: [
+              TextSpan(text: 'ששש תתת', style: TextStyle(color: Colors.blue)),
+            ],
+          ),
+          TextSpan(text: '\n'),
+          TextSpan(
+            text: 'אאא בבב גגג דדד ההה ששש תתת',
+            style: TextStyle(fontSize: 30.0, color: Colors.green),
+          ),
+
+ */
+
+class ParagraphView53 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph53"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        const char* text1 = "אאא בבב גגג דדד ההה";
+        const char* text2 = "ששש תתת";
+        const char* text3 = "אאא בבב גגג דדד הההששש תתת";
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(TextDirection::kRtl);
+        {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setFontSize(30);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text1);
+        builder.addText(text2);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, paragraph->getHeight() + 20);
+        }
+
+        {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setFontSize(30);
+        text_style.setColor(SK_ColorBLACK);
+        builder.pushStyle(text_style);
+        builder.addText(text1);
+        text_style.setColor(SK_ColorRED);
+        builder.pushStyle(text_style);
+        builder.addText(text2);
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, paragraph->getHeight() + 20);
+        }
+
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3265,3 +3337,4 @@ DEF_SAMPLE(return new ParagraphView49();)
 DEF_SAMPLE(return new ParagraphView50();)
 DEF_SAMPLE(return new ParagraphView51();)
 DEF_SAMPLE(return new ParagraphView52();)
+DEF_SAMPLE(return new ParagraphView53();)

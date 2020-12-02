@@ -208,7 +208,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fMaxIntrinsicWidth = fMinIntrinsicWidth;
     }
 
-    //SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
+    SkDebugf("layout('%s', %f): %f %f\n", fText.c_str(), rawWidth, fMinIntrinsicWidth, fMaxIntrinsicWidth);
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {

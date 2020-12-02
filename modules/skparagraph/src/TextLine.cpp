@@ -207,9 +207,11 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
                 *runWidthInLine = run->advance().fX;
                 return true;
             }
+            SkDebugf("run[%d:%d)\n", run->fTextRange.start, run->fTextRange.end);
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kForeground,
             [textCanvas, x, y, &bounds, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+                SkDebugf("   block[%d:%d)\n", textRange.start, textRange.end);
                 auto textBounds = this->paintText(textCanvas, x, y, textRange, style, context);
                 bounds.joinPossiblyEmptyRect(textBounds);
             });
