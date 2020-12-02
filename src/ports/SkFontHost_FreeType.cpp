@@ -204,11 +204,18 @@ public:
         }
 #endif
 
-        // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
-        // The default has changed over time, so this doesn't mean the same thing to all users.
-        if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
-            fIsLCDSupported = true;
-            fLCDExtra = 2; //Using a filter adds one full pixel to each side.
+        fIsLCDSupported =
+            // Subpixel anti-aliasing may be unfiltered until the LCD filter is set.
+            // Newer versions may still need this, so this test with side effects must come first.
+            // The default has changed over time, so this doesn't mean the same thing to all users.
+            (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) ||
+
+            // In 2.8.1 and later FreeType always provides some form of subpixel anti-aliasing.
+            ((SK_FREETYPE_MINIMUM_RUNTIME_VERSION) >= 0x02080100) ||
+            (major > 2 || ((major == 2 && minor > 8) || (major == 2 && minor == 8 && patch >= 1)));
+
+        if (fIsLCDSupported) {
+            fLCDExtra = 2; // Using a filter may require up to one full pixel to each side.
         }
     }
     ~FreeTypeLibrary() {
