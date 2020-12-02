@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-float arr(float v[3][2]) {
+float arr(float v[2][3]) {
     return v[0][0] * v[1][2];
 }
 float foo(float v[2]) {

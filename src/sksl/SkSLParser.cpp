@@ -22,8 +22,6 @@
 namespace SkSL {
 
 static constexpr int kMaxParseDepth = 50;
-static constexpr int kMaxArrayDimensionality = 8;
-static constexpr int kMaxStructDepth = 8;
 
 static bool struct_is_too_deeply_nested(const Type& type, int limit) {
     if (limit < 0) {
@@ -543,18 +541,23 @@ ASTNode::ID Parser::structDeclaration() {
         for (auto iter = declsNode.begin() + 2; iter != declsNode.end(); ++iter) {
             ASTNode& var = *iter;
             ASTNode::VarData vd = var.getVarData();
-            for (int j = vd.fSizeCount - 1; j >= 0; j--) {
+
+            // Read array dimensions from AST nodes into a vector of plain ints.
+            SkSTArray<kMaxArrayDimensionality, int> dimensions;
+            for (int j = 0; j < (int) vd.fSizeCount; ++j) {
                 const ASTNode& size = *(var.begin() + j);
                 if (!size || size.fKind != ASTNode::Kind::kInt) {
                     this->error(declsNode.fOffset, "array size in struct field must be a constant");
                     return ASTNode::ID::Invalid();
                 }
-                uint64_t columns = size.getInt();
-                String typeName = type->name() + "[" + to_string(columns) + "]";
-                type = fSymbols.takeOwnershipOfSymbol(
-                        std::make_unique<Type>(typeName, Type::TypeKind::kArray, *type,
-                                               (int)columns));
+                if (size.getInt() <= 0 || size.getInt() > INT_MAX) {
+                    this->error(declsNode.fOffset, "array size is invalid");
+                    return ASTNode::ID::Invalid();
+                }
+                dimensions.push_back(size.getInt());
             }
+            // Add the array dimensions to our type.
+            type = fSymbols.addArrayDimensions(type, dimensions);
 
             fields.push_back(Type::Field(modifiers, vd.fName, type));
             if (vd.fSizeCount ? (var.begin() + (vd.fSizeCount - 1))->fNext : var.fFirstChild) {

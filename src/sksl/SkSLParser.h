@@ -26,6 +26,8 @@ namespace SkSL {
 
 struct Modifiers;
 class SymbolTable;
+static constexpr int kMaxArrayDimensionality = 8;
+static constexpr int kMaxStructDepth = 8;
 
 /**
  * Consumes .sksl text and produces an abstract syntax tree describing the contents.
