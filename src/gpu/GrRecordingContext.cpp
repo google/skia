@@ -21,6 +21,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
@@ -94,12 +95,16 @@ void GrRecordingContext::destroyDrawingManager() {
     fDrawingManager.reset();
 }
 
-GrRecordingContext::Arenas::Arenas(GrMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
+GrRecordingContext::Arenas::Arenas(GrMemoryPool* opMemoryPool,
+                                   SkArenaAlloc* recordTimeAllocator,
+                                   GrTextGeometries* geometries)
         : fOpMemoryPool(opMemoryPool)
-        , fRecordTimeAllocator(recordTimeAllocator) {
+        , fRecordTimeAllocator(recordTimeAllocator)
+        , fGeometries{geometries} {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
     SkASSERT(opMemoryPool);
     SkASSERT(recordTimeAllocator);
+    SkASSERT(geometries);
 }
 
 // Must be defined here so that std::unique_ptr can see the sizes of the various pools, otherwise
@@ -110,6 +115,7 @@ GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
     fOpMemoryPool = std::move(a.fOpMemoryPool);
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
+    fGeometries = std::move(a.fGeometries);
     return *this;
 }
 
@@ -126,7 +132,17 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
     }
 
-    return {fOpMemoryPool.get(), fRecordTimeAllocator.get()};
+    if (!fGeometries) {
+        // The minimum number of Geometry we will try to allocate as ops are merged together.
+        // The atlas text op holds one Geometry inline. When combined with the linear growth policy,
+        // the total number of geometries follows 6, 18, 36, 60, 90 (the deltas are 6*n).
+        static constexpr auto kMinGeometryAllocated = 20;
+
+        fGeometries = std::make_unique<GrTextGeometries>(kMinGeometryAllocated,
+                                                       GrBlockAllocator::GrowthPolicy::kLinear);
+    }
+
+    return {fOpMemoryPool.get(), fRecordTimeAllocator.get(), fGeometries.get()};
 }
 
 GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {

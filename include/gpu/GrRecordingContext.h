@@ -23,6 +23,7 @@ class GrRecordingContextPriv;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
+class GrTextGeometries;
 class GrThreadSafeCache;
 class SkArenaAlloc;
 class SkJSONWriter;
@@ -94,7 +95,7 @@ public:
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
     public:
-        Arenas(GrMemoryPool*, SkArenaAlloc*);
+        Arenas(GrMemoryPool*, SkArenaAlloc*, GrTextGeometries* geometries);
 
         // For storing GrOp-derived classes recorded by a GrRecordingContext
         GrMemoryPool* opMemoryPool() { return fOpMemoryPool; }
@@ -102,9 +103,12 @@ public:
         // For storing pipelines and other complex data as-needed by ops
         SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
 
+        GrTextGeometries* geometries() { return fGeometries; }
+
     private:
         GrMemoryPool* fOpMemoryPool;
         SkArenaAlloc* fRecordTimeAllocator;
+        GrTextGeometries* fGeometries;
     };
 
 protected:
@@ -125,6 +129,7 @@ protected:
     private:
         std::unique_ptr<GrMemoryPool> fOpMemoryPool;
         std::unique_ptr<SkArenaAlloc> fRecordTimeAllocator;
+        std::unique_ptr<GrTextGeometries> fGeometries;
     };
 
     GrRecordingContext(sk_sp<GrContextThreadSafeProxy>);
