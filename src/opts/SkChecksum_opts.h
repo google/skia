@@ -110,7 +110,8 @@
 
 namespace SK_OPTS_NS {
 
-#if defined(SK_BUILD_FOR_IOS) && !defined(SK_ARM_HAS_CRC32)
+#if defined(SK_BUILD_FOR_IOS) && !defined(SK_ARM_HAS_CRC32) \
+                              && !(SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42)
 
     // This is Murmur3, our iOS-without-CRC32 approach mentioned in the third paragraph at the top.
     inline uint32_t hash_fn(const void* data, size_t len, uint32_t seed) {
