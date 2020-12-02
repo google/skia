@@ -359,7 +359,6 @@ using SampleChildFn = std::function<skvm::Color(int, skvm::Coord)>;
 static skvm::Color program_fn(skvm::Builder* p,
                               const SkSL::ByteCodeFunction& fn,
                               const std::vector<skvm::F32>& uniform,
-                              skvm::Color inColor,
                               SampleChildFn sampleChild,
                               skvm::Coord device, skvm::Coord local) {
     std::vector<skvm::Val> stack;   // F32 or I32, type-erased
@@ -922,8 +921,7 @@ public:
         // Regardless, just to be extra-safe, we pass something valid (0, 0) as both coords, so
         // the builder isn't trying to do math on invalid values.
         skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
-        return program_fn(p, *fn, uniform, c, sampleChild,
-                          /*device=*/zeroCoord, /*local=*/zeroCoord);
+        return program_fn(p, *fn, uniform, sampleChild, /*device=*/zeroCoord, /*local=*/zeroCoord);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1078,7 +1076,7 @@ public:
             }
         };
 
-        return program_fn(p, *fn, uniform, paint, sampleChild, device, local);
+        return program_fn(p, *fn, uniform, sampleChild, device, local);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
