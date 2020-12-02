@@ -49,7 +49,7 @@ bool SkBitmapController::State::extractMipLevel(const SkImage_Base* image) {
     }
 
     // We will extract the right level here, so mark fSampling to know that has already happened.
-    fSampling.fMipmap = SkMipmapMode::kNone;
+    fSampling = SkSamplingOptions(fSampling.fFilter, SkMipmapMode::kNone);
 
     SkSize invScaleSize;
     if (!fInvMatrix.decomposeScale(&invScaleSize, nullptr)) {
