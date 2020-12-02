@@ -686,16 +686,17 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkPMColor4f drawingColor =
             calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
-    GrAtlasTextOp::Geometry geometry = {
+
+    GrRecordingContext* const context = rtc->recordingContext();
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
+            context,
             *this,
             drawMatrix,
             drawOrigin,
             clipRect,
-            SkRef(fBlob),
-            drawingColor
-    };
+            fBlob,
+            drawingColor);
 
-    GrRecordingContext* const context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
                                                op_mask_type(fMaskFormat),
                                                false,
@@ -974,18 +975,16 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
 
-    // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
-    // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-    GrAtlasTextOp::Geometry geometry = {
+    GrRecordingContext* const context = rtc->recordingContext();
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
+            context,
             *this,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
-            SkRef(fBlob),
-            drawingColor
-    };
+            fBlob,
+            drawingColor);
 
-    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             op_mask_type(fMaskFormat),
@@ -1247,16 +1246,16 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
         DFGPFlags |= MT::kLCDBGRDistanceField == maskType ? kBGR_DistanceFieldEffectFlag : 0;
     }
 
-    GrAtlasTextOp::Geometry geometry = {
+    GrRecordingContext* const context = rtc->recordingContext();
+    GrAtlasTextOp::Geometry* geometry = GrAtlasTextOp::Geometry::Make(
+            context,
             *this,
             drawMatrix,
             drawOrigin,
             SkIRect::MakeEmpty(),
-            SkRef(fBlob),
-            drawingColor
-    };
+            fBlob,
+            drawingColor);
 
-    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             maskType,
