@@ -16,6 +16,24 @@
       "message": "This list is now automatically generated from skia/infra/bots/tasks.json (https://bugs.chromium.org/p/skia/issues/detail?id\u003d6591#c17)\nso if you remove from jobs.json and submit, then this list will fix itself.",
       "revId": "3c27c8144c80513cedd8d7b9a79ad5a0fc0c2319",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f32d067_7d701978",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-02T17:49:08Z",
+      "side": 1,
+      "message": "Arg... is there a way to generate a comment into this file then to state that this file is generated? Also, I suppose it does make sense to just remove all the jobs at this point, since there are no bots to back them up.",
+      "parentUuid": "e21505a9_73aadfb2",
+      "revId": "3c27c8144c80513cedd8d7b9a79ad5a0fc0c2319",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
