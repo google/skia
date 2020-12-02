@@ -877,7 +877,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     if (returnType == nullptr) {
         return;
     }
-    auto type_is_allowed = [&](const Type* t) {
+    auto typeIsAllowed = [&](const Type* t) {
+        if (returnType->typeKind() == Type::TypeKind::kArray) {
+            return false;
+        }
 #if defined(SKSL_STANDALONE)
         return true;
 #else
@@ -887,7 +890,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 #endif
     };
     if (returnType->nonnullable() == *fContext.fFragmentProcessor_Type ||
-        !type_is_allowed(returnType)) {
+        !typeIsAllowed(returnType)) {
         fErrors.error(f.fOffset,
                       "functions may not return type '" + returnType->displayName() + "'");
         return;
@@ -916,7 +919,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
-            !type_is_allowed(type)) {
+            !typeIsAllowed(type)) {
             fErrors.error(param.fOffset,
                           "parameters of type '" + type->displayName() + "' not allowed");
             return;
