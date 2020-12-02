@@ -87,6 +87,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be43bdd_c968352c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T14:57:17Z",
+      "side": 1,
+      "message": "I\u0027ve just thrown out a few high level ideas, that may or may not make sense. One over-arching (and related) point:\n\nWe\u0027re going to want clients to be able to use this, which means exposing the API in the include directory. Today, SkSL\u0027s headers are tightly entangled, and the new headers seem to continue that - they include quite a few other headers that really shouldn\u0027t leak out, and they include GPU headers from src/. We need to make sure there\u0027s a path to having a hermetic set of includes that declare the API, without pulling in any of our internal code (SkSL\u0027s IR, or the GPU backend).",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cbbb44d_a1a2174c",
@@ -345,6 +362,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c650af1a_bb965e34",
+        "filename": "src/sksl/dsl/Modifiers.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T14:57:17Z",
+      "side": 1,
+      "message": "Can we keep some of these IR concepts from leaking out, with API that more directly expresses the (valid/limited) use cases? eg, instead of:\n\n  Var(\"foo\", Modifiers(kUniform_Flag), \u003ctype\u003e...)\n\nJust:\n\n  Uniform(\"foo\", \u003ctype\u003e...)",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7a05151c_42a580be",
         "filename": "src/sksl/dsl/Type.h",
         "patchSetId": 32
@@ -362,6 +396,64 @@
         "endLine": 83,
         "endChar": 15
       },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c62114ce_05106793",
+        "filename": "src/sksl/dsl/Type.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T14:57:17Z",
+      "side": 1,
+      "message": "Yeah, looking at the .cpp code that gets generated, I\u0027d want to structure this with some thin-as-possible shims, and centralize as-much-as-possible of the hard work in a single (non-template) function that takes ExpressionArray, or even VarArgs - just to limit code-bloat.",
+      "parentUuid": "7a05151c_42a580be",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 15
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76e21a73_cec37e0d",
+        "filename": "src/sksl/dsl/Var.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T14:57:17Z",
+      "side": 1,
+      "message": "This pattern (directly operating as-if we\u0027re in the middle of fragment processor emitCode) seems incompatible with runtime-effect usage. We\u0027re going to need to defer this kind of work to some backend pass, right?",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d71d7b7d_1d12ab49",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T14:57:17Z",
+      "side": 1,
+      "message": "I\u0027d like to keep this working even when GPU support is missing. (Today it\u0027s possible to use runtime effects on the CPU backend without GPU support compiled in). It\u0027ll be easy to accidentally make that difficult to fix retroactively if we don\u0027t enforce it early.",
       "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
