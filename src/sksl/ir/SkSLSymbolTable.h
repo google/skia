@@ -10,7 +10,9 @@
 
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLSymbol.h"
+#include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
 #include <vector>
@@ -69,6 +71,28 @@ public:
         const T* ptr = node.get();
         fOwnedNodes.push_back(std::move(node));
         return ptr;
+    }
+
+    /**
+     * Given baseType = `float` and dimensions = {1, 2, 3}, creates the full chain of required
+     * array types in the symbol table: `float[3]`, `float[2][3]`, and `float[1][2][3]`. The
+     * fully-dimensioned array type is returned. `kUnsizedArray` can be passed as a dimension.
+     */
+    template <typename Container>
+    const Type* addArrayDimensions(const Type* type, const Container& dimensions) {
+        StringFragment baseName = type->name();
+        String arrayDims;
+        for (int index = (int) dimensions.size(); index--; ) {
+            auto dim = dimensions[index];
+            arrayDims = (dim != Type::kUnsizedArray)
+                                ? String::printf("[%d]%s", dim, arrayDims.c_str())
+                                : String::printf("[]%s", arrayDims.c_str());
+
+            type = this->takeOwnershipOfSymbol(std::make_unique<Type>(baseName + arrayDims,
+                                                                      Type::TypeKind::kArray,
+                                                                      *type, dim));
+        }
+        return type;
     }
 
     // Call fn for every symbol in the table.  You may not mutate anything.
