@@ -21,8 +21,10 @@
 #include "include/private/SkColorData.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/ops/GrClearOp.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -238,6 +240,64 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             dContext, rtContext.get(), outerBottomEdge, kColor1, &actualValue, &failX, &failY)) {
         ERRORF(reporter, "Expected 0x%08x but got 0x%08x at (%d, %d).", kColor1, actualValue,
                failX, failY);
+    }
+
+    // Clear calls need to remain ClearOps for the following combining-tests to work as expected
+    if (!dContext->priv().caps()->performColorClearsAsDraws() &&
+        !dContext->priv().caps()->performStencilClearsAsDraws() &&
+        !dContext->priv().caps()->performPartialClearsAsDraws()) {
+        static constexpr SkIRect kScissorRect = SkIRect::MakeXYWH(1, 1, kW-1, kH-1);
+
+        // Try combining a pure-color clear w/ a combined stencil & color clear
+        // (re skbug.com/10963)
+        {
+            rtContext = newRTC(dContext, kW, kH);
+            SkASSERT(rtContext);
+
+            rtContext->clearStencilClip(kScissorRect, true);
+            // This color clear can combine w/ the preceding stencil clear
+            rtContext->clear(kScissorRect, SK_PMColor4fWHITE);
+
+            // This should combine w/ the prior combined clear and overwrite the color
+            rtContext->clear(kScissorRect, SK_PMColor4fBLACK);
+
+            GrOpsTask* ops = rtContext->getOpsTask();
+            REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+
+            const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
+
+            constexpr std::array<float, 4> kExpected { 0, 0, 0, 1 };
+            REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
+            REPORTER_ASSERT(reporter, clearOp.stencilInsideMask());
+
+            dContext->flushAndSubmit();
+        }
+
+        // Try combining a pure-stencil clear w/ a combined stencil & color clear
+        // (re skbug.com/10963)
+        {
+            rtContext = newRTC(dContext, kW, kH);
+            SkASSERT(rtContext);
+
+            rtContext->clearStencilClip(kScissorRect, true);
+            // This color clear can combine w/ the preceding stencil clear
+            rtContext->clear(kScissorRect, SK_PMColor4fWHITE);
+
+            // This should combine w/ the prior combined clear and overwrite the 'insideStencilMask'
+            // field
+            rtContext->clearStencilClip(kScissorRect, false);
+
+            GrOpsTask* ops = rtContext->getOpsTask();
+            REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
+
+            const GrClearOp& clearOp = ops->getChain(0)->cast<GrClearOp>();
+
+            constexpr std::array<float, 4> kExpected { 1, 1, 1, 1 };
+            REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
+            REPORTER_ASSERT(reporter, !clearOp.stencilInsideMask());
+
+            dContext->flushAndSubmit();
+        }
     }
 }
 

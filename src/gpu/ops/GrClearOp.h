@@ -30,6 +30,8 @@ public:
 
     const char* name() const override { return "Clear"; }
 
+    const std::array<float, 4>& color() const { return fColor; }
+    bool stencilInsideMask() const { return fStencilInsideMask; }
 private:
     friend class GrOp; // for ctors
 
