@@ -51,7 +51,7 @@ struct SA8 {
 };
 struct Inputs {
     S8 s8;
-    SA8[1][2][3][4][5][6][7][8] sa8;
+    SA8 sa8[1][2][3][4][5][6][7][8];
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
