@@ -16,6 +16,29 @@
       "message": "Ready for review at PS19. This was a tough nut to crack.",
       "revId": "a169f17a14eb13636111072aabe3336512d8e76e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76abfc23_bfe8cb53",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-02T18:04:38Z",
+      "side": 1,
+      "message": "This is old code, but I had to look at this a bit to realize why iterating from 1 (and \u003c\u003d) was correct, compared to the varData.fSizeCount iteration above. This could be re-written as:\n\n  for (int j \u003d 0; j \u003c pd.fSizeCount; ++j) {\n    int size \u003d (paramIter++)-\u003egetInt();\n  }\n\nto be more consistent, right?",
+      "range": {
+        "startLine": 911,
+        "startChar": 0,
+        "endLine": 911,
+        "endChar": 56
+      },
+      "revId": "a169f17a14eb13636111072aabe3336512d8e76e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
