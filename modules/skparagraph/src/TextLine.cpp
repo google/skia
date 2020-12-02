@@ -731,12 +731,14 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
     size_t size = 0;
     const TextStyle* prevStyle = nullptr;
     SkScalar textOffsetInRun = 0;
+
     for (BlockIndex index = fBlockRange.start; index <= fBlockRange.end; ++index) {
 
         TextRange intersect;
         TextStyle* style = nullptr;
         if (index < fBlockRange.end) {
-            auto block = fOwner->styles().begin() + index;
+            auto block = fOwner->styles().begin() +
+                (run->leftToRight() ? index : fBlockRange.end - index + fBlockRange.start - 1);
 
             // Get the text
             intersect = intersected(block->fRange, textRange);
