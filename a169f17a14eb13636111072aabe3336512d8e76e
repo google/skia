@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ca12af9_9ab099d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-02T17:29:37Z",
+      "side": 1,
+      "message": "Ready for review at PS19. This was a tough nut to crack.",
+      "revId": "a169f17a14eb13636111072aabe3336512d8e76e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
