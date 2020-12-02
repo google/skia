@@ -50,6 +50,10 @@ public:
     void waitUntilCompleted() {
         [fCmdBuffer waitUntilCompleted];
     }
+    bool isCompleted() {
+        return fCmdBuffer.status == MTLCommandBufferStatusCompleted ||
+               fCmdBuffer.status == MTLCommandBufferStatusError;
+    }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
 private:

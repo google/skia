@@ -277,13 +277,7 @@ private:
 
     sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
 
-    struct OutstandingCommandBuffer {
-        OutstandingCommandBuffer(sk_sp<GrMtlCommandBuffer> commandBuffer, GrFence fence)
-            : fCommandBuffer(std::move(commandBuffer))
-            , fFence(fence) {}
-        sk_sp<GrMtlCommandBuffer> fCommandBuffer;
-        GrFence fFence;
-    };
+    using OutstandingCommandBuffer = sk_sp<GrMtlCommandBuffer>;
     SkDeque fOutstandingCommandBuffers;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
