@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "52777238_86b7c1d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-02T20:06:24Z",
+      "side": 1,
+      "message": "Ran \u0027make train\u0027. Looks like all the NVIDIA_Shield bot stuff is gone. Looks like there are a few remaining mentions in a few files.",
+      "parentUuid": "8aea66ec_579eaadd",
+      "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "b6682373_a13ed647",
@@ -49,6 +67,24 @@
       "writtenOn": "2020-12-02T18:31:29Z",
       "side": 1,
       "message": "Oops, I forgot to delete this file (the code has moved). Could you delete it in this CL or I can do it in a separate CL?\nI am adding the generated file line in https://skia-review.googlesource.com/c/buildbot/+/340216/",
+      "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf427aee_a791f1f9",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-02T20:06:24Z",
+      "side": 1,
+      "message": "Deleted.",
+      "parentUuid": "b6682373_a13ed647",
       "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
