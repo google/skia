@@ -8,8 +8,10 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 #include <memory>
@@ -70,6 +72,13 @@ public:
         fOwnedNodes.push_back(std::move(node));
         return ptr;
     }
+
+    /**
+     * Given baseType = `float` and dimensions = {1, 2, 3}, creates the full chain of required
+     * array types in the symbol table: `float[3]`, `float[2][3]`, and `float[1][2][3]`. The
+     * fully-dimensioned array type is returned. `kUnsizedArray` can be passed as a `[]` dimension.
+     */
+    const Type* addArrayDimensions(const Type* type, const SkTArray<int>& dimensions);
 
     // Call fn for every symbol in the table.  You may not mutate anything.
     template <typename Fn>
