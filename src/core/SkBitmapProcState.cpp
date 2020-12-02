@@ -143,9 +143,7 @@ SkBitmapProcState::SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, 
     : fImage(image)
     , fTileModeX(tmx)
     , fTileModeY(tmy)
-    , fBMState(nullptr)
 {}
-
 
 // true iff the matrix has a scale and no more than an optional translate.
 static bool matrix_only_scale_translate(const SkMatrix& m) {
@@ -183,6 +181,13 @@ static bool valid_for_filtering(unsigned dimension) {
     return (dimension & ~0x3FFF) == 0;
 }
 
+#include "src/image/SkImage_Base.h"
+static SkMatrix post_scale(const SkImage_Base* image, SkISize level, const SkMatrix& base) {
+    return SkMatrix::Scale(SkIntToScalar(level.width())  / image->width(),
+                           SkIntToScalar(level.height()) / image->height())
+            * base;
+};
+
 bool SkBitmapProcState::init(const SkMatrix& inv, SkColor paintColor,
                              const SkSamplingOptions& sampling) {
     SkASSERT(!inv.hasPerspective());
@@ -192,18 +197,18 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkColor paintColor,
     fInvMatrix = inv;
     fBilerp = false;
 
-    fBMState = SkBitmapController::RequestBitmap(fImage, inv, sampling, &fAlloc);
+    SkASSERT(!sampling.fUseCubic);
+    SkASSERT(sampling.fMipmap != SkMipmapMode::kLinear);
+    auto* access = fAlloc.make<SkMipmapAccessor>(fImage, inv, sampling.fMipmap);
+    fPixmap = access->level();
+    fInvMatrix = post_scale(fImage, fPixmap.dimensions(), inv);
 
-    // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
-    if (nullptr == fBMState || fBMState->pixmap().info().isEmpty()) {
+    // Do we need this check?
+    if (fPixmap.info().isEmpty()) {
         return false;
     }
-    fPixmap = fBMState->pixmap();
-    fInvMatrix = fBMState->invMatrix();
     fPaintColor = paintColor;
-    SkASSERT(!fBMState->sampling().fUseCubic);
-    SkASSERT(fBMState->sampling().fMipmap == SkMipmapMode::kNone);
-    fBilerp = fBMState->sampling().fFilter == SkFilterMode::kLinear;
+    fBilerp = sampling.fFilter == SkFilterMode::kLinear;
     SkASSERT(fPixmap.addr());
 
     bool integral_translate_only = just_trans_integral(fInvMatrix);

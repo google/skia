@@ -11,6 +11,7 @@
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
@@ -599,6 +600,12 @@ static void tweak_filter_and_inv_matrix(SkFilterMode* filter, SkMatrix* matrix) 
     }
 }
 
+static SkMatrix post_scale(const sk_sp<SkImage>& image, SkISize level, const SkMatrix& base) {
+    return SkMatrix::Scale(SkIntToScalar(level.width())  / image->width(),
+                           SkIntToScalar(level.height()) / image->height())
+            * base;
+};
+
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
     auto sampling = fUseSamplingOptions ? fSampling
                                         : SkSamplingOptions(rec.fPaint.getFilterQuality());
@@ -626,15 +633,16 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         return false;
     }
 
-    const auto* state = SkBitmapController::RequestBitmap(as_IB(fImage.get()),
-                                                          matrix, sampling, alloc);
-    if (!state) {
-        return false;
+    if (sampling.fUseCubic &&
+        SkMatrixPriv::AdjustHighQualityFilterLevel(matrix, true) != kHigh_SkFilterQuality)
+    {
+        sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
     }
-
-    const SkPixmap& pm = state->pixmap();
-    matrix    = state->invMatrix();
-    sampling  = state->sampling();
+    auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), matrix,
+                                                 sampling.fUseCubic ? SkMipmapMode::kNone
+                                                                    : sampling.fMipmap);
+    const SkPixmap& pm = access->level();
+    matrix = post_scale(fImage, pm.dimensions(), matrix);
     auto info = pm.info();
 
     p->append(SkRasterPipeline::seed_shader);
@@ -903,23 +911,17 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     SkMatrix        upperInv;
     float           lowerWeight = 0;
 
-    auto post_scale = [&](SkISize level, const SkMatrix& base) {
-        return SkMatrix::Scale(SkIntToScalar(level.width())  / fImage->width(),
-                               SkIntToScalar(level.height()) / fImage->height())
-                * base;
-    };
-
     auto sampling = fUseSamplingOptions ? fSampling : SkSamplingOptions(paintQuality);
     if (sampling.fUseCubic) {
         auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
                                                      SkMipmapMode::kNone);
         upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
+        upperInv = post_scale(fImage, upper->dimensions(), baseInv);
     } else {
         auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
                                                      sampling.fMipmap);
         upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
+        upperInv = post_scale(fImage, upper->dimensions(), baseInv);
         lowerWeight = access->lowerWeight();
         if (lowerWeight > 0) {
             lower = &access->lowerLevel();
@@ -1120,7 +1122,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     skvm::Color c = sample_level(*upper, upperInv, upperLocal);
     if (lower) {
-        auto lowerInv = post_scale(lower->dimensions(), baseInv);
+        auto lowerInv = post_scale(fImage, lower->dimensions(), baseInv);
         auto lowerLocal = SkShaderBase::ApplyMatrix(p, lowerInv, origLocal, uniforms);
         // lower * weight + upper * (1 - weight)
         c = lerp(c,
