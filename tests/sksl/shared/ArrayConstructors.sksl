@@ -1,7 +1,0 @@
-float test1[] = float[](1, 2, 3, 4);
-float2 test2[] = float2[](float2(1, 2), float2(3, 4));
-float4x4 test3[] = float4x4[]();
-
-void main() {
-    sk_FragColor.r = half(test1[0] + test2[0].x + test3[0][0][0]);
-}
