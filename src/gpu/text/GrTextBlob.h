@@ -184,7 +184,7 @@ public:
                     GrRenderTargetContext* rtc) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
-            GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
+            GrColor color, const SkMatrix& positionMatrix,
             SkIRect clip) const = 0;
 
     virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) = 0;
