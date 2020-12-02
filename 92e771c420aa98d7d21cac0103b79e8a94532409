@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "116997fc_00c476bc",
+        "filename": "tests/sksl/shared/golden/Functions.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-02T16:54:33Z",
+      "side": 1,
+      "message": "Should be [2][3] here.",
+      "range": {
+        "startLine": 3,
+        "startChar": 10,
+        "endLine": 3,
+        "endChar": 23
+      },
+      "revId": "92e771c420aa98d7d21cac0103b79e8a94532409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
