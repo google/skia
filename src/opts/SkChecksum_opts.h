@@ -42,7 +42,7 @@
     #include <arm_acle.h>
     static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return __crc32cb(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) { return __crc32cd(seed, v); }
-#elif !defined(SK_BUILD_FOR_IOS)
+#else
     // See https://www.w3.org/TR/PNG/#D-CRCAppendix,
     // but this is CRC32c, so built with 0x82f63b78, not 0xedb88320 like you'll see there.
     #if 0
@@ -114,6 +114,9 @@ namespace SK_OPTS_NS {
 
     // This is Murmur3, our iOS-without-CRC32 approach mentioned in the third paragraph at the top.
     inline uint32_t hash_fn(const void* data, size_t len, uint32_t seed) {
+        (void)crc32c_1;
+        (void)crc32c_8;
+
         auto ptr = (const uint8_t*)data;
         const size_t original_len = len;
 
