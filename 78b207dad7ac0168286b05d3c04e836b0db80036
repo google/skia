@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b850cdb_81086b7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-02T18:59:13Z",
+      "side": 1,
+      "message": "It\u0027s failing by up to around 55 or 60 (i.e. d \u003d\u003d 55 or 60). I\u0027m wondering if I\u0027m just running into precision issues. In gdb I see that d is ~55 when the control points are all on the order of 1e9. If I subtract p[0] from all the control points before running Wang\u0027s formula and the error check, the max failing value of d is closer to 6 or 7.\n\nBTW I think the proof doesn\u0027t necessarily restrict itself to powers of two: I\u0027ll send you a brief writeup so you can check my thinking there.",
+      "parentUuid": "12bb8ff2_ceda5092",
+      "revId": "78b207dad7ac0168286b05d3c04e836b0db80036",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0f8f5f2e_4eea6e8b",
