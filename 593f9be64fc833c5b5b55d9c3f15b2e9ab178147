@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adbb4a77_5df37afc",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-02T21:43:51Z",
+      "side": 0,
+      "message": "lowercase_with_underscores is only for static helper functions; this is a lambda which references `this`.",
+      "range": {
+        "startLine": 880,
+        "startChar": 9,
+        "endLine": 880,
+        "endChar": 24
+      },
+      "revId": "593f9be64fc833c5b5b55d9c3f15b2e9ab178147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
