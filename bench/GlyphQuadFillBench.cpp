@@ -71,10 +71,11 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         SkIRect clip = SkIRect::MakeEmpty();
         SkPaint paint;
         GrColor grColor = SkColorToPremulGrColor(paint.getColor());
+        SkMatrix positionMatrix = SkMatrix::Translate(100, 100);
 
         for (int loop = 0; loop < loops; loop++) {
             subRun->fillVertexData(fVertices.get(), 0, subRun->glyphCount(),
-                                   grColor, SkMatrix::I(), {100, 100}, clip);
+                                   grColor, positionMatrix, clip);
         }
     }
 

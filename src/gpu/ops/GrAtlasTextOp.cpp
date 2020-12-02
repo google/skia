@@ -80,8 +80,10 @@ GrAtlasTextOp::GrAtlasTextOp(MaskType maskType,
 }
 
 void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    fSubRun.fillVertexData(dst, offset, count, fColor.toBytes_RGBA(),
-                           fDrawMatrix, fDrawOrigin, fClipRect);
+    SkMatrix positionMatrix = fDrawMatrix;
+    positionMatrix.preTranslate(fDrawOrigin.x(), fDrawOrigin.y());
+    fSubRun.fillVertexData(
+            dst, offset, count, fColor.toBytes_RGBA(), positionMatrix, fClipRect);
 }
 
 void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
