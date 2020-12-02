@@ -654,22 +654,23 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkPMColor4f drawingColor =
             calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
-    GrAtlasTextOp::Geometry geometry = {
-            *this,
-            drawMatrix,
-            drawOrigin,
-            clipRect,
-            SkRef(fBlob),
-            drawingColor
-    };
 
     GrRecordingContext* const context = rtc->recordingContext();
+    SkArenaAlloc* const alloc = context->priv().recordTimeAllocator();
+    using Geo = GrAtlasTextOp::Geometry;
+    SkDestroyerPtr<Geo> geo = alloc->makeUnique<Geo>(*this,
+                                                     drawMatrix,
+                                                     drawOrigin,
+                                                     clipRect,
+                                                     SkRef(fBlob),
+                                                     drawingColor);
+
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
                                                op_mask_type(fMaskFormat),
                                                false,
                                                this->glyphCount(),
                                                subRunBounds,
-                                               geometry,
+                                               std::move(geo),
                                                std::move(grPaint));
 
     return {clip, std::move(op)};
@@ -693,9 +694,9 @@ void direct_2D(SkZip<Mask2DVertex[4],
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop[0] + integralOriginOffset.x(),
-                dt = leftTop[1] + integralOriginOffset.y(),
-                dr = dl + (ar - al),
-                db = dt + (ab - at);
+                 dt = leftTop[1] + integralOriginOffset.y(),
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
 
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
         quad[1] = {{dl, db}, color, {al, ab}};  // L,B
@@ -944,25 +945,23 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
 
-    // We can clip geometrically using clipRect and ignore clip if we're not using SDFs or
-    // transformed glyphs, and we have an axis-aligned rectangular non-AA clip.
-    GrAtlasTextOp::Geometry geometry = {
-            *this,
-            drawMatrix,
-            drawOrigin,
-            SkIRect::MakeEmpty(),
-            SkRef(fBlob),
-            drawingColor
-    };
+    GrRecordingContext* const context = rtc->recordingContext();
+    SkArenaAlloc* const alloc = context->priv().recordTimeAllocator();
+    using Geo = GrAtlasTextOp::Geometry;
+    SkDestroyerPtr<Geo> geo = alloc->makeUnique<Geo>(*this,
+                                                     drawMatrix,
+                                                     drawOrigin,
+                                                     SkIRect::MakeEmpty(),
+                                                     SkRef(fBlob),
+                                                     drawingColor);
 
-    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             op_mask_type(fMaskFormat),
             true,
             this->glyphCount(),
             this->deviceRect(drawMatrix, drawOrigin),
-            geometry,
+            std::move(geo),
             std::move(grPaint));
     return {clip, std::move(op)};
 }
@@ -1227,8 +1226,16 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             SkRef(fBlob),
             drawingColor
     };
+    GrRecordingContext* const context = rtc->recordingContext();
+    SkArenaAlloc* const alloc = context->priv().recordTimeAllocator();
+    using Geo = GrAtlasTextOp::Geometry;
+    SkDestroyerPtr<Geo> geo = alloc->makeUnique<Geo>(*this,
+                                                     drawMatrix,
+                                                     drawOrigin,
+                                                     SkIRect::MakeEmpty(),
+                                                     SkRef(fBlob),
+                                                     drawingColor);
 
-    GrRecordingContext* context = rtc->recordingContext();
     GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
             context,
             maskType,
@@ -1238,7 +1245,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             SkPaintPriv::ComputeLuminanceColor(drawPaint),
             useGammaCorrectDistanceTable,
             DFGPFlags,
-            geometry,
+            std::move(geo),
             std::move(grPaint));
 
     return {clip, std::move(op)};

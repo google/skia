@@ -73,6 +73,13 @@ public:
     ~SkArenaAlloc();
 
     template <typename T, typename... Args>
+    SkDestroyerPtr<T> makeUnique(Args&&... args) {
+        void* ptr = this->makeBytesAlignedTo(sizeof(T), alignof(T));
+        T* typed = new (ptr) T(std::forward<Args>(args)...);
+        return SkDestroyerPtr<T>{typed};
+    }
+
+    template <typename T, typename... Args>
     T* make(Args&&... args) {
         uint32_t size      = ToU32(sizeof(T));
         uint32_t alignment = ToU32(alignof(T));
