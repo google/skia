@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6bac1db_ab01e95d",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-12-02T10:48:54Z",
+      "side": 1,
+      "message": "Is this also conservative? Are implementations allowed to return false positives?",
+      "revId": "e9e7fad0a73dd730e905cd3f9dcc0040f0fd7a17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
