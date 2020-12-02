@@ -1,0 +1,3 @@
+float test1[] = float[](1, 2, 3, 4);
+float2 test2[2] = float2[2](float2(1, 2), float2(3, 4));
+float4x4 test3[1][1] = float4x4[1][1](1);
