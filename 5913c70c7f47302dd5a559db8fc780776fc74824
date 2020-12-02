@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "448613f8_a7a64e1b",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 4
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-02T14:46:59Z",
+      "side": 1,
+      "message": "delete either, there is only one",
+      "range": {
+        "startLine": 1115,
+        "startChar": 15,
+        "endLine": 1115,
+        "endChar": 21
+      },
+      "revId": "5913c70c7f47302dd5a559db8fc780776fc74824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
