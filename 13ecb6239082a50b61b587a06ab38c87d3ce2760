@@ -16,6 +16,29 @@
       "message": "The Canary-Android actually passed all the tests (it was the checked build that caught the SkSL issue), Canary-Flutter also passed (their tip of tree isn\u0027t currently all green, but all the bots passed), and the NVIDIA_Shield bots don\u0027t actually exist anymore (see https://skia-review.googlesource.com/c/skia/+/340096 ).\n\nThe gold changes are as expected; the Android build could now get subpixel anti-aliasing if it is requested (uses the alternate subpixel anti-aliasing method that is always present anyway).",
       "revId": "13ecb6239082a50b61b587a06ab38c87d3ce2760",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f6e6624_6e497760",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-02T15:48:33Z",
+      "side": 1,
+      "message": "std::tie(major, minor, patch) \u003e\u003d std::tie(2, 8, 1)",
+      "range": {
+        "startLine": 215,
+        "startChar": 12,
+        "endLine": 215,
+        "endChar": 99
+      },
+      "revId": "13ecb6239082a50b61b587a06ab38c87d3ce2760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
