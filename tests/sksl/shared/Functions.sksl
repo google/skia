@@ -1,3 +1,5 @@
+/*#pragma settings NoInline*/
+
 float arr(float v[2][3]) {
     return v[0][0] * v[1][2];
 }
