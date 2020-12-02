@@ -1,0 +1,2 @@
+half[2][4] return_half_2_2() {}
+int[1]     return_int_1()    {}
