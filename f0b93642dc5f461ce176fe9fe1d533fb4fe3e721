@@ -16,6 +16,24 @@
       "message": "How about we leave this in SkBitmapController.h/.cpp for this CL, then rename the files in a follow up?  It\u0027ll make following this diff a lot easier.",
       "revId": "f0b93642dc5f461ce176fe9fe1d533fb4fe3e721",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b2d0dd3_e83a4d5f",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-02T15:58:39Z",
+      "side": 0,
+      "message": "Good idea. Done.",
+      "parentUuid": "423d4039_6770d59e",
+      "revId": "f0b93642dc5f461ce176fe9fe1d533fb4fe3e721",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
