@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f834451c_667952f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-02T16:59:42Z",
+      "side": 1,
+      "message": "this is left over from back when color filters received a color argument, right?",
+      "revId": "a45b9c8fd12b8e1da91d94277c7d6e50ab74daf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
