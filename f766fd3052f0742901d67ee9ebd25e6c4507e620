@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4157b5eb_ce97c016",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-02T20:11:04Z",
+      "side": 1,
+      "message": "Ok, let me know what you think of the workaround. If you think it\u0027s ok I\u0027ll use a similar workaround for the rational formula tests.",
+      "revId": "f766fd3052f0742901d67ee9ebd25e6c4507e620",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
