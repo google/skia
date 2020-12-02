@@ -60,13 +60,14 @@ GrOp::CombineResult GrClearOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const
         // When the scissors are the exact same but the buffers are different, we can combine and
         // clear both stencil and clear together in onExecute().
         if (other->fBuffer & Buffer::kColor) {
+            SkASSERT((fBuffer & Buffer::kStencilClip) && !(fBuffer & Buffer::kColor));
             fColor = other->fColor;
         }
         if (other->fBuffer & Buffer::kStencilClip) {
+            SkASSERT(!(fBuffer & Buffer::kStencilClip) && (fBuffer & Buffer::kColor));
             fStencilInsideMask = other->fStencilInsideMask;
         }
         fBuffer = Buffer::kBoth;
-        return CombineResult::kMerged;
     }
     return CombineResult::kCannotCombine;
 }
