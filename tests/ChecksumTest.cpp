@@ -79,7 +79,7 @@ DEF_TEST(ChecksumConsistent, r) {
     for (int i = 0; i < 256; i++) {
         bytes[i] = i;
     }
-#if defined(SK_BUILD_FOR_IOS) && !defined(SK_ARM_HAS_CRC32)
+#if defined(SK_BUILD_FOR_IOS) && !defined(SK_CPU_X86) && !defined(SK_ARM_HAS_CRC32)
     // Test Murmur3.
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  0) == 0x00000000, "%08x", SkOpts::hash(bytes,  0));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  1) == 0x514e28b7, "%08x", SkOpts::hash(bytes,  1));
