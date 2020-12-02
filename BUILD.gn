@@ -557,6 +557,7 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
     defines = [
       "SKSL_STANDALONE",
+      "SK_ENABLE_SKSL_INTERPRETER",
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = [
