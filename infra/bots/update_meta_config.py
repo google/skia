@@ -51,6 +51,7 @@ def main():
     # Write to buildbucket.config.
     buildbucket_config = os.path.join(os.getcwd(), 'buildbucket.config')
     with open(buildbucket_config, 'w') as f:
+      f.write('# GENERATED FILE: edit <skia>/infra/bots/tasks.json instead.\n\n')
 
       if args.repo_name == 'skia':
         addChromiumBuckets(f)
