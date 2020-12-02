@@ -172,7 +172,8 @@ public:
     void executeIndirect(const sk_sp<GrD3DCommandSignature> commandSig, unsigned int maxCommandCnt,
                          const GrD3DBuffer* argumentBuffer, size_t argumentBufferOffset);
 
-    void clearRenderTargetView(const GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
+    void clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
+                               std::array<float, 4> color,
                                const D3D12_RECT* rect);
     void clearDepthStencilView(const GrD3DAttachment*,
                                uint8_t stencilClearValue,

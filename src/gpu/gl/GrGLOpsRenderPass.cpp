@@ -383,7 +383,7 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
     }
 }
 
-void GrGLOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+void GrGLOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {
     fGpu->clear(scissor, color, fRenderTarget, fOrigin);
 }
 

@@ -126,12 +126,7 @@ private:
     void setMustPreserveStencil() { fMustPreserveStencil = true; }
 
     // Must only be called if native color buffer clearing is enabled.
-    void setColorLoadOp(GrLoadOp op, const SkPMColor4f& color);
-    // Sets the clear color to transparent black
-    void setColorLoadOp(GrLoadOp op) {
-        static const SkPMColor4f kDefaultClearColor = {0.f, 0.f, 0.f, 0.f};
-        this->setColorLoadOp(op, kDefaultClearColor);
-    }
+    void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
 
     enum class CanDiscardPreviousOps : bool {
         kYes = true,
@@ -255,7 +250,7 @@ private:
     GrAuditTrail*              fAuditTrail;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
-    SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
+    std::array<float, 4> fLoadClearColor = {0, 0, 0, 0};
     StencilContent fInitialStencilContent = StencilContent::kDontCare;
     bool fMustPreserveStencil = false;
 
