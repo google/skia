@@ -13,7 +13,10 @@ declare_args() {
 if (skia_use_system_harfbuzz) {
   system("harfbuzz") {
     include_dirs = [ "/usr/include/harfbuzz" ]
-    libs = [ "harfbuzz" ]
+    libs = [
+      "harfbuzz",
+      "harfbuzz-icu",
+    ]
   }
 } else {
   third_party("harfbuzz") {
