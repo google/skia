@@ -207,9 +207,11 @@ SkRect TextLine::paint(SkCanvas* textCanvas, SkScalar x, SkScalar y) {
                 *runWidthInLine = run->advance().fX;
                 return true;
             }
+            //SkDebugf("run[%d:%d)\n", run->fTextRange.start, run->fTextRange.end);
             *runWidthInLine = this->iterateThroughSingleRunByStyles(
             run, runOffsetInLine, textRange, StyleType::kForeground,
             [textCanvas, x, y, &bounds, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+                //SkDebugf("   block[%d:%d)\n", textRange.start, textRange.end);
                 auto textBounds = this->paintText(textCanvas, x, y, textRange, style, context);
                 bounds.joinPossiblyEmptyRect(textBounds);
             });
@@ -731,11 +733,13 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
     size_t size = 0;
     const TextStyle* prevStyle = nullptr;
     SkScalar textOffsetInRun = 0;
-    for (BlockIndex index = fBlockRange.start; index <= fBlockRange.end; ++index) {
 
+    for (BlockIndex index0 = fBlockRange.start; index0 <= fBlockRange.end; ++index0) {
+
+        auto index = run->leftToRight() ? index0 : fBlockRange.end - index0 + fBlockRange.start - 1;
         TextRange intersect;
         TextStyle* style = nullptr;
-        if (index < fBlockRange.end) {
+        if (index0 < fBlockRange.end) {
             auto block = fOwner->styles().begin() + index;
 
             // Get the text
@@ -748,7 +752,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
                     // We have found all the good styles already
                     // but we need to process the last one of them
                     intersect = TextRange(start, start + size);
-                    index = fBlockRange.end;
+                    index0 = fBlockRange.end;
                 }
             } else {
                 // Get the style
