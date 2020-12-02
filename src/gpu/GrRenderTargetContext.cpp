@@ -107,18 +107,20 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         writeSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
     }
 
-    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
+    GrSurfaceProxyView readView (           proxy, origin,  readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-    return std::make_unique<GrRenderTargetContext>(context, std::move(readView),
-                                                   std::move(writeView), colorType,
-                                                   std::move(colorSpace), surfaceProps,
+    return std::make_unique<GrRenderTargetContext>(context,
+                                                   std::move(readView),
+                                                   std::move(writeView),
+                                                   colorType,
+                                                   std::move(colorSpace),
+                                                   surfaceProps,
                                                    flushTimeOpsTask);
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         GrRecordingContext* context,
-        GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
         SkISize dimensions,
@@ -126,6 +128,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         int sampleCnt,
         GrMipmapped mipMapped,
         GrProtected isProtected,
+        GrSwizzle readSwizzle,
+        GrSwizzle writeSwizzle,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
         const SkSurfaceProps* surfaceProps) {
@@ -138,17 +142,27 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     }
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, dimensions, GrRenderable::kYes, sampleCnt, mipMapped, fit, budgeted,
+            format,
+            dimensions,
+            GrRenderable::kYes,
+            sampleCnt,
+            mipMapped,
+            fit,
+            budgeted,
             isProtected);
     if (!proxy) {
         return nullptr;
     }
 
-    auto rtc = GrRenderTargetContext::Make(context, colorType, std::move(colorSpace),
-                                           std::move(proxy), origin, surfaceProps);
-    if (!rtc) {
-        return nullptr;
-    }
+    GrSurfaceProxyView readView (           proxy, origin,  readSwizzle);
+    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(context,
+                                                       std::move(readView),
+                                                       std::move(writeView),
+                                                       GrColorType::kUnknown,
+                                                       std::move(colorSpace),
+                                                       surfaceProps);
     rtc->discard();
     return rtc;
 }
@@ -169,9 +183,24 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     if (!format.isValid()) {
         return nullptr;
     }
+    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
+            format,
+            dimensions,
+            GrRenderable::kYes,
+            sampleCnt,
+            mipMapped,
+            fit,
+            budgeted,
+            isProtected);
+    if (!proxy) {
+        return nullptr;
+    }
 
-    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), fit, dimensions,
-                                       format, sampleCnt, mipMapped, isProtected, origin, budgeted,
+    return GrRenderTargetContext::Make(context,
+                                       colorType,
+                                       std::move(colorSpace),
+                                       std::move(proxy),
+                                       origin,
                                        surfaceProps);
 }
 
@@ -554,8 +583,9 @@ void GrRenderTargetContext::internalClear(const SkIRect* scissor,
         GrOpsTask* opsTask = this->getOpsTask();
         if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
             !this->caps()->performColorClearsAsDraws()) {
+            SkPMColor4f clearColor = this->writeSurfaceView().swizzle().applyTo(color);
             // The op list was emptied and native clears are allowed, so just use the load op
-            opsTask->setColorLoadOp(GrLoadOp::kClear, color);
+            opsTask->setColorLoadOp(GrLoadOp::kClear, clearColor.array());
             return;
         } else {
             // Will use an op for the clear, reset the load op to discard since the op will
@@ -575,7 +605,8 @@ void GrRenderTargetContext::internalClear(const SkIRect* scissor,
                         GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
                                                     SkRect::Make(scissorState.rect())));
     } else {
-        this->addOp(GrClearOp::MakeColor(fContext, scissorState, color));
+        SkPMColor4f clearColor = this->writeSurfaceView().swizzle().applyTo(color);
+        this->addOp(GrClearOp::MakeColor(fContext, scissorState, clearColor.array()));
     }
 }
 

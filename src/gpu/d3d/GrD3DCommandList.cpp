@@ -391,7 +391,7 @@ void GrD3DDirectCommandList::executeIndirect(const sk_sp<GrD3DCommandSignature> 
 }
 
 void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* renderTarget,
-                                                   const SkPMColor4f& color,
+                                                   std::array<float, 4> color,
                                                    const D3D12_RECT* rect) {
     this->addingWork();
     this->addResource(renderTarget->resource());
@@ -400,8 +400,8 @@ void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* rend
         this->addResource(msaaTextureResource->resource());
     }
     unsigned int numRects = rect ? 1 : 0;
-    fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
-                                        color.vec(), numRects, rect);
+    fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(), color.data(),
+                                        numRects, rect);
 }
 
 void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DAttachment* stencil,

@@ -63,9 +63,8 @@ GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-                             const SkPMColor4f& clearColor,
+                             std::array<float, 4> clearColor,
                              bool withStencil) {
-
     VkAttachmentLoadOp loadOp;
     VkAttachmentStoreOp storeOp;
     get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
@@ -352,13 +351,13 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool i
     fCurrentCBIsEmpty = false;
 }
 
-void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());
         return;
     }
 
-    VkClearColorValue vkColor = {{color.fR, color.fG, color.fB, color.fA}};
+    VkClearColorValue vkColor = {{color[0], color[1], color[2], color[3]}};
 
     // If we end up in a situation where we are calling clear without a scissior then in general it
     // means we missed an opportunity higher up the stack to set the load op to be a clear. However,
