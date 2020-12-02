@@ -1,5 +1,9 @@
 void main() {
-    float array[4] = float[4](1, 2, 3, 4);
+    float array[4];
+    array[0] = 0;
+    array[1] = 1;
+    array[2] = 2;
+    array[3] = 3;
     short x = 0;
     ushort y = 1;
     int z = 2;

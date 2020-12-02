@@ -6,6 +6,7 @@ OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
+OpName %array "array"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -25,39 +26,37 @@ OpDecorate %_arr_float_int_4 ArrayStride 16
 %int_4 = OpConstant %int 4
 %_arr_float_int_4 = OpTypeArray %float %int_4
 %_ptr_Function__arr_float_int_4 = OpTypePointer Function %_arr_float_int_4
-%float_1 = OpConstant %float 1
-%float_2 = OpConstant %float 2
-%float_3 = OpConstant %float 3
-%float_4 = OpConstant %float 4
+%float_0 = OpConstant %float 0
 %int_0 = OpConstant %int 0
 %_ptr_Function_float = OpTypePointer Function %float
+%float_1 = OpConstant %float 1
 %int_1 = OpConstant %int 1
+%float_2 = OpConstant %float 2
 %int_2 = OpConstant %int 2
+%float_3 = OpConstant %float 3
+%int_3 = OpConstant %int 3
 %uint = OpTypeInt 32 0
 %uint_3 = OpConstant %uint 3
 %main = OpFunction %void None %11
 %12 = OpLabel
-%13 = OpVariable %_ptr_Function__arr_float_int_4 Function
-%27 = OpVariable %_ptr_Function__arr_float_int_4 Function
-%32 = OpVariable %_ptr_Function__arr_float_int_4 Function
-%37 = OpVariable %_ptr_Function__arr_float_int_4 Function
-%22 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
-OpStore %13 %22
-%24 = OpAccessChain %_ptr_Function_float %13 %int_0
-%26 = OpLoad %float %24
-%28 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
-OpStore %27 %28
-%30 = OpAccessChain %_ptr_Function_float %27 %int_1
-%31 = OpLoad %float %30
-%33 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
-OpStore %32 %33
-%35 = OpAccessChain %_ptr_Function_float %32 %int_2
+%array = OpVariable %_ptr_Function__arr_float_int_4 Function
+%20 = OpAccessChain %_ptr_Function_float %array %int_0
+OpStore %20 %float_0
+%24 = OpAccessChain %_ptr_Function_float %array %int_1
+OpStore %24 %float_1
+%27 = OpAccessChain %_ptr_Function_float %array %int_2
+OpStore %27 %float_2
+%30 = OpAccessChain %_ptr_Function_float %array %int_3
+OpStore %30 %float_3
+%31 = OpAccessChain %_ptr_Function_float %array %int_0
+%32 = OpLoad %float %31
+%33 = OpAccessChain %_ptr_Function_float %array %int_1
+%34 = OpLoad %float %33
+%35 = OpAccessChain %_ptr_Function_float %array %int_2
 %36 = OpLoad %float %35
-%38 = OpCompositeConstruct %_arr_float_int_4 %float_1 %float_2 %float_3 %float_4
-OpStore %37 %38
-%41 = OpAccessChain %_ptr_Function_float %37 %uint_3
-%42 = OpLoad %float %41
-%43 = OpCompositeConstruct %v4float %26 %31 %36 %42
-OpStore %sk_FragColor %43
+%39 = OpAccessChain %_ptr_Function_float %array %uint_3
+%40 = OpLoad %float %39
+%41 = OpCompositeConstruct %v4float %32 %34 %36 %40
+OpStore %sk_FragColor %41
 OpReturn
 OpFunctionEnd
