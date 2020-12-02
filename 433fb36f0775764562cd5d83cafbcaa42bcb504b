@@ -16,6 +16,41 @@
       "message": "This might be right? Doesn\u0027t remove the bots themselves though. Not sure who should do that, or if we want to?",
       "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aea66ec_579eaadd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-12-02T18:31:29Z",
+      "side": 1,
+      "message": "The bots will be removed from tasks.json when you run \u0027make train\u0027, we will have to keep them in-sync.\n\nI think we want to? (adding trooper+sheriff to review).",
+      "parentUuid": "c8ca65e1_1f892884",
+      "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6682373_a13ed647",
+        "filename": "infra/bots/update_meta_config.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-12-02T18:31:29Z",
+      "side": 1,
+      "message": "Oops, I forgot to delete this file (the code has moved). Could you delete it in this CL or I can do it in a separate CL?\nI am adding the generated file line in https://skia-review.googlesource.com/c/buildbot/+/340216/",
+      "revId": "433fb36f0775764562cd5d83cafbcaa42bcb504b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
