@@ -70,7 +70,7 @@ func (b *jobBuilder) isolateCIPDAsset(asset string) string {
 		b.cmd("/bin/cp", "-rL", cfg.path, "${ISOLATED_OUTDIR}")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.idempotent()
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 	})
 	return cfg.isolateTaskName
 }

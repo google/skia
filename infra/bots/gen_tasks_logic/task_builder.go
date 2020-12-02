@@ -83,9 +83,9 @@ func (b *taskBuilder) idempotent() {
 	b.Spec.Idempotent = true
 }
 
-// isolate sets the isolate file used by the task.
-func (b *taskBuilder) isolate(i string) {
-	b.Spec.Isolate = b.relpath(i)
+// cas sets the CasSpec used by the task.
+func (b *taskBuilder) cas(casSpec string) {
+	b.Spec.CasSpec = casSpec
 }
 
 // env appends the given values to the given environment variable for the task.
