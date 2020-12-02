@@ -32,6 +32,7 @@
 #include "src/utils/SkMatrix22.h"
 
 #include <memory>
+#include <tuple>
 
 #include <ft2build.h>
 #include FT_ADVANCES_H
@@ -147,13 +148,16 @@ public:
         // *reinterpret_cast<void**>(&procPtr) = dlsym(self, "proc");
         // because clang has not implemented DR573. See http://clang.llvm.org/cxx_dr_status.html .
 
-        FT_Int major, minor, patch;
-        FT_Library_Version(fLibrary, &major, &minor, &patch);
+        using Version = std::tuple<FT_Int, FT_Int, FT_Int>;
+        Version version;
+        FT_Library_Version(fLibrary, &std::get<0>(version),
+                                     &std::get<1>(version),
+                                     &std::get<2>(version));
 
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02070100
         fGetVarDesignCoordinates = FT_Get_Var_Design_Coordinates;
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
-        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 0))) {
+        if (Version(2,7,0) <= version) {
             //The FreeType library is already loaded, so symbols are available in process.
             void* self = dlopen(nullptr, RTLD_LAZY);
             if (self) {
@@ -166,7 +170,7 @@ public:
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02070200
         FT_Set_Default_Properties(fLibrary);
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
-        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 1))) {
+        if (Version(2,7,1) <= version) {
             //The FreeType library is already loaded, so symbols are available in process.
             void* self = dlopen(nullptr, RTLD_LAZY);
             if (self) {
@@ -185,7 +189,7 @@ public:
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080000
         fLightHintingIsYOnly = true;
 #else
-        if (major > 2 || ((major == 2 && minor > 8) || (major == 2 && minor == 8 && patch >= 0))) {
+        if (Version(2,8,0) <= version) {
             fLightHintingIsYOnly = true;
         }
 #endif
@@ -194,7 +198,7 @@ public:
 #if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080100
         fGetVarAxisFlags = FT_Get_Var_Axis_Flags;
 #elif SK_FREETYPE_MINIMUM_RUNTIME_VERSION & SK_FREETYPE_DLOPEN
-        if (major > 2 || ((major == 2 && minor > 7) || (major == 2 && minor == 7 && patch >= 0))) {
+        if (Version(2,7,0) <= version) {
             //The FreeType library is already loaded, so symbols are available in process.
             void* self = dlopen(nullptr, RTLD_LAZY);
             if (self) {
@@ -204,11 +208,18 @@ public:
         }
 #endif
 
-        // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
-        // The default has changed over time, so this doesn't mean the same thing to all users.
-        if (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) {
-            fIsLCDSupported = true;
-            fLCDExtra = 2; //Using a filter adds one full pixel to each side.
+        fIsLCDSupported =
+            // Subpixel anti-aliasing may be unfiltered until the LCD filter is set.
+            // Newer versions may still need this, so this test with side effects must come first.
+            // The default has changed over time, so this doesn't mean the same thing to all users.
+            (FT_Library_SetLcdFilter(fLibrary, FT_LCD_FILTER_DEFAULT) == 0) ||
+
+            // In 2.8.1 and later FreeType always provides some form of subpixel anti-aliasing.
+            ((SK_FREETYPE_MINIMUM_RUNTIME_VERSION) >= 0x02080100) ||
+            (Version(2,8,1) <= version);
+
+        if (fIsLCDSupported) {
+            fLCDExtra = 2; // Using a filter may require up to one full pixel to each side.
         }
     }
     ~FreeTypeLibrary() {
