@@ -16,6 +16,47 @@
       "message": "@Chris I think I\u0027m being dumb somewhere here... shouldn\u0027t this test be passing?",
       "revId": "78b207dad7ac0168286b05d3c04e836b0db80036",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12bb8ff2_ceda5092",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-02T17:51:50Z",
+      "side": 1,
+      "message": "The chopping math looks correct. How much is it failing by? This might be the issue I was talking about yesterday where the proof is only good for powers of two.\n\nI think the Pyramid Algorithms proof only guarantees this:\n\n void check_error(const SkPoint pts[3], int halvings) {\n     if (halvings \u003e 0) {\n         SkPoint halves[5];\n         SkChopQuadAtHalf(pts, halves);\n         check_error(halves, halvings - 1);\n         check_error(halves + 2, halvings - 1);\n     } else {\n         // Assert max error is in range.\n     }\n }\n\n check_error(quad, GrWangsFormula::quadratic_log2(quad));",
+      "parentUuid": "93718231_ac12cc55",
+      "revId": "78b207dad7ac0168286b05d3c04e836b0db80036",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f8f5f2e_4eea6e8b",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-02T17:51:50Z",
+      "side": 1,
+      "message": "We should say \"d \u003c\u003d (1.f/kIntolerance) + SK_ScalarNearlyZero\" in order to work around floating point precision issues",
+      "range": {
+        "startLine": 341,
+        "startChar": 36,
+        "endLine": 341,
+        "endChar": 56
+      },
+      "revId": "78b207dad7ac0168286b05d3c04e836b0db80036",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
