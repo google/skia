@@ -12,6 +12,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 /** \file SkColor.h
 
     Types, consts, functions, and macros for colors.
@@ -307,6 +309,9 @@ struct SkRGBA4f {
         @return       pointer to array [fR, fG, fB, fA]
     */
     float* vec() { return &fR; }
+
+    /** As a std::array<float, 4> */
+    std::array<float, 4> array() const { return {fR, fG, fB, fA}; }
 
     /** Returns one component. Asserts if index is out of range and SK_DEBUG is defined.
 

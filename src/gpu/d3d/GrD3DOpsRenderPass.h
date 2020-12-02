@@ -56,7 +56,7 @@ private:
     void onDrawIndirect(const GrBuffer*, size_t offset, int drawCount) override;
     void onDrawIndexedIndirect(const GrBuffer*, size_t offset, int drawCount) override;
 
-    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, std::array<float, 4> color) override;
 
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
@@ -68,7 +68,7 @@ private:
     SkIRect fCurrentPipelineBounds;
 
     GrLoadOp fColorLoadOp;
-    SkPMColor4f fClearColor;
+    std::array<float, 4> fClearColor;
     GrLoadOp fStencilLoadOp;
 
     using INHERITED = GrOpsRenderPass;
