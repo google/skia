@@ -129,6 +129,7 @@
         uint32_t features = 0;
         if (has_feature("hw.optional.armv8_crc32")) { features |= SkCpu::CRC32; }
         if (has_feature("hw.optional.neon_fp16"  )) { features |= SkCpu::ASIMDHP; }
+        SkDebugf("runtime features %x\n", features);
         return features;
     }
 

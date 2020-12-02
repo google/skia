@@ -111,10 +111,14 @@ inline bool SkCpu::Supports(uint32_t mask) {
     #endif
 
     #if defined(SK_ARM_HAS_CRC32)
+    SkDebugf("we know crc32 at compile time\n");
     features |= CRC32;
+    #else
+    SkDebugf("we DON'T know crc32 at compile time\n");
     #endif
 
 #endif
+    SkDebugf("run|compile features %x\n", features);
     return (features & mask) == mask;
 }
 
