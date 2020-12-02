@@ -12,22 +12,11 @@
 #include "include/private/SkChecksum.h"
 #include "src/core/SkUtils.h"   // sk_unaligned_load
 
-// hash_fn() delivers consistent results on a given machine no matter the CPU features we detect,
-// but it does not guarantee consistent results across different machines.
-//
-// Most modern CPUs have hardware CRC32c instructions, and we've designed hash_fn() to favor the
-// case where we can detect those instructions, sometimes at compile time, sometimes at runtime.
-// If we don't detect those CRC32c instructions (ARMv8.0, ≤SSE4.2) then we use a software fallback
-// to emulate those instructions, guaranteeing identical results.
-//
-// iOS has made runtime CPU feature detection impossible, and older iOS devices don't support
-// CRC32c instructions, so we won't see support at compile time.  In this case we don't bother
-// with CRC32c or fallback at all there, instead using Murmur3 which ends up faster overall.
-// iOS builds that include an `-arch arm64e` slice and that run on a device that supports it
-// (iPhone XS and up) will detect CRC32c support at compile time in that slice and use the
-// previous paragraph's faster approach.
+// This function is designed primarily to deliver consistent results no matter the platform,
+// but then also is optimized for speed on modern machines with CRC32c instructions.
+// (ARM supports both CRC32 and CRC32c, but Intel only CRC32c, so we use CRC32c.)
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
+#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>
     static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return _mm_crc32_u8(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) {
@@ -38,11 +27,11 @@
         return _mm_crc32_u32(seed, (uint32_t)(v >> 32));
     #endif
     }
-#elif defined(SK_ARM_HAS_CRC32)
+#elif 1 && defined(SK_ARM_HAS_CRC32)
     #include <arm_acle.h>
     static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return __crc32cb(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) { return __crc32cd(seed, v); }
-#elif !defined(SK_BUILD_FOR_IOS)
+#else
     // See https://www.w3.org/TR/PNG/#D-CRCAppendix,
     // but this is CRC32c, so built with 0x82f63b78, not 0xedb88320 like you'll see there.
     #if 0
@@ -110,46 +99,6 @@
 
 namespace SK_OPTS_NS {
 
-#if defined(SK_BUILD_FOR_IOS) && !defined(SK_ARM_HAS_CRC32)
-
-    // This is Murmur3, our iOS-without-CRC32 approach mentioned in the third paragraph at the top.
-    inline uint32_t hash_fn(const void* data, size_t len, uint32_t seed) {
-        auto ptr = (const uint8_t*)data;
-        const size_t original_len = len;
-
-        while (len >= 4) {
-            uint32_t k = sk_unaligned_load<uint32_t>(ptr);
-            k *= 0xcc9e2d51;
-            k = (k << 15) | (k >> 17);
-            k *= 0x1b873593;
-
-            seed ^= k;
-            seed = (seed << 13) | (seed >> 19);
-            seed *= 5;
-            seed += 0xe6546b64;
-
-            len -= 4;
-            ptr += 4;
-        }
-
-        uint32_t k = 0;
-        switch (len & 3) {
-            case 3: k ^= ptr[2] << 16; [[fallthrough]];
-            case 2: k ^= ptr[1] <<  8; [[fallthrough]];
-            case 1: k ^= ptr[0] <<  0;
-                    k *= 0xcc9e2d51;
-                    k = (k << 15) | (k >> 17);
-                    k *= 0x1b873593;
-                    seed ^= k;
-        }
-
-        seed ^= original_len;
-        return SkChecksum::Mix(seed);
-    }
-
-#else
-
-    // This is our main fast CRC32c approach.
     inline uint32_t hash_fn(const void* data, size_t len, uint32_t seed) {
         auto ptr = (const uint8_t*)data;
 
@@ -180,8 +129,6 @@ namespace SK_OPTS_NS {
         }
         return seed;
     }
-
-#endif
 
 }  // namespace SK_OPTS_NS
 
