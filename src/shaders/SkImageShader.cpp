@@ -106,22 +106,22 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
 
     if (buffer.isVersionLT(SkPicturePriv::kCubicResamplerImageShader_Version)) {
         if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
-            op.fUseCubic = false;
-            op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-            op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+            auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+            auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+            op = SkSamplingOptions(filter, mipmap);
         }
     } else {
         switch (fe) {
-            case LegacyFilterEnum::kUseFilterOptions:
-                op.fUseCubic = false;
-                op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-                op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-                break;
-            case LegacyFilterEnum::kUseCubicResampler:
-                op.fUseCubic = true;
-                op.fCubic.B = buffer.readScalar();
-                op.fCubic.C = buffer.readScalar();
-                break;
+            case LegacyFilterEnum::kUseFilterOptions: {
+                auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+                auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+                op = SkSamplingOptions(filter, mipmap);
+            } break;
+            case LegacyFilterEnum::kUseCubicResampler: {
+                SkScalar B = buffer.readScalar(),
+                         C = buffer.readScalar();
+                op = SkSamplingOptions({B,C});
+            } break;
             default:
                 break;
         }
@@ -156,16 +156,15 @@ static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
 }
 
 static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
-    SkSamplingOptions sampling;
-    sampling.fUseCubic = buffer.readBool();
-    if (sampling.fUseCubic) {
-        sampling.fCubic.B = buffer.readScalar();
-        sampling.fCubic.C = buffer.readScalar();
+    if (buffer.readBool()) {
+        SkScalar B = buffer.readScalar(),
+                 C = buffer.readScalar();
+        return SkSamplingOptions({B,C});
     } else {
-        sampling.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-        sampling.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+        auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        return SkSamplingOptions(filter, mipmap);
     }
-    return sampling;
 }
 
 // fClampAsIfUnpremul is always false when constructed through public APIs,
@@ -577,17 +576,19 @@ public:
     }
 };
 
-static void tweak_filter_and_inv_matrix(SkFilterMode* filter, SkMatrix* matrix) {
+static SkSamplingOptions tweak_filter_and_inv_matrix(SkSamplingOptions sampling, SkMatrix* matrix) {
+    SkFilterMode filter = sampling.fFilter;
+
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
-    if (*filter == SkFilterMode::kLinear &&
+    if (filter == SkFilterMode::kLinear &&
             matrix->getType() <= SkMatrix::kTranslate_Mask &&
             matrix->getTranslateX() == (int)matrix->getTranslateX() &&
             matrix->getTranslateY() == (int)matrix->getTranslateY()) {
-        *filter = SkFilterMode::kNearest;
+        filter = SkFilterMode::kNearest;
     }
 
     // See skia:4649 and the GM image_scale_aligned.
-    if (*filter == SkFilterMode::kNearest) {
+    if (filter == SkFilterMode::kNearest) {
         if (matrix->getScaleX() >= 0) {
             matrix->setTranslateX(nextafterf(matrix->getTranslateX(),
                                              floorf(matrix->getTranslateX())));
@@ -597,6 +598,8 @@ static void tweak_filter_and_inv_matrix(SkFilterMode* filter, SkMatrix* matrix) 
                                              floorf(matrix->getTranslateY())));
         }
     }
+
+    return SkSamplingOptions(filter, sampling.fMipmap);
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
@@ -643,7 +646,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         updater->append_matrix_stage(p);
     } else {
         if (!sampling.fUseCubic) {
-            tweak_filter_and_inv_matrix(&sampling.fFilter, &matrix);
+            sampling = tweak_filter_and_inv_matrix(sampling, &matrix);
         }
         p->append_matrix(alloc, matrix);
     }
@@ -924,7 +927,7 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         if (lowerWeight > 0) {
             lower = &access->lowerLevel();
         }
-        tweak_filter_and_inv_matrix(&sampling.fFilter, &upperInv);
+        sampling = tweak_filter_and_inv_matrix(sampling, &upperInv);
     }
 
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
