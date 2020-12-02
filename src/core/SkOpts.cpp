@@ -137,7 +137,10 @@ namespace SkOpts {
         if (SkCpu::Supports(SkCpu::ERMS)) { Init_erms(); }
 
     #elif defined(SK_CPU_ARM64)
-        if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
+        if (SkCpu::Supports(SkCpu::CRC32)) {
+            Init_crc32();
+            __builtin_debugtrap();
+        }
 
     #endif
 #endif
