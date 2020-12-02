@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e231e422_2ad99d43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-02T21:57:14Z",
+      "side": 1,
+      "message": "Might has two trivial but collisionable CLs pending around SkSamplingOptions, so you might see if he\u0027s landing those soon.",
+      "revId": "c9bbf2e16df4c018e7a24f3250f71dc4f4fffde0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
