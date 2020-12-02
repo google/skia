@@ -106,22 +106,22 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
 
     if (buffer.isVersionLT(SkPicturePriv::kCubicResamplerImageShader_Version)) {
         if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
-            op.fUseCubic = false;
-            op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-            op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+            auto fm = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+            auto mm = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+            op = SkSamplingOptions(fm, mm);
         }
     } else {
         switch (fe) {
-            case LegacyFilterEnum::kUseFilterOptions:
-                op.fUseCubic = false;
-                op.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-                op.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-                break;
-            case LegacyFilterEnum::kUseCubicResampler:
-                op.fUseCubic = true;
-                op.fCubic.B = buffer.readScalar();
-                op.fCubic.C = buffer.readScalar();
-                break;
+            case LegacyFilterEnum::kUseFilterOptions: {
+                auto fm = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+                auto mm = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+                op = SkSamplingOptions(fm, mm);
+            } break;
+            case LegacyFilterEnum::kUseCubicResampler: {
+                auto B = buffer.readScalar();
+                auto C = buffer.readScalar();
+                op = SkSamplingOptions({B, C});
+            } break;
             default:
                 break;
         }
@@ -145,27 +145,26 @@ sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
 }
 
 static void write_sampling(SkWriteBuffer& buffer, SkSamplingOptions sampling) {
-    buffer.writeBool(sampling.fUseCubic);
-    if (sampling.fUseCubic) {
-        buffer.writeScalar(sampling.fCubic.B);
-        buffer.writeScalar(sampling.fCubic.C);
+    buffer.writeBool(sampling.useCubic());
+    if (sampling.useCubic()) {
+        buffer.writeScalar(sampling.cubic().B);
+        buffer.writeScalar(sampling.cubic().C);
     } else {
-        buffer.writeUInt((unsigned)sampling.fFilter);
-        buffer.writeUInt((unsigned)sampling.fMipmap);
+        buffer.writeUInt((unsigned)sampling.filter());
+        buffer.writeUInt((unsigned)sampling.mipmap());
     }
 }
 
 static SkSamplingOptions read_sampling(SkReadBuffer& buffer) {
-    SkSamplingOptions sampling;
-    sampling.fUseCubic = buffer.readBool();
-    if (sampling.fUseCubic) {
-        sampling.fCubic.B = buffer.readScalar();
-        sampling.fCubic.C = buffer.readScalar();
+    if (buffer.readBool()) {
+        auto B = buffer.readScalar();
+        auto C = buffer.readScalar();
+        return SkSamplingOptions({B, C});
     } else {
-        sampling.fFilter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-        sampling.fMipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        auto fm = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
+        auto mm = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
+        return SkSamplingOptions(fm, mm);
     }
-    return sampling;
 }
 
 // fClampAsIfUnpremul is always false when constructed through public APIs,
@@ -227,19 +226,19 @@ static bool is_default_cubic_resampler(SkCubicResampler cubic) {
 static bool sampling_to_quality(SkSamplingOptions sampling, SkFilterQuality* quality) {
     int q = -1; // not a legal quality enum
 
-    if (sampling.fUseCubic) {
-        if (is_default_cubic_resampler(sampling.fCubic)) {
+    if (sampling.useCubic()) {
+        if (is_default_cubic_resampler(sampling.cubic())) {
             q = kHigh_SkFilterQuality;
         }
     } else {
-        switch (sampling.fMipmap) {
+        switch (sampling.mipmap()) {
             case SkMipmapMode::kNone:
-                q = sampling.fFilter == SkFilterMode::kLinear ?
+                q = sampling.filter() == SkFilterMode::kLinear ?
                     kLow_SkFilterQuality :
                     kNone_SkFilterQuality;
                 break;
             case SkMipmapMode::kNearest:
-                if (sampling.fFilter == SkFilterMode::kLinear) {
+                if (sampling.filter() == SkFilterMode::kLinear) {
                     q = kMedium_SkFilterQuality;
                 }
                 break;
@@ -363,8 +362,8 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
     auto is_unit = [](float x) {
         return x >= 0 && x <= 1;
     };
-    if (options && options->fUseCubic) {
-        if (!is_unit(options->fCubic.B) || !is_unit(options->fCubic.C)) {
+    if (options && options->useCubic()) {
+        if (!is_unit(options->cubic().B) || !is_unit(options->cubic().C)) {
             return nullptr;
         }
     }
