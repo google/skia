@@ -6,33 +6,29 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float arr(float v[3][2]) {
+    return v[0][0] * v[1][2];
+}
+float foo(float v[2]) {
+    return v[0] * v[1];
+}
+void bar(thread float* x) {
+    float y[2];
+    float z;
+
+    y[0] = x;
+    y[1] = x * 2.0;
+    z = foo(y);
+    float a[2][3];
+    a[0][0] = 123.0;
+    a[1][2] = 456.0;
+    *x = z + arr(a);
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float x = 10.0;
-    {
-        float _2_y[2];
-        float _3_z;
-
-        _2_y[0] = 10.0;
-        _2_y[1] = 20.0;
-        float _4_0_foo;
-        {
-            _4_0_foo = _2_y[0] * _2_y[1];
-        }
-        _3_z = _4_0_foo;
-
-        float _5_a[2][3];
-        _5_a[0][0] = 123.0;
-        _5_a[1][2] = 456.0;
-        float _6_1_arr;
-        {
-            _6_1_arr = _5_a[0][0] * _5_a[1][2];
-        }
-        x = _3_z + _6_1_arr;
-
-    }
-
+    bar(&x);
     _out->sk_FragColor = float4(x);
     return *_out;
 }
