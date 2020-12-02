@@ -166,7 +166,11 @@ protected:
 
     bool writeStructDefinition(const Type& type);
 
+    void writeTypeDisallowingArrays(const Type& type);
+
     void writeType(const Type& type);
+
+    void writeArraySizes(const Type& type);
 
     void writeExtension(const Extension& ext);
 
