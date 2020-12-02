@@ -24,6 +24,7 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -167,7 +168,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
     }
 
-    bool hasMain = false;
+    const SkSL::FunctionDefinition* main = nullptr;
     const bool usesSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
     const bool usesFragCoords   = SkSL::Analysis::ReferencesFragCoords(*program);
 
@@ -252,12 +253,12 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             const auto& func = elem->as<SkSL::FunctionDefinition>();
             const SkSL::FunctionDeclaration& decl = func.declaration();
             if (decl.name() == "main") {
-                hasMain = true;
+                main = &func;
             }
         }
     }
 
-    if (!hasMain) {
+    if (!main) {
         RETURN_FAILURE("missing 'main' function");
     }
 
@@ -265,6 +266,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
                                                       std::move(program),
+                                                      main,
                                                       std::move(uniforms),
                                                       std::move(children),
                                                       std::move(sampleUsages),
@@ -293,6 +295,7 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
 
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::unique_ptr<SkSL::Program> baseProgram,
+                                 const SkSL::FunctionDefinition* main,
                                  std::vector<Uniform>&& uniforms,
                                  std::vector<SkString>&& children,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
@@ -302,6 +305,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
+        , fMain(main)
         , fUniforms(std::move(uniforms))
         , fChildren(std::move(children))
         , fSampleUsages(std::move(sampleUsages))
@@ -309,6 +313,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fUsesSampleCoords(usesSampleCoords)
         , fAllowColorFilter(allowColorFilter) {
     SkASSERT(fBaseProgram);
+    SkASSERT(fMain);
     SkASSERT(fChildren.size() == fSampleUsages.size());
 }
 
@@ -354,6 +359,9 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define NEW_GENERATOR 1
+
+#if !NEW_GENERATOR
 using SampleChildFn = std::function<skvm::Color(int, skvm::Coord)>;
 
 static skvm::Color program_fn(skvm::Builder* p,
@@ -757,6 +765,7 @@ static skvm::Color program_fn(skvm::Builder* p,
     assert_true(result_locked_in);
     return result;
 }
+#endif // NEW_GENERATOR
 
 static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
                                           sk_sp<SkData> baseUniforms,
@@ -886,6 +895,43 @@ public:
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           SkColorSpace* dstCS,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, nullptr, dstCS);
+        if (!inputs) {
+            return {};
+        }
+
+        // The color filter code might use sample-with-matrix (even though the matrix/coords are
+        // ignored by the child). There should be no way for the color filter to use device coords.
+        // Regardless, just to be extra-safe, we pass something valid (0, 0) as both coords, so
+        // the builder isn't trying to do math on invalid values.
+        skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
+
+        auto sampleChild = [&](int ix, skvm::Coord /*coord*/) {
+            if (fChildren[ix]) {
+                return as_CFB(fChildren[ix])->program(p, c, dstCS, uniforms, alloc);
+            } else {
+                return c;
+            }
+        };
+
+#if NEW_GENERATOR
+        std::vector<skvm::Val> uniform;
+        for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
+            float f;
+            memcpy(&f, (const char*)inputs->data() + 4*i, 4);
+            uniform.push_back(p->uniformF(uniforms->pushF(f)).id);
+        }
+
+        skvm::Val params[2] = {zeroCoord.x.id, zeroCoord.y.id};
+        skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
+        size_t numParams = fEffect->fMain->declaration().parameters().empty() ? 0 : 2;
+        if (!SkSL::ProgramToSkVM(fEffect->fBaseProgram.get(), fEffect->fMain, p, uniform,
+                                 {params, numParams}, /*device=*/zeroCoord,
+                                 /*local=*/zeroCoord, sampleChild, result)) {
+            return {};
+        }
+        return {{p, result[0]}, {p, result[1]}, {p, result[2]}, {p, result[3]}};
+#else
         const SkSL::ByteCode* bc = this->byteCode();
         if (!bc) {
             return {};
@@ -896,11 +942,6 @@ public:
             return {};
         }
 
-        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, nullptr, dstCS);
-        if (!inputs) {
-            return {};
-        }
-
         std::vector<skvm::F32> uniform;
         for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
             float f;
@@ -908,20 +949,8 @@ public:
             uniform.push_back(p->uniformF(uniforms->pushF(f)));
         }
 
-        auto sampleChild = [&](int ix, skvm::Coord /*coord*/) {
-            if (fChildren[ix]) {
-                return as_CFB(fChildren[ix])->program(p, c, dstCS, uniforms, alloc);
-            } else {
-                return c;
-            }
-        };
-
-        // The color filter code might use sample-with-matrix (even though the matrix/coords are
-        // ignored by the child). There should be no way for the color filter to use device coords.
-        // Regardless, just to be extra-safe, we pass something valid (0, 0) as both coords, so
-        // the builder isn't trying to do math on invalid values.
-        skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
         return program_fn(p, *fn, uniform, sampleChild, /*device=*/zeroCoord, /*local=*/zeroCoord);
+#endif
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1035,27 +1064,10 @@ public:
                           const SkMatrixProvider& matrices, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        const SkSL::ByteCode* bc = this->byteCode();
-        if (!bc) {
-            return {};
-        }
-
-        const SkSL::ByteCodeFunction* fn = bc->getFunction("main");
-        if (!fn) {
-            return {};
-        }
-
         sk_sp<SkData> inputs =
                 get_xformed_uniforms(fEffect.get(), fUniforms, &matrices, dst.colorSpace());
         if (!inputs) {
             return {};
-        }
-
-        std::vector<skvm::F32> uniform;
-        for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
-            float f;
-            memcpy(&f, (const char*)inputs->data() + 4*i, 4);
-            uniform.push_back(p->uniformF(uniforms->pushF(f)));
         }
 
         SkMatrix inv;
@@ -1076,7 +1088,42 @@ public:
             }
         };
 
+#if NEW_GENERATOR
+        std::vector<skvm::Val> uniform;
+        for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
+            float f;
+            memcpy(&f, (const char*)inputs->data() + 4*i, 4);
+            uniform.push_back(p->uniformF(uniforms->pushF(f)).id);
+        }
+
+        skvm::Val params[2] = {local.x.id, local.y.id};
+        skvm::Val result[4] = {skvm::NA, skvm::NA, skvm::NA, skvm::NA};
+        size_t numParams = fEffect->fMain->declaration().parameters().empty() ? 0 : 2;
+        if (!SkSL::ProgramToSkVM(fEffect->fBaseProgram.get(), fEffect->fMain, p, uniform,
+                                 {params, numParams}, device, local, sampleChild, result)) {
+            return {};
+        }
+        return {{p, result[0]}, {p, result[1]}, {p, result[2]}, {p, result[3]}};
+#else
+        const SkSL::ByteCode* bc = this->byteCode();
+        if (!bc) {
+            return {};
+        }
+
+        const SkSL::ByteCodeFunction* fn = bc->getFunction("main");
+        if (!fn) {
+            return {};
+        }
+
+        std::vector<skvm::F32> uniform;
+        for (int i = 0; i < (int)fEffect->uniformSize() / 4; i++) {
+            float f;
+            memcpy(&f, (const char*)inputs->data() + 4*i, 4);
+            uniform.push_back(p->uniformF(uniforms->pushF(f)));
+        }
+
         return program_fn(p, *fn, uniform, sampleChild, device, local);
+#endif
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

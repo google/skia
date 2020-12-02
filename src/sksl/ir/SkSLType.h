@@ -268,6 +268,10 @@ public:
         return fTypeKind;
     }
 
+    NumberKind numberKind() const {
+        return fNumberKind;
+    }
+
     /**
      * Returns true if this type is a bool.
      */
