@@ -52,7 +52,7 @@ public:
 private:
     bool init(const GrOpsRenderPass::LoadAndStoreInfo&,
               const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-              const SkPMColor4f& clearColor,
+              std::array<float, 4> clearColor,
               bool withStencil);
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
@@ -88,7 +88,7 @@ private:
     void onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                int drawCount) override;
 
-    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, std::array<float, 4> color) override;
 
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 

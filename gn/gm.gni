@@ -75,6 +75,7 @@ gm_sources = [
   "$_gm/circles.cpp",
   "$_gm/circulararcs.cpp",
   "$_gm/circularclips.cpp",
+  "$_gm/clear_swizzle.cpp",
   "$_gm/clip_error.cpp",
   "$_gm/clip_sierpinski_region.cpp",
   "$_gm/clip_strokerect.cpp",

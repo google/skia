@@ -60,24 +60,15 @@ class SkVertices;
  */
 class GrRenderTargetContext : public GrSurfaceContext {
 public:
-    static std::unique_ptr<GrRenderTargetContext> Make(
-            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
-            GrSurfaceOrigin, const SkSurfaceProps*, bool flushTimeOpsTask = false);
-
     static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
                                                        GrColorType,
                                                        sk_sp<SkColorSpace>,
-                                                       SkBackingFit,
-                                                       SkISize dimensions,
-                                                       const GrBackendFormat&,
-                                                       int sampleCnt,
-                                                       GrMipmapped,
-                                                       GrProtected,
+                                                       sk_sp<GrSurfaceProxy>,
                                                        GrSurfaceOrigin,
-                                                       SkBudgeted,
-                                                       const SkSurfaceProps*);
+                                                       const SkSurfaceProps*,
+                                                       bool flushTimeOpsTask = false);
 
-    // Same as above but will use the default GrBackendFormat for the given GrColorType
+    /* Uses the default texture format for the color type */
     static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*,
             GrColorType,
@@ -90,6 +81,24 @@ public:
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes,
             const SkSurfaceProps* = nullptr);
+
+    /**
+     * Takes custom swizzles rather than determining swizzles from color type and format.
+     * It will have color type kUnknown.
+     */
+    static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
+                                                       sk_sp<SkColorSpace>,
+                                                       SkBackingFit,
+                                                       SkISize dimensions,
+                                                       const GrBackendFormat&,
+                                                       int sampleCnt,
+                                                       GrMipmapped,
+                                                       GrProtected,
+                                                       GrSwizzle readSwizzle,
+                                                       GrSwizzle writeSwizzle,
+                                                       GrSurfaceOrigin,
+                                                       SkBudgeted,
+                                                       const SkSurfaceProps*);
 
     static std::tuple<GrColorType, GrBackendFormat> GetFallbackColorTypeAndFormat(GrImageContext*,
                                                                                   GrColorType,

@@ -123,7 +123,7 @@ bool GrMtlOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
     return true;
 }
 
-void GrMtlOpsRenderPass::onClear(const GrScissorState& scissor, const SkPMColor4f& color) {
+void GrMtlOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {
     // Partial clears are not supported
     SkASSERT(!scissor.enabled());
 
@@ -212,7 +212,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
             static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlColorTexture();
     renderPassDesc.colorAttachments[0].slice = 0;
     renderPassDesc.colorAttachments[0].level = 0;
-    const SkPMColor4f& clearColor = colorInfo.fClearColor;
+    const std::array<float, 4>& clearColor = colorInfo.fClearColor;
     renderPassDesc.colorAttachments[0].clearColor =
             MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     renderPassDesc.colorAttachments[0].loadAction =

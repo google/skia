@@ -51,7 +51,7 @@ private:
     void onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount, int baseInstance,
                                 int baseVertex) override;
 
-    void onClear(const GrScissorState& scissor, const SkPMColor4f& color) override;
+    void onClear(const GrScissorState& scissor, std::array<float, 4> color) override;
 
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
