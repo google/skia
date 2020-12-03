@@ -9,7 +9,9 @@
 #define SkResources_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -34,9 +36,11 @@ public:
     virtual bool isMultiFrame() = 0;
 
     /**
+     * DEPRECATED: override getFrameData() instead.
+     *
      * Returns the SkImage for a given frame.
      *
-     * If the image asset is static, getImage() is only called once, at animation load time.
+     * If the image asset is static, getFrame() is only called once, at animation load time.
      * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
      *
      * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
@@ -44,7 +48,29 @@ public:
      * @param t   Frame time code, in seconds, relative to the image layer timeline origin
      *            (in-point).
      */
-    virtual sk_sp<SkImage> getFrame(float t) = 0;
+    virtual sk_sp<SkImage> getFrame(float t);
+
+    struct FrameData {
+        // SkImage payload.
+        sk_sp<SkImage>    image;
+        // Resampling parameters.
+        SkSamplingOptions sampling;
+        // Additional image transform to be applied before AE scaling rules.
+        SkMatrix          matrix = SkMatrix::I();
+    };
+
+    /**
+     * Returns the payload for a given frame.
+     *
+     * If the image asset is static, getFrameData() is only called once, at animation load time.
+     * Otherwise, this gets invoked every time the animation time is adjusted (on every seek).
+     *
+     * Embedders should cache and serve the same SkImage whenever possible, for efficiency.
+     *
+     * @param t   Frame time code, in seconds, relative to the image layer timeline origin
+     *            (in-point).
+     */
+    virtual FrameData getFrameData(float t);
 };
 
 class MultiFrameImageAsset final : public ImageAsset {
