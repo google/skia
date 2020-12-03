@@ -163,6 +163,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
             SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresNonOverlappingDraws);
     analysis.fUsesNonCoherentHWBlending =
             SkToBool(props & GrXPFactory::AnalysisProperties::kUsesNonCoherentHWBlending);
+    analysis.fUnaffectedByDstValue =
+            SkToBool(props & GrXPFactory::AnalysisProperties::kUnaffectedByDstValue);
     if (props & GrXPFactory::AnalysisProperties::kIgnoresInputColor) {
         colorFPsToEliminate = this->hasColorFragmentProcessor() ? 1 : 0;
         analysis.fInputColorType =
