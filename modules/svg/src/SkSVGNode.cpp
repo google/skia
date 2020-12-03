@@ -94,6 +94,8 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
            || PARSE_AND_SET("font-style"       , FontStyle)
            || PARSE_AND_SET("font-weight"      , FontWeight)
            || PARSE_AND_SET("opacity"          , Opacity)
+           || PARSE_AND_SET("stop-color"       , StopColor)
+           || PARSE_AND_SET("stop-opacity"     , StopOpacity)
            || PARSE_AND_SET("stroke"           , Stroke)
            || PARSE_AND_SET("stroke-dasharray" , StrokeDashArray)
            || PARSE_AND_SET("stroke-dashoffset", StrokeDashOffset)
