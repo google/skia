@@ -16,6 +16,24 @@
       "message": "canvas kit failures seem unrelated",
       "revId": "6f0184c7708d570095b27a38d033bf111a7207bb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cabc4f6_3962e68c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-03T19:12:38Z",
+      "side": 1,
+      "message": "I agree.",
+      "parentUuid": "7dd8ffb0_cac9c036",
+      "revId": "6f0184c7708d570095b27a38d033bf111a7207bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
