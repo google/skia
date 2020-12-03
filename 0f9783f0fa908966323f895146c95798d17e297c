@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afe8fdf0_12b292de",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-03T15:56:56Z",
+      "side": 1,
+      "message": "The SkConic::chopAt() function seems to run into significant FP precision issues, so the cap on this test is lower than the quad case. To verify, I reimplemented SkConic::chopAt() using doubles (and changed the error check -- projection -- to doubles as well) and was able to raise this exponent to the same as the quad case.",
+      "revId": "0f9783f0fa908966323f895146c95798d17e297c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
