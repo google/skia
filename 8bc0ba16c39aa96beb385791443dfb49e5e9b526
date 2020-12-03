@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d401cc87_db46581e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-03T14:36:59Z",
+      "side": 1,
+      "message": "I\u0027m starting a Canary run now that the NDK APIs have landed (aosp/1507586).",
+      "revId": "8bc0ba16c39aa96beb385791443dfb49e5e9b526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
