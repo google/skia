@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6da53bed_d0fc06c1",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-03T18:54:34Z",
+      "side": 1,
+      "message": "I think that returning nullptr is fine as WebView already has to handle it for the other error cases.",
+      "parentUuid": "cba216dc_6d75379e",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 176,
+        "endChar": 5
+      },
+      "revId": "876162419a4ed1089635feb2cbd007c85897cffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3dc12a33_4a441832",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7e97ad6_b2316ca0",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-03T18:54:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3dc12a33_4a441832",
+      "range": {
+        "startLine": 184,
+        "startChar": 4,
+        "endLine": 187,
+        "endChar": 5
+      },
+      "revId": "876162419a4ed1089635feb2cbd007c85897cffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a735257b_ac46eca5",
@@ -77,6 +125,30 @@
       "writtenOn": "2020-12-03T15:57:58Z",
       "side": 1,
       "message": "layer.matrix() always just returned the device\u0027s local to device matrix.\n\nlayer.clipBounds() actually returned device-\u003egetGlobalBounds(), but I think there were two subtle bugs. \n1: getGlobalBounds() transformed (0,0,devW, devH) by its device-to-global matrix, but didn\u0027t actually factor in its clip bounds at all.\n2: the clip rect stored in the saved canvas state is later applied to a new SkCanvas that represents the device. It\u0027s done before setting the saved local-to-device matrix, so the clip rect should be in the device\u0027s coordinate space. getGlobalBounds() was in the global coordinate space, so would be slightly off if we had a device with a non (0,0) origin.\n\ndevClipBounds() should just fix both of these issues.",
+      "range": {
+        "startLine": 212,
+        "startChar": 41,
+        "endLine": 212,
+        "endChar": 89
+      },
+      "revId": "876162419a4ed1089635feb2cbd007c85897cffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d92562f_9f9a6fb4",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-03T18:54:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a735257b_ac46eca5",
       "range": {
         "startLine": 212,
         "startChar": 41,
