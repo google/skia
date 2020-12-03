@@ -99,7 +99,7 @@ public:
 
 private:
     sk_sp<GrDirectContext> fMockContext;
-    char fStaticVertexData[4 * 1024 * 1024];
+    char fStaticVertexData[6 * 1024 * 1024];
     GrDrawIndirectCommand fStaticDrawIndirectData[32];
     GrDrawIndexedIndirectCommand fStaticDrawIndexedIndirectData[32];
     SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
