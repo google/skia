@@ -93,8 +93,10 @@ static constexpr bool GrBlendCoeffsUseSrcColor(GrBlendCoeff srcCoeff, GrBlendCoe
     return kZero_GrBlendCoeff != srcCoeff || GrBlendCoeffRefsSrc(dstCoeff);
 }
 
-static constexpr bool GrBlendCoeffsUseDstColor(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-    return GrBlendCoeffRefsDst(srcCoeff) || kZero_GrBlendCoeff != dstCoeff;
+static constexpr bool GrBlendCoeffsUseDstColor(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff,
+                                               bool srcColorIsOpaque) {
+    return GrBlendCoeffRefsDst(srcCoeff) ||
+           (dstCoeff != kZero_GrBlendCoeff && (!srcColorIsOpaque || dstCoeff != kISA_GrBlendCoeff));
 }
 
 static constexpr bool GrBlendEquationIsAdvanced(GrBlendEquation equation) {

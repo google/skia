@@ -34,7 +34,7 @@ private:
             const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage&,
             bool hasMixedSamples, const GrCaps&, GrClampType) const override {
         return AnalysisProperties::kCompatibleWithCoverageAsAlpha |
-               AnalysisProperties::kIgnoresInputColor;
+               AnalysisProperties::kIgnoresInputColor | AnalysisProperties::kUnaffectedByDstValue;
     }
 
     sk_sp<const GrXferProcessor> makeXferProcessor(
