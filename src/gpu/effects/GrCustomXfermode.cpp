@@ -224,6 +224,7 @@ private:
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
+                                          bool hasMixedSamples,
                                           const GrCaps&,
                                           GrClampType) const override;
 
@@ -256,7 +257,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, GrClampType clampType) const {
+        bool hasMixedSamples, const GrCaps& caps, GrClampType clampType) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 

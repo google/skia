@@ -153,7 +153,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     }
 
     GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
-            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps, clampType);
+            this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, hasMixedSampledCoverage,
+            caps, clampType);
     analysis.fRequiresDstTexture =
             SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);
     analysis.fCompatibleWithCoverageAsAlpha &=

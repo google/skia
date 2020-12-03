@@ -35,7 +35,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest, reporter, ctxInfo) {
         const GrXPFactory* xpf = GrCustomXfermode::Get(blendMode);
 
         GrXPFactory::AnalysisProperties xpfAnalysis =
-                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, caps, GrClampType::kAuto);
+                GrXPFactory::GetAnalysisProperties(xpf, opaque, coverage, false, caps,
+                                                   GrClampType::kAuto);
 
         GrPaint paint;
         paint.setXPFactory(xpf);
