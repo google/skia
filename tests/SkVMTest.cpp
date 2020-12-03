@@ -1996,9 +1996,13 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
-        a.tbl(A::v0, A::v1, A::v2);
+        a.tbl   (A::v0, A::v1, A::v2);
+        a.zip14s(A::v0, A::v1, A::v2);
+        a.zip24s(A::v0, A::v1, A::v2);
     },{
         0x20,0x00,0x02,0x4e,
+        0x20,0x38,0x82,0x4e,
+        0x20,0x78,0x82,0x4e,
     });
 }
 
