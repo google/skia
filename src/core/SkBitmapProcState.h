@@ -91,7 +91,6 @@ private:
         kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
     };
     SkSTArenaAlloc<kBMStateSize> fAlloc;
-    SkBitmapController::State* fBMState;
 
     ShaderProc32        fShaderProc32;      // chooseProcs
     // These are used if the shaderproc is nullptr

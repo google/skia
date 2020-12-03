@@ -11,6 +11,7 @@
 #include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
@@ -629,16 +630,14 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         return false;
     }
 
-    const auto* state = SkBitmapController::RequestBitmap(as_IB(fImage.get()),
-                                                          matrix, sampling, alloc);
-    if (!state) {
-        return false;
+    if (sampling.useCubic &&
+        SkMatrixPriv::AdjustHighQualityFilterLevel(matrix, true) != kHigh_SkFilterQuality)
+    {
+        sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
     }
-
-    const SkPixmap& pm = state->pixmap();
-    matrix    = state->invMatrix();
-    sampling  = state->sampling();
-    auto info = pm.info();
+    auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), matrix, sampling.mipmap);
+    SkPixmap pm;
+    std::tie(pm, matrix) = access->level();
 
     p->append(SkRasterPipeline::seed_shader);
 
@@ -701,7 +700,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         }
 
         void* ctx = gather;
-        switch (info.colorType()) {
+        switch (pm.colorType()) {
             case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::gather_a8,      ctx); break;
             case kA16_unorm_SkColorType:    p->append(SkRasterPipeline::gather_a16,     ctx); break;
             case kA16_float_SkColorType:    p->append(SkRasterPipeline::gather_af16,    ctx); break;
@@ -745,11 +744,11 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     };
 
     auto append_misc = [&] {
-        SkColorSpace* cs = info.colorSpace();
-        SkAlphaType   at = info.alphaType();
+        SkColorSpace* cs = pm.colorSpace();
+        SkAlphaType   at = pm.alphaType();
 
         // Color for A8 images comes from the paint.  TODO: all alpha images?  none?
-        if (info.colorType() == kAlpha_8_SkColorType) {
+        if (pm.colorType() == kAlpha_8_SkColorType) {
             SkColor4f rgb = rec.fPaint.getColor4f();
             p->append_set_rgb(alloc, rgb);
 
@@ -774,7 +773,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     };
 
     // Check for fast-path stages.
-    auto ct = info.colorType();
+    auto ct = pm.colorType();
     if (true
         && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType)
         && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear
@@ -901,40 +900,28 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
     baseInv.normalizePerspective();
 
-    const SkPixmap *upper = nullptr,
-                   *lower = nullptr;
-    SkMatrix        upperInv;
-    float           lowerWeight = 0;
-
-    auto post_scale = [&](SkISize level, const SkMatrix& base) {
-        return SkMatrix::Scale(SkIntToScalar(level.width())  / fImage->width(),
-                               SkIntToScalar(level.height()) / fImage->height())
-                * base;
-    };
-
     auto sampling = fUseSamplingOptions ? fSampling : SkSamplingOptions(paintQuality);
-    if (sampling.useCubic) {
-        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
-                                                     SkMipmapMode::kNone);
-        upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
-    } else {
-        auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv,
-                                                     sampling.mipmap);
-        upper = &access->level();
-        upperInv = post_scale(upper->dimensions(), baseInv);
-        lowerWeight = access->lowerWeight();
-        if (lowerWeight > 0) {
-            lower = &access->lowerLevel();
-        }
+    auto* access = alloc->make<SkMipmapAccessor>(as_IB(fImage.get()), baseInv, sampling.mipmap);
+
+    auto [upper, upperInv] = access->level();
+    if (!sampling.useCubic) {
         sampling = tweak_filter_and_inv_matrix(sampling, &upperInv);
+    }
+
+    SkPixmap lowerPixmap;
+    SkMatrix lowerInv;
+    SkPixmap* lower = nullptr;
+    float lowerWeight = access->lowerWeight();
+    if (lowerWeight > 0) {
+        std::tie(lowerPixmap, lowerInv) = access->lowerLevel();
+        lower = &lowerPixmap;
     }
 
     skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
 
     // All existing SkColorTypes pass these checks.  We'd only fail here adding new ones.
     skvm::PixelFormat unused;
-    if (true  && !SkColorType_to_PixelFormat(upper->colorType(), &unused)) {
+    if (true  && !SkColorType_to_PixelFormat(upper.colorType(), &unused)) {
         return {};
     }
     if (lower && !SkColorType_to_PixelFormat(lower->colorType(), &unused)) {
@@ -942,8 +929,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
 
     // We can exploit image opacity to skip work unpacking alpha channels.
-    const bool input_is_opaque = SkAlphaTypeIsOpaque(upper->alphaType())
-                              || SkColorTypeIsAlwaysOpaque(upper->colorType());
+    const bool input_is_opaque = SkAlphaTypeIsOpaque(upper.alphaType())
+                              || SkColorTypeIsAlwaysOpaque(upper.colorType());
 
     // Each call to sample() will try to rewrite the same uniforms over and over,
     // so remember where we start and reset back there each time.  That way each
@@ -1121,9 +1108,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         }
     };
 
-    skvm::Color c = sample_level(*upper, upperInv, upperLocal);
+    skvm::Color c = sample_level(upper, upperInv, upperLocal);
     if (lower) {
-        auto lowerInv = post_scale(lower->dimensions(), baseInv);
         auto lowerLocal = SkShaderBase::ApplyMatrix(p, lowerInv, origLocal, uniforms);
         // lower * weight + upper * (1 - weight)
         c = lerp(c,
@@ -1140,9 +1126,9 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
 
     // Alpha-only images get their color from the paint (already converted to dst color space).
-    SkColorSpace* cs = upper->colorSpace();
-    SkAlphaType   at = upper->alphaType();
-    if (SkColorTypeIsAlphaOnly(upper->colorType())) {
+    SkColorSpace* cs = upper.colorSpace();
+    SkAlphaType   at = upper.alphaType();
+    if (SkColorTypeIsAlphaOnly(upper.colorType())) {
         c.r = paint.r;
         c.g = paint.g;
         c.b = paint.b;
