@@ -16,6 +16,24 @@
       "message": "Holy moly. Didn\u0027t know about this. Is it for webview?",
       "revId": "4b10d58fc905bef6758714891aa223acce2f8fe1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efe567aa_eb9fa836",
+        "filename": "tests/CanvasStateHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-03T17:20:43Z",
+      "side": 0,
+      "message": "I believe so",
+      "parentUuid": "18a034db_489f7436",
+      "revId": "4b10d58fc905bef6758714891aa223acce2f8fe1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

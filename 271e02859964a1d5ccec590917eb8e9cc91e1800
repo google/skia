@@ -33,6 +33,24 @@
       "message": "This is the happiest CL in a long time.\n\nBTW -- do we need to guard the canvasstateutils at all anymore? Why not just always test it?",
       "revId": "271e02859964a1d5ccec590917eb8e9cc91e1800",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "989d4c17_0b81a938",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-03T17:20:43Z",
+      "side": 1,
+      "message": "Maybe? I didn\u0027t want to go too crazy with that canvas state test, given it has options to load in an additional library instead of linked functions.",
+      "parentUuid": "177a5fc3_c6eefa85",
+      "revId": "271e02859964a1d5ccec590917eb8e9cc91e1800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
