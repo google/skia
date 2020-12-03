@@ -1,6 +1,69 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dbb8686_a0eddf96",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T16:00:27Z",
+      "side": 1,
+      "message": "LGTM modulo my nit things",
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96a59db9_40d6cecf",
+        "filename": "src/gpu/GrBlend.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T16:00:27Z",
+      "side": 1,
+      "message": "Very minor nit that you can ignore (causes its probably pretty subjective). My mind finds this one easier to parse written like:\n\"!(dstCoeff \u003d\u003d kISA_GrBlendCoeff \u0026\u0026 srcColorIsOpaque)\"",
+      "range": {
+        "startLine": 99,
+        "startChar": 46,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59eafcdc_08fb479b",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T16:00:27Z",
+      "side": 1,
+      "message": "Sorry this is nit picking semantic stuff...\n\nI this one can be thought of in two ways. First the final value stored in the surface after the shader will be the dst value, thus it is affected by dst in some way.\n\nOr the other way, this property refers to work done in the shader and blend func, thus since we disable blending the dst has no affect on either of those two shaders, regardless of what value the surfaces ends up having.\n\nClearly you are thinking the second version, but then I think you need to updated the comment for the flag which currently says:\n\"If set, the existing dst value has no effect on the final output.\"\nClearly the existing dst does have an effect on the final output stored in the surface. Just not in the computation of the value.",
+      "range": {
+        "startLine": 37,
+        "startChar": 56,
+        "endLine": 37,
+        "endChar": 97
+      },
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3672682c_8003c6fc",
