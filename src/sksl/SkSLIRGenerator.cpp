@@ -373,17 +373,16 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         }
         const ASTNode::VarData& varData = varDecl.getVarData();
         const Type* type = baseType;
-        ExpressionArray sizes;
-        sizes.reserve_back(varData.fSizeCount);
+        int arraySize = 0;
         auto iter = varDecl.begin();
         if (iter != varDecl.end()) {
-            if (type->isOpaque()) {
-                fErrors.error(type->fOffset,
-                              "opaque type '" + type->name() + "' may not be used in an array");
-            }
-            SkSTArray<kMaxArrayDimensionality, int> dimensions;
-            for (size_t i = 0; i < varData.fSizeCount; ++i, ++iter) {
-                const ASTNode& rawSize = *iter;
+            if (varData.fSizeCount > 0) {
+                SkASSERT(varData.fSizeCount == 1);  // only single-dimension arrays are supported
+                if (type->isOpaque()) {
+                    fErrors.error(type->fOffset,
+                                  "opaque type '" + type->name() + "' may not be used in an array");
+                }
+                const ASTNode& rawSize = *iter++;
                 if (rawSize) {
                     auto size = this->coerce(this->convertExpression(rawSize), *fContext.fInt_Type);
                     if (!size) {
@@ -400,17 +399,12 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                         fErrors.error(size->fOffset, "array size must be positive");
                         return {};
                     }
-                    dimensions.push_back(count);
-                    sizes.push_back(std::move(size));
-                } else if (i == 0) {
-                    dimensions.push_back(Type::kUnsizedArray);
-                    sizes.push_back(nullptr);
+                    arraySize = count;
                 } else {
-                    fErrors.error(varDecl.fOffset, "array size must be specified");
-                    return {};
+                    arraySize = Type::kUnsizedArray;
                 }
+                type = fSymbolTable->addArrayDimensions(type, {arraySize});
             }
-            type = fSymbolTable->addArrayDimensions(type, dimensions);
         }
         auto var = std::make_unique<Variable>(varDecl.fOffset, fModifiers->addToPool(modifiers),
                                               varData.fName, type, fIsBuiltinCode, storage);
@@ -421,7 +415,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         }
         std::unique_ptr<Expression> value;
         if (iter == varDecl.end()) {
-            if (varData.fSizeCount > 0 && sizes.front() == nullptr) {
+            if (arraySize == Type::kUnsizedArray) {
                 fErrors.error(varDecl.fOffset,
                               "arrays without an explicit size must use an initializer expression");
                 return {};
@@ -444,8 +438,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
             // Already defined, ignore.
         } else {
-            varDecls.push_back(std::make_unique<VarDeclaration>(
-                    var.get(), baseType, std::move(sizes), std::move(value)));
+            varDecls.push_back(std::make_unique<VarDeclaration>(var.get(), baseType, arraySize,
+                                                                std::move(value)));
             fSymbolTable->add(std::move(var));
         }
     }
@@ -2979,8 +2973,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                                               fContext.fInt_Type.get(), false,
                                               Variable::Storage::kGlobal);
         auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fInt_Type.get(),
-                                                     /*sizes=*/ExpressionArray{},
-                                                     /*value=*/nullptr);
+                                                     /*arraySize=*/0, /*value=*/nullptr);
         fSymbolTable->add(std::move(var));
         fProgramElements->push_back(
                 std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));

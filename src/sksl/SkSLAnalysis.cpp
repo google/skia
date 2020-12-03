@@ -612,11 +612,6 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kVarDeclaration: {
             auto& v = s.template as<VarDeclaration>();
-            for (const std::unique_ptr<Expression>& size : v.sizes()) {
-                if (size && this->visitExpression(*size)) {
-                    return true;
-                }
-            }
             return v.value() && this->visitExpression(*v.value());
         }
         case Statement::Kind::kWhile: {
