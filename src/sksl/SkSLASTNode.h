@@ -197,25 +197,25 @@ struct ASTNode {
     struct ParameterData {
         ParameterData() {}
 
-        ParameterData(Modifiers modifiers, StringFragment name, size_t sizeCount)
+        ParameterData(Modifiers modifiers, StringFragment name, bool isArray)
             : fModifiers(modifiers)
             , fName(name)
-            , fSizeCount(sizeCount) {}
+            , fIsArray(isArray) {}
 
         Modifiers fModifiers;
         StringFragment fName;
-        size_t fSizeCount;
+        bool fIsArray;
     };
 
     struct VarData {
         VarData() {}
 
-        VarData(StringFragment name, size_t sizeCount)
+        VarData(StringFragment name, bool isArray)
             : fName(name)
-            , fSizeCount(sizeCount) {}
+            , fIsArray(isArray) {}
 
         StringFragment fName;
-        size_t fSizeCount;
+        bool fIsArray;
     };
 
     struct FunctionData {
@@ -235,18 +235,18 @@ struct ASTNode {
         InterfaceBlockData() {}
 
         InterfaceBlockData(Modifiers modifiers, StringFragment typeName, size_t declarationCount,
-                           StringFragment instanceName, size_t sizeCount)
+                           StringFragment instanceName, bool isArray)
             : fModifiers(modifiers)
             , fTypeName(typeName)
             , fDeclarationCount(declarationCount)
             , fInstanceName(instanceName)
-            , fSizeCount(sizeCount) {}
+            , fIsArray(isArray) {}
 
         Modifiers fModifiers;
         StringFragment fTypeName;
         size_t fDeclarationCount;
         StringFragment fInstanceName;
-        size_t fSizeCount;
+        bool fIsArray;
     };
 
     struct SectionData {
