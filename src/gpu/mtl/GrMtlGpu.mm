@@ -105,13 +105,13 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     if (!context.fDevice || !context.fQueue) {
         return nullptr;
     }
-    if (@available(macOS 10.14, iOS 9.0, *)) {
+    if (@available(macOS 10.14, iOS 10.0, *)) {
         // no warning needed
     } else {
         SkDebugf("*** Warning ***: this OS version is deprecated and will no longer be supported " \
                  "in future releases.\n");
 #ifdef SK_BUILD_FOR_IOS
-        SkDebugf("Minimum recommended version is iOS 9.0.\n");
+        SkDebugf("Minimum recommended version is iOS 10.0.\n");
 #else
         SkDebugf("Minimum recommended version is MacOS 10.14.\n");
 #endif
