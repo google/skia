@@ -553,10 +553,7 @@ void Dehydrator::write(const ProgramElement& e) {
             this->write(i.variable());
             this->write(i.typeName());
             this->write(i.instanceName());
-            this->writeU8(i.sizes().count());
-            for (const auto& s : i.sizes()) {
-                this->write(s.get());
-            }
+            this->writeS8(i.arraySize());
             break;
         }
         case ProgramElement::Kind::kModifiers:

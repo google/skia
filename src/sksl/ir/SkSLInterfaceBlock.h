@@ -31,12 +31,12 @@ public:
     static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
-                   ExpressionArray sizes, std::shared_ptr<SymbolTable> typeOwner)
+                   int arraySize, std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(offset, kProgramElementKind)
     , fVariable(var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
-    , fSizes(std::move(sizes))
+    , fArraySize(arraySize)
     , fTypeOwner(std::move(typeOwner)) {}
 
     const Variable& variable() const {
@@ -59,22 +59,13 @@ public:
         return fTypeOwner;
     }
 
-    ExpressionArray& sizes() {
-        return fSizes;
-    }
-
-    const ExpressionArray& sizes() const {
-        return fSizes;
+    int arraySize() const {
+        return fArraySize;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        ExpressionArray sizesClone;
-        sizesClone.reserve_back(this->sizes().size());
-        for (const auto& size : this->sizes()) {
-            sizesClone.push_back(size ? size->clone() : nullptr);
-        }
         return std::make_unique<InterfaceBlock>(fOffset, &this->variable(), this->typeName(),
-                                                this->instanceName(), std::move(sizesClone),
+                                                this->instanceName(), this->arraySize(),
                                                 SymbolTable::WrapIfBuiltin(this->typeOwner()));
     }
 
@@ -88,14 +79,12 @@ public:
             result += f.description() + "\n";
         }
         result += "}";
-        if (this->instanceName().size()) {
+        if (!this->instanceName().empty()) {
             result += " " + this->instanceName();
-            for (const auto& size : this->sizes()) {
-                result += "[";
-                if (size) {
-                    result += size->description();
-                }
-                result += "]";
+            if (this->arraySize() > 0) {
+                result.appendf("[%d]", this->arraySize());
+            } else if (this->arraySize() == Type::kUnsizedArray){
+                result += "[]";
             }
         }
         return result + ";";
@@ -105,7 +94,7 @@ private:
     const Variable* fVariable;
     String fTypeName;
     String fInstanceName;
-    ExpressionArray fSizes;
+    int fArraySize;
     std::shared_ptr<SymbolTable> fTypeOwner;
 
     using INHERITED = ProgramElement;
