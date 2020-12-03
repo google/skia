@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ff4d917_3cb39312",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:34:50Z",
+      "side": 1,
+      "message": "This is redundant, right?",
+      "revId": "05a897943c0801101fe1c3af2735ee01acd991e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
