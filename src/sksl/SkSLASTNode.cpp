@@ -139,7 +139,7 @@ String ASTNode::description() const {
             }
             result += "} ";
             result += id.fInstanceName;
-            for (size_t i = 0; i < id.fSizeCount; ++i) {
+            if (id.fIsArray) {
                 result += "[" + (iter++)->description() + "]";
             }
             SkASSERT(iter == this->end());
@@ -152,7 +152,7 @@ String ASTNode::description() const {
             ParameterData pd = getParameterData();
             auto iter = this->begin();
             String result = (iter++)->description() + " " + pd.fName;
-            for (size_t i = 0; i < pd.fSizeCount; ++i) {
+            if (pd.fIsArray) {
                 result += "[" + (iter++)->description() + "]";
             }
             if (iter != this->end()) {
@@ -209,7 +209,7 @@ String ASTNode::description() const {
             VarData vd = getVarData();
             String result = vd.fName;
             auto iter = this->begin();
-            for (size_t i = 0; i < vd.fSizeCount; ++i) {
+            if (vd.fIsArray) {
                 result += "[" + (iter++)->description() + "]";
             }
             if (iter != this->end()) {
