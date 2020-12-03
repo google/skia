@@ -22,6 +22,30 @@
       },
       "revId": "5f85f86f66c1d03f7848f6260b86d0c8cca27fbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d7d2dcd_12c52ca9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T16:12:25Z",
+      "side": 1,
+      "message": "Working on it as we speak.",
+      "parentUuid": "dea77c72_a85fc4a8",
+      "range": {
+        "startLine": 1172,
+        "startChar": 24,
+        "endLine": 1172,
+        "endChar": 42
+      },
+      "revId": "5f85f86f66c1d03f7848f6260b86d0c8cca27fbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
