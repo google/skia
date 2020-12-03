@@ -55,7 +55,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
                         fPictureData->opData()->size());
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
-    SkMatrix initialMatrix = canvas->getTotalMatrix();
+    SkM44 initialMatrix = canvas->getLocalToDevice();
 
     SkAutoCanvasRestore acr(canvas, false);
 
@@ -96,7 +96,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                  DrawType op,
                                  uint32_t size,
                                  SkCanvas* canvas,
-                                 const SkMatrix& initialMatrix) {
+                                 const SkM44& initialMatrix) {
 #define BREAK_ON_READ_ERROR(r) if (!r->isValid()) break
 
     switch (op) {
@@ -605,13 +605,12 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case SET_M44: {
             SkM44 m;
             reader->read(&m);
-            canvas->setMatrix(SkM44(initialMatrix) * m);
+            canvas->setMatrix(initialMatrix * m);
         } break;
         case SET_MATRIX: {
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            matrix.postConcat(initialMatrix);
-            canvas->setMatrix(matrix);
+            canvas->setMatrix(initialMatrix * SkM44(matrix));
         } break;
         case SKEW: {
             SkScalar sx = reader->readScalar();

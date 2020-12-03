@@ -2433,7 +2433,8 @@ public:
      */
     SkM44 getLocalToDevice() const;
 
-    /** Legacy version of getLocalToDevice(), which strips away any Z information, and
+    /** DEPRECATED
+     *  Legacy version of getLocalToDevice(), which strips away any Z information, and
      *  just returns a 3x3 version.
      *
      *  @return 3x3 version of getLocalToDevice()
