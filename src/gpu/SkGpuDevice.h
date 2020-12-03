@@ -163,6 +163,9 @@ protected:
         SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
         fClip.replaceClip(deviceRect);
     }
+    void onClipDevRect(const SkIRect& rect, SkClipOp op) override {
+        fClip.clipRect(SkMatrix::I(), SkRect::Make(rect), GrAA::kNo, op);
+    }
     void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
     void onAsRgnClip(SkRegion*) const override;
     ClipType onGetClipType() const override;

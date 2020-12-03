@@ -523,6 +523,10 @@ void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
     this->writableClip().setRect(deviceRect);
 }
 
+void SkNoPixelsDevice::onClipDevRect(const SkIRect& rect, SkClipOp op) {
+    this->writableClip().opIRect(rect, (SkRegion::Op) op);
+}
+
 void SkNoPixelsDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
     if (!mutableClipRestriction || mutableClipRestriction->isEmpty()) {
         // The subset clip restriction is gone, so just store the actual device bounds as the limit

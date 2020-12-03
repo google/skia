@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#ifdef SK_TEST_CANVAS_STATE_CROSS_LIBRARY
 class SkCanvas;
 class SkCanvasState;
 class SkRegion;
@@ -48,5 +48,5 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
         int32_t left, int32_t top, int32_t right, int32_t bottom, int32_t clipOp,
         int32_t regionRects, int32_t* rectCoords);
 
-#endif // SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+#endif // SK_TEST_CANVAS_STATE_CROSS_LIBRARY
 #endif // CanvasStateHelpers_DEFINED
