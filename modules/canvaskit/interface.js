@@ -5,7 +5,9 @@
 // CanvasKit.onRuntimeInitialized is called after the WASM library has loaded.
 // Anything that modifies an exposed class (e.g. Path) should be set
 // after onRuntimeInitialized, otherwise, it can happen outside of that scope.
-CanvasKit.onRuntimeInitialized = function() {
+// All functions added to _extraInitializations are run at that time by
+// a function in cpu.js
+CanvasKit._extraInitializations.push(function() {
   // All calls to 'this' need to go in externs.js so closure doesn't minify them away.
 
   _scratchColor = CanvasKit.Malloc(Float32Array, 4); // 4 color scalars.
@@ -31,12 +33,6 @@ CanvasKit.onRuntimeInitialized = function() {
 
   _scratchIRect = CanvasKit.Malloc(Int32Array, 4);
   _scratchIRectPtr = _scratchIRect['byteOffset'];
-
-  // Create single copies of all three supported color spaces
-  // These are sk_sp<ColorSpace>
-  CanvasKit.ColorSpace.SRGB = CanvasKit.ColorSpace._MakeSRGB();
-  CanvasKit.ColorSpace.DISPLAY_P3 = CanvasKit.ColorSpace._MakeDisplayP3();
-  CanvasKit.ColorSpace.ADOBE_RGB = CanvasKit.ColorSpace._MakeAdobeRGB();
 
   // Add some helpers for matrices. This is ported from SkMatrix.cpp
   // to save complexity and overhead of going back and forth between
@@ -1400,14 +1396,7 @@ CanvasKit.onRuntimeInitialized = function() {
     }
     return ta.slice();
   };
-
-  // Run through the JS files that are added at compile time.
-  if (CanvasKit._extraInitializations) {
-    CanvasKit._extraInitializations.forEach(function(init) {
-      init();
-    });
-  }
-}; // end CanvasKit.onRuntimeInitialized, that is, anything changing prototypes or dynamic.
+}; // end _extraInitializations, that is, anything changing prototypes or dynamic.
 
 // Accepts an object holding two canvaskit colors.
 // {
