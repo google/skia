@@ -517,9 +517,6 @@ bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
     } else if (this->parseExpectedStringToken("currentColor")) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kCurrentColor);
         parsedValue = true;
-    } else if (this->parseExpectedStringToken("inherit")) {
-        *paint = SkSVGPaint(SkSVGPaint::Type::kInherit);
-        parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
         *paint = SkSVGPaint(iri);
         parsedValue = true;
@@ -536,9 +533,6 @@ bool SkSVGAttributeParser::parse(SkSVGClip* clip) {
     if (this->parseExpectedStringToken("none")) {
         *clip = SkSVGClip(SkSVGClip::Type::kNone);
         parsedValue = true;
-    } else if (this->parseExpectedStringToken("inherit")) {
-        *clip = SkSVGClip(SkSVGClip::Type::kInherit);
-        parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
         *clip = SkSVGClip(iri);
         parsedValue = true;
@@ -551,13 +545,12 @@ bool SkSVGAttributeParser::parse(SkSVGClip* clip) {
 template <>
 bool SkSVGAttributeParser::parse(SkSVGLineCap* cap) {
     static const struct {
-        SkSVGLineCap::Type fType;
+        SkSVGLineCap fType;
         const char*        fName;
     } gCapInfo[] = {
-        { SkSVGLineCap::Type::kButt   , "butt"    },
-        { SkSVGLineCap::Type::kRound  , "round"   },
-        { SkSVGLineCap::Type::kSquare , "square"  },
-        { SkSVGLineCap::Type::kInherit, "inherit" },
+        { SkSVGLineCap::kButt   , "butt"    },
+        { SkSVGLineCap::kRound  , "round"   },
+        { SkSVGLineCap::kSquare , "square"  },
     };
 
     bool parsedValue = false;

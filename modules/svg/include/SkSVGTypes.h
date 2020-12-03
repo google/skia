@@ -143,11 +143,10 @@ public:
         kNone,
         kCurrentColor,
         kColor,
-        kInherit,
         kIRI,
     };
 
-    SkSVGPaint() : fType(Type::kInherit), fColor(SK_ColorBLACK) {}
+    SkSVGPaint() : fType(Type::kNone), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
     explicit SkSVGPaint(const SkString& iri)
@@ -177,7 +176,6 @@ class SkSVGClip {
 public:
     enum class Type {
         kNone,
-        kInherit,
         kIRI,
     };
 
@@ -201,28 +199,10 @@ private:
     SkString       fIRI;
 };
 
-class SkSVGLineCap {
-public:
-    enum class Type {
-        kButt,
-        kRound,
-        kSquare,
-        kInherit,
-    };
-
-    constexpr SkSVGLineCap() : fType(Type::kInherit) {}
-    constexpr explicit SkSVGLineCap(Type t) : fType(t) {}
-
-    SkSVGLineCap(const SkSVGLineCap&)            = default;
-    SkSVGLineCap& operator=(const SkSVGLineCap&) = default;
-
-    bool operator==(const SkSVGLineCap& other) const { return fType == other.fType; }
-    bool operator!=(const SkSVGLineCap& other) const { return !(*this == other); }
-
-    Type type() const { return fType; }
-
-private:
-    Type fType;
+enum class SkSVGLineCap {
+    kButt,
+    kRound,
+    kSquare,
 };
 
 class SkSVGLineJoin {
