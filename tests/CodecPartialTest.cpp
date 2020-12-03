@@ -194,7 +194,12 @@ DEF_TEST(Codec_frameCountUpdatesInIncrementalDecode, r) {
 
     REPORTER_ASSERT(r, partialCodec->getFrameCount() == 1);
     stream->addNewData(fileSize - n);
-    REPORTER_ASSERT(r, partialCodec->getFrameCount() == 2);
+
+    // It's debatable whether the frame count should update during an
+    // incremental decode (see crbug.com/1132828) but we should still get a
+    // sensible answer: either 1 or 2.
+    int frameCount = partialCodec->getFrameCount();
+    REPORTER_ASSERT(r, (frameCount == 1) || (frameCount == 2));
 }
 
 // Verify that when decoding an animated gif byte by byte we report the correct
