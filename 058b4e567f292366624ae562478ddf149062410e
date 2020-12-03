@@ -165,6 +165,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fcc34a3_3449c5d3",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-03T01:42:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af55d71e_436ef05b",
+      "range": {
+        "startLine": 636,
+        "startChar": 49,
+        "endLine": 637,
+        "endChar": 86
+      },
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1cb2c57_310225e8",
@@ -188,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5524264_2a563c70",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-03T01:42:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1cb2c57_310225e8",
+      "range": {
+        "startLine": 912,
+        "startChar": 7,
+        "endLine": 912,
+        "endChar": 28
+      },
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d0ec0b92_4db22b86",
@@ -201,6 +249,24 @@
       "writtenOn": "2020-12-02T16:17:11Z",
       "side": 1,
       "message": "Might make sense to do this first before adjusting lowerWeight/lowerLevel, with a blank line between?  It reads like we\u0027re tweaking the wrong matrix here.",
+      "revId": "058b4e567f292366624ae562478ddf149062410e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3f6a5d9_5fe36b57",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-03T01:42:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0ec0b92_4db22b86",
       "revId": "058b4e567f292366624ae562478ddf149062410e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
