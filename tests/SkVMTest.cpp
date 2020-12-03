@@ -1992,11 +1992,15 @@ DEF_TEST(SkVM_Assembler, r) {
         a.ldrs(A::x0, A::x1, 3);   // ldr  w0, [x1, #12]
         a.ldrh(A::x0, A::x1, 3);   // ldrh w0, [x1, #6]
         a.ldrb(A::x0, A::x1, 3);   // ldrb w0, [x1, #3]
+
+        a.strs(A::x0, A::x1, 3);   // str  w0, [x1, #12]
     },{
         0x20,0x0c,0x40,0xf9,
         0x20,0x0c,0x40,0xb9,
         0x20,0x0c,0x40,0x79,
         0x20,0x0c,0x40,0x39,
+
+        0x20,0x0c,0x00,0xb9,
     });
 
     test_asm(r, [&](A& a) {

@@ -2327,6 +2327,10 @@ namespace skvm {
         this->op(0b00'111'1'01'01'000000000000, src, dst, (imm12 & 12_mask) << 10);
     }
 
+    void Assembler::strs(X src, X dst, int imm12) {
+        this->op(0b10'111'0'01'00'000000000000, dst, src, (imm12 & 12_mask) << 10);
+    }
+
     void Assembler::strq(V src, X dst, int imm12) {
         this->op(0b00'111'1'01'10'000000000000, dst, src, (imm12 & 12_mask) << 10);
     }
@@ -3724,10 +3728,6 @@ namespace skvm {
                     break;
 
             #elif defined(__aarch64__)
-                case Op::store128:
-                case Op::load128:
-                    return false;  // TODO
-
                 case Op::assert_true: {
                     a->uminv4s(dst(), r(x));   // uminv acts like an all() across the vector.
                     a->movs(GP0, dst(), 0);
@@ -3776,6 +3776,19 @@ namespace skvm {
                                       free_tmp(tmp);
                                   } break;
 
+                case Op::store128: {
+                    int ptr = immz>>1,
+                        lane = immz&1;
+                    // TODO: zip r(x) and r(y) together, then 64-bit stores?  or some st2 variant?
+                    for (int i = 0; i < (scalar ? 1 : K); i++) {
+                        a->movs(GP0, r(x), i);
+                        a->movs(GP1, r(y), i);
+                        a->strs(GP0, arg[ptr], i*4 + 2*lane + 0);
+                        a->strs(GP1, arg[ptr], i*4 + 2*lane + 1);
+                    }
+                } break;
+
+
                 case Op::load8: if (scalar) { a->ldrb(dst(), arg[immy]); }
                                 else        { a->ldrs(dst(), arg[immy]); }
                                               a->uxtlb2h(dst(), dst());
@@ -3805,6 +3818,13 @@ namespace skvm {
                                     }
                                     free_tmp(hi);
                                  } break;
+
+                case Op::load128: a->ldrs(dst(), arg[immy], immz);
+                                  for (int i = 1; i < (scalar ? 1 : K); i++) {
+                                      a->ldrs(GP0, arg[immy], immz+4*i);
+                                      a->inss(dst(), GP0, i);
+                                  }
+                                  break;
 
                 case Op::uniform32: a->add(GP0, arg[immy], immz);
                                     a->ld1r4s(dst(), GP0);

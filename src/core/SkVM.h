@@ -362,6 +362,8 @@ namespace skvm {
         void ldrh(V dst, X src, int imm12=0);  //  16-bit dst = *(src+imm12*2)
         void ldrb(V dst, X src, int imm12=0);  //   8-bit dst = *(src+imm12)
 
+        void strs(X src, X dst, int imm12=0);  // 32-bit *(dst+imm12*4) = src
+
         void strq(V src, X dst, int imm12=0);  // 128-bit *(dst+imm12*16) = src
         void strd(V src, X dst, int imm12=0);  //  64-bit *(dst+imm12*8)  = src
         void strs(V src, X dst, int imm12=0);  //  32-bit *(dst+imm12*4)  = src
