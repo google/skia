@@ -55,7 +55,7 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     const Expression* initialValue = this->variable()->initialValue();
     if ((this->variable()->modifiers().fFlags & Modifiers::kConst_Flag) && initialValue &&
         initialValue->isCompileTimeConstant() &&
-        this->type().typeKind() != Type::TypeKind::kArray) {
+        !this->type().isArray()) {
         return initialValue->clone();
     }
     std::unique_ptr<Expression>** exprPPtr = definitions.find(this->variable());
