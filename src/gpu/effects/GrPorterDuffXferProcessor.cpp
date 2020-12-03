@@ -68,8 +68,13 @@ public:
     bool modifiesDst() const {
         return SkToBool(fProps & kModifiesDst_Property);
     }
-    bool usesDstColor() const {
-        return SkToBool(fProps & kUsesDstColor_Property);
+    bool unaffectedByDst() const {
+        return SkToBool(fProps & kUnaffectedByDst_Property);
+    }
+    // We don't always fully optimize the blend formula (e.g., for opaque src-over), so we include
+    // an "IfOpaque" variant to help set AnalysisProperties::kUnaffectedByDstValue in those cases.
+    bool unaffectedByDstIfOpaque() const {
+        return SkToBool(fProps & kUnaffectedByDstIfOpaque_Property);
     }
     bool usesInputColor() const {
         return SkToBool(fProps & kUsesInputColor_Property);
@@ -100,10 +105,11 @@ public:
 
 private:
     enum Properties {
-        kModifiesDst_Property              = 1,
-        kUsesDstColor_Property             = 1 << 1,
-        kUsesInputColor_Property           = 1 << 2,
-        kCanTweakAlphaForCoverage_Property = 1 << 3,
+        kModifiesDst_Property              = 1 << 0,
+        kUnaffectedByDst_Property          = 1 << 1,
+        kUnaffectedByDstIfOpaque_Property  = 1 << 2,
+        kUsesInputColor_Property           = 1 << 3,
+        kCanTweakAlphaForCoverage_Property = 1 << 4,
 
         kLast_Property = kCanTweakAlphaForCoverage_Property
     };
@@ -153,7 +159,12 @@ constexpr BlendFormula::Properties BlendFormula::GetProperties(OutputType Primar
 
     static_cast<Properties>(
         (GrBlendModifiesDst(BlendEquation, SrcCoeff, DstCoeff) ? kModifiesDst_Property : 0) |
-        (GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff) ? kUsesDstColor_Property : 0) |
+        (!GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff, false/*srcColorIsOpaque*/)
+                    ? kUnaffectedByDst_Property
+                    : 0) |
+        (!GrBlendCoeffsUseDstColor(SrcCoeff, DstCoeff, true/*srcColorIsOpaque*/)
+                    ? kUnaffectedByDstIfOpaque_Property
+                    : 0) |
         ((PrimaryOut >= kModulate_OutputType && GrBlendCoeffsUseSrcColor(SrcCoeff, DstCoeff)) ||
                             (SecondaryOut >= kModulate_OutputType &&
                             GrBlendCoeffRefsSrc2(DstCoeff))
@@ -808,6 +819,10 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
 
     if (!formula.modifiesDst() || !formula.usesInputColor()) {
         props |= AnalysisProperties::kIgnoresInputColor;
+    }
+    if (formula.unaffectedByDst() || (formula.unaffectedByDstIfOpaque() && color.isOpaque() &&
+                                      !hasCoverage && !hasMixedSamples)) {
+        props |= AnalysisProperties::kUnaffectedByDstValue;
     }
     return props;
 }
