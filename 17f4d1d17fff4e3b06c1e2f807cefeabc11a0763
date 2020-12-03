@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5f3ab1_4851c313",
+        "filename": "src/gpu/GrBlend.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T17:20:30Z",
+      "side": 1,
+      "message": "Agreed. Done.",
+      "parentUuid": "96a59db9_40d6cecf",
+      "range": {
+        "startLine": 99,
+        "startChar": 46,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59eafcdc_08fb479b",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a06b780_d91e6e40",
+        "filename": "src/gpu/effects/GrDisableColorXP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T17:20:30Z",
+      "side": 1,
+      "message": "You are absolutely correct and this was a bug. Thanks for catching that. I also updated GrCoverageSetOpXP.h for the sake of completeness.",
+      "parentUuid": "59eafcdc_08fb479b",
+      "range": {
+        "startLine": 37,
+        "startChar": 56,
+        "endLine": 37,
+        "endChar": 97
+      },
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3672682c_8003c6fc",
@@ -77,6 +125,30 @@
       "writtenOn": "2020-12-03T15:51:06Z",
       "side": 1,
       "message": "If I came across this later I think I\u0027d appreciate some /*src-opaque*/ comments before these bool values.",
+      "range": {
+        "startLine": 160,
+        "startChar": 55,
+        "endLine": 160,
+        "endChar": 60
+      },
+      "revId": "17f4d1d17fff4e3b06c1e2f807cefeabc11a0763",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ca81dc1_5a0538ae",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T17:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3672682c_8003c6fc",
       "range": {
         "startLine": 160,
         "startChar": 55,
