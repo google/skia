@@ -177,7 +177,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         finalCanvas->restore();
     }
 
-    fMatrix = finalCanvas->getTotalMatrix();
+    fMatrix = finalCanvas->getLocalToDevice();
     fClip   = finalCanvas->getDeviceClipBounds();
     if (fShowOrigin) {
         const SkPaint originXPaint = SkPaint({1.0, 0, 0, 1.0});

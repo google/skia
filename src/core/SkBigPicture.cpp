@@ -42,7 +42,7 @@ void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
 void SkBigPicture::partialPlayback(SkCanvas* canvas,
                                    int start,
                                    int stop,
-                                   const SkMatrix& initialCTM) const {
+                                   const SkM44& initialCTM) const {
     SkASSERT(canvas);
     SkRecordPartialDraw(*fRecord,
                         canvas,

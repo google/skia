@@ -260,12 +260,12 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
 
-    SkMatrix vm = fDebugCanvas->getCurrentMatrix();
+    SkM44 vm = fDebugCanvas->getCurrentMatrix();
     SkIRect clip = fDebugCanvas->getCurrentClip();
 
     writer.beginObject(); // root
     writer.appendName("ViewMatrix");
-    DrawCommand::MakeJsonMatrix(writer, vm);
+    DrawCommand::MakeJsonMatrix44(writer, vm);
     writer.appendName("ClipRect");
     DrawCommand::MakeJsonIRect(writer, clip);
     writer.endObject(); // root
