@@ -121,18 +121,17 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 }
 
-const Type* SymbolTable::addArrayDimensions(const Type* type, const SkTArray<int>& dimensions) {
-    StringFragment baseName = type->name();
-    String arrayDims;
-    for (int index = dimensions.count(); index--; ) {
-        int dim = dimensions[index];
-        arrayDims = (dim != Type::kUnsizedArray)
-                            ? String::printf("[%d]%s", dim, arrayDims.c_str())
-                            : String::printf("[]%s", arrayDims.c_str());
-
-        type = this->takeOwnershipOfSymbol(std::make_unique<Type>(baseName + arrayDims,
+const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
+    if (arraySize != 0) {
+        // SkSL doesn't support multi-dimensional arrays.
+        SkASSERT(type->typeKind() != Type::TypeKind::kArray);
+        String baseName = type->name();
+        String arrayName = (arraySize != Type::kUnsizedArray)
+                                   ? String::printf("%s[%d]", baseName.c_str(), arraySize)
+                                   : String::printf("%s[]", baseName.c_str());
+        type = this->takeOwnershipOfSymbol(std::make_unique<Type>(std::move(arrayName),
                                                                   Type::TypeKind::kArray,
-                                                                  *type, dim));
+                                                                  *type, arraySize));
     }
     return type;
 }
