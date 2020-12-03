@@ -79,10 +79,6 @@ class SkVertices;
     This approach may be deprecated in the future.
 */
 class SK_API SkCanvas {
-    enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
-    };
-
 public:
 
     /** Allocates raster SkCanvas that will draw directly into pixels.
@@ -632,10 +628,6 @@ public:
                                           1 << 3, //!< experimental: do not use
         // instead of matching previous layer's colortype, use F16
         kF16ColorType                   = 1 << 4,
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        kDontClipToLayer_Legacy_SaveLayerFlag =
-           kDontClipToLayer_PrivateSaveLayerFlag, //!< deprecated
-#endif
     };
 
     typedef uint32_t SaveLayerFlags;
@@ -2567,45 +2559,6 @@ protected:
     SkBaseDevice* getTopDevice() const;
 
 private:
-    /** After calling saveLayer(), there can be any number of devices that make
-     up the top-most drawing area. LayerIter can be used to iterate through
-     those devices. Note that the iterator is only valid until the next API
-     call made on the canvas. Ownership of all pointers in the iterator stays
-     with the canvas, so none of them should be modified or deleted.
-     */
-    class LayerIter /*: SkNoncopyable*/ {
-    public:
-        /** Initialize iterator with canvas, and set values for 1st device */
-        LayerIter(SkCanvas*);
-        ~LayerIter();
-
-        /** Return true if the iterator is done */
-        bool done() const { return fDone; }
-        /** Cycle to the next device */
-        void next();
-
-        // These reflect the current device in the iterator
-
-        SkBaseDevice*   device() const;
-        const SkMatrix& matrix() const;
-        SkIRect clipBounds() const;
-        const SkPaint&  paint() const;
-        int             x() const;
-        int             y() const;
-
-    private:
-        // used to embed the SkDrawIter object directly in our instance, w/o
-        // having to expose that class def to the public. There is an assert
-        // in our constructor to ensure that fStorage is large enough
-        // (though needs to be a compile-time-assert!). We use intptr_t to work
-        // safely with 32 and 64 bit machines (to ensure the storage is enough)
-        intptr_t          fStorage[32];
-        class SkDrawIter* fImpl;    // this points at fStorage
-        SkPaint           fDefaultPaint;
-        SkIPoint          fDeviceOrigin;
-        bool              fDone;
-    };
-
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                      const SkMatrix& ctm);
@@ -2638,10 +2591,11 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 96; // most recent measurement
     static constexpr int kMCRecCount     = 32; // common depth for save/restores
-    static constexpr int kDeviceCMSize   = 64; // most recent measurement
 
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
-    intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
+
+    // Installed from init()
+    sk_sp<SkBaseDevice> fBaseDevice;
 
     const SkSurfaceProps fProps;
 
@@ -2713,7 +2667,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
     void internalDrawDevice(SkBaseDevice*, const SkPaint*);
