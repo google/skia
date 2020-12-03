@@ -2221,6 +2221,8 @@ namespace skvm {
 
     void Assembler::tbl(V d, V n, V m) { this->op(0b0'1'001110'00'0, m, 0b0'00'0'00, n, d); }
 
+    void Assembler::uzp14s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'0'01'10, n, d); }
+    void Assembler::uzp24s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'1'01'10, n, d); }
     void Assembler::zip14s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'0'11'10, n, d); }
     void Assembler::zip24s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'1'11'10, n, d); }
 
@@ -3720,7 +3722,6 @@ namespace skvm {
 
             #elif defined(__aarch64__)
                 case Op::store128:
-                case Op::load64:
                 case Op::load128:
                 case Op::to_fp16:
                 case Op::from_fp16:
@@ -3788,6 +3789,21 @@ namespace skvm {
                 case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
                                  else        { a->ldrq(dst(), arg[immy]); }
                                                break;
+
+                // TODO: ld2.4s?
+                case Op::load64: if (scalar) {
+                                    a->ldrs(dst(), arg[immy], immz);
+                                 } else {
+                                    A::V lo = dst(),
+                                         hi = alloc_tmp();
+                                    a->ldrq(lo, arg[immy], 0);
+                                    a->ldrq(hi, arg[immy], 1);
+                                    switch (immz) {
+                                        case 0: a->uzp14s(dst(),lo,hi); break;
+                                        case 1: a->uzp24s(dst(),lo,hi); break;
+                                    }
+                                    free_tmp(hi);
+                                 } break;
 
                 case Op::uniform32: a->add(GP0, arg[immy], immz);
                                     a->ld1r4s(dst(), GP0);
