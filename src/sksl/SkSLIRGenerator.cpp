@@ -376,8 +376,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         int arraySize = 0;
         auto iter = varDecl.begin();
         if (iter != varDecl.end()) {
-            if (varData.fSizeCount > 0) {
-                SkASSERT(varData.fSizeCount == 1);  // only single-dimension arrays are supported
+            if (varData.fIsArray) {
                 if (type->isOpaque()) {
                     fErrors.error(type->fOffset,
                                   "opaque type '" + type->name() + "' may not be used in an array");
@@ -902,13 +901,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (!type) {
             return;
         }
-        SkSTArray<kMaxArrayDimensionality, int> dimensions;
-        for (int j = 0; j < (int) pd.fSizeCount; ++j) {
-            int size = (paramIter++)->getInt();
-            dimensions.push_back(size);
+        if (pd.fIsArray) {
+            int arraySize = (paramIter++)->getInt();
+            type = fSymbolTable->addArrayDimensions(type, {arraySize});
         }
-        type = fSymbolTable->addArrayDimensions(type, dimensions);
-
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
             !typeIsAllowed(type)) {
@@ -1149,8 +1145,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     const Type* type = old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName,
                                                                          fields));
     int arraySize = 0;
-    if (id.fSizeCount > 0) {
-        SkASSERT(id.fSizeCount == 1); // multi-dimensional arrays are not supported
+    if (id.fIsArray) {
         const ASTNode& size = *(iter++);
         if (size) {
             std::unique_ptr<Expression> converted = this->convertExpression(size);
@@ -1322,12 +1317,9 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
         return nullptr;
     }
     if (isArray) {
-        // Add array dimensions onto our base type.
-        SkSTArray<kMaxArrayDimensionality, int> dimensions;
-        for (const auto& size : type) {
-            dimensions.push_back(size ? size.getInt() : Type::kUnsizedArray);
-        }
-        result = fSymbolTable->addArrayDimensions(result, dimensions);
+        auto iter = type.begin();
+        int arraySize = *iter ? iter->getInt() : Type::kUnsizedArray;
+        result = fSymbolTable->addArrayDimensions(result, {arraySize});
     }
     return result;
 }

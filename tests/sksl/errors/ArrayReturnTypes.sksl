@@ -1,2 +1,2 @@
-half[2][4] return_half_2_2() {}
-int[1]     return_int_1()    {}
+float4x4[2] return_float4x4_2() {}
+int[1]      return_int_1()      {}
