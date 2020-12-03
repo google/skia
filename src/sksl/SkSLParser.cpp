@@ -556,7 +556,7 @@ ASTNode::ID Parser::structDeclaration() {
                 }
                 // Add the array dimensions to our type.
                 int arraySize = size.getInt();
-                type = fSymbols.addArrayDimensions(type, {arraySize});
+                type = fSymbols.addArrayDimension(type, arraySize);
             }
 
             fields.push_back(Type::Field(modifiers, vd.fName, type));
