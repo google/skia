@@ -956,7 +956,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     const GrXPFactory* xpf = GrPorterDuffXPFactory::Get(SkBlendMode::kSrcOver);
     GrProcessorAnalysisColor color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 255));
     GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kLCD;
-    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps, autoClamp) &
+    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, false, caps, autoClamp) &
                   GrXPFactory::AnalysisProperties::kRequiresDstTexture));
     sk_sp<const GrXferProcessor> xp_opaque(
             GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps, autoClamp));
@@ -971,7 +971,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     // Test with non-opaque alpha
     color = SkPMColor4f::FromBytes_RGBA(GrColorPackRGBA(123, 45, 67, 221));
     coverage = GrProcessorAnalysisCoverage::kLCD;
-    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, caps, autoClamp) &
+    TEST_ASSERT(!(GrXPFactory::GetAnalysisProperties(xpf, color, coverage, false, caps, autoClamp) &
                 GrXPFactory::AnalysisProperties::kRequiresDstTexture));
     sk_sp<const GrXferProcessor> xp(
             GrXPFactory::MakeXferProcessor(xpf, color, coverage, false, caps, autoClamp));

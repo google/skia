@@ -755,7 +755,7 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::makeXferProcessor(
 
 static inline GrXPFactory::AnalysisProperties analysis_properties(
         const GrProcessorAnalysisColor& color, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, GrClampType clampType, SkBlendMode mode) {
+        bool hasMixedSamples, const GrCaps& caps, GrClampType clampType, SkBlendMode mode) {
     using AnalysisProperties = GrXPFactory::AnalysisProperties;
     AnalysisProperties props = AnalysisProperties::kNone;
     bool hasCoverage = GrProcessorAnalysisCoverage::kNone != coverage;
@@ -764,7 +764,7 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
         if (isLCD) {
             return gLCDBlendTable[(int)mode];
         }
-        return gBlendTable[color.isOpaque()][hasCoverage][(int)mode];
+        return get_blend_formula(color.isOpaque(), hasCoverage, hasMixedSamples, mode);
     }();
 
     if (formula.canTweakAlphaForCoverage() && !isLCD) {
@@ -815,9 +815,10 @@ static inline GrXPFactory::AnalysisProperties analysis_properties(
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
+        bool hasMixedSamples,
         const GrCaps& caps,
         GrClampType clampType) const {
-    return analysis_properties(color, coverage, caps, clampType, fBlendMode);
+    return analysis_properties(color, coverage, hasMixedSamples, caps, clampType, fBlendMode);
 }
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
@@ -908,7 +909,9 @@ sk_sp<const GrXferProcessor> GrPorterDuffXPFactory::MakeNoCoverageXP(SkBlendMode
 GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::SrcOverAnalysisProperties(
         const GrProcessorAnalysisColor& color,
         const GrProcessorAnalysisCoverage& coverage,
+        bool hasMixedSamples,
         const GrCaps& caps,
         GrClampType clampType) {
-    return analysis_properties(color, coverage, caps, clampType, SkBlendMode::kSrcOver);
+    return analysis_properties(color, coverage, hasMixedSamples, caps, clampType,
+                               SkBlendMode::kSrcOver);
 }

@@ -303,6 +303,7 @@ public:
     static AnalysisProperties GetAnalysisProperties(const GrXPFactory*,
                                                     const GrProcessorAnalysisColor&,
                                                     const GrProcessorAnalysisCoverage&,
+                                                    bool hasMixedSamples,
                                                     const GrCaps&,
                                                     GrClampType);
 
@@ -322,6 +323,7 @@ private:
      */
     virtual AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                                   const GrProcessorAnalysisCoverage&,
+                                                  bool hasMixedSamples,
                                                   const GrCaps&,
                                                   GrClampType) const = 0;
 };

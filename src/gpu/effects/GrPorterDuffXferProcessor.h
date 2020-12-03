@@ -41,6 +41,7 @@ public:
 
     static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
                                                         const GrProcessorAnalysisCoverage&,
+                                                        bool hasMixedSamples,
                                                         const GrCaps&,
                                                         GrClampType);
 
@@ -55,6 +56,7 @@ private:
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
+                                          bool hasMixedSamples,
                                           const GrCaps&,
                                           GrClampType) const override;
 
