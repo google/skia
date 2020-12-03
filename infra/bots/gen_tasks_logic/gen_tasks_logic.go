@@ -22,11 +22,31 @@ import (
 	"strings"
 	"time"
 
+	"go.skia.org/infra/go/cas/rbe"
 	"go.skia.org/infra/go/cipd"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
 const (
+	CAS_CANVASKIT    = "canvaskit"
+	CAS_COMPILE      = "compile"
+	CAS_EMPTY        = "empty" // TODO(borenet): It'd be nice if this wasn't necessary.
+	CAS_INFRA_TESTS  = "infra-tests"
+	CAS_LOTTIE_CI    = "lottie-ci"
+	CAS_LOTTIE_WEB   = "lottie-web"
+	CAS_PATHKIT      = "pathkit"
+	CAS_PERF         = "perf"
+	CAS_PUPPETEER    = "puppeteer"
+	CAS_RUN_RECIPE   = "run-recipe"
+	CAS_RECIPES      = "recipes"
+	CAS_SKOTTIE_WASM = "skottie-wasm"
+	CAS_SKPBENCH     = "skpbench"
+	CAS_SKQP         = "skqp"
+	CAS_TASK_DRIVERS = "task-drivers"
+	CAS_TEST         = "test"
+	CAS_WASM_GM      = "wasm-gm"
+	CAS_WHOLE_REPO   = "whole-repo"
+
 	BUILD_TASK_DRIVERS_NAME    = "Housekeeper-PerCommit-BuildTaskDrivers"
 	BUNDLE_RECIPES_NAME        = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME  = "Housekeeper-PerCommit-IsolateGCloudLinux"
@@ -70,33 +90,33 @@ var (
 
 	// Named caches used by tasks.
 	CACHES_GIT = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "git",
 			Path: "cache/git",
 		},
-		&specs.Cache{
+		{
 			Name: "git_cache",
 			Path: "cache/git_cache",
 		},
 	}
 	CACHES_GO = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "go_cache",
 			Path: "cache/go_cache",
 		},
-		&specs.Cache{
+		{
 			Name: "gopath",
 			Path: "cache/gopath",
 		},
 	}
 	CACHES_WORKDIR = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "work",
 			Path: "cache/work",
 		},
 	}
 	CACHES_CCACHE = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "ccache",
 			Path: "cache/ccache",
 		},
@@ -109,7 +129,7 @@ var (
 	// not also use the normal "work" cache, to prevent issues like
 	// https://bugs.chromium.org/p/skia/issues/detail?id=9749.
 	CACHES_DOCKER = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "docker",
 			Path: "cache/docker",
 		},
@@ -125,7 +145,7 @@ var (
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
 		// This package is really just an installer for XCode.
-		&specs.CipdPackage{
+		{
 			Name: "infra/tools/mac_toolchain/${platform}",
 			Path: "mac_toolchain",
 			// When this is updated, also update
@@ -330,6 +350,204 @@ func GenTasks(cfg *Config) {
 		jb.genTasksForJob()
 		jb.finish()
 	}
+
+	// Create CasSpecs.
+	b.MustAddCasSpec(CAS_CANVASKIT, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/canvaskit",
+			"skia/modules/canvaskit",
+			"skia/modules/pathkit/perf/perfReporter.js",
+			"skia/modules/pathkit/tests/testReporter.js",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	// TODO(borenet): This should be generated like compile.isolate was.
+	/*b.MustAddCasSpec(CAS_COMPILE, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/.clang-format",
+			"skia/.clang-tidy",
+			"skia/.gn",
+			"skia/BUILD.gn",
+			"skia/bench",
+			"skia/bin/fetch-clang-format",
+			"skia/bin/fetch-gn",
+			"skia/build/fuchsia",
+			"skia/build_overrides",
+			"skia/buildtools",
+			"skia/client_utils/android",
+			"skia/dm",
+			"skia/docs/examples",
+			"skia/example",
+			"skia/experimental",
+			"skia/fuzz",
+			"skia/gm",
+			"skia/gn",
+			"skia/include",
+			"skia/modules",
+			"skia/platform_tools/android/apps/skottie/skottielib/src/main/cpp/native-lib.cpp",
+			"skia/platform_tools/android/launcher/skia_launcher.cpp",
+			"skia/platform_tools/android/vulkan/Skia_Vulkan_Android.h",
+			"skia/platform_tools/ios/app/LaunchScreen.storyboard",
+			"skia/platform_tools/libraries/include/arcore_c_api.h",
+			"skia/resources",
+			"skia/samplecode",
+			"skia/src",
+			"skia/tests",
+			"skia/third_party",
+			"skia/tools",
+			"skia/infra/canvaskit",
+			"skia/infra/pathkit",
+			"skia/infra/bots/assets/android_ndk_darwin/VERSION",
+			"skia/infra/bots/assets/android_ndk_linux/VERSION",
+			"skia/infra/bots/assets/android_ndk_windows/VERSION",
+			"skia/infra/bots/assets/cast_toolchain/VERSION",
+			"skia/infra/bots/assets/clang_linux/VERSION",
+			"skia/infra/bots/assets/clang_win/VERSION",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})*/
+	b.MustAddCasSpec(CAS_EMPTY, specs.EmptyCasSpec)
+	b.MustAddCasSpec(CAS_INFRA_TESTS, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots",
+			"skia/infra/config/recipes.cfg",
+			"skia/go.mod",
+			"skia/go.sum",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	/*b.MustAddCasSpec(CAS_LOTTIE_CI, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/lottiecap",
+			"skia/tools/lottie-web-perf",
+			"skia/tools/lottiecap",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})*/
+	b.MustAddCasSpec(CAS_LOTTIE_WEB, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/tools/lottie-web-perf",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_PATHKIT, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/pathkit",
+			"skia/modules/pathkit",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_PERF, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/assets",
+			"skia/infra/bots/run_recipe.py",
+			"skia/platform_tools/ios/bin",
+			"skia/resources",
+			"skia/tools/valgrind.supp",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_PUPPETEER, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/tools/perf-canvaskit-puppeteer",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_RECIPES, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/config/recipes.cfg",
+			"skia/infra/bots/bundle_recipes.sh",
+			"skia/infra/bots/README.recipes.md",
+			"skia/infra/bots/recipe_modules",
+			"skia/infra/bots/recipes",
+			"skia/infra/bots/recipes.py",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_RUN_RECIPE, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_SKOTTIE_WASM, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/tools/skottie-wasm-perf",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_SKPBENCH, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/assets",
+			"skia/infra/bots/run_recipe.py",
+			"skia/tools/skpbench",
+			"skia/tools/valgrind.supp",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_SKQP, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/skqp",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_TASK_DRIVERS, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/go.mod",
+			"skia/go.sum",
+			"skia/infra/bots/build_task_drivers.sh",
+			"skia/infra/bots/run_recipe.py",
+			"skia/infra/bots/task_drivers",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_TEST, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/infra/bots/assets",
+			"skia/infra/bots/run_recipe.py",
+			"skia/platform_tools/ios/bin",
+			"skia/resources",
+			"skia/tools/valgrind.supp",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_WASM_GM, &specs.CasSpec{
+		Root: "..",
+		Paths: []string{
+			"skia/resources",
+			"skia/tools/run-wasm-gm-tests",
+		},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	b.MustAddCasSpec(CAS_WHOLE_REPO, &specs.CasSpec{
+		Root:     "..",
+		Paths:    []string{"skia"},
+		Excludes: []string{rbe.ExcludeGitDir},
+	})
+	generateCompileCAS(b)
+
 	builder.MustFinish()
 }
 
@@ -387,7 +605,7 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
-	b.isolate("swarm_recipe.isolate")
+	b.cas(CAS_RUN_RECIPE)
 	b.timeout(time.Hour)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 	b.Spec.ExtraTags = map[string]string{
@@ -798,7 +1016,7 @@ func (b *jobBuilder) bundleRecipes() string {
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.idempotent()
-		b.isolate("recipes.isolate")
+		b.cas(CAS_RECIPES)
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -813,7 +1031,7 @@ func (b *jobBuilder) buildTaskDrivers() string {
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
 		b.idempotent()
-		b.isolate("task_drivers.isolate")
+		b.cas(CAS_TASK_DRIVERS)
 	})
 	return BUILD_TASK_DRIVERS_NAME
 }
@@ -841,7 +1059,7 @@ func (b *jobBuilder) updateGoDeps() {
 		b.dep(b.buildTaskDrivers())
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
 	})
 }
@@ -882,7 +1100,7 @@ func (b *jobBuilder) createDockerImage(wasm bool) string {
 		)
 		b.dep(b.buildTaskDrivers())
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -915,7 +1133,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		b.dep(b.buildTaskDrivers())
 		b.dep(b.createDockerImage(false))
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -947,7 +1165,7 @@ func (b *jobBuilder) createPushAppsFromWASMDockerImage() {
 		b.dep(b.buildTaskDrivers())
 		b.dep(b.createDockerImage(true))
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin")
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -994,10 +1212,10 @@ func (b *jobBuilder) compile() string {
 	} else {
 		b.addTask(name, func(b *taskBuilder) {
 			recipe := "compile"
-			isolate := "compile.isolate"
+			casSpec := CAS_COMPILE
 			if b.extraConfig("NoDEPS", "CMake", "CommandBuffer", "Flutter", "SKQP") {
 				recipe = "sync_and_compile"
-				isolate = "swarm_recipe.isolate"
+				casSpec = CAS_RUN_RECIPE
 				b.recipeProps(EXTRA_PROPS)
 				b.usesGit()
 				if !b.extraConfig("NoDEPS") {
@@ -1007,7 +1225,7 @@ func (b *jobBuilder) compile() string {
 				b.idempotent()
 			}
 			b.kitchenTask(recipe, OUTPUT_BUILD)
-			b.isolate(isolate)
+			b.cas(casSpec)
 			b.serviceAccount(b.cfg.ServiceAccountCompile)
 			b.swarmDimensions()
 			if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
@@ -1116,7 +1334,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 // checkGnToBp verifies that the gn_to_bp.py script continues to work.
 func (b *jobBuilder) checkGnToBp() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.isolate("compile.isolate")
+		b.cas(CAS_COMPILE)
 		b.dep(b.buildTaskDrivers())
 		b.cmd("./run_gn_to_bp",
 			"--local=false",
@@ -1147,7 +1365,7 @@ func (b *jobBuilder) housekeeper() {
 // should add as a dependency.
 func (b *jobBuilder) g3FrameworkCanary() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.dep(b.buildTaskDrivers())
 		b.cmd("./g3_canary",
 			"--local=false",
@@ -1185,13 +1403,12 @@ func (b *jobBuilder) infra() {
 		}
 		b.recipeProp("repository", specs.PLACEHOLDER_REPO)
 		b.kitchenTask("infra", OUTPUT_NONE)
-		b.isolate("infra_tests.isolate")
+		b.cas(CAS_INFRA_TESTS)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.cipd(specs.CIPD_PKGS_GSUTIL...)
 		b.idempotent()
 		// Repos which call into Skia's gen_tasks.go should define their own
 		// infra_tests.isolate and therefore should not use relpath().
-		b.Spec.Isolate = "infra_tests.isolate"
 		b.usesGo()
 	})
 }
@@ -1290,10 +1507,10 @@ func (b *jobBuilder) dm() {
 		compileTaskName = b.compile()
 	}
 	b.addTask(b.Name, func(b *taskBuilder) {
-		isolate := "test_skia_bundled.isolate"
+		cas := CAS_TEST
 		recipe := "test"
 		if b.extraConfig("SKQP") {
-			isolate = "skqp.isolate"
+			cas = CAS_SKQP
 			recipe = "skqp_test"
 			if b.cpu("Emulator") {
 				recipe = "test_skqp_emulator"
@@ -1303,17 +1520,17 @@ func (b *jobBuilder) dm() {
 			// running hs_bench or kx, it will be easier to fit into the current job name schema.
 			recipe = "compute_test"
 		} else if b.extraConfig("PathKit") {
-			isolate = "pathkit.isolate"
+			cas = CAS_PATHKIT
 			recipe = "test_pathkit"
 		} else if b.extraConfig("CanvasKit") {
-			isolate = "canvaskit.isolate"
+			cas = CAS_CANVASKIT
 			recipe = "test_canvaskit"
 		} else if b.extraConfig("LottieWeb") {
 			// lottie_ci.isolate differs from lottie_web.isolate in that it includes more of the files,
 			// especially those brought in via DEPS in the lottie-ci repo. The main difference between
 			// Perf.+LottieWeb and Test.+LottieWeb is that the former pulls in the lottie build via
 			// npm and the latter always tests at lottie's ToT.
-			isolate = "lottie_ci.isolate"
+			cas = CAS_LOTTIE_CI
 			recipe = "test_lottie_web"
 		}
 		b.recipeProp("gold_hashes_url", b.cfg.GoldHashesURL)
@@ -1327,7 +1544,7 @@ func (b *jobBuilder) dm() {
 			b.dmFlags(iidStr)
 		}
 		b.kitchenTask(recipe, OUTPUT_TEST)
-		b.isolate(isolate)
+		b.cas(cas)
 		b.swarmDimensions()
 		if b.extraConfig("CanvasKit", "Docker", "LottieWeb", "PathKit", "SKQP") {
 			b.usesDocker()
@@ -1390,7 +1607,7 @@ func (b *jobBuilder) dm() {
 
 func (b *jobBuilder) fm() {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.isolate("test_skia_bundled.isolate")
+		b.cas(CAS_TEST)
 		b.dep(b.buildTaskDrivers(), b.compile())
 		b.cmd("./fm_driver",
 			"--local=false",
@@ -1410,7 +1627,7 @@ func (b *jobBuilder) fm() {
 // Canary-G3 does not use this path because it is very different from other autorollers.
 func (b *jobBuilder) canary(rollerName string) {
 	b.addTask(b.Name, func(b *taskBuilder) {
-		b.isolate("empty.isolate")
+		b.cas(CAS_EMPTY)
 		b.dep(b.buildTaskDrivers())
 		b.cmd("./canary",
 			"--local=false",
@@ -1443,7 +1660,7 @@ func (b *jobBuilder) puppeteer() {
 		b.dep(b.buildTaskDrivers(), compileTaskName)
 		b.output(OUTPUT_PERF)
 		b.timeout(20 * time.Minute)
-		b.isolate("perf_puppeteer.isolate")
+		b.cas(CAS_PUPPETEER)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 
 		webglversion := "2"
@@ -1554,7 +1771,7 @@ func (b *jobBuilder) cifuzz() {
 		b.dep(b.buildTaskDrivers())
 		b.output("cifuzz_out")
 		b.timeout(60 * time.Minute)
-		b.isolate("whole_repo.isolate")
+		b.cas(CAS_WHOLE_REPO)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.cmd(
 			"./cifuzz",
@@ -1580,31 +1797,31 @@ func (b *jobBuilder) perf() {
 	doUpload := b.release() && b.doUpload()
 	b.addTask(b.Name, func(b *taskBuilder) {
 		recipe := "perf"
-		isolate := "perf_skia_bundled.isolate"
+		cas := CAS_PERF
 		if b.extraConfig("Skpbench") {
 			recipe = "skpbench"
-			isolate = "skpbench_skia_bundled.isolate"
+			cas = CAS_SKPBENCH
 		} else if b.extraConfig("PathKit") {
-			isolate = "pathkit.isolate"
+			cas = CAS_PATHKIT
 			recipe = "perf_pathkit"
 		} else if b.extraConfig("CanvasKit") {
-			isolate = "canvaskit.isolate"
+			cas = CAS_CANVASKIT
 			recipe = "perf_canvaskit"
 		} else if b.extraConfig("SkottieTracing") {
 			recipe = "perf_skottietrace"
 		} else if b.extraConfig("SkottieWASM") {
 			recipe = "perf_skottiewasm_lottieweb"
-			isolate = "skottie_wasm.isolate"
+			cas = CAS_SKOTTIE_WASM
 		} else if b.extraConfig("LottieWeb") {
 			recipe = "perf_skottiewasm_lottieweb"
-			isolate = "lottie_web.isolate"
+			cas = CAS_LOTTIE_WEB
 		}
 		b.recipeProps(EXTRA_PROPS)
 		if recipe == "perf" {
 			b.nanobenchFlags(doUpload)
 		}
 		b.kitchenTask(recipe, OUTPUT_PERF)
-		b.isolate(isolate)
+		b.cas(cas)
 		b.swarmDimensions()
 		if b.extraConfig("CanvasKit", "Docker", "PathKit") {
 			b.usesDocker()
@@ -1679,7 +1896,7 @@ func (b *jobBuilder) presubmit() {
 		})
 		b.recipeProps(EXTRA_PROPS)
 		b.kitchenTaskNoBundle("run_presubmit", OUTPUT_NONE)
-		b.isolate("run_recipe.isolate")
+		b.cas(CAS_RUN_RECIPE)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		// Use MACHINE_TYPE_LARGE because it seems to save time versus
 		// MEDIUM and we want presubmit to be fast.
@@ -1705,7 +1922,7 @@ func (b *jobBuilder) compileWasmGMTests(compileName string) {
 		b.dep(b.buildTaskDrivers())
 		b.output("wasm_out")
 		b.timeout(60 * time.Minute)
-		b.isolate("compile.isolate")
+		b.cas(CAS_COMPILE)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.cache(CACHES_DOCKER...)
 		// For now, we only have one compile mode - a GPU release mode. This should be sufficient to
@@ -1740,7 +1957,7 @@ func (b *jobBuilder) runWasmGMTests() {
 		b.dep(b.buildTaskDrivers())
 		b.dep(compileTaskName)
 		b.timeout(60 * time.Minute)
-		b.isolate("wasm_gm_tests.isolate")
+		b.cas(CAS_WASM_GM)
 		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 		b.cmd(
 			"./run_wasm_gm_tests",
