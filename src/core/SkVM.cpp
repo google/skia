@@ -3231,6 +3231,7 @@ namespace skvm {
         }
 
         auto emit = [&](Val id, bool scalar) {
+            const int active_lanes = scalar ? 1 : K;
             const OptimizedInstruction& inst = instructions[id];
             const Op op = inst.op;
             const Val x = inst.x,
@@ -3528,7 +3529,7 @@ namespace skvm {
                     A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
 
-                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         if (i == 4) {
                             // vpextrd can only pluck indices out from an Xmm register,
                             // so we manually swap over to the top when we're halfway through.
@@ -3548,7 +3549,7 @@ namespace skvm {
                     A::Ymm tmp = alloc_tmp();
                     a->vmovups(tmp, any(x));
 
-                    for (int i = 0; i < (scalar ? 1 : 8); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         if (i == 4) {
                             a->vextracti128((A::Xmm)tmp, tmp, 1);
                         }
@@ -3780,7 +3781,7 @@ namespace skvm {
                     int ptr = immz>>1,
                         lane = immz&1;
                     // TODO: zip r(x) and r(y) together, then 64-bit stores?  or some st2 variant?
-                    for (int i = 0; i < (scalar ? 1 : K); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP0, r(x), i);
                         a->movs(GP1, r(y), i);
                         a->strs(GP0, arg[ptr], i*4 + 2*lane + 0);
@@ -3820,7 +3821,7 @@ namespace skvm {
                                  } break;
 
                 case Op::load128: a->ldrs(dst(), arg[immy], immz);
-                                  for (int i = 1; i < (scalar ? 1 : K); i++) {
+                                  for (int i = 1; i < active_lanes; i++) {
                                       a->ldrs(GP0, arg[immy], immz+4*i);
                                       a->inss(dst(), GP0, i);
                                   }
@@ -3835,7 +3836,7 @@ namespace skvm {
                     a->add (GP0, arg[immy], immz);  // GP0 = &(gather base pointer)
                     a->ldrd(GP0, GP0);              // GP0 =   gather base pointer
 
-                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP1, r(x), i);    // Extract index lane i into GP1.
                         a->add (GP1, GP0, GP1);   // Add the gather base pointer.
                         a->ldrb(GP1, GP1);        // Load that byte.
@@ -3847,7 +3848,7 @@ namespace skvm {
                 case Op::gather16: {
                     a->add (GP0, arg[immy], immz);
                     a->ldrd(GP0, GP0);
-                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP1, r(x), i);
                         a->add (GP1, GP0, GP1, A::LSL, 1);  // Scale index 2x into a byte offset.
                         a->ldrh(GP1, GP1);                  // 2-byte load.
@@ -3859,7 +3860,7 @@ namespace skvm {
                 case Op::gather32: {
                     a->add (GP0, arg[immy], immz);
                     a->ldrd(GP0, GP0);
-                    for (int i = 0; i < (scalar ? 1 : 4); i++) {
+                    for (int i = 0; i < active_lanes; i++) {
                         a->movs(GP1, r(x), i);
                         a->add (GP1, GP0, GP1, A::LSL, 2);  // Scale index 4x into a byte offset.
                         a->ldrs(GP1, GP1);                  // 4-byte load.
