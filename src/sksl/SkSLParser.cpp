@@ -255,6 +255,18 @@ bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
     }
 }
 
+bool Parser::expectIdentifier(Token* result) {
+    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
+        return false;
+    }
+    if (this->isType(this->text(*result))) {
+        this->error(*result, "expected an identifier, but found type '" +
+                             this->text(*result) + "'");
+        return false;
+    }
+    return true;
+}
+
 StringFragment Parser::text(Token token) {
     return StringFragment(fText + token.fOffset, token.fLength);
 }
@@ -269,7 +281,7 @@ void Parser::error(int offset, String msg) {
 
 bool Parser::isType(StringFragment name) {
     const Symbol* s = fSymbols[name];
-    return s && s->kind() == Symbol::Kind::kType;
+    return s && s->is<Type>();
 }
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |
@@ -282,7 +294,7 @@ ASTNode::ID Parser::directive() {
     StringFragment text = this->text(start);
     if (text == "#extension") {
         Token name;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+        if (!this->expectIdentifier(&name)) {
             return ASTNode::ID::Invalid();
         }
         if (!this->expect(Token::Kind::TK_COLON, "':'")) {
@@ -310,7 +322,7 @@ ASTNode::ID Parser::section() {
     if (this->peek().fKind == Token::Kind::TK_LPAREN) {
         this->nextToken();
         Token argToken;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &argToken)) {
+        if (!this->expectIdentifier(&argToken)) {
             return ASTNode::ID::Invalid();
         }
         argument = this->text(argToken);
@@ -365,7 +377,7 @@ ASTNode::ID Parser::enumDeclaration() {
         return ASTNode::ID::Invalid();
     }
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
@@ -375,7 +387,7 @@ ASTNode::ID Parser::enumDeclaration() {
     ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &id)) {
+        if (!this->expectIdentifier(&id)) {
             return ASTNode::ID::Invalid();
         }
         if (this->checkNext(Token::Kind::TK_EQ)) {
@@ -394,7 +406,7 @@ ASTNode::ID Parser::enumDeclaration() {
             if (!this->expect(Token::Kind::TK_COMMA, "','")) {
                 return ASTNode::ID::Invalid();
             }
-            if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &id)) {
+            if (!this->expectIdentifier(&id)) {
                 return ASTNode::ID::Invalid();
             }
             if (this->checkNext(Token::Kind::TK_EQ)) {
@@ -452,7 +464,7 @@ ASTNode::ID Parser::declaration() {
         return ASTNode::ID::Invalid();
     }
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
@@ -498,7 +510,7 @@ ASTNode::ID Parser::varDeclarations() {
         return ASTNode::ID::Invalid();
     }
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     return this->varDeclarationEnd(modifiers, type, this->text(name));
@@ -510,7 +522,7 @@ ASTNode::ID Parser::structDeclaration() {
         return ASTNode::ID::Invalid();
     }
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
@@ -649,7 +661,7 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
 
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         Token identifierName;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &identifierName)) {
+        if (!this->expectIdentifier(&identifierName)) {
             return ASTNode::ID::Invalid();
         }
 
@@ -680,7 +692,7 @@ ASTNode::ID Parser::parameter() {
         return ASTNode::ID::Invalid();
     }
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kParameter);
@@ -724,7 +736,7 @@ StringFragment Parser::layoutIdentifier() {
         return StringFragment();
     }
     Token resultToken;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &resultToken)) {
+    if (!this->expectIdentifier(&resultToken)) {
         return StringFragment();
     }
     return this->text(resultToken);
@@ -1185,7 +1197,7 @@ ASTNode::ID Parser::type() {
    RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? SEMICOLON */
 ASTNode::ID Parser::interfaceBlock(Modifiers mods) {
     Token name;
-    if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+    if (!this->expectIdentifier(&name)) {
         return ASTNode::ID::Invalid();
     }
     if (peek().fKind != Token::Kind::TK_LBRACE) {
