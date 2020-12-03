@@ -750,12 +750,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("_decodeAnimatedImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkAnimatedImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
-        sk_sp<SkData> bytes = SkData::MakeFromMalloc(imgData, length);
-        auto codec = SkAndroidCodec::MakeFromData(bytes);
-        if (nullptr == codec) {
+        auto bytes = SkData::MakeFromMalloc(imgData, length);
+        auto stream = SkMemoryStream::Make(std::move(bytes));
+        auto codec = SkCodec::MakeFromStream(std::move(stream), nullptr, nullptr);
+        auto aCodec = SkAndroidCodec::MakeFromCodec(std::move(codec),
+                                                    SkAndroidCodec::ExifOrientationBehavior::kRespect);
+        if (nullptr == aCodec) {
             return nullptr;
         }
-        return SkAnimatedImage::Make(std::move(codec));
+
+        return SkAnimatedImage::Make(std::move(aCodec));
     }), allow_raw_pointers());
     function("_decodeImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkImage> {

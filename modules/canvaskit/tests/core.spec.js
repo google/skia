@@ -196,6 +196,24 @@ describe('Core canvas behavior', () => {
         aImg.delete();
     }, '/assets/flightAnim.gif');
 
+    gm('exif_orientation', (canvas, fetchedByteBuffers) => {
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.Paint();
+        const font = new CanvasKit.Font(null, 14);
+        canvas.drawText('The following heart should be rotated 90 due to exif.',
+            5, 25, paint, font);
+
+        // TODO(kjlubick) it would be nice to also to test MakeAnimatedImageFromEncoded but
+        //   I could not create a sample animated image that worked.
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+        canvas.drawImage(img, 5, 35, null);
+
+        img.delete();
+        paint.delete();
+        font.delete();
+    }, '/assets/exif_rotated_heart.jpg');
+
     gm('1x4_from_scratch', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();

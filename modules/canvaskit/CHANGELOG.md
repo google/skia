@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - `MakeImage` is now documented in the Typescript types (index.d.ts). The parameters have been
    streamlined to align with other, similar APIs.
+ - `MakeAnimatedImageFromEncoded` respects Exif metadata. `MakeImageFromEncoded` already did so
+   (and continues to do so).
 
 ## [0.20.0] - 2020-11-12
 
