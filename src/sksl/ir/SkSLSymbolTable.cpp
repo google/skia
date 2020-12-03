@@ -123,8 +123,6 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
     if (arraySize != 0) {
-        // SkSL doesn't support multi-dimensional arrays.
-        SkASSERT(!type->isArray());
         String baseName = type->name();
         String arrayName = (arraySize != Type::kUnsizedArray)
                                    ? String::printf("%s[%d]", baseName.c_str(), arraySize)

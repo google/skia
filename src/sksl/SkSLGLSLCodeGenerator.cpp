@@ -84,21 +84,6 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 
 // Returns the name of the type with array dimensions, e.g. `float[2][4]`.
 String GLSLCodeGenerator::getTypeName(const Type& type) {
-    String result = this->getBaseTypeName(type);
-
-    for (const Type* t = &type; t->isArray(); t = &t->componentType()) {
-        if (t->columns() == Type::kUnsizedArray) {
-            result += "[]";
-        } else {
-            result.appendf("[%d]", t->columns());
-        }
-    }
-
-    return result;
-}
-
-// Returns the name of the type without array dimensions, e.g. `float[2][4]` returns `float`.
-String GLSLCodeGenerator::getBaseTypeName(const Type& type) const {
     switch (type.typeKind()) {
         case Type::TypeKind::kVector: {
             const Type& component = type.componentType();
@@ -138,7 +123,10 @@ String GLSLCodeGenerator::getBaseTypeName(const Type& type) const {
             return result;
         }
         case Type::TypeKind::kArray: {
-            return this->getBaseTypeName(type.componentType());
+            String baseTypeName = this->getTypeName(type.componentType());
+            return (type.columns() == Type::kUnsizedArray)
+                           ? String::printf("%s[]", baseTypeName.c_str())
+                           : String::printf("%s[%d]", baseTypeName.c_str(), type.columns());
         }
         case Type::TypeKind::kScalar: {
             if (type == *fContext.fHalf_Type) {
@@ -1059,7 +1047,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         this->writeModifiers(param->modifiers(), false);
         std::vector<int> sizes;
         const Type* type = &param->type();
-        while (type->isArray()) {
+        if (type->isArray()) {
             sizes.push_back(type->columns());
             type = &type->componentType();
         }
@@ -1204,7 +1192,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(intf.typeName() + " {");
     fIndentation++;
     const Type* structType = &intf.variable().type();
-    while (structType->isArray()) {
+    if (structType->isArray()) {
         structType = &structType->componentType();
     }
     for (const auto& f : structType->fields()) {

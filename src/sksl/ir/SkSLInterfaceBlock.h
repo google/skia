@@ -72,7 +72,7 @@ public:
     String description() const override {
         String result = this->variable().modifiers().description() + this->typeName() + " {\n";
         const Type* structType = &this->variable().type();
-        while (structType->isArray()) {
+        if (structType->isArray()) {
             structType = &structType->componentType();
         }
         for (const auto& f : structType->fields()) {
