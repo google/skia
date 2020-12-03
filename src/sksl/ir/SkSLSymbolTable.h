@@ -74,11 +74,11 @@ public:
     }
 
     /**
-     * Given baseType = `float` and dimensions = {1, 2, 3}, creates the full chain of required
-     * array types in the symbol table: `float[3]`, `float[2][3]`, and `float[1][2][3]`. The
-     * fully-dimensioned array type is returned. `kUnsizedArray` can be passed as a `[]` dimension.
+     * Given type = `float` and arraySize = 5, creates the array type `float[5]` in the symbol
+     * table. The created array type is returned. `kUnsizedArray` can be passed as a `[]` dimension.
+     * If zero is passed, the base type is returned unchanged.
      */
-    const Type* addArrayDimensions(const Type* type, const SkTArray<int>& dimensions);
+    const Type* addArrayDimension(const Type* type, int arraySize);
 
     // Call fn for every symbol in the table.  You may not mutate anything.
     template <typename Fn>
