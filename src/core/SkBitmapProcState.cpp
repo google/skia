@@ -143,9 +143,7 @@ SkBitmapProcState::SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, 
     : fImage(image)
     , fTileModeX(tmx)
     , fTileModeY(tmy)
-    , fBMState(nullptr)
 {}
-
 
 // true iff the matrix has a scale and no more than an optional translate.
 static bool matrix_only_scale_translate(const SkMatrix& m) {
@@ -187,23 +185,22 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkColor paintColor,
                              const SkSamplingOptions& sampling) {
     SkASSERT(!inv.hasPerspective());
     SkASSERT(SkOpts::S32_alpha_D32_filter_DXDY || inv.isScaleTranslate());
+    SkASSERT(!sampling.useCubic);
+    SkASSERT(sampling.mipmap != SkMipmapMode::kLinear);
 
     fPixmap.reset();
     fInvMatrix = inv;
     fBilerp = false;
 
-    fBMState = SkBitmapController::RequestBitmap(fImage, inv, sampling, &fAlloc);
+    auto* access = fAlloc.make<SkMipmapAccessor>(fImage, inv, sampling.mipmap);
+    std::tie(fPixmap, fInvMatrix) = access->level();
 
-    // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
-    if (nullptr == fBMState || fBMState->pixmap().info().isEmpty()) {
+    // Do we need this check?
+    if (fPixmap.info().isEmpty()) {
         return false;
     }
-    fPixmap = fBMState->pixmap();
-    fInvMatrix = fBMState->invMatrix();
     fPaintColor = paintColor;
-    SkASSERT(!fBMState->sampling().useCubic);
-    SkASSERT(fBMState->sampling().mipmap == SkMipmapMode::kNone);
-    fBilerp = fBMState->sampling().filter == SkFilterMode::kLinear;
+    fBilerp = sampling.filter == SkFilterMode::kLinear;
     SkASSERT(fPixmap.addr());
 
     bool integral_translate_only = just_trans_integral(fInvMatrix);
