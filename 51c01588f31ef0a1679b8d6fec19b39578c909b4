@@ -16,6 +16,24 @@
       "message": "how do you create a SurfaceView backed SkottieView now?\n\nshould we have static builder functions instead?\n\nstatic SkottieView BuildAsTexture(Context);\nstatic SkottieView BuildAsSurface(Context, backgroundColor);",
       "revId": "51c01588f31ef0a1679b8d6fec19b39578c909b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2751fa2_25695f6f",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-03T21:42:56Z",
+      "side": 0,
+      "message": "I was thinking of adding a setBackingView method where you would pass in an enum.\n\nSkottieView v \u003d new SkottieView(this);\nv.setBackingView(SkottieView.SURFACE);\n\nI can see either though.",
+      "parentUuid": "c23f7699_341e6281",
+      "revId": "51c01588f31ef0a1679b8d6fec19b39578c909b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
