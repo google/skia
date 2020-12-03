@@ -63,6 +63,30 @@
       },
       "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15670574_1742996a",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T19:10:53Z",
+      "side": 1,
+      "message": "Correct on both counts. I don\u0027t think we actually care about the kUnaffectedByDstValue when using this XP either. Should we just leave it for now? How hard would it be to formalize the fact that we only use alpha?",
+      "parentUuid": "06b93ba2_d0661c38",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 39
+      },
+      "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
