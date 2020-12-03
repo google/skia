@@ -315,6 +315,8 @@ namespace skvm {
              fcvtns4s,  // round float -> int  (nearest even)
              frintp4s,  // round float -> int as float, toward plus infinity  (ceil)
              frintm4s,  // round float -> int as float, toward minus infinity (floor)
+             fcvtn,     // f32 -> f16 in low half
+             fcvtl,     // f16 in low half -> f32
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
              uxtlb2h,   // u8 -> u16    (TODO: this is a special case of ushll.8h)
