@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24f48bd6_6efe6c60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T17:20:52Z",
+      "side": 1,
+      "message": "still a lot more code to read through",
+      "revId": "e5065c9fb7bf9b8eb3fda0ae8dfa6601386879e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d1e8771_170b4f9a",
+        "filename": "src/gpu/tessellate/GrStrokeIterator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T17:20:52Z",
+      "side": 1,
+      "message": "Logically, is the iter itself sitting between two verbs so there is just a prev and next? Like from a users pov what is the \"current\" iter value, or is there not one?",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "e5065c9fb7bf9b8eb3fda0ae8dfa6601386879e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c04f1772_36c28495",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T17:20:52Z",
+      "side": 1,
+      "message": "do we generally give these attribs generic or more specific names so we can understand them in shaders?",
+      "range": {
+        "startLine": 132,
+        "startChar": 22,
+        "endLine": 132,
+        "endChar": 26
+      },
+      "revId": "e5065c9fb7bf9b8eb3fda0ae8dfa6601386879e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
