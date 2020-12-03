@@ -86,7 +86,7 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 String GLSLCodeGenerator::getTypeName(const Type& type) {
     String result = this->getBaseTypeName(type);
 
-    for (const Type* t = &type; t->typeKind() == Type::TypeKind::kArray; t = &t->componentType()) {
+    for (const Type* t = &type; t->isArray(); t = &t->componentType()) {
         if (t->columns() == Type::kUnsizedArray) {
             result += "[]";
         } else {
@@ -195,7 +195,7 @@ bool GLSLCodeGenerator::writeStructDefinition(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeType(const Type& type) {
-    if (type.typeKind() == Type::TypeKind::kStruct) {
+    if (type.isStruct()) {
         if (!this->writeStructDefinition(type)) {
             this->write(type.name());
         }
@@ -1059,7 +1059,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         this->writeModifiers(param->modifiers(), false);
         std::vector<int> sizes;
         const Type* type = &param->type();
-        while (type->typeKind() == Type::TypeKind::kArray) {
+        while (type->isArray()) {
             sizes.push_back(type->columns());
             type = &type->componentType();
         }
@@ -1204,7 +1204,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(intf.typeName() + " {");
     fIndentation++;
     const Type* structType = &intf.variable().type();
-    while (structType->typeKind() == Type::TypeKind::kArray) {
+    while (structType->isArray()) {
         structType = &structType->componentType();
     }
     for (const auto& f : structType->fields()) {

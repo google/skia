@@ -134,7 +134,7 @@ bool MetalCodeGenerator::writeStructDefinition(const Type& type) {
 // Flags an error if an array type is found. Meant to be used in places where an array type might
 // appear in the SkSL/IR, but can't be represented by Metal.
 void MetalCodeGenerator::disallowArrayTypes(const Type& type) {
-    if (type.typeKind() == Type::TypeKind::kArray) {
+    if (type.isArray()) {
         fErrors.error(type.fOffset, "Metal does not support array types in this context");
     }
 }
@@ -159,7 +159,7 @@ void MetalCodeGenerator::writeBaseType(const Type& type) {
 
 // Writes the array suffix of a type, if one exists. e.g. `float[2][4]` will output `[2][4]`.
 void MetalCodeGenerator::writeArrayDimensions(const Type& type) {
-    if (type.typeKind() == Type::TypeKind::kArray) {
+    if (type.isArray()) {
         this->write("[");
         if (type.columns() != Type::kUnsizedArray) {
             this->write(to_string(type.columns()));
@@ -1246,7 +1246,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->write("struct ");
     this->writeLine(intf.typeName() + " {");
     const Type* structType = &intf.variable().type();
-    while (structType->typeKind() == Type::TypeKind::kArray) {
+    while (structType->isArray()) {
         structType = &structType->componentType();
     }
     fWrittenStructs.push_back(structType);
@@ -1664,7 +1664,7 @@ void MetalCodeGenerator::writeStructDefinitions() {
             // here, since globals are all embedded in a sub-struct.
             const Type* type = &e->as<GlobalVarDeclaration>().declaration()
                                  ->as<VarDeclaration>().baseType();
-            if (type->typeKind() == Type::TypeKind::kStruct) {
+            if (type->isStruct()) {
                 if (this->writeStructDefinition(*type)) {
                     this->writeLine(";");
                 }

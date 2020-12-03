@@ -216,7 +216,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 uni.fCount = 1;
 
                 const SkSL::Type* type = &var.type();
-                if (type->typeKind() == SkSL::Type::TypeKind::kArray) {
+                if (type->isArray()) {
                     uni.fFlags |= Uniform::kArray_Flag;
                     uni.fCount = type->columns();
                     type = &type->componentType();

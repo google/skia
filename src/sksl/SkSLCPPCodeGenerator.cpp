@@ -153,7 +153,7 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
                                             const Layout& layout,
                                             const String& cppCode,
                                             std::vector<String>* formatArgs) {
-    if (type.typeKind() == Type::TypeKind::kArray) {
+    if (type.isArray()) {
         String result("[");
         const char* separator = "";
         for (int i = 0; i < type.columns(); i++) {
@@ -727,7 +727,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
         this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
     String name(var.name());
-    if (var.type().typeKind() != Type::TypeKind::kArray) {
+    if (!var.type().isArray()) {
         this->writef("        %sVar = args.fUniformHandler->addUniform(&_outer, "
                      "kFragment_GrShaderFlag, %s, \"%s\");\n",
                      HCodeGenerator::FieldName(name.c_str()).c_str(),
