@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c23f7699_341e6281",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-03T19:04:14Z",
+      "side": 0,
+      "message": "how do you create a SurfaceView backed SkottieView now?\n\nshould we have static builder functions instead?\n\nstatic SkottieView BuildAsTexture(Context);\nstatic SkottieView BuildAsSurface(Context, backgroundColor);",
+      "revId": "51c01588f31ef0a1679b8d6fec19b39578c909b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
