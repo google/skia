@@ -334,7 +334,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             return t.isVector() && t.componentType().isFloat() &&
                    (t.columns() == 3 || t.columns() == 4);
         };
-        if (!validColorXformType(*baseType) && !(baseType->typeKind() == Type::TypeKind::kArray &&
+        if (!validColorXformType(*baseType) && !(baseType->isArray() &&
                                                  validColorXformType(baseType->componentType()))) {
             fErrors.error(decls.fOffset,
                           "'srgb_unpremul' is only permitted on half3, half4, float3, or float4 "
@@ -879,9 +879,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                type_to_grsltype(fContext, *t, &unusedSLType);
 #endif
     };
-    if (returnType->nonnullable() == *fContext.fFragmentProcessor_Type ||
-        returnType->typeKind() == Type::TypeKind::kArray ||
-        !typeIsAllowed(returnType)) {
+    if (returnType->isArray() || !typeIsAllowed(returnType) ||
+        returnType->nonnullable() == *fContext.fFragmentProcessor_Type) {
         fErrors.error(f.fOffset,
                       "functions may not return type '" + returnType->displayName() + "'");
         return;
@@ -1081,7 +1080,7 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
     if (!type) {
         return nullptr;
     }
-    if (type->typeKind() != Type::TypeKind::kStruct) {
+    if (!type->isStruct()) {
         fErrors.error(node.fOffset, "expected a struct here, found '" + type->name() + "'");
         return nullptr;
     }
@@ -1135,7 +1134,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                     fErrors.error(decl->fOffset,
                                 "initializers are not permitted on interface block fields");
                 }
-                if (vd.var().type().typeKind() == Type::TypeKind::kArray &&
+                if (vd.var().type().isArray() &&
                     vd.var().type().columns() == Type::kUnsizedArray) {
                     haveRuntimeArray = true;
                 }
@@ -1266,7 +1265,7 @@ bool IRGenerator::typeContainsPrivateFields(const Type& type) {
     if (type.isPrivate()) {
         return true;
     }
-    if (type.typeKind() == Type::TypeKind::kStruct) {
+    if (type.isStruct()) {
         for (const auto& f : type.fields()) {
             if (this->typeContainsPrivateFields(*f.fType)) {
                 return true;
@@ -2353,10 +2352,9 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
         // argument is already the right type, just return it
         return std::move(args[0]);
     }
-    Type::TypeKind kind = type.typeKind();
     if (type.isNumber()) {
         return this->convertNumberConstructor(offset, type, std::move(args));
-    } else if (kind == Type::TypeKind::kArray) {
+    } else if (type.isArray()) {
         const Type& base = type.componentType();
         for (size_t i = 0; i < args.size(); i++) {
             args[i] = this->coerce(std::move(args[i]), base);
@@ -2365,7 +2363,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
             }
         }
         return std::make_unique<Constructor>(offset, &type, std::move(args));
-    } else if (kind == Type::TypeKind::kVector || kind == Type::TypeKind::kMatrix) {
+    } else if (type.isVector() || type.isMatrix()) {
         return this->convertCompoundConstructor(offset, type, std::move(args));
     } else {
         fErrors.error(offset, "cannot construct '" + type.displayName() + "'");
@@ -2469,9 +2467,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
         }
     }
     const Type& baseType = base->type();
-    if (baseType.typeKind() != Type::TypeKind::kArray &&
-        !baseType.isMatrix() &&
-        !baseType.isVector()) {
+    if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
         fErrors.error(base->fOffset, "expected array, but found '" + baseType.displayName() +
                                      "'");
         return nullptr;
