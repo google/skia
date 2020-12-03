@@ -287,6 +287,7 @@ namespace skvm {
               fadd4s, fsub4s, fmul4s, fdiv4s, fmin4s, fmax4s,
               fcmeq4s, fcmgt4s, fcmge4s,
               tbl,
+              uzp14s, uzp24s,
               zip14s, zip24s;
 
         // TODO: there are also float ==,<,<=,>,>= instructions with an immediate 0.0f,
