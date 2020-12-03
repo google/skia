@@ -539,12 +539,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
-            ExpressionArray sizes;
-            sizes.reserve_back(decl.sizes().count());
-            for (const std::unique_ptr<Expression>& size : decl.sizes()) {
-                sizes.push_back(expr(size));
-            }
             std::unique_ptr<Expression> initialValue = expr(decl.value());
+            int arraySize = decl.arraySize();
             const Variable& old = decl.var();
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
@@ -563,7 +559,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                old.storage(),
                                                initialValue.get()));
             (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
-            return std::make_unique<VarDeclaration>(clone, baseTypePtr, std::move(sizes),
+            return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
                                                     std::move(initialValue));
         }
         case Statement::Kind::kWhile: {
@@ -643,11 +639,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // initial value).
         std::unique_ptr<Statement> variable;
         if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
-            variable = std::make_unique<VarDeclaration>(
-                    variableSymbol, type, /*sizes=*/ExpressionArray{}, (*initialValue)->clone());
+            variable = std::make_unique<VarDeclaration>(variableSymbol, type, /*arraySize=*/0,
+                                                        (*initialValue)->clone());
         } else {
-            variable = std::make_unique<VarDeclaration>(
-                    variableSymbol, type, /*sizes=*/ExpressionArray{}, std::move(*initialValue));
+            variable = std::make_unique<VarDeclaration>(variableSymbol, type, /*arraySize=*/0,
+                                                        std::move(*initialValue));
         }
 
         // Add the new variable-declaration statement to our block of extra statements.

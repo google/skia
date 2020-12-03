@@ -26,12 +26,12 @@ public:
 
     VarDeclaration(const Variable* var,
                    const Type* baseType,
-                   ExpressionArray sizes,
+                   int arraySize,
                    std::unique_ptr<Expression> value)
             : INHERITED(var->fOffset, kStatementKind)
             , fVar(var)
             , fBaseType(*baseType)
-            , fSizes(std::move(sizes))
+            , fArraySize(arraySize)
             , fValue(std::move(value)) {}
 
     const Type& baseType() const {
@@ -46,8 +46,8 @@ public:
         fVar = var;
     }
 
-    const ExpressionArray& sizes() const {
-        return fSizes;
+    int arraySize() const {
+        return fArraySize;
     }
 
     std::unique_ptr<Expression>& value() {
@@ -59,30 +59,19 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        ExpressionArray sizesClone;
-        sizesClone.reserve_back(this->sizes().count());
-        for (const std::unique_ptr<Expression>& size : this->sizes()) {
-            if (size) {
-                sizesClone.push_back(size->clone());
-            } else {
-                sizesClone.push_back(nullptr);
-            }
-        }
         return std::make_unique<VarDeclaration>(&this->var(),
                                                 &this->baseType(),
-                                                std::move(sizesClone),
+                                                fArraySize,
                                                 this->value() ? this->value()->clone() : nullptr);
     }
 
     String description() const override {
         String result = this->var().modifiers().description() + this->baseType().description() +
                         " " + this->var().name();
-        for (const std::unique_ptr<Expression>& size : this->sizes()) {
-            if (size) {
-                result += "[" + size->description() + "]";
-            } else {
-                result += "[]";
-            }
+        if (this->arraySize() > 0) {
+            result.appendf("[%d]", this->arraySize());
+        } else if (this->arraySize() == Type::kUnsizedArray){
+            result += "[]";
         }
         if (this->value()) {
             result += " = " + this->value()->description();
@@ -94,7 +83,7 @@ public:
 private:
     const Variable* fVar;
     const Type& fBaseType;
-    ExpressionArray fSizes;
+    int fArraySize;  // zero means "not an array", Type::kUnsizedArray means var[]
     std::unique_ptr<Expression> fValue;
 
     using INHERITED = Statement;

@@ -490,10 +490,7 @@ void Dehydrator::write(const Statement* s) {
                 this->writeCommand(Rehydrator::kVarDeclaration_Command);
                 this->writeU16(this->symbolId(&v.var()));
                 this->write(v.baseType());
-                this->writeU8(v.sizes().count());
-                for (const std::unique_ptr<Expression>& size : v.sizes()) {
-                    this->write(size.get());
-                }
+                this->writeS8(v.arraySize());
                 this->write(v.value().get());
                 break;
             }

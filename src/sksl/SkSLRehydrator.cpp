@@ -441,18 +441,12 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kVarDeclaration_Command: {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             const Type* baseType = this->type();
-            uint8_t sizeCount = this->readU8();
-            ExpressionArray sizes;
-            sizes.reserve_back(sizeCount);
-            for (int i = 0; i < sizeCount; ++i) {
-                sizes.push_back(this->expression());
-            }
+            int arraySize = this->readS8();
             std::unique_ptr<Expression> value = this->expression();
             if (value) {
                 var->setInitialValue(value.get());
             }
-            return std::make_unique<VarDeclaration>(var, baseType, std::move(sizes),
-                                                    std::move(value));
+            return std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
