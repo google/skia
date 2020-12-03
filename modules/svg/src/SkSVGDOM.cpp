@@ -93,17 +93,6 @@ bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
-bool SetNumberAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                        const char* stringValue) {
-    auto parseResult = SkSVGAttributeParser::parse<SkSVGNumberType>(stringValue);
-    if (!parseResult.isValid()) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGNumberValue(*parseResult));
-    return true;
-}
-
 bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                          const char* stringValue) {
     SkSVGViewBoxType viewBox;
@@ -113,18 +102,6 @@ bool SetViewBoxAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     }
 
     node->setAttribute(attr, SkSVGViewBoxValue(viewBox));
-    return true;
-}
-
-bool SetStopColorAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
-                           const char* stringValue) {
-    SkSVGStopColor stopColor;
-    SkSVGAttributeParser parser(stringValue);
-    if (!parser.parseStopColor(&stopColor)) {
-        return false;
-    }
-
-    node->setAttribute(attr, SkSVGStopColorValue(stopColor));
     return true;
 }
 
@@ -259,8 +236,6 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "r"                  , { SkSVGAttribute::kR                , SetLengthAttribute       }},
     { "rx"                 , { SkSVGAttribute::kRx               , SetLengthAttribute       }},
     { "ry"                 , { SkSVGAttribute::kRy               , SetLengthAttribute       }},
-    { "stop-color"         , { SkSVGAttribute::kStopColor        , SetStopColorAttribute    }},
-    { "stop-opacity"       , { SkSVGAttribute::kStopOpacity      , SetNumberAttribute       }},
     { "style"              , { SkSVGAttribute::kUnknown          , SetStyleAttributes       }},
     { "text"               , { SkSVGAttribute::kText             , SetStringAttribute       }},
     { "transform"          , { SkSVGAttribute::kTransform        , SetTransformAttribute    }},
