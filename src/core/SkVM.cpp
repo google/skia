@@ -3356,10 +3356,9 @@ namespace skvm {
 
             // Generally r(id),
             // but with a hint, try to alias dst() to r(v) if dies_here(v).
-            auto dst = [&](Val hint = NA) -> Reg {
-                if (hint != NA) {
-                    (void)try_alias(hint);
-                }
+            auto dst = [&](Val hint1 = NA, Val hint2 = NA) -> Reg {
+                if (hint1 != NA && try_alias(hint1)) { return r(id); }
+                if (hint2 != NA && try_alias(hint2)) { return r(id); }
                 return r(id);
             };
 
@@ -3746,13 +3745,13 @@ namespace skvm {
                     free_tmp(tmp);
                 } break;
 
-                case Op::store8: a->xtns2h(dst(), r(x));
+                case Op::store8: a->xtns2h(dst(x), r(x));
                                  a->xtnh2b(dst(), dst());
                    if (scalar) { a->strb  (dst(), arg[immy]); }
                    else        { a->strs  (dst(), arg[immy]); }
                                  break;
 
-                case Op::store16: a->xtns2h(dst(), r(x));
+                case Op::store16: a->xtns2h(dst(x), r(x));
                     if (scalar) { a->strh  (dst(), arg[immy]); }
                     else        { a->strd  (dst(), arg[immy]); }
                                   break;
@@ -3840,7 +3839,7 @@ namespace skvm {
                         a->movs(GP1, r(x), i);    // Extract index lane i into GP1.
                         a->add (GP1, GP0, GP1);   // Add the gather base pointer.
                         a->ldrb(GP1, GP1);        // Load that byte.
-                        a->inss(dst(), GP1, i);   // Insert it into dst() lane i.
+                        a->inss(dst(x), GP1, i);  // Insert it into dst() lane i.
                     }
                 } break;
 
@@ -3852,7 +3851,7 @@ namespace skvm {
                         a->movs(GP1, r(x), i);
                         a->add (GP1, GP0, GP1, A::LSL, 1);  // Scale index 2x into a byte offset.
                         a->ldrh(GP1, GP1);                  // 2-byte load.
-                        a->inss(dst(), GP1, i);
+                        a->inss(dst(x), GP1, i);
                     }
                 } break;
 
@@ -3864,16 +3863,16 @@ namespace skvm {
                         a->movs(GP1, r(x), i);
                         a->add (GP1, GP0, GP1, A::LSL, 2);  // Scale index 4x into a byte offset.
                         a->ldrs(GP1, GP1);                  // 4-byte load.
-                        a->inss(dst(), GP1, i);
+                        a->inss(dst(x), GP1, i);
                     }
                 } break;
 
-                case Op::add_f32: a->fadd4s(dst(), r(x), r(y)); break;
-                case Op::sub_f32: a->fsub4s(dst(), r(x), r(y)); break;
-                case Op::mul_f32: a->fmul4s(dst(), r(x), r(y)); break;
-                case Op::div_f32: a->fdiv4s(dst(), r(x), r(y)); break;
+                case Op::add_f32: a->fadd4s(dst(x,y), r(x), r(y)); break;
+                case Op::sub_f32: a->fsub4s(dst(x,y), r(x), r(y)); break;
+                case Op::mul_f32: a->fmul4s(dst(x,y), r(x), r(y)); break;
+                case Op::div_f32: a->fdiv4s(dst(x,y), r(x), r(y)); break;
 
-                case Op::sqrt_f32: a->fsqrt4s(dst(), r(x)); break;
+                case Op::sqrt_f32: a->fsqrt4s(dst(x), r(x)); break;
 
                 case Op::fma_f32: // fmla.4s is z += x*y
                     if (try_alias(z)) { a->fmla4s( r(z), r(x), r(y)); }
@@ -3894,21 +3893,21 @@ namespace skvm {
                                         a->fneg4s(dst(), dst());
                                         break;
 
-                case Op:: gt_f32: a->fcmgt4s (dst(), r(x), r(y)); break;
-                case Op::gte_f32: a->fcmge4s (dst(), r(x), r(y)); break;
-                case Op:: eq_f32: a->fcmeq4s (dst(), r(x), r(y)); break;
-                case Op::neq_f32: a->fcmeq4s (dst(), r(x), r(y));
-                                  a->not16b  (dst(), dst());      break;
+                case Op:: gt_f32: a->fcmgt4s (dst(x,y), r(x), r(y)); break;
+                case Op::gte_f32: a->fcmge4s (dst(x,y), r(x), r(y)); break;
+                case Op:: eq_f32: a->fcmeq4s (dst(x,y), r(x), r(y)); break;
+                case Op::neq_f32: a->fcmeq4s (dst(x,y), r(x), r(y));
+                                  a->not16b  (dst(), dst());         break;
 
 
-                case Op::add_i32: a->add4s(dst(), r(x), r(y)); break;
-                case Op::sub_i32: a->sub4s(dst(), r(x), r(y)); break;
-                case Op::mul_i32: a->mul4s(dst(), r(x), r(y)); break;
+                case Op::add_i32: a->add4s(dst(x,y), r(x), r(y)); break;
+                case Op::sub_i32: a->sub4s(dst(x,y), r(x), r(y)); break;
+                case Op::mul_i32: a->mul4s(dst(x,y), r(x), r(y)); break;
 
-                case Op::bit_and  : a->and16b(dst(), r(x), r(y)); break;
-                case Op::bit_or   : a->orr16b(dst(), r(x), r(y)); break;
-                case Op::bit_xor  : a->eor16b(dst(), r(x), r(y)); break;
-                case Op::bit_clear: a->bic16b(dst(), r(x), r(y)); break;
+                case Op::bit_and  : a->and16b(dst(x,y), r(x), r(y)); break;
+                case Op::bit_or   : a->orr16b(dst(x,y), r(x), r(y)); break;
+                case Op::bit_xor  : a->eor16b(dst(x,y), r(x), r(y)); break;
+                case Op::bit_clear: a->bic16b(dst(x,y), r(x), r(y)); break;
 
                 case Op::select: // bsl16b is x = x ? y : z
                     if (try_alias(x)) { a->bsl16b( r(x), r(y), r(z)); }
@@ -3928,18 +3927,18 @@ namespace skvm {
                                   a->bsl16b (dst(), r(y), r(x));
                                   break;
 
-                case Op::shl_i32: a-> shl4s(dst(), r(x), immy); break;
-                case Op::shr_i32: a->ushr4s(dst(), r(x), immy); break;
-                case Op::sra_i32: a->sshr4s(dst(), r(x), immy); break;
+                case Op::shl_i32: a-> shl4s(dst(x), r(x), immy); break;
+                case Op::shr_i32: a->ushr4s(dst(x), r(x), immy); break;
+                case Op::sra_i32: a->sshr4s(dst(x), r(x), immy); break;
 
-                case Op::eq_i32: a->cmeq4s(dst(), r(x), r(y)); break;
-                case Op::gt_i32: a->cmgt4s(dst(), r(x), r(y)); break;
+                case Op::eq_i32: a->cmeq4s(dst(x,y), r(x), r(y)); break;
+                case Op::gt_i32: a->cmgt4s(dst(x,y), r(x), r(y)); break;
 
-                case Op::to_f32: a->scvtf4s (dst(), r(x)); break;
-                case Op::trunc:  a->fcvtzs4s(dst(), r(x)); break;
-                case Op::round:  a->fcvtns4s(dst(), r(x)); break;
-                case Op::ceil:   a->frintp4s(dst(), r(x)); break;
-                case Op::floor:  a->frintm4s(dst(), r(x)); break;
+                case Op::to_f32: a->scvtf4s (dst(x), r(x)); break;
+                case Op::trunc:  a->fcvtzs4s(dst(x), r(x)); break;
+                case Op::round:  a->fcvtns4s(dst(x), r(x)); break;
+                case Op::ceil:   a->frintp4s(dst(x), r(x)); break;
+                case Op::floor:  a->frintm4s(dst(x), r(x)); break;
 
                 case Op::to_fp16:
                     a->fcvtn  (dst(x), r(x));    // 4x f32 -> 4x f16 in bottom four lanes
