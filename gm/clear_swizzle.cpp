@@ -21,8 +21,8 @@ DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, rtCtx, canvas, 6*kSize, 2*kSize) {
     }
 
     auto make_offscreen = [&](const SkISize dimensions) {
-        GrSwizzle readSwizzle  = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"garb"});
-        GrSwizzle writeSwizzle = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"brag"});
+        GrSwizzle readSwizzle  = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
+        GrSwizzle writeSwizzle = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
         return GrRenderTargetContext::Make(ctx,
                                            rtCtx->colorInfo().refColorSpace(),
                                            SkBackingFit::kExact,
