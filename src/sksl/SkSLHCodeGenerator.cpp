@@ -33,7 +33,7 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
-    if (type.typeKind() == Type::TypeKind::kArray) {
+    if (type.isArray()) {
         return String::printf("std::array<%s>", ParameterType(context, type.componentType(),
                                                               layout).c_str());
     }
@@ -46,7 +46,7 @@ String HCodeGenerator::ParameterType(const Context& context, const Type& type,
 
 Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type& type,
                                      const Layout& layout) {
-    SkASSERT(type.typeKind() != Type::TypeKind::kArray);
+    SkASSERT(!type.isArray());
     if (layout.fCType != Layout::CType::kDefault) {
         return layout.fCType;
     }

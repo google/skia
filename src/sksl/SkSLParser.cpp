@@ -29,7 +29,7 @@ static bool struct_is_too_deeply_nested(const Type& type, int limit) {
         return true;
     }
 
-    if (type.typeKind() == Type::TypeKind::kStruct) {
+    if (type.isStruct()) {
         for (const Type::Field& f : type.fields()) {
             if (struct_is_too_deeply_nested(*f.fType, limit - 1)) {
                 return true;
