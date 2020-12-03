@@ -15,7 +15,7 @@ CanvasKit.Color = function(r, g, b, a) {
       a = 1;
   }
   return CanvasKit.Color4f(clamp(r)/255, clamp(g)/255, clamp(b)/255, a);
-}
+};
 
 // Constructs a Color as a 32 bit unsigned integer, with 8 bits assigned to each channel.
 // Channels are expected to be between 0 and 255 and will be clamped as such.
@@ -31,7 +31,7 @@ CanvasKit.ColorAsInt = function(r, g, b, a) {
    & 0xFFFFFFF) // This truncates the unsigned to 32 bits and signals to JS engines they can
                 // represent the number with an int instead of a double.
     >>> 0);     // This makes the value an unsigned int.
-}
+};
 // Construct a 4-float color.
 // Opaque if opacity is omitted.
 CanvasKit.Color4f = function(r, g, b, a) {
@@ -39,7 +39,7 @@ CanvasKit.Color4f = function(r, g, b, a) {
     a = 1;
   }
   return Float32Array.of(r, g, b, a);
-}
+};
 
 // Color constants use property getters to prevent other code from accidentally
 // changing them.
@@ -81,7 +81,7 @@ CanvasKit.getColorComponents = function(color) {
     Math.floor(color[2]*255),
     color[3]
   ];
-}
+};
 
 // parseColorString takes in a CSS color value and returns a CanvasKit.Color
 // (which is an array of 4 floats in RGBA order). An optional colorMap
@@ -140,7 +140,7 @@ CanvasKit.parseColorString = function(colorStr, colorMap) {
   }
   Debug('unrecognized color ' + colorStr);
   return CanvasKit.BLACK;
-}
+};
 
 function isCanvasKitColor(ob) {
   if (!ob) {
@@ -195,7 +195,7 @@ CanvasKit.multiplyByAlpha = function(color, alpha) {
   var result = color.slice();
   result[3] = Math.max(0, Math.min(result[3] * alpha, 1));
   return result;
-}
+};
 
 function radiansToDegrees(rad) {
   return (rad / Math.PI) * 180;
@@ -249,46 +249,18 @@ function copy1dArray(arr, dest, ptr) {
   return ptr;
 }
 
-// arr should be a non-jagged 2d JS array (TypedArrays can't be nested
-//     inside themselves). A common use case is points.
-// dest is something like CanvasKit.HEAPF32
-// ptr can be optionally provided if the memory was already allocated.
-// TODO(kjlubick): Remove 2d arrays - everything should be flat.
-function copy2dArray(arr, dest, ptr) {
-  if (!arr || !arr.length) {
-    return nullptr;
-  }
-  var bytesPerElement = CanvasKit[dest].BYTES_PER_ELEMENT;
-  if (!ptr) {
-    ptr = CanvasKit._malloc(arr.length * arr[0].length * bytesPerElement);
-  }
-  // Make sure we have a fresh view of the heap after we malloc.
-  dest = CanvasKit[dest];
-  var idx = 0;
-  var adjustedPtr = ptr / bytesPerElement;
-  for (var r = 0; r < arr.length; r++) {
-    for (var c = 0; c < arr[0].length; c++) {
-      dest[adjustedPtr + idx] = arr[r][c];
-      idx++;
-    }
-  }
-  return ptr;
-}
-
 // Copies an array of colors to wasm, returning an object with the pointer
 // and info necessary to use the copied colors.
 // Accepts either a flat Float32Array, flat Uint32Array or Array of Float32Arrays.
 // If color is an object that was allocated with CanvasKit.Malloc, its pointer is
 // returned and no extra copy is performed.
-// Array of Float32Arrays is deprecated and planned to be removed, prefer flat
-// Float32Array
 // TODO(nifong): have this accept color builders.
 function copyFlexibleColorArray(colors) {
   var result = {
     colorPtr: nullptr,
     count: colors.length,
     colorType: CanvasKit.ColorType.RGBA_F32,
-  }
+  };
   if (colors instanceof Float32Array) {
     result.colorPtr = copy1dArray(colors, 'HEAPF32');
     result.count = colors.length / 4;
@@ -297,12 +269,30 @@ function copyFlexibleColorArray(colors) {
     result.colorPtr = copy1dArray(colors, 'HEAPU32');
     result.colorType = CanvasKit.ColorType.RGBA_8888;
 
-  } else if (colors instanceof Array && colors[0] instanceof Float32Array) {
-    result.colorPtr = copy2dArray(colors, 'HEAPF32');
+  } else if (colors instanceof Array) {
+    result.colorPtr = copyColorArray(colors);
   } else {
     throw('Invalid argument to copyFlexibleColorArray, Not a color array '+typeof(colors));
   }
   return result;
+}
+
+function copyColorArray(arr) {
+  if (!arr || !arr.length) {
+    return nullptr;
+  }
+  // 4 floats per color, 4 bytes per float.
+  var ptr = CanvasKit._malloc(arr.length * 4 * 4);
+
+  var idx = 0;
+  var adjustedPtr = ptr / 4; // cast the byte pointer into a float pointer.
+  for (var r = 0; r < arr.length; r++) {
+    for (var c = 0; c < 4; c++) {
+      CanvasKit.HEAPF32[adjustedPtr + idx] = arr[r][c];
+      idx++;
+    }
+  }
+  return ptr;
 }
 
 var defaultPerspective = Float32Array.of(0, 0, 1);
@@ -575,7 +565,7 @@ CanvasKit.FourFloatArrayHelper = function() {
       return this._floats.length / 4;
     },
   });
-}
+};
 
 /**
  * push the four floats onto the end of the array - if build() has already
@@ -587,7 +577,7 @@ CanvasKit.FourFloatArrayHelper.prototype.push = function(f1, f2, f3, f4) {
     return;
   }
   this._floats.push(f1, f2, f3, f4);
-}
+};
 
 /**
  * Set the four floats at a given index - if build() has already
@@ -613,7 +603,7 @@ CanvasKit.FourFloatArrayHelper.prototype.set = function(idx, f1, f2, f3, f4) {
   this._floats[idx + 1] = f2;
   this._floats[idx + 2] = f3;
   this._floats[idx + 3] = f4;
-}
+};
 
 /**
  * Copies the float data to the WASM memory and returns a pointer
@@ -626,7 +616,7 @@ CanvasKit.FourFloatArrayHelper.prototype.build = function() {
   }
   this._ptr = copy1dArray(this._floats, 'HEAPF32');
   return this._ptr;
-}
+};
 
 /**
  * Frees the wasm memory associated with this array. Of note,
@@ -639,7 +629,7 @@ CanvasKit.FourFloatArrayHelper.prototype.delete = function() {
     CanvasKit._free(this._ptr);
     this._ptr = null;
   }
-}
+};
 
 /**
  * Generic helper for dealing with an array of unsigned ints.
@@ -654,7 +644,7 @@ CanvasKit.OneUIntArrayHelper = function() {
       return this._uints.length;
     },
   });
-}
+};
 
 /**
  * push the unsigned int onto the end of the array - if build() has already
@@ -666,7 +656,7 @@ CanvasKit.OneUIntArrayHelper.prototype.push = function(u) {
     return;
   }
   this._uints.push(u);
-}
+};
 
 /**
  * Set the uint at a given index - if build() has already
@@ -686,7 +676,7 @@ CanvasKit.OneUIntArrayHelper.prototype.set = function(idx, u) {
     return;
   }
   this._uints[idx] = u;
-}
+};
 
 /**
  * Copies the uint data to the WASM memory and returns a pointer
@@ -699,7 +689,7 @@ CanvasKit.OneUIntArrayHelper.prototype.build = function() {
   }
   this._ptr = copy1dArray(this._uints, 'HEAPU32');
   return this._ptr;
-}
+};
 
 /**
  * Frees the wasm memory associated with this array. Of note,
@@ -712,7 +702,7 @@ CanvasKit.OneUIntArrayHelper.prototype.delete = function() {
     CanvasKit._free(this._ptr);
     this._ptr = null;
   }
-}
+};
 
 /**
  * Helper for building an array of Rects (which are just structs

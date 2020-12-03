@@ -339,9 +339,10 @@ export interface CanvasKit {
      * @param indices
      * @param isVolatile
      */
-    MakeVertices(mode: VertexMode, positions: number[][], textureCoordinates?: number[][] | null,
-                   colors?: Float32Array | ColorIntArray | null, indices?: number[] | null,
-                   isVolatile?: boolean): Vertices;
+    MakeVertices(mode: VertexMode, positions: InputFlattenedPointArray,
+                 textureCoordinates?: InputFlattenedPointArray | null,
+                 colors?: Float32Array | ColorIntArray | null, indices?: number[] | null,
+                 isVolatile?: boolean): Vertices;
 
     /**
      * Returns a Skottie animation built from the provided json string.
@@ -1847,11 +1848,10 @@ export interface Path extends EmbindObject<Path> {
      * in pts array. If close is true, appends kClose_Verb to Path, connecting
      * pts[count - 1] and pts[0].
      * Returns the modified path for easier chaining.
-     * @param points - either an array of 2-arrays representing points or a malloc'd object of
-     *                 length n to represent 2*n points. Even indices are x, odd are y.
-     * @param close - should add a line connecting last point to the first point.
+     * @param points
+     * @param close - if true, will add a line connecting last point to the first point.
      */
-    addPoly(points: MallocObj | number[][], close: boolean): Path;
+    addPoly(points: InputFlattenedPointArray, close: boolean): Path;
 
     /**
      * Adds Rect to Path, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
@@ -3427,9 +3427,10 @@ export type InputFlattenedRectangleArray = MallocObj | FlattenedRectangleArray |
 /**
  * Some APIs accept a flattened array of colors in one of two ways - groups of 4 float values for
  * r, g, b, a or just integers that have 8 bits for each these. CanvasKit will detect which one
- * it is and act accordingly.
+ * it is and act accordingly. Additionally, this can be an array of Float32Arrays of length 4
+ * (e.g. Color). This is convenient for things like gradients when matching up colors to stops.
  */
-export type InputFlexibleColorArray = Float32Array | Uint32Array;
+export type InputFlexibleColorArray = Float32Array | Uint32Array | Float32Array[];
 /**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */

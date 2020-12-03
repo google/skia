@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `getImageInfo()` and `getColorSpace()` to the `Image` type.
 
+### Breaking
+ - `Path.addPoly()` no longer accepts a 2d array of points, but a flattened 1d array.
+ - `MakeVertices()` no longer accepts 2d arrays of points or texture coordinates, but
+   flattened 1d arrays in both places.
+
 ### Changed
  - `MakeImage` is now documented in the Typescript types (index.d.ts). The parameters have been
    streamlined to align with other, similar APIs.
@@ -16,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - `Canvas.drawPoints` correctly takes a flattened Array or TypedArray of points (as the
    documentation says), not a 2D array.
+
+### Type Changes (index.d.ts)
+ - Documented additional type for InputFlexibleColorArray.
 
 ## [0.20.0] - 2020-11-12
 

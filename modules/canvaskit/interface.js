@@ -653,23 +653,12 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
-  // points is either an array of [x, y] where x and y are numbers or
-  // a typed array from Malloc where the even indices will be treated
-  // as x coordinates and the odd indices will be treated as y coordinates.
+  // points is a 1d array of length 2n representing n points where the even indices
+  // will be treated as x coordinates and the odd indices will be treated as y coordinates.
+  // Like other APIs, this accepts a malloced type array or malloc obj.
   CanvasKit.Path.prototype.addPoly = function(points, close) {
-    var ptr;
-    var n;
-    // This was created with CanvasKit.Malloc, so assume the user has
-    // already been filled with data.
-    if (points['_ck']) {
-      ptr = points.byteOffset;
-      n = points.length/2;
-    } else {
-      // TODO(kjlubick) deprecate and remove the 2d array input
-      ptr = copy2dArray(points, 'HEAPF32');
-      n = points.length;
-    }
-    this._addPoly(ptr, n, close);
+    var ptr = copy1dArray(points, 'HEAPF32');
+    this._addPoly(ptr, points.length / 2, close);
     freeArraysThatAreNotMallocedByUsers(ptr, points);
     return this;
   };
@@ -1533,12 +1522,12 @@ CanvasKit.MakeImage = function(info, pixels, bytesPerRow) {
 
 // Colors may be a Uint32Array of int colors, a Flat Float32Array of float colors
 // or a 2d Array of Float32Array(4) (deprecated)
-// the underlying skia function accepts only int colors so it is recommended
+// the underlying Skia function accepts only int colors so it is recommended
 // to pass an array of int colors to avoid an extra conversion.
 // ColorBuilder is not accepted.
 CanvasKit.MakeVertices = function(mode, positions, textureCoordinates, colors,
                                   indices, isVolatile) {
-  // Default isVolitile to true if not set
+  // Default isVolatile to true if not set
   isVolatile = isVolatile === undefined ? true : isVolatile;
   var idxCount = (indices && indices.length) || 0;
 
@@ -1554,11 +1543,11 @@ CanvasKit.MakeVertices = function(mode, positions, textureCoordinates, colors,
     flags |= (1 << 2);
   }
 
-  var builder = new CanvasKit._VerticesBuilder(mode, positions.length, idxCount, flags);
+  var builder = new CanvasKit._VerticesBuilder(mode, positions.length / 2, idxCount, flags);
 
-  copy2dArray(positions,            'HEAPF32', builder.positions());
+  copy1dArray(positions, 'HEAPF32', builder.positions());
   if (builder.texCoords()) {
-    copy2dArray(textureCoordinates, 'HEAPF32', builder.texCoords());
+    copy1dArray(textureCoordinates, 'HEAPF32', builder.texCoords());
   }
   if (builder.colors()) {
     if (colors.build) {
