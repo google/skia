@@ -299,15 +299,14 @@ void GrGLSLFragmentShaderBuilder::onFinalize() {
 
     if (CustomFeatures::kSampleLocations & fProgramBuilder->processorFeatures()) {
         const SkTArray<SkPoint>& sampleLocations = fProgramBuilder->getSampleLocations();
-        this->definitions().appendf("const float2 _sampleOffsets[%i] = float2[%i](",
-                                    sampleLocations.count(), sampleLocations.count());
+        this->definitions().appendf("float2 _sampleOffsets[%i];", sampleLocations.count());
         for (int i = 0; i < sampleLocations.count(); ++i) {
             SkPoint offset = sampleLocations[i] - SkPoint::Make(.5f, .5f);
             if (kBottomLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
                 offset.fY = -offset.fY;
             }
-            this->definitions().appendf("float2(%f, %f)", offset.x(), offset.y());
-            this->definitions().append((i + 1 != sampleLocations.count()) ? ", " : ");");
+            this->definitions().appendf("_sampleOffsets[%i] = float2(%f, %f);",
+                                        i, offset.x(), offset.y());
         }
     }
 
