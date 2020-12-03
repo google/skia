@@ -327,14 +327,9 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             SkASSERT(var && var->is<Variable>());
             StringFragment typeName = this->readString();
             StringFragment instanceName = this->readString();
-            uint8_t sizeCount = this->readU8();
-            ExpressionArray sizes;
-            sizes.reserve_back(sizeCount);
-            for (int i = 0; i < sizeCount; ++i) {
-                sizes.push_back(this->expression());
-            }
+            int arraySize = this->readS8();
             return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(), typeName,
-                                                    instanceName, std::move(sizes), nullptr);
+                                                    instanceName, arraySize, nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();

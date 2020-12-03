@@ -1146,39 +1146,30 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             }
         }
     }
-    const Type* type =
-            old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
-    ExpressionArray sizes;
-    sizes.reserve_back(id.fSizeCount);
-    for (size_t i = 0; i < id.fSizeCount; ++i) {
+    const Type* type = old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName,
+                                                                         fields));
+    int arraySize = 0;
+    if (id.fSizeCount > 0) {
+        SkASSERT(id.fSizeCount == 1); // multi-dimensional arrays are not supported
         const ASTNode& size = *(iter++);
         if (size) {
             std::unique_ptr<Expression> converted = this->convertExpression(size);
             if (!converted) {
                 return nullptr;
             }
-            String name = type->name();
-            int64_t count;
-            if (converted->kind() == Expression::Kind::kIntLiteral) {
-                count = converted->as<IntLiteral>().value();
-                if (count <= 0) {
-                    fErrors.error(converted->fOffset, "array size must be positive");
-                    return nullptr;
-                }
-                name += "[" + to_string(count) + "]";
-            } else {
+            if (!converted->is<IntLiteral>()) {
                 fErrors.error(intf.fOffset, "array size must be specified");
                 return nullptr;
             }
-            type = symbols->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
-            sizes.push_back(std::move(converted));
+            arraySize = converted->as<IntLiteral>().value();
+            if (arraySize <= 0) {
+                fErrors.error(converted->fOffset, "array size must be positive");
+                return nullptr;
+            }
         } else {
-            String name = String(type->name()) + "[]";
-            type = symbols->takeOwnershipOfSymbol(std::make_unique<Type>(
-                    name, Type::TypeKind::kArray, *type, Type::kUnsizedArray));
-            sizes.push_back(nullptr);
+            arraySize = Type::kUnsizedArray;
         }
+        type = symbols->addArrayDimensions(type, {arraySize});
     }
     const Variable* var = old->takeOwnershipOfSymbol(
             std::make_unique<Variable>(intf.fOffset,
@@ -1201,7 +1192,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                             var,
                                             id.fTypeName,
                                             id.fInstanceName,
-                                            std::move(sizes),
+                                            arraySize,
                                             symbols);
 }
 
