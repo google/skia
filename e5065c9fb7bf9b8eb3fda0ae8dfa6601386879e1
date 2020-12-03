@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed7b6557_5b6ae164",
+        "filename": "src/gpu/tessellate/GrStrokeIterator.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T20:33:16Z",
+      "side": 1,
+      "message": "I had them named this way originally, but the code evolved to the point that it makes more sense this new way.",
+      "parentUuid": "3d1e8771_170b4f9a",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "e5065c9fb7bf9b8eb3fda0ae8dfa6601386879e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c04f1772_36c28495",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-12-03T17:20:52Z",
       "side": 1,
       "message": "do we generally give these attribs generic or more specific names so we can understand them in shaders?",
+      "range": {
+        "startLine": 132,
+        "startChar": 22,
+        "endLine": 132,
+        "endChar": 26
+      },
+      "revId": "e5065c9fb7bf9b8eb3fda0ae8dfa6601386879e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "430b7fb8_20ebcbff",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-03T20:33:16Z",
+      "side": 1,
+      "message": "When I have a packed variable like this I usually unpack it first thing:\n\n  float moreDescriptiveName \u003d args.xy;\n  float anotherBetterName \u003d args.z;",
+      "parentUuid": "c04f1772_36c28495",
       "range": {
         "startLine": 132,
         "startChar": 22,
