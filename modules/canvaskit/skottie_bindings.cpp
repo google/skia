@@ -17,7 +17,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmCommon.h"
+#include "modules/canvaskit/common/common_bindings.h"
 
 #if SK_INCLUDE_MANAGED_SKOTTIE
 #include "modules/skottie/include/SkottieProperty.h"

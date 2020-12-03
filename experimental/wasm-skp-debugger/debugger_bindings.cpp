@@ -23,6 +23,9 @@
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/debugger/DebugLayerManager.h"
 
+// use SkSurface bindings from CanvasKit
+#include "modules/canvaskit/common/common_bindings.h"
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -50,20 +53,20 @@ using JSObject = emscripten::val;
 // TODO(nifong): make public and include from SkMultiPictureDocument.h
 static constexpr char kMultiMagic[] = "Skia Multi-Picture Doc\n\n";
 
-struct SimpleImageInfo {
-  int width;
-  int height;
-  SkColorType colorType;
-  SkAlphaType alphaType;
-};
+// struct SimpleImageInfo {
+//   int width;
+//   int height;
+//   SkColorType colorType;
+//   SkAlphaType alphaType;
+// };
 
-SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
-  return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
-}
+// SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
+//   return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
+// }
 
-SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii) {
-  return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
-}
+// SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii) {
+//   return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
+// }
 
 uint32_t MinVersion() { return SkPicturePriv::kMin_Version; }
 
@@ -267,7 +270,7 @@ class SkpDebugPlayer {
 
     // Get the image info of one of the resource images.
     SimpleImageInfo getImageInfo(int index) {
-      return toSimpleImageInfo(fImages[index]->imageInfo());
+      return SimpleImageInfo::toSimpleImageInfo(fImages[index]->imageInfo());
     }
 
     // return data on which commands each image is used in.
@@ -464,22 +467,22 @@ class SkpDebugPlayer {
 };
 
 #ifdef SK_GL
-sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
-{
-    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
-    if (r < 0) {
-        SkDebugf("failed to make webgl context current %d\n", r);
-        return nullptr;
-    }
-    // setup interface
-    auto interface = GrGLMakeNativeInterface();
-    if (!interface) {
-        SkDebugf("failed to make GrGLMakeNativeInterface\n");
-        return nullptr;
-    }
-    // setup context
-    return GrDirectContext::MakeGL(interface);
-}
+// sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+// {
+//     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
+//     if (r < 0) {
+//         SkDebugf("failed to make webgl context current %d\n", r);
+//         return nullptr;
+//     }
+//     // setup interface
+//     auto interface = GrGLMakeNativeInterface();
+//     if (!interface) {
+//         SkDebugf("failed to make GrGLMakeNativeInterface\n");
+//         return nullptr;
+//     }
+//     // setup context
+//     return GrDirectContext::MakeGL(interface);
+// }
 
 sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int width, int height) {
     glClearColor(0, 0, 0, 0);
@@ -506,25 +509,25 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
     return surface;
 }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, int width, int height) {
-    SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
+// sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, int width, int height) {
+//     SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
-                             SkBudgeted::kYes,
-                             info, 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
-    return surface;
-}
+//     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
+//                              SkBudgeted::kYes,
+//                              info, 0,
+//                              kBottomLeft_GrSurfaceOrigin,
+//                              nullptr, true));
+//     return surface;
+// }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageInfo sii) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
-                             SkBudgeted::kYes,
-                             toSkImageInfo(sii), 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
-    return surface;
-}
+// sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageInfo sii) {
+//     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
+//                              SkBudgeted::kYes,
+//                              toSkImageInfo(sii), 0,
+//                              kBottomLeft_GrSurfaceOrigin,
+//                              nullptr, true));
+//     return surface;
+// }
 #endif
 
 using namespace emscripten;
@@ -581,56 +584,56 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .field("layerHeight",       &DebugLayerManager::LayerSummary::layerHeight);
 
   // Symbols needed by cpu.js to perform surface creation and flushing.
-  enum_<SkColorType>("ColorType")
-    .value("RGBA_8888", SkColorType::kRGBA_8888_SkColorType);
-  enum_<SkAlphaType>("AlphaType")
-      .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)
-      .value("Premul",   SkAlphaType::kPremul_SkAlphaType)
-      .value("Unpremul", SkAlphaType::kUnpremul_SkAlphaType);
-  value_object<SimpleImageInfo>("SkImageInfo")
-    .field("width",     &SimpleImageInfo::width)
-    .field("height",    &SimpleImageInfo::height)
-    .field("colorType", &SimpleImageInfo::colorType)
-    .field("alphaType", &SimpleImageInfo::alphaType);
+  // enum_<SkColorType>("ColorType")
+  //   .value("RGBA_8888", SkColorType::kRGBA_8888_SkColorType);
+  // enum_<SkAlphaType>("AlphaType")
+  //     .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)
+  //     .value("Premul",   SkAlphaType::kPremul_SkAlphaType)
+  //     .value("Unpremul", SkAlphaType::kUnpremul_SkAlphaType);
+  // value_object<SimpleImageInfo>("SkImageInfo")
+  //   .field("width",     &SimpleImageInfo::width)
+  //   .field("height",    &SimpleImageInfo::height)
+  //   .field("colorType", &SimpleImageInfo::colorType)
+  //   .field("alphaType", &SimpleImageInfo::alphaType);
   constant("TRANSPARENT", (JSColor) SK_ColorTRANSPARENT);
-  function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
-                                                           uintptr_t /* uint8_t*  */ pPtr,
-                                                           size_t rowBytes)->sk_sp<SkSurface> {
-    uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
-    SkImageInfo imageInfo = toSkImageInfo(ii);
-    SkDebugf("Made raster direct surface.\n");
-    return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
-  }), allow_raw_pointers());
-  class_<SkSurface>("SkSurface")
-    .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
-    .function("width", &SkSurface::width)
-    .function("height", &SkSurface::height)
-    .function("_flush", optional_override([](SkSurface& self) {
-            self.flushAndSubmit(false);
-        }))
-    .function("clear", optional_override([](SkSurface& self, JSColor color)->void {
-      self.getCanvas()->clear(SkColor(color));
-    }))
-    .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
-  // TODO(nifong): remove
-  class_<SkCanvas>("SkCanvas")
-    .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
-      // JS side gives us a signed int instead of an unsigned int for color
-      // Add a optional_override to change it out.
-      self.clear(SkColor(color));
-    }));
+  // function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
+  //                                                          uintptr_t /* uint8_t*  */ pPtr,
+  //                                                          size_t rowBytes)->sk_sp<SkSurface> {
+  //   uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
+  //   SkImageInfo imageInfo = toSkImageInfo(ii);
+  //   SkDebugf("Made raster direct surface.\n");
+  //   return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
+  // }), allow_raw_pointers());
+  // class_<SkSurface>("SkSurface")
+  //   .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
+  //   .function("width", &SkSurface::width)
+  //   .function("height", &SkSurface::height)
+  //   .function("_flush", optional_override([](SkSurface& self) {
+  //           self.flushAndSubmit(false);
+  //       }))
+  //   .function("clear", optional_override([](SkSurface& self, JSColor color)->void {
+  //     self.getCanvas()->clear(SkColor(color));
+  //   }))
+  //   .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers());
+  // // TODO(nifong): remove
+  // class_<SkCanvas>("SkCanvas")
+  //   .function("clear", optional_override([](SkCanvas& self, JSColor color)->void {
+  //     // JS side gives us a signed int instead of an unsigned int for color
+  //     // Add a optional_override to change it out.
+  //     self.clear(SkColor(color));
+  //   }));
 
-  #ifdef SK_GL
-    class_<GrDirectContext>("GrDirectContext")
-        .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>");
-    function("currentContext", &emscripten_webgl_get_current_context);
-    function("setCurrentContext", &emscripten_webgl_make_context_current);
-    function("MakeGrContext", &MakeGrContext);
-    function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
-      sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
-      sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
-    constant("gpu", true);
-  #endif
+  // #ifdef SK_GL
+  //   class_<GrDirectContext>("GrDirectContext")
+  //       .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>");
+  //   function("currentContext", &emscripten_webgl_get_current_context);
+  //   function("setCurrentContext", &emscripten_webgl_make_context_current);
+  //   function("MakeGrContext", &MakeGrContext);
+  //   function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
+  //   function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
+  //     sk_sp<GrDirectContext>, int, int)>(&MakeRenderTarget));
+  //   function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(
+  //     sk_sp<GrDirectContext>, SimpleImageInfo)>(&MakeRenderTarget));
+  //   constant("gpu", true);
+  // #endif
 }
