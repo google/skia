@@ -1,1 +1,1 @@
-void array_index()      { int x[2][2]; int i; x[i][1] = 4; }
+void array_index()      { int x[2]; int i; x[i] = 4; }

@@ -26,7 +26,7 @@ namespace SkSL {
 
 struct Modifiers;
 class SymbolTable;
-static constexpr int kMaxArrayDimensionality = 8;
+static constexpr int kMaxArrayDimensionality = 1;
 static constexpr int kMaxStructDepth = 8;
 
 /**
