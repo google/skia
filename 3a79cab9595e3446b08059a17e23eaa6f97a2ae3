@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fab101b_c9e76329",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T15:30:55Z",
+      "side": 1,
+      "message": "Putting this check inside the lambda is a little odd, as it\u0027s not testing the passed-in type. Maybe just put this up in the previous check:\n\nif (returnType \u003d\u003d nullptr || returnType-\u003etypeKind()...) ?",
+      "range": {
+        "startLine": 881,
+        "startChar": 0,
+        "endLine": 883,
+        "endChar": 9
+      },
+      "revId": "3a79cab9595e3446b08059a17e23eaa6f97a2ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
