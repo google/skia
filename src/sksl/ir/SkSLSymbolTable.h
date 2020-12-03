@@ -46,6 +46,11 @@ public:
         return std::make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
     }
 
+    /**
+     * Looks up the requested symbol and returns it. If a function has overloads, an
+     * UnresolvedFunction symbol (pointing to all of the candidates) will be added to the symbol
+     * table and returned.
+     */
     const Symbol* operator[](StringFragment name);
 
     void addAlias(StringFragment name, const Symbol* symbol);
@@ -91,6 +96,7 @@ public:
         return fSymbols.count();
     }
 
+    /** Returns true if this is a built-in SymbolTable. */
     bool isBuiltin() const {
         return fBuiltin;
     }
