@@ -39,6 +39,30 @@
       },
       "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06b93ba2_d0661c38",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-03T18:03:11Z",
+      "side": 1,
+      "message": "Agreed in general. I bet in practice we only care about the alpha channel when we use this XPFactory. Maybe we should formalize that?",
+      "parentUuid": "9ad6c719_7bdf644d",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 39
+      },
+      "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
