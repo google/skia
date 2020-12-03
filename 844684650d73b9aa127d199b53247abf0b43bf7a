@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f838860c_5267a909",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-03T00:41:10Z",
+      "side": 1,
+      "message": "The configs that use clear-as-draw revealed this. They chose to use src-over (because the actual clear color is opaque) and then the shader swizzles the logical alpha to the \u0027g\u0027 channel, but the fixed function blend still uses 1 - the real \u0027a\u0027 channel. We\u0027d have to force shader-blending in most cases to support alpha not in alpha.",
+      "revId": "844684650d73b9aa127d199b53247abf0b43bf7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
