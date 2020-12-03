@@ -1,0 +1,3 @@
+testBlock { int x; };
+
+void main() {}

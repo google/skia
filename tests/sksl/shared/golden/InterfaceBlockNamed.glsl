@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-uniform testBlock {
+layout (binding = 456) uniform testBlock {
     float x;
 } test;
 void main() {
