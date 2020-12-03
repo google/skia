@@ -2457,7 +2457,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
 
 std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
                                                       const ASTNode& index) {
-    if (base->kind() == Expression::Kind::kTypeReference) {
+    if (base->is<TypeReference>()) {
         if (index.fKind == ASTNode::Kind::kInt) {
             const Type* type = &base->as<TypeReference>().value();
             type = fSymbolTable->addArrayDimension(type, index.getInt());
@@ -2753,11 +2753,11 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     }
     if (iter != index.end()) {
         return this->convertIndex(std::move(base), *(iter++));
-    } else if (base->kind() == Expression::Kind::kTypeReference) {
-        const Type& oldType = base->as<TypeReference>().value();
-        const Type* newType = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                oldType.name() + "[]", Type::TypeKind::kArray, oldType, Type::kUnsizedArray));
-        return std::make_unique<TypeReference>(fContext, base->fOffset, newType);
+    }
+    if (base->is<TypeReference>()) {
+        const Type* type = &base->as<TypeReference>().value();
+        type = fSymbolTable->addArrayDimension(type, Type::kUnsizedArray);
+        return std::make_unique<TypeReference>(fContext, base->fOffset, type);
     }
     fErrors.error(index.fOffset, "'[]' must follow a type name");
     return nullptr;
