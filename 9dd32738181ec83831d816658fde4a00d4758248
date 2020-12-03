@@ -69,6 +69,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "210ba890_34e6aae9",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T22:16:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b57f8a9_2226da3f",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07b74aea_67ba68c1",
