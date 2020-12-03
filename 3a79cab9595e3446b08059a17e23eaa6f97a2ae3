@@ -22,6 +22,30 @@
       },
       "revId": "3a79cab9595e3446b08059a17e23eaa6f97a2ae3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55fe28ca_4aec4f93",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T15:38:27Z",
+      "side": 1,
+      "message": "Oh yeah, you\u0027re absolutely right, this didn\u0027t belong inside the lambda. Good catch. Done.",
+      "parentUuid": "6fab101b_c9e76329",
+      "range": {
+        "startLine": 881,
+        "startChar": 0,
+        "endLine": 883,
+        "endChar": 9
+      },
+      "revId": "3a79cab9595e3446b08059a17e23eaa6f97a2ae3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
