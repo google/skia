@@ -222,7 +222,7 @@ class SkpDebugPlayer {
 
     // Gets the clip and matrix of the last command drawn
     std::string lastCommandInfo() {
-      SkMatrix vm = visibleCanvas()->getCurrentMatrix();
+      SkM44 vm = visibleCanvas()->getCurrentMatrix();
       SkIRect clip = visibleCanvas()->getCurrentClip();
 
       SkDynamicMemoryWStream stream;
@@ -230,7 +230,7 @@ class SkpDebugPlayer {
       writer.beginObject(); // root
 
       writer.appendName("ViewMatrix");
-      DrawCommand::MakeJsonMatrix(writer, vm);
+      DrawCommand::MakeJsonMatrix44(writer, vm);
       writer.appendName("ClipRect");
       DrawCommand::MakeJsonIRect(writer, clip);
 
