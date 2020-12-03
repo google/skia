@@ -12,14 +12,6 @@
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
-static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
-    SkPMColor4f constantColor;
-    // Patches can overlap, so until a stencil technique is implemented, the provided paints must be
-    // constant blended colors.
-    SkAssertResult(paint.isConstantBlendedColor(&constantColor));
-    return constantColor;
-}
-
 GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMatrix,
                        const SkStrokeRec& stroke, const SkPath& path, GrPaint&& paint)
         : GrDrawOp(classID)
@@ -30,14 +22,13 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
                 fViewMatrix.getMaxScale() * GrTessellationPathRenderer::kLinearizationIntolerance)
         , fNumRadialSegmentsPerRadian(
                 .5f / acosf(std::max(1 - 2/(fParametricIntolerance * fStroke.getWidth()), -1.f)))
-        , fColor(get_paint_constant_blended_color(paint))
+        , fColor(paint.getColor4f())
         , fProcessors(std::move(paint))
         , fPathList(path)
         , fTotalCombinedVerbCnt(path.countVerbs()) {
     // We don't support hairline strokes. For now, the client can transform the path into device
     // space and then use a stroke width of 1.
     SkASSERT(fStroke.getWidth() > 0);
-    SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
     SkASSERT(fParametricIntolerance >= 0);
     SkRect devBounds = path.getBounds();
     float inflationRadius = fStroke.getInflationRadius();
@@ -47,7 +38,9 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
 }
 
 GrDrawOp::FixedFunctionFlags GrStrokeOp::fixedFunctionFlags() const {
-    auto flags = FixedFunctionFlags::kNone;
+    // We might not actually end up needing stencil, but won't know for sure until finalize().
+    // Request it just in case we do end up needing it.
+    auto flags = FixedFunctionFlags::kUsesStencil;
     if (GrAAType::kNone != fAAType) {
         flags |= FixedFunctionFlags::kUsesHWAA;
     }
@@ -56,16 +49,22 @@ GrDrawOp::FixedFunctionFlags GrStrokeOp::fixedFunctionFlags() const {
 
 GrProcessorSet::Analysis GrStrokeOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                               bool hasMixedSampledCoverage, GrClampType clampType) {
-    return fProcessors.finalize(fColor, GrProcessorAnalysisCoverage::kNone, clip,
-                                &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps,
-                                clampType, &fColor);
+    // Make sure the finalize happens before combining. We might change fNeedsStencil here.
+    SkASSERT(fPathList.begin().fCurr->fNext == nullptr);
+    const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
+            fColor, GrProcessorAnalysisCoverage::kNone, clip, &GrUserStencilSettings::kUnused,
+            hasMixedSampledCoverage, caps, clampType, &fColor);
+    fNeedsStencil = !analysis.unaffectedByDstValue();
+    return analysis;
 }
 
 GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* alloc,
                                                     const GrCaps&) {
     SkASSERT(grOp->classID() == this->classID());
     auto* op = static_cast<GrStrokeOp*>(grOp);
-    if (fColor != op->fColor ||
+    if (fNeedsStencil ||
+        op->fNeedsStencil ||
+        fColor != op->fColor ||
         fViewMatrix != op->fViewMatrix ||
         fAAType != op->fAAType ||
         !fStroke.hasEqualEffect(op->fStroke) ||
@@ -79,23 +78,68 @@ GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* al
     return CombineResult::kMerged;
 }
 
-void GrStrokeOp::prePrepareColorProgram(SkArenaAlloc* arena,
-                                        GrStrokeTessellateShader* strokeTessellateShader,
-                                        const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
-                                        const GrXferProcessor::DstProxyView& dstProxyView,
-                                        GrXferBarrierFlags renderPassXferBarriers,
-                                        GrLoadOp colorLoadOp,
-                                        const GrCaps& caps) {
-    SkASSERT(!fColorProgram);
-    auto pipelineFlags = GrPipeline::InputFlags::kNone;
-    if (GrAAType::kNone != fAAType) {
-        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-        SkASSERT(writeView.asRenderTargetProxy()->numSamples() > 1);  // No mixed samples yet.
-        SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples yet.
+// Marks every stencil value as "1".
+constexpr static GrUserStencilSettings kMarkStencil(
+    GrUserStencilSettings::StaticInit<
+        0x0001,
+        GrUserStencilTest::kAlwaysIfInClip,
+        0xffff,
+        GrUserStencilOp::kReplace,
+        GrUserStencilOp::kKeep,
+        0xffff>());
+
+// Passes if the stencil value is nonzero. Also resets the stencil value to zero on pass.
+constexpr static GrUserStencilSettings kTestAndResetStencil(
+    GrUserStencilSettings::StaticInit<
+        0x0000,
+        GrUserStencilTest::kNotEqual,
+        0xffff,
+        GrUserStencilOp::kZero,
+        GrUserStencilOp::kKeep,
+        0xffff>());
+
+void GrStrokeOp::prePreparePrograms(SkArenaAlloc* arena,
+                                    GrStrokeTessellateShader* strokeTessellateShader,
+                                    const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
+                                    const GrXferProcessor::DstProxyView& dstProxyView,
+                                    GrXferBarrierFlags renderPassXferBarriers,
+                                    GrLoadOp colorLoadOp, const GrCaps& caps) {
+    SkASSERT(!fFillProgram);
+    SkASSERT(!fStencilProgram);
+    const GrUserStencilSettings* fillStencilSettings = &GrUserStencilSettings::kUnused;
+    if (fNeedsStencil) {
+        GrPipeline::InitArgs initArgs;
+        if (fAAType != GrAAType::kNone) {
+            initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
+        }
+        initArgs.fCaps = &caps;
+        GrPipeline* stencilPipeline = arena->make<GrPipeline>(
+                initArgs, GrDisableColorXPFactory::MakeXferProcessor(), clip.hardClip());
+        fStencilProgram = GrPathShader::MakeProgramInfo(
+                strokeTessellateShader, arena, writeView, stencilPipeline, dstProxyView,
+                renderPassXferBarriers, colorLoadOp, &kMarkStencil, caps);
+        fillStencilSettings = &kTestAndResetStencil;
     }
-    fColorProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
-                                                  pipelineFlags, std::move(fProcessors),
-                                                  std::move(clip), dstProxyView,
-                                                  renderPassXferBarriers, colorLoadOp,
-                                                  &GrUserStencilSettings::kUnused, caps);
+    auto fillPipelineFlags = GrPipeline::InputFlags::kNone;
+    if (fAAType != GrAAType::kNone) {
+        if (writeView.asRenderTargetProxy()->numSamples() == 1) {
+            // We are mixed sampled. We need to either enable conservative raster (preferred) or
+            // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
+            // the cover geometry, the stencil test is still multisampled and will still produce
+            // smooth results.)
+            SkASSERT(GrAAType::kCoverage == fAAType);
+            if (caps.conservativeRasterSupport()) {
+                fillPipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+                fillPipelineFlags |= GrPipeline::InputFlags::kConservativeRaster;
+            }
+        } else {
+            // We are standard MSAA. Leave MSAA enabled for the cover geometry.
+            fillPipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+        }
+    }
+    fFillProgram = GrPathShader::MakeProgramInfo(strokeTessellateShader, arena, writeView,
+                                                 fillPipelineFlags, std::move(fProcessors),
+                                                 std::move(clip), dstProxyView,
+                                                 renderPassXferBarriers, colorLoadOp,
+                                                 fillStencilSettings, caps);
 }
