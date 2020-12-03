@@ -2248,6 +2248,9 @@ namespace skvm {
     void Assembler::frintp4s(V d, V n) { this->op(0b0'1'0'01110'1'0'10000'1100'0'10, n,d); }
     void Assembler::frintm4s(V d, V n) { this->op(0b0'1'0'01110'0'0'10000'1100'1'10, n,d); }
 
+    void Assembler::fcvtn(V d, V n) { this->op(0b0'0'0'01110'0'0'10000'10110'10, n,d); }
+    void Assembler::fcvtl(V d, V n) { this->op(0b0'0'0'01110'0'0'10000'10111'10, n,d); }
+
     void Assembler::xtns2h(V d, V n) { this->op(0b0'0'0'01110'01'10000'10010'10, n,d); }
     void Assembler::xtnh2b(V d, V n) { this->op(0b0'0'0'01110'00'10000'10010'10, n,d); }
 
@@ -3723,8 +3726,6 @@ namespace skvm {
             #elif defined(__aarch64__)
                 case Op::store128:
                 case Op::load128:
-                case Op::to_fp16:
-                case Op::from_fp16:
                     return false;  // TODO
 
                 case Op::assert_true: {
@@ -3918,6 +3919,16 @@ namespace skvm {
                 case Op::round:  a->fcvtns4s(dst(), r(x)); break;
                 case Op::ceil:   a->frintp4s(dst(), r(x)); break;
                 case Op::floor:  a->frintm4s(dst(), r(x)); break;
+
+                case Op::to_fp16:
+                    a->fcvtn  (dst(x), r(x));    // 4x f32 -> 4x f16 in bottom four lanes
+                    a->uxtlh2s(dst(), dst());    // expand to 4x f16 in even 16-bit lanes
+                    break;
+
+                case Op::from_fp16:
+                    a->xtns2h(dst(x), r(x));     // pack even 16-bit lanes into bottom four lanes
+                    a->fcvtl (dst(), dst());     // 4x f16 -> 4x f32
+                    break;
             #endif
             }
 
