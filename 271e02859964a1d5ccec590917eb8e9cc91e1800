@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f21f7334_b3500c77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-03T15:50:49Z",
+      "side": 1,
+      "message": "This first step just removes the ability for clients to use the flag entirely.",
+      "revId": "271e02859964a1d5ccec590917eb8e9cc91e1800",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
