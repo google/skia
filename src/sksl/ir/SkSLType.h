@@ -189,7 +189,14 @@ public:
     , fColumns(columns)
     , fRows(1)
     , fDimensions(SpvDim1D) {
-        SkASSERT(this->columns() > 0 || (this->isArray() && this->columns() == kUnsizedArray));
+        if (this->isArray()) {
+            // Allow either explicitly-sized or unsized arrays.
+            SkASSERT(this->columns() > 0 || this->columns() == kUnsizedArray);
+            // Disallow multi-dimensional arrays.
+            SkASSERT(!this->componentType().isArray());
+        } else {
+            SkASSERT(this->columns() > 0);
+        }
         fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 

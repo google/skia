@@ -1246,7 +1246,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->write("struct ");
     this->writeLine(intf.typeName() + " {");
     const Type* structType = &intf.variable().type();
-    while (structType->isArray()) {
+    if (structType->isArray()) {
         structType = &structType->componentType();
     }
     fWrittenStructs.push_back(structType);
