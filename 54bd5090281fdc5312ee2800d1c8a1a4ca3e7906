@@ -87,6 +87,30 @@
       },
       "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c054372_6abd83fe",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-03T19:28:41Z",
+      "side": 1,
+      "message": "I think it\u0027s fine to omit for now (maybe leave a comment). I think we could \"formalize\" by doing something like always setting the blend coeffs for RGB to zero or something like that. Though, maybe that\u0027s not so simple if we\u0027re rendering to GL_RED but treating it as alpha. I\u0027d have to look more at how this is used.",
+      "parentUuid": "15670574_1742996a",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 39
+      },
+      "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
