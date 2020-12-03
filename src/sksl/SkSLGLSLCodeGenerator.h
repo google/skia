@@ -101,8 +101,6 @@ protected:
 
     virtual String getTypeName(const Type& type);
 
-    String getBaseTypeName(const Type& type) const;
-
     bool writeStructDefinition(const Type& type);
 
     void writeType(const Type& type);
