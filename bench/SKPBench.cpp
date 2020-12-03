@@ -74,7 +74,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
             clip.offset(-SkIntToScalar(tileRect.fLeft), -SkIntToScalar(tileRect.fTop));
             fSurfaces.back()->getCanvas()->clipRect(clip);
 
-            fSurfaces.back()->getCanvas()->setMatrix(canvas->getTotalMatrix());
+            fSurfaces.back()->getCanvas()->setMatrix(canvas->getLocalToDevice());
             fSurfaces.back()->getCanvas()->scale(fScale, fScale);
         }
     }

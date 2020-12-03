@@ -175,7 +175,7 @@ public:
     void onDrawContent(SkCanvas* canvas) override {
         // The local content, e.g. what would be submitted to drawRect or the bounds to saveLayer
         const SkRect localContentRect = SkRect::MakeLTRB(100.f, 20.f, 180.f, 140.f);
-        SkMatrix ctm = canvas->getTotalMatrix();
+        SkMatrix ctm = canvas->getLocalToDeviceAs3x3();
 
         // Base rendering of a filter
         SkPaint blurPaint;

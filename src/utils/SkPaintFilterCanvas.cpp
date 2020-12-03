@@ -37,7 +37,7 @@ SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
 
     // Transfer matrix & clip state before adding the target canvas.
     this->clipRect(SkRect::Make(canvas->getDeviceClipBounds()));
-    this->setMatrix(canvas->getTotalMatrix());
+    this->setMatrix(canvas->getLocalToDevice());
 
     this->addCanvas(canvas);
 }

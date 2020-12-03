@@ -68,7 +68,7 @@ protected:
         auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props));
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
-        canvas->setMatrix(inputCanvas->getTotalMatrix());
+        canvas->setMatrix(inputCanvas->getLocalToDeviceAs3x3());
         // apply global scale to test glyph positioning
         canvas->scale(1.05f, 1.05f);
         canvas->clear(0xffffffff);

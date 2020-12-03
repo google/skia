@@ -39,7 +39,7 @@ void SkRecordDraw(const SkRecord&, SkCanvas*, SkPicture const* const drawablePic
 // the initialCTM parameter must set to just the replay matrix.
 void SkRecordPartialDraw(const SkRecord&, SkCanvas*,
                          SkPicture const* const drawablePicts[], int drawableCount,
-                         int start, int stop, const SkMatrix& initialCTM);
+                         int start, int stop, const SkM44& initialCTM);
 
 namespace SkRecords {
 
@@ -48,8 +48,8 @@ class Draw : SkNoncopyable {
 public:
     explicit Draw(SkCanvas* canvas, SkPicture const* const drawablePicts[],
                   SkDrawable* const drawables[], int drawableCount,
-                  const SkMatrix* initialCTM = nullptr)
-        : fInitialCTM(initialCTM ? *initialCTM : canvas->getTotalMatrix())
+                  const SkM44* initialCTM = nullptr)
+        : fInitialCTM(initialCTM ? *initialCTM : canvas->getLocalToDevice())
         , fCanvas(canvas)
         , fDrawablePicts(drawablePicts)
         , fDrawables(drawables)
@@ -71,7 +71,7 @@ private:
     // No base case, so we'll be compile-time checked that we implement all possibilities.
     template <typename T> void draw(const T&);
 
-    const SkMatrix fInitialCTM;
+    const SkM44 fInitialCTM;
     SkCanvas* fCanvas;
     SkPicture const* const* fDrawablePicts;
     SkDrawable* const* fDrawables;

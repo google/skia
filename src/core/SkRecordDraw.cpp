@@ -59,7 +59,7 @@ void SkRecordDraw(const SkRecord& record,
 void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
                          SkPicture const* const drawablePicts[], int drawableCount,
                          int start, int stop,
-                         const SkMatrix& initialCTM) {
+                         const SkM44& initialCTM) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
     stop = std::min(stop, record.count());
@@ -92,8 +92,8 @@ template <> void Draw::draw(const DrawBehind& r) {
 }
 
 DRAW(MarkCTM, markCTM(r.name.c_str()));
-DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
-DRAW(SetM44, setMatrix(SkM44(fInitialCTM) * r.matrix));
+DRAW(SetMatrix, setMatrix(fInitialCTM.asM33() * r.matrix));
+DRAW(SetM44, setMatrix(fInitialCTM * r.matrix));
 DRAW(Concat44, concat(r.matrix));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));

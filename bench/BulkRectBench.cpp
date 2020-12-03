@@ -145,7 +145,7 @@ protected:
         paint.setAntiAlias(true);
 
         GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-        SkMatrix view = canvas->getTotalMatrix();
+        SkMatrix view = canvas->getLocalToDeviceAs3x3();
         SkSimpleMatrixProvider matrixProvider(view);
         GrPaint grPaint;
         SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);

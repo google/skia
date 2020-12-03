@@ -89,7 +89,7 @@ public:
     /**
         Returns the most recently calculated transformation matrix
      */
-    const SkMatrix& getCurrentMatrix() { return fMatrix; }
+    const SkM44& getCurrentMatrix() { return fMatrix; }
 
     /**
         Returns the most recently calculated clip
@@ -219,7 +219,7 @@ protected:
 
 private:
     SkTDArray<DrawCommand*> fCommandVector;
-    SkMatrix                fMatrix;
+    SkM44                   fMatrix;
     SkIRect                 fClip;
 
     bool    fOverdrawViz = false;

@@ -126,7 +126,7 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        if (!canvas->getTotalMatrix().invert(&fInvMatrix)) {
+        if (!canvas->getLocalToDeviceAs3x3().invert(&fInvMatrix)) {
             return;
         }
 
