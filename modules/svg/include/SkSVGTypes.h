@@ -137,18 +137,42 @@ struct SkSVGIRI {
     SkSVGStringType fIRI;
 };
 
+// https://www.w3.org/TR/SVG11/types.html#InterfaceSVGColor
+class SkSVGColor {
+public:
+    enum class Type {
+        kCurrentColor,
+        kColor,
+        kICCColor,
+    };
+
+    SkSVGColor() : fType(Type::kColor), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(Type t) : fType(t), fColor(SK_ColorBLACK) {}
+    explicit SkSVGColor(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    bool operator==(const SkSVGColor& other) const {
+        return fType == other.fType && fColor == other.fColor;
+    }
+    bool operator!=(const SkSVGColor& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+
+private:
+    Type fType;
+    SkSVGColorType fColor;
+};
+
 class SkSVGPaint {
 public:
     enum class Type {
         kNone,
-        kCurrentColor,
         kColor,
         kIRI,
     };
 
     SkSVGPaint() : fType(Type::kNone), fColor(SK_ColorBLACK) {}
     explicit SkSVGPaint(Type t) : fType(t), fColor(SK_ColorBLACK) {}
-    explicit SkSVGPaint(const SkSVGColorType& c) : fType(Type::kColor), fColor(c) {}
+    explicit SkSVGPaint(const SkSVGColor& c) : fType(Type::kColor), fColor(c) {}
     explicit SkSVGPaint(const SkString& iri)
         : fType(Type::kIRI), fColor(SK_ColorBLACK), fIRI(iri) {}
 
@@ -161,15 +185,15 @@ public:
     bool operator!=(const SkSVGPaint& other) const { return !(*this == other); }
 
     Type type() const { return fType; }
-    const SkSVGColorType& color() const { SkASSERT(fType == Type::kColor); return fColor; }
+    const SkSVGColor& color() const { SkASSERT(fType == Type::kColor); return fColor; }
     const SkString& iri() const { SkASSERT(fType == Type::kIRI); return fIRI; }
 
 private:
     Type fType;
 
     // Logical union.
-    SkSVGColorType fColor;
-    SkString       fIRI;
+    SkSVGColor fColor;
+    SkString   fIRI;
 };
 
 class SkSVGClip {

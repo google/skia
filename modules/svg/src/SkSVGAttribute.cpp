@@ -10,7 +10,7 @@
 SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     SkSVGPresentationAttributes result;
 
-    result.fFill.set(SkSVGPaint(SkSVGColorType(SK_ColorBLACK)));
+    result.fFill.set(SkSVGPaint(SkSVGColor(SK_ColorBLACK)));
     result.fFillOpacity.set(SkSVGNumberType(1));
     result.fFillRule.set(SkSVGFillRule(SkSVGFillRule::Type::kNonZero));
     result.fClipRule.set(SkSVGFillRule(SkSVGFillRule::Type::kNonZero));
