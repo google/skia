@@ -16,6 +16,24 @@
       "message": "Is there a clearer way to state that if the run is rtl the blocks will be considered in the opposite order?\n\nLike at least something like\n\n    const BlockIndex blockRangeSize \u003d fBlockRange.end - fBlockRange.start;\n    for (BlockIndex index \u003d 0; index \u003c\u003d blockRangeSize; ++index) {\n\nthen\n     if (index \u003c blockRangeSize) {\n         auto block \u003d fOwner-\u003estyles().begin() +\n             (run-\u003eleftToRight() ? fBlockRange.start + index : fBlockRange.end - index - 1)\n\nThis at least makes it clear that this will iterate over the blocks in some order, then picks the order, as opposed to iterating ltr and then trying to convert the ltr position into a rtl position.\n\nAlternately there could be some nice reverse iterator which could be used, but not sure what that would look like off hand.",
       "revId": "b0f13bbc247a93a4973a2519c9ce2b9d149c8b74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a560049d_fa0966fc",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-03T21:02:11Z",
+      "side": 1,
+      "message": "I played with reverse iterators but could not find anything worth the time - there are ifs on RTL still.\nTook your suggestion above.",
+      "parentUuid": "cdbefe08_632caa0c",
+      "revId": "b0f13bbc247a93a4973a2519c9ce2b9d149c8b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
