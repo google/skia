@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68345c21_794f6311",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T22:38:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f36fb8c_33e1ec07",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e8bf6ba_b82ed847",
@@ -48,6 +66,24 @@
       "writtenOn": "2020-12-03T19:54:59Z",
       "side": 1,
       "message": "Ditto",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "951f790c_655f7d81",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T22:38:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e8bf6ba_b82ed847",
       "revId": "9dd32738181ec83831d816658fde4a00d4758248",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -100,6 +136,24 @@
       "writtenOn": "2020-12-03T19:54:59Z",
       "side": 1,
       "message": "s/while/if/ now that multi-dimensional arrays are no longer supported?",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "447a18d5_8167a426",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-03T22:38:12Z",
+      "side": 1,
+      "message": "PTAL http://review.skia.org/340759",
+      "parentUuid": "07b74aea_67ba68c1",
       "revId": "9dd32738181ec83831d816658fde4a00d4758248",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
