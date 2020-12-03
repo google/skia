@@ -75,7 +75,9 @@ void MetalWindowContext::initializeContext() {
             [desc release];
         }
     } else {
-        fPipelineArchive = nil;
+        if (@available(macOS 11.0, iOS 14.0, *)) {
+            fPipelineArchive = nil;
+        }
     }
 #endif
 
