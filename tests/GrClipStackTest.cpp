@@ -1631,6 +1631,38 @@ DEF_TEST(GrClipStack_ReplaceClip, r) {
                     "RRect element state not restored properly after replace clip undone");
 }
 
+// Try to overflow the number of allowed window rects (see skbug.com/10989)
+DEF_TEST(GrClipStack_DiffRects, r) {
+    GrMockOptions options;
+    options.fMaxWindowRectangles = 8;
+
+    SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
+    sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&options);
+    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::Make(
+            context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
+            SkBackingFit::kExact, kDeviceBounds.size());
+
+    GrClipStack cs(kDeviceBounds, &matrixProvider, false);
+
+    cs.save();
+    for (int y = 0; y < 10; ++y) {
+        for (int x = 0; x < 10; ++x) {
+            cs.clipRect(SkMatrix::I(), SkRect::MakeXYWH(10*x+1, 10*y+1, 8, 8),
+                        GrAA::kNo, SkClipOp::kDifference);
+        }
+    }
+
+    GrAppliedClip out(kDeviceBounds.size());
+    SkRect drawBounds = SkRect::Make(kDeviceBounds);
+    GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
+                                     &out, &drawBounds);
+
+    REPORTER_ASSERT(r, effect == GrClip::Effect::kClipped);
+    REPORTER_ASSERT(r, out.windowRectsState().numWindows() == 8);
+
+    cs.restore();
+}
+
 // Tests that when a stack is forced to always be AA, non-AA elements become AA
 DEF_TEST(GrClipStack_ForceAA, r) {
     GrClipStack cs(kDeviceBounds, nullptr, true);
