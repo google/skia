@@ -3,72 +3,87 @@
 // behavior is predicated on whether or not this is being compiled alongside
 // gpu.js.
 (function(CanvasKit){
+  // Takes in an html id or a canvas element
+  CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
+    var canvas = idOrElement;
+    if (canvas.tagName !== 'CANVAS') {
+      // TODO(nifong): unit test
+      canvas = document.getElementById(idOrElement);
+      if (!canvas) {
+        throw 'Canvas with id ' + idOrElement + ' was not found';
+      }
+    }
+    // Maybe better to use clientWidth/height.  See:
+    // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+    var surface = CanvasKit.MakeSurface(canvas.width, canvas.height);
+    if (surface) {
+      surface._canvas = canvas;
+    }
+    return surface;
+  };
+
+  // Don't over-write the MakeCanvasSurface set by gpu.js if it exists.
+  if (!CanvasKit.MakeCanvasSurface) {
+    CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
+  }
+
+  // Note that color spaces are currently not supported in CPU surfaces. due to the limitation
+  // canvas.getContext('2d').putImageData imposes a limitation of using an RGBA_8888 color type.
+  // TODO(nifong): support WGC color spaces while still using an RGBA_8888 color type when
+  // on a cpu backend.
+  CanvasKit.MakeSurface = function(width, height) {
+    var imageInfo = {
+      'width':  width,
+      'height': height,
+      'colorType': CanvasKit.ColorType.RGBA_8888,
+      // Since we are sending these pixels directly into the HTML canvas,
+      // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
+      'alphaType': CanvasKit.AlphaType.Unpremul,
+      'colorSpace': CanvasKit.ColorSpace.SRGB,
+    };
+    var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
+    // Allocate the buffer of pixels to be drawn into.
+    var pixelPtr = CanvasKit._malloc(pixelLen);
+
+    // Experiments with using RasterDirect vs Raster showed a 10% slowdown
+    // over the traditional Surface::MakeRaster approach. This was exacerbated when
+    // the surface was drawing to Premul and we had to convert to Unpremul each frame
+    // (up to a 10x further slowdown).
+    var surface = CanvasKit.Surface._makeRasterDirect(imageInfo, pixelPtr, width*4);
+    if (surface) {
+      surface._canvas = null;
+      surface._width = width;
+      surface._height = height;
+      surface._pixelLen = pixelLen;
+
+      surface._pixelPtr = pixelPtr;
+      // rasterDirectSurface does not initialize the pixels, so we clear them
+      // to transparent black.
+      surface.getCanvas().clear(CanvasKit.TRANSPARENT);
+    }
+    return surface;
+  };
+
+  CanvasKit.MakeRasterDirectSurface = function(imageInfo, mallocObj, bytesPerRow) {
+    return CanvasKit.Surface._makeRasterDirect(imageInfo, mallocObj['byteOffset'], bytesPerRow);
+  };
+
+  CanvasKit.currentContext = CanvasKit.currentContext || function() {
+    // no op if this is a cpu-only build.
+  };
+
+  CanvasKit.setCurrentContext = CanvasKit.setCurrentContext || function() {
+     // no op if this is a cpu-only build.
+  };
+
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
-    // Takes in an html id or a canvas element
-    CanvasKit.MakeSWCanvasSurface = function(idOrElement) {
-      var canvas = idOrElement;
-      if (canvas.tagName !== 'CANVAS') {
-        // TODO(nifong): unit test
-        canvas = document.getElementById(idOrElement);
-        if (!canvas) {
-          throw 'Canvas with id ' + idOrElement + ' was not found';
-        }
-      }
-      // Maybe better to use clientWidth/height.  See:
-      // https://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var surface = CanvasKit.MakeSurface(canvas.width, canvas.height);
-      if (surface) {
-        surface._canvas = canvas;
-      }
-      return surface;
-    };
 
-    // Don't over-write the MakeCanvasSurface set by gpu.js if it exists.
-    if (!CanvasKit.MakeCanvasSurface) {
-      CanvasKit.MakeCanvasSurface = CanvasKit.MakeSWCanvasSurface;
-    }
-
-    // Note that color spaces are currently not supported in CPU surfaces. due to the limitation
-    // canvas.getContext('2d').putImageData imposes a limitation of using an RGBA_8888 color type.
-    // TODO(nifong): support WGC color spaces while still using an RGBA_8888 color type when
-    // on a cpu backend.
-    CanvasKit.MakeSurface = function(width, height) {
-      var imageInfo = {
-        'width':  width,
-        'height': height,
-        'colorType': CanvasKit.ColorType.RGBA_8888,
-        // Since we are sending these pixels directly into the HTML canvas,
-        // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
-        'alphaType': CanvasKit.AlphaType.Unpremul,
-        'colorSpace': CanvasKit.ColorSpace.SRGB,
-      };
-      var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
-      // Allocate the buffer of pixels to be drawn into.
-      var pixelPtr = CanvasKit._malloc(pixelLen);
-
-      // Experiments with using RasterDirect vs Raster showed a 10% slowdown
-      // over the traditional Surface::MakeRaster approach. This was exacerbated when
-      // the surface was drawing to Premul and we had to convert to Unpremul each frame
-      // (up to a 10x further slowdown).
-      var surface = CanvasKit.Surface._makeRasterDirect(imageInfo, pixelPtr, width*4);
-      if (surface) {
-        surface._canvas = null;
-        surface._width = width;
-        surface._height = height;
-        surface._pixelLen = pixelLen;
-
-        surface._pixelPtr = pixelPtr;
-        // rasterDirectSurface does not initialize the pixels, so we clear them
-        // to transparent black.
-        surface.getCanvas().clear(CanvasKit.TRANSPARENT);
-      }
-      return surface;
-    };
-
-    CanvasKit.MakeRasterDirectSurface = function(imageInfo, mallocObj, bytesPerRow) {
-      return CanvasKit.Surface._makeRasterDirect(imageInfo, mallocObj['byteOffset'], bytesPerRow);
-    };
+    // Create single copies of all three supported color spaces
+    // These are sk_sp<ColorSpace>
+    CanvasKit.ColorSpace.SRGB = CanvasKit.ColorSpace._MakeSRGB();
+    CanvasKit.ColorSpace.DISPLAY_P3 = CanvasKit.ColorSpace._MakeDisplayP3();
+    CanvasKit.ColorSpace.ADOBE_RGB = CanvasKit.ColorSpace._MakeAdobeRGB();
 
     // For GPU builds, simply proxies to native code flush.  For CPU builds,
     // also updates the underlying HTML canvas, optionally with dirtyRect.
@@ -100,12 +115,53 @@
       this.delete();
     };
 
-    CanvasKit.currentContext = CanvasKit.currentContext || function() {
-      // no op if this is a cpu-only build.
+    // CanvasKit.Surface.prototype.makeImageSnapshot = function(optionalBoundsRect) {
+    //   var bPtr = copyIRectToWasm(optionalBoundsRect);
+    //   return this._makeImageSnapshot(bPtr);
+    // };
+
+    CanvasKit.Surface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
+      if (!this._cached_canvas) {
+        this._cached_canvas = this.getCanvas();
+      }
+      requestAnimationFrame(function() {
+        if (this._context !== undefined) {
+          CanvasKit.setCurrentContext(this._context);
+        }
+
+        callback(this._cached_canvas);
+
+        // We do not dispose() of the Surface here, as the client will typically
+        // call requestAnimationFrame again from within the supplied callback.
+        // For drawing a single frame, prefer drawOnce().
+        this.flush(dirtyRect);
+      }.bind(this));
     };
 
-    CanvasKit.setCurrentContext = CanvasKit.setCurrentContext || function() {
-       // no op if this is a cpu-only build.
+    // drawOnce will dispose of the surface after drawing the frame using the provided
+    // callback.
+    CanvasKit.Surface.prototype.drawOnce = function(callback, dirtyRect) {
+      if (!this._cached_canvas) {
+        this._cached_canvas = this.getCanvas();
+      }
+      requestAnimationFrame(function() {
+        if (this._context !== undefined) {
+          CanvasKit.setCurrentContext(this._context);
+        }
+        callback(this._cached_canvas);
+
+        this.flush(dirtyRect);
+        this.dispose();
+      }.bind(this));
     };
   });
+
+  // CanvasKit.onRuntimeInitialized is called after the WASM library has loaded.
+  // Anything that modifies an exposed class (e.g. Path) should be set
+  // after onRuntimeInitialized, otherwise, it can happen outside of that scope.
+  CanvasKit.onRuntimeInitialized = function() {
+    CanvasKit._extraInitializations.forEach(function(init) {
+      init();
+    });
+  };
 }(Module)); // When this file is loaded in, the high level object is "Module";

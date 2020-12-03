@@ -22,7 +22,7 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
-#include "modules/canvaskit/WasmCommon.h"
+#include "modules/canvaskit/common/common_bindings.h"
 
 using namespace emscripten;
 

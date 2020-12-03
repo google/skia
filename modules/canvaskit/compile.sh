@@ -374,6 +374,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     $RT_SHADER_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
+    $BASE_DIR/common/common_bindings.cpp \
     $BASE_DIR/canvaskit_bindings.cpp \
     $PARTICLES_BINDINGS \
     $SKOTTIE_BINDINGS \

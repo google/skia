@@ -14,6 +14,8 @@ if [[ ! -d $EMSDK ]]; then
   exit 1
 fi
 
+CANVASKIT_DIR="modules/canvaskit"
+
 # Navigate to SKIA_HOME from where this file is located.
 pushd $BASE_DIR/../..
 
@@ -51,7 +53,9 @@ python tools/embed_resources.py \
 GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGL -lGLESv2 -DSK_SUPPORT_GPU=1 -DSK_GL \
-          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
+          -DSK_DISABLE_LEGACY_SHADERCONTEXT \
+          --pre-js $CANVASKIT_DIR/cpu.js \
+          --pre-js $CANVASKIT_DIR/gpu.js"
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -139,6 +143,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/helper.js \
     --bind \
     --no-entry \
+    $CANVASKIT_DIR/common/common_bindings.cpp \
     $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
     $BASE_DIR/debugger_bindings.cpp \
     $BUILD_DIR/libdebugcanvas.a \
@@ -154,3 +159,9 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s WASM=1 \
     -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
+
+
+    # --pre-js $CANVASKIT_DIR/preamble.js \
+    # --pre-js $CANVASKIT_DIR/helper.js \
+    # --pre-js $CANVASKIT_DIR/interface.js \
+    # --pre-js $CANVASKIT_DIR/postamble.js \

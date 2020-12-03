@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "modules/canvaskit/WasmCommon.h"
+#include "modules/canvaskit/common/common_bindings.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
