@@ -1,0 +1,15 @@
+struct S { int i; };
+
+int x;
+int x;
+float4x4 x;
+bool2 x[2];
+S x;
+
+void main() {
+    float2 y;
+    float2 y;
+    int y;
+    float y[4];
+    S y;
+}
