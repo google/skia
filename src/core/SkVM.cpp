@@ -2221,6 +2221,9 @@ namespace skvm {
 
     void Assembler::tbl(V d, V n, V m) { this->op(0b0'1'001110'00'0, m, 0b0'00'0'00, n, d); }
 
+    void Assembler::zip14s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'0'11'10, n, d); }
+    void Assembler::zip24s(V d, V n, V m) { this->op(0b0'1'001110'10'0, m, 0b0'1'11'10, n, d); }
+
     void Assembler::sli4s(V d, V n, int imm5) {
         this->op(0b0'1'1'011110'0100'000'01010'1,    n, d, ( imm5 & 5_mask)<<16);
     }
@@ -3716,7 +3719,6 @@ namespace skvm {
                     break;
 
             #elif defined(__aarch64__)
-                case Op::store64:
                 case Op::store128:
                 case Op::load64:
                 case Op::load128:
@@ -3755,6 +3757,22 @@ namespace skvm {
                 case Op::store32: if (scalar) { a->strs(r(x), arg[immy]); }
                                   else        { a->strq(r(x), arg[immy]); }
                                                 break;
+
+                // TODO: use st2.4s?
+                case Op::store64: if (scalar) {
+                                      a->strs(r(x), arg[immz], 0);
+                                      a->strs(r(y), arg[immz], 1);
+                                  } else {
+                                      // r(x) = {a,b,c,d}
+                                      // r(y) = {e,f,g,h}
+                                      // We want to write a,e, b,f, c,g, d,h
+                                      A::V tmp = alloc_tmp();
+                                      a->zip14s(tmp, r(x), r(y));   // a,e,b,f
+                                      a->strq(tmp, arg[immz], 0);
+                                      a->zip24s(tmp, r(x), r(y));   // c,g,d,h
+                                      a->strq(tmp, arg[immz], 1);
+                                      free_tmp(tmp);
+                                  } break;
 
                 case Op::load8: if (scalar) { a->ldrb(dst(), arg[immy]); }
                                 else        { a->ldrs(dst(), arg[immy]); }

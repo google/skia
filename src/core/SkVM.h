@@ -286,7 +286,8 @@ namespace skvm {
                        sub8h,  mul8h,
               fadd4s, fsub4s, fmul4s, fdiv4s, fmin4s, fmax4s,
               fcmeq4s, fcmgt4s, fcmge4s,
-              tbl;
+              tbl,
+              zip14s, zip24s;
 
         // TODO: there are also float ==,<,<=,>,>= instructions with an immediate 0.0f,
         // and the register comparison > and >= can also compare absolute values.  Interesting.
