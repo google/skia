@@ -159,6 +159,30 @@
       },
       "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0de7c461_39e3457f",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-03T19:49:48Z",
+      "side": 1,
+      "message": "We also use these for building up alpha masks from blurs from SkBlurStyle.",
+      "parentUuid": "f2750fa2_33db5330",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 39
+      },
+      "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
