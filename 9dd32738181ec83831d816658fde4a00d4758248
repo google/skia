@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1c7ffab_cc1b1c77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:54:59Z",
+      "side": 1,
+      "message": "All the loop -\u003e if stuff is just suggestions for a follow-up.",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f36fb8c_33e1ec07",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:54:59Z",
+      "side": 1,
+      "message": "Ditto here, no need for this to be a loop any longer.",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e8bf6ba_b82ed847",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:54:59Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b57f8a9_2226da3f",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:54:59Z",
+      "side": 1,
+      "message": "Looks like this will fit on one line now?",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07b74aea_67ba68c1",
+        "filename": "src/sksl/ir/SkSLInterfaceBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-03T19:54:59Z",
+      "side": 1,
+      "message": "s/while/if/ now that multi-dimensional arrays are no longer supported?",
+      "revId": "9dd32738181ec83831d816658fde4a00d4758248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
