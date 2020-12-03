@@ -16,6 +16,29 @@
       "message": "Comments are addressed, but I\u0027d appreciate a quick check over the new code in GrCoverageSetOp.h.",
       "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ad6c719_7bdf644d",
+        "filename": "src/gpu/effects/GrCoverageSetOpXP.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-03T17:55:29Z",
+      "side": 1,
+      "message": "I don\u0027t think this works. Both of this end up using a dstCoeff of 1-SrcColor. So we would need to know that the whole color is (1,1,1,1). Or some knowledge that this is only blending formats with alpha right?",
+      "range": {
+        "startLine": 52,
+        "startChar": 20,
+        "endLine": 52,
+        "endChar": 39
+      },
+      "revId": "54bd5090281fdc5312ee2800d1c8a1a4ca3e7906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
