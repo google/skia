@@ -32,10 +32,10 @@ const char* MetalCodeGenerator::OperatorName(Token::Kind op) {
 class MetalCodeGenerator::GlobalStructVisitor {
 public:
     virtual ~GlobalStructVisitor() = default;
-    virtual void VisitInterfaceBlock(const InterfaceBlock& block, const String& blockName) = 0;
-    virtual void VisitTexture(const Type& type, const String& name) = 0;
-    virtual void VisitSampler(const Type& type, const String& name) = 0;
-    virtual void VisitVariable(const Variable& var, const Expression* value) = 0;
+    virtual void visitInterfaceBlock(const InterfaceBlock& block, const String& blockName) = 0;
+    virtual void visitTexture(const Type& type, const String& name) = 0;
+    virtual void visitSampler(const Type& type, const String& name) = 0;
+    virtual void visitVariable(const Variable& var, const Expression* value) = 0;
 };
 
 void MetalCodeGenerator::setupIntrinsics() {
@@ -1676,7 +1676,7 @@ void MetalCodeGenerator::writeStructDefinitions() {
 void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
     // Visit the interface blocks.
     for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
-        visitor->VisitInterfaceBlock(*interfaceType, interfaceName);
+        visitor->visitInterfaceBlock(*interfaceType, interfaceName);
     }
     for (const ProgramElement* element : fProgram.elements()) {
         if (!element->is<GlobalVarDeclaration>()) {
@@ -1689,11 +1689,11 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
             var.type().typeKind() == Type::TypeKind::kSampler) {
             if (var.type().typeKind() == Type::TypeKind::kSampler) {
                 // Samplers are represented as a "texture/sampler" duo in the global struct.
-                visitor->VisitTexture(var.type(), var.name());
-                visitor->VisitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
+                visitor->visitTexture(var.type(), var.name());
+                visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
             } else {
                 // Visit a regular variable.
-                visitor->VisitVariable(var, decl.value().get());
+                visitor->visitVariable(var, decl.value().get());
             }
         }
     }
@@ -1702,7 +1702,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
 void MetalCodeGenerator::writeGlobalStruct() {
     class : public GlobalStructVisitor {
     public:
-        void VisitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
+        void visitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
             this->AddElement();
             fCodeGen->write("    constant ");
             fCodeGen->write(block.typeName());
@@ -1710,7 +1710,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeName(blockName);
             fCodeGen->write(";\n");
         }
-        void VisitTexture(const Type& type, const String& name) override {
+        void visitTexture(const Type& type, const String& name) override {
             this->AddElement();
             fCodeGen->write("    ");
             fCodeGen->writeBaseType(type);
@@ -1719,13 +1719,13 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeArrayDimensions(type);
             fCodeGen->write(";\n");
         }
-        void VisitSampler(const Type&, const String& name) override {
+        void visitSampler(const Type&, const String& name) override {
             this->AddElement();
             fCodeGen->write("    sampler ");
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");
         }
-        void VisitVariable(const Variable& var, const Expression* value) override {
+        void visitVariable(const Variable& var, const Expression* value) override {
             this->AddElement();
             fCodeGen->write("    ");
             fCodeGen->writeBaseType(var.type());
@@ -1759,21 +1759,21 @@ void MetalCodeGenerator::writeGlobalStruct() {
 void MetalCodeGenerator::writeGlobalInit() {
     class : public GlobalStructVisitor {
     public:
-        void VisitInterfaceBlock(const InterfaceBlock& blockType,
+        void visitInterfaceBlock(const InterfaceBlock& blockType,
                                  const String& blockName) override {
             this->AddElement();
             fCodeGen->write("&");
             fCodeGen->writeName(blockName);
         }
-        void VisitTexture(const Type&, const String& name) override {
+        void visitTexture(const Type&, const String& name) override {
             this->AddElement();
             fCodeGen->writeName(name);
         }
-        void VisitSampler(const Type&, const String& name) override {
+        void visitSampler(const Type&, const String& name) override {
             this->AddElement();
             fCodeGen->writeName(name);
         }
-        void VisitVariable(const Variable& var, const Expression* value) override {
+        void visitVariable(const Variable& var, const Expression* value) override {
             this->AddElement();
             if (value) {
                 fCodeGen->writeVarInitializer(var, *value);
