@@ -2999,7 +2999,7 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
 }
 
 SkIRect SkCanvas::LayerIter::clipBounds() const {
-    return fImpl->fDevice->getGlobalBounds();
+    return fImpl->fDevice->devClipBounds();
 }
 
 int SkCanvas::LayerIter::x() const { return fDeviceOrigin.fX; }

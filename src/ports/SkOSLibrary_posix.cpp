@@ -18,4 +18,9 @@ void* SkLoadDynamicLibrary(const char* libraryName) {
 void* SkGetProcedureAddress(void* library, const char* functionName) {
     return dlsym(library, functionName);
 }
+
+bool SkFreeDynamicLibrary(void* library) {
+    return dlclose(library) == 0;
+}
+
 #endif//!defined(SK_BUILD_FOR_WIN)

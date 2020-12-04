@@ -6,7 +6,11 @@
  */
 
 #include "include/core/SkTypes.h"
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+
+#if !defined(SK_TEST_CANVAS_STATE_CROSS_LIBRARY)
+
+#include "tests/CanvasStateHelpers.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -15,7 +19,6 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/utils/SkCanvasStateUtils.h"
-#include "tests/CanvasStateHelpers.h"
 
 #include <memory>
 
@@ -72,4 +75,5 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
     complex_clips_draw(canvas.get(), left, top, right, bottom, clipOp, localRegion);
     return true;
 }
-#endif // SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+
+#endif // SK_TEST_CANVAS_STATE_CROSS_LIBRARY

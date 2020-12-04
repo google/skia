@@ -10,5 +10,6 @@
 
 void* SkLoadDynamicLibrary(const char* libraryName);
 void* SkGetProcedureAddress(void* library, const char* functionName);
+bool  SkFreeDynamicLibrary(void* library);
 
 #endif
