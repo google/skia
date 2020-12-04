@@ -72,7 +72,7 @@ public:
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
         // patch[3].y as NaN to flag this patch as a conic.
         memcpy(patch, pts, sizeof(SkPoint) * 3);
-        patch[3].set(w, std::numeric_limits<float>::quiet_NaN());
+        patch[3].set(w, std::numeric_limits<float>::infinity());
     }
 
 private:

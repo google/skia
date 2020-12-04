@@ -36,7 +36,7 @@ constexpr static char kSkSLTypeDefs[] = R"(
 constexpr static char kUnpackRationalCubicFn[] = R"(
 float4x3 unpack_rational_cubic(float2 p0, float2 p1, float2 p2, float2 p3) {
     float4x3 P = float4x3(p0,1, p1,1, p2,1, p3,1);
-    if (isnan(P[3].y)) {
+    if (isinf(P[3].y)) {
         // This patch is actually a conic. Convert to a rational cubic.
         float w = P[3].x;
         float3 c = P[1] * (2/3.0 * w);
@@ -77,8 +77,8 @@ protected:
                     nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             v->codeAppendf("float2 vertexpos = (%s * float3(inputPoint, 1)).xy;", viewMatrix);
             if (shader.willUseTessellationShaders()) {
-                // If y is NaN then x is a conic weight. Don't transform.
-                v->codeAppendf("vertexpos = (isnan(vertexpos.y)) ? inputPoint : vertexpos;");
+                // If y is infinity then x is a conic weight. Don't transform.
+                v->codeAppendf("vertexpos = (isinf(vertexpos.y)) ? inputPoint : vertexpos;");
             }
             vertexPos.set(kFloat2_GrSLType, "vertexpos");
         }
