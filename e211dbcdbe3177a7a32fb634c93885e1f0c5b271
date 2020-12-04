@@ -179,6 +179,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ba1b1435_c13af8ea",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-04T19:58:26Z",
+      "side": 1,
+      "message": "Updated to add tracking of two different offsets. And I believe the \u0027uniform\u0027 decl remains either way.",
+      "parentUuid": "9bb203c2_b11b9126",
+      "range": {
+        "startLine": 240,
+        "startChar": 22,
+        "endLine": 240,
+        "endChar": 44
+      },
+      "revId": "e211dbcdbe3177a7a32fb634c93885e1f0c5b271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16063ede_29d6e198",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 3
