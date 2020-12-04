@@ -31,6 +31,7 @@ void main() {
     half2    h2;   out_half2(h2);
     half3    h3;   out_half3(h3);
     half4    h4;   out_half4(h4);
+                   out_half(h3[1]);
                    out_half2(h3.xz);
                    out_half4(h4.zwxy);
     sk_FragColor = half4(h, h2.x, h3.x, h4.x);
@@ -40,6 +41,7 @@ void main() {
     half4x4  h4x4; out_half4x4(h4x4);
                    out_half3(h3x3[1]);
                    out_half(h4x4[3].w);
+                   out_half(h2x2[0][0]);
     sk_FragColor = half4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1);
 
     int      i;    out_int (i);
@@ -47,6 +49,7 @@ void main() {
     int3     i3;   out_int3(i3);
     int4     i4;   out_int4(i4);
                    out_int3(i4.xyz);
+                   out_int(i2[1]);
     sk_FragColor = half4(i, i2.x, i3.x, i4.x);
 
     float    f;    out_float (f);
@@ -54,6 +57,7 @@ void main() {
     float3   f3;   out_float3(f3);
     float4   f4;   out_float4(f4);
                    out_float2(f3.xy);
+                   out_float(f2[0]);
     sk_FragColor = half4(half(f), half(f2.x), half(f3.x), half(f4.x));
 
     float2x2 f2x2; out_float2x2(f2x2);
@@ -67,5 +71,6 @@ void main() {
     bool3    b3;   out_bool3(b3);
     bool4    b4;   out_bool4(b4);
                    out_bool2(b4.xw);
+                   out_bool(b3[2]);
     sk_FragColor = half4(half(b), half(b2.x), half(b3.x), half(b4.x));
 }

@@ -2850,12 +2850,12 @@ void IRGenerator::checkValid(const Expression& expr) {
 }
 
 bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
-    VariableReference* assignableVar = nullptr;
-    if (!Analysis::IsAssignable(expr, &assignableVar, &fErrors)) {
+    Analysis::AssignmentInfo info;
+    if (!Analysis::IsAssignable(expr, &info, &fErrors)) {
         return false;
     }
-    if (assignableVar) {
-        assignableVar->setRefKind(kind);
+    if (info.fAssignedVar) {
+        info.fAssignedVar->setRefKind(kind);
     }
     return true;
 }
