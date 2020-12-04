@@ -29,6 +29,7 @@ OpMemberDecorate %testBlock 2 RelaxedPrecision
 OpMemberDecorate %testBlock 3 Offset 96
 OpMemberDecorate %testBlock 3 RelaxedPrecision
 OpDecorate %testBlock Block
+OpDecorate %3 Binding 789
 OpDecorate %3 DescriptorSet 0
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
