@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f225985_9db9b4da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-04T19:11:05Z",
+      "side": 1,
+      "message": "Ethan, does this match your understanding? Do you know if isinf is supported in other languages?",
+      "revId": "7e1014c6afae645be1822d6b4a7e5cfc49777dc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
