@@ -140,6 +140,14 @@ private:
     bool expect(Token::Kind kind, const char* expected, Token* result = nullptr);
     bool expect(Token::Kind kind, String expected, Token* result = nullptr);
 
+    /**
+     * Behaves like expect(TK_IDENTIFIER), but also verifies that identifier is not a type.
+     * If the token was actually a type, generates an error message of the form:
+     *
+     * "expected an identifier, but found type 'float2'"
+     */
+    bool expectIdentifier(Token* result);
+
     void error(Token token, String msg);
     void error(int offset, String msg);
     /**

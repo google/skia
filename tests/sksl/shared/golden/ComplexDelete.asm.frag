@@ -13,7 +13,7 @@ OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %colorXform "colorXform"
-OpName %sampler "sampler"
+OpName %s "s"
 OpName %main "main"
 OpName %tmpColor "tmpColor"
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -22,8 +22,8 @@ OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %colorXform DescriptorSet 0
-OpDecorate %sampler RelaxedPrecision
-OpDecorate %sampler Binding 0
+OpDecorate %s RelaxedPrecision
+OpDecorate %s Binding 0
 OpDecorate %23 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
@@ -38,7 +38,7 @@ OpDecorate %23 RelaxedPrecision
 %16 = OpTypeImage %float 2D 0 0 0 1 Unknown
 %15 = OpTypeSampledImage %16
 %_ptr_UniformConstant_15 = OpTypePointer UniformConstant %15
-%sampler = OpVariable %_ptr_UniformConstant_15 UniformConstant
+%s = OpVariable %_ptr_UniformConstant_15 UniformConstant
 %void = OpTypeVoid
 %18 = OpTypeFunction %void
 %_ptr_Function_v4float = OpTypePointer Function %v4float
@@ -52,7 +52,7 @@ OpDecorate %23 RelaxedPrecision
 %19 = OpLabel
 %tmpColor = OpVariable %_ptr_Function_v4float Function
 %54 = OpVariable %_ptr_Function_v4float Function
-%23 = OpLoad %15 %sampler
+%23 = OpLoad %15 %s
 %22 = OpImageSampleImplicitLod %v4float %23 %24
 OpStore %tmpColor %22
 %27 = OpLoad %mat4v4float %colorXform
