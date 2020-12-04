@@ -47,8 +47,7 @@ protected:
         fBitmap = SkImage::MakeFromBitmap(
                 ToolUtils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e"));
 
-        fCheckerboard = SkImage::MakeFromBitmap(
-                ToolUtils::create_checkerboard_bitmap(80, 80, 0xFFA0A0A0, 0xFF404040, 8));
+        fCheckerboard = ToolUtils::create_checkerboard_image(80, 80, 0xFFA0A0A0, 0xFF404040, 8);
     }
 
     void onDraw(SkCanvas* canvas) override {
