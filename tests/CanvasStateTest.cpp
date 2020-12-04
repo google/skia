@@ -125,12 +125,6 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
     };
 
     const int layerAlpha[] = { 255, 255, 0 };
-    const SkCanvas::SaveLayerFlags flags[] = {
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
-        0,
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
-    };
-    REPORTER_ASSERT(reporter, sizeof(layerAlpha) == sizeof(flags));
 
     bool (*drawFn)(SkCanvasState* state, float l, float t,
                    float r, float b, int32_t s);
@@ -164,7 +158,7 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
                 }
 
                 // draw a rect within the layer's bounds and again outside the layer's bounds
-                canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, paint.getMaybeNull(), flags[k]));
+                canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, paint.getMaybeNull()));
 
                 if (j) {
                     // Capture from the first Skia.
@@ -225,12 +219,6 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
                                      SkRegion::kIntersect_Op,
                                      SkRegion::kDifference_Op,
     };
-    const SkCanvas::SaveLayerFlags flags[] = {
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
-        0,
-        static_cast<SkCanvas::SaveLayerFlags>(SkCanvasPriv::kDontClipToLayer_SaveLayerFlag),
-    };
-    REPORTER_ASSERT(reporter, sizeof(clipOps) == sizeof(flags));
 
     bool (*drawFn)(SkCanvasState* state, int32_t l, int32_t t,
                    int32_t r, int32_t b, int32_t clipOp,
@@ -261,7 +249,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
         paint.setAlpha(128);
         for (size_t j = 0; j < SK_ARRAY_COUNT(clipOps); ++j) {
             SkRect layerBounds = SkRect::Make(layerRect);
-            canvas->saveLayer(SkCanvas::SaveLayerRec(&layerBounds, &paint, flags[j]));
+            canvas->saveLayer(SkCanvas::SaveLayerRec(&layerBounds, &paint));
 
             if (i) {
                 SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(canvas);
@@ -317,10 +305,6 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 }
 
 DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    static_assert(SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag ==
-                  SkCanvasPriv::kDontClipToLayer_SaveLayerFlag, "");
-#endif
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
@@ -333,20 +317,9 @@ DEF_TEST(CanvasState_test_saveLayer_clip, reporter) {
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(LAYER_WIDTH), SkIntToScalar(LAYER_HEIGHT));
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(WIDTH), SkIntToScalar(HEIGHT)));
 
-    SkIRect devClip;
-    // Check that saveLayer without the kClipToLayer_SaveFlag leaves the clip unchanged.
-    canvas.saveLayer(SkCanvas::SaveLayerRec(&bounds, nullptr,
-            (SkCanvas::SaveLayerFlags) SkCanvasPriv::kDontClipToLayer_SaveLayerFlag));
-    devClip = canvas.getDeviceClipBounds();
-    REPORTER_ASSERT(reporter, canvas.isClipRect());
-    REPORTER_ASSERT(reporter, devClip.width() == WIDTH);
-    REPORTER_ASSERT(reporter, devClip.height() == HEIGHT);
-    canvas.restore();
-
-    // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip
-    // stack to the layer bounds.
+    // Check that saveLayer sets the clip stack to the layer bounds.
     canvas.saveLayer(&bounds, nullptr);
-    devClip = canvas.getDeviceClipBounds();
+    SkIRect devClip = canvas.getDeviceClipBounds();
     REPORTER_ASSERT(reporter, canvas.isClipRect());
     REPORTER_ASSERT(reporter, devClip.width() == LAYER_WIDTH);
     REPORTER_ASSERT(reporter, devClip.height() == LAYER_HEIGHT);

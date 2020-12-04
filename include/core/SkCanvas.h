@@ -82,10 +82,6 @@ class SkVertices;
     This approach may be deprecated in the future.
 */
 class SK_API SkCanvas {
-    enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
-    };
-
 public:
 
     /** Allocates raster SkCanvas that will draw directly into pixels.
@@ -637,10 +633,6 @@ public:
                                           1 << 3, //!< experimental: do not use
         // instead of matching previous layer's colortype, use F16
         kF16ColorType                   = 1 << 4,
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-        kDontClipToLayer_Legacy_SaveLayerFlag =
-           kDontClipToLayer_PrivateSaveLayerFlag, //!< deprecated
-#endif
     };
 
     typedef uint32_t SaveLayerFlags;

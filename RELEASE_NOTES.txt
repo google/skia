@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Remove support for deprecated kDontClipToLayer_SaveLayerFlag in SkCanvas::SaveLayerRec
+    https://review.skia.org/339988
+
   * Expose more info in SkCodec::FrameInfo
     https://review.skia.org/339857
 
