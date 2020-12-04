@@ -14,7 +14,7 @@ struct testBlock {
 };
 struct Globals {
     constant testBlock* _anonInterface0;
-};fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& _anonInterface0 [[buffer(-1)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+};fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& _anonInterface0 [[buffer(789)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals globalStruct{&_anonInterface0};
     thread Globals* _globals = &globalStruct;
     (void)_globals;

@@ -1089,6 +1089,11 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 if (intf.typeName() == "sk_PerVertex") {
                     continue;
                 }
+                if (intf.variable().modifiers().fLayout.fBinding < 0) {
+                    fErrors.error(intf.fOffset,
+                                  "Metal interface blocks must have 'layout(binding=...)'");
+                    return false;
+                }
                 this->write(", constant ");
                 this->writeBaseType(intf.variable().type());
                 this->write("& " );
