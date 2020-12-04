@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b5e44e3_de9ea91b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-04T22:38:18Z",
+      "side": 1,
+      "message": "No rush.. Just letting you know it\u0027s here :-)",
+      "revId": "dbf956a003716239adc37b1e4090dd9aa2172727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
