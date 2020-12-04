@@ -16,6 +16,24 @@
       "message": "It\u0027d be nice if this and the GMs already in bleed.cpp could be unified. This is simpler and tests things other than drawImageRect, but the existing GMs test a bunch of stuff not exercised here (matrices, antialiased edges, mask filters, and images larger than max texture size).",
       "revId": "03cffbb18a810b83f466e0ddd838df99190e7847",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8db72eca_5cc32d26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-04T20:55:01Z",
+      "side": 1,
+      "message": "True, but I actually find those large gms less useful for diagnosing particular failures. More smaller gms might be seen as \u0027more\u0027 to triage, but sometimes they are also easier to triage -- more like unittests.",
+      "parentUuid": "b9e9e3dc_0f014d4e",
+      "revId": "03cffbb18a810b83f466e0ddd838df99190e7847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
