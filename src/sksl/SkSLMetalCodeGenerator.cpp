@@ -262,6 +262,12 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
 }
 
+String MetalCodeGenerator::getOutParamHelper(const FunctionDeclaration& function,
+                                             const ExpressionArray& arguments) {
+    // TODO: actually synthesize helper method.
+    return String::printf("/*needs swizzle fix*/ %s", String(function.name()).c_str());
+}
+
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
@@ -270,23 +276,47 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->writeIntrinsicCall(c);
         return;
     }
-    const StringFragment& name = function.name();
+    String name = function.name();
     bool builtin = function.isBuiltin();
+
     if (builtin && name == "atan" && arguments.size() == 2) {
-        this->write("atan2");
+        name = "atan2";
     } else if (builtin && name == "inversesqrt") {
-        this->write("rsqrt");
+        name = "rsqrt";
     } else if (builtin && name == "inverse") {
         SkASSERT(arguments.size() == 1);
-        this->writeInverseHack(*arguments[0]);
+        name = this->getInverseHack(*arguments[0]);
     } else if (builtin && name == "dFdx") {
-        this->write("dfdx");
+        name = "dfdx";
     } else if (builtin && name == "dFdy") {
         // Flipping Y also negates the Y derivatives.
-        this->write((fProgram.fSettings.fFlipY) ? "-dfdy" : "dfdy");
-    } else {
-        this->writeName(name);
+        if (fProgram.fSettings.fFlipY) {
+            this->write("-");
+        }
+        name = "dfdy";
     }
+
+    // GLSL supports passing swizzled variables to out params; Metal doesn't. To emulate that
+    // support, we synthesize a helper function which performs the swizzle into a temporary
+    // variable, calls the original function, then writes the temp var back into the out param.
+    const std::vector<const Variable*>& parameters = function.parameters();
+    SkASSERT(arguments.size() == parameters.size());
+    for (size_t index = 0; index < arguments.size(); ++index) {
+        // If this is an out parameter...
+        if (parameters[index]->modifiers().fFlags & Modifiers::kOut_Flag) {
+            // Inspect the expression to see if it contains a swizzle.
+            Analysis::AssignmentInfo info;
+            bool outParamIsAssignable = Analysis::IsAssignable(*arguments[index], &info, nullptr);
+            SkASSERT(outParamIsAssignable);  // assignability was verified at IRGeneration time
+            if (outParamIsAssignable && info.fIsSwizzled) {
+                // Found a swizzle; we need to use a helper function here.
+                name = this->getOutParamHelper(function, arguments);
+                break;
+            }
+        }
+    }
+
+    this->write(name);
     this->write("(");
     const char* separator = "";
     if (this->requirements(function) & kInputs_Requirement) {
@@ -322,7 +352,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     this->write(")");
 }
 
-void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
+String MetalCodeGenerator::getInverseHack(const Expression& mat) {
     const Type& type = mat.type();
     const String& typeName = type.name();
     String name = typeName + "_inverse";
@@ -400,7 +430,7 @@ void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
             ).c_str());
         }
     }
-    this->write(name);
+    return name;
 }
 
 void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
