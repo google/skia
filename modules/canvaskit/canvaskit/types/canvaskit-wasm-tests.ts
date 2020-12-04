@@ -408,7 +408,7 @@ function pathTests(CK: CanvasKit) {
     path.addOval(someRect);
     path.addOval(someRect, true, 3);
     path.addPath(p2);
-    path.addPoly([[20, 20], [40, 40], [20, 40]], true);
+    path.addPoly([20, 20,  40, 40,  20, 40], true);
     path.addRect(someRect);
     path.addRect(someRect, true);
     path.addRRect(someRRect);
@@ -876,17 +876,17 @@ function vectorTests(CK: CanvasKit) {
 
 function verticesTests(CK: CanvasKit) {
     const points = [
-        [ 70, 170 ], [ 40, 90 ], [ 130, 150 ], [ 100, 50 ],
-        [ 225, 150 ], [ 225, 60 ], [ 310, 180 ], [ 330, 100 ]
+         70, 170,   40, 90,  130, 150,  100, 50,
+        225, 150,  225, 60,  310, 180,  330, 100,
     ];
     const textureCoordinates = [
-        [ 0, 240 ], [ 0, 0 ], [ 80, 240 ], [ 80, 0 ],
-        [ 160, 240 ], [ 160, 0 ], [ 240, 240 ], [ 240, 0 ]
+          0, 240,    0, 0,   80, 240,   80, 0,
+        160, 240,  160, 0,  240, 240,  240, 0,
     ];
     const vertices = CK.MakeVertices(CK.VertexMode.TrianglesStrip, // $ExpectType Vertices
         points, textureCoordinates);
 
-    const points2 = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    const points2 = new Float32Array(points);
     // 1d float color array
     const colors = Float32Array.of(
         1, 0, 0, 1, // red
@@ -894,7 +894,7 @@ function verticesTests(CK: CanvasKit) {
         0, 0, 1, 1, // blue
         1, 0, 1, 1); // purple
     const vertices2 = CK.MakeVertices(CK.VertexMode.TriangleFan,
-        points, null, colors, null, true);
+        points2, null, colors, null, true);
 
     const rect = vertices.bounds(); // $ExpectType Float32Array
     vertices.bounds(rect);

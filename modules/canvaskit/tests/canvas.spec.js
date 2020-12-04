@@ -648,7 +648,7 @@ describe('Canvas Behavior', () => {
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
 
-        const points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+        const points = [0, 0,  250, 0,  100, 100,  0, 250];
         // 2d float color array
         const colors = [CanvasKit.RED, CanvasKit.BLUE,
                         CanvasKit.YELLOW, CanvasKit.CYAN];
@@ -667,7 +667,7 @@ describe('Canvas Behavior', () => {
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
 
-        const points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+        const points = [0, 0,  250, 0,  100, 100,  0, 250];
         // 1d float color array
         const colors = Float32Array.of(...CanvasKit.RED, ...CanvasKit.BLUE,
                                        ...CanvasKit.YELLOW, ...CanvasKit.CYAN);
@@ -689,12 +689,12 @@ describe('Canvas Behavior', () => {
         paint.setAntiAlias(true);
 
         const points = [
-            [ 70, 170 ], [ 40, 90 ], [ 130, 150 ], [ 100, 50 ],
-            [ 225, 150 ], [ 225, 60 ], [ 310, 180 ], [ 330, 100 ]
+             70, 170,   40, 90,  130, 150,  100, 50,
+            225, 150,  225, 60,  310, 180,  330, 100,
         ];
         const textureCoordinates = [
-            [ 0, 240 ], [ 0, 0 ], [ 80, 240 ], [ 80, 0 ],
-            [ 160, 240 ], [ 160, 0 ], [ 240, 240 ], [ 240, 0 ]
+              0, 240,    0, 0,   80, 240,   80, 0,
+            160, 240,  160, 0,  240, 240,  240, 0,
         ];
         const vertices = CanvasKit.MakeVertices(CanvasKit.VertexMode.TrianglesStrip,
             points, textureCoordinates, null /* colors */, false /*isVolatile*/);

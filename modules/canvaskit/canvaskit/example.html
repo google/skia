@@ -387,7 +387,7 @@
         ctx.stroke();
 
         // squished vertically
-        ctx.globalAlpha = 0.7
+        ctx.globalAlpha = 0.7;
         ctx.imageSmoothingQuality = 'medium';
         ctx.drawImage(canvas._img, 150, 150, 150, 100);
         ctx.rotate(-.2);
@@ -594,11 +594,11 @@
       ctx.lineWidth = 6;
       ctx.ellipse(10, 290, 30, 30, 0, 0, Math.PI * 2);
       ctx.scale(2, 1);
-      ctx.moveTo(10, 290)
+      ctx.moveTo(10, 290);
       ctx.ellipse(10, 290, 30, 60, 0, 0, Math.PI * 2);
       ctx.resetTransform();
       ctx.scale(3, 1);
-      ctx.moveTo(10, 290)
+      ctx.moveTo(10, 290);
       ctx.ellipse(10, 290, 30, 90, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
@@ -747,7 +747,7 @@
         ctx.fillStyle = pattern;
         ctx.fillRect(1500, 0, 3000, 750);
 
-        ctx.globalAlpha = 0.7
+        ctx.globalAlpha = 0.7;
         pattern = ctx.createPattern(canvas._img, 'repeat-y');
         ctx.fillStyle = pattern;
         ctx.fillRect(0, 750, 1500, 1500);
@@ -868,7 +868,7 @@
 
     // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
     // for original c++ version.
-    let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    let points = [0, 0,  250, 0,  100, 100,  0, 250];
     let colors = [CanvasKit.RED, CanvasKit.BLUE,
                   CanvasKit.YELLOW, CanvasKit.CYAN];
     let vertices = CanvasKit.MakeVertices(CanvasKit.VertexMode.TriangleFan,
@@ -881,8 +881,8 @@
 
     // See https://fiddle.skia.org/c/e8bdae9bea3227758989028424fcac3d
     // for original c++ version.
-    points   = [[ 300, 300 ], [ 50, 300 ], [ 200, 200 ], [ 300, 50 ]];
-    let texs = [[   0,   0 ], [  0, 250 ], [ 250, 250 ], [ 250,  0 ]];
+    points   = [300, 300,  50, 300,  200, 200,  300, 50 ];
+    let texs = [  0,   0,   0, 250,  250, 250,  250,  0 ];
     vertices = CanvasKit.MakeVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, texs, colors);
 
@@ -909,13 +909,12 @@
 
     // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
     // for original c++ version.
-    let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
     let colors = [CanvasKit.BLUE, CanvasKit.YELLOW, CanvasKit.RED];
     let pos =    [0, .7, 1.0];
     let transform = [2, 0, 0,
                      0, 2, 0,
-                     0, 0, 1]
-    let shader = CanvasKit.Shader.MakeRadialGradient([150,150], 130, colors,
+                     0, 0, 1];
+    let shader = CanvasKit.Shader.MakeRadialGradient([150, 150], 130, colors,
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
@@ -923,7 +922,7 @@
     const textBlob = CanvasKit.TextBlob.MakeFromText('Radial', textFont);
 
     canvas.drawTextBlob(textBlob, 10, 200, paint);
-    paint.delete()
+    paint.delete();
     textFont.delete();
     textBlob.delete();
     surface.flush();
@@ -967,7 +966,7 @@
     bounds[0] += textBoxX; // left
     bounds[2] += textBoxX; // right
     bounds[1] += textBoxY; // top
-    bounds[3] += textBoxY // bottom
+    bounds[3] += textBoxY; // bottom
 
     canvas.drawRect(bounds, paint);
     const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
