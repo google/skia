@@ -48,7 +48,7 @@ private:
 
 struct GrWindowRectangles::Rec : public GrNonAtomicRef<Rec> {
     Rec(const SkIRect* windows, int numWindows) {
-        SkASSERT(numWindows < kMaxWindows);
+        SkASSERT(numWindows <= kMaxWindows);
         memcpy(fData, windows, sizeof(SkIRect) * numWindows);
     }
     Rec() = default;

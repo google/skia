@@ -1399,8 +1399,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrRenderTargetCon
                     fullyApplied = e.innerBounds() == e.outerBounds() ||
                                    e.innerBounds().contains(scissorBounds);
                 } else {
-                    if (!e.innerBounds().isEmpty() &&
-                        out->windowRectsState().numWindows() < maxWindowRectangles) {
+                    if (!e.innerBounds().isEmpty() && windowRects.count() < maxWindowRectangles) {
                         // TODO: If we have more difference ops than available window rects, we
                         // should prioritize those with the largest inner bounds.
                         windowRects.addWindow(e.innerBounds());
