@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9e9e3dc_0f014d4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-04T20:18:52Z",
+      "side": 1,
+      "message": "It\u0027d be nice if this and the GMs already in bleed.cpp could be unified. This is simpler and tests things other than drawImageRect, but the existing GMs test a bunch of stuff not exercised here (matrices, antialiased edges, mask filters, and images larger than max texture size).",
+      "revId": "03cffbb18a810b83f466e0ddd838df99190e7847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
