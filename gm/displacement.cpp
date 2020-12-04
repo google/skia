@@ -41,12 +41,11 @@ protected:
         SkColor c1 = ToolUtils::color_to_565(0xFF244484);
         SkColor c2 = ToolUtils::color_to_565(0xFF804020);
 
-        fCheckerboard =
-                SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(80, 80, c1, c2, 8));
-        fSmall  = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(64, 64, c1, c2, 8));
-        fLarge  = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(96, 96, c1, c2, 8));
-        fLargeW = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(96, 64, c1, c2, 8));
-        fLargeH = SkImage::MakeFromBitmap(ToolUtils::create_checkerboard_bitmap(64, 96, c1, c2, 8));
+        fCheckerboard = ToolUtils::create_checkerboard_image(80, 80, c1, c2, 8);
+        fSmall  = ToolUtils::create_checkerboard_image(64, 64, c1, c2, 8);
+        fLarge  = ToolUtils::create_checkerboard_image(96, 96, c1, c2, 8);
+        fLargeW = ToolUtils::create_checkerboard_image(96, 64, c1, c2, 8);
+        fLargeH = ToolUtils::create_checkerboard_image(64, 96, c1, c2, 8);
     }
 
     SkISize onISize() override {

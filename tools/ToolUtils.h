@@ -106,6 +106,8 @@ void draw_checkerboard(SkCanvas* canvas, SkColor color1, SkColor color2, int che
 /** Make it easier to create a bitmap-based checkerboard */
 SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int checkSize);
 
+sk_sp<SkImage> create_checkerboard_image(int w, int h, SkColor c1, SkColor c2, int checkSize);
+
 /** A default checkerboard. */
 inline void draw_checkerboard(SkCanvas* canvas) {
     ToolUtils::draw_checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
