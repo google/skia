@@ -2034,6 +2034,20 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
+
+    # optional separate library to dlopen when running CanvasStateTests.
+    shared_library("canvas_state_lib") {
+      # configs += [ ":skia_private" ]
+      # if (!is_official_build) {
+      #   configs -= [ "//gn:warnings" ]
+      # }
+      # testonly = true
+      sources = [
+        "tests/CanvasStateHelpers.cpp",
+        "tests/CanvasStateHelpers.h",
+      ]
+      deps = [ ":skia" ]
+    }
   }
 
   if (!is_win) {

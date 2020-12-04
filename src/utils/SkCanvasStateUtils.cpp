@@ -110,12 +110,20 @@ public:
     }
 
     ~SkCanvasState_v1() {
-        // loop through the layers and free the data allocated to the clipRects
+        // loop through the layers and free the data allocated to the clipRects.
+        // See setup_MC_state, clipRects is only allocated when the clip isn't empty; and empty
+        // is implicitly represented as clipRectCount == 0.
         for (int i = 0; i < layerCount; ++i) {
-            sk_free(layers[i].mcState.clipRects);
+            if (layers[i].mcState.clipRectCount > 0) {
+                sk_free(layers[i].mcState.clipRects);
+            }
         }
 
-        sk_free(mcState.clipRects);
+        if (mcState.clipRectCount > 0) {
+            sk_free(mcState.clipRects);
+        }
+
+        // layers is always allocated, even if it's with sk_malloc(0), so this is safe.
         sk_free(layers);
     }
 
