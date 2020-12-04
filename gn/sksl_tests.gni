@@ -279,6 +279,7 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/SwitchContainingDeadCode.sksl",
   "$_tests/sksl/shared/SwitchWithFallthrough.sksl",
   "$_tests/sksl/shared/SwizzleBoolConstants.sksl",
+  "$_tests/sksl/shared/SwizzleByIndex.sksl",
   "$_tests/sksl/shared/SwizzleConstants.sksl",
   "$_tests/sksl/shared/SwizzleLTRB.sksl",
   "$_tests/sksl/shared/SwizzleOpt.sksl",

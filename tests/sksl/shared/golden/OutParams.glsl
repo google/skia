@@ -12,6 +12,10 @@ void main() {
     }
 
     {
+        h3[1] = 1.0;
+    }
+
+    {
         h3.xz = vec2(2.0);
     }
 
@@ -20,6 +24,11 @@ void main() {
     }
 
     sk_FragColor = vec4(1.0, 2.0, h3.x, h4.x);
+    mat2 h2x2;
+    {
+        h2x2 = mat2(2.0);
+    }
+
     mat3 h3x3;
     {
         h3x3 = mat3(3.0);
@@ -38,7 +47,16 @@ void main() {
         h4x4[3].w = 1.0;
     }
 
-    sk_FragColor = vec4(mat2(2.0)[0][0], h3x3[0][0], h4x4[0][0], 1.0);
+    {
+        h2x2[0][0] = 1.0;
+    }
+
+    sk_FragColor = vec4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1.0);
+    ivec2 i2;
+    {
+        i2 = ivec2(2);
+    }
+
     ivec4 i4;
     {
         i4 = ivec4(4);
@@ -48,7 +66,16 @@ void main() {
         i4.xyz = ivec3(3);
     }
 
-    sk_FragColor = vec4(1.0, 2.0, 3.0, float(i4.x));
+    {
+        i2[1] = 1;
+    }
+
+    sk_FragColor = vec4(1.0, float(i2.x), 3.0, float(i4.x));
+    vec2 f2;
+    {
+        f2 = vec2(2.0);
+    }
+
     vec3 f3;
     {
         f3 = vec3(3.0);
@@ -58,7 +85,11 @@ void main() {
         f3.xy = vec2(2.0);
     }
 
-    sk_FragColor = vec4(1.0, 2.0, f3.x, 4.0);
+    {
+        f2[0] = 1.0;
+    }
+
+    sk_FragColor = vec4(1.0, f2.x, f3.x, 4.0);
     mat2 f2x2;
     {
         f2x2 = mat2(2.0);
@@ -69,6 +100,11 @@ void main() {
     }
 
     sk_FragColor = vec4(f2x2[0][0], mat3(3.0)[0][0], mat4(4.0)[0][0], 1.0);
+    bvec3 b3;
+    {
+        b3 = bvec3(true);
+    }
+
     bvec4 b4;
     {
         b4 = bvec4(false);
@@ -78,5 +114,9 @@ void main() {
         b4.xw = bvec2(false);
     }
 
-    sk_FragColor = vec4(1.0, false ? 1.0 : 0.0, true ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
+    {
+        b3[2] = true;
+    }
+
+    sk_FragColor = vec4(1.0, false ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
 }

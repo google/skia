@@ -20,6 +20,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
     {
+        h3[1] = 1.0;
+    }
+
+    {
         h3.xz = float2(2.0);
     }
 
@@ -28,6 +32,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
     _out->sk_FragColor = float4(1.0, 2.0, h3.x, h4.x);
+    float2x2 h2x2;
+    {
+        h2x2 = float2x2(2.0);
+    }
+
     float3x3 h3x3;
     {
         h3x3 = float3x3(3.0);
@@ -46,7 +55,16 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         h4x4[3].w = 1.0;
     }
 
-    _out->sk_FragColor = float4(float2x2(2.0)[0][0], h3x3[0][0], h4x4[0][0], 1.0);
+    {
+        h2x2[0][0] = 1.0;
+    }
+
+    _out->sk_FragColor = float4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1.0);
+    int2 i2;
+    {
+        i2 = int2(2);
+    }
+
     int4 i4;
     {
         i4 = int4(4);
@@ -56,7 +74,16 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         i4.xyz = int3(3);
     }
 
-    _out->sk_FragColor = float4(1.0, 2.0, 3.0, float(i4.x));
+    {
+        i2[1] = 1;
+    }
+
+    _out->sk_FragColor = float4(1.0, float(i2.x), 3.0, float(i4.x));
+    float2 f2;
+    {
+        f2 = float2(2.0);
+    }
+
     float3 f3;
     {
         f3 = float3(3.0);
@@ -66,7 +93,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         f3.xy = float2(2.0);
     }
 
-    _out->sk_FragColor = float4(1.0, 2.0, f3.x, 4.0);
+    {
+        f2[0] = 1.0;
+    }
+
+    _out->sk_FragColor = float4(1.0, f2.x, f3.x, 4.0);
     float2x2 f2x2;
     {
         f2x2 = float2x2(2.0);
@@ -77,6 +108,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
     _out->sk_FragColor = float4(f2x2[0][0], float3x3(3.0)[0][0], float4x4(4.0)[0][0], 1.0);
+    bool3 b3;
+    {
+        b3 = bool3(true);
+    }
+
     bool4 b4;
     {
         b4 = bool4(false);
@@ -86,6 +122,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         b4.xw = bool2(false);
     }
 
-    _out->sk_FragColor = float4(1.0, bool(false) ? 1.0 : 0.0, bool(true) ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
+    {
+        b3[2] = true;
+    }
+
+    _out->sk_FragColor = float4(1.0, bool(false) ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
     return *_out;
 }

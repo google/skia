@@ -262,15 +262,14 @@ private:
 // know if the base (`x`) is assignable; the index expression (`1`) doesn't need to be.
 class IsAssignableVisitor {
 public:
-    IsAssignableVisitor(VariableReference** assignableVar, ErrorReporter* errors)
-            : fAssignableVar(assignableVar), fErrors(errors) {
-        if (fAssignableVar) {
-            *fAssignableVar = nullptr;
-        }
-    }
+    IsAssignableVisitor(ErrorReporter* errors) : fErrors(errors) {}
 
-    bool visit(Expression& expr) {
+    bool visit(Expression& expr, Analysis::AssignmentInfo* info) {
         this->visitExpression(expr);
+        if (info) {
+            info->fAssignedVar = fAssignedVar;
+            info->fIsSwizzled = fIsSwizzled;
+        }
         return fErrors->errorCount() == 0;
     }
 
@@ -283,9 +282,9 @@ public:
                                                Modifiers::kVarying_Flag)) {
                     fErrors->error(expr.fOffset,
                                    "cannot modify immutable variable '" + var->name() + "'");
-                } else if (fAssignableVar) {
-                    SkASSERT(*fAssignableVar == nullptr);
-                    *fAssignableVar = &varRef;
+                } else {
+                    SkASSERT(fAssignedVar == nullptr);
+                    fAssignedVar = &varRef;
                 }
                 break;
             }
@@ -295,14 +294,17 @@ public:
 
             case Expression::Kind::kSwizzle: {
                 const Swizzle& swizzle = expr.as<Swizzle>();
+                fIsSwizzled = true;
                 this->checkSwizzleWrite(swizzle);
                 this->visitExpression(*swizzle.base());
                 break;
             }
-            case Expression::Kind::kIndex:
-                this->visitExpression(*expr.as<IndexExpression>().base());
+            case Expression::Kind::kIndex: {
+                Expression& inner = *expr.as<IndexExpression>().base();
+                fIsSwizzled |= inner.type().isVector();
+                this->visitExpression(inner);
                 break;
-
+            }
             case Expression::Kind::kExternalValue: {
                 const ExternalValue& var = expr.as<ExternalValueReference>().value();
                 if (!var.canWrite()) {
@@ -332,8 +334,9 @@ private:
         }
     }
 
-    VariableReference** fAssignableVar;
     ErrorReporter* fErrors;
+    VariableReference* fAssignedVar = nullptr;
+    bool fIsSwizzled = false;
 
     using INHERITED = ProgramVisitor;
 };
@@ -442,10 +445,9 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
     return VariableWriteVisitor(&var).visit(stmt);
 }
 
-bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
-                            ErrorReporter* errors) {
+bool Analysis::IsAssignable(Expression& expr, AssignmentInfo* info, ErrorReporter* errors) {
     TrivialErrorReporter trivialErrors;
-    return IsAssignableVisitor{assignableVar, errors ? errors : &trivialErrors}.visit(expr);
+    return IsAssignableVisitor{errors ? errors : &trivialErrors}.visit(expr, info);
 }
 
 bool Analysis::IsTrivialExpression(const Expression& expr) {

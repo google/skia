@@ -44,7 +44,12 @@ struct Analysis {
     static std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
-    static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
+
+    struct AssignmentInfo {
+        VariableReference* fAssignedVar = nullptr;
+        bool fIsSwizzled = false;
+    };
+    static bool IsAssignable(Expression& expr, AssignmentInfo* info,
                              ErrorReporter* errors = nullptr);
 
     // A "trivial" expression is one where we'd feel comfortable cloning it multiple times in
