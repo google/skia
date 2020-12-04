@@ -9,7 +9,7 @@ struct Outputs {
 float foo(float v[2]) {
     return v[0] * v[1];
 }
-void bar(thread float* x) {
+void bar(thread float& x) {
     float y[2];
 
     y[0] = x;
@@ -20,7 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float x = 10.0;
-    bar(&x);
+    bar(x);
     _out->sk_FragColor = float4(x);
     return *_out;
 }

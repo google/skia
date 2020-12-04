@@ -279,17 +279,6 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     } else if (builtin && name == "inverse") {
         SkASSERT(arguments.size() == 1);
         this->writeInverseHack(*arguments[0]);
-    } else if (builtin && name == "frexp") {
-        // Our Metal codegen assumes that out params are pointers, but Metal's built-in frexp
-        // actually takes a reference for the exponent, not a pointer. We add in a helper function
-        // here to translate.
-        SkASSERT(arguments.size() == 2);
-        auto [iter, newlyCreated] = fHelpers.insert("frexp");
-        if (newlyCreated) {
-            fExtraFunctions.printf(
-                    "float frexp(float arg, thread int* exp) { return frexp(arg, *exp); }\n");
-        }
-        this->write("frexp");
     } else if (builtin && name == "dFdx") {
         this->write("dfdx");
     } else if (builtin && name == "dFdy") {
@@ -324,14 +313,10 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write("_fragCoord");
         separator = ", ";
     }
-    const std::vector<const Variable*>& parameters = function.parameters();
     for (size_t i = 0; i < arguments.size(); ++i) {
         const Expression& arg = *arguments[i];
         this->write(separator);
         separator = ", ";
-        if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
-            this->write("&");
-        }
         this->writeExpression(arg, kSequence_Precedence);
     }
     this->write(")");
@@ -943,13 +928,6 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    if (Compiler::IsAssignment(op) && left.is<VariableReference>() &&
-        left.as<VariableReference>().variable()->storage() == Variable::Storage::kParameter &&
-        left.as<VariableReference>().variable()->modifiers().fFlags & Modifiers::kOut_Flag) {
-        // writing to an out parameter. Since we have to turn those into pointers, we have to
-        // dereference it here.
-        this->write("*");
-    }
     if (op == Token::Kind::TK_STAREQ && leftType.isMatrix() && rightType.isMatrix()) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
@@ -1153,7 +1131,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         const Type* type = &param->type();
         this->writeBaseType(*type);
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
-            this->write("*");
+            this->write("&");
         }
         this->write(" ");
         this->writeName(param->name());
