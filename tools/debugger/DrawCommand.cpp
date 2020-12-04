@@ -255,6 +255,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kSave_OpType: return "Save";
         case kSaveLayer_OpType: return "SaveLayer";
         case kSetMatrix_OpType: return "SetMatrix";
+        case kSetM44_OpType: return "SetM44";
         default:
             SkDebugf("OpType error 0x%08x\n", type);
             SkASSERT(0);
