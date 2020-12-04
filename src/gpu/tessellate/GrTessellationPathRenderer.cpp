@@ -147,8 +147,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
     if (!shape.style().isSimpleFill()) {
         // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
         // of them will eventually go away.
-        if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
-            SkPathPriv::ConicWeightCnt(path)) {
+        if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
             return CanDrawPath::kNo;
         }
         if (shape.style().isSimpleHairline()) {
@@ -172,7 +171,7 @@ static GrOp::Owner make_stroke_op(GrRecordingContext* context, GrAAType aaType,
     // currently capable of passing coord transforms to the fragment shader either, so if the paint
     // might have local coords we need to use indirect draws.
     if (shaderCaps.tessellationSupport() && path.countVerbs() > 50 &&
-        !paint_might_use_local_coords(paint)) {
+        !paint_might_use_local_coords(paint) && SkPathPriv::ConicWeightCnt(path) == 0) {
         return GrOp::Make<GrStrokeTessellateOp>(context, aaType, viewMatrix, stroke, path,
                                                 std::move(paint));
     } else {
