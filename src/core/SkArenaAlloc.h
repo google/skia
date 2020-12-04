@@ -8,6 +8,7 @@
 #ifndef SkArenaAlloc_DEFINED
 #define SkArenaAlloc_DEFINED
 
+#include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 
@@ -64,6 +65,10 @@
 // the Fibonacci sequence which means that for 2^32 memory there are 48 allocations, and for 2^48
 // there are 71 allocations.
 class SkArenaAlloc {
+    static constexpr ptrdiff_t kMaxAlignment = 1024;
+    // The largest size that can be allocated. Includes maximum padding and fudge for footers.
+    // This should never overflow with the calculations done on the code.
+    static constexpr ptrdiff_t kMaxSize = std::numeric_limits<int32_t>::max() - kMaxAlignment - 32;
 public:
     SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation);
 
@@ -74,14 +79,19 @@ public:
 
     template <typename T, typename... Args>
     T* make(Args&&... args) {
-        uint32_t size      = ToU32(sizeof(T));
-        uint32_t alignment = ToU32(alignof(T));
+        static_assert(sizeof(T) < kMaxSize, "Size is too big for arena");
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        constexpr ptrdiff_t size = sizeof(T);
+        constexpr ptrdiff_t alignment = alignof(T);
+        constexpr ptrdiff_t mask = alignment - 1;
         char* objStart;
         if (std::is_trivially_destructible<T>::value) {
-            objStart = this->allocObject(size, alignment);
+            objStart = this->allocObject(size, alignment, mask);
+
             fCursor = objStart + size;
         } else {
-            objStart = this->allocObjectWithFooter(size + sizeof(Footer), alignment);
+            objStart = this->allocObjectWithFooter(size + sizeof(Footer), alignment, mask);
+
             // Can never be UB because max value is alignof(T).
             uint32_t padding = ToU32(objStart - fCursor);
 
@@ -94,6 +104,12 @@ public:
             };
             this->installFooter(releaser, padding);
         }
+
+        // Make sure everything fits.
+        SkASSERT(fCursor <= fEnd);
+
+        // Must be aligned.
+        SkASSERT((reinterpret_cast<intptr_t>(objStart) & mask) == 0);
 
         // This must be last to make objects with nested use of this allocator work.
         return new(objStart) T(std::forward<Args>(args)...);
@@ -130,8 +146,11 @@ public:
 
     // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
-        AssertRelease(SkTFitsIn<uint32_t>(size));
-        auto objStart = this->allocObject(ToU32(size), ToU32(align));
+        AssertRelease(SkTFitsIn<int32_t>(size));
+
+        // Make sure alignment is a power of 2.
+        SkASSERT(SkIsPow2(align));
+        auto objStart = this->allocObject(ToU32(size), ToU32(align), align - 1);
         fCursor = objStart + size;
         return objStart;
     }
@@ -162,25 +181,19 @@ private:
 
     void ensureSpace(uint32_t size, uint32_t alignment);
 
-    char* allocObject(uint32_t size, uint32_t alignment) {
-        uintptr_t mask = alignment - 1;
-        uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
-        uintptr_t totalSize = size + alignedOffset;
-        AssertRelease(totalSize >= size);
-        if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
-            this->ensureSpace(size, alignment);
-            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+    char* allocObject(ptrdiff_t size, ptrdiff_t alignment, ptrdiff_t mask) {
+        ptrdiff_t alignedOffset = -reinterpret_cast<intptr_t>(fCursor) & mask;
+
+        if (size > fEnd - fCursor - alignedOffset) {
+            // If we are out of space. Get more making sure to account for alignment.
+            this->ensureSpace(size + alignment - 1, alignment);
+            alignedOffset = -reinterpret_cast<intptr_t>(fCursor) & mask;
         }
 
-        char* object = fCursor + alignedOffset;
-
-        SkASSERT((reinterpret_cast<uintptr_t>(object) & (alignment - 1)) == 0);
-        SkASSERT(object + size <= fEnd);
-
-        return object;
+        return fCursor + alignedOffset;
     }
 
-    char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
+    char* allocObjectWithFooter(ptrdiff_t sizeIncludingFooter, ptrdiff_t alignment, ptrdiff_t mask);
 
     template <typename T>
     T* allocUninitializedArray(size_t countZ) {
@@ -193,13 +206,13 @@ private:
         uint32_t alignment = ToU32(alignof(T));
 
         if (std::is_trivially_destructible<T>::value) {
-            objStart = this->allocObject(arraySize, alignment);
+            objStart = this->allocObject(arraySize, alignment, alignment - 1);
             fCursor = objStart + arraySize;
         } else {
             constexpr uint32_t overhead = sizeof(Footer) + sizeof(uint32_t);
             AssertRelease(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
             uint32_t totalSize = arraySize + overhead;
-            objStart = this->allocObjectWithFooter(totalSize, alignment);
+            objStart = this->allocObjectWithFooter(totalSize, alignment, alignment - 1);
 
             // Can never be UB because max value is alignof(T).
             uint32_t padding = ToU32(objStart - fCursor);
