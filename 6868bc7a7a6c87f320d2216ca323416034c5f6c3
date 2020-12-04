@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f01508c7_84e33399",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T22:03:05Z",
+      "side": 1,
+      "message": "The android canary appears to be a \"module error\", which I think is an infra problem, so am landing this, but will keep an eye on the roll just in case.",
+      "revId": "6868bc7a7a6c87f320d2216ca323416034c5f6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "abde8645_906c08ab",
@@ -14,6 +31,30 @@
       "writtenOn": "2020-12-04T21:06:36Z",
       "side": 1,
       "message": "what this always broken? (i.e. calling getGlobalBounds)\nWho else used LayerIter::clipBounds?",
+      "range": {
+        "startLine": 3002,
+        "startChar": 27,
+        "endLine": 3002,
+        "endChar": 40
+      },
+      "revId": "6868bc7a7a6c87f320d2216ca323416034c5f6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abc60b11_be7fd5ed",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3002,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T22:03:05Z",
+      "side": 1,
+      "message": "AFAIK, only SkCanvasStateUtils used it for the canvas state saving for webview. It looks like this CL https://skia-review.googlesource.com/c/skia/+/113260/ changed it from onAsRgnClip to getGlobalBounds. onAsRgnClip appears to return rects in device space, so it\u0027s been off since 2018. If webview only ever actually captured state for the base device, it would not have a shifted origin, and it would appear correct.",
+      "parentUuid": "abde8645_906c08ab",
       "range": {
         "startLine": 3002,
         "startChar": 27,
