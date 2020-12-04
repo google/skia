@@ -135,12 +135,19 @@ class SkpDebugPlayer {
       surface->getCanvas()->flush();
     }
 
-    const SkIRect getBounds() {
+    // Gets the bounds for the given frame
+    // (or layer update, assuming there is one at that frame for fInspectedLayer)
+    const SkIRect getBoundsForFrame(int32_t frame) {
       if (fInspectedLayer < 0) {
-        return fBounds;
+        return fBoundsArray[frame];
       }
       auto summary = fLayerManager->event(fInspectedLayer, fp);
       return SkIRect::MakeWH(summary.layerWidth, summary.layerHeight);
+    }
+
+    // Gets the bounds for the current frame
+    const SkIRect getBounds() {
+      return getBoundsForFrame(fp);
     }
 
     // returns the debugcanvas of the current frame, or the current draw event when inspecting
@@ -371,8 +378,8 @@ class SkpDebugPlayer {
         }
         SkDebugf("Parsed SKP file.\n");
         // Make debug canvas using bounds from SkPicture
-        fBounds = picture->cullRect().roundOut();
-        std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBounds);
+        fBoundsArray.push_back(picture->cullRect().roundOut());
+        std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBoundsArray.back());
 
         // Only draw picture to the debug canvas once.
         debugCanvas->drawPicture(picture);
@@ -403,8 +410,8 @@ class SkpDebugPlayer {
         int i = 0;
         for (const auto& page : pages) {
           // Make debug canvas using bounds from SkPicture
-          fBounds = page.fPicture->cullRect().roundOut();
-          std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBounds);
+          fBoundsArray.push_back(page.fPicture->cullRect().roundOut());
+          std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBoundsArray.back());
           debugCanvas->setLayerManagerAndFrame(fLayerManager.get(), i);
 
           // Only draw picture to the debug canvas once.
@@ -441,8 +448,9 @@ class SkpDebugPlayer {
       std::vector<std::unique_ptr<DebugCanvas>> frames;
       // The index of the current frame (into the vector above)
       int fp = 0;
-      // The width and height of the animation. (in practice the bounds of the last loaded frame)
-      SkIRect fBounds;
+      // The width and height of every frame.
+      // frame sizes are known to change in Android Skia RenderEngine because it interleves pictures from different applications.
+      std::vector<SkIRect> fBoundsArray;
       // image resources from a loaded file
       std::vector<sk_sp<SkImage>> fImages;
 
@@ -541,6 +549,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
     .function("findCommandByPixel",   &SkpDebugPlayer::findCommandByPixel, allow_raw_pointers())
     .function("getBounds",            &SkpDebugPlayer::getBounds)
+    .function("getBoundsForFrame",    &SkpDebugPlayer::getBoundsForFrame)
     .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
     .function("getImageCount",        &SkpDebugPlayer::getImageCount)
