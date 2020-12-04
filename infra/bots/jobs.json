@@ -441,6 +441,7 @@
   "Test-Debian10-Clang-GCE-CPU-Rome-x86_64-Release-All",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN",
+  "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Debug-Shard_00_32-SwiftShader_MSAN",
   "Test-Debian10-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader",
   "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All",
   "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan",
