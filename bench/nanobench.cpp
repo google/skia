@@ -702,6 +702,9 @@ public:
     }
 
     static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+            return nullptr;
+        }
         sk_sp<SkData> data(SkData::MakeFromFileName(path));
         if (!data) {
             SkDebugf("Could not read %s.\n", path);
