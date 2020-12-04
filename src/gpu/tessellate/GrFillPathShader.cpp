@@ -71,7 +71,7 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
                                            GrGLSLUniformHandler* uniformHandler) const {
     v->codeAppend(R"(
     float4x2 P = float4x2(input_points_0_1, input_points_2_3);
-    if (isnan(P[3].y)) {
+    if (isinf(P[3].y)) {
         // This curve is actually a conic. Convert the control points to a trapeziodal hull
         // that circumcscribes the conic.
         float w = P[3].x;
