@@ -118,7 +118,6 @@ tests_sources = [
   "$_tests/GrSubmittedFlushTest.cpp",
   "$_tests/GrSurfaceTest.cpp",
   "$_tests/GrTBlockListTest.cpp",
-  "$_tests/GrTestingBackendTextureUploadTest.cpp",
   "$_tests/GrTextBlobTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
   "$_tests/GrThreadSafeCacheTest.cpp",
