@@ -360,6 +360,7 @@ gm_sources = [
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
   "$_gm/tessellation.cpp",
+  "$_gm/testbleed.cpp",
   "$_gm/testgradient.cpp",
   "$_gm/texelsubset.cpp",
   "$_gm/text_scale_skew.cpp",
