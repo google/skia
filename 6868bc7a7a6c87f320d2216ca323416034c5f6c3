@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abde8645_906c08ab",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3002,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-04T21:06:36Z",
+      "side": 1,
+      "message": "what this always broken? (i.e. calling getGlobalBounds)\nWho else used LayerIter::clipBounds?",
+      "range": {
+        "startLine": 3002,
+        "startChar": 27,
+        "endLine": 3002,
+        "endChar": 40
+      },
+      "revId": "6868bc7a7a6c87f320d2216ca323416034c5f6c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
