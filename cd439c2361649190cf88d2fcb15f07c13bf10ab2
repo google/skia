@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e22eea67_638a5e3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T17:56:25Z",
+      "side": 1,
+      "message": "After talking with @reed and discovering that the previously #define-disabled tests weren\u0027t actually working correctly, I figured it made sense to get them in order before we land https://skia-review.googlesource.com/c/skia/+/339988 (which would have kept them disabled).",
+      "revId": "cd439c2361649190cf88d2fcb15f07c13bf10ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c59eb91_4f2804e0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3002,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T17:56:25Z",
+      "side": 1,
+      "message": "This is actually the same as the bug mentioned in https://skia-review.googlesource.com/c/skia/+/339991, but was actually exposed by these tests.",
+      "range": {
+        "startLine": 3002,
+        "startChar": 11,
+        "endLine": 3002,
+        "endChar": 43
+      },
+      "revId": "cd439c2361649190cf88d2fcb15f07c13bf10ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0667917b_83e3f51d",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T17:56:25Z",
+      "side": 1,
+      "message": "We got memory corruption in the tests that used alpha \u003d 0, since that would just change the canvas to an empty clip instead of making a layer. Saving the canvas state then had a clipRectCount \u003d\u003d 0 but we\u0027d still try to free a pointer to the cliprects that were never allocated.",
+      "range": {
+        "startLine": 117,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 13
+      },
+      "revId": "cd439c2361649190cf88d2fcb15f07c13bf10ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a66a8e14_41a19c55",
+        "filename": "tests/CanvasStateHelpers.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T17:56:25Z",
+      "side": 1,
+      "message": "without this, the canvas_state_lib.dll produced on windows wouldn\u0027t actually contain the functions, so the tests would later fail on GetProcAddress.",
+      "range": {
+        "startLine": 24,
+        "startChar": 15,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "cd439c2361649190cf88d2fcb15f07c13bf10ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3fccd9c_ebe953bd",
+        "filename": "tests/CanvasStateTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-04T17:56:25Z",
+      "side": 1,
+      "message": "At some point in the past, the behavior of unclipped layers with subsequent replace-ops drifted from what this test was expecting. On a single SkCanvas with an unclipped layer, we punch a clipRegion-difference hole in the prior layer. However, then the replace op is sent to every top-level device, which erases this hole.\n\nThe SkCanvasStack that is used for the canvas-state rendering to simulate a device stack explicitly re-applies the hole punching after ever clip operation, so we get divergent behavior.\n\nSince expanding clip ops are going away, and because unclipped layers have basically gone away (next CL), I figured I\u0027d just change this test to pass.",
+      "range": {
+        "startLine": 227,
+        "startChar": 37,
+        "endLine": 227,
+        "endChar": 61
+      },
+      "revId": "cd439c2361649190cf88d2fcb15f07c13bf10ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
