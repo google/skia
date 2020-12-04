@@ -433,7 +433,7 @@ describe('Path Behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const points = [[5, 5], [30, 20], [55, 5], [55, 50], [30, 30], [5, 50]];
+        const points = [5, 5,  30, 20,  55, 5,  55, 50,  30, 30,  5, 50];
 
         const pointsObj = CanvasKit.Malloc(Float32Array, 6 * 2);
         const mPoints = pointsObj.toTypedArray();
