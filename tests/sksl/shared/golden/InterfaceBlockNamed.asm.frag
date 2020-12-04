@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: SPIR-V validation error: Uniform id '3' is missing Binding decoration.
+error: SPIR-V validation error: Uniform id '3' is missing Binding decoration.
 From Vulkan spec, section 14.5.2:
 These variables must have DescriptorSet and Binding decorations specified
   %3 = OpVariable %_ptr_Uniform_testBlock Uniform

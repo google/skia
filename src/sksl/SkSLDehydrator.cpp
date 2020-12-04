@@ -280,6 +280,8 @@ void Dehydrator::write(const Expression* e) {
                 this->writeU8(b.value());
                 break;
             }
+            case Expression::Kind::kCodeString:
+                SkDEBUGFAIL("shouldn't be able to receive kCodeString here");
             case Expression::Kind::kConstructor: {
                 const Constructor& c = e->as<Constructor>();
                 this->writeCommand(Rehydrator::kConstructor_Command);
