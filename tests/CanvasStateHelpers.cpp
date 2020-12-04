@@ -75,5 +75,4 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
     complex_clips_draw(canvas.get(), left, top, right, bottom, clipOp, localRegion);
     return true;
 }
-
 #endif // SK_TEST_CANVAS_STATE_CROSS_LIBRARY

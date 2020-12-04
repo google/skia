@@ -22,20 +22,6 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
-// matches old SkCanvas::SaveFlags
-enum LegacySaveFlags {
-    kClipToLayer_LegacySaveFlags      = 0x10,
-};
-
-SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t flags) {
-    uint32_t layerFlags = 0;
-
-    if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
-        layerFlags |= kDontClipToLayer_SaveLayerFlag;
-    }
-    return layerFlags;
-}
-
 static const SkRect* get_rect_ptr(SkReadBuffer* reader, SkRect* storage) {
     if (reader->readBool()) {
         reader->readRect(storage);
@@ -558,15 +544,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 subset = &storage;
             }
             SkCanvasPriv::SaveBehind(canvas, subset);
-        } break;
-        case SAVE_LAYER_SAVEFLAGS_DEPRECATED: {
-            SkRect storage;
-            const SkRect* boundsPtr = get_rect_ptr(reader, &storage);
-            const SkPaint* paint = fPictureData->optionalPaint(reader);
-            auto flags = SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(reader->readInt());
-            BREAK_ON_READ_ERROR(reader);
-
-            canvas->saveLayer(SkCanvas::SaveLayerRec(boundsPtr, paint, flags));
         } break;
         case SAVE_LAYER_SAVELAYERREC: {
             SkCanvas::SaveLayerRec rec(nullptr, nullptr, nullptr, 0);
