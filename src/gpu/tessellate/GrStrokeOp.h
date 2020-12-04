@@ -80,7 +80,8 @@ protected:
     GrProcessorSet fProcessors;
 
     GrSTArenaList<SkPath> fPathList;
-    int fTotalCombinedVerbCnt;
+    int fTotalCombinedVerbCnt = 0;
+    int fTotalConicWeightCnt = 0;
 
     const GrProgramInfo* fStencilProgram = nullptr;
     const GrProgramInfo* fFillProgram = nullptr;

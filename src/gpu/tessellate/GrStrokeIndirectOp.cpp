@@ -35,8 +35,8 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
         return;
     }
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
-            fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+            GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
+            fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
     this->prePreparePrograms(context->priv().recordTimeAllocator(), strokeTessellateShader,
                              writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
                              colorLoadOp, *context->priv().caps());
@@ -421,18 +421,6 @@ private:
     int* const fResolveLevelCounts;
 };
 
-static void find_quadratic_cusp_if_any(const SkPoint pts[3], SkTArray<SkPoint>* out) {
-    SkVector a = pts[1] - pts[0];
-    SkVector b = pts[2] - pts[1];
-    // A quadratic can only have a cusp if it is a degenerate flat line with a 180 degree turnarund.
-    // To detect this, the beginning and ending tangents must be parallel (a.cross(b) == 0) and
-    // pointing in opposite directions (a.dot(b) < 0).
-    if (a.cross(b) == 0 && a.dot(b) < 0) {
-        float T = SkFindQuadMidTangent(pts);  // The cusp occurs at midtangent.
-        out->push_back(SkEvalQuadAt(pts, T));
-    }
-}
-
 }  // namespace
 
 void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
@@ -486,6 +474,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
                         }
                         [[fallthrough]];
                     case Verb::kQuad:
+                    case Verb::kConic:
                         if (prevPts[1] != prevPts[2]) {
                             lastControlPoint = prevPts[1];
                             break;
@@ -512,11 +501,26 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
                     }
                     ++fTotalInstanceCount;
                     break;
-                case Verb::kQuad:
-                    find_quadratic_cusp_if_any(pts, &cusps);
+                case Verb::kConic:
+                    // We use the same quadratic formula for conics, ignoring w. This is pretty
+                    // close to what the actual number of subdivisions would have been.
+                    [[fallthrough]];
+                case Verb::kQuad: {
+                    // Check for a cusp. A conic can only have a cusp if it is a degenerate flat
+                    // line with a 180 degree turnarund. To detect this, the beginning and ending
+                    // tangents must be parallel (a.cross(b) == 0) and pointing in opposite
+                    // directions (a.dot(b) < 0).
+                    SkVector a = pts[1] - pts[0];
+                    SkVector b = pts[2] - pts[1];
+                    if (a.cross(b) == 0 && a.dot(b) < 0) {
+                        // The cusp occurs at midtangent.
+                        SkConic conic(pts, (verb == Verb::kConic) ? iter.w() : 1);
+                        conic.evalAt(conic.findMidTangent(), &cusps.push_back());
+                    }
                     counter.countQuad(pts, lastControlPoint, nextResolveLevel++);
                     ++fTotalInstanceCount;
                     break;
+                }
                 case Verb::kCubic: {
                     bool areCusps = false;
                     int numChops = GrPathUtils::findCubicConvex180Chops(pts, nextChopTs, &areCusps);
@@ -588,8 +592,8 @@ void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
             return;
         }
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
-                fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
+                fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
         this->prePreparePrograms(arena, strokeTessellateShader, flushState->writeView(),
                                  flushState->detachAppliedClip(), flushState->dstProxyView(),
                                  flushState->renderPassBarriers(), flushState->colorLoadOp(),
@@ -688,10 +692,11 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
         GrStrokeIterator iter(path, fStroke);
         bool hasLastControlPoint = false;
         while (iter.next()) {
+            using Verb = GrStrokeIterator::Verb;
             int numChops = 0;
             const SkPoint* pts=iter.pts(), *pts_=pts;
-            switch (iter.verb()) {
-                using Verb = GrStrokeIterator::Verb;
+            Verb verb = iter.verb();
+            switch (verb) {
                 case Verb::kCusp:
                     nextInstanceLocations[fResolveLevelForCusps]++->setCusp(
                             pts[0], numEdgesPerResolveLevel[fResolveLevelForCusps]);
@@ -724,6 +729,11 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                     pts_ = scratch;
                     resolveLevel = *nextResolveLevel++;
                     break;
+                case Verb::kConic:
+                    GrPathShader::WriteConicPatch(pts, iter.w(), scratch);
+                    pts_ = scratch;
+                    resolveLevel = *nextResolveLevel++;
+                    break;
                 case Verb::kCubic:
                     resolveLevel = *nextResolveLevel++;
                     if (resolveLevel < 0) {
@@ -752,11 +762,11 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                             (i == 0) ? numEdges : -numEdges);
                 }
                 // Determine the last control point.
-                if (pts_[2] != pts_[3]) {
+                if (pts_[2] != pts_[3] && verb != Verb::kConic) {  // Conics use pts_[3] for w.
                     lastControlPoint = pts_[2];
-                } else if (pts_[1] != pts_[3]) {
+                } else if (pts_[1] != pts_[2]) {
                     lastControlPoint = pts_[1];
-                } else if (pts_[0] != pts_[3]) {
+                } else if (pts_[0] != pts_[1]) {
                     lastControlPoint = pts_[0];
                 } else {
                     // This is very unusual, but all chops became degenerate. Don't update the
