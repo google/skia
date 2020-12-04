@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25231cb9_7669446c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-04T20:33:15Z",
+      "side": 1,
+      "message": "AFAICT this has become redundant with other more comprehensive tests now that we\u0027re using public createBackendTexture and updateBackendTexture for our own testing.",
+      "revId": "5468b8affc7265e6674f90fe38900f7b7a0e4f3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
