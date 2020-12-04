@@ -112,41 +112,37 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     this->installFooter(NextBlock, 0);
 }
 
-char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment) {
-    uintptr_t mask = alignment - 1;
+char* SkArenaAlloc::allocObjectWithFooter(
+        ptrdiff_t sizeIncludingFooter, ptrdiff_t alignment) {
+    const ptrdiff_t mask = alignment - 1;
+    // The size of the footer if needed to skip over pod data.
+    ptrdiff_t skipFooterSize = 0;
+    // The alignment offset from the cursor to the object start accounting for the skip footer.
+    ptrdiff_t alignedOffset;
 
-restart:
-    uint32_t skipOverhead = 0;
-    const bool needsSkipFooter = fCursor != fDtorCursor;
-    if (needsSkipFooter) {
-        skipOverhead = sizeof(Footer) + sizeof(uint32_t);
-    }
-    const uint32_t totalSize = sizeIncludingFooter + skipOverhead;
-
-    // Math on null fCursor/fEnd is undefined behavior, so explicitly check for first alloc.
     if (!fCursor) {
-        this->ensureSpace(totalSize, alignment);
-        goto restart;
+        this->ensureSpace(sizeIncludingFooter + alignment - 1, alignment);
+        // For a new block of memory no skip footer is needed.
+        SkASSERT(fCursor == fDtorCursor);
+        skipFooterSize = 0;
+        alignedOffset = -reinterpret_cast<ptrdiff_t>(fCursor) & mask;
+    } else {
+        do {
+            skipFooterSize = fCursor != fDtorCursor ? sizeof(Footer) + sizeof(uint32_t) : 0;
+            // The alignment needs to account for the skip footer we are about to add.
+            alignedOffset = -reinterpret_cast<ptrdiff_t>(fCursor + skipFooterSize) & mask;
+        } while (sizeIncludingFooter > fEnd - fCursor - skipFooterSize - alignedOffset &&
+                 ((void)this->ensureSpace(sizeIncludingFooter + alignment - 1, alignment), true));
     }
-
-    assert(fEnd);
-    // This test alone would be enough nullptr were defined to be 0, but it's not.
-    char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
-    if ((ptrdiff_t)totalSize > fEnd - objStart) {
-        this->ensureSpace(totalSize, alignment);
-        goto restart;
-    }
-
-    AssertRelease((ptrdiff_t)totalSize <= fEnd - objStart);
 
     // Install a skip footer if needed, thus terminating a run of POD data. The calling code is
     // responsible for installing the footer after the object.
-    if (needsSkipFooter) {
+    if (fCursor != fDtorCursor) {
         this->installRaw(ToU32(fCursor - fDtorCursor));
         this->installFooter(SkipPod, 0);
     }
 
-    return objStart;
+    return fCursor + alignedOffset;
 }
 
 static uint32_t to_uint32_t(size_t v) {
