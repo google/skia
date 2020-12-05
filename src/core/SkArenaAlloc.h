@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
+#include "src/core/SkEnumerate.h"
+#include "src/core/SkSpan.h"
 
 #include <array>
 #include <cassert>
@@ -18,10 +20,214 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+
+// SkDestroyerSpan provides a span that calls the destructors on each item in the span. Notice,
+// it does not delete the underlying array.
+template<typename T>
+class SkDestroyerSpan : public SkSpan<T> {
+public:
+    SkDestroyerSpan() : SkSpan<T>(nullptr, 0) {}
+    SkDestroyerSpan(SkSpan<T> span) : SkSpan<T>{span} {}
+    SkDestroyerSpan(const SkDestroyerSpan&) = delete;
+    SkDestroyerSpan& operator=(const SkDestroyerSpan&) = delete;
+    SkDestroyerSpan(SkDestroyerSpan&& that) : SkSpan<T>{that.release()} {}
+    SkDestroyerSpan& operator=(SkDestroyerSpan&& that) {
+        this->~SkDestroyerSpan();
+        new (this) SkDestroyerSpan{that.release()};
+        return *this;
+    }
+    ~SkDestroyerSpan() { for (auto& t : *this) { t.~T(); } }
+    SkSpan<T> release() {
+        SkSpan result{this->data(), this->size()};
+        new (this) SkDestroyerSpan{};
+        return result;
+    }
+};
+
+// SkArena provides fast allocation where the user takes care of calling the destructors of the
+// returned pointers, and SkArena takes care of deleting the storage. SkDestroyerPtr and
+// SkDestroyer span are provided to help track what needs to be destructed.
+class SkArena {
+public:
+    template<typename T>
+    struct Destroyer {
+        constexpr Destroyer() = default;
+        template<class U>
+        Destroyer(const Destroyer<U>&,
+                    typename std::enable_if<std::is_convertible<U*, T*>::value>::type* = 0) {}
+        void operator()(T* o) const { o->~T(); }
+    };
+
+    SkArena(char* block, size_t blockSize, size_t firstHeapAllocation);
+    explicit SkArena(size_t firstHeapAllocation = 0);
+    ~SkArena();
+
+    template <typename T, typename... Args> T* makePOD(Args&&... args) {
+        static_assert(std::is_trivially_destructible<T>::value, "This is not POD. Use make.");
+        return this->template innerMake<T>(std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    std::unique_ptr<T, Destroyer<T>> makeUnique(Args&&... args) {
+        static_assert(!std::is_trivially_destructible<T>::value, "This is POD. Use makePOD.");
+        return std::unique_ptr<T, Destroyer<T>>{
+            this->template innerMake<T>(std::forward<Args>(args)...)};
+    }
+
+    template<typename T> T* makePODArray(size_t size) {
+        static_assert(std::is_trivially_destructible<T>::value, "This is not POD. Use makeArray.");
+        return this->template innerMakeArray<T>(size);
+    }
+
+    template<typename T> SkDestroyerSpan<T> makeArray(size_t size) {
+        static_assert(!std::is_trivially_destructible<T>::value, "This is POD. Use makePODArray.");
+        SkSpan<T> array{this->template innerMakeArray<T>(size), size};
+        for (auto& e : array) {
+            new (&e) T{};
+        }
+        return SkDestroyerSpan<T>{array};
+    }
+
+    template<typename T, typename I> SkDestroyerSpan<T> makeArray(size_t size, I&& initer) {
+        static_assert(!std::is_trivially_destructible<T>::value, "This is POD. Use makePODArray.");
+        SkSpan<T> array{this->template innerMakeArray<T>(size), size};
+        for (size_t i = 0; i < array.size(); i++) {
+            new (&array[i]) T(initer(i));
+        }
+        return SkDestroyerSpan<T>{array};
+    }
+
+    static constexpr ptrdiff_t MinimumSizeWithOverhead(size_t requestedSize) {
+        constexpr ptrdiff_t kMallocRounding = kMaxAlignment - alignof(max_align_t);
+        constexpr ptrdiff_t k4K = (1 << 12);
+        constexpr ptrdiff_t k32K = (1 << 15);
+
+        // The minimumSize is the amount to allocate to assure a pointer with kMaxAlignment
+        // alignment and at least size requiredSize + sizeof(Block);
+        ptrdiff_t minimumSize =
+                AlignUp(
+                        requestedSize + kMallocRounding + sizeof(Block), alignof(max_align_t));
+
+        // If minimumSize is > 32k then round to a 4K boundary. The > 32K heuristic is from the
+        // JEMalloc behavior.
+        if (minimumSize >= k32K) {
+            minimumSize = AlignUp(minimumSize, k4K);
+        }
+
+        return minimumSize;
+    }
+
+    char* alignedBytes(size_t size, size_t alignment);
+
+private:
+    static constexpr ptrdiff_t kMaxAlignment = 64;
+    // The largest size that can be allocated. Includes maximum padding and fudge for the Block.
+    // This should never overflow with the calculations done on the code.
+    static constexpr ptrdiff_t kMaxByteSize =
+            std::numeric_limits<int32_t>::max() - 2*kMaxAlignment - 32;
+
+    class Block {
+    public:
+        Block();
+        Block(char* bytes);
+        Block(char* previous, char* startOfBlock);
+        void store(char* storage);
+        static void DeleteBlocks(char* bytes);
+
+    private:
+        // Points to the storage of the previous block.
+        char*  fPrevious{nullptr};
+
+        // If fStartOfBlock is nullptr then this is a block provided from outside, and not owned.
+        char* fStartOfBlock{nullptr};
+    };
+
+    template <typename T, typename... Args> T* innerMake(Args&&... args) {
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        static_assert(sizeof(T) < kMaxByteSize, "Size is too big for arena");
+        constexpr ptrdiff_t size = SkTo<ptrdiff_t>(sizeof(T));
+        constexpr ptrdiff_t alignment = SkTo<ptrdiff_t>(alignof(T));
+
+        fCapacity = AlignDown(fCapacity, alignment);
+        if (fCapacity < size) {
+            this->needMoreBytes(size, alignment);
+        }
+        T* object = new (fBytes - fCapacity) T {std::forward<Args>(args)...};
+
+        // Assure that we have capacity to satisfy the size request.
+        SkASSERT(fCapacity >= size);
+        fCapacity -= size;
+
+        // Check alignment of object.
+        SkASSERT(AlignDown((char*)object, alignment) == (char*)object);
+        return object;
+    }
+
+    template <typename T> T* innerMakeArray(size_t size) {
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        constexpr ptrdiff_t kMaxSize = kMaxByteSize / sizeof(T);
+        SkASSERT_RELEASE(size < kMaxSize);
+        return (T*)this->alignedBytes(sizeof(T) * size, alignof(T));
+    }
+
+    static char* CalculateStartingBytes(char* block, ptrdiff_t size);
+    static ptrdiff_t CalculateStartingCapacity(char* block, char* bytes);
+
+    static constexpr ptrdiff_t AlignDown(ptrdiff_t v, ptrdiff_t alignment) {
+        // Make sure alignment is a power of 2.
+        SkASSERT((alignment & (alignment - 1)) == 0);
+        return v & -alignment;  // -alignment == ~(alignment - 1)
+    }
+    static constexpr ptrdiff_t AlignUp(ptrdiff_t v, ptrdiff_t alignment) {
+        return AlignDown(v + alignment - 1, alignment);
+    }
+    static char* AlignDown(char* ptr, ptrdiff_t alignment);
+
+    // Adjust fBytes and fCapacity to satisfy the size and alignment request.
+    void needMoreBytes(ptrdiff_t size, ptrdiff_t alignment);
+
+    // This points to the highest kMaxAlignment address in the allocated block. The address of
+    // the current end of allocated data is given by fBytes - fCapacity.
+    char* fBytes{nullptr};
+
+    // The number of bytes remaining in this block.
+    ptrdiff_t fCapacity{0};
+
+    // We found allocating strictly doubling amounts of memory from the heap left too
+    // much unused slop, particularly on Android.  Instead we'll follow a Fibonacci-like
+    // progression that's simple to implement and grows with roughly a 1.6 exponent:
+    //
+    // To start,
+    //    fNextHeapAlloc = fYetNextHeapAlloc = 1*fFirstHeapAllocationSize;
+    //
+    // And then when we do allocate, follow a Fibonacci f(n+2) = f(n+1) + f(n) rule:
+    //    void* block = malloc(fNextHeapAlloc);
+    //    std::swap(fNextHeapAlloc, fYetNextHeapAlloc)
+    //    fYetNextHeapAlloc += fNextHeapAlloc;
+    //
+    // That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.
+    uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
+             fYetNextHeapAlloc;  // And then how many the next allocation after that?
+};
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SkArena).
+// Note: Inheriting from the storage first means the storage will outlive the
+// SkArenaAlloc, letting ~SkArenaAlloc read it as it calls destructors.
+// (This is mostly only relevant for strict tools like MSAN.)
+template <size_t InlineStorageSize>
+class SkSTArena : private std::array<char, SkArena::MinimumSizeWithOverhead(InlineStorageSize)>
+                , public SkArena {
+public:
+    explicit SkSTArena(size_t firstHeapAllocation = MinimumSizeWithOverhead(InlineStorageSize))
+        : SkArena{this->data(), this->size(), firstHeapAllocation} {}
+};
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -243,7 +449,7 @@ private:
     //
     // That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.
     uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
-    fYetNextHeapAlloc;           // And then how many the next allocation after that?
+             fYetNextHeapAlloc;  // And then how many the next allocation after that?
 };
 
 class SkArenaAllocWithReset : public SkArenaAlloc {
