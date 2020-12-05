@@ -157,6 +157,30 @@
       },
       "revId": "876162419a4ed1089635feb2cbd007c85897cffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a32441b_f799bf12",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-05T00:08:15Z",
+      "side": 1,
+      "message": "Just to connect the records, based on https://skia-review.googlesource.com/c/skia/+/341003, we had to update LayerIter to return devClipBounds() as well in order for the re-enabled CanvasStateTests to pass.",
+      "parentUuid": "1d92562f_9f9a6fb4",
+      "range": {
+        "startLine": 212,
+        "startChar": 41,
+        "endLine": 212,
+        "endChar": 89
+      },
+      "revId": "876162419a4ed1089635feb2cbd007c85897cffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
