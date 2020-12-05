@@ -5,16 +5,86 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMath.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include <algorithm>
 #include <new>
 
-static char* end_chain(char*) { return nullptr; }
+SkArena::SkArena(char* bytes, int size, int firstHeapAllocation) {
+    SkASSERT_RELEASE(0 <= size && size < kMaxByteSize);
+    SkASSERT_RELEASE(0 <= firstHeapAllocation && firstHeapAllocation < kMaxByteSize);
 
-static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
+    // If this is not a usable block, just start allocating.
+    if (bytes == nullptr || size <= this->MinimumSizeWithOverhead(0)) {
+        fEndByte = nullptr;
+        fCapacity = 0;
+    } else {
+        this->setupBytesAndCapacity(bytes, size);
+        // Set up a block footer that is the end of the change, and does not release any memory.
+        new (fEndByte) Block{nullptr, nullptr};
+    }
+
+    fNextHeapAlloc = firstHeapAllocation > 0 ? firstHeapAllocation :
+                     size                > 0 ? size                : 1024;
+}
+
+SkArena::SkArena(int firstHeapAllocation) : SkArena(nullptr, 0, firstHeapAllocation) {}
+
+SkArena::~SkArena() {
+    std::unique_ptr<Block, Destroyer> deleteThemAll{reinterpret_cast<Block*>(fEndByte)};
+}
+
+SkArena::Block::Block(char* previous, char* startOfBlock)
+    : fPrevious{reinterpret_cast<Block*>(previous)}
+    , fBlockStart{startOfBlock} {}
+
+char* SkArena::alignedBytes(int unsafeSize, int unsafeAlignment) {
+    SkASSERT_RELEASE(0 < unsafeSize && unsafeSize < kMaxByteSize);
+    SkASSERT_RELEASE(0 < unsafeAlignment && unsafeAlignment <= kMaxAlignment);
+    SkASSERT_RELEASE(SkIsPow2(unsafeAlignment));
+    const int size      = SkTo<int>(unsafeSize),
+              alignment = SkTo<int>(unsafeAlignment);
+
+    return this->allocateBytes(size, alignment);
+}
+
+void SkArena::setupBytesAndCapacity(char* bytes, int size) {
+    intptr_t endByte = reinterpret_cast<intptr_t>(bytes + size - sizeof(Block)) & -kMaxAlignment;
+    fEndByte = reinterpret_cast<char*>(endByte);
+    fCapacity = fEndByte - bytes;
+}
+
+void SkArena::needMoreBytes(int requestedSize, int alignment) {
+    int nextBlockSize = fNextHeapAlloc;
+    // Calculate the next heap alloc that won't overflow.
+    if (fYetNextHeapAlloc <= kMaxByteSize - fNextHeapAlloc) {
+        fNextHeapAlloc += fYetNextHeapAlloc;
+        std::swap(fNextHeapAlloc, fYetNextHeapAlloc);
+    } else {
+        fNextHeapAlloc = kMaxByteSize;
+    }
+
+    char* const previousBlock = fEndByte;
+    const int size = MinimumSizeWithOverhead(std::max(requestedSize, nextBlockSize));
+    char* const bytes = new char[size];
+    this->setupBytesAndCapacity(bytes, size);
+
+    // Make a block to delete these bytes, and points to the previous block.
+    new (fEndByte) Block {previousBlock, bytes};
+
+    // Make fCapacity the alignment for the requested object.
+    fCapacity = fCapacity & -alignment;
+    SkASSERT(fCapacity >= requestedSize);
+}
+
+namespace {
+uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
     return firstHeapAllocation > 0 ? firstHeapAllocation :
            blockSize           > 0 ? blockSize           : 1024;
 }
+char* end_chain(char*) { return nullptr; }
+}  // namespace
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
@@ -70,7 +140,6 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
     delete [] objEnd;
     return nullptr;
 }
-
 
 void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
