@@ -187,21 +187,18 @@ namespace {
     by the device's XY offset and bitmap-bounds.
 */
 struct DeviceCM {
-    DeviceCM*                      fNext;
     sk_sp<SkBaseDevice>            fDevice;
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     SkMatrix                       fStashedMatrix; // original CTM; used by imagefilter in saveLayer
 
     DeviceCM(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed)
-        : fNext(nullptr)
-        , fDevice(std::move(device))
+        : fDevice(std::move(device))
         , fPaint(paint ? std::make_unique<SkPaint>(*paint) : nullptr)
         , fStashedMatrix(stashed)
     {}
 
     void validate() {
         SkASSERT(!fPaint);
-        SkASSERT(!fNext);
         SkASSERT(fDevice);
     }
 };
@@ -240,7 +237,6 @@ public:
         fMatrix.setIdentity();
         fDeferredSaveCount = 0;
 
-        // don't bother initializing fNext
         inc_rec();
     }
     MCRec(const MCRec& prev) : fMatrix(prev.fMatrix) {
@@ -248,7 +244,6 @@ public:
         fTopLayer = prev.fTopLayer;
         fDeferredSaveCount = 0;
 
-        // don't bother initializing fNext
         inc_rec();
     }
     ~MCRec() {
@@ -292,8 +287,7 @@ public:
         if (rec && rec->fDevice) {
             fDevice = rec->fDevice.get();
             fPaint  = rec->fPaint.get();
-            fCurrLayer = rec->fNext;
-            // fCurrLayer may be nullptr now
+            fCurrLayer = nullptr;
             return true;
         }
         return false;
@@ -310,13 +304,11 @@ private:
 
 #define FOR_EACH_TOP_DEVICE( code )                       \
     do {                                                  \
-        DeviceCM* layer = fMCRec->fTopLayer;              \
-        while (layer) {                                   \
+        if (DeviceCM* layer = fMCRec->fTopLayer) {        \
             SkBaseDevice* device = layer->fDevice.get();  \
             if (device) {                                 \
                 code;                                     \
             }                                             \
-            layer = layer->fNext;                         \
         }                                                 \
     } while (0)
 
@@ -1174,7 +1166,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     newDevice->setMarkerStack(fMarkerStack.get());
     DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix);
 
-    layer->fNext = nullptr;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
@@ -1837,14 +1828,11 @@ SkRect SkCanvas::computeDeviceClipBounds() const {
     // Compute the union of all top devices' device bounds, mapped into the global coordinate system
     DeviceCM* layer = fMCRec->fTopLayer;
     SkRect totalBounds = SkRect::MakeEmpty();
-    while (layer) {
-        if (layer->fDevice) {
-            SkIRect devClipBounds = layer->fDevice->devClipBounds();
-            SkRect layerBounds =
-                    layer->fDevice->deviceToGlobal().mapRect(SkRect::Make(devClipBounds));
-            totalBounds.join(layerBounds);
-        }
-        layer = layer->fNext;
+    if (layer && layer->fDevice) {
+        SkIRect devClipBounds = layer->fDevice->devClipBounds();
+        SkRect layerBounds =
+                layer->fDevice->deviceToGlobal().mapRect(SkRect::Make(devClipBounds));
+        totalBounds.join(layerBounds);
     }
 
     return totalBounds;
