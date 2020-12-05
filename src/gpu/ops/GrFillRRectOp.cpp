@@ -312,6 +312,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     Processor(GrAAType aaType, ProcessorFlags flags)
             : INHERITED(kGrFillRRectOp_Processor_ClassID)
