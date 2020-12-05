@@ -176,12 +176,24 @@ public:
         }
         this->onClipShader(std::move(sh));
     }
+
+    // clipRegion and replaceClip's geometry are defined in the global coordinate space, so are
+    // not affected by the device's current local-to-device matrix. However, they are affected by
+    // the device's global-to-device matrix.
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
     void replaceClip(const SkIRect& rect) {
         this->onReplaceClip(rect);
     }
+
+    // clipDevRect() is defined in this device's coordinate space, so the geometry is not affected
+    // by the global-to-device or local-to-device transforms. It is always pixel-aligned with the
+    // device itself and non-AA.
+    void clipDevRect(const SkIRect& rect, SkClipOp op) {
+        this->onClipDevRect(rect, op);
+    }
+
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
@@ -216,6 +228,7 @@ protected:
     virtual void onClipShader(sk_sp<SkShader>) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onReplaceClip(const SkIRect& rect) {}
+    virtual void onClipDevRect(const SkIRect& rect, SkClipOp) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
     virtual bool onClipIsWideOpen() const = 0;
@@ -503,6 +516,7 @@ protected:
     void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
     void onClipShader(sk_sp<SkShader> shader) override;
     void onReplaceClip(const SkIRect& rect) override;
+    void onClipDevRect(const SkIRect& rect, SkClipOp) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override { return this->clip().isAA(); }
     bool onClipIsWideOpen() const override {
