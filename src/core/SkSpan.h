@@ -9,6 +9,7 @@
 #define SkSpan_DEFINED
 
 #include <cstddef>
+#include <iterator>
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTo.h"
 
