@@ -376,6 +376,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     VerticesGP(LocalCoordsType localCoordsType,
                ColorArrayType colorArrayType,
