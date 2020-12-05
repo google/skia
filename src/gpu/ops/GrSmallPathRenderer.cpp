@@ -67,7 +67,7 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
     }
 
     // Only support paths with bounds within kMaxDim by kMaxDim,
-    // scaled to have bounds within kMaxSize by kMaxSize.
+    // scaled to have bounds within kMaxByteSize by kMaxByteSize.
     // The goal is to accelerate rendering of lots of small paths that may be scaling.
     SkScalar scaleFactors[2] = { 1, 1 };
     if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
