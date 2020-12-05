@@ -187,21 +187,18 @@ namespace {
     by the device's XY offset and bitmap-bounds.
 */
 struct DeviceCM {
-    DeviceCM*                      fNext;
     sk_sp<SkBaseDevice>            fDevice;
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     SkMatrix                       fStashedMatrix; // original CTM; used by imagefilter in saveLayer
 
     DeviceCM(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed)
-        : fNext(nullptr)
-        , fDevice(std::move(device))
+        : fDevice(std::move(device))
         , fPaint(paint ? std::make_unique<SkPaint>(*paint) : nullptr)
         , fStashedMatrix(stashed)
     {}
 
     void validate() {
         SkASSERT(!fPaint);
-        SkASSERT(!fNext);
         SkASSERT(fDevice);
     }
 };
@@ -240,7 +237,6 @@ public:
         fMatrix.setIdentity();
         fDeferredSaveCount = 0;
 
-        // don't bother initializing fNext
         inc_rec();
     }
     MCRec(const MCRec& prev) : fMatrix(prev.fMatrix) {
@@ -248,7 +244,6 @@ public:
         fTopLayer = prev.fTopLayer;
         fDeferredSaveCount = 0;
 
-        // don't bother initializing fNext
         inc_rec();
     }
     ~MCRec() {
@@ -292,8 +287,7 @@ public:
         if (rec && rec->fDevice) {
             fDevice = rec->fDevice.get();
             fPaint  = rec->fPaint.get();
-            fCurrLayer = rec->fNext;
-            // fCurrLayer may be nullptr now
+            fCurrLayer = nullptr;
             return true;
         }
         return false;
@@ -308,16 +302,13 @@ private:
     const SkPaint*  fPaint;     // May be null.
 };
 
-#define FOR_EACH_TOP_DEVICE( code )                       \
-    do {                                                  \
-        DeviceCM* layer = fMCRec->fTopLayer;              \
-        while (layer) {                                   \
-            SkBaseDevice* device = layer->fDevice.get();  \
-            if (device) {                                 \
-                code;                                     \
-            }                                             \
-            layer = layer->fNext;                         \
-        }                                                 \
+#define FOR_TOP_DEVICE( code )                                  \
+    do {                                                        \
+        if (DeviceCM* layer = fMCRec->fTopLayer) {              \
+            if (SkBaseDevice* device = layer->fDevice.get()) {  \
+                code;                                           \
+            }                                                   \
+        }                                                       \
     } while (0)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -473,7 +464,7 @@ private:
 #define UPDATE_DEVICE_CLIP(code)                                          \
     do {                                                                  \
     AutoValidateClip avc(this);                                           \
-    FOR_EACH_TOP_DEVICE(code);                                            \
+    FOR_TOP_DEVICE(code);                                                 \
     fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds()); \
     } while(0)
 
@@ -782,7 +773,7 @@ void SkCanvas::internalSave() {
     new (newTop) MCRec(*fMCRec);    // balanced in restore()
     fMCRec = newTop;
 
-    FOR_EACH_TOP_DEVICE(device->save());
+    FOR_TOP_DEVICE(device->save());
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SkIRect* intersection,
@@ -1174,7 +1165,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     newDevice->setMarkerStack(fMarkerStack.get());
     DeviceCM* layer = new DeviceCM(newDevice, paint, stashedMatrix);
 
-    layer->fNext = nullptr;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
@@ -1259,7 +1249,7 @@ void SkCanvas::internalRestore() {
     fMCRec = (MCRec*)fMCStack.back();
 
     if (fMCRec) {
-        FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+        FOR_TOP_DEVICE(device->restore(fMCRec->fMatrix));
     }
 
     if (backImage) {
@@ -1451,7 +1441,7 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         // so we still have to compute this.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+        FOR_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
         this->didTranslate(dx,dy);
     }
@@ -1466,7 +1456,7 @@ void SkCanvas::scale(SkScalar sx, SkScalar sy) {
         // but pre-scaling by a non-finite does change it, so we have to recompute.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+        FOR_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
         this->didScale(sx, sy);
     }
@@ -1501,7 +1491,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    FOR_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
     this->didConcat(matrix);
 #else
@@ -1516,7 +1506,7 @@ void SkCanvas::internalConcat44(const SkM44& m) {
 
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    FOR_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 }
 
 void SkCanvas::concat(const SkM44& m) {
@@ -1529,7 +1519,7 @@ void SkCanvas::internalSetMatrix(const SkM44& m) {
     fMCRec->fMatrix = m;
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(m);
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    FOR_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
@@ -1696,7 +1686,7 @@ void SkCanvas::validateClip() const {
 bool SkCanvas::androidFramework_isClipAA() const {
     bool containsAA = false;
 
-    FOR_EACH_TOP_DEVICE(containsAA |= device->onClipIsAA());
+    FOR_TOP_DEVICE(containsAA |= device->onClipIsAA());
 
     return containsAA;
 }
@@ -1719,7 +1709,7 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
     SkRegion tmp;
 
     rgn->setEmpty();
-    FOR_EACH_TOP_DEVICE(device->onAsRgnClip(&tmp); accum.accumulate(device, &tmp));
+    FOR_TOP_DEVICE(device->onAsRgnClip(&tmp); accum.accumulate(device, &tmp));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1837,14 +1827,11 @@ SkRect SkCanvas::computeDeviceClipBounds() const {
     // Compute the union of all top devices' device bounds, mapped into the global coordinate system
     DeviceCM* layer = fMCRec->fTopLayer;
     SkRect totalBounds = SkRect::MakeEmpty();
-    while (layer) {
-        if (layer->fDevice) {
-            SkIRect devClipBounds = layer->fDevice->devClipBounds();
-            SkRect layerBounds =
-                    layer->fDevice->deviceToGlobal().mapRect(SkRect::Make(devClipBounds));
-            totalBounds.join(layerBounds);
-        }
-        layer = layer->fNext;
+    if (layer && layer->fDevice) {
+        SkIRect devClipBounds = layer->fDevice->devClipBounds();
+        SkRect layerBounds =
+                layer->fDevice->deviceToGlobal().mapRect(SkRect::Make(devClipBounds));
+        totalBounds.join(layerBounds);
     }
 
     return totalBounds;
