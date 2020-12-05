@@ -2626,7 +2626,6 @@ private:
 
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvasPriv;      // needs to expose android functions for testing outside android
-    friend class SkDrawIter;        // needs getTopDevice()
     friend class AutoLayerForImageFilter;
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkNoDrawCanvas;    // needs resetForNextPicture()
@@ -2674,7 +2673,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
     void internalDrawDevice(SkBaseDevice*, const SkPaint*);
