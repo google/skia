@@ -5,16 +5,108 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include <algorithm>
 #include <new>
 
-static char* end_chain(char*) { return nullptr; }
-
-static uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
+namespace {
+uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
     return firstHeapAllocation > 0 ? firstHeapAllocation :
            blockSize           > 0 ? blockSize           : 1024;
 }
+
+class Block {
+public:
+    Block() = default;
+    Block(char* bytes) { memcpy(this, bytes, sizeof(Block)); }
+    Block(char* previous, char* startOfBlock) : fPrevious{previous}, fStartOfBlock{startOfBlock} {}
+    void store(char* storage) { memcpy(storage, this, sizeof(Block)); }
+    static void DeleteBlocks(char* bytes) {
+        while (bytes != nullptr) {
+            Block b{bytes};
+            delete [] b.fStartOfBlock;
+            bytes = b.fPrevious;
+        }
+    }
+
+private:
+    char*  fPrevious{nullptr};
+
+    // If fStartOfBlock is nullptr then this is a block provided from outside, and not owned.
+    char* fStartOfBlock{nullptr};
+};
+
+ptrdiff_t round_to_alignment(ptrdiff_t v, ptrdiff_t alignment) {
+    const ptrdiff_t roundUp = alignment - 1;
+    const ptrdiff_t mask = ~roundUp;
+    return ((v + roundUp) & mask);
+}
+
+char* round_ptr_to_alignment(char* ptr, ptrdiff_t alignment) {
+    return (char*)round_to_alignment((intptr_t)ptr, alignment);
+}
+
+}  // namespace
+
+SkArena::SkArena(char* block, size_t blockSize, size_t firstHeapAllocation)
+    : fNextHeapAlloc{first_allocated_block(blockSize, firstHeapAllocation)}
+    , fYetNextHeapAlloc{fNextHeapAlloc} {}
+
+SkArena::~SkArena() {
+    Block::DeleteBlocks(fBytes);
+}
+
+char* SkArena::alignedBytes(size_t size, size_t alignment) {
+    SkASSERT_RELEASE(size < kMaxByteSize);
+    SkASSERT_RELEASE(alignment < kMaxAlignment);
+    const ptrdiff_t mask = -SkTo<ptrdiff_t>(alignment);
+    fCapacity &= mask;
+    if (fCapacity < SkTo<ptrdiff_t >(size)) {
+        this->needMoreBytes(size, alignment);
+    }
+    fCapacity -= size;
+    return fBytes - fCapacity;
+}
+
+void SkArena::needMoreBytes(ptrdiff_t size, ptrdiff_t alignment) {
+    ptrdiff_t minAllocationSize = fNextHeapAlloc;
+    // Calculate the next heap alloc that won't overflow.
+    if (fYetNextHeapAlloc <= kMaxByteSize - fNextHeapAlloc) {
+        fNextHeapAlloc += fYetNextHeapAlloc;
+        std::swap(fNextHeapAlloc, fYetNextHeapAlloc);
+    } else {
+        fNextHeapAlloc = kMaxByteSize;
+    }
+
+    ptrdiff_t tightBlockSize = std::max(size, minAllocationSize);
+
+    ptrdiff_t usableBlockSize = 0;
+    if (tightBlockSize < (1 << 15)) {
+        usableBlockSize = round_to_alignment(tightBlockSize, kMaxAlignment);
+    } else {
+        constexpr ptrdiff_t k4K = (1 << 12);
+        usableBlockSize = round_to_alignment(tightBlockSize, k4K);
+    }
+
+    ptrdiff_t sizeAndOverhead = round_to_alignment(usableBlockSize + sizeof(Block), kMaxAlignment);
+
+    char* bytes = new char[sizeAndOverhead];
+
+    // Figure out the placement of Block that is aligned to kMaxAlignment;
+    char* blockLocation = round_ptr_to_alignment(bytes + usableBlockSize, kMaxAlignment);
+    SkASSERT(blockLocation == round_ptr_to_alignment(blockLocation, kMaxAlignment));
+
+    // Store the block information in the new block.
+    Block b{fBytes, bytes};
+    b.store(blockLocation);
+
+    // Reset allocation information.
+    fBytes = blockLocation;
+    fCapacity = usableBlockSize;
+}
+
+static char* end_chain(char*) { return nullptr; }
 
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
@@ -70,7 +162,6 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
     delete [] objEnd;
     return nullptr;
 }
-
 
 void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
