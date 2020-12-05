@@ -165,8 +165,6 @@ void MetalCodeGenerator::writeArrayDimensions(const Type& type) {
             this->write(to_string(type.columns()));
         }
         this->write("]");
-
-        this->writeArrayDimensions(type.componentType());
     }
 }
 
@@ -262,10 +260,106 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     }
 }
 
-String MetalCodeGenerator::getOutParamHelper(const FunctionDeclaration& function,
-                                             const ExpressionArray& arguments) {
-    // TODO: actually synthesize helper method.
-    return String::printf("/*needs swizzle fix*/ %s", String(function.name()).c_str());
+String MetalCodeGenerator::getSwizzleHelper(const FunctionDeclaration& function,
+                                            const ExpressionArray& arguments,
+                                            const SkTArray<VariableReference*>& swizzleVars) {
+    AutoOutputStream outputToExtraFunctions(this, &fExtraFunctions, &fIndentation);
+
+    String name = "_SwizzleHelper" + to_string(fSwizzleHelperCount++) + "_for_" + function.name();
+    const char* separator = "";
+
+    // Emit a prototype for the function we'll be calling through to in our helper.
+    this->writeFunctionDeclaration(function);
+    this->writeLine(";");
+
+    // Synthesize a helper function that takes the same inputs as `function`, except in places where
+    // `swizzleVars` is non-null; in those places, we take the type of the VariableReference.
+    this->writeBaseType(function.returnType());
+    this->write(" ");
+    this->write(name);
+    this->write("(");
+    this->writeFunctionRequirementParams(function, separator);
+
+    SkASSERT(swizzleVars.size() == arguments.size());
+    SkASSERT(swizzleVars.size() == function.parameters().size());
+
+    for (size_t index = 0; index < arguments.size(); ++index) {
+        this->write(separator);
+        separator = ", ";
+
+        const Variable* param = function.parameters()[index];
+        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
+
+        const Type* type = swizzleVars[index] ? &swizzleVars[index]->type() : &param->type();
+        this->writeBaseType(*type);
+
+        if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
+            this->write("&");
+        }
+        if (swizzleVars[index]) {
+            this->write(" ");
+            this->writeVariableReference(*swizzleVars[index]);
+        } else {
+            this->write(" var");
+            this->write(to_string(index));
+        }
+        this->writeArrayDimensions(*type);
+    }
+    this->writeLine(") {");
+
+    ++fIndentation;
+    for (size_t index = 0; index < swizzleVars.size(); ++index) {
+        if (!swizzleVars[index]) {
+            continue;
+        }
+        // float3 var1 = myVariable.zyx;
+        this->writeBaseType(function.parameters()[index]->type());
+        this->write(" var");
+        this->write(to_string(index));
+        this->write(" = ");
+        this->writeExpression(*arguments[index], kAssignment_Precedence);
+        this->writeLine(";");
+    }
+
+    // [auto result = ] myFunction(inputs, outputs, globals, var0, var1, var2, var3);
+    bool hasResult = (function.returnType().name() != "void");
+    if (hasResult) {
+        this->write("auto result = ");
+    }
+
+    this->writeName(function.name());
+    this->write("(");
+    separator = "";
+    this->writeFunctionRequirementArgs(function, separator);
+
+    for (size_t index = 0; index < arguments.size(); ++index) {
+        this->write(separator);
+        separator = ", ";
+
+        this->write("var");
+        this->write(to_string(index));
+    }
+    this->writeLine(");");
+
+    for (size_t index = 0; index < swizzleVars.size(); ++index) {
+        if (!swizzleVars[index]) {
+            continue;
+        }
+        // myVariable.zyx = var1;
+        this->writeExpression(*arguments[index], kAssignment_Precedence);
+        this->write(" = var");
+        this->write(to_string(index));
+        this->writeLine(";");
+    }
+
+    if (hasResult) {
+        this->writeLine("return result;");
+    }
+
+    --fIndentation;
+    this->writeLine("}");
+
+    return name;
 }
 
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
@@ -296,11 +390,16 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         name = "dfdy";
     }
 
-    // GLSL supports passing swizzled variables to out params; Metal doesn't. To emulate that
-    // support, we synthesize a helper function which performs the swizzle into a temporary
-    // variable, calls the original function, then writes the temp var back into the out param.
+    // GLSL supports passing swizzled variables to out params; Metal doesn't. Walk the list of
+    // parameters and see if any are out parameters; if so, check if the passed-in expression is a
+    // swizzle. Take a note of all the swizzled variables that we find.
     const std::vector<const Variable*>& parameters = function.parameters();
     SkASSERT(arguments.size() == parameters.size());
+
+    bool foundSwizzle = false;
+    SkSTArray<16, VariableReference*> swizzleVars;
+    swizzleVars.push_back_n(arguments.size(), (VariableReference*)nullptr);
+
     for (size_t index = 0; index < arguments.size(); ++index) {
         // If this is an out parameter...
         if (parameters[index]->modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -310,44 +409,32 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             SkASSERT(outParamIsAssignable);  // assignability was verified at IRGeneration time
             if (outParamIsAssignable && info.fIsSwizzled) {
                 // Found a swizzle; we need to use a helper function here.
-                name = this->getOutParamHelper(function, arguments);
-                break;
+                swizzleVars[index] = info.fAssignedVar;
+                foundSwizzle = true;
             }
         }
+    }
+
+    if (foundSwizzle) {
+        // We need to emulate out-parameter swizzle support. To do this, we synthesize a helper
+        // function which performs the swizzle into a temporary variable, calls the original
+        // function, then writes the temp var back into the out param.
+        name = getSwizzleHelper(function, arguments, swizzleVars);
     }
 
     this->write(name);
     this->write("(");
     const char* separator = "";
-    if (this->requirements(function) & kInputs_Requirement) {
-        this->write("_in");
-        separator = ", ";
-    }
-    if (this->requirements(function) & kOutputs_Requirement) {
-        this->write(separator);
-        this->write("_out");
-        separator = ", ";
-    }
-    if (this->requirements(function) & kUniforms_Requirement) {
-        this->write(separator);
-        this->write("_uniforms");
-        separator = ", ";
-    }
-    if (this->requirements(function) & kGlobals_Requirement) {
-        this->write(separator);
-        this->write("_globals");
-        separator = ", ";
-    }
-    if (this->requirements(function) & kFragCoord_Requirement) {
-        this->write(separator);
-        this->write("_fragCoord");
-        separator = ", ";
-    }
+    this->writeFunctionRequirementArgs(function, separator);
     for (size_t i = 0; i < arguments.size(); ++i) {
-        const Expression& arg = *arguments[i];
         this->write(separator);
         separator = ", ";
-        this->writeExpression(arg, kSequence_Precedence);
+
+        if (swizzleVars[i]) {
+            this->writeExpression(*swizzleVars[i], kSequence_Precedence);
+        } else {
+            this->writeExpression(*arguments[i], kSequence_Precedence);
+        }
     }
     this->write(")");
 }
@@ -1045,6 +1132,66 @@ void MetalCodeGenerator::writeSetting(const Setting& s) {
     ABORT("internal error; setting was not folded to a constant during compilation\n");
 }
 
+void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration& f,
+                                                      const char*& separator) {
+    Requirements requirements = this->requirements(f);
+    if (requirements & kInputs_Requirement) {
+        this->write(separator);
+        this->write("_in");
+        separator = ", ";
+    }
+    if (requirements & kOutputs_Requirement) {
+        this->write(separator);
+        this->write("_out");
+        separator = ", ";
+    }
+    if (requirements & kUniforms_Requirement) {
+        this->write(separator);
+        this->write("_uniforms");
+        separator = ", ";
+    }
+    if (requirements & kGlobals_Requirement) {
+        this->write(separator);
+        this->write("_globals");
+        separator = ", ";
+    }
+    if (requirements & kFragCoord_Requirement) {
+        this->write(separator);
+        this->write("_fragCoord");
+        separator = ", ";
+    }
+}
+
+void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaration& f,
+                                                        const char*& separator) {
+    Requirements requirements = this->requirements(f);
+    if (requirements & kInputs_Requirement) {
+        this->write(separator);
+        this->write("Inputs _in");
+        separator = ", ";
+    }
+    if (requirements & kOutputs_Requirement) {
+        this->write(separator);
+        this->write("thread Outputs* _out");
+        separator = ", ";
+    }
+    if (requirements & kUniforms_Requirement) {
+        this->write(separator);
+        this->write("Uniforms _uniforms");
+        separator = ", ";
+    }
+    if (requirements & kGlobals_Requirement) {
+        this->write(separator);
+        this->write("thread Globals* _globals");
+        separator = ", ";
+    }
+    if (requirements & kFragCoord_Requirement) {
+        this->write(separator);
+        this->write("float4 _fragCoord");
+        separator = ", ";
+    }
+}
+
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals->_anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
@@ -1128,36 +1275,12 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->write(" ");
         this->writeName(f.name());
         this->write("(");
-        Requirements requirements = this->requirements(f);
-        if (requirements & kInputs_Requirement) {
-            this->write("Inputs _in");
-            separator = ", ";
-        }
-        if (requirements & kOutputs_Requirement) {
-            this->write(separator);
-            this->write("thread Outputs* _out");
-            separator = ", ";
-        }
-        if (requirements & kUniforms_Requirement) {
-            this->write(separator);
-            this->write("Uniforms _uniforms");
-            separator = ", ";
-        }
-        if (requirements & kGlobals_Requirement) {
-            this->write(separator);
-            this->write("thread Globals* _globals");
-            separator = ", ";
-        }
-        if (requirements & kFragCoord_Requirement) {
-            this->write(separator);
-            this->write("float4 _fragCoord");
-            separator = ", ";
-        }
+        this->writeFunctionRequirementParams(f, separator);
     }
     for (const auto& param : f.parameters()) {
         this->write(separator);
         separator = ", ";
-        this->writeModifiers(param->modifiers(), false);
+        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
         const Type* type = &param->type();
         this->writeBaseType(*type);
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -1216,33 +1339,32 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
 
     fFunctionHeader = "";
-    OutputStream* oldOut = fOut;
     StringStream buffer;
-    fOut = &buffer;
-    fIndentation++;
-    for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-        if (!stmt->isEmpty()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
+    {
+        AutoOutputStream outputToBuffer(this, &buffer);
+        fIndentation++;
+        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+            if (!stmt->isEmpty()) {
+                this->writeStatement(*stmt);
+                this->writeLine();
+            }
         }
-    }
-    if (f.declaration().name() == "main") {
-        // If the main function doesn't end with a return, we need to synthesize one here.
-        if (!is_block_ending_with_return(f.body().get())) {
-            this->writeReturnStatementFromMain();
-            this->writeLine("");
+        if (f.declaration().name() == "main") {
+            // If the main function doesn't end with a return, we need to synthesize one here.
+            if (!is_block_ending_with_return(f.body().get())) {
+                this->writeReturnStatementFromMain();
+                this->writeLine("");
+            }
         }
+        fIndentation--;
+        this->writeLine("}");
     }
-    fIndentation--;
-    this->writeLine("}");
-
-    fOut = oldOut;
     this->write(fFunctionHeader);
     this->write(buffer.str());
 }
 
 void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
-                                       bool globalContext) {
+                                        bool globalContext) {
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
         this->write("thread ");
     }
@@ -1255,7 +1377,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.typeName()) {
         return;
     }
-    this->writeModifiers(intf.variable().modifiers(), true);
+    this->writeModifiers(intf.variable().modifiers(), /*globalContext=*/true);
     this->write("struct ");
     this->writeLine(intf.typeName() + " {");
     const Type* structType = &intf.variable().type();
@@ -1326,7 +1448,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             return;
         }
         currentOffset += fieldSize;
-        this->writeModifiers(field.fModifiers, false);
+        this->writeModifiers(field.fModifiers, /*globalContext=*/false);
         this->writeBaseType(*fieldType);
         this->write(" ");
         this->writeName(field.fName);
@@ -1848,7 +1970,8 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kModifiers:
-            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(), true);
+            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(),
+                                 /*globalContext=*/true);
             this->writeLine(";");
             break;
         case ProgramElement::Kind::kEnum:
@@ -2019,26 +2142,30 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
 }
 
 bool MetalCodeGenerator::generateCode() {
-    OutputStream* rawOut = fOut;
-    fOut = &fHeader;
     fProgramKind = fProgram.fKind;
-    this->writeHeader();
-    this->writeStructDefinitions();
-    this->writeUniformStruct();
-    this->writeInputStruct();
-    this->writeOutputStruct();
-    this->writeInterfaceBlocks();
-    this->writeGlobalStruct();
-    StringStream body;
-    fOut = &body;
-    for (const ProgramElement* e : fProgram.elements()) {
-        this->writeProgramElement(*e);
-    }
-    fOut = rawOut;
 
-    write_stringstream(fHeader, *rawOut);
-    write_stringstream(fExtraFunctions, *rawOut);
-    write_stringstream(body, *rawOut);
+    StringStream header;
+    {
+        AutoOutputStream outputToHeader(this, &header, &fIndentation);
+        this->writeHeader();
+        this->writeStructDefinitions();
+        this->writeUniformStruct();
+        this->writeInputStruct();
+        this->writeOutputStruct();
+        this->writeInterfaceBlocks();
+        this->writeGlobalStruct();
+    }
+
+    StringStream body;
+    {
+        AutoOutputStream outputToBody(this, &body, &fIndentation);
+        for (const ProgramElement* e : fProgram.elements()) {
+            this->writeProgramElement(*e);
+        }
+    }
+    write_stringstream(header, *fOut);
+    write_stringstream(fExtraFunctions, *fOut);
+    write_stringstream(body, *fOut);
     return 0 == fErrors.errorCount();
 }
 
