@@ -188,4 +188,23 @@ DEF_TEST(ArenaAlloc, r) {
         SkArenaAlloc arena(4096);
         arena.makeBytesAlignedTo(4081, 8);
     }
+
+    {
+        created = 0;
+        destroyed = 0;
+        SkArena arena{1024};
+        int* p = arena.makePOD<int>(3);
+        REPORTER_ASSERT(r, *p == 3);
+        int* q = arena.makePOD<int>(7);
+        REPORTER_ASSERT(r, *q == 7);
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.make<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->x == 3);
+        REPORTER_ASSERT(r, foo->y == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+    }
+    REPORTER_ASSERT(r, created == 1);
+    REPORTER_ASSERT(r, destroyed == 1);
 }
