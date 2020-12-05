@@ -89,6 +89,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     LatticeGP(const GrSurfaceProxyView& view, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter, bool wideColor)

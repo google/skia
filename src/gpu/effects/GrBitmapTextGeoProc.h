@@ -61,6 +61,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
                         const GrSurfaceProxyView* views, int numViews, GrSamplerState params,

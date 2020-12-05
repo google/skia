@@ -93,6 +93,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     GrConicEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage,
                   const SkMatrix& localMatrix, bool usesLocalCoords);
@@ -159,6 +160,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     GrQuadEffect(const SkPMColor4f&, const SkMatrix& viewMatrix, uint8_t coverage,
                  const SkMatrix& localMatrix, bool usesLocalCoords);
