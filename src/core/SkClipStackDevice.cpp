@@ -58,6 +58,10 @@ void SkClipStackDevice::onReplaceClip(const SkIRect& rect) {
     fClipStack.clipRect(SkRect::Make(rect), this->globalToDevice(), kReplace_SkClipOp, false);
 }
 
+void SkClipStackDevice::onClipDevRect(const SkIRect& rect, SkClipOp op) {
+    fClipStack.clipRect(SkRect::Make(rect), SkMatrix::I(), op, false);
+}
+
 void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
     if (clipRestriction->isEmpty()) {
         fClipStack.setDeviceClipRestriction(*clipRestriction);

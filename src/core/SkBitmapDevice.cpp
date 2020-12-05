@@ -676,6 +676,10 @@ void SkBitmapDevice::onReplaceClip(const SkIRect& rect) {
     fRCStack.replaceClip(deviceRect);
 }
 
+void SkBitmapDevice::onClipDevRect(const SkIRect& rect, SkClipOp op) {
+    fRCStack.clipRect(SkMatrix::I(), SkRect::Make(rect), op, false);
+}
+
 void SkBitmapDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
     fRCStack.setDeviceClipRestriction(mutableClipRestriction);
     if (!mutableClipRestriction->isEmpty()) {
