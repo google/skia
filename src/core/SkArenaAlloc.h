@@ -19,10 +19,81 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+template <typename T>
+struct SkDestroyer {
+    void operator()(T* o) const { o->~T(); }
+};
+
+template <typename T>
+using SkDestroyerPtr = std::unique_ptr<T, SkDestroyer<T>>;
+
+class SkArena {
+public:
+    static constexpr ptrdiff_t kMaxAlignment = 64;
+    static constexpr ptrdiff_t kMaxAlignmentMask = kMaxAlignment - 1;
+    // The largest size that can be allocated. Includes maximum padding and fudge for footers.
+    // This should never overflow with the calculations done on the code.
+    static constexpr ptrdiff_t kMaxSize = std::numeric_limits<int32_t>::max() - kMaxAlignment - 32;
+
+    SkArena(char* block, size_t blockSize, size_t firstHeapAllocation);
+
+    explicit SkArena(size_t firstHeapAllocation)
+        : SkArena(nullptr, 0, firstHeapAllocation) {}
+    ~SkArena();
+    template <typename T, typename... Args>
+    T* makePOD(Args&&... args) {
+        static_assert(sizeof(T) < kMaxSize, "Size is too big for arena");
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        constexpr ptrdiff_t size = sizeof(T);
+        constexpr ptrdiff_t alignment = alignof(T);
+        constexpr ptrdiff_t mask = ~(alignment - 1);
+        fCapacity &= mask;
+        if (fCapacity < size) {
+            this->needMoreBytes(size, alignment);
+        }
+        T* object = new (fBytes - fCapacity) T {std::forward<Args>(args)...};
+        fCapacity -= size;
+        return object;
+    }
+
+    template <typename T, typename... Args>
+    SkDestroyerPtr<T> make(Args&&... args) {
+        return SkDestroyerPtr<T>{this->template makePOD<T>(std::forward<Args>(args)...)};
+    }
+
+private:
+    // Adjust fBytes and fCapacity to satisfy the size and alignment request.
+    void needMoreBytes(ptrdiff_t size, ptrdiff_t alignment);
+
+    // Points to just after Block, and is aligned to kMaxAlignment.
+    char* fBytes{nullptr};
+
+    // fBytes needs to be aligned to kMaxAlignment to allow all the alignment calculations to
+    // happen on fCapacity.
+    ptrdiff_t fCapacity{0};
+
+    // We found allocating strictly doubling amounts of memory from the heap left too
+    // much unused slop, particularly on Android.  Instead we'll follow a Fibonacci-like
+    // progression that's simple to implement and grows with roughly a 1.6 exponent:
+    //
+    // To start,
+    //    fNextHeapAlloc = fYetNextHeapAlloc = 1*fFirstHeapAllocationSize;
+    //
+    // And then when we do allocate, follow a Fibonacci f(n+2) = f(n+1) + f(n) rule:
+    //    void* block = malloc(fNextHeapAlloc);
+    //    std::swap(fNextHeapAlloc, fYetNextHeapAlloc)
+    //    fYetNextHeapAlloc += fNextHeapAlloc;
+    //
+    // That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.
+    uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
+             fYetNextHeapAlloc;  // And then how many the next allocation after that?
+};
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -256,7 +327,7 @@ private:
     //
     // That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.
     uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
-    fYetNextHeapAlloc;           // And then how many the next allocation after that?
+             fYetNextHeapAlloc;  // And then how many the next allocation after that?
 };
 
 class SkArenaAllocWithReset : public SkArenaAlloc {
