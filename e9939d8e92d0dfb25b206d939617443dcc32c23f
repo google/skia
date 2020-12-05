@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b728461_8b2e0dca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-05T19:15:32Z",
+      "side": 1,
+      "message": "do we really need those ifs?\n\n- do we always have a top layer?\n- does that layer always have a device?",
+      "revId": "e9939d8e92d0dfb25b206d939617443dcc32c23f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
