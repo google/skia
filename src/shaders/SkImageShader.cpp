@@ -70,10 +70,27 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img,
     : INHERITED(localMatrix)
     , fImage(std::move(img))
     , fSampling(sampling ? *sampling : SkSamplingOptions())
+    , fSrcRect{0, 0, fImage->width(), fImage->height()}
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
     , fClampAsIfUnpremul(clampAsIfUnpremul)
     , fUseSamplingOptions(sampling != nullptr)
+    , fUseSrcRect(false)
+{}
+
+SkImageShader::SkImageShader(sk_sp<SkImage> img,
+                             const SkIRect& src,
+                             const SkSamplingOptions& sampling,
+                             const SkMatrix* localMatrix)
+    : INHERITED(localMatrix)
+    , fImage(std::move(img))
+    , fSampling(sampling)
+    , fSrcRect(src)
+    , fTileModeX(SkTileMode::kClamp)
+    , fTileModeY(SkTileMode::kClamp)
+    , fClampAsIfUnpremul(false)
+    , fUseSamplingOptions(true)
+    , fUseSrcRect(true)
 {}
 
 // just used for legacy-unflattening
@@ -305,6 +322,9 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     if (quality == kHigh_SkFilterQuality) {
         return nullptr;
     }
+    if (fUseSrcRect) {
+        return nullptr;
+    }
 
     // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer,
     // so it can't handle bitmaps larger than 65535.
@@ -355,25 +375,55 @@ SkImage* SkImageShader::onIsAImage(SkMatrix* texM, SkTileMode xy[]) const {
     return const_cast<SkImage*>(fImage.get());
 }
 
+static bool is_valid(const SkSamplingOptions& sampling) {
+    auto is_unit = [](float x) {
+        return x >= 0 && x <= 1;
+    };
+    if (sampling.useCubic) {
+        if (!is_unit(sampling.cubic.B) || !is_unit(sampling.cubic.C)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
                                     SkTileMode tmx, SkTileMode tmy,
                                     const SkSamplingOptions* options,
                                     const SkMatrix* localMatrix,
                                     bool clampAsIfUnpremul) {
-    auto is_unit = [](float x) {
-        return x >= 0 && x <= 1;
-    };
-    if (options && options->useCubic) {
-        if (!is_unit(options->cubic.B) || !is_unit(options->cubic.C)) {
-            return nullptr;
-        }
-    }
     if (!image) {
         return sk_make_sp<SkEmptyShader>();
+    }
+    if (options && !is_valid(*options)) {
+        return nullptr;
     }
     return sk_sp<SkShader>{
         new SkImageShader(image, tmx, tmy, options, localMatrix, clampAsIfUnpremul)
     };
+}
+
+sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
+                                    const SkIRect& src,
+                                    const SkSamplingOptions& options,
+                                    const SkMatrix* localMatrix) {
+    if (!image) {
+        return sk_make_sp<SkEmptyShader>();
+    }
+    if (!is_valid(options)) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = image->bounds();
+    SkIRect srcRect;
+    if (!srcRect.intersect(src, bounds)) {
+        return nullptr;
+    }
+    if (srcRect == bounds) {
+        // treat as no-src-rect
+        return Make(image, SkTileMode::kClamp, SkTileMode::kClamp, &options, localMatrix, false);
+    }
+    return sk_sp<SkShader>{new SkImageShader(image, srcRect, options, localMatrix)};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,7 +665,9 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     } else if (sampling.mipmap == SkMipmapMode::kLinear) {
         return false;
     }
-
+    if (fUseSrcRect) {
+        return false;
+    }
 
     if (updater && (sampling.mipmap != SkMipmapMode::kNone)) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly

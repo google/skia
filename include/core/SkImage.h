@@ -657,6 +657,22 @@ public:
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions&,
                                const SkMatrix* localMatrix = nullptr) const;
 
+    /**
+     *  Make a shader (in with clamp tiling) that samples from a subset of the image.
+     *  This does not make a copy of the image, but shares the same underlying pixels.
+     *  For performance reasons, the sampling process may go outside of the subset bounds
+     *  when implementing linear or cubic resampling.
+     *
+     *  The subset is internally intersected with the bounds of the image. If this intersection
+     *  is empty, or the subset rectangle is itself empty (e.g. width or height is zero), then
+     *  nullptr is returned.
+     *
+     *  If "strict" adherence to the subset rectangle is required, the client must first
+     *  create a smaller image (e.g. using image->makeSubset(...)) and then create the shader.
+     */
+    sk_sp<SkShader> makeShader(const SkIRect& subset, const SkSamplingOptions&,
+                               const SkMatrix* localMatrix = nullptr) const;
+
     using CubicResampler = SkCubicResampler;
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses

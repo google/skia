@@ -150,6 +150,11 @@ sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                &sampling, localMatrix);
 }
 
+sk_sp<SkShader> SkImage::makeShader(const SkIRect& src, const SkSamplingOptions& sampling,
+                                    const SkMatrix* localMatrix) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), src, sampling, localMatrix);
+}
+
 sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
     // Context TODO: Elevate GrDirectContext requirement to public API.
     auto dContext = as_IB(this)->directContext();

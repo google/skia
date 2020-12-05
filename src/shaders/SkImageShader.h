@@ -24,6 +24,9 @@ public:
                                 const SkMatrix* localMatrix,
                                 bool clampAsIfUnpremul = false);
 
+    static sk_sp<SkShader> Make(sk_sp<SkImage>, const SkIRect& src, const SkSamplingOptions&,
+                                const SkMatrix* localMatrix);
+
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
@@ -41,6 +44,8 @@ private:
                   const SkSamplingOptions*,
                   const SkMatrix* localMatrix,
                   bool clampAsIfUnpremul = false);
+
+    SkImageShader(sk_sp<SkImage>, const SkIRect&, const SkSamplingOptions&, const SkMatrix*);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -60,10 +65,12 @@ private:
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;
+    const SkIRect           fSrcRect;
     const SkTileMode        fTileModeX;
     const SkTileMode        fTileModeY;
     const bool              fClampAsIfUnpremul;
     const bool              fUseSamplingOptions;    // else inherit filterquality from paint
+    const bool              fUseSrcRect;            // if so, tilemodes will be kClamp
 
     friend class SkShaderBase;
     using INHERITED = SkShaderBase;
