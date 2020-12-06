@@ -4308,10 +4308,10 @@ static void test_operatorEqual(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a == b);
 }
 
-static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool force,
-        bool dumpAsHex, const char* str) {
+static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool dumpAsHex,
+                         const char* str) {
     SkDynamicMemoryWStream wStream;
-    path.dump(&wStream, force, dumpAsHex);
+    path.dump(&wStream, dumpAsHex);
     sk_sp<SkData> data = wStream.detachAsData();
     REPORTER_ASSERT(reporter, data->size() == strlen(str));
     if (strlen(str) > 0) {
@@ -4323,51 +4323,45 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
 
 static void test_dump(skiatest::Reporter* reporter) {
     SkPath p;
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n");
-    compare_dump(reporter, p, true, false,  "path.setFillType(SkPathFillType::kWinding);\n");
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kWinding);\n");
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n"
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kWinding);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
-    compare_dump(reporter, p, true, false,  "path.setFillType(SkPathFillType::kWinding);\n"
-                                            "path.moveTo(1, 2);\n"
-                                            "path.lineTo(3, 4);\n"
-                                            "path.lineTo(1, 2);\n"
-                                            "path.close();\n");
     p.reset();
     p.setFillType(SkPathFillType::kEvenOdd);
     p.moveTo(1, 2);
     p.quadTo(3, 4, 5, 6);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kEvenOdd);\n"
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kEvenOdd);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.quadTo(3, 4, 5, 6);\n");
     p.reset();
     p.setFillType(SkPathFillType::kInverseWinding);
     p.moveTo(1, 2);
     p.conicTo(3, 4, 5, 6, 0.5f);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kInverseWinding);\n"
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kInverseWinding);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.conicTo(3, 4, 5, 6, 0.5f);\n");
     p.reset();
     p.setFillType(SkPathFillType::kInverseEvenOdd);
     p.moveTo(1, 2);
     p.cubicTo(3, 4, 5, 6, 7, 8);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kInverseEvenOdd);\n"
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kInverseEvenOdd);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.cubicTo(3, 4, 5, 6, 7, 8);\n");
     p.reset();
     p.setFillType(SkPathFillType::kWinding);
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, true,
+    compare_dump(reporter, p, true,
                  "path.setFillType(SkPathFillType::kWinding);\n"
                  "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));  // 1, 2\n"
                  "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));  // 3, 4\n");
     p.reset();
     p.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));
     p.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n"
+    compare_dump(reporter, p, false, "path.setFillType(SkPathFillType::kWinding);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
 }

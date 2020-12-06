@@ -1889,9 +1889,9 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
     str->append("\n");
 }
 
-void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
+void SkPath::dump(SkWStream* wStream, bool dumpAsHex) const {
     SkScalarAsStringType asType = dumpAsHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
-    Iter    iter(*this, forceClose);
+    Iter    iter(*this, false);
     SkPoint pts[4];
     Verb    verb;
 
@@ -1938,15 +1938,6 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
         wStream->writeText(builder.c_str());
     }
 }
-
-void SkPath::dump() const {
-    this->dump(nullptr, false, false);
-}
-
-void SkPath::dumpHex() const {
-    this->dump(nullptr, false, true);
-}
-
 
 bool SkPath::isValidImpl() const {
     if ((fFillType & ~3) != 0) {
