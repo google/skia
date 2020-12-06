@@ -1684,37 +1684,18 @@ public:
     bool contains(SkScalar x, SkScalar y) const;
 
     /** Writes text representation of SkPath to stream. If stream is nullptr, writes to
-        standard output. Set forceClose to true to get edges used to fill SkPath.
-        Set dumpAsHex true to generate exact binary representations
+        standard output. Set dumpAsHex true to generate exact binary representations
         of floating point numbers used in SkPoint array and conic weights.
 
         @param stream      writable SkWStream receiving SkPath text representation; may be nullptr
-        @param forceClose  true if missing kClose_Verb is output
         @param dumpAsHex   true if SkScalar values are written as hexadecimal
 
         example: https://fiddle.skia.org/c/@Path_dump
     */
-    void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
+    void dump(SkWStream* stream, bool dumpAsHex) const;
 
-    /** Writes text representation of SkPath to standard output. The representation may be
-        directly compiled as C++ code. Floating point values are written
-        with limited precision; it may not be possible to reconstruct original SkPath
-        from output.
-
-        example: https://fiddle.skia.org/c/@Path_dump_2
-    */
-    void dump() const;
-
-    /** Writes text representation of SkPath to standard output. The representation may be
-        directly compiled as C++ code. Floating point values are written
-        in hexadecimal to preserve their exact bit pattern. The output reconstructs the
-        original SkPath.
-
-        Use instead of dump() when submitting
-
-        example: https://fiddle.skia.org/c/@Path_dumpHex
-    */
-    void dumpHex() const;
+    void dump() const { this->dump(nullptr, false); }
+    void dumpHex() const { this->dump(nullptr, true); }
 
     /** Writes SkPath to buffer, returning the number of bytes written.
         Pass nullptr to obtain the storage size.
