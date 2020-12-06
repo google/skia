@@ -8,15 +8,17 @@
 #include "modules/svg/include/SkSVGText.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
+#include "include/utils/SkTextUtils.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
+namespace {
 
-SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
+static SkFont ResolveFont(const SkSVGRenderContext& ctx) {
     auto weight = [](const SkSVGFontWeight& w) {
         switch (w.type()) {
             case SkSVGFontWeight::Type::k100:     return SkFontStyle::kThin_Weight;
@@ -76,8 +78,54 @@ SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
     return font;
 }
 
+} // namespace
+
+struct SkSVGTextContext {
+    SkV2   currentPos;    // current text position (http://www.w3.org/TR/SVG11/text.html#TextLayout)
+    size_t currentIndex;  // current character index
+};
+
+void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
+    // Only allow text nodes.
+    switch (child->tag()) {
+    case SkSVGTag::kText:
+    case SkSVGTag::kTextLiteral:
+    case SkSVGTag::kTSpan:
+        this->INHERITED::appendChild(child);
+        break;
+    default:
+        break;
+    }
+}
+
+bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value));
+}
+
 void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
-    const auto font = this->resolveFont(ctx);
+    // <text> establishes a new text layout context.
+    SkSVGTextContext tctx {
+        {
+            ctx.lengthContext().resolve(this->getX(), SkSVGLengthContext::LengthType::kHorizontal),
+            ctx.lengthContext().resolve(this->getY(), SkSVGLengthContext::LengthType::kVertical),
+        },
+        0
+    };
+
+    SkSVGRenderContext lctx(ctx, tctx);
+
+    return this->INHERITED::onRender(lctx);
+}
+
+void SkSVGTextLiteral::onRender(const SkSVGRenderContext& ctx) const {
+    auto* tctx = ctx.textContext();
+    if (!tctx) {
+        return;
+    }
+
+    const auto font = ResolveFont(ctx);
 
     const auto text_align = [](const SkSVGTextAnchor& anchor) {
         switch (anchor.type()) {
@@ -93,43 +141,21 @@ void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
 
     const auto align = text_align(*ctx.presentationContext().fInherited.fTextAnchor);
     if (const SkPaint* fillPaint = ctx.fillPaint()) {
-        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *fillPaint, align);
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(),
+                                tctx->currentPos.x, tctx->currentPos.y,
+                                font, *fillPaint, align);
     }
 
     if (const SkPaint* strokePaint = ctx.strokePaint()) {
-        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *strokePaint, align);
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(),
+                                tctx->currentPos.x, tctx->currentPos.y,
+                                font, *strokePaint, align);
     }
 }
 
-void SkSVGText::appendChild(sk_sp<SkSVGNode>) {
+SkPath SkSVGTextLiteral::onAsPath(const SkSVGRenderContext&) const {
     // TODO
+    return SkPath();
 }
 
-SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
-  SkPath path;
-  return path;
-}
-
-void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-  switch (attr) {
-    case SkSVGAttribute::kX:
-      if (const auto* x = v.as<SkSVGLengthValue>()) {
-        this->setX(*x);
-      }
-      break;
-    case SkSVGAttribute::kY:
-      if (const auto* y = v.as<SkSVGLengthValue>()) {
-        this->setY(*y);
-      }
-      break;
-    case SkSVGAttribute::kText:
-      if (const auto* text = v.as<SkSVGStringValue>()) {
-        this->setText(*text);
-      }
-      break;
-    default:
-      this->INHERITED::onSetAttribute(attr, v);
-  }
-}
+SkSVGTextLiteral::~SkSVGTextLiteral() = default; // just to pin the vtable
