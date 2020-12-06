@@ -297,6 +297,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
     { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
     { "text"          , []() -> sk_sp<SkSVGNode> { return SkSVGText::Make();           }},
+    { "tspan"         , []() -> sk_sp<SkSVGNode> { return SkSVGTSpan::Make();          }},
     { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
 
@@ -357,11 +358,12 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
     const SkDOM::Type elemType = dom.getType(xmlNode);
 
     if (elemType == SkDOM::kText_Type) {
+        // Text literals require special handling.
         SkASSERT(dom.countChildren(xmlNode) == 0);
-        // TODO: add type conversion helper to SkSVGNode
-        if (ctx.fParent->tag() == SkSVGTag::kText) {
-            static_cast<SkSVGText*>(ctx.fParent)->setText(SkString(dom.getName(xmlNode)));
-        }
+        auto txt = SkSVGTextLiteral::Make();
+        txt->setText(SkString(dom.getName(xmlNode)));
+        ctx.fParent->appendChild(std::move(txt));
+
         return nullptr;
     }
 
@@ -429,7 +431,8 @@ void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;
-        fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fIDMapper, lctx, pctx, nullptr));
+        fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fIDMapper,
+                                         lctx, pctx, nullptr, nullptr));
     }
 }
 
