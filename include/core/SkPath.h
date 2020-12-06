@@ -1694,7 +1694,12 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_dump
     */
+    void dump(SkWStream* stream, bool dumpAsHex) const {
+        this->dump(stream, false, dumpAsHex);
+    }
+private:
     void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
+public:
 
     /** Writes text representation of SkPath to standard output. The representation may be
         directly compiled as C++ code. Floating point values are written

@@ -1118,7 +1118,7 @@ void SkClipStack::Element::dump() const {
             SkDebugf("\n");
             break;
         case DeviceSpaceType::kPath:
-            this->getDeviceSpacePath().dump(nullptr, true, false);
+            this->getDeviceSpacePath().dump(nullptr, false);
             break;
         case DeviceSpaceType::kShader:
             // SkShaders don't provide much introspection that's worth while.
