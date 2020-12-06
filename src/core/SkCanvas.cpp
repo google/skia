@@ -2564,6 +2564,47 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     DRAW_END
 }
 
+static SkSamplingOptions clean_up(SkSamplingOptions sampling) {
+    auto is_unit = [](float x) { return x >= 0 && x <= 1; };
+    if (sampling.useCubic && (!is_unit(sampling.cubic.B) || !is_unit(sampling.cubic.C))) {
+        sampling = SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
+    }
+    return sampling;
+}
+
+void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
+                         const SkSamplingOptions& sampling, const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+    this->onDrawImage2(image, x, y, clean_up(sampling), paint);
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                             const SkSamplingOptions& sampling, const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+    if (dst.isEmpty()) {
+        return;
+    }
+    this->onDrawImageRect2(image, src, dst, clean_up(sampling), paint);
+}
+
+void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
+                            const SkSamplingOptions& sampling, const SkPaint* paint) {
+    auto mx = SkMatrix::Translate(x, y);
+    SkPaint p = paint ? *paint : SkPaint();
+    p.setShader(image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx));
+    this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
+}
+
+void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                                const SkSamplingOptions& sampling, const SkPaint* paint) {
+    SkMatrix mx = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    if (mx.isFinite()) {
+        SkPaint p = paint ? *paint : SkPaint();
+        p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
+        this->drawRect(dst, p);
+    }
+}
+
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
     SkPaint realPaint;
