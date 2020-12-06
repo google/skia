@@ -297,6 +297,7 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "stop"          , []() -> sk_sp<SkSVGNode> { return SkSVGStop::Make();           }},
     { "svg"           , []() -> sk_sp<SkSVGNode> { return SkSVGSVG::Make();            }},
     { "text"          , []() -> sk_sp<SkSVGNode> { return SkSVGText::Make();           }},
+    { "tspan"         , []() -> sk_sp<SkSVGNode> { return SkSVGTSpan::Make();          }},
     { "use"           , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();            }},
 };
 
@@ -356,12 +357,13 @@ sk_sp<SkSVGNode> construct_svg_node(const SkDOM& dom, const ConstructionContext&
     const char* elem = dom.getName(xmlNode);
     const SkDOM::Type elemType = dom.getType(xmlNode);
 
+    // Text literal nodes require special handling.
     if (elemType == SkDOM::kText_Type) {
         SkASSERT(dom.countChildren(xmlNode) == 0);
-        // TODO: add type conversion helper to SkSVGNode
-        if (ctx.fParent->tag() == SkSVGTag::kText) {
-            static_cast<SkSVGText*>(ctx.fParent)->setText(SkString(dom.getName(xmlNode)));
-        }
+        auto text = SkSVGTextLiteral::Make();
+        text->setText(SkString(dom.getName(xmlNode)));
+        ctx.fParent->appendChild(std::move(text));
+
         return nullptr;
     }
 

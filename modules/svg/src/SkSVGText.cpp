@@ -14,9 +14,9 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-SkSVGText::SkSVGText() : INHERITED(SkSVGTag::kText) {}
+namespace {
 
-SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
+static SkFont ResolveFont(const SkSVGRenderContext& ctx) {
     auto weight = [](const SkSVGFontWeight& w) {
         switch (w.type()) {
             case SkSVGFontWeight::Type::k100:     return SkFontStyle::kThin_Weight;
@@ -76,8 +76,35 @@ SkFont SkSVGText::resolveFont(const SkSVGRenderContext& ctx) const {
     return font;
 }
 
-void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
-    const auto font = this->resolveFont(ctx);
+static sk_sp<SkSVGTextFragment> AsTextFragment(sk_sp<SkSVGNode> node) {
+    switch (node->tag()) {
+    case SkSVGTag::kText:
+    case SkSVGTag::kTextLiteral:
+    case SkSVGTag::kTSpan:
+        return sk_sp<SkSVGTextFragment>(static_cast<SkSVGTextFragment*>(node.release()));
+    default:
+        return nullptr;
+    }
+
+    SkUNREACHABLE;
+}
+
+} // namespace
+
+void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, TextContext* tctx) const {
+    SkSVGRenderContext localContext(ctx, this);
+
+    if (this->onPrepareToRender(&localContext)) {
+        this->onRenderText(localContext, tctx);
+    }
+}
+
+void SkSVGTextLiteral::onRender(const SkSVGRenderContext&) const {
+    // Text literals are only rendered via container calls.
+}
+
+void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, TextContext* tctx) const {
+    const auto font = ResolveFont(ctx);
 
     const auto text_align = [](const SkSVGTextAnchor& anchor) {
         switch (anchor.type()) {
@@ -93,43 +120,56 @@ void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
 
     const auto align = text_align(*ctx.presentationContext().fInherited.fTextAnchor);
     if (const SkPaint* fillPaint = ctx.fillPaint()) {
-        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *fillPaint, align);
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(),
+                                tctx->currentPos.x, tctx->currentPos.y,
+                                font, *fillPaint, align);
     }
 
     if (const SkPaint* strokePaint = ctx.strokePaint()) {
-        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(), fX.value(), fY.value(), font,
-                                *strokePaint, align);
+        SkTextUtils::DrawString(ctx.canvas(), fText.c_str(),
+                                tctx->currentPos.x, tctx->currentPos.y,
+                                font, *strokePaint, align);
     }
 }
 
-void SkSVGText::appendChild(sk_sp<SkSVGNode>) {
+SkPath SkSVGTextLiteral::onAsPath(const SkSVGRenderContext& ctx) const {
     // TODO
+    return SkPath();
 }
 
-SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
-  SkPath path;
-  return path;
+void SkSVGTextContainer::onRender(const SkSVGRenderContext& ctx) const {
+    TextContext tctx {
+        {
+            ctx.lengthContext().resolve(fX, SkSVGLengthContext::LengthType::kHorizontal),
+            ctx.lengthContext().resolve(fY, SkSVGLengthContext::LengthType::kVertical),
+        },
+        0
+    };
+
+    // Note: we're dispatching to onRenderText() (as opposed to renderText()) because styling has
+    // already been applied by render() upstack.
+    return this->onRenderText(ctx, &tctx);
 }
 
-void SkSVGText::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-  switch (attr) {
-    case SkSVGAttribute::kX:
-      if (const auto* x = v.as<SkSVGLengthValue>()) {
-        this->setX(*x);
-      }
-      break;
-    case SkSVGAttribute::kY:
-      if (const auto* y = v.as<SkSVGLengthValue>()) {
-        this->setY(*y);
-      }
-      break;
-    case SkSVGAttribute::kText:
-      if (const auto* text = v.as<SkSVGStringValue>()) {
-        this->setText(*text);
-      }
-      break;
-    default:
-      this->INHERITED::onSetAttribute(attr, v);
-  }
+void SkSVGTextContainer::onRenderText(const SkSVGRenderContext& ctx, TextContext* tctx) const {
+    for (const auto& frag : fFragments) {
+        frag->renderText(ctx, tctx);
+    }
+}
+
+void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
+    if (auto frag = AsTextFragment(std::move(child))) {
+        fFragments.push_back(std::move(frag));
+    }
+}
+
+SkPath SkSVGTextContainer::onAsPath(const SkSVGRenderContext& ctx) const {
+    // TODO
+    return SkPath();
+}
+
+bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value));
 }
