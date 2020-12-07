@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5405358e_0a234a5b",
+        "filename": "src/sksl/dsl/DSL_core.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:54:37Z",
+      "side": 1,
+      "message": "Are these tested or used in this CL? If not, maybe we should pull them out from this CL and land them when they\u0027re actually used?\n\nFor that matter, they might even merit being in a separate file from \"DSLCore\" altogheter.  They are really fragment-processor-specific, right? We expect to have DSL users who aren\u0027t writing FPs at all and probably won\u0027t need this.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 53
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b9baa91b_7b75bb0e",
         "filename": "src/sksl/dsl/priv/DSLWriter.h",
         "patchSetId": 40
@@ -111,6 +134,29 @@
         "startChar": 4,
         "endLine": 82,
         "endChar": 33
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81dca676_b1a78976",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:54:37Z",
+      "side": 1,
+      "message": "This isn\u0027t quite right... C++ has a true boolean type separate from int (bool) and even C has _Bool. Allowing 0 and 1 to convert is fine, and might be necessary, but not for the reason here? https://godbolt.org/z/o55f4c",
+      "range": {
+        "startLine": 151,
+        "startChar": 48,
+        "endLine": 152,
+        "endChar": 16
       },
       "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
