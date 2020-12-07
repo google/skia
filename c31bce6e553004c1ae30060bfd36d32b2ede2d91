@@ -140,6 +140,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75f1ded6_05103593",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T17:15:09Z",
+      "side": 1,
+      "message": "If you want to make a header public, it\u0027s okay to use non-public headers from include/private/, but not anything under src/.  To make it work, move any headers you need from src/ to include/private/.",
+      "parentUuid": "41196901_886a82df",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cbbb44d_a1a2174c",
