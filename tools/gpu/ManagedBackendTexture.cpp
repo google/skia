@@ -86,8 +86,12 @@ sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeFromBitmap(GrDirectConte
             levels.push_back(level.fPixmap);
         }
     }
-    return MakeWithData(
-            dContext, levels.data(), static_cast<int>(levels.size()), renderable, isProtected);
+    return MakeWithData(dContext,
+                        levels.data(),
+                        static_cast<int>(levels.size()),
+                        kTopLeft_GrSurfaceOrigin,
+                        renderable,
+                        isProtected);
 }
 
 }  // namespace sk_gpu_test

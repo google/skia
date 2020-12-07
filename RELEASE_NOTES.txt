@@ -6,6 +6,11 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+
+  * Add versions of GrDirectContext::createBackendTexture and updateBackendTexture
+    that take a GrSurfaceOrigin. The previous versions are deprecated.
+    https://review.skia.org/341005
+
   * Remove support for deprecated kDontClipToLayer_SaveLayerFlag in SkCanvas::SaveLayerRec
     https://review.skia.org/339988
 

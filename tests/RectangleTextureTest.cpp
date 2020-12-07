@@ -131,7 +131,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     SkPixmap pm(ii, pixels, sizeof(uint32_t)*kWidth);
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
-        bool useBLOrigin = kBottomLeft_GrSurfaceOrigin == origin;
 
         auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTex = dContext->createBackendTexture(kWidth,
@@ -143,15 +142,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
-        if (!dContext->updateBackendTexture(rectangleTex, &pm, 1, nullptr, nullptr)) {
+        if (!dContext->updateBackendTexture(rectangleTex, &pm, 1, origin, nullptr, nullptr)) {
             continue;
         }
 
         GrColor refPixels[kWidth * kHeight];
         for (int y = 0; y < kHeight; ++y) {
             for (int x = 0; x < kWidth; ++x) {
-                int y0 = useBLOrigin ? kHeight - y - 1 : y;
-                refPixels[y * kWidth + x] = pixels[y0 * kWidth + x];
+                refPixels[y * kWidth + x] = pixels[y * kWidth + x];
             }
         }
 

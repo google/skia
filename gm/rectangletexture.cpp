@@ -103,20 +103,7 @@ private:
         if (!bet.isValid()) {
             return nullptr;
         }
-        const SkPixmap* pm = &content.pixmap();
-        SkAutoPixmapStorage tempPM;
-        if (origin == kBottomLeft_GrSurfaceOrigin) {
-            tempPM.alloc(pm->info());
-            const uint32_t* src = pm->addr32();
-            uint32_t* dst = tempPM.writable_addr32(0, content.height() - 1);
-            for (int y = 0; y < content.height(); ++y,
-                                                  src += pm->rowBytesAsPixels(),
-                                                  dst -= tempPM.rowBytesAsPixels()) {
-                std::copy_n(src, content.width(), dst);
-            }
-            pm = &tempPM;
-        }
-        if (!dContext->updateBackendTexture(bet, pm, 1, nullptr, nullptr)) {
+        if (!dContext->updateBackendTexture(bet, content.pixmap(), origin, nullptr, nullptr)) {
             dContext->deleteBackendTexture(bet);
         }
         return SkImage::MakeFromAdoptedTexture(dContext, bet, origin, kRGBA_8888_SkColorType);

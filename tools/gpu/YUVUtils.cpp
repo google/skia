@@ -236,7 +236,11 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
                 GrBackendTexture textures[SkYUVAInfo::kMaxPlanes];
                 for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
                     mbets[i] = sk_gpu_test::ManagedBackendTexture::MakeWithData(
-                            direct, fPixmaps.plane(i), GrRenderable::kNo, GrProtected::kNo);
+                            direct,
+                            fPixmaps.plane(i),
+                            kTopLeft_GrSurfaceOrigin,
+                            GrRenderable::kNo,
+                            GrProtected::kNo);
                     if (mbets[i]) {
                         textures[i] = mbets[i]->texture();
                     } else {
