@@ -19,14 +19,15 @@ class SkEnumerate {
     using Captured = decltype(*std::declval<Iter>());
     template <typename> struct is_tuple : std::false_type {};
     template <typename... T> struct is_tuple<std::tuple<T...>> : std::true_type {};
-    static constexpr auto MakeResult(size_t i, Captured&& v) {
-        if constexpr (is_tuple<Captured>::value) {
-            return std::tuple_cat(std::tuple<size_t>{i}, std::forward<Captured>(v));
-        } else {
-            return std::tuple_cat(std::tuple<size_t>{i},
-                    std::make_tuple(std::forward<Captured>(v)));
-        }
+    template <typename P = Captured, std::enable_if_t<is_tuple<P>::value, bool> = true>
+    static constexpr auto MakeResult(size_t i, P&& v) {
+        return std::tuple_cat(std::tuple<size_t>{i}, std::forward<P>(v));
     }
+    template <typename P = Captured, std::enable_if_t<!is_tuple<P>::value, bool> = true>
+    static constexpr auto MakeResult(size_t i, P& v) {
+        return std::tuple_cat(std::tuple<size_t>{i}, std::tie(v));
+    }
+
     using Result = decltype(MakeResult(0, std::declval<Captured>()));
 
     class Iterator {
