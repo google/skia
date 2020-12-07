@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1241d4e5_048c9ecc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T13:31:29Z",
+      "side": 1,
+      "message": "This is some more simplification/cleanup of all the draw functions in preparation for layer management changes",
+      "revId": "c82976a86e29852354a1dd281c7a6ea90b6c5539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
