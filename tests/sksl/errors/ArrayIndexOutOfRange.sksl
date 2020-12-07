@@ -1,0 +1,61 @@
+in Block { int x; } unsizedArray[];
+
+void array_neg1             () { int     a[123]; int     v = a[-1]; }
+void array_0                () { float   a[123]; float   v = a[0]; }
+void array_122              () { bool2   a[123]; bool2   v = a[122]; }
+void array_123              () { half4x4 a[123]; half4x4 v = a[123]; }
+void array_huge             () { int4    a[123]; int4    v = a[1000000000]; }
+void array_overflow         () { half3   a[123]; half3   v = a[3000000000]; }
+
+void unsized_array_neg1     () {                 int v = unsizedArray[-1].x; }
+void unsized_array_0        () {                 int v = unsizedArray[0].x; }
+void unsized_array_huge     () {                 int v = unsizedArray[1000000000].x; }
+void unsized_array_overflow () {                 int v = unsizedArray[3000000000].x; }
+
+void half4_neg1()              { half4 h;        half    v = h[-1]; }
+void half4_0()                 { half4 h;        half    v = h[0]; }
+void half4_1()                 { half4 h;        half    v = h[1]; }
+void half4_2()                 { half4 h;        half    v = h[2]; }
+void half4_3()                 { half4 h;        half    v = h[3]; }
+void half4_4()                 { half4 h;        half    v = h[4]; }
+void half4_huge()              { half4 h;        half    v = h[1000000000]; }
+
+void half3_neg1()              { half3 h;        half    v = h[-1]; }
+void half3_0()                 { half3 h;        half    v = h[0]; }
+void half3_1()                 { half3 h;        half    v = h[1]; }
+void half3_2()                 { half3 h;        half    v = h[2]; }
+void half3_3()                 { half3 h;        half    v = h[3]; }
+void half3_4()                 { half3 h;        half    v = h[4]; }
+void half3_huge()              { half3 h;        half    v = h[1000000000]; }
+
+void half2_neg1()              { half2 h;        half    v = h[-1]; }
+void half2_0()                 { half2 h;        half    v = h[0]; }
+void half2_1()                 { half2 h;        half    v = h[1]; }
+void half2_2()                 { half2 h;        half    v = h[2]; }
+void half2_3()                 { half2 h;        half    v = h[3]; }
+void half2_4()                 { half2 h;        half    v = h[4]; }
+void half2_huge()              { half2 h;        half    v = h[1000000000]; }
+
+void half2x4_neg1()            { half2x4 m;      half4   v = m[-1]; }
+void half2x4_0()               { half2x4 m;      half4   v = m[0]; }
+void half2x4_1()               { half2x4 m;      half4   v = m[1]; }
+void half2x4_2()               { half2x4 m;      half4   v = m[2]; }
+void half2x4_3()               { half2x4 m;      half4   v = m[3]; }
+void half2x4_4()               { half2x4 m;      half4   v = m[4]; }
+void half2x4_huge()            { half2x4 m;      half4   v = m[1000000000]; }
+
+void half3x3_neg1()            { half3x3 m;      half3   v = m[-1]; }
+void half3x3_0()               { half3x3 m;      half3   v = m[0]; }
+void half3x3_1()               { half3x3 m;      half3   v = m[1]; }
+void half3x3_2()               { half3x3 m;      half3   v = m[2]; }
+void half3x3_3()               { half3x3 m;      half3   v = m[3]; }
+void half3x3_4()               { half3x3 m;      half3   v = m[4]; }
+void half3x3_huge()            { half3x3 m;      half3   v = m[1000000000]; }
+
+void half4x2_neg1()            { half4x2 m;      half2   v = m[-1]; }
+void half4x2_0()               { half4x2 m;      half2   v = m[0]; }
+void half4x2_1()               { half4x2 m;      half2   v = m[1]; }
+void half4x2_2()               { half4x2 m;      half2   v = m[2]; }
+void half4x2_3()               { half4x2 m;      half2   v = m[3]; }
+void half4x2_4()               { half4x2 m;      half2   v = m[4]; }
+void half4x2_huge()            { half4x2 m;      half2   v = m[1000000000]; }
