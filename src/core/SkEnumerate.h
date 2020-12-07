@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkIota_DEFINED
-#define SkIota_DEFINED
+#ifndef SkEnumerate_DEFINED
+#define SkEnumerate_DEFINED
 
 #include <cstddef>
 #include <iterator>
@@ -19,14 +19,17 @@ class SkEnumerate {
     using Captured = decltype(*std::declval<Iter>());
     template <typename> struct is_tuple : std::false_type {};
     template <typename... T> struct is_tuple<std::tuple<T...>> : std::true_type {};
+
+    // v must be a r-value to bind to temporary non-const references.
     static constexpr auto MakeResult(size_t i, Captured&& v) {
         if constexpr (is_tuple<Captured>::value) {
-            return std::tuple_cat(std::tuple<size_t>{i}, std::forward<Captured>(v));
+            return std::tuple_cat(std::tuple<size_t>{i}, v);
         } else {
-            return std::tuple_cat(std::tuple<size_t>{i},
-                    std::make_tuple(std::forward<Captured>(v)));
+            // Capture v by reference instead of by value by using std::tie.
+            return std::tuple_cat(std::tuple<size_t>{i}, std::tie(v));
         }
     }
+
     using Result = decltype(MakeResult(0, std::declval<Captured>()));
 
     class Iterator {
@@ -109,4 +112,4 @@ template <class T, std::size_t N, typename Iter = decltype(std::begin(std::declv
 inline constexpr SkEnumerate<Iter> SkMakeEnumerate(T (&a)[N]) {
     return SkEnumerate<Iter>{std::begin(a), std::end(a)};
 }
-#endif  // SkIota_DEFINED
+#endif  // SkEnumerate_DEFINED
