@@ -756,9 +756,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     auto makeImageSurfaceContext = [dContext](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
         SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
-        return GrSurfaceContext::Make(dContext, *gpuImage->view(dContext),
-                                      SkColorTypeToGrColorType(i->colorType()), kPremul_SkAlphaType,
-                                      gpuImage->refColorSpace());
+        return GrSurfaceContext::Make(dContext,
+                                      *gpuImage->view(dContext),
+                                      i->imageInfo().colorInfo());
     };
 
     // Test that non-wrapped RTs are created clear.

@@ -31,9 +31,7 @@
 
 std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
                                                          GrSurfaceProxyView readView,
-                                                         GrColorType colorType,
-                                                         SkAlphaType alphaType,
-                                                         sk_sp<SkColorSpace> colorSpace) {
+                                                         const GrColorInfo& info) {
     // It is probably not necessary to check if the context is abandoned here since uses of the
     // GrSurfaceContext which need the context will mostly likely fail later on without an issue.
     // However having this hear adds some reassurance in case there is a path doesn't handle an
@@ -46,54 +44,87 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
 
     std::unique_ptr<GrSurfaceContext> surfaceContext;
     if (proxy->asRenderTargetProxy()) {
-        SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
+        SkASSERT(info.alphaType() == kPremul_SkAlphaType ||
+                 info.alphaType() == kOpaque_SkAlphaType);
         // Will we ever want a swizzle that is not the default write swizzle for the format and
         // colorType here? If so we will need to manually pass that in.
         GrSwizzle writeSwizzle;
-        if (colorType != GrColorType::kUnknown) {
-            writeSwizzle =
-                    context->priv().caps()->getWriteSwizzle(proxy->backendFormat(), colorType);
+        if (info.colorType() != GrColorType::kUnknown) {
+            writeSwizzle = context->priv().caps()->getWriteSwizzle(proxy->backendFormat(),
+                                                                   info.colorType());
         }
         GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
-        surfaceContext = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
-                                                       std::move(writeView), colorType,
-                                                       std::move(colorSpace), nullptr);
+        surfaceContext = std::make_unique<GrRenderTargetContext>(context,
+                                                                 std::move(readView),
+                                                                 std::move(writeView),
+                                                                 info.colorType(),
+                                                                 info.refColorSpace(),
+                                                                 /*surface props*/ nullptr);
     } else {
-        surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), colorType,
-                                                  alphaType, std::move(colorSpace));
+        surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), info);
     }
     SkDEBUGCODE(surfaceContext->validate();)
     return surfaceContext;
 }
 
 std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
-                                                         SkISize dimensions,
+                                                         const GrImageInfo& info,
                                                          const GrBackendFormat& format,
-                                                         GrRenderable renderable,
-                                                         int renderTargetSampleCnt,
-                                                         GrMipmapped mipMapped,
-                                                         GrProtected isProtected,
-                                                         GrSurfaceOrigin origin,
-                                                         GrColorType colorType,
-                                                         SkAlphaType alphaType,
-                                                         sk_sp<SkColorSpace> colorSpace,
                                                          SkBackingFit fit,
+                                                         GrSurfaceOrigin origin,
+                                                         GrRenderable renderable,
+                                                         int sampleCount,
+                                                         GrMipmapped mipmapped,
+                                                         GrProtected isProtected,
                                                          SkBudgeted budgeted) {
-    GrSwizzle swizzle;
-    if (colorType != GrColorType::kUnknown && !context->priv().caps()->isFormatCompressed(format)) {
-        swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
+    SkASSERT(context);
+    SkASSERT(renderable == GrRenderable::kYes || sampleCount == 1);
+    if (context->abandoned()) {
+        return nullptr;
     }
-
-    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, dimensions, renderable, renderTargetSampleCnt, mipMapped, fit, budgeted,
-            isProtected);
+    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(format,
+                                                                               info.dimensions(),
+                                                                               renderable,
+                                                                               sampleCount,
+                                                                               mipmapped,
+                                                                               fit,
+                                                                               budgeted,
+                                                                               isProtected);
     if (!proxy) {
         return nullptr;
     }
 
+    GrSwizzle swizzle;
+    if (info.colorType() != GrColorType::kUnknown &&
+        !context->priv().caps()->isFormatCompressed(format)) {
+        swizzle = context->priv().caps()->getReadSwizzle(format, info.colorType());
+    }
+
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    return GrSurfaceContext::Make(context, std::move(view), colorType, alphaType,
-                                  std::move(colorSpace));
+    return GrSurfaceContext::Make(context, std::move(view), info.colorInfo());
+}
+
+std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
+                                                         const GrImageInfo& info,
+                                                         SkBackingFit fit,
+                                                         GrSurfaceOrigin origin,
+                                                         GrRenderable renderable,
+                                                         int sampleCount,
+                                                         GrMipmapped mipmapped,
+                                                         GrProtected isProtected,
+                                                         SkBudgeted budgeted) {
+    GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(info.colorType(),
+                                                                             renderable);
+    return Make(context,
+                info,
+                format,
+                fit,
+                origin,
+                renderable,
+                sampleCount,
+                mipmapped,
+                isProtected,
+                budgeted);
 }
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
@@ -102,12 +133,8 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
 // when the renderTargetContext attempts to use it (via getOpsTask).
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
                                    GrSurfaceProxyView readView,
-                                   GrColorType colorType,
-                                   SkAlphaType alphaType,
-                                   sk_sp<SkColorSpace> colorSpace)
-        : fContext(context)
-        , fReadView(std::move(readView))
-        , fColorInfo(colorType, alphaType, std::move(colorSpace)) {
+                                   const GrColorInfo& info)
+        : fContext(context), fReadView(std::move(readView)), fColorInfo(info) {
     SkASSERT(!context->abandoned());
 }
 
@@ -264,11 +291,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
                 return false;
             }
             GrSurfaceProxyView view{std::move(copy), this->origin(), this->readSwizzle()};
-            tempCtx = GrSurfaceContext::Make(dContext,
-                                             std::move(view),
-                                             this->colorInfo().colorType(),
-                                             this->colorInfo().alphaType(),
-                                             this->colorInfo().refColorSpace());
+            tempCtx = GrSurfaceContext::Make(dContext, std::move(view), this->colorInfo());
             SkASSERT(tempCtx);
         }
         return tempCtx->readPixels(dContext, dstInfo, dst, rowBytes, pt);
@@ -387,22 +410,20 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
                             dContext->priv().validPMUPMConversionExists();
 
     if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
-        GrColorType colorType;
-
+        GrColorInfo tempColorInfo;
         GrBackendFormat format;
-        SkAlphaType alphaType;
         GrSwizzle tempReadSwizzle;
         if (canvas2DFastPath) {
-            colorType = GrColorType::kRGBA_8888;
+            tempColorInfo = {GrColorType::kRGBA_8888,
+                             kUnpremul_SkAlphaType,
+                             this->colorInfo().refColorSpace()};
             format = rgbaDefaultFormat;
-            alphaType = kUnpremul_SkAlphaType;
         } else {
-            colorType = this->colorInfo().colorType();
+            tempColorInfo = this->colorInfo();
             format = dstProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {
                 return false;
             }
-            alphaType = this->colorInfo().alphaType();
             tempReadSwizzle = this->readSwizzle();
         }
 
@@ -420,8 +441,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
             return false;
         }
         GrSurfaceProxyView tempView(tempProxy, tempOrigin, tempReadSwizzle);
-        GrSurfaceContext tempCtx(dContext, tempView, colorType, alphaType,
-                                 this->colorInfo().refColorSpace());
+        GrSurfaceContext tempCtx(dContext, tempView, tempColorInfo);
 
         // In the fast path we always write the srcData to the temp context as though it were RGBA.
         // When the data is really BGRA the write will cause the R and B channels to be swapped in
@@ -438,13 +458,13 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
             std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = dContext->priv().createUPMToPMEffect(
-                        GrTextureEffect::Make(std::move(tempView), alphaType));
+                        GrTextureEffect::Make(std::move(tempView), tempColorInfo.alphaType()));
                 // Important: check the original src color type here!
                 if (origSrcInfo.colorType() == GrColorType::kBGRA_8888) {
                     fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                 }
             } else {
-                fp = GrTextureEffect::Make(std::move(tempView), alphaType);
+                fp = GrTextureEffect::Make(std::move(tempView), tempColorInfo.alphaType());
             }
             if (!fp) {
                 return false;

@@ -41,19 +41,33 @@ public:
     // otherwise it will return a GrSurfaceContext.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   GrSurfaceProxyView readView,
-                                                  GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+                                                  const GrColorInfo&);
 
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, SkISize dimensions,
-                                                  const GrBackendFormat&, GrRenderable,
-                                                  int renderTargetSampleCnt, GrMipmapped,
-                                                  GrProtected, GrSurfaceOrigin, GrColorType,
-                                                  SkAlphaType, sk_sp<SkColorSpace>, SkBackingFit,
-                                                  SkBudgeted);
+    // Makes either a GrSurfaceContext or a GrRenderTargetContext, depending on GrRenderable.
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
+                                                  const GrImageInfo&,
+                                                  const GrBackendFormat&,
+                                                  SkBackingFit = SkBackingFit::kExact,
+                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                  GrRenderable = GrRenderable::kNo,
+                                                  int renderTargetSampleCnt = 1,
+                                                  GrMipmapped = GrMipmapped::kNo,
+                                                  GrProtected = GrProtected::kNo,
+                                                  SkBudgeted = SkBudgeted::kYes);
+
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
+                                                  const GrImageInfo&,
+                                                  SkBackingFit = SkBackingFit::kExact,
+                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                  GrRenderable = GrRenderable::kNo,
+                                                  int renderTargetSampleCnt = 1,
+                                                  GrMipmapped = GrMipmapped::kNo,
+                                                  GrProtected = GrProtected::kNo,
+                                                  SkBudgeted = SkBudgeted::kYes);
 
     // If it is known that the GrSurfaceProxy is not renderable, you can directly call the the ctor
     // here to make a GrSurfaceContext on the stack.
-    GrSurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, GrColorType, SkAlphaType,
-                     sk_sp<SkColorSpace>);
+    GrSurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);
 
     virtual ~GrSurfaceContext() = default;
 

@@ -31,14 +31,16 @@ void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
 
     FillPixelData(kWidth, kHeight, srcBuffer.get());
 
-    auto grCT = SkColorTypeToGrColorType(ct);
-    auto view = sk_gpu_test::MakeTextureProxyViewFromData(
-            dContext, renderable, kTopLeft_GrSurfaceOrigin,
-            {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
+    auto info = SkImageInfo::Make({kWidth, kHeight}, ct, kPremul_SkAlphaType, nullptr);
+    auto view = sk_gpu_test::MakeTextureProxyViewFromData(dContext,
+                                                          renderable,
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          info,
+                                                          srcBuffer,
+                                                          /*row bytes*/ 0);
     REPORTER_ASSERT(reporter, view);
     if (view) {
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), grCT, kPremul_SkAlphaType,
-                                               nullptr);
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), info.colorInfo());
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
@@ -59,13 +61,15 @@ void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
         REPORTER_ASSERT(reporter, DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, 10, 2));
     }
 
-    view = sk_gpu_test::MakeTextureProxyViewFromData(
-            dContext, renderable, kBottomLeft_GrSurfaceOrigin,
-            {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
+    view = sk_gpu_test::MakeTextureProxyViewFromData(dContext,
+                                                     renderable,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     info,
+                                                     srcBuffer,
+                                                     0);
     REPORTER_ASSERT(reporter, view);
     if (view) {
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), grCT, kPremul_SkAlphaType,
-                                               nullptr);
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), info.colorInfo());
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 

@@ -48,8 +48,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
         return {};
     }
     GrSurfaceProxyView view(proxy, origin, swizzle);
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), imageInfo.colorType(),
-                                           imageInfo.alphaType(), imageInfo.refColorSpace());
+    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), imageInfo.colorInfo());
     if (!sContext) {
         return {};
     }

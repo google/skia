@@ -89,6 +89,7 @@ public:
      */
     GrSurfaceProxyView view(GrMipmapped);
 
+    const GrColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkISize dimensions() const { return fImageInfo.dimensions(); }

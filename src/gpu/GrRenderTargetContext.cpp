@@ -328,8 +328,9 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool flushTimeOpsTask)
-        : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
-                           std::move(colorSpace))
+        : GrSurfaceContext(context,
+                           std::move(readView),
+                           {colorType, kPremul_SkAlphaType, std::move(colorSpace)})
         , fWriteView(std::move(writeView))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fFlushTimeOpsTask(flushTimeOpsTask)

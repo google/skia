@@ -551,9 +551,10 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     sigmaX *= scaleX;
     sigmaY *= scaleY;
 
-    auto srcCtx = GrSurfaceContext::Make(context, srcView, srcColorType, srcAlphaType, colorSpace);
+    GrColorInfo colorInfo(srcColorType, srcAlphaType, colorSpace);
+    auto srcCtx = GrSurfaceContext::Make(context, srcView, colorInfo);
     SkASSERT(srcCtx);
-    GrImageInfo rescaledII(srcColorType, srcAlphaType, colorSpace, rescaledSize);
+    GrImageInfo rescaledII(colorInfo, rescaledSize);
     srcCtx = srcCtx->rescale(rescaledII, srcCtx->origin(), srcBounds, SkSurface::RescaleGamma::kSrc,
                              kLow_SkFilterQuality);
     if (!srcCtx) {
