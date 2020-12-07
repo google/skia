@@ -433,11 +433,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             auto view = sk_gpu_test::MakeTextureProxyViewFromData(
                     dContext, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
-            GrColorType grColorType = SkColorTypeToGrColorType(bmp.colorType());
-            auto sContext = GrSurfaceContext::Make(dContext, std::move(view),
-                    grColorType, kPremul_SkAlphaType, nullptr);
-            auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
-            test_readpixels_texture(reporter, dContext, std::move(sContext), info);
+            auto sContext = GrSurfaceContext::Make(dContext,
+                                                   std::move(view),
+                                                   bmp.info().colorInfo());
+            test_readpixels_texture(reporter, dContext, std::move(sContext), bmp.info());
         }
     }
 }

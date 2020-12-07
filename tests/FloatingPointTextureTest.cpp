@@ -49,22 +49,18 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
     }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+        GrImageInfo info(colorType, kPremul_SkAlphaType, nullptr, {DEV_W, DEV_H});
         auto fpView = sk_gpu_test::MakeTextureProxyViewFromData(
-                dContext, GrRenderable::kYes, origin,
-                {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H}, controlPixelData.begin(),
-                0);
+                dContext, GrRenderable::kYes, origin, info, controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
         if (!fpView) {
             continue;
         }
 
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(fpView), colorType,
-                                               kPremul_SkAlphaType, nullptr);
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(fpView), info.colorInfo());
         REPORTER_ASSERT(reporter, sContext);
 
-        bool result = sContext->readPixels(dContext,
-                                           {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
-                                           readBuffer.begin(), 0, {0, 0});
+        bool result = sContext->readPixels(dContext, info, readBuffer.begin(), 0, {0, 0});
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
                         !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
