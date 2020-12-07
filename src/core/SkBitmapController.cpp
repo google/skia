@@ -97,3 +97,12 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
     }
     fUpperInv = post_scale(fUpper);
 }
+
+SkMipmapAccessor* SkMipmapAccessor::Make(SkArenaAlloc* alloc, const SkImage* image,
+                                         const SkMatrix& inv, SkMipmapMode mipmap) {
+    auto* access = alloc->make<SkMipmapAccessor>(as_IB(image), inv, mipmap);
+    if (access->fUpper.addr()) {
+        return access;
+    }
+    return nullptr;
+}
