@@ -42,8 +42,8 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
-    browserDisconnectTimeout: 20000,
-    browserNoActivityTimeout: 20000,
+    browserDisconnectTimeout: 40000,
+    browserNoActivityTimeout: 40000,
 
     // start these browsers
     browsers: ['Chrome'],
