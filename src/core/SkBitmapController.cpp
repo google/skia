@@ -97,3 +97,14 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
     }
     fUpperInv = post_scale(fUpper);
 }
+
+SkMipmapAccessor* SkMipmapAccessor::Make(SkArenaAlloc* alloc, const SkImage* image,
+                                         const SkMatrix& inv, SkMipmapMode mipmap) {
+    // have to do this raw alloc, since SkArenaAlloc can't see our private constructor
+    void* ptr = alloc->makeBytesAlignedTo(sizeof (SkMipmapAccessor),
+                                          alignof(SkMipmapAccessor));
+    auto* access = new (ptr) SkMipmapAccessor(as_IB(image), inv, mipmap);
+
+    // return null if we failed to get the level
+    return access->fUpper.addr() ? access : nullptr;
+}
