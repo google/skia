@@ -473,6 +473,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65771aa3_a2ea74c9",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2373,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T21:53:33Z",
+      "side": 1,
+      "message": "Oh right, brain fart, I\u0027d just been assuming clients would call the inherited method too, which doesn\u0027t make much sense for the drawing functions. So I won\u0027t do this change or follow-up at all, since it doesn\u0027t accomplish anything.",
+      "parentUuid": "d58b25c0_a2a30872",
+      "range": {
+        "startLine": 2372,
+        "startChar": 45,
+        "endLine": 2373,
+        "endChar": 56
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea613e6b_719e66f7",
