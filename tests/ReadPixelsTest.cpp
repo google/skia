@@ -386,61 +386,6 @@ DEF_TEST(ReadPixels, reporter) {
     test_readpixels(reporter, surface, info);
 }
 
-static void test_readpixels_texture(skiatest::Reporter* reporter,
-                                    GrDirectContext* dContext,
-                                    std::unique_ptr<GrSurfaceContext> sContext,
-                                    const SkImageInfo& surfaceInfo) {
-    for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
-        const SkIRect& srcRect = gReadPixelsTestRects[rect];
-        for (auto tightRB : {TightRowBytes::kYes, TightRowBytes::kNo}) {
-            for (size_t c = 0; c < SK_ARRAY_COUNT(gReadPixelsConfigs); ++c) {
-                SkBitmap bmp;
-                init_bitmap(&bmp, srcRect, tightRB, gReadPixelsConfigs[c].fColorType,
-                            gReadPixelsConfigs[c].fAlphaType);
-
-                // if the bitmap has pixels allocated before the readPixels,
-                // note that and fill them with pattern
-                bool startsWithPixels = !bmp.isNull();
-                // Try doing the read directly from a non-renderable texture
-                if (startsWithPixels) {
-                    fill_dst_bmp_with_init_data(&bmp);
-                    bool success = sContext->readPixels(dContext, bmp.info(), bmp.getPixels(),
-                                                        bmp.rowBytes(),
-                                                        {srcRect.fLeft, srcRect.fTop});
-                    auto expectSuccess = read_should_succeed(srcRect, bmp.info(), surfaceInfo);
-                    REPORTER_ASSERT(
-                            reporter, expectSuccess == success,
-                            "Read succeed=%d unexpectedly, src ct/at: %d/%d, dst ct/at: %d/%d",
-                            success, surfaceInfo.colorType(), surfaceInfo.alphaType(),
-                            bmp.info().colorType(), bmp.info().alphaType());
-                    if (success) {
-                        check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop, success, true,
-                                   surfaceInfo);
-                    }
-                }
-            }
-        }
-    }
-}
-
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
-    auto dContext = ctxInfo.directContext();
-
-    SkBitmap bmp = make_src_bitmap();
-
-    // On the GPU we will also try reading back from a non-renderable texture.
-    for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-        for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-            auto view = sk_gpu_test::MakeTextureProxyViewFromData(
-                    dContext, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
-            auto sContext = GrSurfaceContext::Make(dContext,
-                                                   std::move(view),
-                                                   bmp.info().colorInfo());
-            test_readpixels_texture(reporter, dContext, std::move(sContext), bmp.info());
-        }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static const uint32_t kNumPixels = 5;
@@ -736,7 +681,11 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             // conversion at all because GPU->CPU read may go to a lower bit depth format and then
             // be promoted back to the original type. For example, GL ES cannot read to 1010102, so
             // we go through 8888.
-            const float numer = (lumConversion || csConversion) ? 3.f : 2.f;
+            float numer = (lumConversion || csConversion) ? 3.f : 2.f;
+            // Allow some extra tolerance if unpremuling.
+            if (srcAT == kPremul_SkAlphaType && readAT == kUnpremul_SkAlphaType) {
+                numer += 1;
+            }
             int rgbBits = std::min(
                     {min_rgb_channel_bits(readCT), min_rgb_channel_bits(srcCT), 8});
             float tol = numer / (1 << rgbBits);
@@ -927,6 +876,52 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                     }
                 }
             }
+        }
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) {
+    using Surface = std::unique_ptr<GrSurfaceContext>;
+    GrDirectContext* direct = ctxInfo.directContext();
+    auto reader = std::function<GpuReadSrcFn<Surface>>(
+            [direct](const Surface& surface, const SkIVector& offset, const SkPixmap& pixels) {
+                if (surface->readPixels(direct,
+                                        pixels.info(),
+                                        pixels.writable_addr(),
+                                        pixels.rowBytes(),
+                                        {offset.fX, offset.fY})) {
+                    return GpuReadResult::kSuccess;
+                } else {
+                    return GpuReadResult::kFail;
+                }
+            });
+    GpuReadPixelTestRules rules;
+    rules.fAllowUnpremulSrc = true;
+    rules.fAllowUnpremulRead = true;
+    rules.fUncontainedRectSucceeds = true;
+
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+        for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+            auto factory = std::function<GpuSrcFactory<Surface>>([direct, origin,
+                                                                  renderable](const SkPixmap& src) {
+                if (src.colorType() == kRGB_888x_SkColorType) {
+                    return Surface();
+                }
+                std::unique_ptr<GrSurfaceContext> surfContext;
+                // Renderable + unpremul/unknown is not allowed (yet!), skbug.com/11019
+                if (renderable == GrRenderable::kNo        ||
+                    src.alphaType() == kPremul_SkAlphaType ||
+                    src.alphaType() == kOpaque_SkAlphaType) {
+                    surfContext = GrSurfaceContext::Make(direct, src.info(), SkBackingFit::kExact,
+                                                         origin, renderable);
+                }
+                if (surfContext) {
+                    surfContext->writePixels(
+                            direct, src.info(), src.addr(), src.rowBytes(), {0, 0});
+                }
+                return surfContext;
+            });
+            gpu_read_pixels_test_driver(reporter, rules, factory, reader);
         }
     }
 }
