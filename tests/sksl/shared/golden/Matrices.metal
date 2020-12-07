@@ -16,7 +16,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float3 v1 = float3x3(1.0) * float3(2.0);
     float3 v2 = float3(2.0) * float3x3(1.0);
     _out->sk_FragColor = float4(z[0].x, v1 + v2);
-    float2x2 m5 = float2x2(float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0][0]);
-    _out->sk_FragColor = float4((((((((((float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0][0] + float2x2_from_float4(float4(0.0))[0][0]) + float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0][0]) + float2x2(1.0)[0][0]) + m5[0][0]) + float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0][0]) + float2x2(float2(5.0, 6.0), float2(7.0, 8.0))[0][0]) + float3x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(5.0, 6.0))[0][0]) + float3x3(1.0)[0][0]) + float4x4(1.0)[0][0]) + float4x4(2.0)[0][0]);
+    float2x2 m5 = float2x2(float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0].x);
+    _out->sk_FragColor = float4((((((((((float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0].x + float2x2_from_float4(float4(0.0))[0].x) + float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0].x) + float2x2(1.0)[0].x) + m5[0].x) + float2x2(float2(1.0, 2.0), float2(3.0, 4.0))[0].x) + float2x2(float2(5.0, 6.0), float2(7.0, 8.0))[0].x) + float3x2(float2(1.0, 2.0), float2(3.0, 4.0), float2(5.0, 6.0))[0].x) + float3x3(1.0)[0].x) + float4x4(1.0)[0].x) + float4x4(2.0)[0].x);
     return *_out;
 }
