@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e13f1fd_1108a132",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-07T15:41:11Z",
+      "side": 1,
+      "message": "You could query whether either returns true from usesVaryingCoords() here.",
+      "revId": "b5f3609884493bb200c1c625508637f323ba2c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
