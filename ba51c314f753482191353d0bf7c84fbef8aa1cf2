@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13a9ee56_98dfa16c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-07T23:05:38Z",
+      "side": 1,
+      "message": "Hey All, I\u0027m playing around with a new arena set up. Instead of the Arena owning everything, SkArena\nreturns unique_ptrs with deleter that only calls the destructor of the object. In some other code\nI\u0027m writing, adding footers was slowing execution down. This inspired me to speed up the arena code. Having the user take care of destructing removes the need for footers. This vastly simplifies the SkArena code.\n\nI\u0027m interested in what you guy think of the idea.",
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
