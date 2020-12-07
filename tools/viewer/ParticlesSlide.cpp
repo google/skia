@@ -16,11 +16,43 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 #include "tools/viewer/ImGuiLayer.h"
 
 #include "imgui.h"
 
+#include <string>
+#include <unordered_map>
+
 using namespace sk_app;
+
+class TestingResourceProvider : public skresources::ResourceProvider {
+public:
+    TestingResourceProvider() {}
+
+    sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override {
+        auto it = fResources.find(resource_name);
+        if (it != fResources.end()) {
+            return it->second;
+        } else {
+            return GetResourceAsData(SkOSPath::Join(resource_path, resource_name).c_str());
+        }
+    }
+
+    sk_sp<skresources::ImageAsset> loadImageAsset(const char resource_path[],
+                                                  const char resource_name[],
+                                                  const char /*resource_id*/[]) const override {
+        auto data = this->load(resource_path, resource_name);
+        return skresources::MultiFrameImageAsset::Make(data);
+    }
+
+    void addPath(const char resource_name[], const SkPath& path) {
+        fResources[resource_name] = path.serialize();
+    }
+
+private:
+    std::unordered_map<std::string, sk_sp<SkData>> fResources;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -171,7 +203,11 @@ ParticlesSlide::ParticlesSlide() {
     // Register types for serialization
     SkParticleEffect::RegisterParticleTypes();
     fName = "Particles";
-    fResourceProvider = skresources::FileResourceProvider::Make(GetResourcePath());
+    auto provider = sk_make_sp<TestingResourceProvider>();
+    SkPath star = ToolUtils::make_star({ 0, 0, 100, 100 }, 5);
+    star.close();
+    provider->addPath("star", star);
+    fResourceProvider = provider;
 }
 
 void ParticlesSlide::loadEffects(const char* dirname) {
