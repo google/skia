@@ -484,6 +484,34 @@ static GrBackendTexture create_and_update_backend_texture(
     return beTex;
 }
 
+static bool update_texture_with_pixmaps(GrGpu* gpu,
+                                        const SkPixmap* srcData,
+                                        int numLevels,
+                                        const GrBackendTexture& backendTexture,
+                                        GrSurfaceOrigin textureOrigin,
+                                        sk_sp<GrRefCntedCallback> finishedCallback) {
+    std::unique_ptr<char[]> tempStorage;
+    SkAutoSTArray<15, SkPixmap> tempPixmaps;
+    if (textureOrigin == kBottomLeft_GrSurfaceOrigin) {
+        size_t size = 0;
+        for (int i = 0; i < numLevels; ++i) {
+            size += srcData[i].info().minRowBytes()*srcData[i].height();
+        }
+        tempStorage.reset(new char[size]);
+        tempPixmaps.reset(numLevels);
+        size = 0;
+        for (int i = 0; i < numLevels; ++i) {
+            size_t tempRB = srcData[i].info().minRowBytes();
+            tempPixmaps[i].reset(srcData[i].info(), tempStorage.get() + size, tempRB);
+            SkAssertResult(GrConvertPixels(tempPixmaps[i], srcData[i], /*flip*/ true));
+            size += tempRB*srcData[i].height();
+        }
+        srcData = tempPixmaps.get();
+    }
+    GrGpu::BackendTextureData data(srcData);
+    return gpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
 GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
                                                        const GrBackendFormat& backendFormat,
                                                        const SkColor4f& color,
@@ -535,6 +563,7 @@ GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
 
 GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
                                                        int numProvidedLevels,
+                                                       GrSurfaceOrigin textureOrigin,
                                                        GrRenderable renderable,
                                                        GrProtected isProtected,
                                                        GrGpuFinishedProc finishedProc,
@@ -567,11 +596,25 @@ GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
     }
 
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
-
-    GrGpu::BackendTextureData data(srcData);
-    return create_and_update_backend_texture(this, {baseWidth, baseHeight},
-                                             backendFormat, mipMapped, renderable, isProtected,
-                                             std::move(finishedCallback), &data);
+    GrBackendTexture beTex = this->createBackendTexture(srcData[0].width(),
+                                                        srcData[0].height(),
+                                                        backendFormat,
+                                                        mipMapped,
+                                                        renderable,
+                                                        isProtected);
+    if (!beTex.isValid()) {
+        return {};
+    }
+    if (!update_texture_with_pixmaps(this->priv().getGpu(),
+                                     srcData,
+                                     numProvidedLevels,
+                                     beTex,
+                                     textureOrigin,
+                                     std::move(finishedCallback))) {
+        this->deleteBackendTexture(beTex);
+        return {};
+    }
+    return beTex;
 }
 
 bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTexture,
@@ -615,6 +658,7 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
 bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTexture,
                                            const SkPixmap srcData[],
                                            int numLevels,
+                                           GrSurfaceOrigin textureOrigin,
                                            GrGpuFinishedProc finishedProc,
                                            GrGpuFinishedContext finishedContext) {
     auto finishedCallback = GrRefCntedCallback::Make(finishedProc, finishedContext);
@@ -635,9 +679,12 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
     if (numLevels != numExpectedLevels) {
         return false;
     }
-
-    GrGpu::BackendTextureData data(srcData);
-    return fGpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
+    return update_texture_with_pixmaps(fGpu.get(),
+                                       srcData,
+                                       numLevels,
+                                       backendTexture,
+                                       textureOrigin,
+                                       std::move(finishedCallback));
 }
 
 //////////////////////////////////////////////////////////////////////////////

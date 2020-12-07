@@ -121,8 +121,12 @@ static GrBackendTexture create_yuva_texture(GrDirectContext* direct,
     auto markFinished = [](void* context) {
         *(bool*)context = true;
     };
-    auto beTex = direct->createBackendTexture(&pm, 1, GrRenderable::kNo, GrProtected::kNo,
-                                              markFinished, &finishedBECreate);
+    auto beTex = direct->createBackendTexture(pm,
+                                              kTopLeft_GrSurfaceOrigin,
+                                              GrRenderable::kNo,
+                                              GrProtected::kNo,
+                                              markFinished,
+                                              &finishedBECreate);
     if (beTex.isValid()) {
         direct->submit();
         while (!finishedBECreate) {
@@ -164,9 +168,13 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrDirectContext* dir
         auto markFinished = [](void* context) {
             *(bool*)context = true;
         };
-        auto backendTex = direct->createBackendTexture(mipLevels.get(), info->numMipLevels(),
-                                                       GrRenderable::kNo, GrProtected::kNo,
-                                                       markFinished, &finishedBECreate);
+        auto backendTex = direct->createBackendTexture(mipLevels.get(),
+                                                       info->numMipLevels(),
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       GrRenderable::kNo,
+                                                       GrProtected::kNo,
+                                                       markFinished,
+                                                       &finishedBECreate);
         SkASSERT(backendTex.isValid());
         direct->submit();
         while (!finishedBECreate) {

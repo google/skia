@@ -360,7 +360,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
         auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithData(
-                dContext, srcPixmap, GrRenderable::kNo, GrProtected::kNo);
+                dContext, srcPixmap, kTopLeft_GrSurfaceOrigin, GrRenderable::kNo, GrProtected::kNo);
         if (!mbet) {
             ERRORF(reporter, "Could not make texture.");
             return;
