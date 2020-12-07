@@ -6,6 +6,12 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+void bar(thread float& x);
+void _skOutParamHelper0_bar(thread float& x) {
+    float _var0 = x;
+    bar(_var0);
+    x = _var0;
+}
 float foo(float v[2]) {
     return v[0] * v[1];
 }
@@ -20,7 +26,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float x = 10.0;
-    bar(x);
+    _skOutParamHelper0_bar(x);
     _out->sk_FragColor = float4(x);
     return *_out;
 }

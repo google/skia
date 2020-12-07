@@ -110,6 +110,7 @@ String to_string(int32_t value);
 String to_string(uint32_t value);
 String to_string(int64_t value);
 String to_string(uint64_t value);
+String to_string(size_t value);
 
 SKSL_INT stoi(const String& s);
 SKSL_FLOAT stod(const String& s);
