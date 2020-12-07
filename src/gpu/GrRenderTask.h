@@ -73,7 +73,7 @@ public:
     }
     uint32_t uniqueID() const { return fUniqueID; }
     virtual int numTargets() const { return fTargets.count(); }
-    const GrSurfaceProxyView& target(int i) const { return fTargets[i]; }
+    const GrSurfaceProxyView& target(int i) const { return fTargets[i].fProxyView; }
 
     /*
      * Safely cast this GrRenderTask to a GrOpsTask (if possible).
@@ -95,15 +95,15 @@ public:
 
     void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
-       for (const GrSurfaceProxyView& target : fTargets) {
-            fn(target.proxy(), GrMipmapped::kNo);
+       for (const auto& targetInfo : fTargets) {
+            fn(targetInfo.fProxyView.proxy(), GrMipmapped::kNo);
         }
     }
 #endif
 
     bool isUsed(GrSurfaceProxy* proxy) const {
-        for (const GrSurfaceProxyView& target : fTargets) {
-            if (target.proxy() == proxy) {
+        for (const auto& targetInfo : fTargets) {
+            if (targetInfo.fProxyView.proxy() == proxy) {
                 return true;
             }
         }
@@ -122,6 +122,13 @@ public:
     // In addition to just the GrSurface being allocated, has the stencil buffer been allocated (if
     // it is required)?
     bool isInstantiated() const;
+
+    // Returns whether target was found. outIndex left alone if false.
+    bool getIndexOfTarget(const GrSurfaceProxy* target, int* outIndex);
+
+    // Query the chain of tasks for the given target.
+    GrRenderTask* getLastRenderTask(const GrSurfaceProxy* target);
+    GrRenderTask* getNextRenderTask(const GrSurfaceProxy* target);
 
 protected:
     SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
@@ -142,7 +149,12 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
 
-    SkSTArray<1, GrSurfaceProxyView> fTargets;
+    struct TargetInfo {
+        GrSurfaceProxyView  fProxyView;
+        GrRenderTask*       fLastTask = nullptr;
+        GrRenderTask*       fNextTask = nullptr;
+    };
+    SkSTArray<1, TargetInfo> fTargets;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
@@ -193,6 +205,8 @@ private:
     SkDEBUGCODE(bool isDependedent(const GrRenderTask* dependent) const;)
     SkDEBUGCODE(void validate() const;)
     void closeThoseWhoDependOnMe(const GrCaps&);
+
+    void setNextRenderTask(const GrSurfaceProxy*, GrRenderTask*);
 
     static uint32_t CreateUniqueID();
 

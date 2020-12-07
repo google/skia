@@ -775,9 +775,8 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
             fActiveOpsTask->addDependency(waitTask.get());
         } else {
             // In this case we just close the previous RenderTask and start and append the waitTask
-            // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
-            // there is a lastTask on the proxy we make waitTask depend on that task. This
-            // dependency isn't strictly needed but it does keep the DAG from reordering the
+            // to the DAG. If there is a lastTask on the proxy we make waitTask depend on that task.
+            // This dependency isn't strictly needed but it does keep the DAG from reordering the
             // waitTask earlier and blocking more tasks.
             if (GrRenderTask* lastTask = this->getLastRenderTask(proxy.get())) {
                 waitTask->addDependency(lastTask);
