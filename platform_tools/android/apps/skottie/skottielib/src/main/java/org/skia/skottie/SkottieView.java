@@ -33,11 +33,45 @@ public class SkottieView extends FrameLayout {
     private static final int BACKING_VIEW_TEXTURE = 0;
     private static final int BACKING_VIEW_SURFACE = 1;
 
-    // SkottieView constructor when initialized in XML layout
+    /*
+     * Build function for SkottieViews backed with a texture view
+     * Is the same as calling for a default SkottieView
+     */
+    public SkottieView buildAsTexture(Context context) {
+        return new SkottieView(context);
+    }
+
+    /*
+     * Build function for SkottieViews backed with a surface view
+     * Backs the animation surface with a SurfaceView instead, requires background color
+     */
+    public SkottieView buildAsSurface(Context context, int backgroundColor) {
+        SkottieView s = new SkottieView(context);
+        s.mBackingView = new SurfaceView(context);
+        s.mBackgroundColor = backgroundColor;
+        return s;
+    }
+
+    // Basic SkottieView, backing view defaults to TextureView
+    public SkottieView(Context context) {
+        super(context);
+        mBackingView = new TextureView(context);
+        initBackingView();
+    }
+
     public SkottieView(Context context, AttributeSet attrs) {
+        this(context, attrs, 0, 0);
+    }
+
+    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    // SkottieView constructor when initialized in XML layout
+    public SkottieView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs);
         TypedArray a = context.getTheme()
-            .obtainStyledAttributes(attrs, R.styleable.SkottieView, 0, 0);
+            .obtainStyledAttributes(attrs, R.styleable.SkottieView, defStyleAttr, defStyleRes);
         try {
             // set mRepeatCount
             mRepeatCount = a.getInteger(R.styleable.SkottieView_android_repeatCount, 0);
@@ -70,20 +104,6 @@ public class SkottieView extends FrameLayout {
             }
         } finally {
             a.recycle();
-        }
-        initBackingView();
-    }
-    
-    // SkottieView builder constructor
-    private SkottieView(Context context, SkottieViewBuilder builder) {
-        super(context, builder.attrs, builder.defStyleAttr);
-        // create the backing view
-        if (builder.advancedFeatures) {
-            // backing view must be SurfaceView
-            mBackingView = new SurfaceView(context);
-        } else {
-            mBackingView = new TextureView(context);
-            ((TextureView) mBackingView).setOpaque(false);
         }
         initBackingView();
     }
@@ -125,52 +145,47 @@ public class SkottieView extends FrameLayout {
 
     // progress: a float from 0 to 1 representing the percent into the animation
     public void seek(float progress) {
-        mAnimation.setProgress(progress);
+        if(mAnimation != null) {
+            mAnimation.setProgress(progress);
+        }
     }
 
     public void play() {
-        mAnimation.resume();
+        if(mAnimation != null) {
+            mAnimation.resume();
+        }
     }
 
     public void pause() {
-        mAnimation.pause();
+        if(mAnimation != null) {
+            mAnimation.pause();
+        }
     }
 
     public void start() {
-        mAnimation.start();
+        if(mAnimation != null) {
+            mAnimation.start();
+        }
     }
 
     public void stop() {
-        mAnimation.end();
+        if(mAnimation != null) {
+            mAnimation.end();
+        }
     }
 
     public float getProgress() {
-        return mAnimation.getProgress();
+        if(mAnimation != null) {
+            return mAnimation.getProgress();
+        }
+        return -1;
     }
 
-    // Builder accessed by user to generate SkottieViews
-    public static class SkottieViewBuilder {
-        protected AttributeSet attrs;
-        protected int defStyleAttr;
+    public void setRepeatCount(int repeatCount) {
+        mRepeatCount = repeatCount;
+    }
 
-        // if true, backing view will be surface view
-        protected boolean advancedFeatures;
-        // TODO private variable backgroundColor
-
-        public void setAttrs(AttributeSet attrs) {
-          this.attrs = attrs;
-        }
-
-        public void setDefStyleAttr(int defStyleAttr) {
-          this.defStyleAttr = defStyleAttr;
-        }
-
-        public void setAdvancedFeatures(boolean advancedFeatures) {
-          this.advancedFeatures = advancedFeatures;
-        }
-
-        public SkottieView build(Context context) {
-          return new SkottieView(context, this);
-        }
+    public void setBackgroundColor(int colorRGB) {
+        mBackgroundColor = colorRGB;
     }
 }
