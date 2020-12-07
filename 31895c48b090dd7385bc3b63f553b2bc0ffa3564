@@ -16,6 +16,23 @@
       "message": "Is this \"Bug: oss-fuzz:28291\"?",
       "revId": "31895c48b090dd7385bc3b63f553b2bc0ffa3564",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3deb53c3_4a053bbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T16:04:36Z",
+      "side": 1,
+      "message": "Oh I led you astray... if we call makeBytesAlignedTo(), no one will ever destruct the SkMipmapAccessor.  I think we\u0027ll have to go back to your PS2.",
+      "revId": "31895c48b090dd7385bc3b63f553b2bc0ffa3564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
