@@ -34,6 +34,24 @@
       "parentUuid": "08e19ec5_dd6efdd6",
       "revId": "ab0de28ac4e32cef1617a2bff52be2b47d63e30c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa2caf05_3364020f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-07T23:55:58Z",
+      "side": 1,
+      "message": "The code is tighter, and I think I finally got the overflow math tackled in a sane way.",
+      "parentUuid": "c4b4e997_f8960877",
+      "revId": "ab0de28ac4e32cef1617a2bff52be2b47d63e30c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
