@@ -1995,6 +1995,11 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+#if 0
+    SkSamplingOptions sampling = paint ? SkSamplingOptions(paint->getFilterQuality())
+                                       : SkSamplingOptions();
+    this->drawImage(image, x, y, sampling, paint);
+#endif
     this->onDrawImage(image, x, y, paint);
 }
 
@@ -2012,6 +2017,13 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
+#if 0
+    if (constraint == kFast_SrcRectConstraint) {
+        SkSamplingOptions sampling = paint ? SkSamplingOptions(paint->getFilterQuality())
+                                           : SkSamplingOptions();
+        this->drawImageRect(image, src, dst, sampling, paint);
+    }
+#endif
     this->onDrawImageRect(image, &src, dst, paint, constraint);
 }
 
@@ -2562,6 +2574,41 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     }
 
     DRAW_END
+}
+
+static SkSamplingOptions clean_up(SkSamplingOptions sampling) {
+    auto is_unit = [](float x) { return x >= 0 && x <= 1; };
+    if (sampling.useCubic && (!is_unit(sampling.cubic.B) || !is_unit(sampling.cubic.C))) {
+        sampling = SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
+    }
+    return sampling;
+}
+
+void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
+                         const SkSamplingOptions& sampling, const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+
+    // If we need more per-device control, add new virtual
+    auto mx = SkMatrix::Translate(x, y);
+    SkPaint p = paint ? *paint : SkPaint();
+    p.setShader(image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx));
+    this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                             const SkSamplingOptions& sampling, const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+    if (dst.isEmpty()) {
+        return;
+    }
+
+    // If we need more per-device control, add new virtual
+    SkMatrix mx = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    if (mx.isFinite()) {
+        SkPaint p = paint ? *paint : SkPaint();
+        p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
+        this->drawRect(dst, p);
+    }
 }
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
