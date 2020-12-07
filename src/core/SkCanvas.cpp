@@ -1992,15 +1992,23 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
-//#define SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
+#define SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
+
+static SkBlendMode legacy_blendmode(const SkImage* image) {
+    return image->colorType() == kAlpha_8_SkColorType ? SkBlendMode::kDstIn
+                                                      : SkBlendMode::kDst;
+}
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
 #ifdef SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
-    SkSamplingOptions sampling = paint ? SkSamplingOptions(paint->getFilterQuality())
-                                       : SkSamplingOptions();
-    this->drawImage(image, x, y, sampling, paint);
+    if (paint) {
+        this->drawImage(image, x, y, SkSamplingOptions(paint->getFilterQuality()),
+                        legacy_blendmode(image), *paint);
+    } else {
+        this->drawImage(image, x, y, SkSamplingOptions());
+    }
 #else
     this->onDrawImage(image, x, y, paint);
 #endif
@@ -2022,9 +2030,12 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     }
 #ifdef SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
     if (constraint == kFast_SrcRectConstraint) {
-        SkSamplingOptions sampling = paint ? SkSamplingOptions(paint->getFilterQuality())
-                                           : SkSamplingOptions();
-        this->drawImageRect(image, src, dst, sampling, paint);
+        if (paint) {
+            this->drawImageRect(image, src, dst, SkSamplingOptions(paint->getFilterQuality()),
+                                legacy_blendmode(image), *paint);
+        } else {
+            this->drawImageRect(image, src, dst, SkSamplingOptions());
+        }
         return;
     }
 #endif
@@ -2580,19 +2591,35 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     DRAW_END
 }
 
+static void merge_shaders(SkPaint* paint, sk_sp<SkShader> sh, SkBlendMode blend) {
+    if (paint->getShader()) {
+        sh = SkShaders::Blend(blend, paint->refShader(), std::move(sh));
+    }
+    paint->setShader(std::move(sh));
+}
+
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
-                         const SkSamplingOptions& sampling, const SkPaint* paint) {
+                         const SkSamplingOptions& sampling, SkBlendMode blend,
+                         const SkPaint& paint) {
     RETURN_ON_NULL(image);
 
     // If we need more per-device control, add new virtual
-    auto mx = SkMatrix::Translate(x, y);
-    SkPaint p = paint ? *paint : SkPaint();
-    p.setShader(image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx));
+    SkPaint p = paint;
+    SkMatrix mx = SkMatrix::Translate(x, y);
+    merge_shaders(&p,
+                  image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx),
+                  blend);
     this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
 }
 
+void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
+                         const SkSamplingOptions& sampling) {
+    this->drawImage(image, x, y, sampling, SkBlendMode::kSrc, SkPaint());
+}
+
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
-                             const SkSamplingOptions& sampling, const SkPaint* paint) {
+                             const SkSamplingOptions& sampling, SkBlendMode blend,
+                             const SkPaint& paint) {
     RETURN_ON_NULL(image);
     if (dst.isEmpty()) {
         return;
@@ -2601,10 +2628,17 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     // If we need more per-device control, add new virtual
     SkMatrix mx = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     if (mx.isFinite()) {
-        SkPaint p = paint ? *paint : SkPaint();
-        p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
+        SkPaint p = paint;
+        merge_shaders(&p,
+                      image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx),
+                      blend);
         this->drawRect(dst, p);
     }
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                             const SkSamplingOptions& sampling) {
+    this->drawImageRect(image, src, dst, sampling, SkBlendMode::kSrc, SkPaint());
 }
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
