@@ -28,11 +28,45 @@ public:
 
     virtual bool generateCode() = 0;
 
-protected:
+    // Intended for use by AutoOutputStream.
+    OutputStream* outputStream() { return fOut; }
+    void setOutputStream(OutputStream* output) { fOut = output; }
 
+protected:
     const Program& fProgram;
     ErrorReporter& fErrors;
     OutputStream* fOut;
+};
+
+class AutoOutputStream {
+public:
+    // Maintains the current indentation level while writing to the new output stream.
+    AutoOutputStream(CodeGenerator* codeGen, OutputStream* newOutput)
+            : fCodeGen(codeGen)
+            , fOldOutput(codeGen->outputStream()) {
+        fCodeGen->setOutputStream(newOutput);
+    }
+    // Resets the indentation when entering the scope, and restores it when leaving.
+    AutoOutputStream(CodeGenerator* codeGen, OutputStream* newOutput, int *indentationPtr)
+            : fCodeGen(codeGen)
+            , fOldOutput(codeGen->outputStream())
+            , fIndentationPtr(indentationPtr)
+            , fOldIndentation(indentationPtr ? *indentationPtr : 0) {
+        fCodeGen->setOutputStream(newOutput);
+        *fIndentationPtr = 0;
+    }
+    ~AutoOutputStream() {
+        fCodeGen->setOutputStream(fOldOutput);
+        if (fIndentationPtr) {
+            *fIndentationPtr = fOldIndentation;
+        }
+    }
+
+private:
+    CodeGenerator* fCodeGen = nullptr;
+    OutputStream* fOldOutput = nullptr;
+    int *fIndentationPtr = nullptr;
+    int fOldIndentation = 0;
 };
 
 }  // namespace SkSL
