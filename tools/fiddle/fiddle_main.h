@@ -24,8 +24,8 @@
 #include <sstream>
 
 extern GrBackendTexture backEndTexture;
-extern GrBackendRenderTarget backEndRenderTarget;
 extern GrBackendTexture backEndTextureRenderTarget;
+extern GrBackendRenderTarget backEndRenderTarget;
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
@@ -41,7 +41,6 @@ struct DrawOptions {
                 GrMipmapped mipMapping,
                 int offScreenWidth,
                 int offScreenHeight,
-                int offScreenSampleCount,
                 GrMipmapped offScreenMipMapping)
         : size(SkISize::Make(w, h))
         , raster(r)
@@ -55,7 +54,6 @@ struct DrawOptions {
         , fMipMapping(mipMapping)
         , fOffScreenWidth(offScreenWidth)
         , fOffScreenHeight(offScreenHeight)
-        , fOffScreenSampleCount(offScreenSampleCount)
         , fOffScreenMipMapping(offScreenMipMapping) {
         // F16 mode is only valid for color correct backends.
         SkASSERT(srgb || !f16);
