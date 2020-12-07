@@ -16,6 +16,29 @@
       "message": "Hey All, I\u0027m playing around with a new arena set up. Instead of the Arena owning everything, SkArena\nreturns unique_ptrs with deleter that only calls the destructor of the object. In some other code\nI\u0027m writing, adding footers was slowing execution down. This inspired me to speed up the arena code. Having the user take care of destructing removes the need for footers. This vastly simplifies the SkArena code.\n\nI\u0027m interested in what you guy think of the idea.",
       "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b5dc89c_93af7646",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T23:22:22Z",
+      "side": 1,
+      "message": "We do very much rely today on objects in SkArenaAlloc outliving their scope and being destroyed at a point that higher-level code decides is appropriate.\n\nBut can\u0027t we add your new capability transparently to SkArenaAlloc using makeBytesAlignedTo()?  Something like,\n\n    template \u003ctypename T, typename... Args\u003e\n    auto makeUnique(Args\u0026\u0026... args) {\n        void* ptr \u003d this-\u003emakeBytesAlignedTo(sizeof(T), alignof(T));\n        T* typed \u003d new (ptr) T(std::forward\u003cArgs\u003e(args)...);\n\n        auto dtor \u003d [](T* p) { p-\u003e~T(); };\n        return std::unique_ptr\u003cT, decltype(dtor)\u003e{typed};\n    }\n\nNo footer there right?",
+      "range": {
+        "startLine": 348,
+        "startChar": 4,
+        "endLine": 348,
+        "endChar": 28
+      },
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
