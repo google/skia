@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8663dbbb_6f654b10",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-07T17:40:52Z",
+      "side": 1,
+      "message": "This check was here before, but it\u0027s a little strange, especially given that we then coerce to signed integer. Should this line just be:\n\n  if (!converted-\u003etype()-\u003eisInteger()) {\n\n?",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 49
+      },
+      "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
