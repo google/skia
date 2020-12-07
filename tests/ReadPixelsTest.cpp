@@ -433,11 +433,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             auto view = sk_gpu_test::MakeTextureProxyViewFromData(
                     dContext, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
-            GrColorType grColorType = SkColorTypeToGrColorType(bmp.colorType());
-            auto sContext = GrSurfaceContext::Make(dContext, std::move(view),
-                    grColorType, kPremul_SkAlphaType, nullptr);
-            auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
-            test_readpixels_texture(reporter, dContext, std::move(sContext), info);
+            auto sContext = GrSurfaceContext::Make(dContext,
+                                                   std::move(view),
+                                                   bmp.info().colorInfo());
+            test_readpixels_texture(reporter, dContext, std::move(sContext), bmp.info());
         }
     }
 }
@@ -1076,6 +1075,61 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
         gpu_read_pixels_test_driver(reporter, rules, factory, reader);
     }
 }
+
+#if 0
+#include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTargetContext.h"
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) {
+    using Surface = std::unique_ptr<GrSurfaceContext>;
+    GrDirectContext* direct = ctxInfo.directContext();
+    auto reader = std::function<GpuReadSrcFn<Surface>>(
+            [direct](const Surface& surface, const SkIVector& offset, const SkPixmap& pixels) {
+        if (surface->readPixels(direct,
+                                pixels.info(),
+                                pixels.writable_addr(),
+                                pixels.rowBytes(),
+                                {offset.fX, offset.fY})) {
+            return GpuReadResult::kSuccess;
+        } else {
+            return GpuReadResult::kFail;
+        }
+    });
+    GpuReadPixelTestRules rules;
+    rules.fAllowUnpremulSrc = true;
+    rules.fAllowUnpremulRead = true;
+    rules.fUncontainedRectSucceeds = true;
+
+    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
+        for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+            auto factory =
+                    std::function<GpuSrcFactory<Surface>>([direct, origin, renderable](const SkPixmap& src) {
+                        if (src.colorType() == kRGB_888x_SkColorType) {
+                            return Surface();
+                        }
+                        std::unique_ptr<GrSurfaceContext> surfContext;
+                        if (renderable == GrRenderable::kYes) {
+                            if (src.alphaType() == kUnpremul_SkAlphaType ||
+                                src.alphaType() == kUnknown_SkAlphaType) {
+                                return surfContext;
+                            }
+                            surfContext = GrRenderTargetContext::Make(direct, SkColorTypeToGrColorType(src.colorType()), src.refColorSpace(), SkBackingFit::kExact, src.dimensions());
+                        } else {
+                            surfContext = GrSurfaceContext::Make(direct, src.info());
+                        }
+                        auto proxy = direct->priv().proxyProvider()->m
+                        auto surf = GrSurfaceContext::Make(direct, ) SkSurface::MakeRenderTarget(
+                                context, SkBudgeted::kYes, src.info(), 0, origin, nullptr);
+                        if (surf) {
+                            surf->writePixels(src, 0, 0);
+                        }
+                        return surf;
+                    });
+            gpu_read_pixels_test_driver(reporter, rules, factory, reader);
+        }
+    }
+}
+#endif
 
 DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
     const auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType,

@@ -74,8 +74,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             return;
         }
 
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), maker.colorType(),
-                                               kPremul_SkAlphaType, nullptr);
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), maker.colorInfo());
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii));
 
@@ -168,9 +167,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         }
     }
 
-    const SkImageInfo dstInfo = SkImageInfo::Make(X_SIZE, Y_SIZE,
-                                                  kAlpha_8_SkColorType,
-                                                  kPremul_SkAlphaType);
+    const GrImageInfo dstInfo(GrColorType::kAlpha_8,
+                              kPremul_SkAlphaType,
+                              nullptr,
+                              {X_SIZE, Y_SIZE});
 
     // Attempt to read back just alpha from a RGBA/BGRA texture. Once with a texture-only src and
     // once with a render target.
@@ -186,15 +186,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
-            auto view = sk_gpu_test::MakeTextureProxyViewFromData(
-                    dContext, renderable, origin,
-                    {info.fColorType, info.fAlphaType, nullptr, X_SIZE, Y_SIZE}, rgbaData, 0);
+            GrImageInfo ii = dstInfo.makeColorType(info.fColorType).makeAlphaType(info.fAlphaType);
+            auto view = sk_gpu_test::MakeTextureProxyViewFromData(dContext,
+                                                                  renderable,
+                                                                  origin,
+                                                                  ii,
+                                                                  rgbaData,
+                                                                  /*row bytes*/ 0);
             if (!view) {
                 continue;
             }
 
-            auto sContext = GrSurfaceContext::Make(dContext, std::move(view), info.fColorType,
-                                                   kPremul_SkAlphaType, nullptr);
+            auto sContext = GrSurfaceContext::Make(dContext, std::move(view), ii.colorInfo());
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
