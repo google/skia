@@ -68,15 +68,28 @@ sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeFromInfo(GrDirectContext
 }
 
 sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeFromBitmap(GrDirectContext* dContext,
-                                                                   const SkBitmap& bitmap,
+                                                                   const SkBitmap& src,
                                                                    GrMipmapped mipmapped,
                                                                    GrRenderable renderable,
                                                                    GrProtected isProtected) {
-    std::vector<SkPixmap> levels({bitmap.pixmap()});
+    SkPixmap srcPixmap;
+    if (!src.peekPixels(&srcPixmap)) {
+        return nullptr;
+    }
+
+    return MakeFromPixmap(dContext, srcPixmap, mipmapped, renderable, isProtected);
+}
+
+sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeFromPixmap(GrDirectContext* dContext,
+                                                                   const SkPixmap& src,
+                                                                   GrMipmapped mipmapped,
+                                                                   GrRenderable renderable,
+                                                                   GrProtected isProtected) {
+    std::vector<SkPixmap> levels({src});
     std::unique_ptr<SkMipmap> mm;
 
     if (mipmapped == GrMipmapped::kYes) {
-        mm.reset(SkMipmap::Build(bitmap, nullptr));
+        mm.reset(SkMipmap::Build(src, nullptr));
         if (!mm) {
             return nullptr;
         }
