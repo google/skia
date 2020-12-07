@@ -375,7 +375,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc.fDimensions, desc.fFormat, colorType, GrRenderable::kNo, 1,
-                        desc.fBudgeted, GrProtected::kNo, texels.get(), mipLevelCount));
+                        desc.fBudgeted, GrMipMapped::kYes, GrProtected::kNo, texels.get()));
             },
             format, dims, GrMipmapped::kYes, GrMipmapStatus::kValid, GrInternalSurfaceFlags::kNone,
             SkBackingFit::kExact, budgeted, GrProtected::kNo, UseAllocator::kYes);
