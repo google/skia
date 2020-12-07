@@ -94,6 +94,30 @@
       },
       "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c803f1b_4a408eca",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T18:28:16Z",
+      "side": 1,
+      "message": "http://review.skia.org/341459\n\nGlad I pushed it to a separate CL as it actually causes changes in ArrayIndexTypes test output.",
+      "parentUuid": "aff00269_f5c0201a",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 49
+      },
+      "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
