@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2bdc38e7_b886e2ee",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T22:05:42Z",
+      "side": 1,
+      "message": "Could probably be a variadic template, right?\n\n  template \u003ctypename... Args\u003e \n  // stuff\n    SkSL::ExpressionArray args;\n    (args.push_back(arg.release()), ...);\n\nhttps://stackoverflow.com/questions/43195778/push-back-variadic-function-parameters-into-a-vector",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 0
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5405358e_0a234a5b",
         "filename": "src/sksl/dsl/DSL_core.h",
         "patchSetId": 40
