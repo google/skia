@@ -170,7 +170,7 @@ static bool setup_backend_objects(GrDirectContext* context,
 
         backingTexture = resourceProvider->createTexture(
                 bm.dimensions(), format, GrColorType::kRGBA_8888, GrRenderable::kNo, 1,
-                SkBudgeted::kNo, GrProtected::kNo, texels.get(), mipLevelCount);
+                SkBudgeted::kNo, options.fMipMapping, GrProtected::kNo, texels.get());
         if (!backingTexture) {
             fputs("Failed to create backingTexture.\n", stderr);
             return false;
@@ -195,7 +195,8 @@ static bool setup_backend_objects(GrDirectContext* context,
 
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(
                 offscreenDims, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, &level0, 1);
+                options.fOffScreenSampleCount, SkBudgeted::kNo, GrMipMapped::kNo,
+                GrProtected::kNo, &level0);
         if (!tmp || !tmp->asRenderTarget()) {
             fputs("GrTexture is invalid.\n", stderr);
             return false;
@@ -227,8 +228,8 @@ static bool setup_backend_objects(GrDirectContext* context,
 
         backingTextureRenderTarget = resourceProvider->createTexture(
                 offscreenDims, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, texels.get(),
-                mipLevelCount);
+                options.fOffScreenSampleCount, SkBudgeted::kNo, options.fOffScreenMipMapping,
+                GrProtected::kNo, texels.get());
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             fputs("backingTextureRenderTarget is invalid.\n", stderr);
             return false;
