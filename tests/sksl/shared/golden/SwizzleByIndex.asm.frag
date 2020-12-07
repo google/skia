@@ -17,13 +17,13 @@ OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %20 RelaxedPrecision
-OpDecorate %25 RelaxedPrecision
+OpDecorate %23 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
 OpDecorate %29 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -36,11 +36,9 @@ OpDecorate %39 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_1 = OpConstant %float 1
 %_ptr_Function_float = OpTypePointer Function %float
-%int = OpTypeInt 32 1
-%int_0 = OpConstant %int 0
-%int_1 = OpConstant %int 1
-%int_2 = OpConstant %int 2
-%int_3 = OpConstant %int 3
+%float_2 = OpConstant %float 2
+%36 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
+%38 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %main = OpFunction %void None %11
 %12 = OpLabel
 %v = OpVariable %_ptr_Function_v4float Function
@@ -52,22 +50,28 @@ OpDecorate %39 RelaxedPrecision
 %17 = OpCompositeConstruct %v4float %15 %15 %15 %15
 OpStore %v %17
 %20 = OpLoad %v4float %v
-%23 = OpVectorExtractDynamic %float %20 %int_0
-OpStore %x %23
-%25 = OpLoad %v4float %v
-%27 = OpVectorExtractDynamic %float %25 %int_1
-OpStore %y %27
+%21 = OpCompositeExtract %float %20 0
+OpStore %x %21
+%23 = OpLoad %v4float %v
+%24 = OpCompositeExtract %float %23 1
+OpStore %y %24
+%26 = OpLoad %v4float %v
+%27 = OpCompositeExtract %float %26 2
+OpStore %z %27
 %29 = OpLoad %v4float %v
-%31 = OpVectorExtractDynamic %float %29 %int_2
-OpStore %z %31
-%33 = OpLoad %v4float %v
-%35 = OpVectorExtractDynamic %float %33 %int_3
-OpStore %w %35
-%36 = OpLoad %float %x
-%37 = OpLoad %float %y
-%38 = OpLoad %float %z
-%39 = OpLoad %float %w
-%40 = OpCompositeConstruct %v4float %36 %37 %38 %39
-OpStore %sk_FragColor %40
+%30 = OpCompositeExtract %float %29 3
+OpStore %w %30
+%31 = OpLoad %float %x
+%32 = OpLoad %float %y
+%33 = OpLoad %float %z
+%34 = OpLoad %float %w
+%35 = OpCompositeConstruct %v4float %31 %32 %33 %34
+OpStore %sk_FragColor %35
+OpStore %v %36
+OpStore %x %float_2
+OpStore %y %float_2
+OpStore %z %float_2
+OpStore %w %float_2
+OpStore %sk_FragColor %38
 OpReturn
 OpFunctionEnd

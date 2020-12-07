@@ -10,10 +10,16 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 v = float4(sqrt(1.0));
-    float x = v[0];
-    float y = v[1];
-    float z = v[2];
-    float w = v[3];
+    float x = v.x;
+    float y = v.y;
+    float z = v.z;
+    float w = v.w;
     _out->sk_FragColor = float4(x, y, z, w);
+    v = float4(2.0);
+    x = 2.0;
+    y = 2.0;
+    z = 2.0;
+    w = 2.0;
+    _out->sk_FragColor = float4(2.0, 2.0, 2.0, 2.0);
     return *_out;
 }
