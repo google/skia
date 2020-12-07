@@ -45,8 +45,9 @@ public:
     };
 
     struct VkUniformInfo : public UniformInfo {
-        // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
-        uint32_t                fUBOffset;
+        // offsets are only valid if the GrSLType of the fVariable is not a sampler
+        uint32_t                fStd140Offset;
+        uint32_t                fStd430Offset;
         // fImmutableSampler is used for sampling an image with a ycbcr conversion.
         const GrVkSampler*      fImmutableSampler = nullptr;
     };
@@ -78,12 +79,15 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool usePushConstants() const;
+
 private:
     explicit GrVkUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentUBOOffset(0) {
+        , fCurrentStd140Offset(0)
+        , fCurrentStd430Offset(0) {
     }
 
     UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
@@ -141,7 +145,8 @@ private:
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
 
-    uint32_t            fCurrentUBOOffset;
+    uint32_t            fCurrentStd140Offset;
+    uint32_t            fCurrentStd430Offset;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
