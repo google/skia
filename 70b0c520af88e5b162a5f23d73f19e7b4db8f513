@@ -550,6 +550,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "df9e1cca_4d97d60e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:43:44Z",
+      "side": 1,
+      "message": "I think this might be another spot where we can be a lot clearer if we favor simplicity, e.g.\n\n   SkPaint paint \u003d userPaint;\n   paint.setStyle(SkPaint::kFill_Style);\n   paint.setMaskFilter(nullptr);\n   \nor\n\n   SkPaint paint \u003d userPaint ? *userPaint : SkPaint{};\n   paint.setStyle(SkPaint::kStroke_Style);\n   paint.setPathEffect(nullptr);\n\netc, and not introduce any abstraction like init_paint() unless it does actually abstract over some sort of non-obvious constraint, like say, mask filter and path effect always being null\u0027d at the same time, never separately.",
+      "parentUuid": "715e7d8e_563fe22e",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0117ecca_3de6dfb8",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
