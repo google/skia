@@ -210,15 +210,15 @@ String to_string(uint32_t value) {
 }
 
 String to_string(int64_t value) {
-    std::stringstream buffer;
-    buffer << value;
-    return String(buffer.str().c_str());
+    return SkSL::String::printf("%lld", value);
 }
 
 String to_string(uint64_t value) {
-    std::stringstream buffer;
-    buffer << value;
-    return String(buffer.str().c_str());
+    return SkSL::String::printf("%llu", value);
+}
+
+String to_string(size_t value) {
+    return SkSL::String::printf("%zu", value);
 }
 
 String to_string(double value) {

@@ -28,7 +28,6 @@ public:
 
     virtual bool generateCode() = 0;
 
-    // Intended for use by AutoOutputStream.
     OutputStream* outputStream() { return fOut; }
     void setOutputStream(OutputStream* output) { fOut = output; }
 

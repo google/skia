@@ -6,6 +6,66 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+void out_half(thread float& v);
+void _SwizzleHelper0_for_out_half(thread float3& h3) {
+    float var0 = h3[1];
+    out_half(var0);
+    h3[1] = var0;
+}
+void out_half2(thread float2& v);
+void _SwizzleHelper1_for_out_half2(thread float3& h3) {
+    float2 var0 = h3.xz;
+    out_half2(var0);
+    h3.xz = var0;
+}
+void out_half4(thread float4& v);
+void _SwizzleHelper2_for_out_half4(thread float4& h4) {
+    float4 var0 = h4.zwxy;
+    out_half4(var0);
+    h4.zwxy = var0;
+}
+void out_half4(thread float4& v);
+void _SwizzleHelper3_for_out_half4(thread float4x4& h4x4) {
+    float4 var0 = h4x4[3].zwxy;
+    out_half4(var0);
+    h4x4[3].zwxy = var0;
+}
+void out_int3(thread int3& v);
+void _SwizzleHelper4_for_out_int3(thread int4& i4) {
+    int3 var0 = i4.xyz;
+    out_int3(var0);
+    i4.xyz = var0;
+}
+void out_float2(thread float2& v);
+void _SwizzleHelper5_for_out_float2(thread float3& f3) {
+    float2 var0 = f3.xy;
+    out_float2(var0);
+    f3.xy = var0;
+}
+void out_float(thread float& v);
+void _SwizzleHelper6_for_out_float(thread float2& f2) {
+    float var0 = f2[0];
+    out_float(var0);
+    f2[0] = var0;
+}
+void out_float(thread float& v);
+void _SwizzleHelper7_for_out_float(thread float2x2& f2x2) {
+    float var0 = f2x2[0][0];
+    out_float(var0);
+    f2x2[0][0] = var0;
+}
+void out_bool2(thread bool2& v);
+void _SwizzleHelper8_for_out_bool2(thread bool4& b4) {
+    bool2 var0 = b4.xw;
+    out_bool2(var0);
+    b4.xw = var0;
+}
+void out_bool(thread bool& v);
+void _SwizzleHelper9_for_out_bool(thread bool3& b3) {
+    bool var0 = b3[2];
+    out_bool(var0);
+    b3[2] = var0;
+}
 void out_half(thread float& v) {
     v = 1.0;
 }
@@ -83,9 +143,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_half3(h3);
     float4 h4;
     out_half4(h4);
-    /*needs swizzle fix*/ out_half(h3[1]);
-    /*needs swizzle fix*/ out_half2(h3.xz);
-    /*needs swizzle fix*/ out_half4(h4.zwxy);
+    _SwizzleHelper0_for_out_half(h3);
+    _SwizzleHelper1_for_out_half2(h3);
+    _SwizzleHelper2_for_out_half4(h4);
     _out->sk_FragColor = float4(h, h2.x, h3.x, h4.x);
     float2x2 h2x2;
     out_half2x2(h2x2);
@@ -94,7 +154,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float4x4 h4x4;
     out_half4x4(h4x4);
     out_half3(h3x3[1]);
-    /*needs swizzle fix*/ out_half4(h4x4[3].zwxy);
+    _SwizzleHelper3_for_out_half4(h4x4);
     out_half2(h2x2[0]);
     _out->sk_FragColor = float4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1.0);
     int i;
@@ -105,7 +165,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_int3(i3);
     int4 i4;
     out_int4(i4);
-    /*needs swizzle fix*/ out_int3(i4.xyz);
+    _SwizzleHelper4_for_out_int3(i4);
     _out->sk_FragColor = float4(float(i), float(i2.x), float(i3.x), float(i4.x));
     float f;
     out_float(f);
@@ -115,8 +175,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_float3(f3);
     float4 f4;
     out_float4(f4);
-    /*needs swizzle fix*/ out_float2(f3.xy);
-    /*needs swizzle fix*/ out_float(f2[0]);
+    _SwizzleHelper5_for_out_float2(f3);
+    _SwizzleHelper6_for_out_float(f2);
     _out->sk_FragColor = float4(f, f2.x, f3.x, f4.x);
     float2x2 f2x2;
     out_float2x2(f2x2);
@@ -124,7 +184,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_float3x3(f3x3);
     float4x4 f4x4;
     out_float4x4(f4x4);
-    /*needs swizzle fix*/ out_float(f2x2[0][0]);
+    _SwizzleHelper7_for_out_float(f2x2);
     out_float4(f4x4[1]);
     _out->sk_FragColor = float4(f2x2[0][0], f3x3[0][0], f4x4[0][0], 1.0);
     bool b;
@@ -135,8 +195,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_bool3(b3);
     bool4 b4;
     out_bool4(b4);
-    /*needs swizzle fix*/ out_bool2(b4.xw);
-    /*needs swizzle fix*/ out_bool(b3[2]);
+    _SwizzleHelper8_for_out_bool2(b4);
+    _SwizzleHelper9_for_out_bool(b3);
     _out->sk_FragColor = float4(b ? 1.0 : 0.0, b2.x ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
     return *_out;
 }
