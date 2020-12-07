@@ -22,6 +22,30 @@
       },
       "revId": "a15f565f02c522202a1e354a7129bc5647f07461",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1bcdb11_d8204b02",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-12-07T17:45:51Z",
+      "side": 1,
+      "message": "Uncommented now that https://skia-review.googlesource.com/c/buildbot/+/340643 is landed.  It\u0027s needed by the lottie-ci repo.",
+      "parentUuid": "b9acc5b0_9f05ba0b",
+      "range": {
+        "startLine": 366,
+        "startChar": 1,
+        "endLine": 375,
+        "endChar": 5
+      },
+      "revId": "a15f565f02c522202a1e354a7129bc5647f07461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
