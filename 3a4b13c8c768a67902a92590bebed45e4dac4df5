@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "927165ad_8a1c306d",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "Please add a comment explaining this setting a bit.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90aaae9e_d968c595",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "We should probably be pushing and popping back to the original mangle state here. False on both sides definitely doesn\u0027t seem right.",
+      "range": {
+        "startLine": 21,
+        "startChar": 40,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddabf00a_f1addd12",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "I think REPORTER_ASSERT can take printf args directly.\n\n        REPORTER_ASSERT(fReporter, match,\n                        \"Error mismatch: expected:\\n%sbut received:\\n%s\", fMsg, msg);",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 42
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4065a53e_21dac6d1",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "Throughout the test file, the error cases all have `.release()` on them. Is that important? The release doesn\u0027t seem to do anything.",
+      "range": {
+        "startLine": 69,
+        "startChar": 25,
+        "endLine": 69,
+        "endChar": 36
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3ec036a_9234ae11",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "Might be interesting to have a case where parens on the input expression matter, like `a / (b + 1)`. I expect it will work, but I\u0027d like to see it.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9363aff0_59395343",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "Should we put an expecterror with `a / 0` ?",
+      "range": {
+        "startLine": 150,
+        "startChar": 3,
+        "endLine": 153,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3338def3_5a68d7f6",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "a % 0  ?",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db27214f_3f456bd0",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "Just curious: Does C++ simplify these, or does the DSL?",
+      "range": {
+        "startLine": 318,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 0
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cda1c915_000ae893",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "How about an error case where the left and right side don\u0027t agree on type? My favorite ternary \"feature.\" :)",
+      "range": {
+        "startLine": 825,
+        "startChar": 3,
+        "endLine": 828,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa7cde4f_35adacd0",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:05:23Z",
+      "side": 1,
+      "message": "We use Block in some of the other tests but don\u0027t ever test it directly; let\u0027s add it for completeness.",
+      "range": {
+        "startLine": 845,
+        "startChar": 0,
+        "endLine": 846,
+        "endChar": 1
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
