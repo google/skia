@@ -20,6 +20,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1753fa32_fdfdf7ec",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2189,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "Think it makes sense to promote this up to a private SkCanvas method?  It might help keep people using this if we define it near and make it read like one of the existing quickReject() family.",
+      "range": {
+        "startLine": 2189,
+        "startChar": 12,
+        "endLine": 2189,
+        "endChar": 24
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4973e64_12faa00e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2197,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "Maybe something like this?\n\n  if (!bounds.isFinite() || paint.nothingToDraw()) {\n      return true;\n  }\n  SkRect storage;\n  return paint.canComputeFastBounds()\n      \u0026\u0026 canvas-\u003equickReject(paint.computeFastBounds(bounds, \u0026storage));",
+      "range": {
+        "startLine": 2190,
+        "startChar": 0,
+        "endLine": 2197,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fd91596_97dca4a1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "Is there a convention that lets us always funnel through quick_reject() instead of breaking it down into its constituent pieces for these special cases?  E.g.\n\n    if (quick_reject(this, this-\u003egetLocalClipBounds(), paint)) {\n        return;\n    }\n\nI\u0027m wondering if we can get it funneled down so that only quick_reject() needs to know the rules (e.g. that all bounds that are isFinite() is rejected, which is pretty counterintuitive for ±inf).",
+      "range": {
+        "startLine": 2211,
+        "startChar": 4,
+        "endLine": 2213,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c2cbf9c0_7670d7d2",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -61,6 +130,166 @@
         "endLine": 2237,
         "endChar": 28
       },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81992807_d59c40c0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "This must be another reason we call this logic specially right, to handle the draws which are always stroke or always fill?  Maybe that goes as its own param on quick_reject() if we\u0027re trying to funnel into that?\n\n   bool quick_reject(..., int drawStyle \u003d -1) {\n       auto style \u003d drawStyle \u003c 0 ? paint.getStyle()\n                                  : (SkPaint::Style)drawStyle;\n       ...\n   }",
+      "range": {
+        "startLine": 2247,
+        "startChar": 47,
+        "endLine": 2247,
+        "endChar": 53
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "516f119f_f1fc6724",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2294,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "These calls to DRAW_BEGIN() all read like they\u0027re modifying bounds now, don\u0027t they?  These macros are on your chopping block, right?  I\u0027m already starting to wonder how we\u0027d write SkDrawIter fresh today with C++11 and such.",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc54e074_bbdef434",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2373,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "unless it\u0027s necessary for this CL, let\u0027s factor out this concern to a warmup or follow up?  I\u0027m not really sure I understand what difference this change makes.",
+      "range": {
+        "startLine": 2372,
+        "startChar": 45,
+        "endLine": 2373,
+        "endChar": 56
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea613e6b_719e66f7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2386,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "\u0026bounds now?",
+      "range": {
+        "startLine": 2386,
+        "startChar": 22,
+        "endLine": 2386,
+        "endChar": 40
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d4f8c5f_bc7265d4",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2418,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "Let\u0027s stick to the old style here?  I find it easier to follow the three cases with early returns separately.  Written this way it makes it look like the first two are somehow more tightly related than just neither draws, where really it\u0027s the second and third cases that are closer parallels.\n\nOr is there a way we can not check path.isFinite() and instead leave that for quick_reject() and pathBounds?\n\n(I do like the third case flattened out into inverse \u0026\u0026 width\u003d0 \u0026\u0026 height\u003d0 like this though.)",
+      "range": {
+        "startLine": 2412,
+        "startChar": 1,
+        "endLine": 2418,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e605601c_524bf1b0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "I think on balance I\u0027d still prefer an approach that passes a forced style to quick_reject(), but if we like this approach, let\u0027s go with it consistently everywhere?  This is init_fill_paint(), and there\u0027d be an equivalent init_stroke_paint()?",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0117ecca_3de6dfb8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2469,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "This feels like it might be a subtle change.  Are we sure we draw the same through paint\u003dnullptr and paint\u003ddefault SkPaint?",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f50e0d0f_4a596a73",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "When we\u0027ve got locals holding bounds like this, let\u0027s make them const where possible?  It really does look like DRAW_BEGIN() is changing bounds.",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -130,6 +359,29 @@
         "startChar": 8,
         "endLine": 2657,
         "endChar": 20
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f1cab18_08e16279",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T15:53:47Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand what it means to \"apply the computeFastBounds()\".\n\nDo you mean\n\n   // We can\u0027t just call quick_reject() because we may need to transform the result of computeFastBounds() with the optional matrix parameter.\n\nBut then... maybe let\u0027s add an optional matrix parameter to quick_reject()?",
+      "range": {
+        "startLine": 2880,
+        "startChar": 56,
+        "endLine": 2881,
+        "endChar": 48
       },
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
