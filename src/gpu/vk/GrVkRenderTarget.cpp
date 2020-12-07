@@ -363,11 +363,13 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
             renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
 
+    const GrVkImageView* resolveView = withResolve ? this->resolveAttachmentView() : nullptr;
+
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = withStencil ? this->stencilAttachmentView() : nullptr;
     fCachedFramebuffers[cacheIndex] =
             GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    fColorAttachmentView.get(), stencilView);
+                                    fColorAttachmentView.get(), resolveView, stencilView);
 
     return fCachedFramebuffers[cacheIndex];
 }
@@ -420,7 +422,8 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
     *flags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
-    if (programInfo.numSamples() > 1 && vkCaps.alwaysUseDiscardableMSAAAttachment()) {
+    if (programInfo.targetHasResolveTexture() && programInfo.targetSupportsVkInputAttachment() &&
+        vkCaps.alwaysUseDiscardableMSAAAttachment()) {
         desc->fResolve.fFormat = desc->fColor.fFormat;
         desc->fResolve.fSamples = 1;
         *flags |= GrVkRenderPass::kResolve_AttachmentFlag;
@@ -445,9 +448,9 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
     desc->fAttachmentCount = attachmentCount;
 }
 
-const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu) {
+const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu, bool forResolve) {
     SkASSERT(this->supportsInputAttachmentUsage());
-    SkASSERT(this->numSamples() <= 1);
+    SkASSERT(this->numSamples() <= 1 || forResolve);
     if (fCachedInputDescriptorSet) {
         return fCachedInputDescriptorSet;
     }
@@ -460,8 +463,10 @@ const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu) {
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
     imageInfo.sampler = VK_NULL_HANDLE;
-    imageInfo.imageView = this->colorAttachmentView()->imageView();
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    imageInfo.imageView = forResolve ? this->resolveAttachmentView()->imageView()
+                                     : this->colorAttachmentView()->imageView();
+    imageInfo.imageLayout = forResolve ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                                       : VK_IMAGE_LAYOUT_GENERAL;
 
     VkWriteDescriptorSet writeInfo;
     memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
@@ -502,6 +507,10 @@ void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
     if (this->stencilImageResource()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());
+    }
+    if (renderPass.hasResolveAttachment()) {
+        commandBuffer.addResource(this->resource());
+        commandBuffer.addResource(this->resolveAttachmentView());
     }
 }
 

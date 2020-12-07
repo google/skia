@@ -60,7 +60,9 @@ public:
      */
     GrVkImage* msaaImage();
 
-    const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
+    const GrVkImageView* resolveAttachmentView() const {
+        return fResolveAttachmentView.get();
+    }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
@@ -109,7 +111,7 @@ public:
     // set on the the RT and simply reuse that descriptor set for this render target only. This call
     // will not ref the GrVkDescriptorSet so the caller must manually ref it if it wants to keep it
     // alive.
-    const GrVkDescriptorSet* inputDescSet(GrVkGpu*);
+    const GrVkDescriptorSet* inputDescSet(GrVkGpu*, bool forResolve);
 
     void addResources(GrVkCommandBuffer& commandBuffer, const GrVkRenderPass& renderPass);
 

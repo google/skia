@@ -291,6 +291,8 @@ void GrVkGpu::destroyResources() {
 
     fStagingBufferManager.reset();
 
+    fMSAALoadManager.destroyResources(this);
+
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 }
@@ -1412,6 +1414,16 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
     return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, imageInfo.dimensions(), vkInfo);
 }
 
+bool GrVkGpu::loadMSAAFromResolve(GrVkCommandBuffer* commandBuffer,
+                                  const GrVkRenderPass& renderPass,
+                                  GrSurface* dst,
+                                  GrSurfaceOrigin dstOrigin,
+                                  GrSurface* src,
+                                  const GrNativeRect& srcRect) {
+    return fMSAALoadManager.loadMSAAFromResolve(this, commandBuffer, renderPass, dst, dstOrigin,
+                                                src, srcRect);
+}
+
 bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     if (!this->currentCommandBuffer()) {
         return false;
@@ -1957,7 +1969,8 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     }
 
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
-    if (programInfo.numSamples() > 1 && programInfo.colorLoadOp() == GrLoadOp::kLoad &&
+    if (programInfo.targetHasResolveTexture() && programInfo.targetSupportsVkInputAttachment() &&
+        programInfo.colorLoadOp() == GrLoadOp::kLoad &&
         this->vkCaps().alwaysUseDiscardableMSAAAttachment()) {
         loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
     }
