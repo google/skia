@@ -2453,38 +2453,6 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
     return std::make_unique<PrefixExpression>(expression.getToken().fKind, std::move(base));
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
-                                                      const ASTNode& index) {
-    if (base->is<TypeReference>()) {
-        if (index.fKind == ASTNode::Kind::kInt) {
-            const Type* type = &base->as<TypeReference>().value();
-            type = fSymbolTable->addArrayDimension(type, index.getInt());
-            return std::make_unique<TypeReference>(fContext, base->fOffset, type);
-
-        } else {
-            fErrors.error(base->fOffset, "array size must be a constant");
-            return nullptr;
-        }
-    }
-    const Type& baseType = base->type();
-    if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        fErrors.error(base->fOffset, "expected array, but found '" + baseType.displayName() +
-                                     "'");
-        return nullptr;
-    }
-    std::unique_ptr<Expression> converted = this->convertExpression(index);
-    if (!converted) {
-        return nullptr;
-    }
-    if (converted->type() != *fContext.fUInt_Type) {
-        converted = this->coerce(std::move(converted), *fContext.fInt_Type);
-        if (!converted) {
-            return nullptr;
-        }
-    }
-    return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(converted));
-}
-
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
     if (base->kind() == Expression::Kind::kExternalValue) {
@@ -2747,16 +2715,64 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     if (!base) {
         return nullptr;
     }
-    if (iter != index.end()) {
-        return this->convertIndex(std::move(base), *(iter++));
-    }
+    return (iter != index.end()) ? this->convertIndex(std::move(base), *(iter++))
+                                 : this->convertEmptyIndex(std::move(base));
+}
+
+std::unique_ptr<Expression> IRGenerator::convertEmptyIndex(std::unique_ptr<Expression> base) {
+    // Convert an index expression with nothing inside of it: `float[]`.
     if (base->is<TypeReference>()) {
         const Type* type = &base->as<TypeReference>().value();
         type = fSymbolTable->addArrayDimension(type, Type::kUnsizedArray);
         return std::make_unique<TypeReference>(fContext, base->fOffset, type);
     }
-    fErrors.error(index.fOffset, "'[]' must follow a type name");
+    fErrors.error(base->fOffset, "'[]' must follow a type name");
     return nullptr;
+}
+
+std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression> base,
+                                                      const ASTNode& index) {
+    // Convert an index expression with an expression inside of it: `int[12]` or `arr[a * 3]`.
+    if (base->is<TypeReference>()) {
+        if (index.fKind == ASTNode::Kind::kInt) {
+            const Type* type = &base->as<TypeReference>().value();
+            type = fSymbolTable->addArrayDimension(type, index.getInt());
+            return std::make_unique<TypeReference>(fContext, base->fOffset, type);
+
+        } else {
+            fErrors.error(base->fOffset, "array size must be a constant");
+            return nullptr;
+        }
+    }
+    const Type& baseType = base->type();
+    if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
+        fErrors.error(base->fOffset, "expected array, but found '" + baseType.displayName() + "'");
+        return nullptr;
+    }
+    std::unique_ptr<Expression> converted = this->convertExpression(index);
+    if (!converted) {
+        return nullptr;
+    }
+    if (converted->type() != *fContext.fUInt_Type) {
+        converted = this->coerce(std::move(converted), *fContext.fInt_Type);
+        if (!converted) {
+            return nullptr;
+        }
+    }
+    // Perform compile-time bounds checking on constant indices.
+    if (converted->is<IntLiteral>()) {
+        int64_t index = converted->as<IntLiteral>().value();
+
+        const int upperBound = (baseType.isArray() && baseType.columns() == Type::kUnsizedArray)
+                                       ? INT_MAX
+                                       : baseType.columns();
+        if (index < 0 || index >= upperBound) {
+            fErrors.error(base->fOffset, "index " + to_string(index) +
+                                         " out of range for '" + baseType.displayName() + "'");
+            return nullptr;
+        }
+    }
+    return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(converted));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertCallExpression(const ASTNode& callNode) {

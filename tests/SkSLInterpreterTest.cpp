@@ -777,11 +777,10 @@ DEF_TEST(SkSLInterpreterEarlyReturn, r) {
 }
 
 DEF_TEST(SkSLInterpreterArrayBounds, r) {
-    // Out of bounds array access at compile time
-    expect_failure(r, "float main(float x[4]) { return x[-1]; }");
-    expect_failure(r, "float2 main(float2 x[2]) { return x[2]; }");
+    // Out of bounds array access at compile time prevents a program from being generated at all
+    // (tested in ArrayIndexOutOfRange.sksl).
 
-    // Out of bounds array access at runtime is pinned, and we don't update any inout data
+    // Out of bounds array access at runtime is pinned, and we don't update any inout data.
     float in[3] = { -1.0f, 1.0f, 2.0f };
     expect_run_failure(r, "void main(inout float data[3]) { data[int(data[0])] = 0; }", in);
     REPORTER_ASSERT(r, in[0] == -1.0f && in[1] == 1.0f && in[2] == 2.0f);
