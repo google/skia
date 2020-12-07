@@ -22,6 +22,30 @@
       },
       "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad152748_1b52e663",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T17:41:55Z",
+      "side": 1,
+      "message": "Yeah, I have no context for why this would be done this way. Ethan?",
+      "parentUuid": "8663dbbb_6f654b10",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 49
+      },
+      "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
