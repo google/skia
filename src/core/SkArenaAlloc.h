@@ -136,6 +136,14 @@ public:
         return objStart;
     }
 
+    template <typename T, typename... Args>
+    auto makeUnique(Args&&... args) {
+        void* ptr = this->makeBytesAlignedTo(sizeof(T), alignof(T));
+        T* typed = new (ptr) T(std::forward<Args>(args)...);
+        auto dtor = [](T* p) { if (p) p->~T(); };
+        return std::unique_ptr<T, decltype(dtor)>{typed, dtor};
+    }
+
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
     static uint32_t ToU32(size_t v) {
