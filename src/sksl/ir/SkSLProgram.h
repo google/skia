@@ -147,6 +147,10 @@ struct Program {
         // If true, then Debug code will run SPIR-V output through the validator to ensure its
         // correctness
         bool fValidateSPIRV = true;
+        // If true, allows literal 1 and 0 to be converted to true and false. This is used to allow
+        // reasonable handling of booleans from the C DSL, as C doesn't actually have a boolean
+        // type.
+        bool fAllowIntToBoolLiteralConversions = false;
     };
 
     struct Inputs {
