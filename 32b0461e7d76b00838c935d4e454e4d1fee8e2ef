@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0cf4827_d63093c0",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-07T15:06:49Z",
+      "side": 1,
+      "message": "Is all of this ptrdiff_t just because this calculates a \u0027size_t spaceRemaining\u0027 in a way that creates a ptrdiff_t when subtracting the cursor from the end? Note that this subtraction may create a ptrdiff_t, but your actually tracking a size_t thing (the space remaining).",
+      "range": {
+        "startLine": 133,
+        "startChar": 39,
+        "endLine": 133,
+        "endChar": 53
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76a707d4_12bb08f8",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-07T15:06:49Z",
+      "side": 1,
+      "message": "This (and \u0027alignment\u0027, below) by definition should be size_t. If you want to narrow a check should be done somewhere? At least before the narrowing was checked at compile time (since SkTFitsIn is constexpr).",
+      "range": {
+        "startLine": 84,
+        "startChar": 18,
+        "endLine": 84,
+        "endChar": 27
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46be3cea_218e6a0e",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-07T15:06:49Z",
+      "side": 1,
+      "message": "I don\u0027t understand why this duplicate information. It seems \u0027mask\u0027 must always be \u0027alignment - 1\u0027, but this pushes that invariant out to callers and doesn\u0027t check it locally? (Both here and in SkArenaAlloc::allocObjectWithFooter.)",
+      "range": {
+        "startLine": 184,
+        "startChar": 38,
+        "endLine": 184,
+        "endChar": 73
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
