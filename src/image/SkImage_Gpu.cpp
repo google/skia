@@ -135,9 +135,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         callback(context, nullptr);
         return;
     }
-    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
-                                      this->refColorSpace());
+    auto ctx = GrSurfaceContext::Make(dContext, fView, this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -160,9 +158,7 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
         callback(context, nullptr);
         return;
     }
-    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
-                                      this->refColorSpace());
+    auto ctx = GrSurfaceContext::Make(dContext, fView, this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
