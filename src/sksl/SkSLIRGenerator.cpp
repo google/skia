@@ -2753,7 +2753,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
     if (!converted) {
         return nullptr;
     }
-    if (converted->type() != *fContext.fUInt_Type) {
+    if (!converted->type().isInteger()) {
         converted = this->coerce(std::move(converted), *fContext.fInt_Type);
         if (!converted) {
             return nullptr;
