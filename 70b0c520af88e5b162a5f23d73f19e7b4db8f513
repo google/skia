@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "239c1ffa_6950eba0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2189,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "This sounds perfect to me.",
+      "parentUuid": "dcb5415c_856ece7a",
+      "range": {
+        "startLine": 2189,
+        "startChar": 12,
+        "endLine": 2189,
+        "endChar": 24
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a4973e64_12faa00e",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -125,6 +149,30 @@
       "side": 1,
       "message": "I\u0027ve never really thought about it until now, but what does drawPaint() mean to do if a paint has a mask filter or a path effect on it?\n\nI don\u0027t think they make much sense, so really the paint canonized version should be filled w/ no path effect or mask filter. If that\u0027s the case, then simply getLocalClipBounds() would work. The downside to that is it involves some matrix transforms from device space to local space. drawPaint is weird in that there isn\u0027t local geometry associated with it. For that reason, I\u0027m okay having it just check if the paint draws nothing and if the clip is empty, so long as all the others can go through the funnel.",
       "parentUuid": "2fd91596_97dca4a1",
+      "range": {
+        "startLine": 2211,
+        "startChar": 4,
+        "endLine": 2213,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ba6d5f9_ea980684",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "\u003e drawPaint is weird in that there isn\u0027t local geometry associated with it\n\nIsn\u0027t the geometry \"everywhere\", clipped down by the clip as usual, so... the clip?  Then getLocalClipBounds() does exactly return the bounds of the geometry.\n\nBut yeah, if we have to have one weirdo case that\u0027s unlike the others, this is a good one to be that weirdo.",
+      "parentUuid": "ff472f43_1ede0194",
       "range": {
         "startLine": 2211,
         "startChar": 4,
@@ -231,6 +279,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "64ddf935_d95f15b3",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "Canonicalizing the paints sgtm.  It does keep the idiosyncrasies of each draw call handled by that draw call, which I like.\n\n(Canonizing paints makes them saints.)",
+      "parentUuid": "86a92bf3_32bd120b",
+      "range": {
+        "startLine": 2247,
+        "startChar": 47,
+        "endLine": 2247,
+        "endChar": 53
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "516f119f_f1fc6724",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -260,6 +332,24 @@
       "side": 1,
       "message": "Yep, in 3(?) CLs they go away, and SkDrawIter goes away entirely as well.",
       "parentUuid": "516f119f_f1fc6724",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d831affb_b74d05a7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2294,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "Cooooool.",
+      "parentUuid": "642b1f39_3d6aa465",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -301,6 +391,30 @@
       "side": 1,
       "message": "Will do it a follow up instead. My understanding from the old comments \"call the non-virtual version\" was that it was intended to just go to the base SkCanvas\u0027s drawing code for the simpler shape (rect or oval). As it stands, it goes to the public non-virtual, which then calls the onDraw virtual. This means that a naive recording canvas will record a drawRRect and a drawRect if the SkRRect.isRect() returns true.\n\nWhat we really want is to just go straight to SkCanvas::onDrawX and skip any further touching by subclasses, since it\u0027s purely a drawing optimization in onDrawRRect to simplify the representation.",
       "parentUuid": "bc54e074_bbdef434",
+      "range": {
+        "startLine": 2372,
+        "startChar": 45,
+        "endLine": 2373,
+        "endChar": 56
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d58b25c0_a2a30872",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2373,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "I still don\u0027t really understand... a recording canvas overrides onDrawRReect() to record that drawRRect() call.  It won\u0027t ever call SkCanvas::onDrawRRect().",
+      "parentUuid": "2c6dd2db_845aa3ea",
       "range": {
         "startLine": 2372,
         "startChar": 45,
@@ -412,6 +526,24 @@
       "side": 1,
       "message": "So it\u0027s a little trickier than that, but I\u0027m thinking we can have an init/canonize_paint function that covers our use cases and is easy enough to read. The challenge is some places force fill, or force stroke, and others want no path effect, and others want no mask filter (and no path effect). Some also have null paint inputs that need to be converted to the default paint.\n\n   enum PaintRules {\n      kForceFillStyle \u003d 0x1,\n      kForceStrokeStyle \u003d 0x2,\n      kNoPathEffect \u003d 0x4,\n      kNoMaskFilter \u003d 0x8\n   };\n\n   SkTCopyOnWrite\u003cSkPaint\u003e init_paint(const SkPaint* origPaint, PaintRules bitmask) {\n       SkTCopyOnWrite\u003cSkPaint\u003e paint(origPaint);\n       paint.initIfNeeded(); // new function, initializes the fLazy if no obj set\n       if (bitmask\u0026 kForceFillStyle \u0026\u0026 paint-\u003egetStyle() !\u003d kFill) {\n           paint.writable()-\u003esetStyle(kFill);\n       }\n       // etc. for the flags\n       return paint;\n    }\n\n    The init_image_paint() would have force-fill, no-path-effect. drawVertices, drawPaint would be force-fill, no-path-effect, no-mask-filter. drawPoints would be force-stroke.\n\nYou can see a version of this using copy-on-write for just the drawImage family here: https://skia-review.googlesource.com/c/skia/+/341056 What do you think?",
       "parentUuid": "e605601c_524bf1b0",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "715e7d8e_563fe22e",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "This sounds good to me, though I think I\u0027d first try just plain copy instead of copy-on-write?  In general I want to swing way in favor of simple correct code in SkCanvas unless we\u0027ve got a profile saying it\u0027s necessary.",
+      "parentUuid": "272c64f2_5d020fe3",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },

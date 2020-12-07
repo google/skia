@@ -16,6 +16,23 @@
       "message": "Here\u0027s some responses, but thanks for the in-depth feedback. In general, I like the ideas and think we can make an internalQuickReject() that handles the rules and matrix transform, and expand the init_image_paint pattern to canonize paint features for the functions that only respect a subset of slots. I outlined a proposal in the comment response below, but its similar to what this CL does: https://skia-review.googlesource.com/c/skia/+/341056\n\nIf you like the proposal, I\u0027ll get that updated and have it land before we fix up the quick rejects.",
       "revId": "086645e302d6c496c0fd7f49dd93fbdd2d8e9a4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf4436b9_6e096947",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:33:42Z",
+      "side": 1,
+      "message": "OK I\u0027m good to go with the flow now given your vision for the endgame.",
+      "revId": "086645e302d6c496c0fd7f49dd93fbdd2d8e9a4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
