@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a534556d_989fc83d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T14:40:40Z",
+      "side": 1,
+      "message": "... we we have a trick to grant SkArenaAlloc access to a private constructor?",
+      "revId": "91a7a23f5b2a18a9e7196ec486f4c1b975be8add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
