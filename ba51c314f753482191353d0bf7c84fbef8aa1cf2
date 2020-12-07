@@ -39,6 +39,30 @@
       },
       "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6bcb77e_a34d1267",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T23:43:13Z",
+      "side": 1,
+      "message": "So close... I had two typos.  😊\n\nhttps://skia-review.googlesource.com/c/skia/+/341577",
+      "parentUuid": "0b5dc89c_93af7646",
+      "range": {
+        "startLine": 348,
+        "startChar": 4,
+        "endLine": 348,
+        "endChar": 28
+      },
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
