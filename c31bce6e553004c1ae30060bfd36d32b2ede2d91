@@ -104,6 +104,42 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6f14502_72e488a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Using DSL* now.",
+      "parentUuid": "c07e8781_2b84fbb8",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41196901_886a82df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "I\u0027ve massively reduced the dependence on external headers, but there are a couple of remaining spots where we reference types in such a way that there\u0027s no straightforward way to eliminate the includes. Looking through the existing public Skia includes, they include lots of private headers, so I expect leaving behind a couple of stragglers is acceptable.",
+      "parentUuid": "0be43bdd_c968352c",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cbbb44d_a1a2174c",
@@ -117,6 +153,30 @@
       "writtenOn": "2020-12-01T18:45:09Z",
       "side": 1,
       "message": "optional: I\u0027d prefer a SkDEBUGFAIL(\"explanation\") here. (Rationale below in Dehydrator)",
+      "range": {
+        "startLine": 371,
+        "startChar": 12,
+        "endLine": 371,
+        "endChar": 25
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a26609e8_bf170ce5",
+        "filename": "src/sksl/SkSLCFGGenerator.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cbbb44d_a1a2174c",
       "range": {
         "startLine": 371,
         "startChar": 12,
@@ -150,6 +210,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec964a64_7587b9b0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 2161,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "edc6c492_bdaeb1df",
+      "range": {
+        "startLine": 2161,
+        "startChar": 87,
+        "endLine": 2161,
+        "endChar": 95
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "384ddc27_b0092219",
@@ -163,6 +247,30 @@
       "writtenOn": "2020-12-01T18:45:09Z",
       "side": 1,
       "message": "optional: I\u0027d prefer a SkDEBUGFAIL(\"explanation\") here.\n\nSkUNREACHABLE was meant to be a safer form of __builtin_unreachable(), which in my head means \"optimizer, please optimize as if this path were impossible to reach\", not \"how the heck did we get here?!\"",
+      "range": {
+        "startLine": 284,
+        "startChar": 16,
+        "endLine": 284,
+        "endChar": 29
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97d14bb7_382eb781",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "384ddc27_b0092219",
       "range": {
         "startLine": 284,
         "startChar": 16,
@@ -196,6 +304,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "afe94d15_73a6e6f3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1980,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30dda592_48b45e9d",
+      "range": {
+        "startLine": 1980,
+        "startChar": 65,
+        "endLine": 1980,
+        "endChar": 75
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2153adc7_52b8c6b3",
@@ -219,6 +351,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cef820c7_8bc592db",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "I needed it for some debug code and forgot to remove the include when I removed the debug code. Fixed.",
+      "parentUuid": "2153adc7_52b8c6b3",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 30
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6cb6cb6c_236b6629",
@@ -232,6 +388,30 @@
       "writtenOn": "2020-12-01T21:52:33Z",
       "side": 1,
       "message": "Don\u0027t need the forward decl now that the header\u0027s being included.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 17
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "817819c5_c9f4be02",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cb6cb6c_236b6629",
       "range": {
         "startLine": 18,
         "startChar": 0,
@@ -360,6 +540,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ec219f_a926c7f5",
+        "filename": "src/sksl/dsl/Expression.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4368644a_17556fa4",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 24
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c650af1a_bb965e34",
@@ -373,6 +577,24 @@
       "writtenOn": "2020-12-02T14:57:17Z",
       "side": 1,
       "message": "Can we keep some of these IR concepts from leaking out, with API that more directly expresses the (valid/limited) use cases? eg, instead of:\n\n  Var(\"foo\", Modifiers(kUniform_Flag), \u003ctype\u003e...)\n\nJust:\n\n  Uniform(\"foo\", \u003ctype\u003e...)",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41c9ac1d_fc41619b",
+        "filename": "src/sksl/dsl/Modifiers.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "What about other modifiers, like layout(...)? Or inout on a function parameter? I don\u0027t think we\u0027ll be able to escape from exposing modifiers in general.",
+      "parentUuid": "c650af1a_bb965e34",
       "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -424,6 +646,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10158505_52e3d55d",
+        "filename": "src/sksl/dsl/Type.h",
+        "patchSetId": 32
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Should be better now.",
+      "parentUuid": "c62114ce_05106793",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 15
+      },
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76e21a73_cec37e0d",
@@ -443,6 +689,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "99fce359_206447ee",
+        "filename": "src/sksl/dsl/Var.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "Sure, but I thought it was reasonable to do it the easy way at first and revisit when solving that (hopefully from a position of greater wisdom).",
+      "parentUuid": "76e21a73_cec37e0d",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d71d7b7d_1d12ab49",
         "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
         "patchSetId": 32
@@ -454,6 +718,24 @@
       "writtenOn": "2020-12-02T14:57:17Z",
       "side": 1,
       "message": "I\u0027d like to keep this working even when GPU support is missing. (Today it\u0027s possible to use runtime effects on the CPU backend without GPU support compiled in). It\u0027ll be easy to accidentally make that difficult to fix retroactively if we don\u0027t enforce it early.",
+      "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8b9779a_4bd2fad3",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:05:30Z",
+      "side": 1,
+      "message": "I\u0027m not sure that needs to be addressed in this first CL, but I absolutely agree I need to hit that case next before I paint myself any more into a corner.",
+      "parentUuid": "d71d7b7d_1d12ab49",
       "revId": "c31bce6e553004c1ae30060bfd36d32b2ede2d91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
