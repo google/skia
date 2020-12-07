@@ -28,6 +28,9 @@ public:
             , fNumStencilSamples(targetView.asRenderTargetProxy()->numStencilSamples())
             , fBackendFormat(targetView.proxy()->backendFormat())
             , fOrigin(targetView.origin())
+            , fTargetSupportsVkInputAttachment(
+                      targetView.asRenderTargetProxy()->supportsVkInputAttachment())
+            , fTargetIsTextureable(targetView.asTextureProxy())
             , fPipeline(pipeline)
             , fUserStencilSettings(userStencilSettings)
             , fPrimProc(primProc)
@@ -73,6 +76,9 @@ public:
         return fTessellationPatchVertexCount;
     }
 
+    bool targetHasResolveTexture() const { return fNumSamples > 1 && fTargetIsTextureable; }
+    bool targetSupportsVkInputAttachment() const { return fTargetSupportsVkInputAttachment; }
+
     GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
 
     GrLoadOp colorLoadOp() const { return fColorLoadOp; }
@@ -105,6 +111,8 @@ private:
     const int                             fNumStencilSamples;
     const GrBackendFormat                 fBackendFormat;
     const GrSurfaceOrigin                 fOrigin;
+    const bool                            fTargetIsTextureable;
+    const bool                            fTargetSupportsVkInputAttachment;
     const GrPipeline*                     fPipeline;
     const GrUserStencilSettings*          fUserStencilSettings;
     const GrPrimitiveProcessor*           fPrimProc;
