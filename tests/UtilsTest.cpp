@@ -286,6 +286,63 @@ DEF_TEST(SkEnumerate, reporter) {
         }
         REPORTER_ASSERT(reporter, e.size() == 2);
     }
+
+    {
+        struct I {
+            I() = default;
+            I(const I&) = default;
+            I(int v) : i{v} { }
+            ~I() {}
+            int i;
+        };
+
+        I is[10];
+        SkSpan s{is};
+        for (auto [i, v] : SkMakeEnumerate(s)) {
+            new (&v) I(i);
+        }
+
+        for (size_t i = 0; i < s.size(); i++) {
+            REPORTER_ASSERT(reporter, s[i].i == (int)i);
+            REPORTER_ASSERT(reporter, is[i].i == (int)i);
+        }
+    }
+
+    {
+        std::unique_ptr<int> is[10];
+        std::unique_ptr<int> os[10];
+        SkSpan s{is};
+        for (auto [i, v] : SkMakeEnumerate(s)) {
+            v = std::make_unique<int>(i);
+        }
+
+        for (auto [i, v] : SkMakeEnumerate(SkSpan(os))) {
+            v = std::move(s[i]);
+        }
+
+        for (size_t i = 0; i < s.size(); i++) {
+            REPORTER_ASSERT(reporter, *os[i] == (int)i);
+            REPORTER_ASSERT(reporter, is[i] == nullptr);
+        }
+    }
+
+    {
+        std::unique_ptr<int> is[10];
+        std::unique_ptr<int> os[10];
+        SkSpan s{is};
+        for (auto [i, v] : SkMakeEnumerate(s)) {
+            v = std::make_unique<int>(i);
+        }
+
+        for (auto [i, ov, iv] : SkMakeEnumerate(SkMakeZip(os, is))) {
+            ov = std::move(iv);
+        }
+
+        for (size_t i = 0; i < s.size(); i++) {
+            REPORTER_ASSERT(reporter, *os[i] == (int)i);
+            REPORTER_ASSERT(reporter, is[i] == nullptr);
+        }
+    }
 }
 
 DEF_TEST(SkZip, reporter) {
