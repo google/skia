@@ -1729,12 +1729,16 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
         selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForInputAttachment;
     }
 
+    bool needsResolve = rt->numSamples() > 1 && this->alwaysUseDiscardableMSAAAttachment();
+
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
+    if (needsResolve && programInfo.colorLoadOp() == GrLoadOp::kLoad) {
+        loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
+    }
 
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
-        bool needsResolve = false;
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass
         const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsResolve, needsStencil,
