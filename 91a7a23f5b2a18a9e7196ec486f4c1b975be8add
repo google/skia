@@ -33,6 +33,24 @@
       "message": "I think you can keep this private like this?\n\n   void* ptr \u003d alloc-\u003emakeBytesAlignedTo(sizeof (SkMipmapAccessor),\n                                         alignof(SkMipmapAccessor));\n   return new (ptr) SkMipmapAccessor(...);",
       "revId": "91a7a23f5b2a18a9e7196ec486f4c1b975be8add",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54da4eb4_1d321614",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T15:40:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c749524d_07711a78",
+      "revId": "91a7a23f5b2a18a9e7196ec486f4c1b975be8add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
