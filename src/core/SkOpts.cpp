@@ -115,7 +115,6 @@ namespace SkOpts {
     void Init_crc32();
 
     static void init() {
-#if !defined(SK_BUILD_NO_OPTS)
     #if defined(SK_CPU_X86)
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
@@ -140,7 +139,6 @@ namespace SkOpts {
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
 
     #endif
-#endif
     }
 
     void Init() {

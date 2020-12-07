@@ -99,14 +99,6 @@
 #define SK_CPU_SSE_LEVEL_AVX2     52
 #define SK_CPU_SSE_LEVEL_SKX      60
 
-// When targetting iOS and using gyp to generate the build files, it is not
-// possible to select files to build depending on the architecture (i.e. it
-// is not possible to use hand optimized assembly implementation). In that
-// configuration SK_BUILD_NO_OPTS is defined. Remove optimisation then.
-#ifdef SK_BUILD_NO_OPTS
-    #define SK_CPU_SSE_LEVEL 0
-#endif
-
 // Are we in GCC/Clang?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
@@ -156,12 +148,12 @@
 // ARM defines
 #if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
     #define SK_CPU_ARM32
-#elif defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
+#elif defined(__aarch64__)
     #define SK_CPU_ARM64
 #endif
 
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
-#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && defined(__ARM_NEON)
+#if !defined(SK_ARM_HAS_NEON) && defined(__ARM_NEON)
     #define SK_ARM_HAS_NEON
 #endif
 
