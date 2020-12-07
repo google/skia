@@ -176,12 +176,14 @@ public:
         }
         this->onClipShader(std::move(sh));
     }
+
     void clipRegion(const SkRegion& region, SkClipOp op) {
         this->onClipRegion(region, op);
     }
     void replaceClip(const SkIRect& rect) {
         this->onReplaceClip(rect);
     }
+
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
