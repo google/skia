@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -134,6 +135,14 @@ public:
         auto objStart = this->allocObject(ToU32(size), ToU32(align));
         fCursor = objStart + size;
         return objStart;
+    }
+
+    template <typename T, typename... Args>
+    auto makeUnique(Args&&... args) {
+        void* ptr = this->makeBytesAlignedTo(sizeof(T), alignof(T));
+        T* typed = new (ptr) T(std::forward<Args>(args)...);
+        auto dtor = [](T* p) { if (p) p->~T(); };
+        return std::unique_ptr<T, decltype(dtor)>{typed, dtor};
     }
 
 private:

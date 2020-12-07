@@ -188,4 +188,21 @@ DEF_TEST(ArenaAlloc, r) {
         SkArenaAlloc arena(4096);
         arena.makeBytesAlignedTo(4081, 8);
     }
+
+    {
+        struct Foo {
+            int& fCounter;
+            Foo(int* counter) : fCounter(*counter) { fCounter++; }
+            ~Foo() { fCounter--; }
+        };
+
+        int counter = 0;
+        SkArenaAlloc arena(1024);
+        auto up = arena.makeUnique<Foo>(&counter);
+        REPORTER_ASSERT(r, counter == 1);
+
+        up.reset(nullptr);
+
+        REPORTER_ASSERT(r, counter == 0);
+    }
 }
