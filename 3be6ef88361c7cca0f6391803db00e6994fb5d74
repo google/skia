@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d05a41f_ae0f9c6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T17:37:09Z",
+      "side": 1,
+      "message": "back to public constructor (so our destructor can get called)",
+      "revId": "3be6ef88361c7cca0f6391803db00e6994fb5d74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
