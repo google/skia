@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bd4d590_d25417ce",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2237,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T15:52:37Z",
+      "side": 1,
+      "message": "Agreed. I kept this as-is since it\u0027s the only function that uses computeFastStrokeBounds() instead of computeFastBounds(), so it already didn\u0027t quite fit the mold of the new quick_reject helper. I think computing the bounds/knowing the bounds is always worth it if there\u0027s an image filter, but do agree that letting the user provide the bounds is better. Perhaps we can just add a drawPoints() that takes an SkVertices object?",
+      "parentUuid": "c2cbf9c0_7670d7d2",
+      "range": {
+        "startLine": 2237,
+        "startChar": 19,
+        "endLine": 2237,
+        "endChar": 28
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06cb67eb_7d85988c",
@@ -59,6 +83,53 @@
         "startChar": 14,
         "endLine": 2625,
         "endChar": 27
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4366abb0_2aaa6b43",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2625,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T15:52:37Z",
+      "side": 1,
+      "message": "It took me a moment to work through it, so I\u0027ve added some comments explaining it. I also added a regular quickReject() call that uses the vertices\u0027 bounds. We can\u0027t use quick_reject helper or pass bounds to AutoLayerForImageFilter (inside DRAW_BEGIN), because they both call computeFastBounds() based on the paint.\n\ndrawVertices (and drawPatch()) completely ignore all the geometric styling of the paint that could modify the overall bounds incorrectly. It may be worthwhile, in a later change, to have SkCanvas canonize incoming SkPaints for all these draw functions, similar to how it handles paints for the drawImage family.",
+      "parentUuid": "06cb67eb_7d85988c",
+      "range": {
+        "startLine": 2625,
+        "startChar": 14,
+        "endLine": 2625,
+        "endChar": 27
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a19f23a0_fa8bb5fd",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2657,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T15:52:37Z",
+      "side": 1,
+      "message": "I undid this change, so that it is consistent with drawVertices() quick reject behavior (since the patch is really just a way to define vertices for drawVertices)",
+      "range": {
+        "startLine": 2657,
+        "startChar": 8,
+        "endLine": 2657,
+        "endChar": 20
       },
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
