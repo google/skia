@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f118be3_ae62467e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T21:48:56Z",
+      "side": 1,
+      "message": "This was rebased to go ahead of the quickReject changes. As mentioned in that CL, once SkDrawIter goes away and AutoLayerForImageFilter isn\u0027t always constructed per-draw call, we can walk back some of the use of SkTCopyOnWrite and just make a simple copy. The rest of the optimization and filter simplifications this CL provides are still good, so I\u0027m landing now.\n\nSince it does get rid of the extra paint copy that all the drawImage family functions do, I\u0027ll be curious if we see any perf movement.\n",
+      "revId": "4d303c9d6417cd3bd0034bfe8401684e49b938d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
