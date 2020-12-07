@@ -1216,27 +1216,26 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
 
     fFunctionHeader = "";
-    OutputStream* oldOut = fOut;
     StringStream buffer;
-    fOut = &buffer;
-    fIndentation++;
-    for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-        if (!stmt->isEmpty()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
+    {
+        AutoOutputStream outputToBuffer(this, &buffer);
+        fIndentation++;
+        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+            if (!stmt->isEmpty()) {
+                this->writeStatement(*stmt);
+                this->writeLine();
+            }
         }
-    }
-    if (f.declaration().name() == "main") {
-        // If the main function doesn't end with a return, we need to synthesize one here.
-        if (!is_block_ending_with_return(f.body().get())) {
-            this->writeReturnStatementFromMain();
-            this->writeLine("");
+        if (f.declaration().name() == "main") {
+            // If the main function doesn't end with a return, we need to synthesize one here.
+            if (!is_block_ending_with_return(f.body().get())) {
+                this->writeReturnStatementFromMain();
+                this->writeLine("");
+            }
         }
+        fIndentation--;
+        this->writeLine("}");
     }
-    fIndentation--;
-    this->writeLine("}");
-
-    fOut = oldOut;
     this->write(fFunctionHeader);
     this->write(buffer.str());
 }
@@ -2019,26 +2018,29 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
 }
 
 bool MetalCodeGenerator::generateCode() {
-    OutputStream* rawOut = fOut;
-    fOut = &fHeader;
     fProgramKind = fProgram.fKind;
-    this->writeHeader();
-    this->writeStructDefinitions();
-    this->writeUniformStruct();
-    this->writeInputStruct();
-    this->writeOutputStruct();
-    this->writeInterfaceBlocks();
-    this->writeGlobalStruct();
-    StringStream body;
-    fOut = &body;
-    for (const ProgramElement* e : fProgram.elements()) {
-        this->writeProgramElement(*e);
-    }
-    fOut = rawOut;
 
-    write_stringstream(fHeader, *rawOut);
-    write_stringstream(fExtraFunctions, *rawOut);
-    write_stringstream(body, *rawOut);
+    StringStream header;
+    {
+        AutoOutputStream outputToHeader(this, &header, &fIndentation);
+        this->writeHeader();
+        this->writeStructDefinitions();
+        this->writeUniformStruct();
+        this->writeInputStruct();
+        this->writeOutputStruct();
+        this->writeInterfaceBlocks();
+        this->writeGlobalStruct();
+    }
+    StringStream body;
+    {
+        AutoOutputStream outputToBody(this, &body, &fIndentation);
+        for (const ProgramElement* e : fProgram.elements()) {
+            this->writeProgramElement(*e);
+        }
+    }
+    write_stringstream(header, *fOut);
+    write_stringstream(fExtraFunctions, *fOut);
+    write_stringstream(body, *fOut);
     return 0 == fErrors.errorCount();
 }
 

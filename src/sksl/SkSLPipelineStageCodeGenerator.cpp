@@ -67,11 +67,9 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                            : Compiler::FormatArg::Kind::kChildProcessor,
                 index));
         if (arguments.size() > 1) {
-            OutputStream* oldOut = fOut;
             StringStream buffer;
-            fOut = &buffer;
+            AutoOutputStream outputToBuffer(this, &buffer);
             this->writeExpression(*arguments[1], kSequence_Precedence);
-            fOut = oldOut;
             fArgs->fFormatArgs[childCallIndex].fCoords = buffer.str();
         }
         return;
@@ -185,48 +183,50 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fFunctionHeader = "";
-    OutputStream* oldOut = fOut;
     StringStream buffer;
-    fOut = &buffer;
+    Compiler::GLSLFunction result;
     if (f.declaration().name() == "main") {
-        // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
-        // our code in the processor, the surrounding code is going to expect half4, so we
-        // explicitly cast any returns (from main) to half4. This is only strictly necessary
-        // if the return type is float4 - injecting it unconditionally reduces the risk of an
-        // obscure bug.
-        fCastReturnsToHalf = true;
-        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
+        {
+            AutoOutputStream streamToBuffer(this, &buffer);
+            // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
+            // our code in the processor, the surrounding code is going to expect half4, so we
+            // explicitly cast any returns (from main) to half4. This is only strictly necessary
+            // if the return type is float4 - injecting it unconditionally reduces the risk of an
+            // obscure bug.
+            fCastReturnsToHalf = true;
+            for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+                this->writeStatement(*stmt);
+                this->writeLine();
+            }
+            fCastReturnsToHalf = false;
         }
-        fCastReturnsToHalf = false;
-        fOut = oldOut;
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        const FunctionDeclaration& decl = f.declaration();
-        Compiler::GLSLFunction result;
-        if (!type_to_grsltype(fContext, decl.returnType(), &result.fReturnType)) {
-            fErrors.error(f.fOffset, "unsupported return type");
-            return;
-        }
-        result.fName = decl.name();
-        for (const Variable* v : decl.parameters()) {
-            GrSLType paramSLType;
-            if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
-                fErrors.error(v->fOffset, "unsupported parameter type");
+        {
+            AutoOutputStream streamToBuffer(this, &buffer);
+            const FunctionDeclaration& decl = f.declaration();
+            if (!type_to_grsltype(fContext, decl.returnType(), &result.fReturnType)) {
+                fErrors.error(f.fOffset, "unsupported return type");
                 return;
             }
-            result.fParameters.emplace_back(v->name(), paramSLType);
+            result.fName = decl.name();
+            for (const Variable* v : decl.parameters()) {
+                GrSLType paramSLType;
+                if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
+                    fErrors.error(v->fOffset, "unsupported parameter type");
+                    return;
+                }
+                result.fParameters.emplace_back(v->name(), paramSLType);
+            }
+            for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+                this->writeStatement(*stmt);
+                this->writeLine();
+            }
         }
-        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-            this->writeStatement(*stmt);
-            this->writeLine();
-        }
-        fOut = oldOut;
         result.fBody = buffer.str();
         result.fFormatArgs = std::move(fArgs->fFormatArgs);
-        fArgs->fFunctions.push_back(result);
+        fArgs->fFunctions.push_back(std::move(result));
     }
 }
 
