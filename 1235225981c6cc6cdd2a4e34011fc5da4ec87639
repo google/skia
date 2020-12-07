@@ -16,6 +16,23 @@
       "message": "Seems like Google3 is the only affected client, and in addition to the G3 canary, I\u0027m also pre-flighting this at cl/346118699.",
       "revId": "1235225981c6cc6cdd2a4e34011fc5da4ec87639",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d94c7cb2_f7e222ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T19:03:54Z",
+      "side": 1,
+      "message": "Despite any failures you might see, I think I read this all as good to go.",
+      "revId": "1235225981c6cc6cdd2a4e34011fc5da4ec87639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
