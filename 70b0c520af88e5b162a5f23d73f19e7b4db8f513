@@ -183,6 +183,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84b3b057_cfabd8ee",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T21:46:17Z",
+      "side": 1,
+      "message": "It is; it\u0027s just getLocalClipBounds() isn\u0027t free. It\u0027s mapping the devClipBounds() by the inverse CTM. If it were free, I\u0027d be all for passing it in. Given a single odd-ball like this, I\u0027ll leave it as-is.",
+      "parentUuid": "9ba6d5f9_ea980684",
+      "range": {
+        "startLine": 2211,
+        "startChar": 4,
+        "endLine": 2213,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2cbf9c0_7670d7d2",
@@ -291,6 +315,30 @@
       "side": 1,
       "message": "Canonicalizing the paints sgtm.  It does keep the idiosyncrasies of each draw call handled by that draw call, which I like.\n\n(Canonizing paints makes them saints.)",
       "parentUuid": "86a92bf3_32bd120b",
+      "range": {
+        "startLine": 2247,
+        "startChar": 47,
+        "endLine": 2247,
+        "endChar": 53
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d22c50b3_35b8f273",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T21:46:17Z",
+      "side": 1,
+      "message": "Take out \u0027k\u0027 and \u0027p\u0027 and you\u0027ve got a saint",
+      "parentUuid": "64ddf935_d95f15b3",
       "range": {
         "startLine": 2247,
         "startChar": 47,
@@ -562,6 +610,24 @@
       "side": 1,
       "message": "I think this might be another spot where we can be a lot clearer if we favor simplicity, e.g.\n\n   SkPaint paint \u003d userPaint;\n   paint.setStyle(SkPaint::kFill_Style);\n   paint.setMaskFilter(nullptr);\n   \nor\n\n   SkPaint paint \u003d userPaint ? *userPaint : SkPaint{};\n   paint.setStyle(SkPaint::kStroke_Style);\n   paint.setPathEffect(nullptr);\n\netc, and not introduce any abstraction like init_paint() unless it does actually abstract over some sort of non-obvious constraint, like say, mask filter and path effect always being null\u0027d at the same time, never separately.",
       "parentUuid": "715e7d8e_563fe22e",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27468c5_d57066e9",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T21:46:17Z",
+      "side": 1,
+      "message": "I played around a bit with this, and it definitely is more readable in simple cases. I will use it like that for drawVertices, drawPatch, and drawPoints, since they are the only other calls besides the drawImage family that needs cleaning up.\n\nHowever, the drawImage family has 6 virtuals that all need to be cleaned the same way, and they all can interact with the image filter optimizations similarly to how AutoLayerForImageFilter does. I plan on keeping some form of init_image_paint for them.\n\nThis CL: https://skia-review.googlesource.com/c/skia/+/341056 moves them to copy-on-write, mostly because AutoLayerForImageFilter uses copy-on-write and it helps simplify the optimization logic.\n\nOnce SkDrawIter goes away, the updated draw code will only use an auto-layer if there\u0027s an image filter. At that point, I feel comfortable having AutoLayer stop using copy-on-write entirely and then we can have init_image_paint and the image filter optimizations all operate on plain SkPaints directly. AutoLayer will just take an SkPaint* that it may modify, and draw calls will make a local copy of their paint, if they haven\u0027t already, before making the auto-layer.",
+      "parentUuid": "df9e1cca_4d97d60e",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
