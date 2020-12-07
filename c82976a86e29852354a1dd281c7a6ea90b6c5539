@@ -16,6 +16,23 @@
       "message": "This is some more simplification/cleanup of all the draw functions in preparation for layer management changes",
       "revId": "c82976a86e29852354a1dd281c7a6ea90b6c5539",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dd79226_c266c291",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T13:48:28Z",
+      "side": 1,
+      "message": "Does seem simpler. I\u0027m nervous about adding complexity (or visual complexity) to \"save\" the paint copy (unless we know that actually costs us something proportional), but this CL seems simpler, so all good.",
+      "revId": "c82976a86e29852354a1dd281c7a6ea90b6c5539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
