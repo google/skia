@@ -54,6 +54,7 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+struct SkSamplingOptions;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -1639,6 +1640,11 @@ public:
     void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint) {
         this->drawImageRect(image.get(), dst, paint);
     }
+
+    void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkSamplingOptions&,
+                   const SkPaint* = nullptr);
+    void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
+                       const SkSamplingOptions&, const SkPaint* = nullptr);
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
