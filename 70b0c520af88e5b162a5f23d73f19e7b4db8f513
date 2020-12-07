@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dcb5415c_856ece7a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2189,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "I\u0027m experimenting with an internalQuickReject(const SkRect\u0026 bounds, const SkPaint\u0026 paint, const SkMatrix* \u003d nullptr). That plus some paint canonizing for the drawPoints/drawVertices/drawImages should let everyone go through this function. The paint canonizing will be another CL that will come first.",
+      "parentUuid": "1753fa32_fdfdf7ec",
+      "range": {
+        "startLine": 2189,
+        "startChar": 12,
+        "endLine": 2189,
+        "endChar": 24
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a4973e64_12faa00e",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -77,6 +101,30 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "Is there a convention that lets us always funnel through quick_reject() instead of breaking it down into its constituent pieces for these special cases?  E.g.\n\n    if (quick_reject(this, this-\u003egetLocalClipBounds(), paint)) {\n        return;\n    }\n\nI\u0027m wondering if we can get it funneled down so that only quick_reject() needs to know the rules (e.g. that all bounds that are isFinite() is rejected, which is pretty counterintuitive for ±inf).",
+      "range": {
+        "startLine": 2211,
+        "startChar": 4,
+        "endLine": 2213,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff472f43_1ede0194",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "I\u0027ve never really thought about it until now, but what does drawPaint() mean to do if a paint has a mask filter or a path effect on it?\n\nI don\u0027t think they make much sense, so really the paint canonized version should be filled w/ no path effect or mask filter. If that\u0027s the case, then simply getLocalClipBounds() would work. The downside to that is it involves some matrix transforms from device space to local space. drawPaint is weird in that there isn\u0027t local geometry associated with it. For that reason, I\u0027m okay having it just check if the paint draws nothing and if the clip is empty, so long as all the others can go through the funnel.",
+      "parentUuid": "2fd91596_97dca4a1",
       "range": {
         "startLine": 2211,
         "startChar": 4,
@@ -159,6 +207,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "86a92bf3_32bd120b",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Correct, but I think I\u0027m going the direction of having the internal draw calls canonize their paints, so drawPoints would enforce that its owned paint has the stroke style, in which case we can just rely on computeFastBounds like everyone else.",
+      "parentUuid": "81992807_d59c40c0",
+      "range": {
+        "startLine": 2247,
+        "startChar": 47,
+        "endLine": 2247,
+        "endChar": 53
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "516f119f_f1fc6724",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -170,6 +242,24 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "These calls to DRAW_BEGIN() all read like they\u0027re modifying bounds now, don\u0027t they?  These macros are on your chopping block, right?  I\u0027m already starting to wonder how we\u0027d write SkDrawIter fresh today with C++11 and such.",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "642b1f39_3d6aa465",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2294,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Yep, in 3(?) CLs they go away, and SkDrawIter goes away entirely as well.",
+      "parentUuid": "516f119f_f1fc6724",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -197,6 +287,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c6dd2db_845aa3ea",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2373,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Will do it a follow up instead. My understanding from the old comments \"call the non-virtual version\" was that it was intended to just go to the base SkCanvas\u0027s drawing code for the simpler shape (rect or oval). As it stands, it goes to the public non-virtual, which then calls the onDraw virtual. This means that a naive recording canvas will record a drawRRect and a drawRect if the SkRRect.isRect() returns true.\n\nWhat we really want is to just go straight to SkCanvas::onDrawX and skip any further touching by subclasses, since it\u0027s purely a drawing optimization in onDrawRRect to simplify the representation.",
+      "parentUuid": "bc54e074_bbdef434",
+      "range": {
+        "startLine": 2372,
+        "startChar": 45,
+        "endLine": 2373,
+        "endChar": 56
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea613e6b_719e66f7",
@@ -210,6 +324,30 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "\u0026bounds now?",
+      "range": {
+        "startLine": 2386,
+        "startChar": 22,
+        "endLine": 2386,
+        "endChar": 40
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0df4d92_5ed29f67",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2386,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea613e6b_719e66f7",
       "range": {
         "startLine": 2386,
         "startChar": 22,
@@ -262,6 +400,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "272c64f2_5d020fe3",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2461,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "So it\u0027s a little trickier than that, but I\u0027m thinking we can have an init/canonize_paint function that covers our use cases and is easy enough to read. The challenge is some places force fill, or force stroke, and others want no path effect, and others want no mask filter (and no path effect). Some also have null paint inputs that need to be converted to the default paint.\n\n   enum PaintRules {\n      kForceFillStyle \u003d 0x1,\n      kForceStrokeStyle \u003d 0x2,\n      kNoPathEffect \u003d 0x4,\n      kNoMaskFilter \u003d 0x8\n   };\n\n   SkTCopyOnWrite\u003cSkPaint\u003e init_paint(const SkPaint* origPaint, PaintRules bitmask) {\n       SkTCopyOnWrite\u003cSkPaint\u003e paint(origPaint);\n       paint.initIfNeeded(); // new function, initializes the fLazy if no obj set\n       if (bitmask\u0026 kForceFillStyle \u0026\u0026 paint-\u003egetStyle() !\u003d kFill) {\n           paint.writable()-\u003esetStyle(kFill);\n       }\n       // etc. for the flags\n       return paint;\n    }\n\n    The init_image_paint() would have force-fill, no-path-effect. drawVertices, drawPaint would be force-fill, no-path-effect, no-mask-filter. drawPoints would be force-stroke.\n\nYou can see a version of this using copy-on-write for just the drawImage family here: https://skia-review.googlesource.com/c/skia/+/341056 What do you think?",
+      "parentUuid": "e605601c_524bf1b0",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0117ecca_3de6dfb8",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 5
@@ -273,6 +429,24 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "This feels like it might be a subtle change.  Are we sure we draw the same through paint\u003dnullptr and paint\u003ddefault SkPaint?",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e42227bc_33693e25",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2469,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Yes, see for instance line 2499 in the old diff. The code basically did extra hoops while \u0027paint\u0027 was null, but always ended up setting \u0027paint\u0027 back to a default SkPaint before calling into SkDevice.\n\nI have another CL here: https://skia-review.googlesource.com/c/skia/+/341056 that cleans this up more to just SkTCopyOnWrite for the draw calls that need to canonize the input paint and handle null paints (side note, I would like null paint to just go away...)",
+      "parentUuid": "0117ecca_3de6dfb8",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -290,6 +464,24 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "When we\u0027ve got locals holding bounds like this, let\u0027s make them const where possible?  It really does look like DRAW_BEGIN() is changing bounds.",
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d922163_dfc16842",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f50e0d0f_4a596a73",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -377,6 +569,30 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "I don\u0027t think I understand what it means to \"apply the computeFastBounds()\".\n\nDo you mean\n\n   // We can\u0027t just call quick_reject() because we may need to transform the result of computeFastBounds() with the optional matrix parameter.\n\nBut then... maybe let\u0027s add an optional matrix parameter to quick_reject()?",
+      "range": {
+        "startLine": 2880,
+        "startChar": 56,
+        "endLine": 2881,
+        "endChar": 48
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcf804c4_78e934a5",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-07T19:10:41Z",
+      "side": 1,
+      "message": "Yes, I like your wording better, and think an optional matrix parameter makes sense.",
+      "parentUuid": "7f1cab18_08e16279",
       "range": {
         "startLine": 2880,
         "startChar": 56,
