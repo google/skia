@@ -14,6 +14,7 @@ struct Globals {
     sampler sSmplr;
 };
 
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], texture2d<float> s[[texture(0)]], sampler sSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals globalStruct{s, sSmplr};
     thread Globals* _globals = &globalStruct;

@@ -13,6 +13,7 @@ struct Globals {
     sampler test2DRectSmplr;
 };
 
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> test2D[[texture(0)]], sampler test2DSmplr[[sampler(0)]], texture2d<float> test2DRect[[texture(1)]], sampler test2DRectSmplr[[sampler(1)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals globalStruct{test2D, test2DSmplr, test2DRect, test2DRectSmplr};
     thread Globals* _globals = &globalStruct;

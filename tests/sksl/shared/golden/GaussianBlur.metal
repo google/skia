@@ -23,6 +23,7 @@ struct Globals {
     sampler uTextureSampler_0_Stage1Smplr;
 };
 
+
 float4 MatrixEffect_Stage1_c0_c0(thread Globals* _globals, float4 _input, float2 _coords) {
     float4 _0_TextureEffect_Stage1_c0_c0_c0;
     float2 _1_coords = (_globals->_anonInterface0->umatrix_Stage1_c0_c0 * float3(_coords, 1.0)).xy;
