@@ -1715,7 +1715,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
     class : public GlobalStructVisitor {
     public:
         void visitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->write("    constant ");
             fCodeGen->write(block.typeName());
             fCodeGen->write("* ");
@@ -1723,7 +1723,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->write(";\n");
         }
         void visitTexture(const Type& type, const String& name) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->write("    ");
             fCodeGen->writeBaseType(type);
             fCodeGen->write(" ");
@@ -1732,13 +1732,13 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->write(";\n");
         }
         void visitSampler(const Type&, const String& name) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->write("    sampler ");
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");
         }
         void visitVariable(const Variable& var, const Expression* value) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->write("    ");
             fCodeGen->writeBaseType(var.type());
             fCodeGen->write(" ");
@@ -1746,15 +1746,15 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeArrayDimensions(var.type());
             fCodeGen->write(";\n");
         }
-        void AddElement() {
+        void addElement() {
             if (fFirst) {
                 fCodeGen->write("struct Globals {\n");
                 fFirst = false;
             }
         }
-        void Finish() {
+        void finish() {
             if (!fFirst) {
-                fCodeGen->write("};");
+                fCodeGen->writeLine("};");
                 fFirst = true;
             }
         }
@@ -1765,7 +1765,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
 
     visitor.fCodeGen = this;
     this->visitGlobalStruct(&visitor);
-    visitor.Finish();
+    visitor.finish();
 }
 
 void MetalCodeGenerator::writeGlobalInit() {
@@ -1773,27 +1773,27 @@ void MetalCodeGenerator::writeGlobalInit() {
     public:
         void visitInterfaceBlock(const InterfaceBlock& blockType,
                                  const String& blockName) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->write("&");
             fCodeGen->writeName(blockName);
         }
         void visitTexture(const Type&, const String& name) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->writeName(name);
         }
         void visitSampler(const Type&, const String& name) override {
-            this->AddElement();
+            this->addElement();
             fCodeGen->writeName(name);
         }
         void visitVariable(const Variable& var, const Expression* value) override {
-            this->AddElement();
+            this->addElement();
             if (value) {
                 fCodeGen->writeVarInitializer(var, *value);
             } else {
                 fCodeGen->write("{}");
             }
         }
-        void AddElement() {
+        void addElement() {
             if (fFirst) {
                 fCodeGen->write("    Globals globalStruct{");
                 fFirst = false;
@@ -1801,7 +1801,7 @@ void MetalCodeGenerator::writeGlobalInit() {
                 fCodeGen->write(", ");
             }
         }
-        void Finish() {
+        void finish() {
             if (!fFirst) {
                 fCodeGen->writeLine("};");
                 fCodeGen->writeLine("    thread Globals* _globals = &globalStruct;");
@@ -1814,7 +1814,7 @@ void MetalCodeGenerator::writeGlobalInit() {
 
     visitor.fCodeGen = this;
     this->visitGlobalStruct(&visitor);
-    visitor.Finish();
+    visitor.finish();
 }
 
 void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
