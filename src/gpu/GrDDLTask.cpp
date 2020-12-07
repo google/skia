@@ -20,7 +20,7 @@ GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
         , fOffset(offset) {
     (void) fOffset;  // fOffset will be used shortly
 
-    for (const sk_sp<GrRenderTask>& task : fDDL->priv().renderTasks()) {
+    for (const auto& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
         for (int i = 0; i < task->numTargets(); ++i) {
@@ -95,6 +95,9 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
 }
 
 bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
+    flushState->gpu()->setViewport(fXOffset, fYOffset,
+                                   fDDL->priv().width(), fDDL->priv().height());
+
     bool anyCommandsIssued = false;
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->execute(flushState)) {
@@ -102,5 +105,8 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
         }
     }
 
+    flushState->gpu()->setViewport(0, 0,
+                                   fDDLTarget->backingStoreDimensions().width(),
+                                   fDDLTarget->backingStoreDimensions().height());
     return anyCommandsIssued;
 }

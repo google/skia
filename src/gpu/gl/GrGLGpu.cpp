@@ -4009,6 +4009,10 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
 }
 
+void GrGLGpu::setViewport(int xOffset, int yOffset, unsigned width, unsigned height) {
+    GL_CALL(Viewport(xOffset, yOffset, width, height));
+}
+
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
 }

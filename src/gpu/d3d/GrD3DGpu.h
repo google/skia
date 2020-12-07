@@ -115,6 +115,7 @@ public:
             GrWrapOwnership ownership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
+    void setViewport(int xOffset, int yOffset, unsigned width, unsigned height) override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override {
         return nullptr;
     }
