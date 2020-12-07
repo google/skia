@@ -170,6 +170,15 @@ public:
         fObj = &initial;
     }
 
+    // If not already initialized, in-place instantiates the writable object
+    template <typename... Args>
+    void initIfNeeded(Args&&... args) {
+        if (nullptr == fObj) {
+            SkASSERT(!fLazy.isValid());
+            fObj = fLazy.init(std::forward<Args>(args)...);
+        }
+    }
+
     /**
      * Returns a writable T*. The first time this is called the initial object is cloned.
      */
