@@ -286,6 +286,26 @@ DEF_TEST(SkEnumerate, reporter) {
         }
         REPORTER_ASSERT(reporter, e.size() == 2);
     }
+
+    {
+        struct I {
+            I() {}
+            I(int v) : i{v} {}
+            ~I() {}
+            int i;
+        };
+
+        I is[10];
+        SkSpan s{is};
+        for (auto [i, v] : SkMakeEnumerate(s)) {
+            new (&v) I(i);
+        }
+
+        for (size_t i = 0; i < s.size(); i++) {
+            REPORTER_ASSERT(reporter, s[i].i == (int)i);
+            REPORTER_ASSERT(reporter, is[i].i == (int)i);
+        }
+    }
 }
 
 DEF_TEST(SkZip, reporter) {
