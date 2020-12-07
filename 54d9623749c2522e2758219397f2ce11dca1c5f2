@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daf009f6_3d44e705",
+        "filename": "src/gpu/GrDirectContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-07T16:02:30Z",
+      "side": 1,
+      "message": "Nit: Not really a big improvement, but to reduce the about of spots calling into the the gpu, this can be changed to:\n\"this-\u003ecreateBackendTexture(...);\"",
+      "range": {
+        "startLine": 600,
+        "startChar": 4,
+        "endLine": 607,
+        "endChar": 5
+      },
+      "revId": "54d9623749c2522e2758219397f2ce11dca1c5f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
