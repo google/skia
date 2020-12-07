@@ -201,7 +201,7 @@ static void gpu_tests(GrDirectContext* dContext,
             *(bool*)context = true;
         };
         if (fullInit) {
-            backendTex = dContext->createBackendTexture(&nativeExpected, 1,
+            backendTex = dContext->createBackendTexture(nativeExpected, kTopLeft_GrSurfaceOrigin,
                                                         GrRenderable::kNo, GrProtected::kNo,
                                                         markFinished, &finishedBECreate);
         } else {

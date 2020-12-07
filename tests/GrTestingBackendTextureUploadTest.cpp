@@ -42,7 +42,7 @@ static void testing_only_texture_test(skiatest::Reporter* reporter, GrDirectCont
 
         FillPixelData(kWidth, kHeight, expectedPixels.writable_addr32(0, 0));
 
-        backendTex = dContext->createBackendTexture(&expectedPixels, 1,
+        backendTex = dContext->createBackendTexture(expectedPixels, kTopLeft_GrSurfaceOrigin,
                                                     renderable, GrProtected::kNo);
     } else {
         backendTex = dContext->createBackendTexture(kWidth, kHeight, ct, SkColors::kTransparent,
