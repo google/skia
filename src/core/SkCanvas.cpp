@@ -1992,7 +1992,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
-//#define SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
+#define SK_TEST_NEW_DRAWIMAGESAMPLING_CODE
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2580,14 +2580,22 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     DRAW_END
 }
 
+static void set_merge_shaders(SkPaint* paint, const SkImage* image,
+                              const SkSamplingOptions& sampling, const SkMatrix& mx) {
+    auto sh = image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx);
+    if (paint->getShader() && image->colorType() == kAlpha_8_SkColorType) {
+        sh = SkShaders::Blend(SkBlendMode::kDstIn, paint->refShader(), std::move(sh));
+    }
+    paint->setShader(std::move(sh));
+}
+
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                          const SkSamplingOptions& sampling, const SkPaint* paint) {
     RETURN_ON_NULL(image);
 
     // If we need more per-device control, add new virtual
-    auto mx = SkMatrix::Translate(x, y);
     SkPaint p = paint ? *paint : SkPaint();
-    p.setShader(image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx));
+    set_merge_shaders(&p, image, sampling, SkMatrix::Translate(x, y));
     this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
 }
 
@@ -2602,7 +2610,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     SkMatrix mx = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     if (mx.isFinite()) {
         SkPaint p = paint ? *paint : SkPaint();
-        p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
+        set_merge_shaders(&p, image, sampling, mx);
         this->drawRect(dst, p);
     }
 }
