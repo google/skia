@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac1eca3f_8779817b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T22:26:44Z",
+      "side": 1,
+      "message": "Not for landing, but for experimenting:\n\nExercising the TEST mode of this show only a few differences (on the CPU) where (I presume) its due\nto the old cpu backend blurring the mask instead of the \"rect\".\n\nThat said, what do you think about the explicit blendmode parameter, used to know how to combine the\nimage(shader) with the paint\u0027s shader? Brian suggested it, as a way to lift-out our heuristic of\nsniffing for kAlpha_8 images and put that in the user\u0027s control.\n",
+      "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
