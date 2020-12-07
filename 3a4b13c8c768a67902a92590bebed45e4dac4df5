@@ -3,6 +3,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b9baa91b_7b75bb0e",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:41:24Z",
+      "side": 1,
+      "message": "Please add a doc comment explaining what this class is for. Please make sure to note that it is thread-safe.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 17
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "464f67b1_f7bc96c3",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:41:24Z",
+      "side": 1,
+      "message": "These should be commented.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 40
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10845580_2e72dd7e",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:41:24Z",
+      "side": 1,
+      "message": "Are these intended to be used by callers at all? If they\u0027re implementation details, please label them as such.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "927165ad_8a1c306d",
         "filename": "src/sksl/dsl/priv/DSLWriter.h",
         "patchSetId": 40
@@ -19,6 +88,29 @@
         "startChar": 0,
         "endLine": 80,
         "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "900af162_a516338b",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T21:41:24Z",
+      "side": 1,
+      "message": "Rather than requiring the caller to call this, shouldn\u0027t we just do it automatically on their behalf? SkSLPool internally uses the exact same tricks, but callers can just say `Pool::AllocMemory(10)` instead of the awkward `Pool::Instance().allocMemory(10)`. Pool just calls get_thread_local_memory_pool automatically for you.\n\nI would expect `DSLWriter::Context()` would flow better than `DSLWriter::Instance().context()` etc. And AFAIK there\u0027s no need to ever go outside the current thread\u0027s DSLWriter?",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 33
       },
       "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
