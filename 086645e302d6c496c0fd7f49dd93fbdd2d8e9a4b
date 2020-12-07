@@ -33,6 +33,23 @@
       "message": "OK I\u0027m good to go with the flow now given your vision for the endgame.",
       "revId": "086645e302d6c496c0fd7f49dd93fbdd2d8e9a4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b23103e_74c543a7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T22:25:18Z",
+      "side": 1,
+      "message": "👍 all sgtm",
+      "revId": "086645e302d6c496c0fd7f49dd93fbdd2d8e9a4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
