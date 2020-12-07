@@ -464,11 +464,13 @@ static int make_pixmaps(SkColorType skColorType, GrMipmapped mipMapped,
 // Test initialization of GrBackendObjects using SkPixmaps
 static void test_pixmap_init(GrDirectContext* dContext,
                              skiatest::Reporter* reporter,
-                             std::function<GrBackendTexture (GrDirectContext*,
-                                                             const SkPixmap srcData[],
-                                                             int numLevels,
-                                                             GrRenderable)> create,
+                             std::function<GrBackendTexture(GrDirectContext*,
+                                                            const SkPixmap srcData[],
+                                                            int numLevels,
+                                                            GrSurfaceOrigin,
+                                                            GrRenderable)> create,
                              SkColorType skColorType,
+                             GrSurfaceOrigin origin,
                              GrMipmapped mipMapped,
                              GrRenderable renderable,
                              bool* finishedBECreate) {
@@ -491,7 +493,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
         pixmaps[i].reset(pixmapMem[i].info(), pixmapMem[i].addr(), pixmapMem[i].rowBytes());
     }
 
-    GrBackendTexture backendTex = create(dContext, pixmaps, numMipLevels, renderable);
+    GrBackendTexture backendTex = create(dContext, pixmaps, numMipLevels, origin, renderable);
     if (!backendTex.isValid()) {
         // errors here should be reported by the test_wrapping test
         return;
@@ -541,7 +543,7 @@ static void test_pixmap_init(GrDirectContext* dContext,
     }
 
     // Upload new data and make sure everything still works
-    dContext->updateBackendTexture(backendTex, pixmaps, numMipLevels, mark_signaled,
+    dContext->updateBackendTexture(backendTex, pixmaps, numMipLevels, origin, mark_signaled,
                                    finishedBECreate);
 
     checkBackendTexture(colorsNew);
@@ -712,14 +714,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                     renderable, finishedPtr);
                 }
 
-                {
+                for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
                     auto createWithSrcDataMtd = [finishedPtr](GrDirectContext* dContext,
                                                               const SkPixmap srcData[],
                                                               int numLevels,
+                                                              GrSurfaceOrigin origin,
                                                               GrRenderable renderable) {
                         SkASSERT(srcData && numLevels);
-                        auto result = dContext->createBackendTexture(srcData, numLevels, renderable,
-                                                                     GrProtected::kNo, mark_signaled,
+                        auto result = dContext->createBackendTexture(srcData,
+                                                                     numLevels,
+                                                                     origin,
+                                                                     renderable,
+                                                                     GrProtected::kNo,
+                                                                     mark_signaled,
                                                                      finishedPtr);
                         check_vk_layout(result, VkLayout::kReadOnlyOptimal);
 #ifdef SK_DEBUG
@@ -732,8 +739,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         return result;
                     };
 
-                    test_pixmap_init(context, reporter, createWithSrcDataMtd, colorType, mipMapped,
-                                     renderable, finishedPtr);
+                    test_pixmap_init(context,
+                                     reporter,
+                                     createWithSrcDataMtd,
+                                     colorType,
+                                     origin,
+                                     mipMapped,
+                                     renderable,
+                                     finishedPtr);
                 }
             }
         }
