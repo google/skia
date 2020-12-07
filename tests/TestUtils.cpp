@@ -89,8 +89,9 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     SkASSERT(copy && copy->asTextureProxy());
     auto swizzle = dContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(copy), origin, swizzle);
-    auto dstContext = GrSurfaceContext::Make(dContext, std::move(view), colorType,
-                                             kPremul_SkAlphaType, nullptr);
+    auto dstContext = GrSurfaceContext::Make(dContext,
+                                             std::move(view),
+                                             {colorType, kPremul_SkAlphaType, nullptr});
     SkASSERT(dstContext);
 
     TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);

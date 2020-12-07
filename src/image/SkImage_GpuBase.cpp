@@ -118,8 +118,9 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
             fContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
 
-    auto sContext = GrSurfaceContext::Make(dContext, *view, grColorType, this->alphaType(),
-                                           this->refColorSpace());
+    auto sContext = GrSurfaceContext::Make(dContext,
+                                           *view,
+                                           {grColorType, this->alphaType(), this->refColorSpace()});
     if (!sContext) {
         return false;
     }
@@ -174,8 +175,8 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(
             dContext->priv().caps(), this->colorType(), view->proxy()->backendFormat());
 
-    auto sContext = GrSurfaceContext::Make(dContext, *view, grColorType, this->alphaType(),
-                                           this->refColorSpace());
+    GrColorInfo colorInfo(grColorType, this->alphaType(), this->refColorSpace());
+    auto sContext = GrSurfaceContext::Make(dContext, *view, colorInfo);
     if (!sContext) {
         return false;
     }
