@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: SPIR-V validation error: Uniform OpVariable <id> '6[%arr]' has illegal type.
+error: SPIR-V validation error: Uniform OpVariable <id> '6[%arr]' has illegal type.
 From Vulkan spec, section 14.5.2:
 Variables identified with the Uniform storage class are used to access transparent buffer backed resources. Such variables must be typed as OpTypeStruct, or an array of this type
   %arr = OpVariable %_ptr_Uniform__arr_float_int_3 Uniform

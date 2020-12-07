@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: SPIR-V validation error: UniformConstant id '10' is missing DescriptorSet decoration.
+error: SPIR-V validation error: UniformConstant id '10' is missing DescriptorSet decoration.
 From Vulkan spec, section 14.5.2:
 These variables must have DescriptorSet and Binding decorations specified
   %test2D = OpVariable %_ptr_UniformConstant_12 UniformConstant

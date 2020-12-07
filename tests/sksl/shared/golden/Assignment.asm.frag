@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: SPIR-V validation error: OpConstantComposite Constituent <id> '99[%99]'s type does not match Result Type <id> '5[%v4float]'s vector element type.
+error: SPIR-V validation error: OpConstantComposite Constituent <id> '99[%99]'s type does not match Result Type <id> '5[%v4float]'s vector element type.
   %98 = OpConstantComposite %v4float %99 %99 %99 %99
 
 OpCapability Shader
