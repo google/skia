@@ -16,6 +16,52 @@
       "message": "As discussed in chat, this change helps all the draw functions stay simple, while we move away from magic macros.",
       "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2cbf9c0_7670d7d2",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2237,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T15:35:25Z",
+      "side": 1,
+      "message": "if we really think this helps, we might propose a new entry-point where the client can pass us the bounds (either as part of some larger type ala SkVertices, or just as another parameter).",
+      "range": {
+        "startLine": 2237,
+        "startChar": 19,
+        "endLine": 2237,
+        "endChar": 28
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06cb67eb_7d85988c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2625,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-07T15:35:25Z",
+      "side": 1,
+      "message": "nit: why aren\u0027t we passing the bounds to the new helper?",
+      "range": {
+        "startLine": 2625,
+        "startChar": 14,
+        "endLine": 2625,
+        "endChar": 27
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
