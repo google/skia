@@ -16,6 +16,24 @@
       "message": "Want to add a third case that doesn\u0027t convert to swizzle at all? eg:\n\n  int4 i \u003d int4(int(sqrt(1)));\n  half4 v \u003d half4(half(sqrt(1)));\n  half x \u003d v[i[0]];\n  half y \u003d v[i[1]];\n  ...",
       "revId": "8f456d9e36c4e70af6009c8d261cde6eeded0340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1decd128_744ee84d",
+        "filename": "tests/sksl/shared/SwizzleByIndex.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-07T20:24:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89d2fb11_e73bf0b1",
+      "revId": "8f456d9e36c4e70af6009c8d261cde6eeded0340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
