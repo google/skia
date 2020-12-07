@@ -79,6 +79,7 @@ struct Globals {
 
 
 
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals globalStruct{short(sqrt(1.0)), int(sqrt(1.0)), ushort(sqrt(1.0)), uint(sqrt(1.0)), sqrt(1.0), sqrt(1.0), _globals->s, short(_globals->i), short(_globals->us), short(_globals->ui), short(_globals->h), short(_globals->f), int(_globals->s), _globals->i, int(_globals->us), int(_globals->ui), int(_globals->h), int(_globals->f), ushort(_globals->s), ushort(_globals->i), _globals->us, ushort(_globals->ui), ushort(_globals->h), ushort(_globals->f), uint(_globals->s), uint(_globals->i), uint(_globals->us), _globals->ui, uint(_globals->h), uint(_globals->f), float(_globals->s), float(_globals->i), float(_globals->us), float(_globals->ui), _globals->h, _globals->f};
     thread Globals* _globals = &globalStruct;
