@@ -83,7 +83,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_half3(h3);
     float4 h4;
     out_half4(h4);
-    /*needs swizzle fix*/ out_half(h3[1]);
+    /*needs swizzle fix*/ out_half(h3.y);
     /*needs swizzle fix*/ out_half2(h3.xz);
     /*needs swizzle fix*/ out_half4(h4.zwxy);
     _out->sk_FragColor = float4(h, h2.x, h3.x, h4.x);
@@ -96,7 +96,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_half3(h3x3[1]);
     /*needs swizzle fix*/ out_half4(h4x4[3].zwxy);
     out_half2(h2x2[0]);
-    _out->sk_FragColor = float4(h2x2[0][0], h3x3[0][0], h4x4[0][0], 1.0);
+    _out->sk_FragColor = float4(h2x2[0].x, h3x3[0].x, h4x4[0].x, 1.0);
     int i;
     out_int(i);
     int2 i2;
@@ -116,7 +116,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float4 f4;
     out_float4(f4);
     /*needs swizzle fix*/ out_float2(f3.xy);
-    /*needs swizzle fix*/ out_float(f2[0]);
+    /*needs swizzle fix*/ out_float(f2.x);
     _out->sk_FragColor = float4(f, f2.x, f3.x, f4.x);
     float2x2 f2x2;
     out_float2x2(f2x2);
@@ -124,9 +124,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     out_float3x3(f3x3);
     float4x4 f4x4;
     out_float4x4(f4x4);
-    /*needs swizzle fix*/ out_float(f2x2[0][0]);
+    /*needs swizzle fix*/ out_float(f2x2[0].x);
     out_float4(f4x4[1]);
-    _out->sk_FragColor = float4(f2x2[0][0], f3x3[0][0], f4x4[0][0], 1.0);
+    _out->sk_FragColor = float4(f2x2[0].x, f3x3[0].x, f4x4[0].x, 1.0);
     bool b;
     out_bool(b);
     bool2 b2;
@@ -136,7 +136,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     bool4 b4;
     out_bool4(b4);
     /*needs swizzle fix*/ out_bool2(b4.xw);
-    /*needs swizzle fix*/ out_bool(b3[2]);
+    /*needs swizzle fix*/ out_bool(b3.z);
     _out->sk_FragColor = float4(b ? 1.0 : 0.0, b2.x ? 1.0 : 0.0, b3.x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
     return *_out;
 }

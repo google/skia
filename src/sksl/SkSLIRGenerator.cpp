@@ -2771,6 +2771,12 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
                                          " out of range for '" + baseType.displayName() + "'");
             return nullptr;
         }
+        // Constant array indexes on vectors can be converted to swizzles: `myHalf4.z`.
+        // (Using a swizzle gives our optimizer a bit more to work with, compared to array indices.)
+        if (baseType.isVector()) {
+            return std::make_unique<Swizzle>(fContext, std::move(base),
+                                             ComponentArray{(int8_t)index});
+        }
     }
     return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(converted));
 }

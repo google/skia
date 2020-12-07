@@ -1,8 +1,33 @@
-void main() {
+void non_constant_swizzle() {
+    int4 i = int4(int(sqrt(1)));
+    half4 v = half4(half(sqrt(1)));
+    half x = v[i[0]];
+    half y = v[i[1]];
+    half z = v[i[2]];
+    half w = v[i[3]];
+    sk_FragColor = half4(x, y, z, w);
+}
+
+void constant_swizzle() {
     half4 v = half4(half(sqrt(1)));
     half x = v[0];
     half y = v[1];
     half z = v[2];
     half w = v[3];
-    sk_FragColor = half4(x,y,z,w);
+    sk_FragColor = half4(x, y, z, w);
+}
+
+void foldable() {
+    half4 v = half4(2);
+    half x = v[0];
+    half y = v[1];
+    half z = v[2];
+    half w = v[3];
+    sk_FragColor = half4(x, y, z, w);
+}
+
+void main() {
+    non_constant_swizzle();
+    constant_swizzle();
+    foldable();
 }
