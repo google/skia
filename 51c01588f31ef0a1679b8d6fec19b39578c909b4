@@ -34,6 +34,24 @@
       "parentUuid": "c23f7699_341e6281",
       "revId": "51c01588f31ef0a1679b8d6fec19b39578c909b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a209847b_eeda29bf",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-07T20:03:57Z",
+      "side": 0,
+      "message": "I added a build method for both, let me know if that works.",
+      "parentUuid": "e2751fa2_25695f6f",
+      "revId": "51c01588f31ef0a1679b8d6fec19b39578c909b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
