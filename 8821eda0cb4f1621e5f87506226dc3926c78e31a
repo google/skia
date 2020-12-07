@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9a824a7_12944d1b",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-07T15:49:54Z",
+      "side": 1,
+      "message": "same comment as before: this must be multiple of 4. Can we assert that and/or pad it out.",
+      "range": {
+        "startLine": 315,
+        "startChar": 29,
+        "endLine": 315,
+        "endChar": 65
+      },
+      "revId": "8821eda0cb4f1621e5f87506226dc3926c78e31a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1947d58a_8a362358",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-07T15:49:54Z",
+      "side": 1,
+      "message": "I don\u0027t know what other layout qualifiers are possible and/or if we\u0027d even use them in the future, but does it make any sense to have GrShaderVar have a function that is like addLayoutQualifier(SkString). That way we can just add the offset here and if we ever try to add a layout qualifier earlier it won\u0027t get ignored here or have an error by have two layout(..) in the same decl (unless that is allowed???)",
+      "range": {
+        "startLine": 357,
+        "startChar": 43,
+        "endLine": 357,
+        "endChar": 62
+      },
+      "revId": "8821eda0cb4f1621e5f87506226dc3926c78e31a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
