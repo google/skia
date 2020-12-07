@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.skia.skottie.SkottieView.SkottieViewBuilder;
 
 import static java.lang.Math.ceil;
 import static java.lang.Math.sqrt;
@@ -56,16 +55,14 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         };
 
         for (int resId : rawAssets) {
-            SkottieViewBuilder builder = new SkottieViewBuilder();
-            SkottieView view =  builder.build(this);
+            SkottieView view =  new SkottieView(this);
             view.setSource(resId);
             mAnimations.add(view);
         }
 
         for (Uri uri : mAnimationFiles) {
             try {
-                SkottieViewBuilder builder = new SkottieViewBuilder();
-                SkottieView view = builder.build(this);
+                SkottieView view = new SkottieView(this);
                 view.setSource(this, uri);
                 mAnimations.add(view);
             } catch (FileNotFoundException e) {
@@ -187,8 +184,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
     private void addLottie(Uri uri) throws FileNotFoundException {
         int animations = mAnimations.size();
         if (animations < mRowCount * mColumnCount) {
-            SkottieViewBuilder builder = new SkottieViewBuilder();
-            SkottieView view = builder.build(this);
+            SkottieView view = new SkottieView(this);
             view.setSource(this, uri);
             int row = animations / mColumnCount, column = animations % mColumnCount;
             mAnimations.add(view);
