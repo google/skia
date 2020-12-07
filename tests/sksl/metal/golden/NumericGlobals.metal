@@ -15,6 +15,7 @@ struct Globals {
 
 
 
+
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals globalStruct{{}, 123, {}, float4(4.0, 5.0, 6.0, 7.0)};
     thread Globals* _globals = &globalStruct;
