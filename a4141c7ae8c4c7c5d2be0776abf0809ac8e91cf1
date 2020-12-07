@@ -46,6 +46,30 @@
       },
       "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19bd0a18_88a2f2f9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2756,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-07T17:46:25Z",
+      "side": 1,
+      "message": "This check was written before short and ushort existed. The intent was \"if it\u0027s a uint, fine. Otherwise, coerce to int\" so that it at least ends up one of the two. Brian\u0027s suggested change is a better way of handling that, especially in the face of the short types.",
+      "parentUuid": "ad152748_1b52e663",
+      "range": {
+        "startLine": 2756,
+        "startChar": 8,
+        "endLine": 2756,
+        "endChar": 49
+      },
+      "revId": "a4141c7ae8c4c7c5d2be0776abf0809ac8e91cf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
