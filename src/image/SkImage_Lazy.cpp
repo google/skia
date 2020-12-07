@@ -385,6 +385,16 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
 }
 
 /*
+ * Current thinking:
+ *   punt on copying to a different texture for mipmaps but handle mipmap generation
+ *   split the key between mipped and unmipped
+ *    - cache unmipped things in the thread safe cache
+ *    - cache mipped things either locally (if in a recording thread) or globally (if in the direct context)
+ *    - only the direct context can insert a mipped version into the thread safe cache
+ *    -
+ */
+
+/*
  *  We have 4 ways to try to return a texture (in sorted order)
  *
  *  1. Check the cache for a pre-existing one

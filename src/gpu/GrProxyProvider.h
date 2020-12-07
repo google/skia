@@ -35,6 +35,8 @@ public:
      */
     bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
+    // AFAICT this is only used to reconnect an existing texture w/ a new proxy. This isn't
+    // needed in the threadsafe cache.
     /*
      * Sets the unique key of the provided proxy to the unique key of the surface. The surface must
      * have a valid unique key.
