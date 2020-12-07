@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa1fd9b6_ba699570",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-07T17:21:05Z",
+      "side": 1,
+      "message": "My read is that the color type or the dimensions can disagree between the pixmap and the image. I think this change is more correct in that it uses the pixmap\u0027s values for the write pixels src info and the image\u0027s values for the surface context (the dst of the write).",
+      "range": {
+        "startLine": 624,
+        "startChar": 0,
+        "endLine": 627,
+        "endChar": 97
+      },
+      "revId": "3223b4e4246c5f473b2d137d87cdf8b7fe97129b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
