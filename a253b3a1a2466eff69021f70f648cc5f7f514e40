@@ -33,6 +33,23 @@
       "message": "Fun to patch locally, and look at the diffs",
       "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4009680a_51b01e54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-07T23:27:44Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand what\u0027s proposed here.\n\nNor still do I understand why we do anything special ever for alpha-only color types.  We have a consistent model for colors with missing channels, and alpha-only things should just draw as black with alpha.",
+      "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
