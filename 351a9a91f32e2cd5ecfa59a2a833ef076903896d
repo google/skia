@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62f80a9a_5e14d762",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T15:57:55Z",
+      "side": 1,
+      "message": "No changes to any GM when I tested locally. Running linux-blink-rel to double check, but I think this is another easy win.",
+      "revId": "351a9a91f32e2cd5ecfa59a2a833ef076903896d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
