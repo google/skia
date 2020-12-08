@@ -96,6 +96,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6a3d99e_41d4da84",
+        "filename": "src/sksl/dsl/DSLBlock.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Unfortunately can\u0027t do initializer lists due to the unique_ptrs, but I simplified the code considerably with the template magic John pointed out. May not affect the code size, but it\u0027s at least easier to reason about.",
+      "parentUuid": "e08f7bf2_37362356",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2bdc38e7_b886e2ee",
@@ -109,6 +133,30 @@
       "writtenOn": "2020-12-07T22:05:42Z",
       "side": 1,
       "message": "Could probably be a variadic template, right?\n\n  template \u003ctypename... Args\u003e \n  // stuff\n    SkSL::ExpressionArray args;\n    (args.push_back(arg.release()), ...);\n\nhttps://stackoverflow.com/questions/43195778/push-back-variadic-function-parameters-into-a-vector",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 0
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94280251_2006d130",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Oh nice, hadn\u0027t seen that pattern before. I fixed up my other variadic templates to be smarter to match.",
+      "parentUuid": "2bdc38e7_b886e2ee",
       "range": {
         "startLine": 87,
         "startChar": 0,
@@ -136,6 +184,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5508597_e6ac1ae2",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "It\u0027s enforced - the calls are made via IRGenerator\u0027s call method, so we\u0027re going through the normal channels.",
+      "parentUuid": "290f9ba8_884aaf0e",
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5405358e_0a234a5b",
@@ -149,6 +215,30 @@
       "writtenOn": "2020-12-07T21:54:37Z",
       "side": 1,
       "message": "Are these tested or used in this CL? If not, maybe we should pull them out from this CL and land them when they\u0027re actually used?\n\nFor that matter, they might even merit being in a separate file from \"DSLCore\" altogheter.  They are really fragment-processor-specific, right? We expect to have DSL users who aren\u0027t writing FPs at all and probably won\u0027t need this.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 53
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d9d4868_d63a43a5",
+        "filename": "src/sksl/dsl/DSL_core.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Pulled out for now. If it\u0027s all the same to you, I\u0027m going to leave the corresponding functionality in DSLWriter; it\u0027s not used yet, but it will be very soon, and it should be fine where it is.",
+      "parentUuid": "5405358e_0a234a5b",
       "range": {
         "startLine": 123,
         "startChar": 0,
@@ -182,6 +272,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08dbee15_5100a662",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9baa91b_7b75bb0e",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 17
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "464f67b1_f7bc96c3",
@@ -195,6 +309,30 @@
       "writtenOn": "2020-12-07T21:41:24Z",
       "side": 1,
       "message": "These should be commented.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 40
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d75806e_86a5613a",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "464f67b1_f7bc96c3",
       "range": {
         "startLine": 45,
         "startChar": 0,
@@ -228,6 +366,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "38e9105a_81d77f87",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "This whole class Skia-internal only; it\u0027s in priv/. I\u0027ve doc\u0027ed the functions and called out the class as internal use.",
+      "parentUuid": "10845580_2e72dd7e",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "927165ad_8a1c306d",
@@ -241,6 +403,30 @@
       "writtenOn": "2020-12-07T21:05:23Z",
       "side": 1,
       "message": "Please add a comment explaining this setting a bit.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8801c1d1_0176fd9b",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "927165ad_8a1c306d",
       "range": {
         "startLine": 78,
         "startChar": 0,
@@ -274,6 +460,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87f1c707_3fa8e8b2",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "900af162_a516338b",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 33
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81dca676_b1a78976",
@@ -287,6 +497,30 @@
       "writtenOn": "2020-12-07T21:54:37Z",
       "side": 1,
       "message": "This isn\u0027t quite right... C++ has a true boolean type separate from int (bool) and even C has _Bool. Allowing 0 and 1 to convert is fine, and might be necessary, but not for the reason here? https://godbolt.org/z/o55f4c",
+      "range": {
+        "startLine": 151,
+        "startChar": 48,
+        "endLine": 152,
+        "endChar": 16
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12d93868_a8274819",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "I swear I had run into some ambiguity between ints and bools when dealing with bool literals, but I can\u0027t reproduce it now. Whatever, killing this.",
+      "parentUuid": "81dca676_b1a78976",
       "range": {
         "startLine": 151,
         "startChar": 48,
@@ -320,6 +554,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "626ac191_63f763c3",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s super not what I intended to do there.",
+      "parentUuid": "90aaae9e_d968c595",
+      "range": {
+        "startLine": 21,
+        "startChar": 40,
+        "endLine": 21,
+        "endChar": 45
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ddabf00a_f1addd12",
@@ -333,6 +591,30 @@
       "writtenOn": "2020-12-07T21:05:23Z",
       "side": 1,
       "message": "I think REPORTER_ASSERT can take printf args directly.\n\n        REPORTER_ASSERT(fReporter, match,\n                        \"Error mismatch: expected:\\n%sbut received:\\n%s\", fMsg, msg);",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 42
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26fe6b97_01cbd789",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ddabf00a_f1addd12",
       "range": {
         "startLine": 40,
         "startChar": 0,
@@ -366,6 +648,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f65f0ae3_b6849ceb",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "The DSL nodes assert if they are just dropped on the floor without being released.",
+      "parentUuid": "4065a53e_21dac6d1",
+      "range": {
+        "startLine": 69,
+        "startChar": 25,
+        "endLine": 69,
+        "endChar": 36
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3ec036a_9234ae11",
@@ -379,6 +685,30 @@
       "writtenOn": "2020-12-07T21:05:23Z",
       "side": 1,
       "message": "Might be interesting to have a case where parens on the input expression matter, like `a / (b + 1)`. I expect it will work, but I\u0027d like to see it.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c03d2ca_bb362cb7",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3ec036a_9234ae11",
       "range": {
         "startLine": 144,
         "startChar": 0,
@@ -412,6 +742,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f656aa9_0443d62c",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "sksl currently doesn\u0027t check for division by zero other than when performing constant folding, so it won\u0027t generate an error. Filed as https://bugs.chromium.org/p/skia/issues/detail?id\u003d11051.",
+      "parentUuid": "9363aff0_59395343",
+      "range": {
+        "startLine": 150,
+        "startChar": 3,
+        "endLine": 153,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3338def3_5a68d7f6",
@@ -425,6 +779,30 @@
       "writtenOn": "2020-12-07T21:05:23Z",
       "side": 1,
       "message": "a % 0  ?",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e6bb970_ef23d515",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Same.",
+      "parentUuid": "3338def3_5a68d7f6",
       "range": {
         "startLine": 171,
         "startChar": 4,
@@ -458,6 +836,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3581c95_991d0d58",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "It\u0027s happening in IRGenerator::constantFold.",
+      "parentUuid": "db27214f_3f456bd0",
+      "range": {
+        "startLine": 318,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 0
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cda1c915_000ae893",
@@ -481,6 +883,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4314cf45_21ee8d42",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cda1c915_000ae893",
+      "range": {
+        "startLine": 825,
+        "startChar": 3,
+        "endLine": 828,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa7cde4f_35adacd0",
@@ -494,6 +920,30 @@
       "writtenOn": "2020-12-07T21:05:23Z",
       "side": 1,
       "message": "We use Block in some of the other tests but don\u0027t ever test it directly; let\u0027s add it for completeness.",
+      "range": {
+        "startLine": 845,
+        "startChar": 0,
+        "endLine": 846,
+        "endChar": 1
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdef76b3_82c7e876",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-08T22:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa7cde4f_35adacd0",
       "range": {
         "startLine": 845,
         "startChar": 0,
