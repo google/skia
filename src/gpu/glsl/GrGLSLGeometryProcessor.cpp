@@ -23,6 +23,8 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     if (gpArgs.fLocalCoordVar.getType() != kVoid_GrSLType) {
         this->collectTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
                                 gpArgs.fLocalCoordVar, args.fFPCoordTransformHandler);
+    } else {
+        SkASSERT(!*args.fFPCoordTransformHandler);
     }
 
     if (args.fGP.willUseTessellationShaders()) {
