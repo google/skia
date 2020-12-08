@@ -87,6 +87,30 @@
       },
       "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "032be2b0_d80b48bb",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T17:52:26Z",
+      "side": 1,
+      "message": "Ah ok. I didn\u0027t know that was the new trend.",
+      "parentUuid": "e6636a51_7a8abd5e",
+      "range": {
+        "startLine": 71,
+        "startChar": 9,
+        "endLine": 71,
+        "endChar": 21
+      },
+      "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
