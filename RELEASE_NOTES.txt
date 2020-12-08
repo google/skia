@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
+    https://review.skia.org/342077
+
   * Add versions of GrDirectContext::createBackendTexture and updateBackendTexture
     that take a GrSurfaceOrigin. The previous versions are deprecated.
     https://review.skia.org/341005
