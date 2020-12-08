@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca16f0bb_c73de5f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T14:00:54Z",
+      "side": 1,
+      "message": "Looks like this is going to change *every* Metal shader. Maybe try increasing the timeout to 1000 ms?",
+      "revId": "1b8f6d452afaf466e50b67db819eacda7ae3527f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
