@@ -1,6 +1,7 @@
 // defines built-in functions supported by SkSL when running on a GPU
 
 $genType radians($genType degrees);
+$genType degrees($genType radians);
 $genType sin($genType angle);
 $genType cos($genType angle);
 $genType tan($genType angle);
@@ -21,6 +22,7 @@ $genType exp2($genType x);
 $genType log2($genType x);
 $genType sqrt($genType x);
 $genHType radians($genHType degrees);
+$genHType degrees($genHType radians);
 $genHType sin($genHType angle);
 $genHType cos($genHType angle);
 $genHType tan($genHType angle);
