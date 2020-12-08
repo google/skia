@@ -16,6 +16,24 @@
       "message": "Should the conic case be \u0027bc*v - ab*u\u0027?",
       "revId": "6bf50008f616bb76f862b381e23421233b502f60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a729f5f7_04f20fd9",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T17:41:02Z",
+      "side": 1,
+      "message": "Good question. The down-projected values would be ab/u and bc/v, which means the tangent direction is:\n\n  bc/v - ab/u\n\nBut if we scale that vector by u*v, it gives us:\n\n  bc*u - ab*v",
+      "parentUuid": "e54a875b_47deb3c9",
+      "revId": "6bf50008f616bb76f862b381e23421233b502f60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
