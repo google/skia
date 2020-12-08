@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5343e8a2_ca7181cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-08T20:26:12Z",
+      "side": 1,
+      "message": "Looks everything just works without this (Mali 400 Release test bot passed). Added the Debug bot as additional CQ bot in case there are any issues with asserts.",
+      "revId": "db81383b55d977e09639493b588197e4ce40fdcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
