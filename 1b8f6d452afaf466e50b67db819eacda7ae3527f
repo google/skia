@@ -70,6 +70,24 @@
       "parentUuid": "418cdfd7_e29d02bc",
       "revId": "1b8f6d452afaf466e50b67db819eacda7ae3527f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f8c9a0b_7a73da6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-08T15:32:21Z",
+      "side": 1,
+      "message": "Adding tracking bug https://crbug.com/skia/11055 so we remember to tackle this soon. In this particular case I think the CQ bot is just busted though.",
+      "parentUuid": "54c9cbb7_a183320b",
+      "revId": "1b8f6d452afaf466e50b67db819eacda7ae3527f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
