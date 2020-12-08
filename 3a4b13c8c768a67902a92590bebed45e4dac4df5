@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0f267bb7_901bc2f6",
+        "filename": "src/sksl/dsl/DSLBlock.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T20:38:36Z",
+      "side": 1,
+      "message": "I really like the syntax this will enable at the caller. My hesitation: I look at the DSL through the lens of \"if we replace all of our internal SkSL, what\u0027s the code-size delta going to be?\".\n\nWith this variadic template setup (and the calls to push_back), it seems likely the compiler will inline just about everything. If we had an initializer_list version, there could be a single implementation in the .cpp, and far less per-statement overhead in the calling code. I\u0027m not sure how that would handle the clever Expression-as-Statement thing you\u0027re doing, though - and my code-size fears may be overblown (or we may find alternate strategies to mitigate the impact). Just wanted to get this out there, as food for thought.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2bdc38e7_b886e2ee",
         "filename": "src/sksl/dsl/DSL_core.cpp",
         "patchSetId": 40
@@ -20,6 +43,23 @@
         "endLine": 110,
         "endChar": 0
       },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "290f9ba8_884aaf0e",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T20:38:36Z",
+      "side": 1,
+      "message": "No change necessary now, but maybe add a TODO comment here: I\u0027d like to enforce intrinsic signatures in the API itself. We can\u0027t make things not compile (no type information), but we can apply verification to the arguments here. eg: Ensure that both arguments to dot() are scalar, or are vectors with the same # of components.\n\nMany of the intrinsic rules will be of that form, so I\u0027m guessing we\u0027ll have some boilerplate for verification?",
       "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
