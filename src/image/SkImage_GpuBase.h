@@ -59,11 +59,6 @@ public:
                                        sk_sp<SkColorSpace> cs);
     static bool ValidateCompressedBackendTexture(const GrCaps*, const GrBackendTexture& tex,
                                                  SkAlphaType);
-    static bool MakeTempTextureProxies(GrRecordingContext*, const GrBackendTexture yuvaTextures[],
-                                       int numTextures, const SkYUVAIndex [4],
-                                       GrSurfaceOrigin imageOrigin,
-                                       GrSurfaceProxyView tempViews[4],
-                                       sk_sp<GrRefCntedCallback> releaseHelper);
 
     static SkAlphaType GetAlphaTypeFromYUVAIndices(const SkYUVAIndex yuvaIndices[4]) {
         return -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
@@ -75,14 +70,6 @@ public:
             SkDeferredDisplayListRecorder::PromiseImageTextureFulfillProc;
     using PromiseImageTextureReleaseProc =
             SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
-
-    static bool RenderYUVAToRGBA(const GrCaps&,
-                                 GrRenderTargetContext*,
-                                 const SkRect&,
-                                 SkYUVColorSpace,
-                                 sk_sp<GrColorSpaceXform>,
-                                 GrSurfaceProxyView[4],
-                                 const SkYUVAIndex[4]);
 
 protected:
     SkImage_GpuBase(sk_sp<GrImageContext>, SkISize size, uint32_t uniqueID, SkColorType,

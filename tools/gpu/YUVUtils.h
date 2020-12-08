@@ -33,12 +33,7 @@ public:
                                               GrMipmapped = GrMipmapped::kNo,
                                               sk_sp<SkColorSpace> = nullptr);
 
-    enum class Type {
-        kFromPixmaps,
-        kFromGenerator,
-        kFromTextures,
-        kFromTexturesCopyToExternal
-    };
+    enum class Type { kFromPixmaps, kFromGenerator, kFromTextures };
 
     SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
 

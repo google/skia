@@ -77,6 +77,14 @@ public:
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
                                                  PromiseImageTextureContext textureContexts[]);
 
+    static bool MakeTempTextureProxies(GrRecordingContext*,
+                                       const GrBackendTexture yuvaTextures[],
+                                       int numTextures,
+                                       const SkYUVAIndex[4],
+                                       GrSurfaceOrigin imageOrigin,
+                                       GrSurfaceProxyView tempViews[4],
+                                       sk_sp<GrRefCntedCallback> releaseHelper);
+
 private:
     SkImage_GpuYUVA(sk_sp<GrImageContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
 
