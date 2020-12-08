@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "698a9c34_6c86d0f3",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T16:52:29Z",
+      "side": 1,
+      "message": "Will implement in a follow up.",
+      "revId": "2bcda2afbcf3b18090ac12d7a1be4a16da0b2cb7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

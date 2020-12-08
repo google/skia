@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b412022_b48c58e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T16:52:29Z",
+      "side": 1,
+      "message": "Kinda disappointing how little impact this shows in gold (https://gold.skia.org/search?corpus\u003dsvg\u0026crs\u003dgerrit\u0026issue\u003d341736\u0026patchsets\u003d1).  Prolly due to bot font limitations.\n\nLocally, the diffs are much more impressive: kerning improvements across the board, internationalization/fallback working, etc.",
+      "revId": "7c1bd8bd0f9ee3de475fb74d294faa38075cfbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
