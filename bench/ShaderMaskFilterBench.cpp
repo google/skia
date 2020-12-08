@@ -21,7 +21,8 @@ static sk_sp<SkShader> make_bitmap_shader() {
     auto surface = SkSurface::MakeRasterN32Premul(100, 100);
     surface->getCanvas()->drawCircle(50, 50, 50, p);
 
-    return surface->makeImageSnapshot()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
+    return surface->makeImageSnapshot()->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                    SkSamplingOptions());
 }
 
 static sk_sp<SkShader> make_picture_shader() {

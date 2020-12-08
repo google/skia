@@ -211,7 +211,7 @@ DEF_GM(return new ComplexClipGM(true, true, true);)
 
 DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     auto img = GetResourceAsImage("images/yellow_rose.png");
-    auto sh = img->makeShader();
+    auto sh = img->makeShader(SkSamplingOptions());
 
     SkRect r = SkRect::MakeIWH(img->width(), img->height());
     SkPaint p;
@@ -238,7 +238,8 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
     canvas->clipShader(sh, SkClipOp::kIntersect);
     canvas->save();
     SkMatrix lm = SkMatrix::Scale(1.0f/5, 1.0f/5);
-    canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &lm));
+    canvas->clipShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                       SkSamplingOptions(), lm));
     canvas->drawImage(img, 0, 0, nullptr);
 
     canvas->restore();
@@ -247,7 +248,7 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
 
 DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
     auto img = GetResourceAsImage("images/yellow_rose.png");
-    auto sh = img->makeShader();
+    auto sh = img->makeShader(SkSamplingOptions());
 
     SkRect r = SkRect::MakeIWH(img->width(), img->height());
 
