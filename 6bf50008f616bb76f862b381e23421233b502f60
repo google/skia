@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e54a875b_47deb3c9",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-08T15:51:16Z",
+      "side": 1,
+      "message": "Should the conic case be \u0027bc*v - ab*u\u0027?",
+      "revId": "6bf50008f616bb76f862b381e23421233b502f60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
