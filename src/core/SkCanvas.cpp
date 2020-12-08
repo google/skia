@@ -2274,6 +2274,11 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 }
 
 void SkCanvas::onDrawBehind(const SkPaint& paint) {
+    SkBaseDevice* dev = this->getTopDevice();
+    if (!dev) {
+        return;
+    }
+
     SkIRect bounds;
     SkDeque::Iter iter(fMCStack, SkDeque::Iter::kBack_IterStart);
     for (;;) {
@@ -2282,6 +2287,9 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
             return; // no backimages, so nothing to draw
         }
         if (rec->fBackImage) {
+            // drawBehind should only have been called when the saveBehind record is active;
+            // if this fails, it means a real saveLayer was made w/o being restored first.
+            SkASSERT(dev == rec->fTopLayer->fDevice.get());
             bounds = SkIRect::MakeXYWH(rec->fBackImage->fLoc.fX, rec->fBackImage->fLoc.fY,
                                        rec->fBackImage->fImage->width(),
                                        rec->fBackImage->fImage->height());
@@ -2289,22 +2297,27 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         }
     }
 
+    // The backimage location (and thus bounds) were defined in the device's space, so mark it
+    // as a clip. We use a clip instead of just drawing a rect in case the paint has an image
+    // filter on it (which is applied before any auto-layer so the filter is clipped).
+    dev->save();
+    {
+        // We also have to temporarily whack the device matrix since clipRegion is affected by the
+        // global-to-device matrix and clipRect is affected by the local-to-device.
+        SkAutoDeviceTransformRestore adtr(dev, SkMatrix::I());
+        dev->clipRect(SkRect::Make(bounds), SkClipOp::kIntersect, /* aa */ false);
+        // ~adtr will reset the local-to-device matrix so that drawPaint() shades correctly.
+    }
+
     DRAW_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        SkBaseDevice* dev = iter.fDevice;
-
-        dev->save();
-        // We use clipRegion because it is already defined to operate in dev-space
-        // (i.e. ignores the ctm). However, it is going to first translate by -origin,
-        // but we don't want that, so we undo that before calling in.
-        SkRegion rgn(bounds.makeOffset(dev->getOrigin()));
-        dev->clipRegion(rgn, SkClipOp::kIntersect);
-        dev->drawPaint(draw.paint());
-        dev->restore(fMCRec->fMatrix);
+        iter.fDevice->drawPaint(draw.paint());
     }
 
     DRAW_END
+
+    dev->restore(fMCRec->fMatrix);
 }
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
