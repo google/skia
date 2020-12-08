@@ -16,6 +16,24 @@
       "message": "lgtm.\n\nI would more readily have call this mag(nitude) or len(gth)",
       "revId": "80b14739a2da40a0f1e7787e20cf81514f728b5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84d55165_c253103e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T18:36:53Z",
+      "side": 1,
+      "message": "agreed.",
+      "parentUuid": "6ceb1eb4_0734882f",
+      "revId": "80b14739a2da40a0f1e7787e20cf81514f728b5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
