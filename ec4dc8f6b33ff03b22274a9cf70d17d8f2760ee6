@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c549751d_eea051d8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T16:13:13Z",
+      "side": 0,
+      "message": "Can we leave this and it operate equivalently?  It seems weird to use DRAW_BEGIN/DRAW_END and not use iter.  Or at least (void) it with a note?",
+      "range": {
+        "startLine": 2314,
+        "startChar": 3,
+        "endLine": 2317,
+        "endChar": 0
+      },
+      "revId": "ec4dc8f6b33ff03b22274a9cf70d17d8f2760ee6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
