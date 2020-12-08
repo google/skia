@@ -50,6 +50,24 @@
       "message": "I don\u0027t think I understand what\u0027s proposed here.\n\nNor still do I understand why we do anything special ever for alpha-only color types.  We have a consistent model for colors with missing channels, and alpha-only things should just draw as black with alpha.",
       "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49306c5f_8330a6c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-08T13:51:01Z",
+      "side": 1,
+      "message": "This is exploring how we combine an image w/ a shader already on the paint.\n\nToday we ignore the shader if the image has color, use DstIn if the image has only alpha. Brian\u0027s notion was we allow the user to control that process. In this case, by specifying a blendmode. If we exposed that, then we could stop sniffing the image\u0027s colortype, and leave that up to the client.\n\nBTW -- separate from this CL, we still don\u0027t have a \u0027consistent\u0027 model, as the SW backend treats the alpha-only as coverage, which differ\u0027s from the gpu. I will work on unifying those in a diff CL.",
+      "parentUuid": "4009680a_51b01e54",
+      "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
