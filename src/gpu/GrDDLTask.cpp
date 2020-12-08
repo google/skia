@@ -9,6 +9,8 @@
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/gpu/GrGpu.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
@@ -20,7 +22,7 @@ GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
         , fOffset(offset) {
     (void) fOffset;  // fOffset will be used shortly
 
-    for (const sk_sp<GrRenderTask>& task : fDDL->priv().renderTasks()) {
+    for (const auto& task : fDDL->priv().renderTasks()) {
         SkASSERT(task->isClosed());
 
         for (int i = 0; i < task->numTargets(); ++i) {
@@ -95,6 +97,10 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
 }
 
 bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
+    flushState->gpu()->setViewport(SkIRect::MakeXYWH(fOffset.fX, fOffset.fY,
+                                                     fDDL->priv().dimensions().width(),
+                                                     fDDL->priv().dimensions().height()));
+
     bool anyCommandsIssued = false;
     for (auto& task : fDDL->priv().renderTasks()) {
         if (task->execute(flushState)) {
@@ -102,5 +108,7 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
         }
     }
 
+    flushState->gpu()->setViewport(SkIRect::MakeWH(fDDLTarget->backingStoreDimensions().width(),
+                                                   fDDLTarget->backingStoreDimensions().height()));
     return anyCommandsIssued;
 }
