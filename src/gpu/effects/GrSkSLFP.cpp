@@ -114,7 +114,6 @@ public:
             coords = coordsVarName.c_str();
             fragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
-        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         auto fmtArgIter = fArgs.fFormatArgs.cbegin();
         fragBuilder->codeAppend(
                 this->expandFormatArgs(fArgs.fCode, args, coords, fmtArgIter).c_str());
