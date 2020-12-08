@@ -18,6 +18,46 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6215944_df72fef8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T14:58:48Z",
+      "side": 1,
+      "message": "Moving the conversation back here... if you\u0027re finding we benefit from there never being footers, what about going the opposite direction and always having a footer (or header I guess)?  We could even expand the footer up to ptr+size_t if the even sizing helps keep alignment or make the math easier. \n\nAnd is that benefit only from cutting support for footers entirely from all SkArenaAlloc types, or can we get the win when a given instance is known to need no footers?  Worst case, can we fold your new approaxch into a template parameter on SkArenaAlloc (disabling or at least asserting in paths that\u0027d require footers) instead of a parallel SkArena type?\n\nI want to keep SkArenaAlloc, and expand its API and improve its performance to make it viable for you.  Can you point to the secret sauce in this CL that makes it go from too slow to fast enough?  Let\u0027s try to backport that.",
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a36c52b8_df54a8a9",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T14:58:48Z",
+      "side": 1,
+      "message": "I do like the way SkArenaAlloc branches on std::is_trivially_destructible\u003cT\u003e::value to handle this POD/non-POD distinction for you.  Surely it\u0027s compiling away as if a constexpr-if for different T, right?\n\nI guess the idea here is that you get a different type back?  But why not use a unique_ptr with destroyer in both cases?  The destroyer will no-op out for POD T.",
+      "range": {
+        "startLine": 69,
+        "startChar": 22,
+        "endLine": 69,
+        "endChar": 62
+      },
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b5dc89c_93af7646",
