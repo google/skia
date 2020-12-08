@@ -8,11 +8,11 @@
 #include "src/shaders/SkImageShader.h"
 
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkBitmapController.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkMipmapAccessor.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"

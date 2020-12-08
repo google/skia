@@ -10,8 +10,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkBitmapController.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkMipmapAccessor.h"
 #include "src/image/SkImage_Base.h"
 
 // Try to load from the base image, or from the cache
