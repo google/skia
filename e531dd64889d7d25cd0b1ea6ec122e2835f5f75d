@@ -63,6 +63,24 @@
       "message": "Let\u0027s try something like this to keep things funneled into quick_reject()?\nIt\u0027s not clear to me that there\u0027s no combinations of blend mode and color we wouldn\u0027t want to quick reject...\n\n     SkASSERT(r.isSorted());\n\n     SkPaint paint{color};\n     paint.setBlendMode(mode);\n\n     if (quick_reject(this, r, paint)) {\n         return;\n     }\n\n     DRAW_BEGIN(paint, \u0026r)\n         ...\n     DRAW_END\n\nI could go either way on the DRAW_BEGIN/DRAW_END or their expanded and simplified code, but I think I\u0027d lean to using DRAW_BEGIN / DRAW_END while they exist so each draw reads more consistently when possible.",
       "revId": "e531dd64889d7d25cd0b1ea6ec122e2835f5f75d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b25c7a7e_ffed54ca",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2773,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T00:49:14Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "0c20811f_4dd7c330",
+      "revId": "e531dd64889d7d25cd0b1ea6ec122e2835f5f75d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

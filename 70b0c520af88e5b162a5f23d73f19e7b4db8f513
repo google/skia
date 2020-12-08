@@ -89,6 +89,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fb807f3_d91fc024",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2189,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T00:49:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "239c1ffa_6950eba0",
+      "range": {
+        "startLine": 2189,
+        "startChar": 12,
+        "endLine": 2189,
+        "endChar": 24
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a4973e64_12faa00e",
@@ -102,6 +126,30 @@
       "writtenOn": "2020-12-07T15:53:47Z",
       "side": 1,
       "message": "Maybe something like this?\n\n  if (!bounds.isFinite() || paint.nothingToDraw()) {\n      return true;\n  }\n  SkRect storage;\n  return paint.canComputeFastBounds()\n      \u0026\u0026 canvas-\u003equickReject(paint.computeFastBounds(bounds, \u0026storage));",
+      "range": {
+        "startLine": 2190,
+        "startChar": 0,
+        "endLine": 2197,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7741b68_50367729",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2197,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T00:49:14Z",
+      "side": 1,
+      "message": "It didn\u0027t quite work out like this with having to take the optional matrix into account, but it\u0027s close.",
+      "parentUuid": "a4973e64_12faa00e",
       "range": {
         "startLine": 2190,
         "startChar": 0,
@@ -567,6 +615,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a88d4b1_e93570de",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2418,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T00:49:14Z",
+      "side": 1,
+      "message": "I switched back to the old way for the first 2 cases and kept the third case flatter.\nSkPath::isFinite() is directly based on getBounds()::isFinite(), but in this case reject any path that\u0027s not finite while only want to check quickReject for regular filled paths. That made it more annoying than I wanted to just drop the 1st case.",
+      "parentUuid": "7d4f8c5f_bc7265d4",
+      "range": {
+        "startLine": 2412,
+        "startChar": 1,
+        "endLine": 2418,
+        "endChar": 5
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e605601c_524bf1b0",
@@ -833,6 +905,30 @@
       "side": 1,
       "message": "Yes, I like your wording better, and think an optional matrix parameter makes sense.",
       "parentUuid": "7f1cab18_08e16279",
+      "range": {
+        "startLine": 2880,
+        "startChar": 56,
+        "endLine": 2881,
+        "endChar": 48
+      },
+      "revId": "70b0c520af88e5b162a5f23d73f19e7b4db8f513",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51c37db9_17e697d0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T00:49:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcf804c4_78e934a5",
       "range": {
         "startLine": 2880,
         "startChar": 56,
