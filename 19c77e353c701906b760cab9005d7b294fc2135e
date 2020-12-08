@@ -39,6 +39,30 @@
       },
       "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a11bbb9a_2f682b44",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T16:56:36Z",
+      "side": 1,
+      "message": "Mind if we keep both?",
+      "parentUuid": "80f61df5_7b8d0188",
+      "range": {
+        "startLine": 71,
+        "startChar": 9,
+        "endLine": 71,
+        "endChar": 21
+      },
+      "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
