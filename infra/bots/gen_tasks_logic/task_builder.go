@@ -83,9 +83,9 @@ func (b *taskBuilder) idempotent() {
 	b.Spec.Idempotent = true
 }
 
-// cas sets the CasSpec used by the task.
-func (b *taskBuilder) cas(casSpec string) {
-	b.Spec.CasSpec = casSpec
+// isolate sets the isolate file used by the task.
+func (b *taskBuilder) isolate(i string) {
+	b.Spec.Isolate = b.relpath(i)
 }
 
 // env appends the given values to the given environment variable for the task.
@@ -165,12 +165,12 @@ func (b *taskBuilder) useIsolatedAssets() bool {
 	return false
 }
 
-// uploadAssetCASCfg represents a task which copies a CIPD package into
+// isolateAssetConfig represents a task which copies a CIPD package into
 // isolate.
-type uploadAssetCASCfg struct {
-	alwaysIsolate  bool
-	uploadTaskName string
-	path           string
+type isolateAssetCfg struct {
+	alwaysIsolate   bool
+	isolateTaskName string
+	path            string
 }
 
 // asset adds the given assets to the task as CIPD packages.
@@ -179,7 +179,7 @@ func (b *taskBuilder) asset(assets ...string) {
 	pkgs := make([]*specs.CipdPackage, 0, len(assets))
 	for _, asset := range assets {
 		if cfg, ok := ISOLATE_ASSET_MAPPING[asset]; ok && (cfg.alwaysIsolate || shouldIsolate) {
-			b.dep(b.uploadCIPDAssetToCAS(asset))
+			b.dep(b.isolateCIPDAsset(asset))
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset(asset))
 		}
