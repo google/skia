@@ -232,7 +232,8 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId);
             break;
         case kMetal_IntrinsicKind:
-            this->writeExpression(*c.arguments()[0], kSequence_Precedence);
+            this->write("(");
+            this->writeExpression(*c.arguments()[0], kRelational_Precedence);
             switch ((MetalIntrinsic) intrinsicId) {
                 case kEqual_MetalIntrinsic:
                     this->write(" == ");
@@ -253,9 +254,10 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                     this->write(" >= ");
                     break;
                 default:
-                    ABORT("unsupported metal intrinsic kind");
+                    ABORT("unsupported Metal intrinsic kind");
             }
-            this->writeExpression(*c.arguments()[1], kSequence_Precedence);
+            this->writeExpression(*c.arguments()[1], kRelational_Precedence);
+            this->write(")");
             break;
         default:
             ABORT("unsupported intrinsic kind");
