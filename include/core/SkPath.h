@@ -1697,6 +1697,10 @@ public:
     void dump() const { this->dump(nullptr, false); }
     void dumpHex() const { this->dump(nullptr, true); }
 
+    // Like dump(), but outputs for the SkPath::Make() factory
+    void dumpArrays(SkWStream* stream, bool dumpAsHex) const;
+    void dumpArrays() const { this->dumpArrays(nullptr, false); }
+
     /** Writes SkPath to buffer, returning the number of bytes written.
         Pass nullptr to obtain the storage size.
 
