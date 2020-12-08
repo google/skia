@@ -8,6 +8,8 @@
 #define GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)              \
   GPU_OP(ADD_AND_TRUE_TO_LOOP_CONDITION,                \
          add_and_true_to_loop_condition)                \
+  GPU_OP(ALWAYS_SET_SCISSOR_ON_FBO_0,                   \
+         always_set_scissor_on_fbo_0)                   \
   GPU_OP(DISABLE_BLEND_EQUATION_ADVANCED,               \
          disable_blend_equation_advanced)               \
   GPU_OP(DISABLE_DISCARD_FRAMEBUFFER,                   \
@@ -34,8 +36,6 @@
          pack_parameters_workaround_with_pack_buffer)   \
   GPU_OP(REMOVE_POW_WITH_CONSTANT_EXPONENT,             \
          remove_pow_with_constant_exponent)             \
-  GPU_OP(RESTORE_SCISSOR_ON_FBO_CHANGE,                 \
-         restore_scissor_on_fbo_change)                 \
   GPU_OP(REWRITE_DO_WHILE_LOOPS,                        \
          rewrite_do_while_loops)                        \
   GPU_OP(UNBIND_ATTACHMENTS_ON_BOUND_RENDER_FBO_DELETE, \
