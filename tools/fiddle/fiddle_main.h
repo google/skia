@@ -23,17 +23,18 @@
 #include <memory>
 #include <sstream>
 
-extern GrBackendTexture backEndTexture;
+namespace sk_gpu_test {
+class GLTestContext;
+class ManagedBackendTexture;
+}  // namespace sk_gpu_test
+
+extern sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTexture;
 extern GrBackendRenderTarget backEndRenderTarget;
-extern GrBackendTexture backEndTextureRenderTarget;
+extern sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTextureRenderTarget;
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
-
-namespace sk_gpu_test {
-class GLTestContext;
-}  // namespace sk_gpu_test
 
 struct DrawOptions {
     DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
@@ -41,7 +42,7 @@ struct DrawOptions {
                 GrMipmapped mipMapping,
                 int offScreenWidth,
                 int offScreenHeight,
-                int offScreenSampleCount,
+                int deprecated, // TODO(jcgregorio): remove
                 GrMipmapped offScreenMipMapping)
         : size(SkISize::Make(w, h))
         , raster(r)
@@ -55,7 +56,6 @@ struct DrawOptions {
         , fMipMapping(mipMapping)
         , fOffScreenWidth(offScreenWidth)
         , fOffScreenHeight(offScreenHeight)
-        , fOffScreenSampleCount(offScreenSampleCount)
         , fOffScreenMipMapping(offScreenMipMapping) {
         // F16 mode is only valid for color correct backends.
         SkASSERT(srgb || !f16);
@@ -79,7 +79,6 @@ struct DrawOptions {
     // Parameters for an GPU offscreen resource exposed as a GrBackendRenderTarget
     int         fOffScreenWidth;
     int         fOffScreenHeight;
-    int         fOffScreenSampleCount;
     // TODO: should we also expose stencilBits here? How about the config?
 
     GrMipmapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
