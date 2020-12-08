@@ -70,6 +70,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f6e31b4_485329de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T14:26:45Z",
+      "side": 1,
+      "message": "Hmm ok.  I guess I\u0027m not a fan of extending drawImage() at all... would prefer the users constructing shaders that do what they want.",
+      "parentUuid": "49306c5f_8330a6c1",
+      "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21f54813_8eafcbd3",
