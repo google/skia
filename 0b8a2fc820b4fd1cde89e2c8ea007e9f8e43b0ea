@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfbe3211_13274e92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-08T01:34:31Z",
+      "side": 1,
+      "message": "I stopped +2 after seeing the gold images, but after looking at them, they are actually expected and more correct.\n\nNow that we canonicalize the drawPoints() paint to have kStroke as its style, the bounds that are computed by AutoLayerForImageFilter match what was computed by computeFastStrokeBounds() and passed to quickReject(). Previously, it was actually calculating bounds that ignored the stroke width, and assumed the geometry was filled, so this is more correct behavior.",
+      "revId": "0b8a2fc820b4fd1cde89e2c8ea007e9f8e43b0ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
