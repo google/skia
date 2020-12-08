@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e341660b_4add6334",
+        "filename": "src/gpu/tessellate/GrStrokeOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T02:29:09Z",
+      "side": 1,
+      "message": "Greg: Does this work? Or do we need to insert the barriers between the stencil and fill?",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 49
+      },
+      "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

@@ -16,6 +16,24 @@
       "message": "You could query whether either returns true from usesVaryingCoords() here.",
       "revId": "b5f3609884493bb200c1c625508637f323ba2c38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81f6b0ab_e9cc03c3",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T02:29:09Z",
+      "side": 1,
+      "message": "Good idea.\n\nDo you know if it\u0027s possible for the clip processor to use varying coords? I\u0027m going to say no because the clip doesn\u0027t operate in local coords. Is that right?",
+      "parentUuid": "3e13f1fd_1108a132",
+      "revId": "b5f3609884493bb200c1c625508637f323ba2c38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
