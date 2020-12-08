@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f601c31d_25bb9441",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-08T22:30:36Z",
+      "side": 1,
+      "message": "I think you are right. I think we want to limit max blocks to 2G instead of 4G. That way things can\u0027t go wrong. The idea with the ptrdiff_t we know that fEnd-fCursor is \u003e 0, and the skipFooterSize and alignedOffset are always small. Using ptrdiff_t means this never underflows in a 32-bit machine.",
+      "parentUuid": "d0cf4827_d63093c0",
+      "range": {
+        "startLine": 133,
+        "startChar": 39,
+        "endLine": 133,
+        "endChar": 53
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76a707d4_12bb08f8",
         "filename": "src/core/SkArenaAlloc.h",
         "patchSetId": 2
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a3376a99_c78aea19",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-08T22:30:36Z",
+      "side": 1,
+      "message": "Aren\u0027t the static asserts above enough to rule out any UB from narrowing?",
+      "parentUuid": "76a707d4_12bb08f8",
+      "range": {
+        "startLine": 84,
+        "startChar": 18,
+        "endLine": 84,
+        "endChar": 27
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "46be3cea_218e6a0e",
         "filename": "src/core/SkArenaAlloc.h",
         "patchSetId": 2
@@ -60,6 +108,30 @@
       "writtenOn": "2020-12-07T15:06:49Z",
       "side": 1,
       "message": "I don\u0027t understand why this duplicate information. It seems \u0027mask\u0027 must always be \u0027alignment - 1\u0027, but this pushes that invariant out to callers and doesn\u0027t check it locally? (Both here and in SkArenaAlloc::allocObjectWithFooter.)",
+      "range": {
+        "startLine": 184,
+        "startChar": 38,
+        "endLine": 184,
+        "endChar": 73
+      },
+      "revId": "32b0461e7d76b00838c935d4e454e4d1fee8e2ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d5c5b81_41c9b9a8",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-08T22:30:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46be3cea_218e6a0e",
       "range": {
         "startLine": 184,
         "startChar": 38,
