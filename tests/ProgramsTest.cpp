@@ -42,13 +42,7 @@ static const uint32_t kMaxKeySize = 1024;
 class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
-        // pass through
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        if (args.fInputColor) {
-            fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
-        } else {
-            fragBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
-        }
+        args.fFragBuilder->codeAppendf("%s = half4(1);\n", args.fOutputColor);
     }
 
     static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
