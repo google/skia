@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34ca2d74_bf38cb6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-12-08T18:29:20Z",
+      "side": 1,
+      "message": "PS1 is the bare reland, fixes in PS2+ ",
+      "revId": "fcadbda8c7c145118a61973f6212df7f3a6348c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
