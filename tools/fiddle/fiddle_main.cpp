@@ -26,17 +26,15 @@ static DEFINE_double(frame, 1.0,
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
 // Globals externed in fiddle_main.h
-sk_sp<GrTexture>      backingTexture;  // not externed
-GrBackendTexture      backEndTexture;
+sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTexture;
+sk_sp<sk_gpu_test::ManagedBackendTexture> backEndTextureRenderTarget;
 
 sk_sp<GrRenderTarget> backingRenderTarget; // not externed
 GrBackendRenderTarget backEndRenderTarget;
-
-sk_sp<GrTexture>      backingTextureRenderTarget;  // not externed
-GrBackendTexture      backEndTextureRenderTarget;
 
 SkBitmap source;
 sk_sp<SkImage> image;
@@ -119,21 +117,17 @@ static SkCanvas* prepare_canvas(SkCanvas * canvas) {
 }
 
 #ifdef SK_GL
-static bool setup_backend_objects(GrDirectContext* context,
+static bool setup_backend_objects(GrDirectContext* dContext,
                                   const SkBitmap& bm,
                                   const DrawOptions& options) {
-    if (!context) {
+    if (!dContext) {
         fputs("Context is null.\n", stderr);
         return false;
     }
 
-    auto resourceProvider = context->priv().resourceProvider();
-
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories
-    auto format = resourceProvider->caps()->getDefaultBackendFormat(
-            SkColorTypeToGrColorType(kRGBA_8888_SkColorType), GrRenderable::kNo);
-    auto renderableFormat = resourceProvider->caps()->getDefaultBackendFormat(
-            SkColorTypeToGrColorType(kRGBA_8888_SkColorType), GrRenderable::kYes);
+    GrBackendFormat renderableFormat = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                      GrRenderable::kYes);
 
     if (!bm.empty()) {
         SkPixmap originalPixmap;
@@ -155,48 +149,34 @@ static bool setup_backend_objects(GrDirectContext* context,
             }
             pixmap = &rgbaPixmap;
         }
-        int mipLevelCount = GrMipmapped::kYes == options.fMipMapping
-                                    ? SkMipmap::ComputeLevelCount(bm.width(), bm.height())
-                                    : 1;
-        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
-        texels[0].fPixels = pixmap->addr();
-        texels[0].fRowBytes = pixmap->rowBytes();
-
-        for (int i = 1; i < mipLevelCount; i++) {
-            texels[i].fPixels = nullptr;
-            texels[i].fRowBytes = 0;
-        }
-
-        backingTexture = resourceProvider->createTexture(
-                bm.dimensions(), format, GrColorType::kRGBA_8888, GrRenderable::kNo, 1,
-                SkBudgeted::kNo, options.fMipMapping, GrProtected::kNo, texels.get());
-        if (!backingTexture) {
-            fputs("Failed to create backingTexture.\n", stderr);
-            return false;
-        }
-
-        backEndTexture = backingTexture->getBackendTexture();
-        if (!backEndTexture.isValid()) {
-            fputs("BackingTexture is invalid.\n", stderr);
+        backEndTexture = sk_gpu_test::ManagedBackendTexture::MakeFromPixmap(dContext,
+                                                                            *pixmap,
+                                                                            options.fMipMapping,
+                                                                            GrRenderable::kNo,
+                                                                            GrProtected::kNo);
+        if (!backEndTexture) {
+            fputs("Failed to create backEndTexture.\n", stderr);
             return false;
         }
     }
 
-    SkISize offscreenDims = {options.fOffScreenWidth, options.fOffScreenHeight};
-    SkAutoTMalloc<uint32_t> data(offscreenDims.area());
-    sk_memset32(data.get(), 0, offscreenDims.area());
-
     {
+        auto resourceProvider = dContext->priv().resourceProvider();
+
+        SkISize offscreenDims = {options.fOffScreenWidth, options.fOffScreenHeight};
+        SkAutoTMalloc<uint32_t> data(offscreenDims.area());
+        sk_memset32(data.get(), 0, offscreenDims.area());
+
         // This backend object should be renderable but not textureable. Given the limitations
         // of how we're creating it though it will wind up being secretly textureable.
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = { data.get(), offscreenDims.width()*sizeof(uint32_t) };
 
+        constexpr int kSampleCnt = 0;
         sk_sp<GrTexture> tmp = resourceProvider->createTexture(
                 offscreenDims, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, GrMipMapped::kNo,
-                GrProtected::kNo, &level0);
+                kSampleCnt, SkBudgeted::kNo, GrMipMapped::kNo, GrProtected::kNo, &level0);
         if (!tmp || !tmp->asRenderTarget()) {
             fputs("GrTexture is invalid.\n", stderr);
             return false;
@@ -212,36 +192,20 @@ static bool setup_backend_objects(GrDirectContext* context,
     }
 
     {
-        int mipLevelCount =
-                GrMipmapped::kYes == options.fOffScreenMipMapping
-                        ? SkMipmap::ComputeLevelCount(offscreenDims.width(), offscreenDims.height())
-                        : 1;
-        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-        texels[0].fPixels = data.get();
-        texels[0].fRowBytes = offscreenDims.width()*sizeof(uint32_t);
-
-        for (int i = 1; i < mipLevelCount; i++) {
-            texels[i].fPixels = nullptr;
-            texels[i].fRowBytes = 0;
-        }
-
-        backingTextureRenderTarget = resourceProvider->createTexture(
-                offscreenDims, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, options.fOffScreenMipMapping,
-                GrProtected::kNo, texels.get());
-        if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
-            fputs("backingTextureRenderTarget is invalid.\n", stderr);
-            return false;
-        }
-
-        backEndTextureRenderTarget = backingTextureRenderTarget->getBackendTexture();
-        if (!backEndTextureRenderTarget.isValid()) {
-            fputs("backEndTextureRenderTarget is invalid.\n", stderr);
+        backEndTextureRenderTarget = sk_gpu_test::ManagedBackendTexture::MakeWithData(
+                                                                    dContext,
+                                                                    options.fOffScreenWidth,
+                                                                    options.fOffScreenHeight,
+                                                                    renderableFormat,
+                                                                    SkColors::kTransparent,
+                                                                    options.fOffScreenMipMapping,
+                                                                    GrRenderable::kYes,
+                                                                    GrProtected::kNo);
+        if (!backEndTextureRenderTarget) {
+            fputs("Failed to create backendTextureRenderTarget.\n", stderr);
             return false;
         }
     }
-
 
     return true;
 }
@@ -315,6 +279,8 @@ int main(int argc, char** argv) {
         }
     }
 #endif
+
+#ifdef SK_SUPPORT_PDF
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
         auto document = SkPDF::MakeDocument(&pdfStream);
@@ -325,6 +291,8 @@ int main(int argc, char** argv) {
             pdfData = pdfStream.detachAsData();
         }
     }
+#endif
+
     if (options.skp) {
         auto size = SkSize::Make(options.size);
         SkPictureRecorder recorder;

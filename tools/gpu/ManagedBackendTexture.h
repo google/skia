@@ -51,6 +51,12 @@ public:
                                                        GrRenderable,
                                                        GrProtected = GrProtected::kNo);
 
+    static sk_sp<ManagedBackendTexture> MakeFromPixmap(GrDirectContext*,
+                                                       const SkPixmap&,
+                                                       GrMipmapped,
+                                                       GrRenderable,
+                                                       GrProtected = GrProtected::kNo);
+
     /** GrGpuFinishedProc or image/surface release proc. */
     static void ReleaseProc(void* context);
 
