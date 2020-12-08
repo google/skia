@@ -81,7 +81,7 @@ static sk_sp<SkShader> sh_make_image() {
     if (!image) {
         return nullptr;
     }
-    return image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
+    return image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions());
 }
 
 static void sk_gm_get_shaders(SkTDArray<SkShader*>* array) {
@@ -234,8 +234,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
 }
 
 template <typename Maker> void do_mixershader(SkCanvas* canvas, Maker&& maker) {
-    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkTileMode::kClamp,
-                                                                             SkTileMode::kClamp);
+    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkSamplingOptions());
     const SkColor colors[] = { SK_ColorGREEN, 0 };
     auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,
                                                 SkTileMode::kClamp,
