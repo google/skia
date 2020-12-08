@@ -2693,6 +2693,11 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
+    // All base onDrawX() functions should call this and skip drawing if it returns true.
+    // If 'matrix' is non-null, it maps the paint's fast bounds before checking for quick rejection
+    bool internalQuickReject(const SkRect& bounds, const SkPaint& paint,
+                             const SkMatrix* matrix = nullptr);
+
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
