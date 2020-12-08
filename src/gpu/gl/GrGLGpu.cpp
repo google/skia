@@ -4009,6 +4009,10 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
 }
 
+void GrGLGpu::setViewport(SkIRect viewport) {
+    GL_CALL(Viewport(viewport.fLeft, viewport.fTop, viewport.width(), viewport.height()));
+}
+
 void GrGLGpu::checkFinishProcs() {
     fFinishCallbacks.check();
 }
