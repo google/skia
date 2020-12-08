@@ -724,12 +724,6 @@ namespace skvm {
         I32   to_fp16(F32 x);
         F32 from_fp16(I32 x);
 
-        F32 norm(F32 x, F32 y) {
-            return sqrt(add(mul(x,x),
-                            mul(y,y)));
-        }
-        F32 norm(F32a x, F32a y) { return norm(_(x), _(y)); }
-
         I32  eq(F32, F32);  I32  eq(F32a x, F32a y) { return  eq(_(x), _(y)); }
         I32 neq(F32, F32);  I32 neq(F32a x, F32a y) { return neq(_(x), _(y)); }
         I32 lt (F32, F32);  I32 lt (F32a x, F32a y) { return lt (_(x), _(y)); }
@@ -1066,9 +1060,6 @@ namespace skvm {
     static inline F32 clamp(F32   x, F32a  lo, F32a hi) { return  x->clamp(x,lo,hi); }
     static inline F32 clamp(float x, F32   lo, F32a hi) { return lo->clamp(x,lo,hi); }
     static inline F32 clamp(float x, float lo, F32  hi) { return hi->clamp(x,lo,hi); }
-
-    static inline F32 norm(F32   x, F32a y) { return x->norm(x,y); }
-    static inline F32 norm(float x, F32  y) { return y->norm(x,y); }
 
     static inline I32 operator<<(I32 x, int bits) { return x->shl(x, bits); }
     static inline I32        shl(I32 x, int bits) { return x->shl(x, bits); }
