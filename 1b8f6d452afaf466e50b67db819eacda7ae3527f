@@ -34,6 +34,24 @@
       "parentUuid": "ca16f0bb_c73de5f1",
       "revId": "1b8f6d452afaf466e50b67db819eacda7ae3527f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83241318_665994dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-08T15:22:11Z",
+      "side": 1,
+      "message": "Sure enough, this bot has been purple on Status since yesterday at 5.",
+      "parentUuid": "418cdfd7_e29d02bc",
+      "revId": "1b8f6d452afaf466e50b67db819eacda7ae3527f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
