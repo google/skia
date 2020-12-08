@@ -1,0 +1,163 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52690063_58661a6b",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "nit: include order",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44ff7a90_8a03f195",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "nit: line break @100",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4560d9e1_b967e711",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "Oh oboe, no parse result?!  Is there any way to check whether this succeeded?  I\u0027m mostly concerned about what happens if we get passed garbage for input - hopefully the downstream code can cope with it?",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f591a1f_a7e1f89a",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "nit: since it\u0027s only done at construction time, let\u0027s move this initialization to the field declaration.",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "827757a8_529b141e",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "We should switch to the std::shared_ptr openStream flavor (https://github.com/google/oboe/blob/f89abeaa1030696082baff4fa9967b088f3e9961/include/oboe/AudioStreamBuilder.h#L450).",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90171252_dba9d120",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "nit: you can hide this as private.",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c0aec9f_de2793cd",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "we should request float samples explicitly (builder.setFormat above).",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "248656e3_1e70d05b",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "let\u0027s store as std::shared_ptr\u003coboe::AudioStream\u003e to avoid leaking.",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dd56c55_ad9a319e",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:53:11Z",
+      "side": 1,
+      "message": "for Skia style \u0026 local consistency, let\u0027s prefix all fields with \"f\": fStream, etc",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 67
+      },
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
