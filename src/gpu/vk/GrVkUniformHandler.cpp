@@ -92,8 +92,13 @@ static uint32_t grsltype_to_alignment_mask(GrSLType type) {
     SK_ABORT("Unexpected type");
 }
 
+enum MemoryLayout {
+    kStd140,
+    kStd430
+};
+
 /** Returns the size in bytes taken up in vulkanbuffers for GrSLTypes. */
-static inline uint32_t grsltype_to_vk_size(GrSLType type) {
+static inline uint32_t grsltype_to_vk_size(GrSLType type, MemoryLayout layout) {
     switch(type) {
         case kByte_GrSLType:
             return sizeof(int8_t);
@@ -153,8 +158,11 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
         case kFloat2x2_GrSLType:
-            //TODO: this will be 4 * szof(float) on std430.
-            return 8 * sizeof(float);
+            if (layout == kStd430) {
+                return 4 * sizeof(float);
+            } else {
+                return 8 * sizeof(float);
+            }
         case kHalf3x3_GrSLType: // fall through
         case kFloat3x3_GrSLType:
             return 12 * sizeof(float);
@@ -180,12 +188,13 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
-static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
+static uint32_t get_aligned_offset(uint32_t* currentOffset,
                                    GrSLType type,
-                                   int arrayCount) {
+                                   int arrayCount,
+                                   MemoryLayout layout) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
-    // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    if (arrayCount || type == kFloat2x2_GrSLType) {
+    // For std140 layout we must make arrays align to 16 bytes.
+    if (layout == kStd140 && (arrayCount || type == kFloat2x2_GrSLType)) {
         alignmentMask = 0xF;
     }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
@@ -195,11 +204,11 @@ static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
     int32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        uint32_t elementSize = std::max<uint32_t>(16, grsltype_to_vk_size(type));
+        uint32_t elementSize = std::max<uint32_t>(16, grsltype_to_vk_size(type, layout));
         SkASSERT(0 == (elementSize & 0xF));
         *currentOffset = uniformOffset + elementSize * arrayCount;
     } else {
-        *currentOffset = uniformOffset + grsltype_to_vk_size(type);
+        *currentOffset = uniformOffset + grsltype_to_vk_size(type, layout);
     }
     return uniformOffset;
 }
@@ -236,17 +245,15 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     }
     SkString resolvedName = fProgramBuilder->nameVariable(prefix, name, mangleName);
 
-    uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
-    SkString layoutQualifier;
-    layoutQualifier.appendf("offset=%d", offset);
+    uint32_t std140offset = get_aligned_offset(&fCurrentStd140Offset, type, arrayCount, kStd140);
+    uint32_t std430offset = get_aligned_offset(&fCurrentStd430Offset, type, arrayCount, kStd430);
 
     VkUniformInfo& uni = fUniforms.push_back(VkUniformInfo{
         {
-            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount,
-                        std::move(layoutQualifier), SkString()},
+            GrShaderVar{std::move(resolvedName), type, GrShaderVar::TypeModifier::None, arrayCount},
             visibility, owner, SkString(name)
         },
-        offset, nullptr
+        std140offset, std430offset, nullptr
     });
 
     if (outName) {
@@ -275,7 +282,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
                         std::move(layoutQualifier), SkString()},
             kFragment_GrShaderFlag, nullptr, SkString(name)
         },
-        0, nullptr
+        0, 0, nullptr
     });
 
     // Check if we are dealing with an external texture and store the needed information if so.
@@ -335,16 +342,23 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         if (!firstOffsetCheck) {
             // Check to make sure we are starting our offset at 0 so the offset qualifier we
             // set on each variable in the uniform block is valid.
-            SkASSERT(0 == localUniform.fUBOffset);
+            SkASSERT(0 == localUniform.fStd140Offset && 0 == localUniform.fStd430Offset);
             firstOffsetCheck = true;
         }
     }
 #endif
 
+    // We pad out to potentially handle RTWidth and RTHeight
+    bool usePushConstants = this->usePushConstants(2*sizeof(float));
     SkString uniformsString;
     for (const VkUniformInfo& localUniform : fUniforms.items()) {
         if (visibility & localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
+                if (usePushConstants) {
+                    uniformsString.appendf("layout(offset=%d) ", localUniform.fStd430Offset);
+                } else {
+                    uniformsString.appendf("layout(offset=%d) ", localUniform.fStd140Offset);
+                }
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
@@ -352,13 +366,27 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
-                     kUniformBufferDescSet, kUniformBinding);
+        if (usePushConstants) {
+            out->append("layout (push_constant) ");
+        } else {
+            out->appendf("layout (set=%d, binding=%d) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        }
+        out->append("uniform uniformBuffer\n{\n");
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }
 
 uint32_t GrVkUniformHandler::getRTHeightOffset() const {
-    uint32_t currentOffset = fCurrentUBOOffset;
-    return get_ubo_aligned_offset(&currentOffset, kFloat_GrSLType, 0);
+    // we haven't added RTHeight or RTWidth at this point so pad out just in case
+    bool usePushConstants = this->usePushConstants(2*sizeof(float));
+    uint32_t currentOffset = usePushConstants? fCurrentStd430Offset : fCurrentStd140Offset;
+    return get_aligned_offset(&currentOffset, kFloat_GrSLType, 0,
+                              usePushConstants ? kStd430 : kStd140);
+}
+
+bool GrVkUniformHandler::usePushConstants(size_t pad) const {
+    // We may need a pad for RTWidth and RTHeight
+    return fCurrentStd430Offset > 0 &&
+           fCurrentStd430Offset + pad <= fProgramBuilder->caps()->maxPushConstantsSize();
 }
