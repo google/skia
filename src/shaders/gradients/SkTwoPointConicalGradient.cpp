@@ -211,6 +211,8 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
 
 skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
                                                 skvm::Coord coord, skvm::I32* mask) const {
+    auto norm = [](skvm::F32 x, skvm::F32 y) { return sqrt(x*x + y*y); };
+
     // See https://skia.org/dev/design/conical, and onAppendStages() above.
     // There's a lot going on here, and I'm not really sure what's independent
     // or disjoint, what can be reordered, simplified, etc.  Tweak carefully.
