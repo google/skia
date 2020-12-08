@@ -28,9 +28,9 @@ public:
             , fNumStencilSamples(targetView.asRenderTargetProxy()->numStencilSamples())
             , fBackendFormat(targetView.proxy()->backendFormat())
             , fOrigin(targetView.origin())
+            , fTargetIsTextureable(targetView.asTextureProxy())
             , fTargetSupportsVkInputAttachment(
                       targetView.asRenderTargetProxy()->supportsVkInputAttachment())
-            , fTargetIsTextureable(targetView.asTextureProxy())
             , fPipeline(pipeline)
             , fUserStencilSettings(userStencilSettings)
             , fPrimProc(primProc)

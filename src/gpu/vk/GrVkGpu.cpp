@@ -291,6 +291,8 @@ void GrVkGpu::destroyResources() {
 
     fStagingBufferManager.reset();
 
+    fMSAALoadManager.destroyResources(this);
+
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 }
@@ -1412,6 +1414,14 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
     return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, imageInfo.dimensions(), vkInfo);
 }
 
+bool GrVkGpu::loadMSAAFromResolve(GrVkCommandBuffer* commandBuffer,
+                                  const GrVkRenderPass& renderPass,
+                                  GrSurface* dst,
+                                  GrSurface* src,
+                                  const GrNativeRect& srcRect) {
+    return fMSAALoadManager.loadMSAAFromResolve(this, commandBuffer, renderPass, dst, src, srcRect);
+}
+
 bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     if (!this->currentCommandBuffer()) {
         return false;
@@ -1957,7 +1967,8 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     }
 
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
-    if (programInfo.numSamples() > 1 && programInfo.colorLoadOp() == GrLoadOp::kLoad &&
+    if (programInfo.targetHasResolveTexture() && programInfo.targetSupportsVkInputAttachment() &&
+        programInfo.colorLoadOp() == GrLoadOp::kLoad &&
         this->vkCaps().alwaysUseDiscardableMSAAAttachment()) {
         loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
     }
@@ -2148,8 +2159,13 @@ void GrVkGpu::onReportSubmitHistograms() {
 #endif
 }
 
-static int get_surface_sample_cnt(GrSurface* surf) {
+static int get_surface_sample_cnt(GrSurface* surf, const GrVkCaps& caps) {
     if (const GrRenderTarget* rt = surf->asRenderTarget()) {
+        auto vkRT = static_cast<const GrVkRenderTarget*>(rt);
+        if (caps.alwaysUseDiscardableMSAAAttachment() && vkRT->resolveAttachmentView() &&
+            vkRT->supportsInputAttachmentUsage()) {
+            return 1;
+        }
         return rt->numSamples();
     }
     return 0;
@@ -2163,8 +2179,8 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = get_surface_sample_cnt(dst);
-    int srcSampleCnt = get_surface_sample_cnt(src);
+    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
+    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     VkFormat dstFormat = dstImage->imageFormat();
@@ -2222,8 +2238,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
     }
 
 #ifdef SK_DEBUG
-    int dstSampleCnt = get_surface_sample_cnt(dst);
-    int srcSampleCnt = get_surface_sample_cnt(src);
+    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
+    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
     VkFormat dstFormat = dstImage->imageFormat();
@@ -2304,9 +2320,10 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return false;
     }
 
-    int dstSampleCnt = get_surface_sample_cnt(dst);
-    int srcSampleCnt = get_surface_sample_cnt(src);
+    int dstSampleCnt = get_surface_sample_cnt(dst, this->vkCaps());
+    int srcSampleCnt = get_surface_sample_cnt(src, this->vkCaps());
 
+    bool useDiscardableMSAA = this->vkCaps().alwaysUseDiscardableMSAAAttachment();
     GrVkImage* dstImage;
     GrVkImage* srcImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -2315,7 +2332,12 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         if (vkRT->wrapsSecondaryCommandBuffer()) {
             return false;
         }
-        dstImage = vkRT->colorAttachmentImage();
+        if (useDiscardableMSAA && vkRT->resolveAttachmentView() &&
+            vkRT->supportsInputAttachmentUsage()) {
+            dstImage = vkRT;
+        } else {
+            dstImage = vkRT->colorAttachmentImage();
+        }
     } else {
         SkASSERT(dst->asTexture());
         dstImage = static_cast<GrVkTexture*>(dst->asTexture());
@@ -2323,7 +2345,12 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     GrRenderTarget* srcRT = src->asRenderTarget();
     if (srcRT) {
         GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(srcRT);
-        srcImage = vkRT->colorAttachmentImage();
+        if (useDiscardableMSAA && vkRT->resolveAttachmentView() &&
+            vkRT->supportsInputAttachmentUsage()) {
+            srcImage = vkRT;
+        } else {
+            srcImage = vkRT->colorAttachmentImage();
+        }
     } else {
         SkASSERT(src->asTexture());
         srcImage = static_cast<GrVkTexture*>(src->asTexture());
@@ -2576,10 +2603,11 @@ bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
         SkASSERT(1 == index);
     }
 #endif
-    VkClearValue clears[2];
+    VkClearValue clears[3];
+    int stencilIndex = renderPass->hasResolveAttachment() ? 2 : 1;
     clears[0].color = colorClear->color;
-    clears[1].depthStencil.depth = 0.0f;
-    clears[1].depthStencil.stencil = 0;
+    clears[stencilIndex].depthStencil.depth = 0.0f;
+    clears[stencilIndex].depthStencil.stencil = 0;
 
    return this->currentCommandBuffer()->beginRenderPass(this, renderPass, clears, target,
                                                         adjustedBounds, forSecondaryCB);

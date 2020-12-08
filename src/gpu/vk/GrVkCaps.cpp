@@ -217,7 +217,12 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         if (rtProxy->wrapsVkSecondaryCB()) {
             return false;
         }
-        dstSampleCnt = rtProxy->numSamples();
+        if (this->alwaysUseDiscardableMSAAAttachment() && dst->asTextureProxy() &&
+            rtProxy->supportsVkInputAttachment()) {
+            dstSampleCnt = 1;
+        } else {
+            dstSampleCnt = rtProxy->numSamples();
+        }
     }
     if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
         // Copying to or from render targets that wrap a secondary command buffer is not allowed
@@ -226,7 +231,12 @@ bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy*
         if (rtProxy->wrapsVkSecondaryCB()) {
             return false;
         }
-        srcSampleCnt = rtProxy->numSamples();
+        if (this->alwaysUseDiscardableMSAAAttachment() && src->asTextureProxy() &&
+            rtProxy->supportsVkInputAttachment()) {
+            srcSampleCnt = 1;
+        } else {
+            srcSampleCnt = rtProxy->numSamples();
+        }
     }
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
@@ -384,6 +394,9 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         kImagination_VkVendor == properties.vendorID) {
         fPreferCachedCpuMemory = false;
     }
+
+    fAlwaysUseDiscardableMSAAAttachment = true;
+    fMSAAResolvesAutomatically = fAlwaysUseDiscardableMSAAAttachment;
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
@@ -1614,7 +1627,11 @@ GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
 }
 
 GrDstSampleType GrVkCaps::onGetDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
-    if (rt->supportsVkInputAttachment()) {
+    bool isMSAAWithResolve = rt->numSamples() && rt->asTextureProxy();
+    // TOTO: Currently if we have an msaa rt with a resolve, the supportsVkInputAttachment call
+    // references whether the resolve is supported as an input attachment. We need to add a check to
+    // allow checking the color attachment (msaa or not) supports input attachment specifically.
+    if (!isMSAAWithResolve && rt->supportsVkInputAttachment()) {
         return GrDstSampleType::kAsInputAttachment;
     }
     return GrDstSampleType::kAsTextureCopy;
@@ -1729,7 +1746,9 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
         selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForInputAttachment;
     }
 
-    bool needsResolve = rt->numSamples() > 1 && this->alwaysUseDiscardableMSAAAttachment();
+    bool needsResolve = programInfo.targetHasResolveTexture() &&
+                        programInfo.targetSupportsVkInputAttachment() &&
+                        this->alwaysUseDiscardableMSAAAttachment();
 
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
     if (needsResolve && programInfo.colorLoadOp() == GrLoadOp::kLoad) {
@@ -1738,6 +1757,9 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
 
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+
+        SkASSERT(!needsResolve ||
+                 (vkRT->resolveAttachmentView() && vkRT->supportsInputAttachmentUsage()));
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass

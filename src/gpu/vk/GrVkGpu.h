@@ -13,6 +13,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkMSAALoadManager.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
@@ -135,6 +136,12 @@ public:
     SkSL::Compiler* shaderCompiler() const {
         return fCompiler;
     }
+
+    bool loadMSAAFromResolve(GrVkCommandBuffer* commandBuffer,
+                             const GrVkRenderPass& renderPass,
+                             GrSurface* dst,
+                             GrSurface* src,
+                             const GrNativeRect& srcRect);
 
     bool onRegenerateMipMapLevels(GrTexture* tex) override;
 
@@ -353,6 +360,8 @@ private:
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
+
+    GrVkMSAALoadManager                                   fMSAALoadManager;
 
     GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool

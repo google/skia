@@ -92,10 +92,16 @@ private:
 
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
+    using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
+
+    bool beginRenderPass(const VkClearValue& clearColor, LoadFromResolve loadFromResolve);
+
     void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
 
+    void setAttachmentLayouts(LoadFromResolve loadFromResolve);
+    void loadResolveIntoMSAA();
+
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
-    using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;

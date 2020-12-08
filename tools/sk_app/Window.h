@@ -52,6 +52,7 @@ public:
     virtual bool scaleContentToFit() const { return false; }
 
     enum BackendType {
+        kUnknown_GrBackendType,
 #ifdef SK_GL
         kNativeGL_BackendType,
 #endif
