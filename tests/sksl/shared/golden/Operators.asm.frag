@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: SPIR-V validation error: Expected Constituents to be scalars or vectors of the same type as Result Type components
+error: SPIR-V validation error: Expected Constituents to be scalars or vectors of the same type as Result Type components
   %84 = OpCompositeConstruct %v2float %int_6 %int_6
 
 OpCapability Shader
