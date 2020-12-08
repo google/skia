@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "571edd2c_ca000edd",
+        "filename": "tests/ProgramsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T16:36:38Z",
+      "side": 0,
+      "message": "Sure enough, this only worked because there was always an input color. Removing the check made Programs fail quickly.",
+      "range": {
+        "startLine": 50,
+        "startChar": 43,
+        "endLine": 50,
+        "endChar": 47
+      },
+      "revId": "351a9a91f32e2cd5ecfa59a2a833ef076903896d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
