@@ -1,0 +1,8 @@
+{
+  'variables': {
+    'files': [
+      '../../../.gclient',
+      'run_recipe.py',
+    ],
+  },
+}

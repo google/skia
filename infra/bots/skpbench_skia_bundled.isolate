@@ -1,0 +1,12 @@
+{
+  'includes': [
+    'assets.isolate',
+    'swarm_recipe.isolate',
+  ],
+  'variables': {
+    'files': [
+      '../../tools/valgrind.supp',
+      '../../tools/skpbench/',
+    ],
+  },
+}

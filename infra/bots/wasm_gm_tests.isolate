@@ -1,0 +1,8 @@
+{
+  'variables': {
+    'files': [
+      '../../resources',
+      '../../tools/run-wasm-gm-tests',
+    ],
+  },
+}

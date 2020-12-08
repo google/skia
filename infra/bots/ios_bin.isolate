@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      '../../platform_tools/ios/bin/',
+    ],
+  },
+}
