@@ -34,6 +34,24 @@
       "parentUuid": "9b412022_b48c58e6",
       "revId": "7c1bd8bd0f9ee3de475fb74d294faa38075cfbc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ef2ee12_a7627b5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-08T17:58:07Z",
+      "side": 1,
+      "message": "Thanks.  IIRC we\u0027re only running the SVG tests on some bots subset, so it\u0027s possible that won\u0027t do anything.",
+      "parentUuid": "d29ad31e_7ed681a4",
+      "revId": "7c1bd8bd0f9ee3de475fb74d294faa38075cfbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
