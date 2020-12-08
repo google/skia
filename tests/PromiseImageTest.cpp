@@ -393,7 +393,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
     SkPaint paint;
     paint.setColorFilter(SkColorFilters::LinearToSRGBGamma());
     canvas->drawImage(refImg, 0, 0, &paint);
-    auto shader = refImg->makeShader(SkTileMode::kClamp, SkTileMode::kClamp);
+    auto shader = refImg->makeShader(SkSamplingOptions());
     REPORTER_ASSERT(reporter, shader);
     paint.setShader(std::move(shader));
     canvas->drawRect(SkRect::MakeWH(1,1), paint);

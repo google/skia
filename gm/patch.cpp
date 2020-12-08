@@ -110,7 +110,7 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[], sk_sp<SkImage> img
     if (img) {
         SkScalar w = img->width();
         SkScalar h = img->height();
-        shader = img->makeShader(localMatrix);
+        shader = img->makeShader(SkSamplingOptions(), localMatrix);
         texStorage[0].set(0, 0);
         texStorage[1].set(w, 0);
         texStorage[2].set(w, h);
