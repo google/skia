@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3823879c_4a197557",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-08T15:06:56Z",
+      "side": 1,
+      "message": "So I have read everything and on a high level looks okay. But TBH I got lost in all the shaders and math that I\u0027m mostly rubber stamping the correctness of all of them. So I definitely thing we need 1 or 2 more sets of eyes to look over all this.",
+      "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80f61df5_7b8d0188",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-08T15:06:56Z",
+      "side": 1,
+      "message": "get rid of this testingOnly names and just wrap the in GR_TEST_UTIL define",
+      "range": {
+        "startLine": 71,
+        "startChar": 9,
+        "endLine": 71,
+        "endChar": 21
+      },
+      "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
