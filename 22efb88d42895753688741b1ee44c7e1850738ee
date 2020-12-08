@@ -46,6 +46,30 @@
       },
       "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7bc6af5_28c0b9b6",
+        "filename": "src/gpu/tessellate/GrStrokeOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T14:50:25Z",
+      "side": 1,
+      "message": "fStencilProgram goes first and it only modifies the stencil buffer. Then fFillProgram goes. So it looks like this should work. I want to put the barrier on fStencilProgram because once we get dynamic stencil, I\u0027m hoping to only use fStencilProgram and just modify stencil state between passes.\n\nOr more ideally, we just store the barrier and issue it ourselves during onExecute. Is that possible?",
+      "parentUuid": "602891bf_af68f861",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 49
+      },
+      "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
