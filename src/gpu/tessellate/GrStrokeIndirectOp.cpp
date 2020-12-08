@@ -35,8 +35,8 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
         return;
     }
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
-            fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+            GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
+            fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
     this->prePreparePrograms(context->priv().recordTimeAllocator(), strokeTessellateShader,
                              writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
                              colorLoadOp, *context->priv().caps());
@@ -472,6 +472,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
                         }
                         [[fallthrough]];
                     case Verb::kQuad:
+                    case Verb::kConic:
                         if (prevPts[1] != prevPts[2]) {
                             lastControlPoint = prevPts[1];
                             break;
@@ -498,11 +499,15 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
                     }
                     ++fTotalInstanceCount;
                     break;
+                case Verb::kConic:
+                    // We use the same quadratic formula for conics, ignoring w. This is pretty
+                    // close to what the actual number of subdivisions would have been.
+                    [[fallthrough]];
                 case Verb::kQuad: {
-                    // Check for a cusp. A quadratic can only have a cusp if it is a degenerate flat
-                    // line with a 180 degree turnarund. To detect this, the beginning and ending
-                    // tangents must be parallel (a.cross(b) == 0) and pointing in opposite
-                    // directions (a.dot(b) < 0).
+                    // Check for a cusp. A conic of any class can only have a cusp if it is a
+                    // degenerate flat line with a 180 degree turnarund. To detect this, the
+                    // beginning and ending tangents must be parallel (a.cross(b) == 0) and pointing
+                    // in opposite directions (a.dot(b) < 0).
                     SkVector a = pts[1] - pts[0];
                     SkVector b = pts[2] - pts[1];
                     if (a.cross(b) == 0 && a.dot(b) < 0) {
@@ -583,8 +588,8 @@ void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
             return;
         }
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
-                fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
+                fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
         this->prePreparePrograms(arena, strokeTessellateShader, flushState->writeView(),
                                  flushState->detachAppliedClip(), flushState->dstProxyView(),
                                  flushState->renderPassBarriers(), flushState->colorLoadOp(),
@@ -683,10 +688,11 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
         GrStrokeIterator iter(path, fStroke);
         bool hasLastControlPoint = false;
         while (iter.next()) {
+            using Verb = GrStrokeIterator::Verb;
             int numChops = 0;
             const SkPoint* pts=iter.pts(), *pts_=pts;
-            switch (iter.verb()) {
-                using Verb = GrStrokeIterator::Verb;
+            Verb verb = iter.verb();
+            switch (verb) {
                 case Verb::kCusp:
                     nextInstanceLocations[fResolveLevelForCusps]++->setCusp(
                             pts[0], numEdgesPerResolveLevel[fResolveLevelForCusps]);
@@ -709,10 +715,10 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                     scratch = scratchBuffer;
                     continue;
                 case Verb::kLine:
+                    resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                     scratch[0] = scratch[1] = pts[0];
                     scratch[2] = scratch[3] = pts[1];
                     pts_ = scratch;
-                    resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                     break;
                 case Verb::kQuad:
                     resolveLevel = *nextResolveLevel++;
@@ -722,6 +728,24 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                         // The quad has a cusp. Draw a line and cusp instead.
                         float cuspT = SkFindQuadMidTangent(pts);
                         SkPoint cusp = SkEvalQuadAt(pts, cuspT);
+                        nextInstanceLocations[fResolveLevelForCusps]++->setCusp(
+                                cusp, numEdgesPerResolveLevel[fResolveLevelForCusps]);
+                        resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
+                        scratch[0] = scratch[1] = cusp;
+                        scratch[2] = scratch[3] = (cuspT <= 0.5f) ? pts[2] : pts[0];
+                    }
+                    pts_ = scratch;
+                    break;
+                case Verb::kConic:
+                    resolveLevel = *nextResolveLevel++;
+                    if (resolveLevel >= 0) {
+                        GrPathShader::WriteConicPatch(pts, iter.w(), scratch);
+                    } else {
+                        // The conic has a cusp. Draw a line and cusp instead.
+                        SkConic conic(pts, iter.w());
+                        float cuspT = conic.findMidTangent();
+                        SkPoint cusp;
+                        conic.evalAt(conic.findMidTangent(), &cusp);
                         nextInstanceLocations[fResolveLevelForCusps]++->setCusp(
                                 cusp, numEdgesPerResolveLevel[fResolveLevelForCusps]);
                         resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
@@ -765,11 +789,11 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
                             (i == 0) ? numEdges : -numEdges);
                 }
                 // Determine the last control point.
-                if (pts_[2] != pts_[3]) {
+                if (pts_[2] != pts_[3] && verb != Verb::kConic) {  // Conics use pts_[3] for w.
                     lastControlPoint = pts_[2];
-                } else if (pts_[1] != pts_[3]) {
+                } else if (pts_[1] != pts_[2]) {
                     lastControlPoint = pts_[1];
-                } else if (pts_[0] != pts_[3]) {
+                } else if (pts_[0] != pts_[1]) {
                     lastControlPoint = pts_[0];
                 } else {
                     // This is very unusual, but all chops became degenerate. Don't update the

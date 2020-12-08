@@ -26,7 +26,7 @@
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
 static constexpr int kNumCols = 5;
-static constexpr int kNumRows = 4;
+static constexpr int kNumRows = 5;
 static constexpr int kTestWidth = kNumCols * kCellSize;
 static constexpr int kTestHeight = kNumRows * kCellSize;
 
@@ -64,8 +64,12 @@ static const TrickyCubic kTrickyCubics[] = {
      CellFillMode::kStretch},  // Flat line with no turns
     {{{0.5f,0}, {0,0}, {20,0}, {10,0}}, 4, CellFillMode::kStretch},  // Flat line with 2 180s
     {{{10,0}, {0,0}, {10,0}, {10,0}}, 4, CellFillMode::kStretch},  // Flat line with a 180
-    {{{1,1}, {2,1}, {1,1}, {std::numeric_limits<float>::quiet_NaN(), 0}}, 3,
-     CellFillMode::kStretch},  // Flat QUAD with a 180
+    {{{1,1}, {2,1}, {1,1}, {1, std::numeric_limits<float>::quiet_NaN()}}, 3,
+     CellFillMode::kStretch},  // Flat QUAD with a cusp
+    {{{1,1}, {100,1}, {25,1}, {.3f, std::numeric_limits<float>::quiet_NaN()}}, 3,
+     CellFillMode::kStretch},  // Flat CONIC with a cusp
+    {{{1,1}, {100,1}, {25,1}, {1.5f, std::numeric_limits<float>::quiet_NaN()}}, 3,
+     CellFillMode::kStretch},  // Flat CONIC with a cusp
 };
 
 static SkRect calc_tight_cubic_bounds(const SkPoint P[4], int depth=5) {
@@ -113,6 +117,7 @@ static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
         for (int j = 0; j < numPts; ++j) {
             p[j] *= scale;
         }
+        float w = originalPts[3].fX;
 
         auto cellRect = SkRect::MakeXYWH((i % kNumCols) * kCellSize, (i / kNumCols) * kCellSize,
                                          kCellSize, kCellSize);
@@ -143,9 +148,12 @@ static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
         SkPath path = SkPath().moveTo(p[0]);
         if (numPts == 4) {
             path.cubicTo(p[1], p[2], p[3]);
-        } else {
+        } else if (w == 1) {
             SkASSERT(numPts == 3);
             path.quadTo(p[1], p[2]);
+        } else {
+            SkASSERT(numPts == 3);
+            path.conicTo(p[1], p[2], w);
         }
         canvas->drawPath(path, strokePaint);
     }
