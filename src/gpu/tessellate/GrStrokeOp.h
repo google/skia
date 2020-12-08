@@ -34,10 +34,10 @@ protected:
                                       bool hasMixedSampledCoverage, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
-    void prePrepareColorProgram(SkArenaAlloc* arena, GrStrokeTessellateShader*,
-                                const GrSurfaceProxyView&, GrAppliedClip&&,
-                                const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
-                                GrLoadOp colorLoadOp, const GrCaps&);
+    void prePreparePrograms(SkArenaAlloc* arena, GrStrokeTessellateShader*,
+                            const GrSurfaceProxyView&, GrAppliedClip&&,
+                            const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
+                            GrLoadOp colorLoadOp, const GrCaps&);
 
     static float NumCombinedSegments(float numParametricSegments, float numRadialSegments) {
         // The first and last edges are shared by both the parametric and radial sets of edges, so
@@ -76,12 +76,14 @@ protected:
     // smoothness.
     const float fNumRadialSegmentsPerRadian;
     SkPMColor4f fColor;
+    bool fNeedsStencil = false;
     GrProcessorSet fProcessors;
 
     GrSTArenaList<SkPath> fPathList;
     int fTotalCombinedVerbCnt;
 
-    const GrProgramInfo* fColorProgram = nullptr;
+    const GrProgramInfo* fStencilProgram = nullptr;
+    const GrProgramInfo* fFillProgram = nullptr;
 };
 
 #endif

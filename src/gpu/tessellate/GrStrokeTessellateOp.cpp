@@ -23,23 +23,29 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kTessellation, fStroke, fParametricIntolerance,
                 fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
-    this->prePrepareColorProgram(arena, strokeTessellateShader, writeView, std::move(*clip),
-                                 dstProxyView, renderPassXferBarriers, colorLoadOp,
-                                 *context->priv().caps());
-    context->priv().recordProgramInfo(fColorProgram);
+    this->prePreparePrograms(arena, strokeTessellateShader, writeView, std::move(*clip),
+                             dstProxyView, renderPassXferBarriers, colorLoadOp,
+                             *context->priv().caps());
+    if (fStencilProgram) {
+        context->priv().recordProgramInfo(fStencilProgram);
+    }
+    if (fFillProgram) {
+        context->priv().recordProgramInfo(fFillProgram);
+    }
 }
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
-    if (!fColorProgram) {
+    if (!fFillProgram && !fStencilProgram) {
         SkArenaAlloc* arena = flushState->allocator();
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kTessellation, fStroke, fParametricIntolerance,
                 fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
-        this->prePrepareColorProgram(flushState->allocator(), strokeTessellateShader,
-                                     flushState->writeView(), flushState->detachAppliedClip(),
-                                     flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                     flushState->colorLoadOp(), flushState->caps());
+        this->prePreparePrograms(flushState->allocator(), strokeTessellateShader,
+                                 flushState->writeView(), flushState->detachAppliedClip(),
+                                 flushState->dstProxyView(), flushState->renderPassBarriers(),
+                                 flushState->colorLoadOp(), flushState->caps());
     }
+    SkASSERT(fFillProgram || fStencilProgram);
 
     fTarget = flushState;
     this->prepareBuffers();
@@ -585,15 +591,25 @@ void GrStrokeTessellateOp::allocPatchChunkAtLeast(int minPatchAllocCount) {
 }
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    SkASSERT(fColorProgram);
     SkASSERT(chainBounds == this->bounds());
-
-    flushState->bindPipelineAndScissorClip(*fColorProgram, this->bounds());
-    flushState->bindTextures(fColorProgram->primProc(), nullptr, fColorProgram->pipeline());
-    for (const auto& chunk : fPatchChunks) {
-        if (chunk.fPatchBuffer) {
-            flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fPatchBuffer));
-            flushState->draw(chunk.fPatchCount, chunk.fBasePatch);
+    if (fStencilProgram) {
+        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
+        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
+        for (const auto& chunk : fPatchChunks) {
+            if (chunk.fPatchBuffer) {
+                flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fPatchBuffer));
+                flushState->draw(chunk.fPatchCount, chunk.fBasePatch);
+            }
+        }
+    }
+    if (fFillProgram) {
+        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
+        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
+        for (const auto& chunk : fPatchChunks) {
+            if (chunk.fPatchBuffer) {
+                flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fPatchBuffer));
+                flushState->draw(chunk.fPatchCount, chunk.fBasePatch);
+            }
         }
     }
 }

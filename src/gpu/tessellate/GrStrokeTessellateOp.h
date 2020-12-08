@@ -20,9 +20,6 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    // The provided matrix must be a similarity matrix for the time being. This is so we can
-    // bootstrap this Op on top of GrStrokeGeometry with minimal modifications.
-    //
     // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
     // a constant blended color.
     GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkStrokeRec& stroke,

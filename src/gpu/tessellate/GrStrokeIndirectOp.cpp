@@ -37,10 +37,15 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
             GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
             fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
-    this->prePrepareColorProgram(context->priv().recordTimeAllocator(), strokeTessellateShader,
-                                 writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
-                                 colorLoadOp, *context->priv().caps());
-    context->priv().recordProgramInfo(fColorProgram);
+    this->prePreparePrograms(context->priv().recordTimeAllocator(), strokeTessellateShader,
+                             writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
+                             colorLoadOp, *context->priv().caps());
+    if (fFillProgram) {
+        context->priv().recordProgramInfo(fFillProgram);
+    }
+    if (fStencilProgram) {
+        context->priv().recordProgramInfo(fStencilProgram);
+    }
 }
 
 // Helpers for GrStrokeIndirectOp::prePrepareResolveLevels.
@@ -580,10 +585,10 @@ void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kIndirect, fStroke, fParametricIntolerance,
                 fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
-        this->prePrepareColorProgram(arena, strokeTessellateShader, flushState->writeView(),
-                                     flushState->detachAppliedClip(), flushState->dstProxyView(),
-                                     flushState->renderPassBarriers(), flushState->colorLoadOp(),
-                                     flushState->caps());
+        this->prePreparePrograms(arena, strokeTessellateShader, flushState->writeView(),
+                                 flushState->detachAppliedClip(), flushState->dstProxyView(),
+                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                 flushState->caps());
     }
     SkASSERT(fResolveLevels);
 
@@ -809,11 +814,20 @@ void GrStrokeIndirectOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
 
     SkASSERT(fDrawIndirectCount);
     SkASSERT(fTotalInstanceCount > 0);
-    SkASSERT(fColorProgram);
     SkASSERT(chainBounds == this->bounds());
 
-    flushState->bindPipelineAndScissorClip(*fColorProgram, this->bounds());
-    flushState->bindTextures(fColorProgram->primProc(), nullptr, fColorProgram->pipeline());
-    flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
-    flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset, fDrawIndirectCount);
+    if (fStencilProgram) {
+        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
+        flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
+        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
+        flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
+                                 fDrawIndirectCount);
+    }
+    if (fFillProgram) {
+        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
+        flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
+        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
+        flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
+                                 fDrawIndirectCount);
+    }
 }
