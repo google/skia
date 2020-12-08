@@ -1913,9 +1913,7 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     }
 }
 
-DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
-    SkDebugf("TODO: Add test for wavy decorations\n");
-}
+// TODO: Add test for wavy decorations.
 
 DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -3623,10 +3621,6 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
     result = paragraph->getRectsForRange(0, pos, rect_height_style, rect_width_style);
     REPORTER_ASSERT(reporter, result.size() == 2);
     canvas.drawRects(SK_ColorGREEN, result);
-}
-
-DEF_TEST(SkParagraph_HyphenBreakParagraph, reporter) {
-    SkDebugf("Hyphens are not implemented, and will not be implemented soon.\n");
 }
 
 // Checked: DIFF (line breaking)
