@@ -22,6 +22,30 @@
       },
       "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "602891bf_af68f861",
+        "filename": "src/gpu/tessellate/GrStrokeOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-08T14:02:01Z",
+      "side": 1,
+      "message": "What memory accesses specifically? You really only need a barrier if you are trying to write to a color attachment and then read from it in the same render pass.",
+      "parentUuid": "e341660b_4add6334",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 49
+      },
+      "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
