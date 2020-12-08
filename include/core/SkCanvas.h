@@ -33,7 +33,9 @@
 #include <vector>
 
 // Working on allow this to be undefined
+#ifndef SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
+#endif
 
 class GrRecordingContext;
 class GrRenderTargetContext;

@@ -47,10 +47,10 @@ DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
     SkMatrix m = SkMatrix::Translate(25, 214) * SkMatrix::Scale(2, 2);
     m.preSkew(0.5f, 0.5f);
 
-    // The bug was present at all filter levels, but you might not notice it at kNone.
-    p.setFilterQuality(kLow_SkFilterQuality);
+    // The bug was present at all filter levels, but you might not notice it at nearest.
+    SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
 
     // It's only important to repeat or mirror in x to show off the bug.
-    p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kClamp, &m));
+    p.setShader(img->makeShader(SkTileMode::kRepeat, SkTileMode::kClamp, sampling, m));
     canvas->drawPaint(p);
 }
