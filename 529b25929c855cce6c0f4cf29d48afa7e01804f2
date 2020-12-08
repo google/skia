@@ -22,6 +22,30 @@
       },
       "revId": "529b25929c855cce6c0f4cf29d48afa7e01804f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f5d1a19_3e7229a2",
+        "filename": "tools/fiddle/fiddle_main.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-08T16:52:10Z",
+      "side": 0,
+      "message": "As discussed offline, readded as deprecated with a TODO to remove",
+      "parentUuid": "716515ed_1b83e8c3",
+      "range": {
+        "startLine": 44,
+        "startChar": 20,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "529b25929c855cce6c0f4cf29d48afa7e01804f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
