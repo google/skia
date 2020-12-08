@@ -16,6 +16,24 @@
       "message": "Think it makes sense to switch SkSamplingOptions{}\u0027s default values to be {linear,none}?  If we\u0027re going to have places in the code that hard code any sort of default opinion, it might feel nice for that default to be what you get from default constructing SkSamplingOptions{}, and I agree that {linear,none} are probably the best settings: never too terrible, never too expensive.\n\nOr is this a step towards plumbing explicit SkSamplingOptions through SkPictureShader too, replacing this hardcoded choice with a user parameter?",
       "revId": "2ef39df71bd5ce0abdad97256125325385db5eb6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cfbfe8b_3c3a70ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-08T22:59:31Z",
+      "side": 1,
+      "message": "PictureShader is sort of special, in that by design the image that we\u0027re tiling is rendered such that there is never much scaling, only rotation, so should never need more than linear.\n\nThe default for samplingoptions matches paint\u0027s default (nearest, none). That seems simplest for the transition.",
+      "parentUuid": "0a0166d8_e321d5e0",
+      "revId": "2ef39df71bd5ce0abdad97256125325385db5eb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
