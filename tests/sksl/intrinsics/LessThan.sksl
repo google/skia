@@ -1,0 +1,1 @@
+in bool4 a; void main() { sk_FragColor.x = lessThan(a) ? 1 : 0; } 

@@ -1,0 +1,1 @@
+in half a; void main() { skalf_FragColor.x = fma(a);              } 
