@@ -192,10 +192,6 @@ private:
     bool isDDLTarget(GrSurfaceProxy* newTarget) {
         return SkToBool(fDDLTargets.find(newTarget->uniqueID().asUInt()));
     }
-    GrRenderTargetProxy* getDDLTarget(GrSurfaceProxy* newTarget) {
-        auto entry = fDDLTargets.find(newTarget->uniqueID().asUInt());
-        return entry ? *entry : nullptr;
-    }
     void clearDDLTargets() { fDDLTargets.reset(); }
 
     // We play a trick with lazy proxies to retarget the base target of a DDL to the SkSurface
