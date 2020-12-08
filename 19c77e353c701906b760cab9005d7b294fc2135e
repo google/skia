@@ -63,6 +63,30 @@
       },
       "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6636a51_7a8abd5e",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-08T16:59:09Z",
+      "side": 1,
+      "message": "We started a trend a while ago removing the use of testingOnly names. Seems a little redundant to have both since you can\u0027t actually call these functions unless you\u0027re in a test. So I think it just makes sense to have the functions say what they do.",
+      "parentUuid": "a11bbb9a_2f682b44",
+      "range": {
+        "startLine": 71,
+        "startChar": 9,
+        "endLine": 71,
+        "endChar": 21
+      },
+      "revId": "19c77e353c701906b760cab9005d7b294fc2135e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
