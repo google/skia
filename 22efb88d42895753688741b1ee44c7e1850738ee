@@ -94,6 +94,30 @@
       },
       "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfcfb053_16e7cd4a",
+        "filename": "src/gpu/tessellate/GrStrokeOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-08T15:30:15Z",
+      "side": 1,
+      "message": "So the barriers are there to protect the color buffer, but in this CL I put them on the program that writes to the stencil buffer instead. I was just making sure that\u0027s ok.",
+      "parentUuid": "85a26d24_1e52b4c9",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 49
+      },
+      "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
