@@ -1079,6 +1079,11 @@ namespace skvm {
         return round(mul(x, limit));
     }
 
+    // Shhh... it's a secret, but Half is secretly F32 underneath for now!
+    // (This will definitely change. :P)
+    F32  Builder::to_F32 (Half x) { return {x.builder, x.id}; }
+    Half Builder::to_Half(F32  x) { return {x.builder, x.id}; }
+
     bool SkColorType_to_PixelFormat(SkColorType ct, PixelFormat* f) {
         auto UNORM = PixelFormat::UNORM,
              FLOAT = PixelFormat::FLOAT;

@@ -15,6 +15,9 @@ namespace skvm {
     struct Arg;
     struct I32;
     struct F32;
+    struct Half;
+    struct HalfMask;
+    struct HalfColor;
     struct Color;
     struct Coord;
     struct Uniforms;
