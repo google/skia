@@ -200,7 +200,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
             }
-            return img->makeShader(tmX, tmY, useMatrix ? &matrix : nullptr);
+            return img->makeShader(tmX, tmY, SkSamplingOptions(), useMatrix ? &matrix : nullptr);
         case 4:
             bitmap = make_fuzz_bitmap(fuzz);
             fuzz->nextEnum(&tmX, SkTileMode::kLastTileMode);

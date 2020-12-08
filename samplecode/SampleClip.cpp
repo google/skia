@@ -498,7 +498,7 @@ class HalfPlaneView3 : public SampleCameraView {
     void onOnceBeforeDraw() override {
         fPath = make_path();
         fShader = GetResourceAsImage("images/mandrill_128.png")
-                        ->makeShader(SkMatrix::Scale(3, 3));
+                        ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -571,7 +571,7 @@ class HalfPlaneCoons : public SampleCameraView {
         fPatch[10] = {  0, 200 };
         fPatch[11] = {  0, 100 };
 
-        fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
+        fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
     }
 
     void onDrawContent(SkCanvas* canvas) override {

@@ -22,7 +22,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(MatrixColorFilter_TransparentBlack, reporter,
     auto imgSurf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
                                                SkImageInfo::MakeN32(5, 5, kPremul_SkAlphaType));
     imgSurf->getCanvas()->drawColor(0x0000000);
-    auto shader = imgSurf->makeImageSnapshot()->makeShader(SkTileMode::kClamp, SkTileMode::kClamp);
+    auto shader = imgSurf->makeImageSnapshot()->makeShader(SkSamplingOptions());
     SkColorMatrix m;
     m.setScale(0, 0, 0, 127.f);
     SkPaint p;

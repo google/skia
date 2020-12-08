@@ -241,7 +241,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
         }
     }
     SkPaint p(paint);
-    p.setShader(atlas->makeShader());
+    p.setShader(atlas->makeShader(SkSamplingOptions()));
     this->drawVertices(builder.detach().get(), mode, p);
 }
 

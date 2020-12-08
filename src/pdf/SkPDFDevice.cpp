@@ -1513,7 +1513,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
             canvas.concat(ctm);
             if (paint->getMaskFilter()) {
                 SkPaint tmpPaint;
-                tmpPaint.setShader(mask->makeShader(&transform));
+                tmpPaint.setShader(mask->makeShader(SkSamplingOptions(), transform));
                 tmpPaint.setMaskFilter(sk_ref_sp(paint->getMaskFilter()));
                 canvas.drawRect(dst, tmpPaint);
             } else {
@@ -1541,7 +1541,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
     if (paint->getMaskFilter()) {
-        paint.writable()->setShader(imageSubset.image()->makeShader(&transform));
+        paint.writable()->setShader(imageSubset.image()->makeShader(SkSamplingOptions(),
+                                                                    transform));
         SkPath path = SkPath::Rect(dst); // handles non-integral clipping.
         this->internalDrawPath(this->cs(), this->localToDevice(), path, *paint, true);
         return;
