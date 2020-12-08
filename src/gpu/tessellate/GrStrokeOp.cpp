@@ -25,7 +25,8 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
         , fColor(paint.getColor4f())
         , fProcessors(std::move(paint))
         , fPathList(path)
-        , fTotalCombinedVerbCnt(path.countVerbs()) {
+        , fTotalCombinedVerbCnt(path.countVerbs())
+        , fTotalConicWeightCnt(SkPathPriv::ConicWeightCnt(path)) {
     // We don't support hairline strokes. For now, the client can transform the path into device
     // space and then use a stroke width of 1.
     SkASSERT(fStroke.getWidth() > 0);
@@ -74,6 +75,7 @@ GrOp::CombineResult GrStrokeOp::onCombineIfPossible(GrOp* grOp, SkArenaAlloc* al
 
     fPathList.concat(std::move(op->fPathList), alloc);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
+    fTotalConicWeightCnt += op->fTotalConicWeightCnt;
 
     return CombineResult::kMerged;
 }

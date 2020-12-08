@@ -422,10 +422,10 @@ bool CCPRGeometryView::onChar(SkUnichar unichar) {
             return true;
         }
         float* valueToScale = nullptr;
-        if (fDoStroke) {
-            valueToScale = &fStrokeWidth;
-        } else if (PrimitiveType::kConics == fPrimitiveType) {
+        if (PrimitiveType::kConics == fPrimitiveType) {
             valueToScale = &fConicWeight;
+        } else if (fDoStroke) {
+            valueToScale = &fStrokeWidth;
         }
         if (valueToScale) {
             if (unichar == '+') {
