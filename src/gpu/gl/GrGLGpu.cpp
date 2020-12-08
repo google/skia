@@ -2206,6 +2206,21 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         fHWBoundRenderTargetUniqueID = rtID;
         this->flushViewport(target->width(), target->height());
     }
+    if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0 &&
+        fBoundDrawFramebuffer == 0) {
+        // The driver forgets the correct scissor state when using FBO 0.
+        if (!fHWScissorSettings.fRect.isInvalid()) {
+            const GrNativeRect& r = fHWScissorSettings.fRect;
+            GL_CALL(Scissor(r.fX, r.fY, r.fWidth, r.fHeight));
+        }
+        if (fHWScissorSettings.fEnabled == kYes_TriState) {
+            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
+        } else if (fHWScissorSettings.fEnabled == kNo_TriState) {
+            GL_CALL(Enable(GR_GL_SCISSOR_TEST));
+            GL_CALL(Disable(GR_GL_SCISSOR_TEST));
+        }
+    }
 
     if (this->glCaps().srgbWriteControl()) {
         this->flushFramebufferSRGB(this->caps()->isFormatSRGB(target->backendFormat()));
@@ -2882,8 +2897,7 @@ void GrGLGpu::unbindSurfaceFBOForPixelOps(GrSurface* surface, int mipLevel, GrGL
 }
 
 void GrGLGpu::onFBOChanged() {
-    if (this->caps()->workarounds().flush_on_framebuffer_change ||
-        this->caps()->workarounds().restore_scissor_on_fbo_change) {
+    if (this->caps()->workarounds().flush_on_framebuffer_change) {
         this->flush(FlushType::kForce);
     }
 #ifdef SK_DEBUG
@@ -2900,15 +2914,6 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     if (target == GR_GL_FRAMEBUFFER || target == GR_GL_DRAW_FRAMEBUFFER) {
         fBoundDrawFramebuffer = fboid;
     }
-
-    if (this->caps()->workarounds().restore_scissor_on_fbo_change) {
-        // The driver forgets the correct scissor when modifying the FBO binding.
-        if (!fHWScissorSettings.fRect.isInvalid()) {
-            const GrNativeRect& r = fHWScissorSettings.fRect;
-            GL_CALL(Scissor(r.fX, r.fY, r.fWidth, r.fHeight));
-        }
-    }
-
     this->onFBOChanged();
 }
 
