@@ -244,7 +244,10 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             return nullptr;
         }
 
-        tileShader = tileImage->makeShader(fTmx, fTmy);
+        // TODO: should we change to bilerp? It only needs to handle rotation and modest scaling,
+        //       so bilerp should be enough.
+        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(SkFilterMode::kNearest,
+                                                                         SkMipmapMode::kNone));
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
         fAddedToCache.store(true);
