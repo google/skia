@@ -950,6 +950,7 @@ void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO: pass samplingoptions explicitly
 void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
                             SkBlendMode mode, const SkPaint& paint) {
@@ -957,7 +958,7 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
 
     // Convert atlas to an image shader.
-    sk_sp<SkShader> shader = atlas->makeShader();
+    sk_sp<SkShader> shader = atlas->makeShader(SkSamplingOptions(paint.getFilterQuality()));
     if (!shader) {
         return;
     }

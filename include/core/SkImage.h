@@ -8,6 +8,10 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#ifndef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
+#define SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
+#endif
+
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
@@ -657,8 +661,21 @@ public:
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions&,
                                const SkMatrix* localMatrix = nullptr) const;
 
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkSamplingOptions& sampling,
+                               const SkMatrix& lm) const {
+        return this->makeShader(tmx, tmy, sampling, &lm);
+    }
+    sk_sp<SkShader> makeShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const {
+        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &lm);
+    }
+    sk_sp<SkShader> makeShader(const SkSamplingOptions& sampling,
+                               const SkMatrix* lm = nullptr) const {
+        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, lm);
+    }
+
     using CubicResampler = SkCubicResampler;
 
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkTileMode rules to fill drawn area outside SkImage. localMatrix permits
         transforming SkImage before SkCanvas matrix is applied.
@@ -677,13 +694,6 @@ public:
         return this->makeShader(tmx, tmy, &localMatrix);
     }
 
-#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
-                               SkFilterQuality fq) const {
-        return this->makeShader(tmx, tmy, SkSamplingOptions(fq), localMatrix);
-    }
-#endif
-
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
         transforming SkImage before SkCanvas matrix is applied.
@@ -697,6 +707,14 @@ public:
     sk_sp<SkShader> makeShader(const SkMatrix& localMatrix) const {
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &localMatrix);
     }
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
+                               SkFilterQuality fq) const {
+        return this->makeShader(tmx, tmy, SkSamplingOptions(fq), localMatrix);
+    }
+#endif
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return

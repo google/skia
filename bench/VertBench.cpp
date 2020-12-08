@@ -54,7 +54,7 @@ class VertBench : public Benchmark {
     void onDelayedSetup() override {
         auto img = GetResourceAsImage("images/mandrill_256.png");
         if (img) {
-            fShader = img->makeShader();
+            fShader = img->makeShader(SkSamplingOptions());
         }
     }
 

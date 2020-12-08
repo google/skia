@@ -17,6 +17,7 @@ flutter_defines = [
   # Staging
   "SK_SUPPORT_LEGACY_ADJUSTHQHEURISTIC",
   "SK_SUPPORT_LEGACY_ONDRAWIMAGERECT",
+  "SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY",
 
   # Fast low-precision software rendering isn't a priority for Flutter.
   "SK_DISABLE_LEGACY_SHADERCONTEXT",
