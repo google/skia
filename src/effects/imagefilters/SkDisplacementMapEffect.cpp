@@ -340,22 +340,24 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                            color->getColorSpace(), color->alphaType(),
                                            ctx.colorSpace(), kPremul_SkAlphaType);
-
-        GrPaint paint;
-        paint.setColorFragmentProcessor(std::move(fp));
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        SkMatrix matrix;
-        matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
-
-        auto renderTargetContext = GrRenderTargetContext::Make(
-                context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
-                bounds.size(), 1, GrMipmapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
+        GrImageInfo info(ctx.grColorType(),
+                         kPremul_SkAlphaType,
+                         ctx.refColorSpace(),
+                         bounds.size());
+        auto renderTargetContext = GrLRenderTargetContext::Make(context,
+                                                                info,
+                                                                SkBackingFit::kApprox,
+                                                                1,
+                                                                GrMipmapped::kNo,
+                                                                isProtected,
+                                                                kBottomLeft_GrSurfaceOrigin);
         if (!renderTargetContext) {
             return nullptr;
         }
 
-        renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
-                                      SkRect::Make(colorBounds));
+        renderTargetContext->fillIRectSrcMode(colorBounds,
+                                              SkIRect::MakeSize(colorBounds.size()),
+                                              std::move(fp));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();

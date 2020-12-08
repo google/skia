@@ -441,10 +441,10 @@ protected:
 
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrRenderTargetContext*,
+    void drawRect(GrLRenderTargetContext*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
-                  const SkRect& dstRect,
+                  const SkIRect& dstRect,
                   BoundaryMode boundaryMode,
                   const SkIRect* srcBounds,
                   const SkIRect& bounds) const;
@@ -457,21 +457,17 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTargetContext,
+void SkLightingImageFilterInternal::drawRect(GrLRenderTargetContext* renderTargetContext,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
-                                             const SkRect& dstRect,
+                                             const SkIRect& dstRect,
                                              BoundaryMode boundaryMode,
                                              const SkIRect* srcBounds,
                                              const SkIRect& bounds) const {
-    SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
-    GrPaint paint;
+    SkIRect srcRect = dstRect.makeOffset(bounds.topLeft());
     auto fp = this->makeFragmentProcessor(std::move(srcView), matrix, srcBounds, boundaryMode,
                                           *renderTargetContext->caps());
-    paint.setColorFragmentProcessor(std::move(fp));
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                        dstRect, srcRect);
+    renderTargetContext->fillIRectSrcMode(srcRect, dstRect, std::move(fp));
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
@@ -486,27 +482,33 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     GrSurfaceProxyView inputView = input->view(context);
     SkASSERT(inputView.asTextureProxy());
 
-    auto renderTargetContext = GrRenderTargetContext::Make(
-            context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
-            offsetBounds.size(), 1, GrMipmapped::kNo, inputView.proxy()->isProtected(),
-            kBottomLeft_GrSurfaceOrigin);
+    GrImageInfo info(ctx.grColorType(),
+                     kPremul_SkAlphaType,
+                     ctx.refColorSpace(),
+                     offsetBounds.size());
+    auto renderTargetContext = GrLRenderTargetContext::Make(context,
+                                                            info,
+                                                            SkBackingFit::kApprox,
+                                                            1,
+                                                            GrMipmapped::kNo,
+                                                            inputView.proxy()->isProtected(),
+                                                            kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }
 
-    SkIRect dstIRect = SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height());
-    SkRect dstRect = SkRect::Make(dstIRect);
+    SkIRect dstRect = SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height());
 
     const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
-    SkRect topLeft = SkRect::MakeXYWH(0, 0, 1, 1);
-    SkRect top = SkRect::MakeXYWH(1, 0, dstRect.width() - 2, 1);
-    SkRect topRight = SkRect::MakeXYWH(dstRect.width() - 1, 0, 1, 1);
-    SkRect left = SkRect::MakeXYWH(0, 1, 1, dstRect.height() - 2);
-    SkRect interior = dstRect.makeInset(1, 1);
-    SkRect right = SkRect::MakeXYWH(dstRect.width() - 1, 1, 1, dstRect.height() - 2);
-    SkRect bottomLeft = SkRect::MakeXYWH(0, dstRect.height() - 1, 1, 1);
-    SkRect bottom = SkRect::MakeXYWH(1, dstRect.height() - 1, dstRect.width() - 2, 1);
-    SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
+    SkIRect topLeft = SkIRect::MakeXYWH(0, 0, 1, 1);
+    SkIRect top = SkIRect::MakeXYWH(1, 0, dstRect.width() - 2, 1);
+    SkIRect topRight = SkIRect::MakeXYWH(dstRect.width() - 1, 0, 1, 1);
+    SkIRect left = SkIRect::MakeXYWH(0, 1, 1, dstRect.height() - 2);
+    SkIRect interior = dstRect.makeInset(1, 1);
+    SkIRect right = SkIRect::MakeXYWH(dstRect.width() - 1, 1, 1, dstRect.height() - 2);
+    SkIRect bottomLeft = SkIRect::MakeXYWH(0, dstRect.height() - 1, 1, 1);
+    SkIRect bottom = SkIRect::MakeXYWH(1, dstRect.height() - 1, dstRect.width() - 2, 1);
+    SkIRect bottomRight = SkIRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
 
     const SkIRect* pSrcBounds = inputBounds.contains(offsetBounds) ? nullptr : &inputBounds;
     this->drawRect(renderTargetContext.get(), inputView, matrix, topLeft,

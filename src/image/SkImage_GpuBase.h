@@ -17,7 +17,7 @@
 class GrColorSpaceXform;
 class GrDirectContext;
 class GrImageContext;
-class GrRenderTargetContext;
+class GrLRenderTargetContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
@@ -77,8 +77,7 @@ public:
             SkDeferredDisplayListRecorder::PromiseImageTextureReleaseProc;
 
     static bool RenderYUVAToRGBA(const GrCaps&,
-                                 GrRenderTargetContext*,
-                                 const SkRect&,
+                                 GrLRenderTargetContext*,
                                  SkYUVColorSpace,
                                  sk_sp<GrColorSpaceXform>,
                                  GrSurfaceProxyView[4],

@@ -24,6 +24,7 @@ class GrAuditTrail;
 class GrDrawingManager;
 class GrRecordingContext;
 class GrRenderTargetContext;
+class GrLRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
@@ -159,6 +160,7 @@ public:
     }
 
     virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
+    virtual GrLRenderTargetContext* asLRenderTargetContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by

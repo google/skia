@@ -358,7 +358,7 @@ DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrRenderTargetCont
             0xffff>()
     );
 
-    offscreenRTC->clear({0,1,0,1});
+    offscreenRTC->clear(SkPMColor4f{0, 1, 0, 1});
 
     // Stencil.
     offscreenRTC->addDrawOp(SampleLocationsTestOp::Make(ctx, canvas->getTotalMatrix(), fGradType));

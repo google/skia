@@ -24,16 +24,13 @@
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                    GrSurfaceProxyView rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
-    auto rtContext = GrRenderTargetContext::Make(
-            dContext, colorType, nullptr, SkBackingFit::kExact, rectView.proxy()->dimensions());
+    auto rtContext = GrLRenderTargetContext::Make(
+            dContext, {colorType, kPremul_SkAlphaType, nullptr, rectView.dimensions()});
     for (auto filter : {GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kLinear}) {
         for (auto mm : {GrSamplerState::MipmapMode::kNone, GrSamplerState::MipmapMode::kLinear}) {
             rtContext->clear(SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA));
             auto fp = GrTextureEffect::Make(rectView, alphaType, SkMatrix::I(), filter, mm);
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.setColorFragmentProcessor(std::move(fp));
-            rtContext->drawPaint(nullptr, std::move(paint), SkMatrix::I());
+            rtContext->fillSrcMode(std::move(fp));
             TestReadPixels(reporter, dContext, rtContext.get(), expectedPixelValues,
                            "RectangleTexture-basic-draw");
         }
@@ -42,7 +39,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext
 
 static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
                        GrSurfaceContext* rectContext) {
-    if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
+    if (GrLRenderTargetContext* rtc = rectContext->asLRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
         rtc->clear(SkPMColor4f::FromBytes_RGBA(color0));

@@ -159,9 +159,16 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
-            this->dimensions(), 1, GrMipmapped::kNo, GrProtected::kNo);
+    GrImageInfo info(GrColorType::kRGBA_8888,
+                     kPremul_SkAlphaType,
+                     this->refColorSpace(),
+                     this->dimensions());
+    auto renderTargetContext = GrLRenderTargetContext::Make(context,
+                                                            info,
+                                                            SkBackingFit::kExact,
+                                                            /*sample count*/ 1,
+                                                            GrMipmapped::kNo,
+                                                            GrProtected::kNo);
     if (!renderTargetContext) {
         return;
     }
@@ -171,9 +178,8 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
         colorSpaceXform = GrColorSpaceXform::Make(fFromColorSpace.get(), this->alphaType(),
                                                   this->colorSpace(), this->alphaType());
     }
-    const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
     const GrCaps& caps = *context->priv().caps();
-    if (!RenderYUVAToRGBA(caps, renderTargetContext.get(), rect, fYUVColorSpace,
+    if (!RenderYUVAToRGBA(caps, renderTargetContext.get(), fYUVColorSpace,
                           std::move(colorSpaceXform), fViews, fYUVAIndices)) {
         return;
     }

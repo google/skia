@@ -88,9 +88,10 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         return nullptr;
     }
 
-    auto renderTargetContext = GrRenderTargetContext::MakeWithFallback(
-            direct, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
-            this->dimensions());
+    auto info = this->imageInfo().makeColorType(targetCT).makeColorSpace(targetCS);
+    auto renderTargetContext = GrLRenderTargetContext::MakeWithFallback(direct,
+                                                                        std::move(info),
+                                                                        SkBackingFit::kExact);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -101,18 +102,10 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                  targetCS.get(), this->alphaType());
     SkASSERT(colorFP);
 
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.setColorFragmentProcessor(std::move(colorFP));
-
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                  SkRect::MakeIWH(this->width(), this->height()));
-    if (!renderTargetContext->asTextureProxy()) {
-        return nullptr;
-    }
+    renderTargetContext->fillSrcMode(std::move(colorFP));
+    SkASSERT(renderTargetContext->asTextureProxy());
 
     targetCT = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
-    // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID,
                                    renderTargetContext->readSurfaceView(), targetCT,
                                    this->alphaType(), std::move(targetCS));
@@ -348,9 +341,14 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
                 caps, rgbaResultTexture, grCT, colorType, at, nullptr)) {
         return nullptr;
     }
-    auto renderTargetContext = GrRenderTargetContext::MakeFromBackendTexture(
-            context, grCT, std::move(imageColorSpace), rgbaResultTexture, 1,
-            yuvaTextures.textureOrigin(), nullptr, std::move(rgbaReleaseHelper));
+    SkColorInfo info(colorType, kPremul_SkAlphaType, std::move(imageColorSpace));
+    auto renderTargetContext = GrLRenderTargetContext::MakeFromBackendTexture(
+            context,
+            info,
+            rgbaResultTexture,
+            1,
+            yuvaTextures.textureOrigin(),
+            std::move(rgbaReleaseHelper));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -364,8 +362,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
     }
 
     // Draw the YUVA proxies to the render target.
-    const SkRect rect = SkRect::Make(rgbaResultTexture.dimensions());
-    if (!SkImage_GpuBase::RenderYUVAToRGBA(*caps, renderTargetContext.get(), rect,
+    if (!SkImage_GpuBase::RenderYUVAToRGBA(*caps, renderTargetContext.get(),
                                            yuvaTextures.yuvaInfo().yuvColorSpace(), nullptr,
                                            tempViews, yuvaIndices)) {
         return nullptr;

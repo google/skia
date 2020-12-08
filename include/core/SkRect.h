@@ -91,6 +91,10 @@ struct SK_API SkIRect {
         return { x, y, Sk32_sat_add(x, w), Sk32_sat_add(y, h) };
     }
 
+    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakePtSize(SkIPoint pt, SkISize size) {
+        return MakeXYWH(pt.x(), pt.y(), size.width(), size.height());
+    }
+
     /** Returns left edge of SkIRect, if sorted.
         Call sort() to reverse fLeft and fRight if needed.
 
