@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "716515ed_1b83e8c3",
+        "filename": "tools/fiddle/fiddle_main.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-12-08T16:25:55Z",
+      "side": 0,
+      "message": "This will require a change in both the Go fiddle backend, and a change in the frontend code to remove this option.\n\nPlease wait until I have that CL ready before landing this CL.",
+      "range": {
+        "startLine": 44,
+        "startChar": 20,
+        "endLine": 44,
+        "endChar": 40
+      },
+      "revId": "529b25929c855cce6c0f4cf29d48afa7e01804f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
