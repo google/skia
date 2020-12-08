@@ -20,7 +20,7 @@
 
 class SkCanvas;
 class SkSVGLength;
-struct SkSVGTextContext;
+class SkSVGTextContext;
 
 class SkSVGLengthContext {
 public:

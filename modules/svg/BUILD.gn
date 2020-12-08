@@ -18,7 +18,10 @@ if (skia_enable_svg) {
     public = skia_svg_public
     sources = skia_svg_sources
     configs += [ "../../:skia_private" ]
-    deps = [ "../..:skia" ]
+    deps = [
+      "../..:skia",
+      "../skshaper",
+    ]
   }
 
   if (skia_enable_tools && defined(is_skia_standalone)) {
