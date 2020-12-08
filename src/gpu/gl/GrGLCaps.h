@@ -483,7 +483,6 @@ private:
         bool fDisableSRGBRenderWithMSAAForMacAMD = false;
         bool fDisableRGBA16FTexStorageForCrBug1008003 = false;
         bool fDisableBGRATextureStorageForIntelWindowsES = false;
-        bool fDisableRGB8ForMali400 = false;
         bool fDisableLuminance16F = false;
         bool fDontDisableTexStorageOnAndroid = false;
         bool fDisallowDirectRG8ReadPixels = false;
