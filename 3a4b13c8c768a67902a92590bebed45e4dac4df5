@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e08f7bf2_37362356",
+        "filename": "src/sksl/dsl/DSLBlock.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-08T20:43:31Z",
+      "side": 1,
+      "message": "Initializer lists might not work here unfortunately, for the same reasons that we can\u0027t construct a vector of Expressions using an initializer list. (Const problems) \n\nWe might be able to make a similarly-behaving container using variadics, and hope that this generates less code?",
+      "parentUuid": "0f267bb7_901bc2f6",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2bdc38e7_b886e2ee",
         "filename": "src/sksl/dsl/DSL_core.cpp",
         "patchSetId": 40
