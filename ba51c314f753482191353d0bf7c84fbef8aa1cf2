@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f87bb645_93a1523d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-08T15:45:43Z",
+      "side": 1,
+      "message": "\u003e To me there is some benefit of having the two systems. When I use SkArena, I\u0027m responsible for destroying the objects. When I use SkArenaAlloc, everything is taken care of for me.\n\nI worry this line of thinking will set us up for major confusion later down the line, particularly when parts of the code base start to see both an SkArena and SkArenaAlloc at the same time.",
+      "parentUuid": "bbc55df4_5efcfb6b",
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a36c52b8_df54a8a9",
