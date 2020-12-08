@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a3b56ebe_95fe12c3",
+        "filename": "src/sksl/dsl/DSLBlock.h",
+        "patchSetId": 40
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-08T21:04:29Z",
+      "side": 1,
+      "message": "Yeah, I definitely don\u0027t want to hold things up on this point, just wanted to point out that it\u0027s been on my mind. (Influenced by the early dehydrator work, as well). As with other parts of the API - I\u0027m excited to make it as frictionless as possible, but if there are slight usability changes that result in drastic code-size changes, we\u0027re going to want to weigh those. Doing that now is basically impossible - we\u0027re really going to need a non-trivial amount of Skia code converted so we can get some statistically significant extrapolation of the impact.",
+      "parentUuid": "e08f7bf2_37362356",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 5
+      },
+      "revId": "3a4b13c8c768a67902a92590bebed45e4dac4df5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2bdc38e7_b886e2ee",
         "filename": "src/sksl/dsl/DSL_core.cpp",
         "patchSetId": 40
