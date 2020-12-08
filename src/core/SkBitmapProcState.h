@@ -15,8 +15,8 @@
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkBitmapController.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkMipmapAccessor.h"
 
 typedef SkFixed3232    SkFractionalInt;
 #define SkScalarToFractionalInt(x)  SkScalarToFixed3232(x)
