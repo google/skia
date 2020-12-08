@@ -930,26 +930,26 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         }
 
         args.fVertBuilder->codeAppend(R"(
-        float2 tangent, position;
+        float2 tangent, localCoord;
         eval_stroke_edge(P, numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
-                         tangent, position);
+                         tangent, localCoord);
 
         if (combinedEdgeID == 0) {
             // Edges at the beginning of their section use P[0] and tan0. This ensures crack-free
             // seaming between instances.
-            position = P[0];
+            localCoord = P[0];
             tangent = tan0;
         }
 
         if (combinedEdgeID == numCombinedSegments) {
             // Edges at the end of their section use P[1] and tan1. This ensures crack-free seaming
             // between instances.
-            position = P[3];
+            localCoord = P[3];
             tangent = tan1;
         }
 
         float2 ortho = normalize(float2(tangent.y, -tangent.x));
-        position += ortho * (uStrokeRadius * outset);)");
+        localCoord += ortho * (uStrokeRadius * outset);)");
 
         // Do the transform after tessellation. Stroke widths and normals are defined in
         // (pre-transform) local path space.
@@ -960,11 +960,13 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             fAffineMatrixUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix",
                     &affineMatrixName);
-            args.fVertBuilder->codeAppendf("position = float2x2(%s) * position + %s;",
+            args.fVertBuilder->codeAppendf("float2 devCoord = float2x2(%s) * localCoord + %s;",
                                            affineMatrixName, translateName);
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "devCoord");
+        } else {
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "localCoord");
         }
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "position");
+        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localCoord");
 
         // The fragment shader just outputs a uniform color.
         const char* colorUniformName;
