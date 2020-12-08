@@ -70,6 +70,30 @@
       },
       "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85a26d24_1e52b4c9",
+        "filename": "src/gpu/tessellate/GrStrokeOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-08T14:55:44Z",
+      "side": 1,
+      "message": "So this is all to protect the use of the stencil buffer, used in normal stencil ways? If so we definitely don\u0027t need any barrier. How is this any different from every other use of stencil like default path renderer?\n\nI feel like I\u0027m missing something important here cause this all seems very vanilla drawing to me.",
+      "parentUuid": "c7bc6af5_28c0b9b6",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 49
+      },
+      "revId": "22efb88d42895753688741b1ee44c7e1850738ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
