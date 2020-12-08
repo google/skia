@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbc55df4_5efcfb6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-08T15:38:36Z",
+      "side": 1,
+      "message": "I think the core of the idea is in needMoreBytes, and innerMake. The nice part is that I sync the alignment of fCapacity to be aligned with the raw data pointer fBytes. This allows most of the difficult calculation to be in ptrdiff_t space (the type of fCapacity) instead of pointer space. \n\nI do understand your point with keeping SkArenaAlloc, and I think that most of the ideas can be moved over, but it will still be much more complicated than SkArena. The idea of handing out destructor pointers can be fully implemented in SkAreanAlloc, and will make for faster allocations, and I do intend to move these ideas over.\n\nTo me there is some benefit of having the two systems. When I use SkArena, I\u0027m responsible for destroying the objects. When I use SkArenaAlloc, everything is taken care of for me.",
+      "parentUuid": "e6215944_df72fef8",
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a36c52b8_df54a8a9",
@@ -48,6 +66,30 @@
       "writtenOn": "2020-12-08T14:58:48Z",
       "side": 1,
       "message": "I do like the way SkArenaAlloc branches on std::is_trivially_destructible\u003cT\u003e::value to handle this POD/non-POD distinction for you.  Surely it\u0027s compiling away as if a constexpr-if for different T, right?\n\nI guess the idea here is that you get a different type back?  But why not use a unique_ptr with destroyer in both cases?  The destroyer will no-op out for POD T.",
+      "range": {
+        "startLine": 69,
+        "startChar": 22,
+        "endLine": 69,
+        "endChar": 62
+      },
+      "revId": "ba51c314f753482191353d0bf7c84fbef8aa1cf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3079af04_d4a1455d",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-08T15:38:36Z",
+      "side": 1,
+      "message": "\u003e I do like the way SkArenaAlloc branches on std::is_trivially_destructible\u003cT\u003e::value to handle this POD/non-POD distinction for you.  Surely it\u0027s compiling away as if a constexpr-if for different T, right?\n\u003e \nIt is compiling the constexpr-if out. I made the POD distinction because Ganesh uses POD data structures to make shortcuts in their code (basically not calling destructors). The SkArena API makes that practice safe and explicit. \n\n\u003e I guess the idea here is that you get a different type back?  But why not use a unique_ptr with destroyer in both cases?  The destroyer will no-op out for POD T.\nI did consider not having the makePOD case. It just results in a nop destroyer. But, this would make sharing the pointer in data structures a little confusing. You would get the unique_ptr back, and either call .release() to use the raw pointer, or use .get().",
+      "parentUuid": "a36c52b8_df54a8a9",
       "range": {
         "startLine": 69,
         "startChar": 22,
