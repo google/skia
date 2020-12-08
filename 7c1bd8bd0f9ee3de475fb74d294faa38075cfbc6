@@ -52,6 +52,24 @@
       "parentUuid": "d29ad31e_7ed681a4",
       "revId": "7c1bd8bd0f9ee3de475fb74d294faa38075cfbc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82bdfd86_e7917039",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-08T18:29:49Z",
+      "side": 1,
+      "message": "Hmmm... we should probably make sure we have at least one set of such SVG tests run on a FreeType / FontConfig backed native font bot. Otherwise this change isn\u0027t really getting tested. It looks like the list of bots doing svg tests is more or less\n\n    git grep SVG_VERSION -- infra/ | cut -d: -f1 | sort | uniq",
+      "parentUuid": "4ef2ee12_a7627b5a",
+      "revId": "7c1bd8bd0f9ee3de475fb74d294faa38075cfbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
