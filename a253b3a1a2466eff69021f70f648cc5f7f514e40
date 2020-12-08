@@ -88,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15116944_318ae4b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-08T14:30:20Z",
+      "side": 1,
+      "message": "I think that\u0027s legit.\n\nI\u0027m looking a new/diff versions of drawImage mostly to help me wean clients off of SkFilterQuality in the paint -- so I thought I\u0027d create an alternative that allows them to specify the samplingoptions directly.\n\n... but its a good point -- everything I\u0027m doing, they could do to create a shader.",
+      "parentUuid": "6f6e31b4_485329de",
+      "revId": "a253b3a1a2466eff69021f70f648cc5f7f514e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21f54813_8eafcbd3",
