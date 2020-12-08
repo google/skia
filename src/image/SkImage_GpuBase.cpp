@@ -310,27 +310,19 @@ bool SkImage_GpuBase::MakeTempTextureProxies(GrRecordingContext* rContext,
 }
 
 bool SkImage_GpuBase::RenderYUVAToRGBA(const GrCaps& caps,
-                                       GrRenderTargetContext* renderTargetContext,
-                                       const SkRect& rect, SkYUVColorSpace yuvColorSpace,
+                                       GrLRenderTargetContext* renderTargetContext,
+                                       SkYUVColorSpace yuvColorSpace,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        GrSurfaceProxyView views[4],
                                        const SkYUVAIndex yuvaIndices[4]) {
     SkASSERT(renderTargetContext);
-    if (!renderTargetContext->asSurfaceProxy()) {
-        return false;
-    }
-
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto fp = GrYUVtoRGBEffect::Make(views, yuvaIndices, yuvColorSpace,
                                      GrSamplerState::Filter::kNearest, caps);
     if (colorSpaceXform) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
     }
-    paint.setColorFragmentProcessor(std::move(fp));
-
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+    renderTargetContext->fillSrcMode(std::move(fp));
     return true;
 }
 

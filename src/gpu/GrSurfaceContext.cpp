@@ -44,8 +44,6 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
 
     std::unique_ptr<GrSurfaceContext> surfaceContext;
     if (proxy->asRenderTargetProxy()) {
-        SkASSERT(info.alphaType() == kPremul_SkAlphaType ||
-                 info.alphaType() == kOpaque_SkAlphaType);
         // Will we ever want a swizzle that is not the default write swizzle for the format and
         // colorType here? If so we will need to manually pass that in.
         GrSwizzle writeSwizzle;
@@ -54,12 +52,19 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                                                                    info.colorType());
         }
         GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
-        surfaceContext = std::make_unique<GrRenderTargetContext>(context,
-                                                                 std::move(readView),
-                                                                 std::move(writeView),
-                                                                 info.colorType(),
-                                                                 info.refColorSpace(),
-                                                                 /*surface props*/ nullptr);
+        if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
+            surfaceContext = std::make_unique<GrRenderTargetContext>(context,
+                                                                     std::move(readView),
+                                                                     std::move(writeView),
+                                                                     info.colorType(),
+                                                                     info.refColorSpace(),
+                                                                     /*surface props*/ nullptr);
+        } else {
+            surfaceContext = std::make_unique<GrLRenderTargetContext>(context,
+                                                                      std::move(readView),
+                                                                      std::move(writeView),
+                                                                      info);
+        }
     } else {
         surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), info);
     }
@@ -236,11 +241,14 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
             GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
                                             ? GrColorType::kRGBA_8888
                                             : this->colorInfo().colorType();
-            tempCtx = GrRenderTargetContext::Make(
-                    dContext, colorType, this->colorInfo().refColorSpace(), SkBackingFit::kApprox,
-                    dstInfo.dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo,
-                    kTopLeft_GrSurfaceOrigin);
-            if (!tempCtx) {
+            SkAlphaType alphaType = canvas2DFastPath ? dstInfo.alphaType()
+                                                     : this->colorInfo().alphaType();
+            GrImageInfo tempInfo(colorType,
+                                 alphaType,
+                                 this->colorInfo().refColorSpace(),
+                                 dstInfo.dimensions());
+            auto rtc = GrLRenderTargetContext::Make(dContext, tempInfo, SkBackingFit::kApprox);
+            if (!rtc) {
                 return false;
             }
 
@@ -252,25 +260,17 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
                     fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                     dstInfo = dstInfo.makeColorType(GrColorType::kRGBA_8888);
                 }
-                // The render target context is incorrectly tagged as kPremul even though we're
-                // writing unpremul data thanks to the PMToUPM effect. Fake out the dst alpha type
-                // so we don't double unpremul.
-                dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
             } else {
                 fp = GrTextureEffect::Make(this->readSurfaceView(), this->colorInfo().alphaType());
             }
             if (!fp) {
                 return false;
             }
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.setColorFragmentProcessor(std::move(fp));
-
-            tempCtx->asRenderTargetContext()->fillRectToRect(
-                    nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                    SkRect::MakeWH(dstInfo.width(), dstInfo.height()),
-                    SkRect::MakeXYWH(pt.fX, pt.fY, dstInfo.width(), dstInfo.height()));
+            rtc->fillIRectSrcMode(SkIRect::MakePtSize(pt, dstInfo.dimensions()),
+                                  SkIRect::MakeSize(dstInfo.dimensions()),
+                                  std::move(fp));
             pt = {0, 0};
+            tempCtx = std::move(rtc);
         } else {
             auto restrictions = this->caps()->getDstCopyRestrictions(this->asRenderTargetProxy(),
                                                                      this->colorInfo().colorType());
@@ -403,7 +403,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
     bool canvas2DFastPath = !caps->avoidWritePixelsFastPath() && premul && !needColorConversion &&
                             (srcInfo.colorType() == GrColorType::kRGBA_8888 ||
                              srcInfo.colorType() == GrColorType::kBGRA_8888) &&
-                            SkToBool(this->asRenderTargetContext()) &&
+                            this->asLRenderTargetContext() &&
                             (dstColorType == GrColorType::kRGBA_8888 ||
                              dstColorType == GrColorType::kBGRA_8888) &&
                             rgbaDefaultFormat.isValid() &&
@@ -433,7 +433,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
         // we can use a draw instead which doesn't have this origin restriction. Thus for render
         // targets we will use top left and otherwise we will make the origins match.
         GrSurfaceOrigin tempOrigin =
-                this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
+                this->asLRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : this->origin();
         auto tempProxy = dContext->priv().proxyProvider()->createProxy(
                 format, srcInfo.dimensions(), GrRenderable::kNo, 1, GrMipmapped::kNo,
                 SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
@@ -454,7 +454,7 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
             return false;
         }
 
-        if (this->asRenderTargetContext()) {
+        if (this->asLRenderTargetContext()) {
             std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = dContext->priv().createUPMToPMEffect(
@@ -469,13 +469,10 @@ bool GrSurfaceContext::writePixels(GrDirectContext* dContext, const GrImageInfo&
             if (!fp) {
                 return false;
             }
-            GrPaint paint;
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-            paint.setColorFragmentProcessor(std::move(fp));
-            this->asRenderTargetContext()->fillRectToRect(
-                    nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                    SkRect::MakeXYWH(pt.fX, pt.fY, srcInfo.width(), srcInfo.height()),
-                    SkRect::MakeWH(srcInfo.width(), srcInfo.height()));
+            this->asLRenderTargetContext()->fillIRectSrcMode(
+                    SkIRect::MakeSize(srcInfo.dimensions()),
+                    SkIRect::MakePtSize(pt, srcInfo.dimensions()),
+                    std::move(fp));
         } else {
             SkIRect srcRect = SkIRect::MakeWH(srcInfo.width(), srcInfo.height());
             SkIPoint dstPoint = SkIPoint::Make(pt.fX, pt.fY);
