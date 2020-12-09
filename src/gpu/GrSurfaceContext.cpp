@@ -21,7 +21,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
@@ -54,12 +54,12 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                                                                    info.colorType());
         }
         GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
-        surfaceContext = std::make_unique<GrRenderTargetContext>(context,
-                                                                 std::move(readView),
-                                                                 std::move(writeView),
-                                                                 info.colorType(),
-                                                                 info.refColorSpace(),
-                                                                 /*surface props*/ nullptr);
+        surfaceContext = std::make_unique<GrSurfaceDrawContext>(context,
+                                                                std::move(readView),
+                                                                std::move(writeView),
+                                                                info.colorType(),
+                                                                info.refColorSpace(),
+                                                                /*surface props*/ nullptr);
     } else {
         surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), info);
     }
@@ -236,7 +236,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
             GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
                                             ? GrColorType::kRGBA_8888
                                             : this->colorInfo().colorType();
-            tempCtx = GrRenderTargetContext::Make(
+            tempCtx = GrSurfaceDrawContext::Make(
                     dContext, colorType, this->colorInfo().refColorSpace(), SkBackingFit::kApprox,
                     dstInfo.dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo,
                     kTopLeft_GrSurfaceOrigin);
@@ -578,7 +578,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         return;
     }
 
-    std::unique_ptr<GrRenderTargetContext> tempRTC;
+    std::unique_ptr<GrSurfaceDrawContext> tempRTC;
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
@@ -612,10 +612,10 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
                 SkASSERT(texProxyView.asTextureProxy());
                 srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
             }
-            tempRTC = GrRenderTargetContext::Make(dContext, this->colorInfo().colorType(),
-                                                  info.refColorSpace(), SkBackingFit::kApprox,
-                                                  srcRect.size(), 1, GrMipmapped::kNo,
-                                                  GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            tempRTC = GrSurfaceDrawContext::Make(dContext, this->colorInfo().colorType(),
+                                                 info.refColorSpace(), SkBackingFit::kApprox,
+                                                 srcRect.size(), 1, GrMipmapped::kNo,
+                                                 GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(callbackContext, nullptr);
                 return;
@@ -848,7 +848,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                 kPremul_SkAlphaType);
         if (xform) {
             SkRect srcRectToDraw = SkRect::MakeXYWH(x, y, srcRect.width(), srcRect.height());
-            auto tempRTC = GrRenderTargetContext::Make(
+            auto tempRTC = GrSurfaceDrawContext::Make(
                     dContext, this->colorInfo().colorType(), dstColorSpace, SkBackingFit::kApprox,
                     dstSize, 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
@@ -875,15 +875,15 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         }
     }
 
-    auto yRTC = GrRenderTargetContext::MakeWithFallback(
+    auto yRTC = GrSurfaceDrawContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, dstSize, 1,
             GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     int halfW = dstSize.width() /2;
     int halfH = dstSize.height()/2;
-    auto uRTC = GrRenderTargetContext::MakeWithFallback(
+    auto uRTC = GrSurfaceDrawContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, {halfW, halfH},
             1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-    auto vRTC = GrRenderTargetContext::MakeWithFallback(
+    auto vRTC = GrSurfaceDrawContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, {halfW, halfH},
             1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!yRTC || !uRTC || !vRTC) {
@@ -1074,11 +1074,11 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
             this->readSurfaceView(), dstPoint);
 }
 
-std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageInfo& info,
-                                                                 GrSurfaceOrigin origin,
-                                                                 SkIRect srcRect,
-                                                                 RescaleGamma rescaleGamma,
-                                                                 SkFilterQuality rescaleQuality) {
+std::unique_ptr<GrSurfaceDrawContext> GrSurfaceContext::rescale(const GrImageInfo& info,
+                                                                GrSurfaceOrigin origin,
+                                                                SkIRect srcRect,
+                                                                RescaleGamma rescaleGamma,
+                                                                SkFilterQuality rescaleQuality) {
     auto rtProxy = this->asRenderTargetProxy();
     if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
         return nullptr;
@@ -1107,8 +1107,8 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
 
     // Within a rescaling pass A is the input (if not null) and B is the output. At the end of the
     // pass B is moved to A. If 'this' is the input on the first pass then tempA is null.
-    std::unique_ptr<GrRenderTargetContext> tempA;
-    std::unique_ptr<GrRenderTargetContext> tempB;
+    std::unique_ptr<GrSurfaceDrawContext> tempA;
+    std::unique_ptr<GrSurfaceDrawContext> tempB;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
@@ -1118,7 +1118,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
         auto xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(), srcAlphaType, cs.get(),
                                              kPremul_SkAlphaType);
         // We'll fall back to kRGBA_8888 if half float not supported.
-        auto linearRTC = GrRenderTargetContext::MakeWithFallback(
+        auto linearRTC = GrSurfaceDrawContext::MakeWithFallback(
                 fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kApprox, srcRect.size(), 1,
                 GrMipmapped::kNo, GrProtected::kNo, origin);
         if (!linearRTC) {
@@ -1171,9 +1171,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
                                             input->colorInfo().alphaType(), cs.get(),
                                             info.alphaType());
         }
-        tempB = GrRenderTargetContext::MakeWithFallback(fContext, colorType, std::move(cs),
-                                                        SkBackingFit::kApprox, nextDims, 1,
-                                                        GrMipmapped::kNo, GrProtected::kNo, origin);
+        tempB = GrSurfaceDrawContext::MakeWithFallback(fContext, colorType, std::move(cs),
+                                                       SkBackingFit::kApprox, nextDims, 1,
+                                                       GrMipmapped::kNo, GrProtected::kNo, origin);
         if (!tempB) {
             return nullptr;
         }

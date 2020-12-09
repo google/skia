@@ -24,7 +24,7 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/SkGr.h"
@@ -205,7 +205,7 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
             this->dimensions(), 1, GrMipmapped::kNo, GrProtected::kNo);
     if (!renderTargetContext) {

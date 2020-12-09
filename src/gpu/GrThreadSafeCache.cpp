@@ -10,8 +10,8 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 GrThreadSafeCache::VertexData::~VertexData () {
     this->reset();
@@ -325,7 +325,8 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     constexpr int kSampleCnt = 1;
-    auto [newCT, format] = GrRenderTargetContext::GetFallbackColorTypeAndFormat(
+    auto [newCT, format] =
+            GrSurfaceDrawContext::GetFallbackColorTypeAndFormat(
             dContext, origCT, kSampleCnt);
 
     if (newCT == GrColorType::kUnknown) {
@@ -362,7 +363,7 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
             GrSurfaceProxy::UseAllocator::kYes);
 
     // TODO: It seems like this 'newCT' usage should be 'origCT' but this is
-    // what GrRenderTargetContext::MakeWithFallback does
+    // what GrSurfaceDrawContext::MakeWithFallback does
     GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, newCT);
 
     return {{std::move(proxy), origin, swizzle}, std::move(trampoline)};

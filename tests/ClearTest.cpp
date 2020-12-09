@@ -23,7 +23,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -31,7 +31,7 @@
 #include <cstdint>
 #include <memory>
 
-static bool check_rect(GrDirectContext* dContext, GrRenderTargetContext* rtc, const SkIRect& rect,
+static bool check_rect(GrDirectContext* dContext, GrSurfaceDrawContext* rtc, const SkIRect& rect,
                        uint32_t expectedValue, uint32_t* actualValue, int* failX, int* failY) {
     int w = rect.width();
     int h = rect.height();
@@ -61,8 +61,8 @@ static bool check_rect(GrDirectContext* dContext, GrRenderTargetContext* rtc, co
     return true;
 }
 
-std::unique_ptr<GrRenderTargetContext> newRTC(GrRecordingContext* rContext, int w, int h) {
-    return GrRenderTargetContext::Make(
+std::unique_ptr<GrSurfaceDrawContext> newRTC(GrRecordingContext* rContext, int w, int h) {
+    return GrSurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {w, h});
 }
 
@@ -71,7 +71,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
     static const int kH = 10;
 
     SkIRect fullRect = SkIRect::MakeWH(kW, kH);
-    std::unique_ptr<GrRenderTargetContext> rtContext;
+    std::unique_ptr<GrSurfaceDrawContext> rtContext;
 
     // A rectangle that is inset by one on all sides and the 1-pixel wide rectangles that surround
     // it.

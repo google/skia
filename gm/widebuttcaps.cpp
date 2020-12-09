@@ -98,7 +98,8 @@ class WideButtCaps_tess_segs_5 : public skiagm::GpuGM {
                                                         (int)GpuPathRenderers::kTessellation);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* rtc, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* context,
+                      GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
         if (!context->priv().caps()->shaderCaps()->tessellationSupport() ||
             !GrTessellationPathRenderer::IsSupported(*context->priv().caps())) {

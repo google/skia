@@ -21,7 +21,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "tools/Resources.h"
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
                            3 * 256 + 40, 256 + 128 + 30) {

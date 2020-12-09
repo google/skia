@@ -180,7 +180,7 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
                                                         (int)GpuPathRenderers::kTessellation);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         if (!context->priv().caps()->shaderCaps()->tessellationSupport() ||
             !GrTessellationPathRenderer::IsSupported(*context->priv().caps())) {

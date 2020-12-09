@@ -15,7 +15,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static constexpr GrUserStencilSettings kCoverPass{

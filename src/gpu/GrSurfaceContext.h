@@ -23,7 +23,7 @@
 class GrAuditTrail;
 class GrDrawingManager;
 class GrRecordingContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
@@ -37,13 +37,13 @@ struct SkIRect;
  */
 class GrSurfaceContext {
 public:
-    // If the passed in GrSurfaceProxy is renderable this will return a GrRenderTargetContext,
+    // If the passed in GrSurfaceProxy is renderable this will return a GrSurfaceDrawContext,
     // otherwise it will return a GrSurfaceContext.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   GrSurfaceProxyView readView,
                                                   const GrColorInfo&);
 
-    // Makes either a GrSurfaceContext or a GrRenderTargetContext, depending on GrRenderable.
+    // Makes either a GrSurfaceContext or a GrSurfaceDrawContext, depending on GrRenderable.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   const GrImageInfo&,
                                                   const GrBackendFormat&,
@@ -158,7 +158,7 @@ public:
         return fReadView.asRenderTargetProxyRef();
     }
 
-    virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
+    virtual GrSurfaceDrawContext* asRenderTargetContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
@@ -167,11 +167,11 @@ public:
      * different size than srcRect. Though, it could be relaxed to allow non-scaling color
      * conversions.
      */
-    std::unique_ptr<GrRenderTargetContext> rescale(const GrImageInfo& info,
-                                                   GrSurfaceOrigin,
-                                                   SkIRect srcRect,
-                                                   SkImage::RescaleGamma,
-                                                   SkFilterQuality);
+    std::unique_ptr<GrSurfaceDrawContext> rescale(const GrImageInfo& info,
+                                                  GrSurfaceOrigin,
+                                                  SkIRect srcRect,
+                                                  SkImage::RescaleGamma,
+                                                  SkFilterQuality);
 
     GrAuditTrail* auditTrail();
 

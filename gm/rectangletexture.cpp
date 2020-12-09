@@ -40,7 +40,7 @@
 #include <cstdint>
 #include <memory>
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 namespace skiagm {
 class RectangleTexture : public GpuGM {
@@ -147,7 +147,7 @@ private:
         fSmallImg = nullptr;
     }
 
-    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas,
                       SkString*) override {
         SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
 

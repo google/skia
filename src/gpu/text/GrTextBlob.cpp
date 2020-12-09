@@ -17,8 +17,8 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -73,7 +73,7 @@ GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     SkUNREACHABLE;
 }
 
-SkPMColor4f calculate_colors(GrRenderTargetContext* rtc,
+SkPMColor4f calculate_colors(GrSurfaceDrawContext* rtc,
                              const SkPaint& paint,
                              const SkMatrixProvider& matrix,
                              GrMaskFormat grMaskFormat,
@@ -177,7 +177,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) const override;
+              GrSurfaceDrawContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
@@ -214,7 +214,7 @@ PathSubRun::PathSubRun(bool isAntiAliased,
 void PathSubRun::draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
                       const SkGlyphRunList& glyphRunList,
-                      GrRenderTargetContext* rtc) const {
+                      GrSurfaceDrawContext* rtc) const {
     SkASSERT(!fPaths.empty());
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
@@ -463,7 +463,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) const override;
+              GrSurfaceDrawContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
@@ -477,7 +477,7 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) const override;
+                    GrSurfaceDrawContext* rtc) const override;
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
@@ -565,7 +565,8 @@ GrSubRun* DirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawables
 }
 
 void DirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMatrix,
-                            const SkGlyphRunList& glyphRunList, GrRenderTargetContext* rtc) const{
+                            const SkGlyphRunList& glyphRunList,
+                            GrSurfaceDrawContext* rtc) const{
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
         rtc->addDrawOp(drawingClip, std::move(op));
@@ -604,7 +605,7 @@ int DirectMaskSubRun::glyphCount() const {
 std::tuple<const GrClip*, GrOp::Owner>
 DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& viewMatrix,
                                   const SkGlyphRunList& glyphRunList,
-                                  GrRenderTargetContext* rtc) const {
+        GrSurfaceDrawContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
@@ -829,7 +830,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) const override;
+              GrSurfaceDrawContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
@@ -839,7 +840,7 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) const override;
+                    GrSurfaceDrawContext* rtc) const override;
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
@@ -914,7 +915,7 @@ GrSubRun* TransformedMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& draw
 void TransformedMaskSubRun::draw(const GrClip* clip,
                                  const SkMatrixProvider& viewMatrix,
                                  const SkGlyphRunList& glyphRunList,
-                                 GrRenderTargetContext* rtc) const {
+                                 GrSurfaceDrawContext* rtc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
         rtc->addDrawOp(drawingClip, std::move(op));
@@ -934,7 +935,7 @@ std::tuple<const GrClip*, GrOp::Owner>
 TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                        const SkMatrixProvider& viewMatrix,
                                        const SkGlyphRunList& glyphRunList,
-                                       GrRenderTargetContext* rtc) const {
+                                       GrSurfaceDrawContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
 
     SkPoint drawOrigin = glyphRunList.origin();
@@ -1083,7 +1084,7 @@ public:
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
               const SkGlyphRunList& glyphRunList,
-              GrRenderTargetContext* rtc) const override;
+              GrSurfaceDrawContext* rtc) const override;
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
@@ -1093,7 +1094,7 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) const override;
+                    GrSurfaceDrawContext* rtc) const override;
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
@@ -1187,7 +1188,7 @@ std::tuple<const GrClip*, GrOp::Owner >
 SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             const SkMatrixProvider& viewMatrix,
                             const SkGlyphRunList& glyphRunList,
-                            GrRenderTargetContext* rtc) const {
+                            GrSurfaceDrawContext* rtc) const {
     SkASSERT(this->glyphCount() != 0);
     SkASSERT(!viewMatrix.localToDevice().hasPerspective());
 
@@ -1247,7 +1248,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
 void SDFTSubRun::draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
                       const SkGlyphRunList& glyphRunList,
-                      GrRenderTargetContext* rtc) const {
+                      GrSurfaceDrawContext* rtc) const {
     auto[drawingClip, op] = this->makeAtlasTextOp(clip, viewMatrix, glyphRunList, rtc);
     if (op != nullptr) {
         rtc->addDrawOp(drawingClip, std::move(op));

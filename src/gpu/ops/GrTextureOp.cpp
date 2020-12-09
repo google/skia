@@ -177,7 +177,7 @@ static void normalize_src_quad(const NormalizationParams& params,
 // Count the number of proxy runs in the entry set. This usually is already computed by
 // SkGpuDevice, but when the BatchLengthLimiter chops the set up it must determine a new proxy count
 // for each split.
-static int proxy_run_count(const GrRenderTargetContext::TextureSetEntry set[], int count) {
+static int proxy_run_count(const GrSurfaceDrawContext::TextureSetEntry set[], int count) {
     int actualProxyRunCount = 0;
     const GrSurfaceProxy* lastProxy = nullptr;
     for (int i = 0; i < count; ++i) {
@@ -237,7 +237,7 @@ public:
     }
 
     static GrOp::Owner Make(GrRecordingContext* context,
-                            GrRenderTargetContext::TextureSetEntry set[],
+                            GrSurfaceDrawContext::TextureSetEntry set[],
                             int cnt,
                             int proxyRunCnt,
                             GrSamplerState::Filter filter,
@@ -473,7 +473,7 @@ private:
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
-    TextureOp(GrRenderTargetContext::TextureSetEntry set[],
+    TextureOp(GrSurfaceDrawContext::TextureSetEntry set[],
               int cnt,
               int proxyRunCnt,
               GrSamplerState::Filter filter,
@@ -1178,7 +1178,7 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class GrTextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(GrRenderTargetContext* rtc,
+    BatchSizeLimiter(GrSurfaceDrawContext* rtc,
                      const GrClip* clip,
                      GrRecordingContext* context,
                      int numEntries,
@@ -1199,7 +1199,7 @@ public:
             , fTextureColorSpaceXform(textureColorSpaceXform)
             , fNumLeft(numEntries) {}
 
-    void createOp(GrRenderTargetContext::TextureSetEntry set[],
+    void createOp(GrSurfaceDrawContext::TextureSetEntry set[],
                   int clumpSize,
                   GrAAType aaType) {
         int clumpProxyCount = proxy_run_count(&set[fNumClumped], clumpSize);
@@ -1224,7 +1224,7 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    GrRenderTargetContext*      fRTC;
+    GrSurfaceDrawContext*       fRTC;
     const GrClip*               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;
@@ -1239,10 +1239,10 @@ private:
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
+void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
                                    const GrClip* clip,
                                    GrRecordingContext* context,
-                                   GrRenderTargetContext::TextureSetEntry set[],
+                                   GrSurfaceDrawContext::TextureSetEntry set[],
                                    int cnt,
                                    int proxyRunCnt,
                                    GrSamplerState::Filter filter,
