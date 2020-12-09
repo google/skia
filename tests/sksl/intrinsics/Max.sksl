@@ -1,0 +1,1 @@
+in half a, b; void main() { sk_FragColor.x = max(a, b); }

@@ -1,0 +1,1 @@
+in half a, b, c; void main() { sk_FragColor.x = refract(a, b, c); }

@@ -1,0 +1,1 @@
+in half4 a, b; void main() { sk_FragColor.x = greaterThanEqual(a, b).x ? 1 : 0; }

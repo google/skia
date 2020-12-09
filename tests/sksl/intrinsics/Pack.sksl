@@ -1,0 +1,9 @@
+in half2 a;
+in half4 b;
+void main() {
+    sk_FragColor.x = half(packHalf2x16(a));
+    sk_FragColor.x = half(packUnorm2x16(a));
+    sk_FragColor.x = half(packSnorm2x16(a));
+    sk_FragColor.x = half(packUnorm4x8(b));
+    sk_FragColor.x = half(packSnorm4x8(b));
+}

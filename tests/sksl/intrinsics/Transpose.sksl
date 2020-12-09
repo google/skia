@@ -1,0 +1,1 @@
+half4x4 a; void main() { sk_FragColor = transpose(a)[0]; }

@@ -1,0 +1,1 @@
+in half a; void main() { sk_FragColor.x = fwidth(a); }

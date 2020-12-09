@@ -1,0 +1,1 @@
+bool4 a; void main() { sk_FragColor.x = not(a).x ? 1 : 0; }
