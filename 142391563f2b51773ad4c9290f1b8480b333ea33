@@ -22,6 +22,30 @@
       },
       "revId": "142391563f2b51773ad4c9290f1b8480b333ea33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5962d983_18f26c4e",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 41621,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-12-09T15:30:39Z",
+      "side": 1,
+      "message": "This is the reason for the current breakage.  There is no .30 for mac-amd64.",
+      "parentUuid": "17633c2c_f6dbf1a1",
+      "range": {
+        "startLine": 41621,
+        "startChar": 10,
+        "endLine": 41621,
+        "endChar": 49
+      },
+      "revId": "142391563f2b51773ad4c9290f1b8480b333ea33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
