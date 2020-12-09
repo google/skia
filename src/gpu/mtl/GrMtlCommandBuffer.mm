@@ -36,15 +36,12 @@ GrMtlCommandBuffer::~GrMtlCommandBuffer() {
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
-    if (nil != fActiveRenderCommandEncoder) {
-        [fActiveRenderCommandEncoder endEncoding];
-        fActiveRenderCommandEncoder = nil;
+    if (fActiveBlitCommandEncoder) {
+        return fActiveBlitCommandEncoder;
     }
 
-    if (nil == fActiveBlitCommandEncoder) {
-        fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
-    }
-    fPreviousRenderPassDescriptor = nil;
+    this->endAllEncoding();
+    fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
     fHasWork = true;
 
     return fActiveBlitCommandEncoder;
