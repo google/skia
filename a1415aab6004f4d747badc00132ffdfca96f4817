@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f382b2cb_b5d54f88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-12-09T14:10:54Z",
+      "side": 1,
+      "message": "Beautiful!",
+      "revId": "a1415aab6004f4d747badc00132ffdfca96f4817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd8a8965_e0755851",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-12-09T14:10:54Z",
+      "side": 1,
+      "message": "Can we use `SkSpan\u003cconst GrBackendTexture\u003e` ?",
+      "revId": "a1415aab6004f4d747badc00132ffdfca96f4817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
