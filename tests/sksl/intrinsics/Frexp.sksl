@@ -1,0 +1,1 @@
+in float a; int b; void main() { sk_FragColor.x = half(frexp(a, b)); }
