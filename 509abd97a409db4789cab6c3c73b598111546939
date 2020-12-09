@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b29e314_7d1abf03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-09T16:53:32Z",
+      "side": 1,
+      "message": "Hey Mike,\n\nI followed up on your idea on writing SkArenaAlloc in terms of SkArena. The working name is SkArenaAlloc2. Currently, SkArena is a private super class of SkArenaAlloc2. It would be nice to have both interfaces available, but that will take some serious method naming considerations.",
+      "revId": "509abd97a409db4789cab6c3c73b598111546939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
