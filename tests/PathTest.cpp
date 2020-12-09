@@ -5803,3 +5803,12 @@ DEF_TEST(pathedger, r) {
     test_addRect_and_trailing_lineTo(r);
     test_addPath_and_injected_moveTo(r);
 }
+
+DEF_TEST(path_addpath_crbug_1153516, r) {
+    // When we add a path to another path, we need to sniff out in case the argument ended
+    // with a kClose, in which case we need to fiddle with our lastMoveIndex (as ::close() does)
+    SkPath p1, p2;
+    p1.addRect({143,226,200,241});
+    p1.addPath(p1);
+    p1.lineTo(262,513); // this should not assert
+}
