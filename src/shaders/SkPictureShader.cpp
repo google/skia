@@ -244,7 +244,8 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
             return nullptr;
         }
 
-        tileShader = tileImage->makeShader(fTmx, fTmy);
+        tileShader = tileImage->makeShader(fTmx, fTmy, SkSamplingOptions(SkFilterMode::kLinear,
+                                                                         SkMipmapMode::kNone));
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
         fAddedToCache.store(true);
