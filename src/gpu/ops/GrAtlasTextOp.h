@@ -66,7 +66,7 @@ public:
     static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
 #if GR_TEST_UTILS
-    static GrOp::Owner CreateOpTestingOnly(GrRenderTargetContext* rtc,
+    static GrOp::Owner CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
                                            const SkPaint& skPaint,
                                            const SkFont& font,
                                            const SkMatrixProvider& mtxProvider,

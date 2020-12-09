@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRenderTargetContext_DEFINED
-#define GrRenderTargetContext_DEFINED
+#ifndef GrSurfaceDrawContext_DEFINED
+#define GrSurfaceDrawContext_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
@@ -58,9 +58,9 @@ class SkVertices;
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrRenderTargetContext : public GrSurfaceContext {
+class GrSurfaceDrawContext : public GrSurfaceContext {
 public:
-    static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
+    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                        GrColorType,
                                                        sk_sp<SkColorSpace>,
                                                        sk_sp<GrSurfaceProxy>,
@@ -69,7 +69,7 @@ public:
                                                        bool flushTimeOpsTask = false);
 
     /* Uses the default texture format for the color type */
-    static std::unique_ptr<GrRenderTargetContext> Make(
+    static std::unique_ptr<GrSurfaceDrawContext> Make(
             GrRecordingContext*,
             GrColorType,
             sk_sp<SkColorSpace>,
@@ -86,7 +86,7 @@ public:
      * Takes custom swizzles rather than determining swizzles from color type and format.
      * It will have color type kUnknown.
      */
-    static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
+    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                        sk_sp<SkColorSpace>,
                                                        SkBackingFit,
                                                        SkISize dimensions,
@@ -108,7 +108,7 @@ public:
     // fails. The fallback GrColorType will have at least the number of channels and precision per
     // channel as the passed in GrColorType. It may also swizzle the changes (e.g., BGRA -> RGBA).
     // SRGB-ness will be preserved.
-    static std::unique_ptr<GrRenderTargetContext> MakeWithFallback(
+    static std::unique_ptr<GrSurfaceDrawContext> MakeWithFallback(
             GrRecordingContext*,
             GrColorType,
             sk_sp<SkColorSpace>,
@@ -125,13 +125,13 @@ public:
     typedef void* ReleaseContext;
     typedef void (*ReleaseProc)(ReleaseContext);
 
-    // Creates a GrRenderTargetContext that wraps the passed in GrBackendTexture.
-    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTexture(
+    // Creates a GrSurfaceDrawContext that wraps the passed in GrBackendTexture.
+    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendTexture(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendRenderTarget(
+    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendRenderTarget(
             GrRecordingContext*,
             GrColorType,
             sk_sp<SkColorSpace>,
@@ -140,15 +140,15 @@ public:
             const SkSurfaceProps*,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    static std::unique_ptr<GrRenderTargetContext> MakeFromVulkanSecondaryCB(
+    static std::unique_ptr<GrSurfaceDrawContext> MakeFromVulkanSecondaryCB(
             GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
             const SkSurfaceProps*);
 
-    GrRenderTargetContext(GrRecordingContext*, GrSurfaceProxyView readView,
+    GrSurfaceDrawContext(GrRecordingContext*, GrSurfaceProxyView readView,
                           GrSurfaceProxyView writeView, GrColorType, sk_sp<SkColorSpace>,
                           const SkSurfaceProps*, bool flushTimeOpsTask = false);
 
-    ~GrRenderTargetContext() override;
+    ~GrSurfaceDrawContext() override;
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
@@ -667,7 +667,7 @@ public:
     bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
 
     /**
-     *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
+     *  The next time this GrSurfaceDrawContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
      */
     bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
@@ -686,7 +686,7 @@ public:
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-    GrRenderTargetContext* asRenderTargetContext() override { return this; }
+    GrSurfaceDrawContext* asRenderTargetContext() override { return this; }
 
 #if GR_TEST_UTILS
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }

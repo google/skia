@@ -533,7 +533,7 @@ private:
 
 }  // anonymous namespace
 
-bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
+bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* renderTargetContext,
                                              GrPaint&& paint,
                                              GrAAType aaType,
                                              const GrUserStencilSettings& userStencilSettings,

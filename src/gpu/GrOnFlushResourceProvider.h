@@ -17,7 +17,7 @@
 
 class GrDrawingManager;
 class GrOnFlushResourceProvider;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class GrSurfaceProxy;
 class SkColorSpace;
 class SkSurfaceProps;
@@ -62,7 +62,7 @@ public:
 
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
+    std::unique_ptr<GrSurfaceDrawContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                                    GrSurfaceOrigin, GrColorType,
                                                                    sk_sp<SkColorSpace>,
                                                                    const SkSurfaceProps*);

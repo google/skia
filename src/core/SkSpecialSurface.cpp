@@ -125,7 +125,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
     SkSpecialSurface_Gpu(GrRecordingContext* context,
-                         std::unique_ptr<GrRenderTargetContext> renderTargetContext,
+                         std::unique_ptr<GrSurfaceDrawContext> renderTargetContext,
                          int width, int height, const SkIRect& subset)
             : INHERITED(subset, &renderTargetContext->surfaceProps())
             , fReadView(renderTargetContext->readSurfaceView()) {
@@ -171,7 +171,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
     if (!context) {
         return nullptr;
     }
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height}, 1,
             GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
             props);

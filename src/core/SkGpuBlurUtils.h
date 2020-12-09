@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 class GrRecordingContext;
 class GrTexture;
@@ -41,7 +41,7 @@ namespace SkGpuBlurUtils {
  * @param fit             backing fit for the returned render target context
  * @return                The renderTargetContext containing the blurred result.
  */
-std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                                     GrSurfaceProxyView srcView,
                                                     GrColorType srcColorType,
                                                     SkAlphaType srcAlphaType,

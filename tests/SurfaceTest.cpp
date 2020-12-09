@@ -22,8 +22,8 @@
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGpuDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
@@ -691,7 +691,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dCon
 
 static bool supports_readpixels(const GrCaps* caps, SkSurface* surface) {
     auto surfaceGpu = static_cast<SkSurface_Gpu*>(surface);
-    GrRenderTargetContext* context = surfaceGpu->getDevice()->accessRenderTargetContext();
+    GrSurfaceDrawContext* context = surfaceGpu->getDevice()->accessRenderTargetContext();
     GrRenderTarget* rt = context->accessRenderTarget();
     if (!rt) {
         return false;

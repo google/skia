@@ -19,10 +19,10 @@
 #include "src/gpu/GrGpuResourceCacheAccess.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
@@ -137,7 +137,7 @@ DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
 DRAW_OP_TEST_EXTERN(TextureOp);
 
-void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
+void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* renderTargetContext, GrPaint&& paint) {
     auto context = renderTargetContext->recordingContext();
     using MakeDrawOpFn = GrOp::Owner (GrPaint&&, SkRandom*,
                                       GrRecordingContext*, int numSamples);

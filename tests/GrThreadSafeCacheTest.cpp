@@ -18,8 +18,8 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -35,8 +35,8 @@ static SkImageInfo default_ii(int wh) {
     return SkImageInfo::Make(wh, wh, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 }
 
-static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rContext, int wh) {
-    return GrRenderTargetContext::Make(rContext,
+static std::unique_ptr<GrSurfaceDrawContext> new_RTC(GrRecordingContext* rContext, int wh) {
+    return GrSurfaceDrawContext::Make(rContext,
                                        GrColorType::kRGBA_8888,
                                        nullptr,
                                        SkBackingFit::kExact,
@@ -640,7 +640,7 @@ bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats
                                  const GrSurfaceProxyView& lazyView,
                                  sk_sp<GrThreadSafeCache::Trampoline> trampoline) {
 
-    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext, wh);
+    std::unique_ptr<GrSurfaceDrawContext> rtc = new_RTC(dContext, wh);
 
     GrPaint paint;
     paint.setColor4f({0.0f, 0.0f, 1.0f, 1.0f});

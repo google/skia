@@ -36,7 +36,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();
@@ -82,7 +82,7 @@ class FontRegenGM : public skiagm::GpuGM {
         fBlobs[2] = make_blob(kTexts[2], font);
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         auto direct = context->asDirectContext();
         if (!direct) {
             return;
@@ -143,7 +143,7 @@ class BadAppleGM : public skiagm::GpuGM {
         fBlobs[1] = make_blob(kTexts[1], font);
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(0xFF111111);
         canvas->drawTextBlob(fBlobs[0], 10, 260, paint);
