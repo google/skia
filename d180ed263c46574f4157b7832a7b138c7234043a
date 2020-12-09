@@ -22,6 +22,30 @@
       },
       "revId": "d180ed263c46574f4157b7832a7b138c7234043a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02da7858_3b73a0d0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-09T00:23:11Z",
+      "side": 1,
+      "message": "Done (also did backImage).",
+      "parentUuid": "43e2e7da_ae74680c",
+      "range": {
+        "startLine": 1172,
+        "startChar": 4,
+        "endLine": 1172,
+        "endChar": 8
+      },
+      "revId": "d180ed263c46574f4157b7832a7b138c7234043a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
