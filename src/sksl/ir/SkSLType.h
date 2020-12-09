@@ -378,7 +378,7 @@ public:
     }
 
     /**
-     * For matrices and vectors, returns the number of columns (e.g. both mat3 and float3return 3).
+     * For matrices and vectors, returns the number of columns (e.g. both mat3 and float3 return 3).
      * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1.
      * For all other types, causes an SkASSERTion failure.
      */
