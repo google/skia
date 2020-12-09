@@ -18,6 +18,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -147,7 +148,6 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
         // of them will eventually go away.
         if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
-            !args.fCaps->shaderCaps()->tessellationSupport() ||
             GrAAType::kCoverage == args.fAAType ||
             !args.fPaint->isConstantBlendedColor(&constantColor) ||
             args.fPaint->hasCoverageFragmentProcessor()) {
@@ -156,6 +156,21 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
     }
 
     return CanDrawPath::kYes;
+}
+
+static GrOp::Owner make_stroke_op(GrRecordingContext* context, GrAAType aaType,
+                                  const SkMatrix& viewMatrix, const SkStrokeRec& stroke,
+                                  const SkPath& path, GrPaint&& paint,
+                                  const GrShaderCaps& shaderCaps) {
+    // Only use hardware tessellation if the path has a somewhat large number of verbs. Otherwise we
+    // seem to be better off using indirect draws.
+    if (shaderCaps.tessellationSupport() && path.countVerbs() > 50) {
+        return GrOp::Make<GrStrokeTessellateOp>(context, aaType, viewMatrix, stroke, path,
+                                                std::move(paint));
+    } else {
+        return GrOp::Make<GrStrokeIndirectOp>(context, aaType, viewMatrix, path, stroke,
+                                              std::move(paint));
+    }
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -257,9 +272,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &devPath);
         SkStrokeRec devStroke = args.fShape->style().strokeRec();
         devStroke.setStrokeStyle(1);
-        auto op = GrOp::Make<GrStrokeTessellateOp>(
-                args.fContext, args.fAAType, SkMatrix::I(), devStroke,
-                devPath, std::move(args.fPaint));
+        auto op = make_stroke_op(args.fContext, args.fAAType, SkMatrix::I(), devStroke, devPath,
+                                 std::move(args.fPaint), shaderCaps);
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -267,9 +281,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = GrOp::Make<GrStrokeTessellateOp>(
-                args.fContext, args.fAAType, *args.fViewMatrix, stroke,
-                path, std::move(args.fPaint));
+        auto op = make_stroke_op(args.fContext, args.fAAType, *args.fViewMatrix, stroke, path,
+                                 std::move(args.fPaint), shaderCaps);
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }

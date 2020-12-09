@@ -21,7 +21,8 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                fStroke, fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                GrStrokeTessellateShader::Mode::kTessellation, fStroke, fParametricIntolerance,
+                fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
     this->prePrepareColorProgram(arena, strokeTessellateShader, writeView, std::move(*clip),
                                  dstProxyView, renderPassXferBarriers, colorLoadOp,
                                  *context->priv().caps());
@@ -32,7 +33,8 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fColorProgram) {
         SkArenaAlloc* arena = flushState->allocator();
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                fStroke, fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                GrStrokeTessellateShader::Mode::kTessellation, fStroke, fParametricIntolerance,
+                fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
         this->prePrepareColorProgram(flushState->allocator(), strokeTessellateShader,
                                      flushState->writeView(), flushState->detachAppliedClip(),
                                      flushState->dstProxyView(), flushState->renderPassBarriers(),

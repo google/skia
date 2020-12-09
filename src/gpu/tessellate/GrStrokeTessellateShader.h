@@ -25,8 +25,13 @@ class GrGLSLUniformHandler;
 // curve, regardless of curvature.
 class GrStrokeTessellateShader : public GrPathShader {
 public:
-    // The vertex array bound for this shader should contain a vector of Patch structs. A Patch is
-    // a join followed by a cubic stroke.
+    // Are we using hardware tessellation or indirect draws?
+    enum class Mode : bool {
+        kTessellation,
+        kIndirect
+    };
+
+    // When using Mode::kTessellation, this is how patches sent to the GPU are structured.
     struct Patch {
         // A join calculates its starting angle using fPrevControlPoint.
         SkPoint fPrevControlPoint;
@@ -42,6 +47,57 @@ public:
         std::array<SkPoint, 4> fPts;
     };
 
+    // When using Mode::kIndirect, these are the instances that get sent to the GPU.
+    struct IndirectInstance {
+        constexpr static int NumExtraEdgesInJoin(SkPaint::Join joinType) {
+            // We expect a fixed number of additional edges to be appended onto each instance in
+            // order to implement its preceding join. Specifically, each join emits:
+            //
+            //   * Two colocated edges at the beginning (a double-sided edge to seam with the
+            //     preceding stroke and a single-sided edge to seam with the join).
+            //
+            //   * An extra edge in the middle for miter joins, or else a variable number for round
+            //     joins (counted in the resolveLevel).
+            //
+            //   * A single sided edge at the end of the join that is colocated with the first
+            //     (double sided) edge of the stroke
+            //
+            switch (joinType) {
+                case SkPaint::kMiter_Join:
+                    return 4;
+                case SkPaint::kRound_Join:
+                    // The inner edges for round joins are counted in the stroke's resolveLevel.
+                    [[fallthrough]];
+                case SkPaint::kBevel_Join:
+                    return 3;
+            }
+            SkUNREACHABLE;
+        }
+        // Writes the given stroke into this instance. "abs(numTotalEdges)" tells the shader the
+        // literal number of edges in the triangle strip being rendered (i.e., it should be
+        // vertexCount/2). If numTotalEdges is negative and the join type is "kRound", it also
+        // instructs the shader to only allocate one segment the preceding round join.
+        void set(const SkPoint pts[4], SkPoint lastControlPoint, int numTotalEdges) {
+            memcpy(fPts.data(), pts, sizeof(fPts));
+            fLastControlPoint = lastControlPoint;
+            fNumTotalEdges = numTotalEdges;
+        }
+        // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. They should be
+        // drawn at cusp points on the curve and for round caps.
+        void setCircle(SkPoint pt, int numEdgesForCircles) {
+            SkASSERT(numEdgesForCircles >= 0);
+            // An empty stroke is a special case that denotes a circle, or 180-degree point stroke.
+            fPts.fill(pt);
+            fLastControlPoint = pt;
+            // Mark fNumTotalEdges negative so the shader assigns the least possible number of edges
+            // to its (empty) preceding join.
+            fNumTotalEdges = -numEdgesForCircles;
+        }
+        std::array<SkPoint, 4> fPts;
+        SkPoint fLastControlPoint;
+        float fNumTotalEdges;
+    };
+
     // 'parametricIntolerance' controls the number of parametric segments we add for each curve.
     // We add enough parametric segments so that the center of each one falls within
     // 1/parametricIntolerance local path units from the true curve.
@@ -51,29 +107,41 @@ public:
     // smoothness.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(const SkStrokeRec& stroke, float parametricIntolerance,
+    GrStrokeTessellateShader(Mode mode, const SkStrokeRec& stroke, float parametricIntolerance,
                              float numRadialSegmentsPerRadian, const SkMatrix& viewMatrix,
                              SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
-                           GrPrimitiveType::kPatches, 1)
+                           (mode == Mode::kTessellation) ?
+                                   GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
+                           (mode == Mode::kTessellation) ? 1 : 0)
+            , fMode(mode)
             , fStroke(stroke)
             , fParametricIntolerance(parametricIntolerance)
             , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
             , fColor(color) {
         SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
-        constexpr static Attribute kInputPointAttribs[] = {
-                {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
-                {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
-        this->setVertexAttributes(kInputPointAttribs, SK_ARRAY_COUNT(kInputPointAttribs));
-        SkASSERT(this->vertexStride() == sizeof(Patch));
+        if (fMode == Mode::kTessellation) {
+            constexpr static Attribute kTessellationAttribs[] = {
+                    {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+                    {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+            this->setVertexAttributes(kTessellationAttribs, SK_ARRAY_COUNT(kTessellationAttribs));
+            SkASSERT(this->vertexStride() == sizeof(Patch));
+        } else {
+            constexpr static Attribute kIndirectAttribs[] = {
+                    {"pts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    {"pts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                    // "fLastControlPoint" and "fNumTotalEdges" are both packed into these args.
+                    // See IndirectInstance.
+                    {"args", kFloat3_GrVertexAttribType, kFloat3_GrSLType}};
+            this->setInstanceAttributes(kIndirectAttribs, SK_ARRAY_COUNT(kIndirectAttribs));
+            SkASSERT(this->instanceStride() == sizeof(IndirectInstance));
+        }
     }
 
 private:
     const char* name() const override { return "GrStrokeTessellateShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(this->viewMatrix().isIdentity());
-    }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     SkString getTessControlShaderGLSL(const GrGLSLPrimitiveProcessor*,
@@ -85,12 +153,14 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
+    const Mode fMode;
     const SkStrokeRec fStroke;
     const float fParametricIntolerance;
     const float fNumRadialSegmentsPerRadian;
     const SkPMColor4f fColor;
 
-    class Impl;
+    class TessellationImpl;
+    class IndirectImpl;
 };
 
 #endif

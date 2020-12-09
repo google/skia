@@ -14,9 +14,11 @@
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrResolveLevelCounter.h"
+#include "src/gpu/tessellate/GrStrokeIndirectOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
+#include <vector>
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
@@ -239,3 +241,78 @@ private:
 
 DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
 DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
+
+class GrStrokeIndirectOp::Benchmark : public ::Benchmark {
+public:
+    Benchmark(const char* nameSuffix, SkPaint::Join join, std::vector<SkPoint> pts)
+            : fJoin(join), fPts(std::move(pts)) {
+        fName.printf("tessellate_GrStrokeIndirectOpBench%s", nameSuffix);
+    }
+
+private:
+    const char* onGetName() override { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+
+    void onDelayedSetup() override {
+        fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());
+        if (fJoin == SkPaint::kRound_Join) {
+            fPath.reset().moveTo(fPts.back());
+            for (size_t i = 0; i < kNumCubicsInChalkboard/fPts.size(); ++i) {
+                for (size_t j = 0; j < fPts.size(); ++j) {
+                    fPath.lineTo(fPts[j]);
+                }
+            }
+        } else {
+            fPath.reset().moveTo(fPts[0]);
+            for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
+                if (fPts.size() == 4) {
+                    fPath.cubicTo(fPts[1], fPts[2], fPts[3]);
+                    fPath.cubicTo(fPts[2], fPts[1], fPts[0]);
+                } else {
+                    SkASSERT(fPts.size() == 3);
+                    fPath.quadTo(fPts[1], fPts[2]);
+                    fPath.quadTo(fPts[2], fPts[1]);
+                }
+            }
+        }
+        fStrokeRec.setStrokeStyle(8);
+        fStrokeRec.setStrokeParams(SkPaint::kButt_Cap, fJoin, 4);
+    }
+
+    void onDraw(int loops, SkCanvas*) final {
+        if (!fTarget->mockContext()) {
+            SkDebugf("ERROR: could not create mock context.");
+            return;
+        }
+        for (int i = 0; i < loops; ++i) {
+            GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), fPath, fStrokeRec, GrPaint());
+            op.prePrepareResolveLevels(fTarget->allocator());
+            op.prepareBuffers(fTarget.get());
+        }
+    }
+
+    SkString fName;
+    SkPaint::Join fJoin;
+    std::vector<SkPoint> fPts;
+    std::unique_ptr<GrMockOpTarget> fTarget;
+    SkPath fPath;
+    SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
+};
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_inflect1", SkPaint::kBevel_Join, {{0,0}, {100,0}, {0,100}, {100,100}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_inflect2", SkPaint::kBevel_Join, {{37,162}, {412,160}, {249,65}, {112,360}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_loop", SkPaint::kBevel_Join, {{0,0}, {100,0}, {0,100}, {0,0}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_nochop", SkPaint::kBevel_Join, {{0,0}, {50,0}, {100,50}, {100,100}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_quad", SkPaint::kBevel_Join, {{0,0}, {50,100}, {100,0}}); )
+
+DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+        "_roundjoin", SkPaint::kRound_Join, {{0,0}, {50,100}, {100,0}}); )
