@@ -433,6 +433,10 @@ private:
     void flushViewport(int width, int height);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
+    void flushStencilFace(GrGLenum face, const GrStencilSettings::Face&);
+    void flushStencilFunc(GrGLenum face, const GrStencilSettings::Face&);
+    void flushStencilOp(GrGLenum face, const GrStencilSettings::Face&);
+    void flushStencilWriteMask(GrGLenum face, const GrStencilSettings::Face&);
     void disableStencil();
 
     // rt is used only if useHWAA is true.
@@ -535,6 +539,11 @@ private:
         kNo_TriState,
         kYes_TriState,
         kUnknown_TriState
+    };
+
+    enum class ValidState : bool {
+        kInvalid = false,
+        kValid = true
     };
 
     GrGLuint                    fTempSrcFBOID;
@@ -705,9 +714,10 @@ private:
 
     TriState                                fHWWireframeEnabled;
 
-    GrStencilSettings                       fHWStencilSettings;
-    GrSurfaceOrigin                         fHWStencilOrigin;
     TriState                                fHWStencilTestEnabled;
+    std::tuple<GrGLenum, uint16_t, uint16_t> fHWStencilFunc[2];
+    std::tuple<GrGLenum, GrGLenum>          fHWStencilOp[2];
+    std::tuple<ValidState, uint16_t>        fHWStencilWriteMask[2];
 
     TriState                                fHWWriteToColor;
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
