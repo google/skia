@@ -479,7 +479,7 @@ static void create_vertices(const SegmentArray& segments,
             // We need a negative value that is very large that it won't effect results if it is
             // interpolated with. However, the value can't be too large of a negative that it
             // effects numerical precision on less powerful GPUs.
-            static const SkScalar kStableLargeNegativeValue = -SK_ScalarMax/1000000;
+            static const SkScalar kStableLargeNegativeValue = -65504; // most negative half float
             verts.write(qpts[0] + segb.fNorms[0],
                         color, skipUVs,
                         kStableLargeNegativeValue,
