@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a340c4d3_d7e80411",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-09T20:21:03Z",
+      "side": 1,
+      "message": "@Florin I\u0027m open to other design ideas here. I mainly want to nail down some pattern for these gradient attributes before I add feFlood, because flood-color and flood-opacity are also presentation attributes of the same nature.",
+      "revId": "afcefb721af12e65098faf45858d2d10d8b07456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32c29623_393d9c1a",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-09T20:21:03Z",
+      "side": 1,
+      "message": "There may be a saner way to do this. It didn\u0027t feel right to propagate non-inherited values in a field called \"fInherited.\"",
+      "revId": "afcefb721af12e65098faf45858d2d10d8b07456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
