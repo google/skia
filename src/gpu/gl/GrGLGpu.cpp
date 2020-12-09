@@ -576,8 +576,13 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kStencil_GrGLBackendState) {
-        fHWStencilSettings.invalidate();
+        static constexpr GrGLenum kInvalidStencilEnum = -1;
         fHWStencilTestEnabled = kUnknown_TriState;
+        for (int i = 0; i < 2; ++i) {
+            std::get<0>(fHWStencilFunc[i]) = kInvalidStencilEnum;
+            std::get<0>(fHWStencilOp[i]) = kInvalidStencilEnum;
+            std::get<0>(fHWStencilWriteMask[i]) = ValidState::kInvalid;
+        }
     }
 
     // Vertex
@@ -2028,14 +2033,14 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
     GrGLint stencilBitCount =  GrBackendFormatStencilBits(sb->backendFormat());
 #if 0
     SkASSERT(stencilBitCount > 0);
-    GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
+    uint16_t clipStencilMask  = (1 << (stencilBitCount - 1));
 #else
     // we could just clear the clip bit but when we go through
     // ANGLE a partial stencil mask will cause clears to be
     // turned into draws. Our contract on GrOpsTask says that
     // changing the clip between stencil passes may or may not
     // zero the client's clip bits. So we just clear the whole thing.
-    static const GrGLint clipStencilMask  = ~0;
+    static const uint16_t clipStencilMask  = ~0;
 #endif
     GrGLint value;
     if (insideStencilMask) {
@@ -2048,11 +2053,13 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
 
     this->flushScissor(scissor, glRT->width(), glRT->height(), origin);
     this->disableWindowRectangles();
+    this->flushStencilWriteMask(GR_GL_FRONT_AND_BACK, clipStencilMask);
 
-    GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
-    fHWStencilSettings.invalidate();
+    for (int i = 0; i < 2; ++i) {
+        std::get<0>(fHWStencilWriteMask[i]) = ValidState::kInvalid;
+    }
 }
 
 bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
@@ -2338,52 +2345,82 @@ GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
     return gTable[(int)op];
 }
 
-void set_gl_stencil(const GrGLInterface* gl,
-                    const GrStencilSettings::Face& face,
-                    GrGLenum glFace) {
-    GrGLenum glFunc = GrToGLStencilFunc(face.fTest);
-    GrGLenum glFailOp = gr_to_gl_stencil_op(face.fFailOp);
-    GrGLenum glPassOp = gr_to_gl_stencil_op(face.fPassOp);
-
-    GrGLint ref = face.fRef;
-    GrGLint mask = face.fTestMask;
-    GrGLint writeMask = face.fWriteMask;
-
-    if (GR_GL_FRONT_AND_BACK == glFace) {
-        // we call the combined func just in case separate stencil is not
-        // supported.
-        GR_GL_CALL(gl, StencilFunc(glFunc, ref, mask));
-        GR_GL_CALL(gl, StencilMask(writeMask));
-        GR_GL_CALL(gl, StencilOp(glFailOp, GR_GL_KEEP, glPassOp));
-    } else {
-        GR_GL_CALL(gl, StencilFuncSeparate(glFace, glFunc, ref, mask));
-        GR_GL_CALL(gl, StencilMaskSeparate(glFace, writeMask));
-        GR_GL_CALL(gl, StencilOpSeparate(glFace, glFailOp, GR_GL_KEEP, glPassOp));
-    }
-}
 }  // namespace
 
 void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings, GrSurfaceOrigin origin) {
     if (stencilSettings.isDisabled()) {
         this->disableStencil();
-    } else if (fHWStencilSettings != stencilSettings ||
-               (stencilSettings.isTwoSided() && fHWStencilOrigin != origin)) {
-        if (kYes_TriState != fHWStencilTestEnabled) {
+    } else {
+        if (fHWStencilTestEnabled != kYes_TriState) {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
-
             fHWStencilTestEnabled = kYes_TriState;
         }
         if (!stencilSettings.isTwoSided()) {
-            set_gl_stencil(this->glInterface(), stencilSettings.singleSidedFace(),
-                           GR_GL_FRONT_AND_BACK);
+            this->flushStencilFace(GR_GL_FRONT_AND_BACK, stencilSettings.singleSidedFace());
         } else {
-            set_gl_stencil(this->glInterface(), stencilSettings.postOriginCWFace(origin),
-                           GR_GL_FRONT);
-            set_gl_stencil(this->glInterface(), stencilSettings.postOriginCCWFace(origin),
-                           GR_GL_BACK);
+            this->flushStencilFace(GR_GL_FRONT, stencilSettings.postOriginCWFace(origin));
+            this->flushStencilFace(GR_GL_BACK, stencilSettings.postOriginCCWFace(origin));
         }
-        fHWStencilSettings = stencilSettings;
-        fHWStencilOrigin = origin;
+    }
+}
+
+void GrGLGpu::flushStencilFace(GrGLenum faceID, const GrStencilSettings::Face& face) {
+    this->flushStencilFunc(faceID, face.fTest, face.fRef, face.fTestMask);
+    this->flushStencilOp(faceID, face.fFailOp, face.fPassOp);
+    this->flushStencilWriteMask(faceID, face.fWriteMask);
+}
+
+void GrGLGpu::flushStencilFunc(GrGLenum faceID, GrStencilTest test, uint16_t ref, uint16_t mask) {
+    GrGLenum glTest = GrToGLStencilFunc(test);
+    auto hwFunc = std::make_tuple(glTest, ref, mask);
+    if (faceID == GR_GL_FRONT_AND_BACK) {
+        if (fHWStencilFunc[0] != hwFunc || fHWStencilFunc[1] != hwFunc) {
+            GL_CALL(StencilFunc(glTest, ref, mask));
+            fHWStencilFunc[0] = fHWStencilFunc[1] = hwFunc;
+        }
+    } else {
+        SkASSERT(faceID == GR_GL_FRONT || faceID == GR_GL_BACK);
+        int idx = (faceID == GR_GL_FRONT) ? 0 : 1;
+        if (fHWStencilFunc[idx] != hwFunc) {
+            GL_CALL(StencilFuncSeparate(faceID, glTest, ref, mask));
+            fHWStencilFunc[idx] = hwFunc;
+        }
+    }
+}
+
+void GrGLGpu::flushStencilOp(GrGLenum faceID, GrStencilOp failOp, GrStencilOp passOp) {
+    GrGLenum glFailOp = gr_to_gl_stencil_op(failOp);
+    GrGLenum glPassOp = gr_to_gl_stencil_op(passOp);
+    auto hwOp = std::make_tuple(glFailOp, glPassOp);
+    if (faceID == GR_GL_FRONT_AND_BACK) {
+        if (fHWStencilOp[0] != hwOp || fHWStencilOp[1] != hwOp) {
+            GL_CALL(StencilOp(glFailOp, GR_GL_KEEP, glPassOp));
+            fHWStencilOp[0] = fHWStencilOp[1] = hwOp;
+        }
+    } else {
+        SkASSERT(faceID == GR_GL_FRONT || faceID == GR_GL_BACK);
+        int idx = (faceID == GR_GL_FRONT) ? 0 : 1;
+        if (fHWStencilOp[idx] != hwOp) {
+            GL_CALL(StencilOpSeparate(faceID, glFailOp, GR_GL_KEEP, glPassOp));
+            fHWStencilOp[idx] = hwOp;
+        }
+    }
+}
+
+void GrGLGpu::flushStencilWriteMask(GrGLenum faceID, uint16_t writeMask) {
+    auto hwMask = std::make_tuple(ValidState::kValid, writeMask);
+    if (faceID == GR_GL_FRONT_AND_BACK) {
+        if (fHWStencilWriteMask[0] != hwMask || fHWStencilWriteMask[1] != hwMask) {
+            GL_CALL(StencilMask(writeMask));
+            fHWStencilWriteMask[0] = fHWStencilWriteMask[1] = hwMask;
+        }
+    } else {
+        SkASSERT(faceID == GR_GL_FRONT || faceID == GR_GL_BACK);
+        int idx = (faceID == GR_GL_FRONT) ? 0 : 1;
+        if (fHWStencilWriteMask[idx] != hwMask) {
+            GL_CALL(StencilMaskSeparate(faceID, writeMask));
+            fHWStencilWriteMask[idx] = hwMask;
+        }
     }
 }
 
@@ -2392,7 +2429,6 @@ void GrGLGpu::disableStencil() {
         GL_CALL(Disable(GR_GL_STENCIL_TEST));
 
         fHWStencilTestEnabled = kNo_TriState;
-        fHWStencilSettings.invalidate();
     }
 }
 
