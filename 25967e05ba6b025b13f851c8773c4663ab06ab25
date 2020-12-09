@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cea7983e_ed285f4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-09T20:11:20Z",
+      "side": 1,
+      "message": "Ok. I made the change for just makeUnique and the Destroyer just to see how it works out. The type names in the test seem unwieldy to me:\n\nNode(std::unique_ptr\u003cNode, SkArena::Destroyer\u003cNode\u003e\u003e next)\n\nThis looks overly verbose. Is this what you intended?",
+      "revId": "25967e05ba6b025b13f851c8773c4663ab06ab25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
