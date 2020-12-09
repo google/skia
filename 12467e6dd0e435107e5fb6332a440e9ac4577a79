@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0efae90d_426ef501",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-12-09T16:41:13Z",
+      "side": 1,
+      "message": "Will attempt to cherry pick if it prevents repro (waiting for build).",
+      "revId": "12467e6dd0e435107e5fb6332a440e9ac4577a79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
