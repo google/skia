@@ -72,6 +72,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
     fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
     fIntrinsicMap[String("mod")]           = SPECIAL(Mod);
+    fIntrinsicMap[String("modf")]          = ALL_GLSL(Modf);
     fIntrinsicMap[String("min")]           = SPECIAL(Min);
     fIntrinsicMap[String("max")]           = SPECIAL(Max);
     fIntrinsicMap[String("clamp")]         = SPECIAL(Clamp);
