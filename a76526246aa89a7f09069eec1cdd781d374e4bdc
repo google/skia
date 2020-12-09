@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd5178a2_6956adb9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-09T20:13:36Z",
+      "side": 1,
+      "message": "I think the T[] Destroyer is going to be more complicated. It\u0027s all the type bending that needs to happen.",
+      "parentUuid": "b2888760_66d1af90",
+      "revId": "a76526246aa89a7f09069eec1cdd781d374e4bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "677b82fc_b5e5274c",
