@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b43ce10_5c484bc4",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-09T15:48:10Z",
+      "side": 1,
+      "message": ";;",
+      "range": {
+        "startLine": 161,
+        "startChar": 47,
+        "endLine": 161,
+        "endChar": 48
+      },
+      "revId": "1a09351b5c72f09589848dd46370299363231355",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
