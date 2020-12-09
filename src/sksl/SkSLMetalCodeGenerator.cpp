@@ -381,6 +381,17 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     return name;
 }
 
+String MetalCodeGenerator::getBitcastIntrinsic(const Type& inType, const Type& outType) {
+    String name = "_sk_bitcast_" + inType.displayName() + "_to_" + outType.displayName();
+    auto [iter, didInsert] = fWrittenIntrinsics.insert(name);
+    if (didInsert) {
+        fExtraFunctions.printf("%s %s(%s x) { return as_type<%s>(x); }\n",
+                               outType.displayName().c_str(), name.c_str(),
+                               inType.displayName().c_str(), outType.displayName().c_str());
+    }
+    return name;
+}
+
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
@@ -392,21 +403,26 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     String name = function.name();
     bool builtin = function.isBuiltin();
 
-    if (builtin && name == "atan" && arguments.size() == 2) {
-        name = "atan2";
-    } else if (builtin && name == "inversesqrt") {
-        name = "rsqrt";
-    } else if (builtin && name == "inverse") {
-        SkASSERT(arguments.size() == 1);
-        name = this->getInverseHack(*arguments[0]);
-    } else if (builtin && name == "dFdx") {
-        name = "dfdx";
-    } else if (builtin && name == "dFdy") {
-        // Flipping Y also negates the Y derivatives.
-        if (fProgram.fSettings.fFlipY) {
-            this->write("-");
+    if (builtin) {
+        if (name == "atan" && arguments.size() == 2) {
+            name = "atan2";
+        } else if (name == "inversesqrt") {
+            name = "rsqrt";
+        } else if (name == "inverse") {
+            SkASSERT(arguments.size() == 1);
+            name = this->getInverseHack(*arguments[0]);
+        } else if (name == "dFdx") {
+            name = "dfdx";
+        } else if (name == "dFdy") {
+            // Flipping Y also negates the Y derivatives.
+            if (fProgram.fSettings.fFlipY) {
+                this->write("-");
+            }
+            name = "dfdy";
+        } else if (name == "floatBitsToInt" || name == "floatBitsToUint" ||
+                   name == "intBitsToFloat" || name == "uintBitsToFloat") {
+            name = this->getBitcastIntrinsic(arguments[0]->type(), c.type());
         }
-        name = "dfdy";
     }
 
     // GLSL supports passing swizzled variables to out params; Metal doesn't. Walk the list of
