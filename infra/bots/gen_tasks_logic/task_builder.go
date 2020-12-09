@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 
+	"go.skia.org/infra/go/cipd"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
@@ -259,15 +260,37 @@ func (b *taskBuilder) getRecipeProps() string {
 	return marshalJson(props)
 }
 
+// cipdPlatform returns the CIPD platform for this task.
+func (b *taskBuilder) cipdPlatform() string {
+	if b.role("Upload") {
+		return cipd.PlatformLinuxAmd64
+	} else if b.matchOs("Win") || b.matchExtraConfig("Win") {
+		if b.matchArch("x86_64") {
+			return cipd.PlatformWindowsAmd64
+		} else {
+			return cipd.PlatformWindows386
+		}
+	} else if b.matchOs("Mac") {
+		return cipd.PlatformMacAmd64
+	} else if b.matchArch("Arm64") {
+		return cipd.PlatformLinuxArm64
+	} else {
+		return cipd.PlatformLinuxAmd64
+	}
+}
+
 // usesPython adds attributes to tasks which use python.
 func (b *taskBuilder) usesPython() {
-	// TODO(borenet): This is hacky and bad.
-	b.cipd(specs.CIPD_PKGS_PYTHON[1])
-	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
-		b.cipd(CIPD_PKG_CPYTHON)
-	} else if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(CIPD_PKG_CPYTHON)
+	// TODO(borenet): This handling of the Python package is hacky and bad.
+	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
+	b.cipd(pythonPkgs[1])
+	if b.os("Mac10.15") && b.model("VMware7.1") {
+		b.cipd(pythonPkgs[0])
 	}
+	if (b.matchOs("Win") || b.matchExtraConfig("Win")) && !b.model("LenovoYogaC630") {
+		b.cipd(pythonPkgs[0])
+	}
+
 	b.cache(&specs.Cache{
 		Name: "vpython",
 		Path: "cache/vpython",
