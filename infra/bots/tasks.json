@@ -11360,7 +11360,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11436,7 +11436,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11512,7 +11512,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11588,7 +11588,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11664,7 +11664,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11739,7 +11739,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11815,7 +11815,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11891,7 +11891,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -11967,7 +11967,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12043,7 +12043,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12119,7 +12119,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12195,7 +12195,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12271,7 +12271,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12347,7 +12347,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12428,7 +12428,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12504,7 +12504,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12580,7 +12580,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12656,7 +12656,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12732,7 +12732,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12808,7 +12808,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12884,7 +12884,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -12960,7 +12960,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13036,7 +13036,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13107,7 +13107,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13178,7 +13178,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13249,7 +13249,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13320,7 +13320,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13391,7 +13391,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13462,7 +13462,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13533,7 +13533,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13604,7 +13604,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13675,7 +13675,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13746,7 +13746,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13817,7 +13817,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13888,7 +13888,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -13959,7 +13959,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -15600,7 +15600,7 @@
     "Housekeeper-PerCommit-BundleRecipes": {
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -16059,7 +16059,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -23589,7 +23589,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -23672,7 +23672,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -23755,7 +23755,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -23838,7 +23838,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -23921,7 +23921,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24004,7 +24004,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24082,7 +24082,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24165,7 +24165,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24243,7 +24243,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24321,7 +24321,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24404,7 +24404,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24487,7 +24487,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24570,7 +24570,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24653,7 +24653,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24736,7 +24736,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24819,7 +24819,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24902,7 +24902,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -24985,7 +24985,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25068,7 +25068,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25151,7 +25151,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25234,7 +25234,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25317,7 +25317,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25400,7 +25400,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25483,7 +25483,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25566,7 +25566,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25649,7 +25649,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25732,7 +25732,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25815,7 +25815,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25898,7 +25898,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -25981,7 +25981,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -26064,7 +26064,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -26148,7 +26148,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -26232,7 +26232,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -41616,9 +41616,9 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/mac-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2.7.18.chromium.30"
+          "version": "version:2.7.18.chromium.29"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43445,7 +43445,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43528,7 +43528,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43611,7 +43611,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43694,7 +43694,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43777,7 +43777,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43860,7 +43860,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -43943,7 +43943,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44026,7 +44026,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44109,7 +44109,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44192,7 +44192,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44275,7 +44275,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44358,7 +44358,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44441,7 +44441,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44524,7 +44524,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44607,7 +44607,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44695,7 +44695,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44778,7 +44778,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44861,7 +44861,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -44944,7 +44944,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45027,7 +45027,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45110,7 +45110,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45198,7 +45198,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45281,7 +45281,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45364,7 +45364,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45447,7 +45447,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45530,7 +45530,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45613,7 +45613,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45696,7 +45696,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45779,7 +45779,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45862,7 +45862,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -45945,7 +45945,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46028,7 +46028,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46111,7 +46111,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46194,7 +46194,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46277,7 +46277,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46360,7 +46360,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46443,7 +46443,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46526,7 +46526,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46609,7 +46609,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46692,7 +46692,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46775,7 +46775,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46858,7 +46858,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -46941,7 +46941,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47024,7 +47024,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47107,7 +47107,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47190,7 +47190,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47273,7 +47273,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47356,7 +47356,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47439,7 +47439,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47522,7 +47522,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47605,7 +47605,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47688,7 +47688,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47771,7 +47771,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47854,7 +47854,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -47937,7 +47937,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48020,7 +48020,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48103,7 +48103,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48186,7 +48186,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48269,7 +48269,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48352,7 +48352,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48435,7 +48435,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48518,7 +48518,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48601,7 +48601,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48684,7 +48684,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48767,7 +48767,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48850,7 +48850,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -48933,7 +48933,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49016,7 +49016,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49099,7 +49099,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49182,7 +49182,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49265,7 +49265,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49504,7 +49504,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49588,7 +49588,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49672,7 +49672,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49756,7 +49756,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49840,7 +49840,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -49924,7 +49924,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50008,7 +50008,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50092,7 +50092,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50176,7 +50176,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50260,7 +50260,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50344,7 +50344,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50428,7 +50428,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50512,7 +50512,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50596,7 +50596,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50679,7 +50679,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50762,7 +50762,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50845,7 +50845,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -50928,7 +50928,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -51011,7 +51011,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -51094,7 +51094,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -51177,7 +51177,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-386",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -51260,7 +51260,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -51343,7 +51343,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/windows-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59231,7 +59231,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59303,7 +59303,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59375,7 +59375,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59447,7 +59447,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59519,7 +59519,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59591,7 +59591,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59663,7 +59663,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59735,7 +59735,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59807,7 +59807,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59879,7 +59879,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -59951,7 +59951,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60023,7 +60023,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60095,7 +60095,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60167,7 +60167,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60239,7 +60239,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60311,7 +60311,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60383,7 +60383,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60455,7 +60455,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60527,7 +60527,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60599,7 +60599,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60671,7 +60671,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60743,7 +60743,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60815,7 +60815,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60887,7 +60887,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -60959,7 +60959,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61031,7 +61031,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61103,7 +61103,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61175,7 +61175,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61247,7 +61247,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61319,7 +61319,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -61391,7 +61391,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72116,7 +72116,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72657,7 +72657,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72729,7 +72729,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72801,7 +72801,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72873,7 +72873,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -72945,7 +72945,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73017,7 +73017,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73089,7 +73089,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73161,7 +73161,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73233,7 +73233,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73305,7 +73305,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73377,7 +73377,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73449,7 +73449,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73521,7 +73521,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73593,7 +73593,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73665,7 +73665,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73737,7 +73737,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73809,7 +73809,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73881,7 +73881,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -73953,7 +73953,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74025,7 +74025,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74097,7 +74097,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74169,7 +74169,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74241,7 +74241,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74313,7 +74313,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74385,7 +74385,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74457,7 +74457,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74529,7 +74529,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74601,7 +74601,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74673,7 +74673,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74745,7 +74745,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74817,7 +74817,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74889,7 +74889,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -74961,7 +74961,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75033,7 +75033,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75105,7 +75105,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75177,7 +75177,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75249,7 +75249,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75321,7 +75321,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75393,7 +75393,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75465,7 +75465,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75537,7 +75537,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75609,7 +75609,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75681,7 +75681,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75753,7 +75753,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75825,7 +75825,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75897,7 +75897,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -75969,7 +75969,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76041,7 +76041,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76113,7 +76113,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76185,7 +76185,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76257,7 +76257,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76329,7 +76329,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76401,7 +76401,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76473,7 +76473,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76545,7 +76545,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76617,7 +76617,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76689,7 +76689,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76761,7 +76761,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76833,7 +76833,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76905,7 +76905,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -76977,7 +76977,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77049,7 +77049,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77121,7 +77121,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77193,7 +77193,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77265,7 +77265,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77337,7 +77337,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77409,7 +77409,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77615,7 +77615,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77687,7 +77687,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77759,7 +77759,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77831,7 +77831,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77903,7 +77903,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -77975,7 +77975,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78047,7 +78047,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78119,7 +78119,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78191,7 +78191,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78263,7 +78263,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78335,7 +78335,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78407,7 +78407,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78479,7 +78479,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78551,7 +78551,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78623,7 +78623,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78695,7 +78695,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78767,7 +78767,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78839,7 +78839,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78911,7 +78911,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -78983,7 +78983,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
@@ -79055,7 +79055,7 @@
       ],
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/${platform}",
+          "name": "infra/3pp/tools/cpython/linux-amd64",
           "path": "cipd_bin_packages",
           "version": "version:2.7.18.chromium.30"
         },
