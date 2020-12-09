@@ -33,8 +33,8 @@
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -88,7 +88,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         return nullptr;
     }
 
-    auto renderTargetContext = GrRenderTargetContext::MakeWithFallback(
+    auto renderTargetContext = GrSurfaceDrawContext::MakeWithFallback(
             direct, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
             this->dimensions());
     if (!renderTargetContext) {
@@ -348,7 +348,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyToExternal(
                 caps, rgbaResultTexture, grCT, colorType, at, nullptr)) {
         return nullptr;
     }
-    auto renderTargetContext = GrRenderTargetContext::MakeFromBackendTexture(
+    auto renderTargetContext = GrSurfaceDrawContext::MakeFromBackendTexture(
             context, grCT, std::move(imageColorSpace), rgbaResultTexture, 1,
             yuvaTextures.textureOrigin(), nullptr, std::move(rgbaReleaseHelper));
     if (!renderTargetContext) {

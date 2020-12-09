@@ -32,7 +32,7 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
     return resultRTC->readSurfaceView();
 };
 
-static void run(GrRecordingContext* rContext, GrRenderTargetContext* rtc,
+static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc,
                 bool subsetSrc, bool ref) {
 
     auto srcII = SkImageInfo::Make(60, 60, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -161,13 +161,13 @@ static void run(GrRecordingContext* rContext, GrRenderTargetContext* rtc,
             // If we're in ref mode we will create a temp image that has the original image
             // tiled into it and then do a clamp blur with adjusted params that should produce
             // the same result as the original params.
-            std::unique_ptr<GrRenderTargetContext> refSrc;
+            std::unique_ptr<GrSurfaceDrawContext> refSrc;
             SkIRect refRect;
             if (ref) {
                 // Blow up testArea into a much larger rect so that our clamp blur will not
                 // reach anywhere near the edge of our temp surface.
                 refRect = testArea.makeOutset(testArea.width(), testArea.height());
-                refSrc = GrRenderTargetContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
+                refSrc = GrSurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
                                                      SkBackingFit::kApprox, refRect.size());
                 refSrc->clear(SK_PMColor4fWHITE);
                 // Setup an effect to put the original src rect at the correct logical place

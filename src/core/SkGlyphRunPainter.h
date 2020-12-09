@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "src/gpu/text/GrSDFTOptions.h"
 class GrColorInfo;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 #endif
 
 class SkGlyphRunPainterInterface;
@@ -62,7 +62,7 @@ public:
     // The following two ctors are used exclusively by the GPU, and will always use the global
     // strike cache.
     SkGlyphRunListPainter(const SkSurfaceProps&, const GrColorInfo&);
-    explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
+    explicit SkGlyphRunListPainter(const GrSurfaceDrawContext& renderTargetContext);
 #endif  // SK_SUPPORT_GPU
 
     class BitmapDevicePainter {

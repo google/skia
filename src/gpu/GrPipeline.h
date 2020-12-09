@@ -26,7 +26,7 @@
 class GrAppliedClip;
 class GrAppliedHardClip;
 class GrOp;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 /**
  * This immutable object contains information needed to set build a shader program and set API

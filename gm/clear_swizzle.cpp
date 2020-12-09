@@ -9,7 +9,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSwizzle.h"
 
 // Size of each clear
@@ -23,7 +23,7 @@ DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, rtCtx, canvas, 6*kSize, 2*kSize) {
     auto make_offscreen = [&](const SkISize dimensions) {
         GrSwizzle readSwizzle  = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
         GrSwizzle writeSwizzle = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
-        return GrRenderTargetContext::Make(ctx,
+        return GrSurfaceDrawContext::Make(ctx,
                                            rtCtx->colorInfo().refColorSpace(),
                                            SkBackingFit::kExact,
                                            dimensions,

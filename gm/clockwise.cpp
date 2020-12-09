@@ -35,11 +35,11 @@
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -69,7 +69,7 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 class ClockwiseGM : public skiagm::GpuGM {
     SkString onShortName() override { return SkString("clockwise"); }
     SkISize onISize() override { return {300, 200}; }
-    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas*) override;
+    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,7 +244,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas) {
+void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas) {
     rtc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.
@@ -253,7 +253,7 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
 
     // Draw the test to an off-screen, top-down render target.
     GrColorType rtcColorType = rtc->colorInfo().colorType();
-    if (auto topLeftRTC = GrRenderTargetContext::Make(
+    if (auto topLeftRTC = GrSurfaceDrawContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
                 GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {
@@ -277,7 +277,7 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, Sk
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftRTC = GrRenderTargetContext::Make(
+    if (auto topLeftRTC = GrSurfaceDrawContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
                 GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
                 nullptr)) {

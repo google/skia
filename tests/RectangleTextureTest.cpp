@@ -11,7 +11,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 #ifdef SK_GL
@@ -24,7 +24,7 @@
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                    GrSurfaceProxyView rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
-    auto rtContext = GrRenderTargetContext::Make(
+    auto rtContext = GrSurfaceDrawContext::Make(
             dContext, colorType, nullptr, SkBackingFit::kExact, rectView.proxy()->dimensions());
     for (auto filter : {GrSamplerState::Filter::kNearest, GrSamplerState::Filter::kLinear}) {
         for (auto mm : {GrSamplerState::MipmapMode::kNone, GrSamplerState::MipmapMode::kLinear}) {
@@ -42,7 +42,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext
 
 static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
                        GrSurfaceContext* rectContext) {
-    if (GrRenderTargetContext* rtc = rectContext->asRenderTargetContext()) {
+    if (GrSurfaceDrawContext* rtc = rectContext->asRenderTargetContext()) {
         // Clear the whole thing.
         GrColor color0 = GrColorPackRGBA(0xA, 0xB, 0xC, 0xD);
         rtc->clear(SkPMColor4f::FromBytes_RGBA(color0));
