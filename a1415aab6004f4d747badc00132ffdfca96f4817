@@ -33,6 +33,24 @@
       "message": "Can we use `SkSpan\u003cconst GrBackendTexture\u003e` ?",
       "revId": "a1415aab6004f4d747badc00132ffdfca96f4817",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bcb0af4_73e776b8",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-09T14:50:05Z",
+      "side": 1,
+      "message": "I tried it but it\u0027s kinda worse. If I could just pass the std::array (i.e.pass yuvaTextures.textures()) using the implicit SkSpan constructor it\u0027d be nicer. However, the length is not always the full length of the array so I wind up passing:\n\n {yuvaTextures.textures().data(), static_cast\u003csize_t\u003e(yuvaTextures.numPlanes())}\n\nwhich doesn\u0027t seem like an improvement.\n\nIn any event I think this function will go away once I can get Flutter off the last old-style API.",
+      "parentUuid": "dd8a8965_e0755851",
+      "revId": "a1415aab6004f4d747badc00132ffdfca96f4817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
