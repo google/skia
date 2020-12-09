@@ -176,6 +176,24 @@
       "parentUuid": "ff324773_347cfaaa",
       "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ef2b1e1_a21bc7d9",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-09T18:22:48Z",
+      "side": 1,
+      "message": "Got it, that\u0027s confusing but I see :-).",
+      "parentUuid": "7770b714_0dfd3e41",
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
