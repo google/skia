@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82e1e0c1_09a25cb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T21:33:43Z",
+      "side": 1,
+      "message": "Definitely going to need to think more about how SymbolTables will work in future CLs, but I think this is ok for right now.",
+      "revId": "6d5650cc99ee84bec452d807c13fd70babaf69d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
