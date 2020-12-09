@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "612b2eed_cfb49d16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-09T19:47:05Z",
+      "side": 1,
+      "message": "Ok. I have the type problems worked out with my old code. Let me look at your recommendations to SkArena.",
+      "revId": "a76526246aa89a7f09069eec1cdd781d374e4bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
