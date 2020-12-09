@@ -8,11 +8,11 @@
 #ifndef SKSL_MODIFIERSPOOL
 #define SKSL_MODIFIERSPOOL
 
+#include "src/sksl/ir/SkSLModifiers.h"
+
 #include <unordered_set>
 
 namespace SkSL {
-
-struct Modifiers;
 
 /**
  * Deduplicates Modifiers objects and stores them in a shared pool. Modifiers are fairly heavy, and
