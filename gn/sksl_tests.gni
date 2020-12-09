@@ -233,6 +233,8 @@ sksl_shared_tests = [
   "$_tests/sksl/intrinsics/GreaterThanEqual.sksl",
   "$_tests/sksl/intrinsics/Inverse.sksl",
   "$_tests/sksl/intrinsics/Inversesqrt.sksl",
+  "$_tests/sksl/intrinsics/IsInf.sksl",
+  "$_tests/sksl/intrinsics/IsNan.sksl",
   "$_tests/sksl/intrinsics/Ldexp.sksl",
   "$_tests/sksl/intrinsics/Length.sksl",
   "$_tests/sksl/intrinsics/LessThan.sksl",
