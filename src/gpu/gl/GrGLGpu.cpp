@@ -2231,11 +2231,11 @@ void GrGLGpu::flushFramebufferSRGB(bool enable) {
 }
 
 void GrGLGpu::flushViewport(int width, int height) {
-    GrNativeRect viewport = {0, 0, width, height};
-    if (fHWViewport != viewport) {
-        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
-        fHWViewport = viewport;
-    }
+//    GrNativeRect viewport = {0, 0, width, height};
+//    if (fHWViewport != viewport) {
+//        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
+//        fHWViewport = viewport;
+//    }
 }
 
 GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
@@ -4007,6 +4007,21 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
+}
+
+void GrGLGpu::setViewport(SkIRect viewport, SkISize size) {
+    int tmp[4];
+    GL_CALL(GetIntegerv(GR_GL_VIEWPORT, tmp));
+    SkDebugf("prior viewport %d %d %d %d\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+
+    int yLower = size.fHeight - viewport.fBottom;
+    SkDebugf("new data: %d %d -- %d %d %d %d\n",
+             size.fWidth, size.fHeight,
+             viewport.fLeft, viewport.fTop,
+             viewport.width(), viewport.height());
+
+    GL_CALL(Viewport(viewport.fLeft, yLower, // Note: this is LL
+                     viewport.width(), viewport.height()));
 }
 
 void GrGLGpu::checkFinishProcs() {
