@@ -197,6 +197,128 @@ public:
         : SkArena{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
 };
 
+class SkArenaAlloc2 : private SkArena {
+public:
+    SkArenaAlloc2(char* block, size_t blockSize, size_t firstHeapAllocation)
+        : SkArena(block, blockSize, firstHeapAllocation) {}
+
+    explicit SkArenaAlloc2(size_t firstHeapAllocation = 0)
+        : SkArenaAlloc2(nullptr, 0, firstHeapAllocation) {}
+
+    template<typename T, typename... Args>
+    T* make(Args&&... args) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->template makePOD<T>(std::forward<Args>(args)...);
+        } else {
+            auto object = this->SkArena::makeUnique<T>(std::forward<Args>(args)...);
+            return this->template adapt<T, decltype(object)>(std::move(object));
+        }
+    }
+
+    template <typename T>
+    T* makeArrayDefault(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->makePODArray<T>(count);
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    template <typename T>
+    T* makeArray(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T();
+            }
+            return array;
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    template <typename T, typename Initializer>
+    T* makeInitializedArray(size_t count, Initializer initializer) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->template makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T(initializer(i));
+            }
+            return array;
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count, initializer);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        return this->alignedBytes(size, align);
+    }
+
+private:
+    struct DtorNode {
+        DtorNode(std::unique_ptr<DtorNode, SkArena::Destroyer> node) : fNext{std::move(node)} {}
+        virtual ~DtorNode() = default;
+        std::unique_ptr<DtorNode, SkArena::Destroyer> fNext;
+    };
+
+    template<typename T, typename DtorPtr>
+    T* adapt(DtorPtr object) {
+        T* result = object.get();
+        struct Destroyer final : public DtorNode {
+            Destroyer(std::unique_ptr<DtorNode, SkArena::Destroyer> next, DtorPtr toDestroy)
+                : DtorNode{std::move(next)}, fToDestroy{std::move(toDestroy)} {}
+            DtorPtr fToDestroy;
+        };
+
+        std::unique_ptr<DtorNode, SkArena::Destroyer> node =
+                this->SkArena::makeUnique<Destroyer>(std::move(fDtorList), std::move(object));
+
+        fDtorList = std::move(node);
+        return result;
+    }
+
+    std::unique_ptr<DtorNode, SkArena::Destroyer> fDtorList;
+};
+
+class SkArenaAlloc2WithReset : public SkArenaAlloc2 {
+public:
+    SkArenaAlloc2WithReset(char* block, size_t blockSize, size_t firstHeapAllocation);
+
+    explicit SkArenaAlloc2WithReset(size_t firstHeapAllocation)
+            : SkArenaAlloc2WithReset(nullptr, 0, firstHeapAllocation) {}
+
+    // Destroy all allocated objects, free any heap allocations.
+    void reset();
+
+private:
+    char* const    fFirstBlock;
+    const uint32_t fFirstSize;
+    const uint32_t fFirstHeapAllocationSize;
+};
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SkArenaAlloc).
+// Note: Inheriting from the storage first means the storage will outlive the
+// SkArenaAlloc, letting ~SkArenaAlloc read it as it calls destructors.
+// (This is mostly only relevant for strict tools like MSAN.)
+template <size_t InlineStorageSize>
+class SkSTArenaAlloc2 : private std::array<char, InlineStorageSize>, public SkArenaAlloc2 {
+public:
+    explicit SkSTArenaAlloc2(size_t firstHeapAllocation = InlineStorageSize)
+            : SkArenaAlloc2{this->data(), this->size(), firstHeapAllocation} {}
+};
+
+template <size_t InlineStorageSize>
+class SkSTArenaAlloc2WithReset
+        : private std::array<char, InlineStorageSize>, public SkArenaAlloc2WithReset {
+public:
+    explicit SkSTArenaAlloc2WithReset(size_t firstHeapAllocation = InlineStorageSize)
+            : SkArenaAlloc2WithReset{this->data(), this->size(), firstHeapAllocation} {}
+};
+
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
 // (optional) user-provided block of memory, and when that's exhausted it allocates on the heap,

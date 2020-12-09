@@ -235,3 +235,15 @@ void SkArenaAllocWithReset::reset() {
     this->~SkArenaAllocWithReset();
     new (this) SkArenaAllocWithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
+SkArenaAlloc2WithReset::SkArenaAlloc2WithReset(char* block,
+                                             size_t size,
+                                             size_t firstHeapAllocation)
+        : SkArenaAlloc2(block, size, firstHeapAllocation)
+        , fFirstBlock{block}
+        , fFirstSize{to_uint32_t(size)}
+        , fFirstHeapAllocationSize{to_uint32_t(firstHeapAllocation)} {}
+
+void SkArenaAlloc2WithReset::reset() {
+    this->~SkArenaAlloc2WithReset();
+    new (this) SkArenaAlloc2WithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
+}
