@@ -158,6 +158,24 @@
       "parentUuid": "039b4a1c_a81fef3e",
       "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7770b714_0dfd3e41",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-09T18:17:33Z",
+      "side": 1,
+      "message": "Indeed: appendFragment() evaluates xml:space in the context of the container being rendered - so we should be observing the local attribute value.  WS state is shared and orthogonal to which filter we apply.",
+      "parentUuid": "ff324773_347cfaaa",
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
