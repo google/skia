@@ -394,7 +394,7 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
                                                         gradLM ? &persp : nullptr);
         bool imageLM = config.fLM == kImageWithLocalMat || config.fLM == kBothWithLocalMat;
         auto imgShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                         imageLM ? perspScale : scale);
+                                         SkSamplingOptions(), imageLM ? perspScale : scale);
 
         // Perspective before any clipShader
         if (config.fConcat == kConcatBeforeClips) {
@@ -449,7 +449,8 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
     SkRect rect = SkRect::MakeWH(256, 256);
     SkMatrix local = SkMatrix::MakeRectToRect(SkRect::MakeWH(image->width(), image->height()),
                                               SkRect::MakeWH(64, 64), SkMatrix::kFill_ScaleToFit);
-    auto shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &local);
+    auto shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                    SkSamplingOptions(), &local);
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
