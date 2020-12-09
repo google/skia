@@ -36,7 +36,7 @@
 #include <string.h>
 #include <utility>
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
@@ -268,7 +268,7 @@ private:
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
-    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         SkASSERT(fReferenceImages[0] && fReferenceImages[1]);
 
         canvas->save();

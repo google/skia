@@ -33,8 +33,8 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStencilClip.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
@@ -150,11 +150,11 @@ private:
     constexpr static int kMaskCheckerSize = 5;
     SkString onShortName() final { return SkString("windowrectangles_mask"); }
     DrawResult onCoverClipStack(const SkClipStack&, SkCanvas*, SkString* errorMsg) final;
-    void visualizeAlphaMask(GrRecordingContext*, GrRenderTargetContext*,
+    void visualizeAlphaMask(GrRecordingContext*, GrSurfaceDrawContext*,
                             const GrReducedClip&, GrPaint&&);
-    void visualizeStencilMask(GrRecordingContext*, GrRenderTargetContext*,
+    void visualizeStencilMask(GrRecordingContext*, GrSurfaceDrawContext*,
                               const GrReducedClip&, GrPaint&&);
-    void stencilCheckerboard(GrRenderTargetContext*, bool flip);
+    void stencilCheckerboard(GrSurfaceDrawContext*, bool flip);
 };
 
 /**
@@ -168,7 +168,7 @@ private:
     SkIRect getConservativeBounds() const final {
         return SkIRect::MakeXYWH(fX, fY, fMask.width(), fMask.height());
     }
-    Effect apply(GrRecordingContext* ctx, GrRenderTargetContext*, GrAAType, bool,
+    Effect apply(GrRecordingContext* ctx, GrSurfaceDrawContext*, GrAAType, bool,
                      GrAppliedClip* out, SkRect* bounds) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
@@ -189,14 +189,14 @@ private:
 /**
  * Makes a clip object that enforces the stencil clip bit. Used to visualize the stencil mask.
  */
-static GrStencilClip make_stencil_only_clip(GrRenderTargetContext* rtc) {
+static GrStencilClip make_stencil_only_clip(GrSurfaceDrawContext* rtc) {
     return GrStencilClip(rtc->dimensions(), SkClipStack::kEmptyGenID);
 };
 
 DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
                                                     SkString* errorMsg) {
     auto ctx = canvas->recordingContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
@@ -220,11 +220,11 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
     return DrawResult::kOk;
 }
 
-void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
+void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
                                                 const GrReducedClip& reducedClip, GrPaint&& paint) {
     const int padRight = (kDeviceRect.right() - kCoverRect.right()) / 2;
     const int padBottom = (kDeviceRect.bottom() - kCoverRect.bottom()) / 2;
-    auto maskRTC = GrRenderTargetContext::MakeWithFallback(
+    auto maskRTC = GrSurfaceDrawContext::MakeWithFallback(
             ctx, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact,
             {kCoverRect.width() + padRight, kCoverRect.height() + padBottom});
     if (!maskRTC) {
@@ -254,7 +254,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrRecordingContext* ctx, GrRende
 }
 
 void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
-                                                  GrRenderTargetContext* rtc,
+                                                  GrSurfaceDrawContext* rtc,
                                                   const GrReducedClip& reducedClip,
                                                   GrPaint&& paint) {
     if (ctx->abandoned()) {
@@ -275,7 +275,7 @@ void WindowRectanglesMaskGM::visualizeStencilMask(GrRecordingContext* ctx,
     rtc->drawPaint(&clip, std::move(paint), SkMatrix::I());
 }
 
-void WindowRectanglesMaskGM::stencilCheckerboard(GrRenderTargetContext* rtc, bool flip) {
+void WindowRectanglesMaskGM::stencilCheckerboard(GrSurfaceDrawContext* rtc, bool flip) {
     constexpr static GrUserStencilSettings kSetClip(
         GrUserStencilSettings::StaticInit<
         0,

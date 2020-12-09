@@ -36,7 +36,7 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 
 class GrRecordingContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
@@ -2457,7 +2457,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
-    virtual GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
+    virtual GrSurfaceDrawContext* internal_private_accessTopLayerRenderTargetContext();
     SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
     // TEMP helpers until we switch virtual over to const& for src-rect

@@ -29,7 +29,7 @@ class GrOnFlushCallbackObject;
 class GrOpFlushState;
 class GrOpsTask;
 class GrRecordingContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class GrRenderTargetProxy;
 class GrRenderTask;
 class GrSemaphore;

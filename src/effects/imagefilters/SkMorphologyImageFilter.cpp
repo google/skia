@@ -19,7 +19,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
@@ -362,7 +362,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_rect(GrSurfaceDrawContext* renderTargetContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -381,7 +381,7 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
                                         SkRect::Make(srcRect));
 }
 
-static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_rect_no_bounds(GrSurfaceDrawContext* renderTargetContext,
                                             GrSurfaceProxyView view,
                                             SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
@@ -398,7 +398,7 @@ static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetC
                                         SkRect::Make(srcRect));
 }
 
-static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
+static void apply_morphology_pass(GrSurfaceDrawContext* renderTargetContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -462,7 +462,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        auto dstRTContext = GrRenderTargetContext::Make(
+        auto dstRTContext = GrSurfaceDrawContext::Make(
                 context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
                 GrMipmapped::kNo, proxy->isProtected(), kBottomLeft_GrSurfaceOrigin);
         if (!dstRTContext) {
@@ -482,7 +482,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        auto dstRTContext = GrRenderTargetContext::Make(
+        auto dstRTContext = GrSurfaceDrawContext::Make(
                 context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
                 GrMipmapped::kNo, srcView.proxy()->isProtected(), kBottomLeft_GrSurfaceOrigin);
         if (!dstRTContext) {

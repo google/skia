@@ -12,9 +12,9 @@
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                const SkISize& dimensions,

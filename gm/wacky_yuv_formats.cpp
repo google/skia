@@ -58,7 +58,7 @@
 #include <memory>
 #include <utility>
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
@@ -1051,7 +1051,7 @@ protected:
         fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, GrRenderTargetContext*,
+    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext*,
                       SkCanvas* canvas, SkString* msg) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 

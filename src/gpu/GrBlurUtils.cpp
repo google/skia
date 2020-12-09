@@ -15,9 +15,9 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -39,7 +39,7 @@ static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
 // Draw a mask using the supplied paint. Since the coverage/geometry
 // is already burnt into the mask this boils down to a rect draw.
 // Return true if the mask was successfully drawn.
-static bool draw_mask(GrRenderTargetContext* renderTargetContext,
+static bool draw_mask(GrSurfaceDrawContext* renderTargetContext,
                       const GrClip* clip,
                       const SkMatrix& viewMatrix,
                       const SkIRect& maskRect,
@@ -178,11 +178,11 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
 }
 
 // Create a mask of 'shape' and return the resulting renderTargetContext
-static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext* context,
-                                                              const SkIRect& maskRect,
-                                                              const SkMatrix& origViewMatrix,
-                                                              const GrStyledShape& shape,
-                                                              int sampleCnt) {
+static std::unique_ptr<GrSurfaceDrawContext> create_mask_GPU(GrRecordingContext* context,
+                                                             const SkIRect& maskRect,
+                                                             const SkMatrix& origViewMatrix,
+                                                             const GrStyledShape& shape,
+                                                             int sampleCnt) {
     // Use GrResourceProvider::MakeApprox to implement our own approximate size matching, but demand
     // a "SkBackingFit::kExact" size match on the actual render target. We do this because the
     // filter will reach outside the src bounds, so we need to pre-clear these values to ensure a
@@ -193,7 +193,7 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     // the same. We should offset our filter within the render target and expand the size as needed
     // to guarantee at least 1px of padding on all sides.
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
-    auto rtContext = GrRenderTargetContext::MakeWithFallback(
+    auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, sampleCnt,
             GrMipmapped::kNo, GrProtected::kNo, kMaskOrigin);
     if (!rtContext) {
@@ -243,7 +243,7 @@ static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkM
 
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-static bool get_shape_and_clip_bounds(GrRenderTargetContext* renderTargetContext,
+static bool get_shape_and_clip_bounds(GrSurfaceDrawContext* renderTargetContext,
                                       const GrClip* clip,
                                       const GrStyledShape& shape,
                                       const SkMatrix& matrix,
@@ -350,7 +350,7 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
 }
 
 static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
-                                                  GrRenderTargetContext* renderTargetContext,
+                                                  GrSurfaceDrawContext* renderTargetContext,
                                                   const SkMatrix& viewMatrix,
                                                   const GrStyledShape& shape,
                                                   const SkMaskFilterBase* filter,
@@ -399,7 +399,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
         }
     }
 
-    std::unique_ptr<GrRenderTargetContext> maskRTC(create_mask_GPU(
+    std::unique_ptr<GrSurfaceDrawContext> maskRTC(create_mask_GPU(
                                                             dContext,
                                                             *maskRect,
                                                             viewMatrix,
@@ -445,7 +445,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
 }
 
 static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
-                                        GrRenderTargetContext* renderTargetContext,
+                                        GrSurfaceDrawContext* renderTargetContext,
                                         const GrClip* clip,
                                         GrPaint&& paint,
                                         const SkMatrix& viewMatrix,
@@ -536,7 +536,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
 }
 
 void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
-                                          GrRenderTargetContext* renderTargetContext,
+                                          GrSurfaceDrawContext* renderTargetContext,
                                           const GrClip* clip,
                                           const GrStyledShape& shape,
                                           GrPaint&& paint,
@@ -547,7 +547,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
 }
 
 void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
-                                          GrRenderTargetContext* renderTargetContext,
+                                          GrSurfaceDrawContext* renderTargetContext,
                                           const GrClip* clip,
                                           const SkPaint& paint,
                                           const SkMatrixProvider& matrixProvider,

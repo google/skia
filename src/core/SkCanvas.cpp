@@ -1733,7 +1733,7 @@ SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
-GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
+GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTargetContext() : nullptr;
 }

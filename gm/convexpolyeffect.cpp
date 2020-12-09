@@ -23,7 +23,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "tools/gpu/TestOps.h"
 
@@ -106,7 +106,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
                 SkCanvas* canvas) override {
         SkScalar y = 0;
         static constexpr SkScalar kDX = 12.f;

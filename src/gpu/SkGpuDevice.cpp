@@ -76,7 +76,7 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
-                                     std::unique_ptr<GrRenderTargetContext> renderTargetContext,
+                                     std::unique_ptr<GrSurfaceDrawContext> renderTargetContext,
                                      InitContents init) {
     if (!renderTargetContext || context->abandoned()) {
         return nullptr;
@@ -111,7 +111,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted bud
     return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
 }
 
-static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
+static SkImageInfo make_info(GrSurfaceDrawContext* context, bool opaque) {
     SkColorType colorType = GrColorTypeToSkColorType(context->colorInfo().colorType());
     return SkImageInfo::Make(context->width(), context->height(), colorType,
                              opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType,
@@ -119,7 +119,7 @@ static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
 }
 
 SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
-                         std::unique_ptr<GrRenderTargetContext> renderTargetContext,
+                         std::unique_ptr<GrSurfaceDrawContext> renderTargetContext,
                          unsigned flags)
         : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     renderTargetContext->surfaceProps())
@@ -139,7 +139,7 @@ SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
     }
 }
 
-std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
+std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeRenderTargetContext(
         GrRecordingContext* context,
         SkBudgeted budgeted,
         const SkImageInfo& origInfo,
@@ -153,7 +153,7 @@ std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
 
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
-    return GrRenderTargetContext::Make(
+    return GrSurfaceDrawContext::Make(
             context, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
             SkBackingFit::kExact, origInfo.dimensions(), sampleCount, mipMapped, GrProtected::kNo,
             origin, budgeted, surfaceProps);
@@ -191,7 +191,7 @@ bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     return false;
 }
 
-GrRenderTargetContext* SkGpuDevice::accessRenderTargetContext() {
+GrSurfaceDrawContext* SkGpuDevice::accessRenderTargetContext() {
     ASSERT_SINGLE_OWNER
     return fRenderTargetContext.get();
 }
@@ -204,7 +204,7 @@ void SkGpuDevice::clearAll() {
     fRenderTargetContext->clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
 }
 
-void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetContext> rtc,
+void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrSurfaceDrawContext> rtc,
                                              SkSurface::ContentChangeMode mode) {
     SkASSERT(rtc->width() == this->width());
     SkASSERT(rtc->height() == this->height());
@@ -606,7 +606,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawStrokedLine", fContext.get());
     // Adding support for round capping would require a
-    // GrRenderTargetContext::fillRRectWithLocalMatrix entry point
+    // GrSurfaceDrawContext::fillRRectWithLocalMatrix entry point
     SkASSERT(SkPaint::kRound_Cap != origPaint.getStrokeCap());
     SkASSERT(SkPaint::kStroke_Style == origPaint.getStyle());
     SkASSERT(!origPaint.getPathEffect());
@@ -742,7 +742,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool forceCopy) {
-    GrRenderTargetContext* rtc = this->accessRenderTargetContext();
+    GrSurfaceDrawContext* rtc = this->accessRenderTargetContext();
 
     // If we are wrapping a vulkan secondary command buffer, then we can't snap off a special image
     // since it would require us to make a copy of the underlying VkImage which we don't have access
@@ -1050,7 +1050,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     SkASSERT(cinfo.fInfo.colorType() != kRGBA_1010102_SkColorType);
 
-    auto rtc = GrRenderTargetContext::MakeWithFallback(
+    auto rtc = GrSurfaceDrawContext::MakeWithFallback(
             fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fRenderTargetContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(),
             fRenderTargetContext->numSamples(), GrMipmapped::kNo,
@@ -1090,7 +1090,7 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
     if (clipRegion.isEmpty()) {
         return false;
     }
-    GrRenderTargetContext* rtc = this->accessRenderTargetContext();
+    GrSurfaceDrawContext* rtc = this->accessRenderTargetContext();
     if (!rtc) {
         return false;
     }

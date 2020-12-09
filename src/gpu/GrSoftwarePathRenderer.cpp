@@ -66,7 +66,7 @@ static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkM
 
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* renderTargetContext,
+bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrSurfaceDrawContext* renderTargetContext,
                                                    const GrClip* clip,
                                                    const GrStyledShape& shape,
                                                    const SkMatrix& matrix,
@@ -92,7 +92,7 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetContext,
+void GrSoftwarePathRenderer::DrawNonAARect(GrSurfaceDrawContext* renderTargetContext,
                                            GrPaint&& paint,
                                            const GrUserStencilSettings& userStencilSettings,
                                            const GrClip* clip,
@@ -103,7 +103,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                      viewMatrix, rect, &localMatrix);
 }
 
-void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
+void GrSoftwarePathRenderer::DrawAroundInvPath(GrSurfaceDrawContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip* clip,
@@ -144,7 +144,7 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTarg
 
 void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
         GrSurfaceProxyView view,
-        GrRenderTargetContext* renderTargetContext,
+        GrSurfaceDrawContext* renderTargetContext,
         GrPaint&& paint,
         const GrUserStencilSettings& userStencilSettings,
         const GrClip* clip,

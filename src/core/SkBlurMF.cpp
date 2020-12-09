@@ -24,10 +24,10 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
@@ -56,7 +56,7 @@ public:
                           const SkMatrix& ctm,
                           SkIRect* maskRect) const override;
     bool directFilterMaskGPU(GrRecordingContext*,
-                             GrRenderTargetContext* renderTargetContext,
+                             GrSurfaceDrawContext* renderTargetContext,
                              GrPaint&&,
                              const GrClip*,
                              const SkMatrix& viewMatrix,
@@ -572,7 +572,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
-                                               GrRenderTargetContext* renderTargetContext,
+                                               GrSurfaceDrawContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrClip* clip,
                                                const SkMatrix& viewMatrix,

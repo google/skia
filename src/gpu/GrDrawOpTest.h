@@ -17,12 +17,12 @@ class GrContext_Base;
 class GrDrawOp;
 class GrPaint;
 class GrRecordingContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 struct GrUserStencilSettings;
 class SkRandom;
 
 /**  This function draws a randomly configured GrDrawOp for testing purposes. */
-void GrDrawRandomOp(SkRandom*, GrRenderTargetContext*, GrPaint&&);
+void GrDrawRandomOp(SkRandom*, GrSurfaceDrawContext*, GrPaint&&);
 
 /** GrDrawOp subclasses should define test factory functions using this macro. */
 #define GR_DRAW_OP_TEST_DEFINE(Op)                                                              \

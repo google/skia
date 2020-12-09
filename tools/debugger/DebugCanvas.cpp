@@ -22,7 +22,7 @@
 
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 #include <string>
 
@@ -212,7 +212,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
         // get the render target of the top device (from the original canvas) so we can ignore ops
         // drawn offscreen
-        GrRenderTargetContext* rtc =
+        GrSurfaceDrawContext* rtc =
                 originalCanvas->internal_private_accessTopLayerRenderTargetContext();
         GrSurfaceProxy::UniqueID proxyID = rtc->asSurfaceProxy()->uniqueID();
 

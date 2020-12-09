@@ -113,10 +113,10 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
     const SkImageInfo ii =
             SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    auto readRTC = GrRenderTargetContext::Make(dContext, kColorType, nullptr, SkBackingFit::kExact,
-                                               {kSize, kSize});
-    auto tempRTC = GrRenderTargetContext::Make(dContext, kColorType, nullptr, SkBackingFit::kExact,
-                                               {kSize, kSize});
+    auto readRTC = GrSurfaceDrawContext::Make(dContext, kColorType, nullptr, SkBackingFit::kExact,
+                                              {kSize, kSize});
+    auto tempRTC = GrSurfaceDrawContext::Make(dContext, kColorType, nullptr, SkBackingFit::kExact,
+                                              {kSize, kSize});
     if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
         return false;
     }

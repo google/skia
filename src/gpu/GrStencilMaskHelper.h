@@ -15,7 +15,7 @@
 
 class GrShape;
 class GrRecordingContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class SkMatrix;
 class SkRRect;
 
@@ -37,7 +37,7 @@ public:
     // Configure the helper to update the stencil mask within the given rectangle, respecting the
     // set window rectangles. It will use the provided context and render target to draw into, both
     // of which must outlive the helper.
-    GrStencilMaskHelper(GrRecordingContext* context, GrRenderTargetContext* rtc)
+    GrStencilMaskHelper(GrRecordingContext* context, GrSurfaceDrawContext* rtc)
             : fContext(context)
             , fRTC(rtc)
             , fClip(rtc->dimensions()) {}
@@ -63,7 +63,7 @@ public:
 
 private:
     GrRecordingContext*    fContext;
-    GrRenderTargetContext* fRTC;
+    GrSurfaceDrawContext* fRTC;
     GrStencilClip          fClip;
     int                    fNumFPs;
 

@@ -23,8 +23,8 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -246,7 +246,7 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
     if (proxy->asRenderTargetProxy()) {
         GrBackendFormat expectedFormat;
         std::tie(ct, expectedFormat) =
-                GrRenderTargetContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
+                GrSurfaceDrawContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
         SkASSERT(expectedFormat == proxy->backendFormat());
     }
     GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);

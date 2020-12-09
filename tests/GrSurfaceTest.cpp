@@ -17,8 +17,8 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -289,7 +289,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                     {
                         std::unique_ptr<GrSurfaceContext> surfCtx;
                         if (renderable == GrRenderable::kYes) {
-                            surfCtx = GrRenderTargetContext::Make(
+                            surfCtx = GrSurfaceDrawContext::Make(
                                     dContext, combo.fColorType, nullptr, fit,
                                     {desc.fWidth, desc.fHeight}, 1, GrMipmapped::kNo,
                                     GrProtected::kNo, kTopLeft_GrSurfaceOrigin);

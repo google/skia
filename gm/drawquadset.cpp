@@ -26,7 +26,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "tools/ToolUtils.h"
 
@@ -48,7 +48,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
 
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     auto context = canvas->recordingContext();
 

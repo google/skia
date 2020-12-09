@@ -20,7 +20,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 namespace {
 
@@ -1638,7 +1638,7 @@ DEF_TEST(GrClipStack_DiffRects, r) {
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(&options);
-    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::Make(
+    std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size());
 
@@ -1785,7 +1785,7 @@ DEF_TEST(GrClipStack_Shader, r) {
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
-    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::Make(
+    std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size());
 
@@ -1835,7 +1835,7 @@ DEF_TEST(GrClipStack_Shader, r) {
 DEF_TEST(GrClipStack_SimpleApply, r) {
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();
     sk_sp<GrDirectContext> context = GrDirectContext::MakeMock(nullptr);
-    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::Make(
+    std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context.get(), GrColorType::kRGBA_8888, SkColorSpace::MakeSRGB(),
             SkBackingFit::kExact, kDeviceBounds.size());
 
@@ -1965,7 +1965,7 @@ DEF_GPUTEST_FOR_CONTEXTS(GrClipStack_SWMask,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          r, ctxInfo, only_allow_default) {
     GrDirectContext* context = ctxInfo.directContext();
-    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::Make(
+    std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size());
 
     SkSimpleMatrixProvider matrixProvider = SkMatrix::I();

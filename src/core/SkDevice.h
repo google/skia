@@ -428,7 +428,7 @@ private:
     /**
      * Don't call this!
      */
-    virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
+    virtual GrSurfaceDrawContext* accessRenderTargetContext() { return nullptr; }
 
     // Configure the device's coordinate spaces, specifying both how its device image maps back to
     // the global space (via 'deviceToGlobal') and the initial CTM of the device (via

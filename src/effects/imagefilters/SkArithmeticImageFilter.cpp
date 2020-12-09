@@ -20,7 +20,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/generated/GrArithmeticProcessor.h"
@@ -369,7 +369,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox, bounds.size(),
             1, GrMipmapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {

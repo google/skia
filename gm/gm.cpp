@@ -25,7 +25,7 @@
 
 #include <stdarg.h>
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 using namespace skiagm;
 
@@ -142,7 +142,7 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
+DrawResult SimpleGpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
                                SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
@@ -187,19 +187,19 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-DrawResult GpuGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
+DrawResult GpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                          SkString* errorMsg) {
     this->onDraw(ctx, rtc, canvas);
     return DrawResult::kOk;
 }
-void GpuGM::onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas*) {
+void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
     SK_ABORT("Not implemented.");
 }
 
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
     auto ctx = canvas->recordingContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
     if (!ctx || !rtc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

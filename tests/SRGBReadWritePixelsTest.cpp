@@ -11,8 +11,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
 
@@ -192,7 +192,7 @@ static std::unique_ptr<uint32_t[]> make_data() {
 static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
                                                               GrRecordingContext* rContext,
                                                               skiatest::Reporter* reporter) {
-    auto surfaceContext = GrRenderTargetContext::Make(
+    auto surfaceContext = GrSurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
             SkBackingFit::kExact, {kW, kH}, 1, GrMipmapped::kNo, GrProtected::kNo,
             kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);

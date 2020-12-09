@@ -21,8 +21,8 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
@@ -55,7 +55,7 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                const SkISize& dimensions,
                                float xformedSigma) {
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
-    std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::MakeWithFallback(
+    std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
             GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
     if (!rtc) {

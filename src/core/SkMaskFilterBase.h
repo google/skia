@@ -26,7 +26,7 @@ class GrFragmentProcessor;
 class GrPaint;
 class GrRecordingContext;
 class GrRenderTarget;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class GrResourceProvider;
 class GrStyledShape;
 class GrSurfaceProxyView;
@@ -114,7 +114,7 @@ public:
      *  successful. If false is returned then paint is unmodified.
      */
     virtual bool directFilterMaskGPU(GrRecordingContext*,
-                                     GrRenderTargetContext*,
+                                     GrSurfaceDrawContext*,
                                      GrPaint&& paint,
                                      const GrClip*,
                                      const SkMatrix& viewMatrix,

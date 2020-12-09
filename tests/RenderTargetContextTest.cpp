@@ -12,18 +12,18 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 
 static const int kSize = 64;
 
-static std::unique_ptr<GrRenderTargetContext> get_rtc(GrRecordingContext* rContext) {
-    return GrRenderTargetContext::Make(
+static std::unique_ptr<GrSurfaceDrawContext> get_rtc(GrRecordingContext* rContext) {
+    return GrSurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kSize, kSize});
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,
-                                       GrRenderTargetContext* rtCtx,
+                                       GrSurfaceDrawContext* rtCtx,
                                        bool wrappedExpectation) {
     REPORTER_ASSERT(reporter, rtCtx->asRenderTargetProxy()->isInstantiated() == wrappedExpectation);
 
@@ -36,8 +36,8 @@ static void check_instantiation_status(skiatest::Reporter* reporter,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
-    // Calling instantiate on a GrRenderTargetContext's textureProxy also instantiates the
-    // GrRenderTargetContext
+    // Calling instantiate on a GrSurfaceDrawContext's textureProxy also instantiates the
+    // GrSurfaceDrawContext
     {
         auto rtCtx = get_rtc(dContext);
 
@@ -68,6 +68,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
     }
 
     // TODO: in a future world we should be able to add a test that the majority of
-    // GrRenderTargetContext calls do not force the instantiation of a deferred
-    // GrRenderTargetContext
+    // GrSurfaceDrawContext calls do not force the instantiation of a deferred
+    // GrSurfaceDrawContext
 }

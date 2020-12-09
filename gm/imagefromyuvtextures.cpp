@@ -32,7 +32,7 @@
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 namespace skiagm {
 class ImageFromYUVTextures : public GpuGM {
@@ -195,7 +195,7 @@ protected:
         return fYUVAImages[index].get();
     }
 
-    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         auto draw_image = [canvas](SkImage* image, SkFilterQuality fq) -> SkSize {
             if (!image) {
                 return {0, 0};

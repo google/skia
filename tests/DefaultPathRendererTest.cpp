@@ -27,8 +27,8 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -39,7 +39,7 @@ static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
 }
 
-static SkBitmap read_back(GrDirectContext* dContext, GrRenderTargetContext* rtc,
+static SkBitmap read_back(GrDirectContext* dContext, GrSurfaceDrawContext* rtc,
                           int width, int height) {
 
     SkImageInfo dstII = SkImageInfo::MakeN32Premul(width, height);
@@ -84,7 +84,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     {
-        auto rtc = GrRenderTargetContext::Make(
+        auto rtc = GrSurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kBigSize/2 + 1, kBigSize/2 + 1});
 
@@ -102,7 +102,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     }
 
     {
-        auto rtc = GrRenderTargetContext::Make(
+        auto rtc = GrSurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
 
         rtc->clear(SK_PMColor4fBLACK);

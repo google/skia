@@ -9,6 +9,7 @@
 
 #include "include/core/SkImageGenerator.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "include/private/SkMutex.h"
 #include "src/gpu/GrTexture.h"

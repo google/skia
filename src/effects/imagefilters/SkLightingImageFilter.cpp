@@ -23,7 +23,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 
@@ -441,7 +441,7 @@ protected:
 
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrRenderTargetContext*,
+    void drawRect(GrSurfaceDrawContext*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
                   const SkRect& dstRect,
@@ -457,7 +457,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTargetContext,
+void SkLightingImageFilterInternal::drawRect(GrSurfaceDrawContext* renderTargetContext,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
                                              const SkRect& dstRect,
@@ -486,7 +486,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     GrSurfaceProxyView inputView = input->view(context);
     SkASSERT(inputView.asTextureProxy());
 
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
             offsetBounds.size(), 1, GrMipmapped::kNo, inputView.proxy()->isProtected(),
             kBottomLeft_GrSurfaceOrigin);

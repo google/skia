@@ -90,7 +90,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
 bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
                                           const SkIRect& scissorRect,
                                           bool hasUserStencilSettings,
-                                          const GrRenderTargetContext* renderTargetContext,
+                                          const GrSurfaceDrawContext* renderTargetContext,
                                           const SkMatrix& viewMatrix,
                                           const Element* element,
                                           bool needsStencil) {
@@ -144,7 +144,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrRecordingContext* context,
  */
 bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
                                     bool hasUserStencilSettings,
-                                    const GrRenderTargetContext* renderTargetContext,
+                                    const GrSurfaceDrawContext* renderTargetContext,
                                     const GrReducedClip& reducedClip) {
     // TODO: right now it appears that GPU clip masks are strictly slower than software. We may
     // want to revisit this assumption once we can test with render target sorting.
@@ -186,7 +186,7 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
-                                      GrRenderTargetContext* renderTargetContext,
+                                      GrSurfaceDrawContext* renderTargetContext,
                                       GrAAType aa, bool hasUserStencilSettings,
                                       GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(renderTargetContext->width() == fDeviceSize.fWidth &&
@@ -258,7 +258,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
 }
 
 bool GrClipStackClip::applyClipMask(GrRecordingContext* context,
-                                    GrRenderTargetContext* renderTargetContext,
+                                    GrSurfaceDrawContext* renderTargetContext,
                                     const GrReducedClip& reducedClip, bool hasUserStencilSettings,
                                     GrAppliedClip* out) const {
 #ifdef SK_DEBUG
@@ -353,7 +353,7 @@ GrSurfaceProxyView GrClipStackClip::createAlphaClipMask(GrRecordingContext* cont
         return cachedView;
     }
 
-    auto rtc = GrRenderTargetContext::MakeWithFallback(
+    auto rtc = GrSurfaceDrawContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox,
             {reducedClip.width(), reducedClip.height()}, 1, GrMipmapped::kNo, GrProtected::kNo,
             kMaskOrigin);
@@ -453,7 +453,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 
 GrSurfaceProxyView GrClipStackClip::createSoftwareClipMask(
         GrRecordingContext* context, const GrReducedClip& reducedClip,
-        GrRenderTargetContext* renderTargetContext) const {
+        GrSurfaceDrawContext* renderTargetContext) const {
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticElements(), &key);

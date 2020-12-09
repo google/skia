@@ -23,7 +23,7 @@ public:
 
     // This is an internal-only factory
     static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*,
-                                                    std::unique_ptr<GrRenderTargetContext>);
+                                                    std::unique_ptr<GrSurfaceDrawContext>);
 
     GrRecordingContext* onGetRecordingContext() override;
 

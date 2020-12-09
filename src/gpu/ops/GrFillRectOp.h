@@ -9,7 +9,7 @@
 #define GrFillRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 class GrDrawOp;
@@ -48,13 +48,13 @@ public:
 
     // Bulk API for drawing quads with a single op
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-    static void AddFillRectOps(GrRenderTargetContext*,
+    static void AddFillRectOps(GrSurfaceDrawContext*,
                                const GrClip* clip,
                                GrRecordingContext*,
                                GrPaint&&,
                                GrAAType,
                                const SkMatrix& viewMatrix,
-                               const GrRenderTargetContext::QuadSetEntry quads[],
+                               const GrSurfaceDrawContext::QuadSetEntry quads[],
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
 
@@ -69,7 +69,7 @@ private:
                               GrPaint&&,
                               GrAAType,
                               const SkMatrix& viewMatrix,
-                              const GrRenderTargetContext::QuadSetEntry quads[],
+                              const GrSurfaceDrawContext::QuadSetEntry quads[],
                               int quadCount,
                               const GrUserStencilSettings*,
                               int* numConsumed);

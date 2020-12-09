@@ -43,7 +43,7 @@ private:
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
+    // GrSurfaceDrawContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner            fSingleOwner;
 
     using INHERITED = GrContext_Base;

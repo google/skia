@@ -11,9 +11,9 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/image/SkSurface_Gpu.h"
 
 #if SK_SUPPORT_GPU
@@ -90,9 +90,9 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(rContext, std::move(readView),
-                                                       std::move(writeView), grColorType,
-                                                       colorSpace, surfaceProps);
+    auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
+                                                      std::move(writeView), grColorType, colorSpace,
+                                                      surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
     return surface;
@@ -160,9 +160,9 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
     GrSurfaceProxyView readView(proxy, origin, readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(rContext, std::move(readView),
-                                                       std::move(writeView), grColorType,
-                                                       colorSpace, surfaceProps);
+    auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
+                                                      std::move(writeView), grColorType, colorSpace,
+                                                      surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
     return surface;

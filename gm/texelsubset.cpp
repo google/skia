@@ -22,8 +22,8 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplerState.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "tools/Resources.h"
@@ -86,7 +86,7 @@ protected:
         SkASSERT(fBitmap.dimensions() == kImageSize);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrMipmapped mipmapped = (fMipmapMode != MipmapMode::kNone) ? GrMipmapped::kYes
                                                                    : GrMipmapped::kNo;

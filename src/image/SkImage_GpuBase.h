@@ -17,7 +17,7 @@
 class GrColorSpaceXform;
 class GrDirectContext;
 class GrImageContext;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
