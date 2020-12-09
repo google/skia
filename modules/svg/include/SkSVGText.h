@@ -18,11 +18,14 @@ public:
     SVG_ATTR(X, SkSVGLength, SkSVGLength(0))
     SVG_ATTR(Y, SkSVGLength, SkSVGLength(0))
 
+    SVG_ATTR(XmlSpace, SkSVGXmlSpace, SkSVGXmlSpace::kDefault)
+
 protected:
     explicit SkSVGTextContainer(SkSVGTag t) : INHERITED(t) {}
 
 private:
     void appendChild(sk_sp<SkSVGNode>) final;
+    bool onPrepareToRender(SkSVGRenderContext*) const final;
 
     bool parseAndSetAttribute(const char*, const char*) override;
 

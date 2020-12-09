@@ -652,4 +652,9 @@ struct SkSVGFeTurbulenceType {
     explicit SkSVGFeTurbulenceType(Type type) : fType(type) {}
 };
 
+enum class SkSVGXmlSpace {
+    kDefault,
+    kPreserve,
+};
+
 #endif // SkSVGTypes_DEFINED

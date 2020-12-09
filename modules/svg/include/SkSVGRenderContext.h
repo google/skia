@@ -132,6 +132,9 @@ public:
         return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
     }
 
+    SkSVGXmlSpace getXmlSpace() const { return fXmlSpace; }
+    void setXmlSpace(SkSVGXmlSpace xs) { fXmlSpace = xs; }
+
 private:
     // Stack-only
     void* operator new(size_t)                               = delete;
@@ -155,6 +158,8 @@ private:
 
     // clipPath, if present for the current context (not inherited).
     SkTLazy<SkPath>                               fClipPath;
+
+    SkSVGXmlSpace                                 fXmlSpace = SkSVGXmlSpace::kDefault;
 
     const SkSVGNode* fNode;
 };
