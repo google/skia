@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58da7588_3cc27363",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-09T17:03:30Z",
+      "side": 1,
+      "message": "Feels awkward to covert back to utf8 at this point - would be nice if SkShaper could handle utf32 inputs.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 81
+      },
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
