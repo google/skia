@@ -140,6 +140,24 @@
       "parentUuid": "8245f9b0_91f9f3f7",
       "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff324773_347cfaaa",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-09T18:13:02Z",
+      "side": 1,
+      "message": "It looks like children elements can have different values of xml:space that impact only that child\u0027s text content, so we may need to handle that at some point?",
+      "parentUuid": "039b4a1c_a81fef3e",
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
