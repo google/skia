@@ -103,10 +103,23 @@ SkPaint::Join toSkJoin(const SkSVGLineJoin& join) {
     }
 }
 
+SkSVGColorType resolveSvgColor(const SkSVGRenderContext& ctx, const SkSVGColor& color) {
+    switch (color.type()) {
+        case SkSVGColor::Type::kColor:
+            return color.color();
+        case SkSVGColor::Type::kCurrentColor:
+            return *ctx.presentationContext().fInherited.fColor;
+        case SkSVGColor::Type::kICCColor:
+            SkDebugf("ICC color unimplemented");
+            return SK_ColorBLACK;
+    }
+    SkUNREACHABLE;
+}
+
 void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, SkPaint* p) {
     switch (svgPaint.type()) {
     case SkSVGPaint::Type::kColor:
-        p->setColor(SkColorSetA(svgPaint.color(), p->getAlpha()));
+        p->setColor(SkColorSetA(resolveSvgColor(ctx, svgPaint.color()), p->getAlpha()));
         break;
     case SkSVGPaint::Type::kIRI: {
         const auto node = ctx.findNodeById(svgPaint.iri());
@@ -115,9 +128,6 @@ void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, Sk
         }
         break;
     }
-    case SkSVGPaint::Type::kCurrentColor:
-        p->setColor(*ctx.presentationContext().fInherited.fColor);
-        break;
     case SkSVGPaint::Type::kNone:
         // Do nothing
         break;
@@ -536,14 +546,16 @@ void SkSVGRenderContext::updatePaintsWithCurrentColor(const SkSVGPresentationAtt
     //   https://www.w3.org/TR/SVG11/color.html#ColorProperty
     // Only fill and stroke require paint updates. The others are resolved at render time.
 
-    if (fPresentationContext->fInherited.fFill->type() == SkSVGPaint::Type::kCurrentColor) {
-        applySvgPaint(*this, *fPresentationContext->fInherited.fFill,
-                      &fPresentationContext.writable()->fFillPaint);
+    const auto& fill = fPresentationContext->fInherited.fFill;
+    if (fill->type() == SkSVGPaint::Type::kColor &&
+        fill->color().type() == SkSVGColor::Type::kCurrentColor) {
+        applySvgPaint(*this, *fill, &fPresentationContext.writable()->fFillPaint);
     }
 
-    if (fPresentationContext->fInherited.fStroke->type() == SkSVGPaint::Type::kCurrentColor) {
-        applySvgPaint(*this, *fPresentationContext->fInherited.fStroke,
-                      &fPresentationContext.writable()->fStrokePaint);
+    const auto& stroke = fPresentationContext->fInherited.fStroke;
+    if (stroke->type() == SkSVGPaint::Type::kColor &&
+        stroke->color().type() == SkSVGColor::Type::kCurrentColor) {
+        applySvgPaint(*this, *stroke, &fPresentationContext.writable()->fStrokePaint);
     }
 }
 
