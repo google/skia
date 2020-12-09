@@ -29,7 +29,14 @@
 // SkDestroyer and SkDestroyerPtr together provide a way to call the destructors of an object
 // when SkDestroyerPtr goes out of scope. Notice, this system only calls the destructors, and
 // does not delete the object.
-template<typename T> struct SkDestroyer { void operator()(T* o) const { o->~T(); } };
+template<typename T>
+struct SkDestroyer {
+    constexpr SkDestroyer() = default;
+    template<class U>
+    SkDestroyer(const SkDestroyer<U>&,
+                typename std::enable_if<std::is_convertible<U*, T*>::value>::type* = 0) {}
+    void operator()(T* o) const { o->~T(); }
+};
 template<typename T> using SkDestroyerPtr = std::unique_ptr<T, SkDestroyer<T>>;
 
 // SkDestroyerSpan provides a span that calls the destructors on each item in the span. Notice,
@@ -88,7 +95,7 @@ public:
         return SkDestroyerSpan<T>{array};
     }
 
-    template<typename T, typename I> SkDestroyerSpan<T> makeArray(size_t size, I&& initer) {
+    template<typename T, typename I> SkDestroyerSpan<T> makeArray(size_t size, I initer) {
         static_assert(!std::is_trivially_destructible<T>::value, "This is POD. Use makePODArray.");
         SkSpan<T> array{this->template innerMakeArray<T>(size), size};
         for (size_t i = 0; i < array.size(); i++) {
@@ -221,6 +228,92 @@ class SkSTArena : private std::array<char, SkArena::MinimumSizeWithOverhead(Inli
 public:
     explicit SkSTArena(size_t firstHeapAllocation = MinimumSizeWithOverhead(InlineStorageSize))
         : SkArena{this->data(), this->size(), firstHeapAllocation} {}
+};
+
+class SkArenaAlloc2 : private SkArena {
+public:
+    SkArenaAlloc2(char* block, size_t blockSize, size_t firstHeapAllocation)
+        : SkArena(block, blockSize, firstHeapAllocation) {}
+
+    explicit SkArenaAlloc2(size_t firstHeapAllocation = 0)
+        : SkArenaAlloc2(nullptr, 0, firstHeapAllocation) {}
+
+    template<typename T, typename... Args>
+    T* make(Args&&... args) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->template makePOD<T>(std::forward<Args>(args)...);
+        } else {
+            SkDestroyerPtr<T> object = this->SkArena::make<T>(std::forward<Args>(args)...);
+            return this->template addDtorNode<T, SkDestroyerPtr<T>>(std::move(object));
+        }
+    }
+
+    template <typename T>
+    T* makeArrayDefault(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->makePODArray<T>(count);
+        } else {
+            SkDestroyerSpan<T> array = this->SkArena::makeArray<T>(count);
+            return this->template addDtorNode<T, SkDestroyerSpan<T>>(std::move(array));
+        }
+    }
+
+    template <typename T>
+    T* makeArray(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T();
+            }
+            return array;
+        } else {
+            SkDestroyerSpan<T> array = this->SkArena::makeArray<T>(count);
+            return this->template addDtorNode<T, SkDestroyerSpan<T>>(std::move(array));
+        }
+    }
+
+    template <typename T, typename Initializer>
+    T* makeInitializedArray(size_t count, Initializer initializer) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->template makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T(initializer(i));
+            }
+            return array;
+        } else {
+            SkDestroyerSpan<T> array = this->SkArena::makeArray<T>(count, initializer);
+            return this->template addDtorNode<T, SkDestroyerSpan<T>>(std::move(array));
+        }
+    }
+
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        return this->alignedBytes(size, align);
+    }
+
+private:
+    struct DtorNode {
+        DtorNode(SkDestroyerPtr<DtorNode>&& node) : fNext{std::move(node)} {}
+        virtual ~DtorNode() = default;
+        SkDestroyerPtr<DtorNode> fNext;
+    };
+
+    template<typename T, typename DtorPtr>
+    T* addDtorNode(DtorPtr object) {
+        T* result = object.get();
+        struct Destroyer final : public DtorNode {
+            Destroyer(SkDestroyerPtr<DtorNode> next, DtorPtr toDestroy)
+                : DtorNode{std::move(next)}, fToDestroy{std::move(toDestroy)} {}
+            DtorPtr fToDestroy;
+        };
+
+        SkDestroyerPtr<DtorNode> n =
+                this->SkArena::make<Destroyer>(std::move(fDtorList), std::move(object));
+
+        fDtorList = std::move(n);
+        return result;
+    }
+
+    SkDestroyerPtr<DtorNode> fDtorList;
 };
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
