@@ -194,6 +194,24 @@
       "parentUuid": "7770b714_0dfd3e41",
       "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e57314b_37a3f4a8",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-09T18:33:02Z",
+      "side": 1,
+      "message": "Agreed about being confusing... mostly a side effect of trying to retro-fit text rendering state onto SkSVGRenderContext.  I\u0027m thinking we should split off the text rendering path into its own virtual and pass text state and xml:spacing explicitly.  Will try it in a separate CL.",
+      "parentUuid": "5ef2b1e1_a21bc7d9",
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
