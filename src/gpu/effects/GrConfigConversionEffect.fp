@@ -12,7 +12,7 @@ in fragmentProcessor inputFP;
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrDirectContextPriv.h"
     #include "src/gpu/GrImageInfo.h"
-    #include "src/gpu/GrRenderTargetContext.h"
+    #include "src/gpu/GrSurfaceDrawContext.h"
 }
 
 @class {
@@ -46,9 +46,9 @@ in fragmentProcessor inputFP;
         const SkImageInfo ii = SkImageInfo::Make(kSize, kSize,
                                                  kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-        auto readRTC = GrRenderTargetContext::Make(
+        auto readRTC = GrSurfaceDrawContext::Make(
                 dContext, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
-        auto tempRTC = GrRenderTargetContext::Make(
+        auto tempRTC = GrSurfaceDrawContext::Make(
                 dContext, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;

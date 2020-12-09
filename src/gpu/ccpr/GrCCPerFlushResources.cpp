@@ -7,17 +7,17 @@
 
 #include "src/gpu/ccpr/GrCCPerFlushResources.h"
 
+#include <algorithm>
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ccpr/GrCCPathCache.h"
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 #include "src/gpu/ccpr/GrSampleMaskProcessor.h"
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include <algorithm>
 
 using CoverageType = GrCCAtlas::CoverageType;
 using FillBatchID = GrCCFiller::BatchID;

@@ -12,7 +12,7 @@
 #include "src/gpu/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 class GrResourceProvider;
 struct SkIPoint16;
 struct SkIRect;
@@ -65,14 +65,14 @@ public:
     bool addRect(int width, int height, SkIPoint16* location);
     const SkISize& drawBounds() { return fDrawBounds; }
 
-    // Instantiates our texture proxy for the atlas and returns a pre-cleared GrRenderTargetContext
+    // Instantiates our texture proxy for the atlas and returns a pre-cleared GrSurfaceDrawContext
     // that the caller may use to render the content. After this call, it is no longer valid to call
     // addRect(), setUserBatchID(), or this method again.
     //
     // 'backingTexture', if provided, is a renderable texture with which to instantiate our proxy.
     // If null then we will create a texture using the resource provider. The purpose of this param
     // is to provide a guaranteed way to recycle a stashed atlas texture from a previous flush.
-    std::unique_ptr<GrRenderTargetContext> instantiate(
+    std::unique_ptr<GrSurfaceDrawContext> instantiate(
             GrOnFlushResourceProvider*, sk_sp<GrTexture> backingTexture = nullptr);
 
 private:

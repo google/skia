@@ -16,7 +16,7 @@
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGpuDevice.h"
 
 sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* ctx,
@@ -31,7 +31,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
         return nullptr;
     }
 
-    auto rtc = GrRenderTargetContext::MakeFromVulkanSecondaryCB(ctx, imageInfo, vkInfo, props);
+    auto rtc = GrSurfaceDrawContext::MakeFromVulkanSecondaryCB(ctx, imageInfo, vkInfo, props);
     SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
     sk_sp<SkGpuDevice> device(
@@ -82,7 +82,7 @@ void GrVkSecondaryCBDrawContext::releaseResources() {
 }
 
 bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* characterization) const {
-    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrSurfaceDrawContext* rtc = fDevice->accessRenderTargetContext();
 
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
@@ -119,7 +119,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
 
 bool GrVkSecondaryCBDrawContext::isCompatible(
         const SkSurfaceCharacterization& characterization) const {
-    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrSurfaceDrawContext* rtc = fDevice->accessRenderTargetContext();
 
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
@@ -179,7 +179,7 @@ bool GrVkSecondaryCBDrawContext::draw(const SkDeferredDisplayList* ddl) {
         return false;
     }
 
-    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrSurfaceDrawContext* rtc = fDevice->accessRenderTargetContext();
 
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {

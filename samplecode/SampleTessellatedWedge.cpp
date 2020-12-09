@@ -17,7 +17,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
@@ -63,7 +63,7 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     auto ctx = canvas->recordingContext();
-    GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
     SkString error;
     if (!rtc || !ctx) {
