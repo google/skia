@@ -167,7 +167,7 @@ private:
                                   flushState->renderPassBarriers(),
                                   flushState->colorLoadOp());
 
-        flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
+        flushState->bindPipeline2(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
         for (int i = 0; i < 4; ++i) {
             if (fScissorTest == GrScissorTest::kEnabled) {
                 flushState->setScissorRect(kDynamicScissors[i]);

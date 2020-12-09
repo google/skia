@@ -34,6 +34,14 @@ public:
 
     ~GrOpFlushState() final { this->reset(); }
 
+    GrRenderTargetProxy* fFoo = nullptr;
+    SkIPoint fOffset;
+
+    void setBaz(GrRenderTargetProxy* proxy, SkIPoint offset) {
+        fFoo = proxy;
+        fOffset = offset;
+    }
+
     /** This is called after each op has a chance to prepare its draws and before the draws are
         executed. */
     void preExecuteDraws();
@@ -183,12 +191,16 @@ public:
     /** GrMeshDrawOp::Target override. */
     SkArenaAlloc* allocator() override { return &fArena; }
 
+    void booyah(SkIRect viewport) {
+        fOpsRenderPass->booyah2(viewport);
+    }
+
     // This is a convenience method that binds the given pipeline, and then, if our applied clip has
     // a scissor, sets the scissor rect from the applied clip.
-    void bindPipelineAndScissorClip(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+    void bindPipelineAndScissorClip3(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
         SkASSERT((programInfo.pipeline().isScissorTestEnabled()) ==
                  (this->appliedClip() && this->appliedClip()->scissorState().enabled()));
-        this->bindPipeline(programInfo, drawBounds);
+        this->bindPipeline2(programInfo, drawBounds);
         if (programInfo.pipeline().isScissorTestEnabled()) {
             this->setScissorRect(this->appliedClip()->scissorState().rect());
         }
@@ -207,8 +219,8 @@ public:
     void drawMesh(const GrSimpleMesh& mesh);
 
     // Pass-through methods to GrOpsRenderPass.
-    void bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
-        fOpsRenderPass->bindPipeline(programInfo, drawBounds);
+    void bindPipeline2(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+        fOpsRenderPass->bindPipeline1(programInfo, drawBounds);
     }
     void setScissorRect(const SkIRect& scissorRect) {
         fOpsRenderPass->setScissorRect(scissorRect);

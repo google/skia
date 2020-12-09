@@ -45,6 +45,11 @@ bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return fGpu->flushGLState(fRenderTarget, programInfo);
 }
 
+void GrGLOpsRenderPass::onBooyah2(SkIRect viewport) {
+    fGpu->flushViewport(viewport, fRenderTarget->height(), fOrigin);
+}
+
+
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     fGpu->flushScissorRect(scissor, fRenderTarget->width(), fRenderTarget->height(), fOrigin);
 }

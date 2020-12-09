@@ -28,11 +28,11 @@ void DDLTileHelper::TileData::init(int id,
     fClip = clip;
     fPaddingOutsets = paddingOutsets;
 
-    fCharacterization = dstSurfaceCharacterization.createResized(this->paddedRectSize().width(),
-                                                                 this->paddedRectSize().height());
-    SkASSERT(fCharacterization.isValid());
+    fPlaybackChar2  = dstSurfaceCharacterization.createResized(this->paddedRectSize().width(),
+                                                              this->paddedRectSize().height());
+    SkASSERT(fPlaybackChar2.isValid());
 
-    GrBackendFormat backendFormat = direct->defaultBackendFormat(fCharacterization.colorType(),
+    GrBackendFormat backendFormat = direct->defaultBackendFormat(fPlaybackChar2.colorType(),
                                                                  GrRenderable::kYes);
     SkDEBUGCODE(const GrCaps* caps = direct->priv().caps());
     SkASSERT(caps->isFormatTexturable(backendFormat));
@@ -46,9 +46,12 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
                                                     const DDLPromiseImageHelper& helper) {
     SkASSERT(!fReconstitutedPicture);
 
+    auto recordingChar = fPlaybackChar2.createResized(fClip.width(), fClip.height());
+    SkASSERT(recordingChar.isValid());
+
     // This is bending the DDLRecorder contract! The promise images in the SKP should be
     // created by the same recorder used to create the matching DDL.
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
+    SkDeferredDisplayListRecorder recorder(recordingChar);
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
@@ -64,7 +67,10 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 void DDLTileHelper::TileData::createDDL() {
     SkASSERT(!fDisplayList && fReconstitutedPicture);
 
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
+    auto recordingChar = fPlaybackChar2.createResized(fClip.width(), fClip.height());
+    SkASSERT(recordingChar.isValid());
+
+    SkDeferredDisplayListRecorder recorder(recordingChar);
 
     // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
     // Maybe set it up in the ctor?
@@ -80,6 +86,8 @@ void DDLTileHelper::TileData::createDDL() {
             gpuImage->resetContext(sk_ref_sp(rContext));
         }
     }
+
+    SkDebugf("recording clip %d %d wh: %d %d\n", fClip.fLeft, fClip.fTop, fClip.width(), fClip.height());
 
     // We always record the DDL in the (0,0) .. (clipWidth, clipHeight) coordinates
     recordingCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
@@ -110,6 +118,10 @@ void DDLTileHelper::createComposeDDL() {
 
         SkASSERT(promiseImage->bounds().contains(srcRect));
 
+        SkDebugf("Composing %d %d wh: %d %d to %.2f %.2f wh: %.2f %.2f\n",
+                 srcRect.fLeft, srcRect.fTop, srcRect.width(), srcRect.height(),
+                 dstRect.fLeft, dstRect.fTop, dstRect.width(), dstRect.height());
+
         recordingCanvas->drawImageRect(promiseImage.get(), srcRect, dstRect, nullptr);
     }
 
@@ -139,11 +151,11 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
     // backed by the same backendTexture - unbeknownst to Ganesh.
     return SkSurface::MakeFromBackendTexture(context,
                                              promiseImageTexture->backendTexture(),
-                                             fCharacterization.origin(),
-                                             fCharacterization.sampleCount(),
-                                             fCharacterization.colorType(),
-                                             fCharacterization.refColorSpace(),
-                                             &fCharacterization.surfaceProps());
+                                             fPlaybackChar2.origin(),
+                                             fPlaybackChar2.sampleCount(),
+                                             fPlaybackChar2.colorType(),
+                                             fPlaybackChar2.refColorSpace(),
+                                             &fPlaybackChar2.surfaceProps());
 }
 
 void DDLTileHelper::TileData::drawSKPDirectly(GrRecordingContext* context) {
@@ -198,9 +210,9 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
                                          this->paddedRectSize().height(),
                                          GrMipmapped::kNo,
                                          GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
-                                         fCharacterization.colorType(),
+                                         fPlaybackChar2.colorType(),
                                          kPremul_SkAlphaType,
-                                         fCharacterization.refColorSpace(),
+                                         fPlaybackChar2.refColorSpace(),
                                          PromiseImageCallbackContext::PromiseImageFulfillProc,
                                          PromiseImageCallbackContext::PromiseImageReleaseProc,
                                          (void*)this->refCallbackContext().release());
@@ -211,7 +223,8 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
-    const SkSurfaceCharacterization& c = tile->fCharacterization;
+
+    const SkSurfaceCharacterization& c = tile->fPlaybackChar2;
     GrBackendTexture beTex = direct->createBackendTexture(c.width(), c.height(), c.colorType(),
                                                           GrMipMapped(c.isMipMapped()),
                                                           GrRenderable::kYes);
@@ -266,6 +279,7 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
             int32_t rPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
             int32_t bPad = addRandomPaddingToDst ? rand.nextRangeU(0, kMaxPad) : 0;
 
+            SkDebugf("size %d %d pad %d %d %d %d\n", xSize, ySize, lPad, tPad, rPad, bPad);
             fTiles[y*fNumDivisions+x].init(y*fNumDivisions+x, direct, dstChar, clip,
                                            {lPad, tPad, rPad, bPad});
         }

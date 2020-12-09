@@ -875,7 +875,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
         this->createProgramInfo(flushState);
     }
 
-    flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
+    flushState->bindPipelineAndScissorClip3(*fProgramInfo, this->bounds());
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));

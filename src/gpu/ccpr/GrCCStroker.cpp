@@ -731,7 +731,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
                               GrPrimitiveType::kTriangleStrip, 0, flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
 
-    flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    flushState->bindPipeline2(programInfo, SkRect::Make(drawBounds));
     flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
 
     // Linear strokes draw a quad. Cubic strokes emit a strip with normals at "numSegments"
