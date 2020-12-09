@@ -33,6 +33,24 @@
       "message": "There may be a saner way to do this. It didn\u0027t feel right to propagate non-inherited values in a field called \"fInherited.\"",
       "revId": "afcefb721af12e65098faf45858d2d10d8b07456",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8196eb1f_7b39b979",
+        "filename": "modules/svg/src/SkSVGRenderContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-09T21:30:16Z",
+      "side": 1,
+      "message": "Yeah, \"inherited\" is probably a poor name at this point - \"computed presentation attributes\" would be more appropriate.\n\nMight want to revisit this if we come up with a generalized solution to non-inherited props.",
+      "parentUuid": "32c29623_393d9c1a",
+      "revId": "afcefb721af12e65098faf45858d2d10d8b07456",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
