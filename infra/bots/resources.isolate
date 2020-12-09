@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      '../../resources/',
+    ],
+  },
+}
