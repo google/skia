@@ -586,6 +586,16 @@ SkPathFirstDirection SkPath::getFirstDirection() const {
 SkPath& SkPath::dirtyAfterEdit() {
     this->setConvexity(SkPathConvexity::kUnknown);
     this->setFirstDirection(SkPathFirstDirection::kUnknown);
+
+#ifdef SK_DEBUG
+    // enable this as needed for testing, but it slows down some chrome tests so much
+    // that they don't complete, so we don't enable it by default
+    // e.g. TEST(IdentifiabilityPaintOpDigestTest, MassiveOpSkipped)
+    if (this->countVerbs() < 16) {
+        SkASSERT(fPathRef->dataMatchesVerbs());
+    }
+#endif
+
     return *this;
 }
 
@@ -3367,14 +3377,8 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct PathInfo {
-    bool     valid;
-    int      points, weights;
-    unsigned segmentMask;
-};
-
-static PathInfo validate_verbs(const uint8_t vbs[], int verbCount) {
-    PathInfo info = {false, 0, 0, 0};
+SkPathVerbAnalysis sk_path_analyze_verbs(const uint8_t vbs[], int verbCount) {
+    SkPathVerbAnalysis info = {false, 0, 0, 0};
 
     bool needMove = true;
     bool invalid = false;
@@ -3426,7 +3430,7 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
         return SkPath();
     }
 
-    const auto info = validate_verbs(vbs, verbCount);
+    const auto info = sk_path_analyze_verbs(vbs, verbCount);
     if (!info.valid || info.points > pointCount || info.weights > wCount) {
         SkDEBUGFAIL("invalid verbs and number of points/weights");
         return SkPath();

@@ -681,6 +681,13 @@ bool SkPathRef::isValid() const {
     return true;
 }
 
+bool SkPathRef::dataMatchesVerbs() const {
+    const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.count());
+    return info.valid                          &&
+           info.segmentMask == fSegmentMask    &&
+           info.points      == fPoints.count() &&
+           info.weights     == fConicWeights.count();
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {

@@ -38,6 +38,15 @@ enum class SkPathFirstDirection {
     kUnknown,
 };
 
+// These are computed from a stream of verbs
+struct SkPathVerbAnalysis {
+    bool     valid;
+    int      points, weights;
+    unsigned segmentMask;
+};
+SkPathVerbAnalysis sk_path_analyze_verbs(const uint8_t verbs[], int count);
+
+
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
@@ -347,6 +356,7 @@ public:
     void addGenIDChangeListener(sk_sp<SkIDChangeListener>);   // Threadsafe.
     int genIDChangeListenerCount();                           // Threadsafe
 
+    bool dataMatchesVerbs() const;
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
 
