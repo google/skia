@@ -9,11 +9,7 @@
       "owner": "djsollen@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m80",
-      "owner": "hcm@google.com"
-    },
-    {
-     "ref": "refs/heads/chrome/m86",
+      "ref": "refs/heads/chrome/m86",
       "owner": "hcm@google.com"
     },
     {
