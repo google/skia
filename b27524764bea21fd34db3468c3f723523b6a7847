@@ -16,6 +16,24 @@
       "message": "I think I\u0027d prefer this file\u0027s interfaces to not alias away the std::unique_ptr part of the return types, nor to involve SkSpan.  I\u0027m looking for transparency through the fewest required wrapper layers, and things like aliases for the pointer type or adapting to SkSpan can be done externally to SkArenaAlloc.\n\nHow about something along these lines?  A bunch of new methods named makeUniqueFoo() returning std::unique_ptr of some sort, and then a bunch of makeFoo() matching the existing SkArenaAlloc calls that just this-\u003eadopt(this-\u003emakeUniqueFoo()).\n\n\n    class SkArenaAlloc {\n    public:\n       \n       // std::unique_ptr \"Deleters\" that only destroy the object;\n       // SkArenaAlloc always owns the underlying memory buffers itself.\n\n       template \u003ctypename T\u003e\n       struct Destroyer {\n           void operator()(T* ptr) { ptr-\u003e~T(); }\n       };\n\n       template \u003ctypename T\u003e\n       struct Destroyer\u003cT[]\u003e {\n           int n;\n           void operator()(T* ptr) {\n               for (int i \u003d 0; i \u003c n; i++) { ptr[i].~T(); }\n           }\n       };\n\n\n       // Methods that returns a std::unique_ptr to call ~T().\n\n       template \u003ctypename T, typename... Args\u003e\n       std::unique_ptr\u003cT, Destroyer\u003cT\u003e\u003e makeUnique(Args\u0026\u0026... args) {\n           ...\n       }\n\n       template \u003ctypename T\u003e\n       std::unique_ptr\u003cT[], Destroyer\u003cT[]\u003e\u003e makeUniqueArrayDefault(int n) {\n           ...\n       }\n\n\n       // Methods that call ~T() when this SkArenaAlloc itself is destroyed.\n\n       template \u003ctypename T, typename... Args\u003e\n       T* make(Args\u0026\u0026... args) {\n           return this-\u003eadopt(this-\u003emakeUnique\u003cT\u003e(std::forward\u003cArgs\u003e(args)...));\n       }\n\n       template \u003ctypename T\u003e\n       T* makeArrayDefault(int n) {\n           return this-\u003eadopt(this-\u003emakeUniqueArrayDefault\u003cT\u003e(n));\n       }\n\n\n       ... etc ...\n    }",
       "revId": "b27524764bea21fd34db3468c3f723523b6a7847",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1e47304_1f15a9ef",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-09T18:27:22Z",
+      "side": 1,
+      "message": "Ah, and of course, the pattern for the non-Unique make()s can also incorporate fast path logic for POD,\n\n      template \u003ctypename T, typename... Args\u003e\n      T* make(Args\u0026\u0026... args) {\n          if (std::is_trivially_destructible\u003cT\u003e::value) {\n              return new (this-\u003eallocPOD(sizeof(T), alignof(T)))\n                  T{std::forward\u003cArgs\u003e(args)...};\n          }\n          return this-\u003eadopt(this-\u003emakeUnique\u003cT\u003e(std::forward\u003cArgs\u003e(args)...));\n      }",
+      "parentUuid": "8f5e897a_4af895f7",
+      "revId": "b27524764bea21fd34db3468c3f723523b6a7847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
