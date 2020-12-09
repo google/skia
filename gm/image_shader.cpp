@@ -130,7 +130,7 @@ protected:
         const SkTileMode tile = SkTileMode::kRepeat;
         const SkMatrix localM = SkMatrix::Translate(-50, -50);
         SkPaint paint;
-        paint.setShader(image->makeShader(tile, tile, SkSamplingOptions(), &localM));
+        paint.setShader(image->makeShader(tile, tile, &localM));
         paint.setAntiAlias(true);
         canvas->drawCircle(50, 50, 50, paint);
     }

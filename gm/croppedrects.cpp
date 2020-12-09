@@ -56,7 +56,7 @@ private:
         srcCanvas->drawRect(kSrcImageClip.makeInset(kStrokeWidth / 2, kStrokeWidth / 2), stroke);
 
         fSrcImage = srcSurface->makeImageSnapshot();
-        fSrcImageShader = fSrcImage->makeShader(SkSamplingOptions());
+        fSrcImageShader = fSrcImage->makeShader();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -67,6 +67,7 @@ private:
             SkAutoCanvasRestore acr(canvas, true);
             SkPaint paint;
             paint.setShader(fSrcImageShader);
+            paint.setFilterQuality(kNone_SkFilterQuality);
             canvas->clipRect(kSrcImageClip);
             canvas->drawPaint(paint);
         }
@@ -75,6 +76,7 @@ private:
             // GrRenderTargetContext::fillRectToRect.
             SkAutoCanvasRestore acr(canvas, true);
             SkPaint paint;
+            paint.setFilterQuality(kNone_SkFilterQuality);
             SkRect drawRect = SkRect::MakeXYWH(350, 100, 100, 300);
             canvas->clipRect(drawRect);
             canvas->drawImageRect(fSrcImage.get(),
@@ -94,6 +96,7 @@ private:
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2 * kSrcImageClip.height());
             paint.setShader(fSrcImageShader);
+            paint.setFilterQuality(kNone_SkFilterQuality);
             canvas->translate(23, 301);
             canvas->scale(300 / kSrcImageClip.width(), 100 / kSrcImageClip.height());
             canvas->translate(-kSrcImageClip.left(), -kSrcImageClip.top());

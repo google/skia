@@ -59,17 +59,17 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkSamplingOptions kSampling({1.0f/3, 1.0f/3});
+        static const SkFilterQuality kFilterQuality = SkFilterQuality::kHigh_SkFilterQuality;
         static const bool kDoAA = true;
 
         {
             SkRect r1 = SkRect::MakeXYWH(50.0f, 0.0f, 50.0f, 50.0f);
             SkPaint p1;
             p1.setAntiAlias(kDoAA);
+            p1.setFilterQuality(kFilterQuality);
             SkMatrix localMat;
             localMat.setScaleTranslate(2.0f, 2.0f, 50.0f, 0.0f);
-            p1.setShader(fTop->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                          kSampling, &localMat));
+            p1.setShader(fTop->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &localMat));
 
             canvas->drawRect(r1, p1);
         }
@@ -80,6 +80,7 @@ protected:
             SkPaint p2;
             p2.setColor(SK_ColorWHITE);
             p2.setAntiAlias(kDoAA);
+            p2.setFilterQuality(kFilterQuality);
 
             canvas->drawRect(r2, p2);
         }
@@ -89,10 +90,10 @@ protected:
 
             SkPaint p3;
             p3.setAntiAlias(kDoAA);
+            p3.setFilterQuality(kFilterQuality);
             SkMatrix localMat;
             localMat.setScaleTranslate(2.0f, 2.0f, 50.0f, 86.0f);
-            p3.setShader(fBot->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                          kSampling, &localMat));
+            p3.setShader(fBot->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &localMat));
 
             canvas->drawRect(r3, p3);
         }
