@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e7f7fb8c_00ce9d4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-09T16:19:45Z",
+      "side": 1,
+      "message": "The compiler\u0027s okay with it (Metal doesn\u0027t seem to mind uninitialized variables in general!) but I\u0027ll fix this regardless; why read the value in if it\u0027s not necessary?",
+      "parentUuid": "d02aece3_fd3d8f95",
+      "revId": "fbb4dbd91e73f3f68870af554d59e2f985eae65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cf374796_afb7f0e8",
         "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
         "patchSetId": 15
