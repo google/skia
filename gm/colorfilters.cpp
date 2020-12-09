@@ -95,7 +95,7 @@ protected:
                                                                 mandrill->height()),
                                                  SkRect::MakeWH(kWheelSize, kWheelSize),
                                                  SkMatrix::kFill_ScaleToFit);
-        fShaders.push_back(mandrill->makeShader(&lm));
+        fShaders.push_back(mandrill->makeShader(SkSamplingOptions(), &lm));
 
         static constexpr SkColor gGrads[][4] = {
             { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffff0000 },
