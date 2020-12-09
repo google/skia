@@ -35,6 +35,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b090f03_b92eb5cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-09T19:42:05Z",
+      "side": 1,
+      "message": "Ok. This did not work, but it\u0027s close. I did not follow through on changing the test names to SkArenaAlloc2. When I did, a typing problem showed up. I\u0027m working out the types now. The SkDestroyer, or any deleter, needs to be convertible to a super class U. Ugh.",
+      "revId": "509abd97a409db4789cab6c3c73b598111546939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95a75b2b_f4e195db",
