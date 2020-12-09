@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d02aece3_fd3d8f95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-09T16:16:50Z",
+      "side": 1,
+      "message": "Is the Metal compiler okay with us assigning from an uninitialized value (when copying in the values of \u0027out\u0027 parameters, rather than \u0027inout\u0027)?",
+      "revId": "fbb4dbd91e73f3f68870af554d59e2f985eae65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf374796_afb7f0e8",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-09T16:16:50Z",
+      "side": 1,
+      "message": "You can write this as:\n\n  SkAssertResult(Analysis::IsAssignable(...))\n\n... which always evaluates the condition, and asserts that it\u0027s true in debug builds.",
+      "range": {
+        "startLine": 414,
+        "startChar": 12,
+        "endLine": 416,
+        "endChar": 95
+      },
+      "revId": "fbb4dbd91e73f3f68870af554d59e2f985eae65b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
