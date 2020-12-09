@@ -409,7 +409,6 @@ private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
     friend class SkDraw;
-    friend class SkDrawIter;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 

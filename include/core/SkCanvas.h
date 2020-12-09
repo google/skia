@@ -2618,11 +2618,11 @@ private:
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 96; // most recent measurement
     static constexpr int kMCRecCount     = 32; // common depth for save/restores
-    static constexpr int kDeviceCMSize   = 64; // most recent measurement
 
     intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
-    intptr_t fDeviceCMStorage[kDeviceCMSize / sizeof(intptr_t)];
 
+    // Installed via init()
+    sk_sp<SkBaseDevice> fBaseDevice;
     const SkSurfaceProps fProps;
 
     int         fSaveCount;         // value returned by getSaveCount()
@@ -2644,8 +2644,8 @@ private:
     void internalSetMatrix(const SkM44&);
 
     friend class SkAndroidFrameworkUtils;
-    friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
-    friend class SkDrawIter;        // needs setupDrawForLayerDevice()
+    friend class SkCanvasPriv;      // needs to expose android functions for testing outside android
+    friend class SkDrawIter;        // needs getTopDevice()
     friend class AutoLayerForImageFilter;
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkNoDrawCanvas;    // needs resetForNextPicture()
