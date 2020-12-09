@@ -73,6 +73,23 @@
       "message": "This is pretty darn clever.",
       "revId": "509abd97a409db4789cab6c3c73b598111546939",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af6a2f84_43d3d9c5",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-09T17:40:52Z",
+      "side": 1,
+      "message": "Ok... I think now that we\u0027ve done this exercise we\u0027re ready for the real synthesis right?  Let\u0027s merge it all together, so that SkArenaAlloc provides all the methods you like, but using this bookkeeping mechanism instead of the existing one.  If we never call addDtorNode() at runtime, it\u0027ll operate just like and cost just what your SkArena does, and it\u0027ll keep behaving how existing users expect for the old style SkArenaAlloc calls.",
+      "revId": "509abd97a409db4789cab6c3c73b598111546939",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
