@@ -36,6 +36,7 @@ public:
     }
     constexpr T& front() const { return fPtr[0]; }
     constexpr T& back()  const { return fPtr[fSize - 1]; }
+    constexpr T* get() const { return fPtr; }
     constexpr T* begin() const { return fPtr; }
     constexpr T* end() const { return fPtr + fSize; }
     constexpr const T* cbegin() const { return this->begin(); }

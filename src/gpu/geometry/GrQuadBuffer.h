@@ -147,7 +147,7 @@ private:
         // Known value to detect if iteration doesn't properly advance through the buffer
         SkDEBUGCODE(unsigned fSentinel : 27;)
     };
-    static_assert(sizeof(Header) == sizeof(int32_t), "Header should be 4 bytes");
+    static_assert(sizeof(Header) == sizeof(int32_t), "Adapter should be 4 bytes");
 
     static constexpr unsigned kSentinel = 0xbaffe;
     static constexpr int kMetaSize = sizeof(Header) + sizeof(T);

@@ -299,7 +299,7 @@ protected:
         SkScalar DX = mainImage->width() + MARGIN;
         SkScalar DY = auxImage->height() + MARGIN;
 
-        // Header hinting at what the filters do
+        // Adapter hinting at what the filters do
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
         SkFont font(nullptr, 12);

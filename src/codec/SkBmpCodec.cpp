@@ -83,7 +83,7 @@ std::unique_ptr<SkCodec> SkBmpCodec::MakeFromIco(std::unique_ptr<SkStream> strea
     return SkBmpCodec::MakeFromStream(std::move(stream), result, true);
 }
 
-// Header size constants
+// Adapter size constants
 static constexpr uint32_t kBmpHeaderBytes = 14;
 static constexpr uint32_t kBmpHeaderBytesPlusFour = kBmpHeaderBytes + 4;
 static constexpr uint32_t kBmpOS2V1Bytes = 12;
@@ -351,7 +351,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                 case kInfoV3_BmpHeaderType:
                 case kInfoV4_BmpHeaderType:
                 case kInfoV5_BmpHeaderType:
-                    // Header types are matched based on size.  If the header
+                    // Adapter types are matched based on size.  If the header
                     // is V2+, we are guaranteed to be able to read at least
                     // this size.
                     SkASSERT(infoBytesRemaining >= 48);
@@ -375,7 +375,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     //                 mode.  We just haven't seen any images that expect this
                     //                 behavior.
                     //
-                    // Header types are matched based on size.  If the header is
+                    // Adapter types are matched based on size.  If the header is
                     // V3+, we are guaranteed to be able to read at least this size.
                     SkASSERT(infoBytesRemaining >= 52);
                     inputMasks.alpha = get_int(iBuffer.get(), 48);
