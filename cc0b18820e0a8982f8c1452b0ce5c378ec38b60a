@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c18f4d1_d7a49952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-09T21:44:49Z",
+      "side": 1,
+      "message": "I highly recommend just scanning this. It was as close to automated as could get without messing things up. Tools used: Clion rename refactor tool, search/replace for a few things it missed, gn format, rewrite_includes.py. Manual stuff:\n\n1) The include guards in the GrSurfaceDrawContext.h, b/c my search and replace was just for whole word (and plural version).\n\n2) Including GrSurfaceDrawContext.h in GrBackendTextureImageGenerator.h. Some other header re-order made this necessary. I restarted from scratch to verify that indeed this was needed because of the automated steps.\n\n3) CLion refactor tool did some weird reformatting and also didn\u0027t always account for reduced length of type name. I ran clang-format and then undid most of what it did, trying to only keep things that restored previous formatting or fixed issues due to shorter type name with some minimal manual edits  just to match how things were previously formatted (even if it was uncontroversially badly formatted before).\n\nThere are lots of vars, function names, and also probably comments that don\u0027t use the exact word \"GrRenderTargetContext\" that need to be updated, but wanted to start with the minimal/most-automated change first.",
+      "revId": "cc0b18820e0a8982f8c1452b0ce5c378ec38b60a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
