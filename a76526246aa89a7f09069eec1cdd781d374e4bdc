@@ -16,6 +16,46 @@
       "message": "Ok. I have the type problems worked out with my old code. Let me look at your recommendations to SkArena.",
       "revId": "a76526246aa89a7f09069eec1cdd781d374e4bdc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2888760_66d1af90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-09T19:49:53Z",
+      "side": 1,
+      "message": "Ah, good, it looks pretty painless to adapt the destroyers.",
+      "revId": "a76526246aa89a7f09069eec1cdd781d374e4bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "677b82fc_b5e5274c",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-09T19:49:53Z",
+      "side": 1,
+      "message": "does nullptr not fit?  :D",
+      "range": {
+        "startLine": 37,
+        "startChar": 85,
+        "endLine": 37,
+        "endChar": 86
+      },
+      "revId": "a76526246aa89a7f09069eec1cdd781d374e4bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
