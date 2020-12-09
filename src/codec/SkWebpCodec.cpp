@@ -445,10 +445,12 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
 
-    SkBitmap webpDst;
     auto webpInfo = dstInfo;
     if (!frame.has_alpha) {
         webpInfo = webpInfo.makeAlphaType(kOpaque_SkAlphaType);
+    } else if (this->colorXform() || blendWithPrevFrame) {
+        // the colorXform and blend_line expect unpremul.
+        webpInfo = webpInfo.makeAlphaType(kUnpremul_SkAlphaType);
     }
     if (this->colorXform()) {
         // Swizzling between RGBA and BGRA is zero cost in a color transform.  So when we have a
@@ -457,12 +459,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         // Lossy webp is encoded as YUV (so RGBA and BGRA are the same cost).  Lossless webp is
         // encoded as BGRA. This means decoding to BGRA is either faster or the same cost as RGBA.
         webpInfo = webpInfo.makeColorType(kBGRA_8888_SkColorType);
-
-        if (webpInfo.alphaType() == kPremul_SkAlphaType) {
-            webpInfo = webpInfo.makeAlphaType(kUnpremul_SkAlphaType);
-        }
     }
 
+    SkBitmap webpDst;
     if ((this->colorXform() && !is_8888(dstInfo.colorType())) || blendWithPrevFrame) {
         // We will decode the entire image and then perform the color transform.  libwebp
         // does not provide a row-by-row API.  This is a shame particularly when we do not want
@@ -474,7 +473,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     }
 
     config.output.colorspace = webp_decode_mode(webpInfo.colorType(),
-            frame.has_alpha && dstInfo.alphaType() == kPremul_SkAlphaType && !this->colorXform());
+            webpInfo.alphaType() == kPremul_SkAlphaType);
     config.output.is_external_memory = 1;
 
     config.output.u.RGBA.rgba = reinterpret_cast<uint8_t*>(webpDst.getAddr(dstX, dstY));
