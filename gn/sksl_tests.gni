@@ -245,6 +245,7 @@ sksl_shared_tests = [
   "$_tests/sksl/intrinsics/Min.sksl",
   "$_tests/sksl/intrinsics/Mix.sksl",
   "$_tests/sksl/intrinsics/Mod.sksl",
+  "$_tests/sksl/intrinsics/Modf.sksl",
   "$_tests/sksl/intrinsics/Normalize.sksl",
   "$_tests/sksl/intrinsics/Not.sksl",
   "$_tests/sksl/intrinsics/NotEqual.sksl",
