@@ -455,6 +455,12 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     if (attrs.fFilter.isValue()) {
         this->applyFilter(*attrs.fFilter);
     }
+
+    // Remaining uninherited presentation attributes are accessed as SkSVGNode fields, not via
+    // the render context.
+    // TODO: resolve these in a pre-render styling pass and assert here that they are values.
+    // - stop-color
+    // - stop-opacity
 }
 
 void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {

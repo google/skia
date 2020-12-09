@@ -604,23 +604,6 @@ bool SkSVGAttributeParser::parse(SkSVGLineJoin* join) {
     return parsedValue && this->parseEOSToken();
 }
 
-// https://www.w3.org/TR/SVG11/pservers.html#StopElement
-bool SkSVGAttributeParser::parseStopColor(SkSVGStopColor* stopColor) {
-    SkSVGColorType c;
-    bool parsedValue = false;
-    if (this->parse(&c)) {
-        *stopColor = SkSVGStopColor(c);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("currentColor")) {
-        *stopColor = SkSVGStopColor(SkSVGStopColor::Type::kCurrentColor);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("inherit")) {
-        *stopColor = SkSVGStopColor(SkSVGStopColor::Type::kInherit);
-        parsedValue = true;
-    }
-    return parsedValue && this->parseEOSToken();
-}
-
 // https://www.w3.org/TR/SVG11/coords.html#ObjectBoundingBoxUnits
 template <>
 bool SkSVGAttributeParser::parse(SkSVGObjectBoundingBoxUnits* objectBoundingBoxUnits) {

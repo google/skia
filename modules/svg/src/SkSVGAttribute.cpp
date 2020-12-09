@@ -34,5 +34,8 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     result.fFontWeight.init(SkSVGFontWeight::Type::kNormal);
     result.fTextAnchor.init(SkSVGTextAnchor::Type::kStart);
 
+    result.fStopColor.set(SkSVGColor(SK_ColorBLACK));
+    result.fStopOpacity.set(SkSVGNumberType(1));
+
     return result;
 }

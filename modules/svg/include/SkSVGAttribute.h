@@ -43,8 +43,6 @@ enum class SkSVGAttribute {
     kRx, // <ellipse>,<rect>: horizontal (corner) radius
     kRy, // <ellipse>,<rect>: vertical (corner) radius
     kSpreadMethod,
-    kStopColor,
-    kStopOpacity,
     kStroke,
     kStrokeDashArray,
     kStrokeDashOffset,
@@ -98,12 +96,12 @@ struct SkSVGPresentationAttributes {
     SkSVGProperty<SkSVGFontWeight, true> fFontWeight;
     SkSVGProperty<SkSVGTextAnchor, true> fTextAnchor;
 
-    // TODO(tdenniston): add SkSVGStopColor
-
     // uninherited
     SkSVGProperty<SkSVGNumberType, false> fOpacity;
     SkSVGProperty<SkSVGClip      , false> fClipPath;
     SkSVGProperty<SkSVGFilterType, false> fFilter;
+    SkSVGProperty<SkSVGColor     , false> fStopColor;
+    SkSVGProperty<SkSVGNumberType, false> fStopOpacity;
 };
 
 #endif // SkSVGAttribute_DEFINED
