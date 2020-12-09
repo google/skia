@@ -113,6 +113,11 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("sample")]      = SPECIAL(Texture);
     fIntrinsicMap[String("subpassLoad")] = SPECIAL(SubpassLoad);
 
+    fIntrinsicMap[String("floatBitsToInt")]  = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[String("floatBitsToUint")] = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[String("intBitsToFloat")]  = ALL_SPIRV(Bitcast);
+    fIntrinsicMap[String("uintBitsToFloat")] = ALL_SPIRV(Bitcast);
+
     fIntrinsicMap[String("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
                                                                 SpvOpUndef, SpvOpUndef, SpvOpAny);
     fIntrinsicMap[String("all")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
