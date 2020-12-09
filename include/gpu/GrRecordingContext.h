@@ -228,11 +228,12 @@ protected:
     void dumpJSON(SkJSONWriter*) const;
 
 private:
+    // Delete last in case other objects call it during destruction.
+    std::unique_ptr<GrAuditTrail>     fAuditTrail;
+
     OwnedArenas                       fArenas;
 
     std::unique_ptr<GrDrawingManager> fDrawingManager;
-
-    std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
 #if GR_TEST_UTILS
     int fSuppressWarningMessages = 0;
