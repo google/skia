@@ -472,6 +472,7 @@ public:
 private:
     friend class GLSLMeshTestProcessor;
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
             : INHERITED(kGrMeshTestProcessor_ClassID) {
