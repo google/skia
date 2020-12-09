@@ -245,6 +245,23 @@ bool SkSVGAttributeParser::parse(SkSVGColorType* color) {
     return parsedValue && this->parseEOSToken();
 }
 
+// https://www.w3.org/TR/SVG11/types.html#InterfaceSVGColor
+template <>
+bool SkSVGAttributeParser::parse(SkSVGColor* color) {
+    SkSVGColorType c;
+    bool parsedValue = false;
+
+    if (this->parse(&c)) {
+        *color = SkSVGColor(c);
+        parsedValue = true;
+    } else if (this->parseExpectedStringToken("currentColor")) {
+        *color = SkSVGColor(SkSVGColor::Type::kCurrentColor);
+        parsedValue = true;
+    }
+
+    return parsedValue && this->parseEOSToken();
+}
+
 // https://www.w3.org/TR/SVG11/linking.html#IRIReference
 template <>
 bool SkSVGAttributeParser::parse(SkSVGIRI* iri) {
@@ -505,7 +522,7 @@ bool SkSVGAttributeParser::parse(SkSVGTransformType* t) {
 // https://www.w3.org/TR/SVG11/painting.html#SpecifyingPaint
 template <>
 bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
-    SkSVGColorType c;
+    SkSVGColor c;
     SkSVGStringType iri;
     bool parsedValue = false;
     if (this->parse(&c)) {
@@ -513,9 +530,6 @@ bool SkSVGAttributeParser::parse(SkSVGPaint* paint) {
         parsedValue = true;
     } else if (this->parseExpectedStringToken("none")) {
         *paint = SkSVGPaint(SkSVGPaint::Type::kNone);
-        parsedValue = true;
-    } else if (this->parseExpectedStringToken("currentColor")) {
-        *paint = SkSVGPaint(SkSVGPaint::Type::kCurrentColor);
         parsedValue = true;
     } else if (this->parseFuncIRI(&iri)) {
         *paint = SkSVGPaint(iri);
