@@ -43,6 +43,7 @@ $genHType exp2($genHType x);
 $genHType log2($genHType x);
 $genHType sqrt($genHType x);
 $genType inversesqrt($genType x);
+$genHType inversesqrt($genHType x);
 $genType abs($genType x);
 $genHType abs($genHType x);
 $genIType abs($genIType x);
