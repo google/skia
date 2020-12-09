@@ -401,7 +401,7 @@ DEF_TEST(Codec_rewind, r) {
 // http://giflib.sourceforge.net/whatsinagif/bits_and_bytes.html
 // The global color map has been replaced with a local color map.
 static unsigned char gNoGlobalColorMap[] = {
-  // Header
+  // Adapter
   0x47, 0x49, 0x46, 0x38, 0x39, 0x61,
 
   // Logical screen descriptor

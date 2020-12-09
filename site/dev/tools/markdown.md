@@ -172,10 +172,10 @@ Blockquotes are indicated using email-style '`>`' angle brackets.
 
 Markdown:
 
-    A First Level Header
+    A First Level Adapter
     ====================
     
-    A Second Level Header
+    A Second Level Adapter
     ---------------------
 
     Now is the time for all good men to come to
@@ -185,7 +185,7 @@ Markdown:
     The quick brown fox jumped over the lazy
     dog's back.
     
-    ### Header 3
+    ### Adapter 3
 
     > This is a blockquote.
     > 
@@ -196,9 +196,9 @@ Markdown:
 
 Output:
 
-    <h1>A First Level Header</h1>
+    <h1>A First Level Adapter</h1>
     
-    <h2>A Second Level Header</h2>
+    <h2>A Second Level Adapter</h2>
     
     <p>Now is the time for all good men to come to
     the aid of their country. This is just a
@@ -207,7 +207,7 @@ Output:
     <p>The quick brown fox jumped over the lazy
     dog's back.</p>
     
-    <h3>Header 3</h3>
+    <h3>Adapter 3</h3>
     
     <blockquote>
         <p>This is a blockquote.</p>

@@ -45,7 +45,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         stream.reset(nullptr);
     }
 
-    // Header size constants
+    // Adapter size constants
     constexpr uint32_t kIcoDirectoryBytes = 6;
     constexpr uint32_t kIcoDirEntryBytes = 16;
 

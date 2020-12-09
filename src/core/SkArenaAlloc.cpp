@@ -78,6 +78,9 @@ void SkArena::needMoreBytes(int requestedSize, int alignment) {
     SkASSERT(fCapacity >= requestedSize);
 }
 
+#if !defined(UseOldSkArenaAlloc)
+
+#else
 namespace {
 uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation) {
     return firstHeapAllocation > 0 ? firstHeapAllocation :
@@ -85,7 +88,6 @@ uint32_t first_allocated_block(uint32_t blockSize, uint32_t firstHeapAllocation)
 }
 char* end_chain(char*) { return nullptr; }
 }  // namespace
-
 SkArenaAlloc::SkArenaAlloc(char* block, size_t size, size_t firstHeapAllocation)
     : fDtorCursor {block}
     , fCursor     {block}
@@ -217,6 +219,8 @@ restart:
 
     return objStart;
 }
+
+#endif
 
 static uint32_t to_uint32_t(size_t v) {
     assert(SkTFitsIn<uint32_t>(v));
