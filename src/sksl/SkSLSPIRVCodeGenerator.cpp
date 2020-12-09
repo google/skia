@@ -155,30 +155,28 @@ static bool is_float(const Context& context, const Type& type) {
     if (type.columns() > 1) {
         return is_float(context, type.componentType());
     }
-    return type == *context.fFloat_Type || type == *context.fHalf_Type;
+    return type.isFloat();
 }
 
 static bool is_signed(const Context& context, const Type& type) {
     if (type.isVector()) {
         return is_signed(context, type.componentType());
     }
-    return type == *context.fInt_Type || type == *context.fShort_Type ||
-           type == *context.fByte_Type;
+    return type.isSigned();
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
     if (type.isVector()) {
         return is_unsigned(context, type.componentType());
     }
-    return type == *context.fUInt_Type || type == *context.fUShort_Type ||
-           type == *context.fUByte_Type;
+    return type.isUnsigned();
 }
 
 static bool is_bool(const Context& context, const Type& type) {
     if (type.isVector()) {
         return is_bool(context, type.componentType());
     }
-    return type == *context.fBool_Type;
+    return type.isBoolean();
 }
 
 static bool is_out(const Variable& var) {
@@ -2034,13 +2032,13 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
         this->writeInstruction(ifInt, this->getType(resultType), result, lhs, rhs, out);
     } else if (is_unsigned(fContext, operandType)) {
         this->writeInstruction(ifUInt, this->getType(resultType), result, lhs, rhs, out);
-    } else if (operandType.isBoolean()) {
+    } else if (is_bool(fContext, operandType)) {
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
         return result; // skip RelaxedPrecision check
     } else {
-#ifdef SK_DEBUG
-        ABORT("invalid operandType: %s", operandType.description().c_str());
-#endif
+        fErrors.error(operandType.fOffset,
+                      "unsupported operand for binary expression: " + operandType.description());
+        return result;
     }
     if (getActualType(resultType) == operandType && !resultType.highPrecision()) {
         this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
