@@ -1,14 +1,13 @@
 /*#pragma settings NoInline*/
 
-half glob = 1;
+half2 glob = half2(1);
 
-
-half4 fn(half a, out half2 b, half2 c, inout half3 d) {
+half4 fn(half a, out half2 b, inout half2 c, inout half3 d) {
     a = sk_FragColor.r + a;
-    b = sk_FragColor.gb - glob;
-    c = sk_FragColor.bb * c;
+    b = sk_FragColor.gb - glob.y;
+    c *= a;
     d = sk_FragColor.aaa / d;
-    return half4(a, b.x, c.x, d.x);
+    return half4(a, b.x, c.y, d.x);
 }
 
 void main() {
@@ -17,5 +16,5 @@ void main() {
     half4x4 c = half4x4(3);
     half3x3 d = half3x3(4);
 
-    sk_FragColor = fn(a.x, b.yz, c[0].zx, d[1].zyx);
+    sk_FragColor = fn(a.x, b.yz, glob.yx, d[1].zyx);
 }

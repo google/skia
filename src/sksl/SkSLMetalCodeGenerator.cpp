@@ -305,7 +305,9 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         }
         if (outVars[index]) {
             this->write(" ");
+            fIgnoreVariableReferenceModifiers = true;
             this->writeVariableReference(*outVars[index]);
+            fIgnoreVariableReferenceModifiers = false;
         } else {
             this->write(" _var");
             this->write(to_string(index));
@@ -327,7 +329,9 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         const Variable* param = function.parameters()[index];
         if (param->modifiers().fFlags & Modifiers::kIn_Flag) {
             this->write(" = ");
+            fIgnoreVariableReferenceModifiers = true;
             this->writeExpression(*arguments[index], kAssignment_Precedence);
+            fIgnoreVariableReferenceModifiers = false;
         }
 
         this->writeLine(";");
@@ -359,7 +363,9 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
             continue;
         }
         // outParam.zyx = _var2;
+        fIgnoreVariableReferenceModifiers = true;
         this->writeExpression(*arguments[index], kAssignment_Precedence);
+        fIgnoreVariableReferenceModifiers = false;
         this->write(" = _var");
         this->write(to_string(index));
         this->writeLine(";");
@@ -904,6 +910,14 @@ void MetalCodeGenerator::writeFragCoord() {
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
+    // When assembling out-param helper functions, we copy variables into local clones with matching
+    // names. We never want to prepend "_in." or "_globals->" when writing these variables since
+    // we're actually targeting the clones.
+    if (fIgnoreVariableReferenceModifiers) {
+        this->writeName(ref.variable()->name());
+        return;
+    }
+
     switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out->sk_FragColor");

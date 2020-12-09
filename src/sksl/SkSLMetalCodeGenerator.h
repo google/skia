@@ -312,6 +312,7 @@ protected:
     String fRTHeightName;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     int fSwizzleHelperCount = 0;
+    bool fIgnoreVariableReferenceModifiers = false;
 
     using INHERITED = CodeGenerator;
 };
