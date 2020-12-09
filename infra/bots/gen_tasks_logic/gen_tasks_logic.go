@@ -116,9 +116,7 @@ var (
 	}
 
 	// TODO(borenet): This hacky and bad.
-	CIPD_PKG_LUCI_AUTH = specs.CIPD_PKGS_KITCHEN[1]
-	CIPD_PKGS_KITCHEN  = append(specs.CIPD_PKGS_KITCHEN[:2], specs.CIPD_PKGS_PYTHON[1])
-	CIPD_PKG_CPYTHON   = specs.CIPD_PKGS_PYTHON[0]
+	CIPD_PKG_LUCI_AUTH = cipd.MustGetPackage("infra/tools/luci-auth/${platform}")
 
 	CIPD_PKGS_GOLDCTL = []*specs.CipdPackage{cipd.MustGetPackage("skia/tools/goldctl/${platform}")}
 
@@ -378,7 +376,8 @@ func marshalJson(data interface{}) string {
 // kitchenTaskNoBundle sets up the task to run a recipe via Kitchen, without the
 // recipe bundle.
 func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
-	b.cipd(CIPD_PKGS_KITCHEN...)
+	b.cipd(CIPD_PKG_LUCI_AUTH)
+	b.cipd(cipd.MustGetPackage("infra/tools/luci/kitchen/${platform}"))
 	b.usesPython()
 	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
@@ -793,7 +792,7 @@ func (b *builder) relpath(f string) string {
 func (b *jobBuilder) bundleRecipes() string {
 	b.addTask(BUNDLE_RECIPES_NAME, func(b *taskBuilder) {
 		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
-		b.cipd(specs.CIPD_PKGS_PYTHON...)
+		b.cipd(specs.CIPD_PKGS_PYTHON_LINUX_AMD64...)
 		b.cmd("/bin/bash", "skia/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
