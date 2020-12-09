@@ -7,18 +7,19 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
-static void run_test(skiatest::Reporter*, GrDirectContext*, GrRenderTargetContext*, SkVector a,
+static void run_test(skiatest::Reporter*, GrDirectContext*,
+                     GrSurfaceDrawContext*, SkVector a,
                      SkVector b, float expectedCrossProduct);
 
 // This is a GPU test that ensures the SkSL 2d cross() intrinsic returns the correct sign (negative,
 // positive, or zero).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo) {
     GrDirectContext* directContext = ctxInfo.directContext();
-    auto rtc = GrRenderTargetContext::Make(directContext, GrColorType::kRGBA_8888, nullptr,
-                                           SkBackingFit::kExact, {1, 1});
+    auto rtc = GrSurfaceDrawContext::Make(directContext, GrColorType::kRGBA_8888, nullptr,
+                                          SkBackingFit::kExact, {1, 1});
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;
@@ -81,7 +82,7 @@ private:
 }  // namespace
 
 static void run_test(skiatest::Reporter* reporter, GrDirectContext* directContext,
-                     GrRenderTargetContext* rtc, SkVector a, SkVector b,
+                     GrSurfaceDrawContext* rtc, SkVector a, SkVector b,
                      float expectedCrossProduct) {
     SkASSERT(rtc->width() == 1);
     SkASSERT(rtc->height() == 1);

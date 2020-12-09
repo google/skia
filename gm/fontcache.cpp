@@ -26,7 +26,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
-class GrRenderTargetContext;
+class GrSurfaceDrawContext;
 
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
@@ -67,7 +67,7 @@ protected:
         fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
     }
 
-    void onDraw(GrRecordingContext*, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         this->drawText(canvas);
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;

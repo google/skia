@@ -26,7 +26,7 @@
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #endif
@@ -595,7 +595,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
             SkBackingFit::kApprox, bounds.size(), 1, GrMipmapped::kNo, isProtected,
             kBottomLeft_GrSurfaceOrigin);

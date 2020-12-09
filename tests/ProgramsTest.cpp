@@ -137,7 +137,7 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static std::unique_ptr<GrRenderTargetContext> random_render_target_context(
+static std::unique_ptr<GrSurfaceDrawContext> random_render_target_context(
         GrRecordingContext* rContext,
         SkRandom* random,
         const GrCaps* caps) {
@@ -151,7 +151,7 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(
     // Above could be 0 if msaa isn't supported.
     sampleCnt = std::max(1, sampleCnt);
 
-    return GrRenderTargetContext::Make(
+    return GrSurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight}, sampleCnt, GrMipmapped::kNo,
             GrProtected::kNo, origin);
@@ -298,7 +298,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     direct->submit(false);
 
     // Validate that GrFPs work correctly without an input.
-    auto renderTargetContext = GrRenderTargetContext::Make(
+    auto renderTargetContext = GrSurfaceDrawContext::Make(
             direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight});
     if (!renderTargetContext) {

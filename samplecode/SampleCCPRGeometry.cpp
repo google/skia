@@ -21,8 +21,8 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ccpr/GrCCCoverageProcessor.h"
 #include "src/gpu/ccpr/GrCCFillGeometry.h"
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
@@ -193,7 +193,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     if (fDoStroke) {
         caption.appendf(" (stroke_width=%f)", fStrokeWidth);
-    } else if (GrRenderTargetContext* rtc =
+    } else if (GrSurfaceDrawContext* rtc =
             canvas->internal_private_accessTopLayerRenderTargetContext()) {
         // Render coverage count.
         auto ctx = canvas->recordingContext();
@@ -201,7 +201,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
         int width = this->width();
         int height = this->height();
-        auto ccbuff = GrRenderTargetContext::Make(
+        auto ccbuff = GrSurfaceDrawContext::Make(
                 ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
         SkASSERT(ccbuff);
         ccbuff->clear(SK_PMColor4fTRANSPARENT);

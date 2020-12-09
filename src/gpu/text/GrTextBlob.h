@@ -181,7 +181,7 @@ public:
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
-                    GrRenderTargetContext* rtc) const = 0;
+                    GrSurfaceDrawContext* rtc) const = 0;
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& positionMatrix,
@@ -212,7 +212,7 @@ public:
     virtual void draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
                       const SkGlyphRunList& glyphRunList,
-                      GrRenderTargetContext* rtc) const = 0;
+                      GrSurfaceDrawContext* rtc) const = 0;
 
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.

@@ -22,7 +22,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -78,7 +78,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        GrRenderTargetContext* renderTargetContext =
+        GrSurfaceDrawContext* renderTargetContext =
             canvas->internal_private_accessTopLayerRenderTargetContext();
         auto context = canvas->recordingContext();
         if (kEffect_Type == fType && (!renderTargetContext || !context)) {

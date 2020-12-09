@@ -18,8 +18,8 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBitmapTextGeoProc.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
@@ -435,7 +435,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 
 #if GR_TEST_UTILS
 
-GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
+GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
                                                const SkPaint& skPaint,
                                                const SkFont& font,
                                                const SkMatrixProvider& mtxProvider,
@@ -479,8 +479,8 @@ GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
 }
 
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
-    // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
-    auto rtc = GrRenderTargetContext::Make(
+    // Setup dummy SkPaint / GrPaint / GrSurfaceDrawContext
+    auto rtc = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1024, 1024});
 
     SkSimpleMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));

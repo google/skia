@@ -20,8 +20,8 @@
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/GrTextureMaker.h"
 #include "src/gpu/SkGr.h"
@@ -248,7 +248,7 @@ static inline void clamped_outset_with_offset(SkIRect* iRect, int outset, SkPoin
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//  Helper functions for drawing an image with GrRenderTargetContext
+//  Helper functions for drawing an image with GrSurfaceDrawContext
 
 enum class ImageDrawMode {
     // Src and dst have been restricted to the image content. May need to clamp, no need to decal.
@@ -318,7 +318,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
 }
 
 /**
- * Checks whether the paint is compatible with using GrRenderTargetContext::drawTexture. It is more
+ * Checks whether the paint is compatible with using GrSurfaceDrawContext::drawTexture. It is more
  * efficient than the GrTextureProducer general case.
  */
 static bool can_use_draw_texture(const SkPaint& paint) {
@@ -338,7 +338,7 @@ static SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColor
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
-static void draw_texture(GrRenderTargetContext* rtc,
+static void draw_texture(GrSurfaceDrawContext* rtc,
                          const GrClip* clip,
                          const SkMatrix& ctm,
                          const SkPaint& paint,
@@ -422,7 +422,7 @@ static void draw_texture(GrRenderTargetContext* rtc,
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
 static void draw_texture_producer(GrRecordingContext* context,
-                                  GrRenderTargetContext* rtc,
+                                  GrSurfaceDrawContext* rtc,
                                   const GrClip* clip,
                                   const SkMatrixProvider& matrixProvider,
                                   const SkPaint& paint,
@@ -553,7 +553,7 @@ static void draw_texture_producer(GrRecordingContext* context,
 }
 
 void draw_tiled_bitmap(GrRecordingContext* context,
-                       GrRenderTargetContext* rtc,
+                       GrSurfaceDrawContext* rtc,
                        const GrClip* clip,
                        const SkBitmap& bitmap,
                        int tileSize,
@@ -833,7 +833,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                                             : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode();
 
-    SkAutoTArray<GrRenderTargetContext::TextureSetEntry> textures(count);
+    SkAutoTArray<GrSurfaceDrawContext::TextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
     // switches that occur within the 'n' entries.

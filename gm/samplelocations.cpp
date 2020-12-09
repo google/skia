@@ -33,10 +33,10 @@
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
@@ -83,7 +83,7 @@ private:
     }
 
     SkISize onISize() override { return SkISize::Make(200, 200); }
-    DrawResult onDraw(GrRecordingContext*, GrRenderTargetContext*,
+    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*,
                       SkCanvas*, SkString* errorMsg) override;
 
     const GradType fGradType;
@@ -316,7 +316,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrRenderTargetContext* rtc,
+DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
                                      SkCanvas* canvas, SkString* errorMsg) {
     if (!ctx->priv().caps()->sampleLocationsSupport()) {
         *errorMsg = "Requires support for sample locations.";
@@ -335,7 +335,7 @@ DrawResult SampleLocationsGM::onDraw(GrRecordingContext* ctx, GrRenderTargetCont
         return DrawResult::kSkip;
     }
 
-    auto offscreenRTC = GrRenderTargetContext::Make(
+    auto offscreenRTC = GrSurfaceDrawContext::Make(
             ctx, rtc->colorInfo().colorType(), nullptr, SkBackingFit::kExact, {200, 200},
             rtc->numSamples(), GrMipmapped::kNo, GrProtected::kNo, fOrigin);
     if (!offscreenRTC) {

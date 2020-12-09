@@ -13,7 +13,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
@@ -159,7 +159,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GrRenderTargetContext* renderTargetContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* renderTargetContext = args.fRenderTargetContext;
     const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();
 
     SkPath path;

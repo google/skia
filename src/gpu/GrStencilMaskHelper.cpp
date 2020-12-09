@@ -272,7 +272,7 @@ static GrUserStencilSettings const* const* get_stencil_passes(
     return gUserToClipTable[fillInverted][op];
 }
 
-static void draw_stencil_rect(GrRenderTargetContext* rtc, const GrHardClip& clip,
+static void draw_stencil_rect(GrSurfaceDrawContext* rtc, const GrHardClip& clip,
                               const GrUserStencilSettings* ss, const SkMatrix& matrix,
                               const SkRect& rect, GrAA aa) {
     GrPaint paint;
@@ -280,7 +280,8 @@ static void draw_stencil_rect(GrRenderTargetContext* rtc, const GrHardClip& clip
     rtc->stencilRect(&clip, ss, std::move(paint), aa, matrix, rect);
 }
 
-static void draw_path(GrRecordingContext* context, GrRenderTargetContext* rtc,
+static void draw_path(GrRecordingContext* context,
+                      GrSurfaceDrawContext* rtc,
                       GrPathRenderer* pr, const GrHardClip& clip, const SkIRect& bounds,
                       const GrUserStencilSettings* ss,  const SkMatrix& matrix,
                       const GrStyledShape& shape, GrAA aa) {
@@ -304,7 +305,8 @@ static void draw_path(GrRecordingContext* context, GrRenderTargetContext* rtc,
     pr->drawPath(args);
 }
 
-static void stencil_path(GrRecordingContext* context, GrRenderTargetContext* rtc,
+static void stencil_path(GrRecordingContext* context,
+                         GrSurfaceDrawContext* rtc,
                          GrPathRenderer* pr, const GrFixedClip& clip, const SkMatrix& matrix,
                          const GrStyledShape& shape, GrAA aa) {
     GrPathRenderer::StencilPathArgs args;
@@ -319,7 +321,7 @@ static void stencil_path(GrRecordingContext* context, GrRenderTargetContext* rtc
     pr->stencilPath(args);
 }
 
-static GrAA supported_aa(GrRenderTargetContext* rtc, GrAA aa) {
+static GrAA supported_aa(GrSurfaceDrawContext* rtc, GrAA aa) {
     // MIXED SAMPLES TODO: We can use stencil with mixed samples as well.
     if (rtc->numSamples() > 1) {
         if (rtc->caps()->multisampleDisableSupport()) {

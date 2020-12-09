@@ -11,8 +11,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
-#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplerState.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;
@@ -56,10 +56,10 @@ public:
     // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
     // supported, or if the blend mode is not src-over. 'cnt' is the size of the entry array.
     // 'proxyCnt' <= 'cnt' and represents the number of proxy switches within the array.
-    static void AddTextureSetOps(GrRenderTargetContext*,
+    static void AddTextureSetOps(GrSurfaceDrawContext*,
                                  const GrClip* clip,
                                  GrRecordingContext*,
-                                 GrRenderTargetContext::TextureSetEntry[],
+                                 GrSurfaceDrawContext::TextureSetEntry[],
                                  int cnt,
                                  int proxyRunCnt,
                                  GrSamplerState::Filter,
