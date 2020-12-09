@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b850b8b_e04130ba",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-09T17:50:49Z",
+      "side": 1,
+      "message": "Might also want to link to https://www.w3.org/TR/2008/REC-xml-20081126/#NT-S since that seems to be the actual definition of whitespace. The above link says how the application should handle whitespace, but seems to fail to state what defines whitespace.",
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "58da7588_3cc27363",
@@ -20,6 +37,47 @@
         "endLine": 173,
         "endChar": 81
       },
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a53bca5a_70770037",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-09T17:50:49Z",
+      "side": 1,
+      "message": "Since the definition of whitespace and handling means just replacing single utf8 codeunits with other single utf8 codeunits (or collapsing runs of single utf8 codeunits) it seems the operations being done here can be done on the utf8 codeunits directly if performance is an issue.",
+      "parentUuid": "58da7588_3cc27363",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 81
+      },
+      "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8245f9b0_91f9f3f7",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-09T17:50:49Z",
+      "side": 1,
+      "message": "This seems like way too wide a scope for this? Why not just pass \u0027prevCharSpace\u0027 into the \u0027filter\u0027 lambdas?",
       "revId": "ebfdf2083afc4475baf1fd84aac63701924b9dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
