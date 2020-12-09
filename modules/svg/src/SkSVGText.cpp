@@ -17,6 +17,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
+#include "src/utils/SkUTF.h"
 
 namespace {
 
@@ -90,6 +91,17 @@ static float ComputeAlignmentFactor(const SkSVGRenderContext& ctx) {
         return 0.0f;
     }
     SkUNREACHABLE;
+}
+
+template <SkSVGXmlSpace>
+SkString FilterWhitespace(const SkString&);
+
+template <>
+SkString FilterWhitespace<SkSVGXmlSpace::kDefault>(const SkString& txt) {
+    const char* ptr = txt.c_str();
+    const char* end = ptr + txt.size();
+
+    
 }
 
 } // namespace
@@ -229,10 +241,27 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
     }
 }
 
+bool SkSVGTextContainer::onPrepareToRender(SkSVGRenderContext* ctx) const {
+    ctx->setXmlSpace(this->getXmlSpace());
+    return this->INHERITED::onPrepareToRender(ctx);
+}
+
+// https://www.w3.org/TR/SVG11/text.html#WhiteSpace
+template <>
+bool SkSVGAttributeParser::parse(SkSVGXmlSpace* xs) {
+    static constexpr std::tuple<const char*, SkSVGXmlSpace> gXmlSpaceMap[] = {
+            {"default" , SkSVGXmlSpace::kDefault },
+            {"preserve", SkSVGXmlSpace::kPreserve},
+    };
+
+    return this->parseEnumMap(gXmlSpaceMap, xs) && this->parseEOSToken();
+}
+
 bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||
            this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
-           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value));
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value)) ||
+           this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
 void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
