@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39734741_32cb889e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-09T18:10:28Z",
+      "side": 1,
+      "message": "I\u0027m probably not a good reviewer, but +1 from me after verifying tessellation works in vulkan after this change!",
+      "revId": "90c38a3e5d9fa7a5cebd197f19f93cee480d827b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
