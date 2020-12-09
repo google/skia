@@ -93,6 +93,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     ClockwiseTestProcessor(bool readSkFragCoord)
             : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)

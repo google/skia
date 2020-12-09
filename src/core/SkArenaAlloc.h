@@ -26,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+#define UseOldSkArenaAlloc
+
 // SkArena provides fast allocation where the user takes care of calling the destructors of the
 // returned pointers, and SkArena takes care of deleting the storage. The unique_ptrs returned,
 // are to assist in assuring the object's destructor is called.
@@ -143,7 +145,7 @@ private:
         constexpr int size = SkTo<int>(sizeof(T));
         constexpr int alignment = SkTo<int>(alignof(T));
 
-        return new (this->allocateBytes(size, alignment)) T {std::forward<Args>(args)...};
+        return new (this->allocateBytes(size, alignment)) T (std::forward<Args>(args)...);
     }
 
     template <typename T> T* innerMakeArray(int n) {
@@ -196,6 +198,98 @@ public:
     explicit SkSTArena(int firstHeapAllocation = MinimumSizeWithOverhead(InlineStorageSize))
         : SkArena{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
 };
+
+#if !defined(UseOldSkArenaAlloc)
+
+class SkArenaAlloc : public SkArena {
+public:
+    SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation)
+        : SkArena(block, blockSize, firstHeapAllocation) {}
+
+    explicit SkArenaAlloc(size_t firstHeapAllocation = 0)
+        : SkArenaAlloc(nullptr, 0, firstHeapAllocation) {}
+
+    template<typename T, typename... Args>
+    T* make(Args&&... args) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->template makePOD<T>(std::forward<Args>(args)...);
+        } else {
+            auto object = this->SkArena::makeUnique<T>(std::forward<Args>(args)...);
+            return this->template adapt<T, decltype(object)>(std::move(object));
+        }
+    }
+
+    template <typename T>
+    T* makeArrayDefault(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            // Turns out people ask for 0 sized arrays. Change it to a single item for sanity.
+            // It looks like the old code handed out duplicate pointers when size == 0 is used.
+            return this->makePODArray<T>(count ? count : 1);
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    template <typename T>
+    T* makeArray(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T();
+            }
+            return array;
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    template <typename T, typename Initializer>
+    T* makeInitializedArray(size_t count, Initializer initializer) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->template makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T(initializer(i));
+            }
+            return array;
+        } else {
+            auto array = this->SkArena::makeUniqueArray<T>(count, initializer);
+            return this->template adapt<T, decltype(array)>(std::move(array));
+        }
+    }
+
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        return this->alignedBytes(size, align);
+    }
+
+private:
+    struct DtorNode {
+        DtorNode(std::unique_ptr<DtorNode, SkArena::Destroyer> node) : fNext{std::move(node)} {}
+        virtual ~DtorNode() = default;
+        std::unique_ptr<DtorNode, SkArena::Destroyer> fNext;
+    };
+
+    template<typename T, typename DtorPtr>
+    T* adapt(DtorPtr object) {
+        T* result = object.get();
+        struct Destroyer final : public DtorNode {
+            Destroyer(std::unique_ptr<DtorNode, SkArena::Destroyer> next, DtorPtr toDestroy)
+                : DtorNode{std::move(next)}, fToDestroy{std::move(toDestroy)} {}
+            DtorPtr fToDestroy;
+        };
+
+        std::unique_ptr<DtorNode, SkArena::Destroyer> node =
+                this->SkArena::makeUnique<Destroyer>(std::move(fDtorList), std::move(object));
+
+        fDtorList = std::move(node);
+        return result;
+    }
+
+    std::unique_ptr<DtorNode, SkArena::Destroyer> fDtorList;
+};
+
+#else
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -419,6 +513,7 @@ private:
     uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
              fYetNextHeapAlloc;  // And then how many the next allocation after that?
 };
+#endif  // Choose SkArenaAlloc implementation
 
 class SkArenaAllocWithReset : public SkArenaAlloc {
 public:

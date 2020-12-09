@@ -96,6 +96,7 @@ private:
 
         private:
             friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
                 SkASSERT(numAttribs > 1);

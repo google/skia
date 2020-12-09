@@ -104,6 +104,8 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
+    friend class ::SkArena; // for access to ctor
 
     GrDistanceFieldA8TextGeoProc(const GrShaderCaps& caps,
                                  const GrSurfaceProxyView* views,
@@ -171,6 +173,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+    friend class ::SkArena;
 
     GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
                                const SkMatrix& matrix,
@@ -253,6 +256,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     GrDistanceFieldLCDTextGeoProc(const GrShaderCaps& caps, const GrSurfaceProxyView* views,
                                   int numActiveViews, GrSamplerState params, DistanceAdjust wa,

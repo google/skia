@@ -638,6 +638,7 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords, bool wideColor)
             : INHERITED(kQuadEdgeEffect_ClassID)
