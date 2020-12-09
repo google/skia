@@ -274,9 +274,7 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     sk_sp<SkImage> skSrc = SkImage::MakeFromBitmap(skBitmap);
     sk_sp<SkImage> skMaskImage = SkImage::MakeFromBitmap(skMask);
     paint.setShader(
-        SkShaders::Blend(SkBlendMode::kSrcIn,
-                         skMaskImage->makeShader(SkSamplingOptions()),
-                         skSrc->makeShader(SkSamplingOptions())));
+        SkShaders::Blend(SkBlendMode::kSrcIn, skMaskImage->makeShader(), skSrc->makeShader()));
     canvas->drawRect(r, paint);
 }
 
