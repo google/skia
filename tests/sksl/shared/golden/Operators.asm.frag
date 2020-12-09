@@ -1,8 +1,3 @@
-### Compilation failed:
-
-error: SPIR-V validation error: Expected Constituents to be scalars or vectors of the same type as Result Type components
-  %84 = OpCompositeConstruct %v2float %int_6 %int_6
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -26,11 +21,11 @@ OpDecorate %40 RelaxedPrecision
 OpDecorate %43 RelaxedPrecision
 OpDecorate %46 RelaxedPrecision
 OpDecorate %49 RelaxedPrecision
-OpDecorate %85 RelaxedPrecision
-OpDecorate %88 RelaxedPrecision
-OpDecorate %91 RelaxedPrecision
-OpDecorate %94 RelaxedPrecision
-OpDecorate %97 RelaxedPrecision
+OpDecorate %84 RelaxedPrecision
+OpDecorate %87 RelaxedPrecision
+OpDecorate %90 RelaxedPrecision
+OpDecorate %93 RelaxedPrecision
+OpDecorate %96 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -145,29 +140,25 @@ OpStore %z %75
 OpStore %z %78
 %80 = OpExtInst %float %1 Sqrt %float_1
 %81 = OpCompositeConstruct %v2float %80 %80
-%84 = OpCompositeConstruct %v2float %int_6 %int_6
-%79 = OpConvertSToF %float %84
+%79 = OpConvertSToF %float %int_6
 OpStore %x %79
-%85 = OpLoad %bool %b
-%86 = OpSelect %float %85 %float_1 %float_0
-%88 = OpLoad %bool %c
-%89 = OpSelect %float %88 %float_1 %float_0
-%90 = OpFMul %float %86 %89
-%91 = OpLoad %bool %d
-%92 = OpSelect %float %91 %float_1 %float_0
-%93 = OpFMul %float %90 %92
-%94 = OpLoad %bool %e
-%95 = OpSelect %float %94 %float_1 %float_0
-%96 = OpFMul %float %93 %95
-%97 = OpLoad %bool %f
-%98 = OpSelect %float %97 %float_1 %float_0
-%99 = OpFMul %float %96 %98
+%84 = OpLoad %bool %b
+%85 = OpSelect %float %84 %float_1 %float_0
+%87 = OpLoad %bool %c
+%88 = OpSelect %float %87 %float_1 %float_0
+%89 = OpFMul %float %85 %88
+%90 = OpLoad %bool %d
+%91 = OpSelect %float %90 %float_1 %float_0
+%92 = OpFMul %float %89 %91
+%93 = OpLoad %bool %e
+%94 = OpSelect %float %93 %float_1 %float_0
+%95 = OpFMul %float %92 %94
+%96 = OpLoad %bool %f
+%97 = OpSelect %float %96 %float_1 %float_0
+%98 = OpFMul %float %95 %97
 OpStore %y %float_6
-%101 = OpExtInst %float %1 Sqrt %float_1
-%102 = OpCompositeConstruct %v2float %101 %101
-%103 = OpCompositeConstruct %v2float %int_6 %int_6
-OpStore %z %103
+%100 = OpExtInst %float %1 Sqrt %float_1
+%101 = OpCompositeConstruct %v2float %100 %100
+OpStore %z %int_6
 OpReturn
 OpFunctionEnd
-
-1 error

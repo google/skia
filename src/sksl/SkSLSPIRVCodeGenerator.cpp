@@ -2134,6 +2134,10 @@ std::unique_ptr<Expression> create_literal_1(const Context& context, const Type&
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
                                                 const Type& rightType, SpvId rhs,
                                                 const Type& resultType, OutputStream& out) {
+    // The comma operator ignores the type of the left-hand side entirely.
+    if (op == Token::Kind::TK_COMMA) {
+        return rhs;
+    }
     // overall type we are operating on: float2, int, uint4...
     const Type* operandType;
     // IR allows mismatched types in expressions (e.g. float2 * float), but they need special
@@ -2323,8 +2327,6 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         case Token::Kind::TK_BITWISEXOR:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
                                               SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
-        case Token::Kind::TK_COMMA:
-            return rhs;
         default:
             fErrors.error(0, "unsupported token");
             return -1;
