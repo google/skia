@@ -17,6 +17,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
+#include "src/utils/SkUTF.h"
 
 namespace {
 
@@ -118,7 +119,63 @@ public:
 
     // Queues codepoints for rendering.
     void appendFragment(const SkString& txt, const SkSVGRenderContext& ctx) {
-        // TODO: xml::space filtering
+        // https://www.w3.org/TR/SVG11/text.html#WhiteSpace
+        // https://www.w3.org/TR/2008/REC-xml-20081126/#NT-S
+        auto filterWSDefault = [this](SkUnichar ch) -> SkUnichar {
+            // Remove all newline chars.
+            if (ch == '\n') {
+                return -1;
+            }
+
+            // Convert tab chars to space.
+            if (ch == '\t') {
+                ch = ' ';
+            }
+
+            // Consolidate contiguous space chars and strip leading spaces (fPrevCharSpace
+            // starts off as true).
+            if (fPrevCharSpace && ch == ' ') {
+                return -1;
+            }
+
+            // TODO: Strip trailing WS?  Doing this across chunks would require another buffering
+            //   layer.  In general, trailing WS should have no rendering side effects. Skipping
+            //   for now.
+            return ch;
+        };
+        auto filterWSPreserve = [](SkUnichar ch) -> SkUnichar {
+            // Convert newline and tab chars to space.
+            if (ch == '\n' || ch == '\t') {
+                ch = ' ';
+            }
+            return ch;
+        };
+
+        const auto xmlSpace = ctx.getXmlSpace();
+
+        SkSTArray<128, char, true> filtered;
+        filtered.reserve_back(SkToInt(txt.size()));
+
+        const char* ch_ptr = txt.c_str();
+        const char* ch_end = ch_ptr + txt.size();
+
+        while (ch_ptr < ch_end) {
+            auto ch = SkUTF::NextUTF8(&ch_ptr, ch_end);
+            ch = (xmlSpace == SkSVGXmlSpace::kDefault)
+                    ? filterWSDefault(ch)
+                    : filterWSPreserve(ch);
+
+            if (ch < 0) {
+                // invalid utf or char filtered out
+                continue;
+            }
+
+            char utf8_buf[SkUTF::kMaxBytesInUTF8Sequence];
+            filtered.push_back_n(SkToInt(SkUTF::ToUTF8(ch, utf8_buf)), utf8_buf);
+
+            fPrevCharSpace = (ch == ' ');
+        }
+
         // TODO: absolute positioned chars => chunk breaks
 
         // Stash paints for access from SkShaper callbacks.
@@ -129,7 +186,7 @@ public:
         const auto LTR = true;
 
         // Initiate shaping: this will generate a series of runs via callbacks.
-        fShaper->shape(txt.c_str(), txt.size(), ResolveFont(ctx), LTR, SK_ScalarMax, this);
+        fShaper->shape(filtered.data(), filtered.size(), ResolveFont(ctx), LTR, SK_ScalarMax, this);
     }
 
     // Perform actual rendering for queued codepoints.
@@ -214,6 +271,8 @@ private:
     // cached for access from SkShaper callbacks.
     const SkPaint*                  fCurrentFill;
     const SkPaint*                  fCurrentStroke;
+
+    bool                            fPrevCharSpace = true; // WS filter state
 };
 
 void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
@@ -229,10 +288,27 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
     }
 }
 
+bool SkSVGTextContainer::onPrepareToRender(SkSVGRenderContext* ctx) const {
+    ctx->setXmlSpace(this->getXmlSpace());
+    return this->INHERITED::onPrepareToRender(ctx);
+}
+
+// https://www.w3.org/TR/SVG11/text.html#WhiteSpace
+template <>
+bool SkSVGAttributeParser::parse(SkSVGXmlSpace* xs) {
+    static constexpr std::tuple<const char*, SkSVGXmlSpace> gXmlSpaceMap[] = {
+            {"default" , SkSVGXmlSpace::kDefault },
+            {"preserve", SkSVGXmlSpace::kPreserve},
+    };
+
+    return this->parseEnumMap(gXmlSpaceMap, xs) && this->parseEOSToken();
+}
+
 bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||
            this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
-           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value));
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value)) ||
+           this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
 void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
