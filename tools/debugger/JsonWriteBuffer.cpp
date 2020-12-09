@@ -186,6 +186,7 @@ size_t JsonWriteBuffer::writeStream(SkStream* stream, size_t length) {
 }
 
 void JsonWriteBuffer::writeImage(const SkImage* image) {
+    SkDebugf("JsonWriteBuffer::writeImage\n");
     this->append("image");
     fWriter->beginObject();
     DrawCommand::flatten(*image, *fWriter, *fUrlDataManager);
