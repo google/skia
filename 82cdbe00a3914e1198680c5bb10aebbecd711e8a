@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8f7a971_a50e676c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-09T22:05:14Z",
+      "side": 1,
+      "message": "Not a ton interesting going on here yet... it\u0027s going to be several rounds of scaffolding CLs before anything novel actually happens, but I thought you might be interested to see the direction I think we should head here.",
+      "revId": "82cdbe00a3914e1198680c5bb10aebbecd711e8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
