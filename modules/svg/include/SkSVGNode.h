@@ -121,6 +121,8 @@ public:
     SVG_PRES_ATTR(ClipPath        , SkSVGClip      , false)
     SVG_PRES_ATTR(Filter          , SkSVGFilterType, false)
     SVG_PRES_ATTR(Opacity         , SkSVGNumberType, false)
+    SVG_PRES_ATTR(StopColor       , SkSVGColor     , false)
+    SVG_PRES_ATTR(StopOpacity     , SkSVGNumberType, false)
 
 protected:
     SkSVGNode(SkSVGTag);
