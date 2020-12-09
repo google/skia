@@ -149,8 +149,8 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                          options: options
                completionHandler: completionHandler];
 
-    // Wait 300 ms for the compiler
-    constexpr auto kTimeoutNS = 300000000UL;
+    // Wait 1 second for the compiler
+    constexpr auto kTimeoutNS = 1000000000UL;
     if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutNS))) {
         if (error) {
             constexpr auto kTimeoutMS = kTimeoutNS/1000000UL;
@@ -184,8 +184,8 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler: completionHandler];
 
-    // Wait 300 ms for pipeline creation
-    constexpr auto kTimeoutNS = 300000000UL;
+    // Wait 1 second for pipeline creation
+    constexpr auto kTimeoutNS = 1000000000UL;
     if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutNS))) {
         if (error) {
             constexpr auto kTimeoutMS = kTimeoutNS/1000000UL;
