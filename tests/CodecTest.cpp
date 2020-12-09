@@ -946,7 +946,7 @@ DEF_TEST(Codec_wbmp_restrictive, r) {
 // because SkCodec only passes a limited number of bytes to SkWbmpCodec to
 // determine whether the image is a wbmp.
 DEF_TEST(Codec_wbmp_max_size, r) {
-    const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
+    const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Adapter
                                           0x83, 0xFF, 0x7F,     // W: 65535
                                           0x83, 0xFF, 0x7F };   // H: 65535
     std::unique_ptr<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
@@ -960,7 +960,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 
     // Now test an image which is too big. Any image with a larger header (i.e.
     // has bigger width/height) is also too big.
-    const unsigned char tooBigWbmp[] = { 0x00, 0x00,           // Header
+    const unsigned char tooBigWbmp[] = { 0x00, 0x00,           // Adapter
                                          0x84, 0x80, 0x00,     // W: 65536
                                          0x84, 0x80, 0x00 };   // H: 65536
     stream = std::make_unique<SkMemoryStream>(tooBigWbmp, sizeof(tooBigWbmp), false);

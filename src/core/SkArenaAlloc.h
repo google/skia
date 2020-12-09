@@ -26,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+//#define UseOldSkArenaAlloc
+
 // SkArena provides fast allocation where the user takes care of calling the destructors of the
 // returned pointers, and SkArena takes care of deleting the storage. The unique_ptrs returned,
 // are to assist in assuring the object's destructor is called.
@@ -143,7 +145,7 @@ private:
         constexpr int size = SkTo<int>(sizeof(T));
         constexpr int alignment = SkTo<int>(alignof(T));
 
-        return new (this->allocateBytes(size, alignment)) T {std::forward<Args>(args)...};
+        return new (this->allocateBytes(size, alignment)) T (std::forward<Args>(args)...);
     }
 
     template <typename T> T* innerMakeArray(int n) {
@@ -196,6 +198,126 @@ public:
     explicit SkSTArena(int firstHeapAllocation = MinimumSizeWithOverhead(InlineStorageSize))
         : SkArena{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
 };
+
+#if !defined(UseOldSkArenaAlloc)
+
+class SkArenaAlloc : public SkArena {
+public:
+    SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation)
+        : SkArena(block, blockSize, firstHeapAllocation) {}
+
+    explicit SkArenaAlloc(size_t firstHeapAllocation = 0)
+        : SkArenaAlloc(nullptr, 0, firstHeapAllocation) {}
+
+    template<typename T, typename... Args>
+    T* make(Args&&... args) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            return this->makePOD<T>(std::forward<Args>(args)...);
+        } else {
+            return this->adapt<T>(std::forward<Args>(args)...);
+        }
+    }
+
+    template <typename T>
+    T* makeArrayDefault(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            // Turns out people ask for 0 sized arrays. Change it to a single item for sanity.
+            // It looks like the old code handed out duplicate pointers when size == 0 is used.
+            return this->makePODArray<T>(count ? count : 1);
+        } else {
+            return this->adaptArray<T>(count);
+        }
+    }
+
+    template <typename T>
+    T* makeArray(size_t count) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T();
+            }
+            return array;
+        } else {
+            return this->adaptArray<T>(count);
+        }
+    }
+
+    template <typename T, typename Initializer>
+    T* makeInitializedArray(size_t count, Initializer initializer) {
+        if constexpr (std::is_trivially_destructible<T>::value) {
+            T* array = this->makePODArray<T>(count);
+            for (size_t i = 0; i < count; i++) {
+                new (&array[i]) T(initializer(i));
+            }
+            return array;
+        } else {
+            return this->adaptArray<T>(count, initializer);
+        }
+    }
+
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        return this->alignedBytes(size, align);
+    }
+
+private:
+    struct Adapter;
+    using NextHeader = std::unique_ptr<Adapter, SkArena::Destroyer>;
+    template<typename Specific>
+    static void UseAdaptor(Adapter* header) { static_cast<Specific*>(header)->act(); }
+    struct Adapter {
+        // Use a pointer from the subclass for resolving specific.
+        template<typename Specific>
+        Adapter(NextHeader next, Specific*)
+                : fAction{UseAdaptor<Specific>}
+                , fNext{std::move(next)} {}
+        ~Adapter() {
+            fAction(this);
+        }
+        void(*fAction)(Adapter*);
+        NextHeader fNext;
+    };
+
+    template<typename T> struct ObjectAdapter final : public Adapter {
+        template<typename... Args> ObjectAdapter(NextHeader next, Args&&... args)
+                // Pass this to deduce the subclass for Adapter.
+                : Adapter{std::move(next), this}
+                , object(std::forward<Args>(args)...) {}
+        void act() { object.~T(); }
+        T object;
+    };
+
+    template<typename T, typename... Args>
+    T* adapt(Args&&... args) {
+        auto adapter = this->makeUnique<ObjectAdapter<T>>(
+                std::move(fAdapterList), std::forward<Args>(args)...);
+        T* result = &adapter->object;
+        fAdapterList = std::move(adapter);
+        return result;
+    }
+
+    template<typename T> struct ArrayAdapter final : public Adapter {
+        using Array = std::unique_ptr<T[], SkArena::ArrayDestroyer>;
+        ArrayAdapter(NextHeader next, Array array)
+        // Pass this to deduce the subclass for Adapter.
+        : Adapter{std::move(next), this}
+        , fArray{std::move(array)} {}
+        void act() { fArray.~unique_ptr(); }
+        Array fArray;
+    };
+
+    template<typename T, typename... Args>
+    T* adaptArray(int count, Args&&... args) {
+        auto array = this->SkArena::makeUniqueArray<T>(count, std::forward<Args>(args)...);
+        T* result = array.get();
+        auto adaptor = this->makeUnique<ArrayAdapter<T>>(std::move(fAdapterList), std::move(array));
+        fAdapterList = std::move(adaptor);
+        return result;
+    }
+
+    NextHeader fAdapterList{nullptr};
+};
+
+#else
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -419,6 +541,7 @@ private:
     uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
              fYetNextHeapAlloc;  // And then how many the next allocation after that?
 };
+#endif  // Choose SkArenaAlloc implementation
 
 class SkArenaAllocWithReset : public SkArenaAlloc {
 public:

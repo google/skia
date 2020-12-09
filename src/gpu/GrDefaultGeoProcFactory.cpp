@@ -195,6 +195,8 @@ public:
 
 private:
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
+    friend class ::SkArena; // for access to ctor
 
     DefaultGeoProc(uint32_t gpTypeFlags,
                    const SkPMColor4f& color,

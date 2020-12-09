@@ -838,6 +838,7 @@ public:
 private:
     friend class GLDashingCircleEffect;
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     DashingCircleEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
@@ -1048,6 +1049,7 @@ public:
 private:
     friend class GLDashingLineEffect;
     friend class ::SkArenaAlloc; // for access to ctor
+friend class ::SkArena;
 
     DashingLineEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);

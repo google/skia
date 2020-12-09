@@ -128,7 +128,7 @@ protected:
     }
 
     // The key, stored in fKey, is composed of two parts:
-    // 1. Header struct defined above.
+    // 1. Adapter struct defined above.
     // 2. A Backend specific payload which includes the per-processor keys.
     enum KeyOffsets {
         kHeaderOffset = 0,

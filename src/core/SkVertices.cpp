@@ -391,7 +391,7 @@ void SkVerticesPriv::encode(SkWriteBuffer& buffer) const {
     SkVertices::Sizes sizes = fVertices->getSizes();
     SkASSERT(!sizes.fBuilderTriFanISize);
 
-    // Header
+    // Adapter
     buffer.writeUInt(packed);
     buffer.writeInt(fVertices->fVertexCount);
     buffer.writeInt(fVertices->fIndexCount);
