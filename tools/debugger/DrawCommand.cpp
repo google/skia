@@ -646,19 +646,9 @@ void DrawCommand::WritePNG(SkBitmap bitmap, SkWStream& out) {
     SkPngEncoder::Encode(&out, pm, options);
 }
 
-// flattens an image to a Json stream, also called from shader flatten
 bool DrawCommand::flatten(const SkImage&  image,
                           SkJSONWriter&   writer,
                           UrlDataManager& urlDataManager) {
-    // For MSKP files, there is no need to encode the image,
-    // just report its id.
-    if (urlDataManager.hasImageIndex()) {
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64(urlDataManager.lookupImage(&image));
-        return true;
-    }
-
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
     size_t       rowBytes = 4 * image.width();
     SkAutoMalloc buffer(rowBytes * image.height());
     SkImageInfo  dstInfo =
@@ -690,7 +680,6 @@ bool DrawCommand::flatten(const SkImage&  image,
     }
     SkString      url = encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager);
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url.c_str());
-    writer.endObject();
     return true;
 }
 
@@ -721,7 +710,6 @@ bool DrawCommand::flatten(const SkBitmap& bitmap,
     sk_sp<SkImage> image(SkImage::MakeFromBitmap(bitmap));
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_COLOR, color_type_name(bitmap.colorType()));
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, alpha_type_name(bitmap.alphaType()));
-    // Image will appear to have no uses, TODO(nifong): provide the user with a useful explanation
     bool success = flatten(*image, writer, urlDataManager);
     return success;
 }
@@ -1222,7 +1210,15 @@ uint64_t DrawImageCommand::imageId(UrlDataManager& udm) const {
 
 void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    flatten(*fImage, writer, urlDataManager);
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64(imageId(urlDataManager));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonPoint(writer, fLeft, fTop);
     if (fPaint.isValid()) {
@@ -1279,7 +1275,15 @@ uint64_t DrawImageLatticeCommand::imageId(UrlDataManager& udm) const {
 
 void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    flatten(*fImage, writer, urlDataManager);
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64(imageId(urlDataManager));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_LATTICE);
     MakeJsonLattice(writer, fLattice);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
@@ -1326,7 +1330,15 @@ uint64_t DrawImageRectCommand::imageId(UrlDataManager& udm) const {
 
 void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    flatten(*fImage, writer, urlDataManager);
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64(imageId(urlDataManager));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
+
     if (fSrc.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
         MakeJsonRect(writer, *fSrc);
@@ -1434,7 +1446,15 @@ uint64_t DrawImageNineCommand::imageId(UrlDataManager& udm) const {
 
 void DrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    flatten(*fImage, writer, urlDataManager);
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64(imageId(urlDataManager));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_CENTER);
     MakeJsonIRect(writer, fCenter);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
