@@ -328,6 +328,7 @@ tests_sources = [
   "$_tests/VkWrapTests.cpp",
   "$_tests/VkYcbcrSamplerTest.cpp",
   "$_tests/VptrTest.cpp",
+  "$_tests/WebpTest.cpp",
   "$_tests/WindowRectanglesTest.cpp",
   "$_tests/WritePixelsTest.cpp",
   "$_tests/Writer32Test.cpp",
