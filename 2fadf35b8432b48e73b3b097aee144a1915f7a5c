@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f612da81_18cb7866",
+        "filename": "src/sksl/dsl/DSLBlock.h",
+        "patchSetId": 42
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e21fd558_a21b56d5",
+      "range": {
+        "startLine": 27,
+        "startChar": 39,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5bf25548_e00d34d4",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-12-08T22:31:57Z",
       "side": 1,
       "message": "not important, but: Does it not like `expr \u003d\u003d nullptr` either?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 53
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2e18730_4157d246",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 42
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "That works!",
+      "parentUuid": "5bf25548_e00d34d4",
       "range": {
         "startLine": 24,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7718882_b90ad0cf",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 42
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0dc118a1_112750bb",
+      "range": {
+        "startLine": 63,
+        "startChar": 14,
+        "endLine": 63,
+        "endChar": 19
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6ef2f2f_9a1a23c6",
@@ -100,6 +172,30 @@
       "writtenOn": "2020-12-08T22:31:57Z",
       "side": 1,
       "message": "nit:\n  parameterArray.reserve(sizeof...(parameters));",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 51
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9db2af2_dfef3d22",
+        "filename": "src/sksl/dsl/DSLFunction.h",
+        "patchSetId": 42
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6ef2f2f_9a1a23c6",
       "range": {
         "startLine": 32,
         "startChar": 37,
@@ -133,6 +229,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d63cd86c_64c6f12b",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 42
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8e10068_36af5934",
+      "range": {
+        "startLine": 40,
+        "startChar": 49,
+        "endLine": 40,
+        "endChar": 50
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e85a785_c6b5bf27",
@@ -146,6 +266,30 @@
       "writtenOn": "2020-12-08T22:31:57Z",
       "side": 1,
       "message": "nit: \n  argArray.reserve_back(sizeof...(args));",
+      "range": {
+        "startLine": 88,
+        "startChar": 26,
+        "endLine": 88,
+        "endChar": 34
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac3f3619_3e41a266",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 42
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e85a785_c6b5bf27",
       "range": {
         "startLine": 88,
         "startChar": 26,
@@ -180,6 +324,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c557b65_3d7b6bce",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 42
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2de70fe2_81c818a2",
+      "range": {
+        "startLine": 126,
+        "startChar": 38,
+        "endLine": 126,
+        "endChar": 47
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd96bb6d_3fb245f4",
@@ -193,6 +361,30 @@
       "writtenOn": "2020-12-08T22:31:57Z",
       "side": 1,
       "message": "This is wrong, isn\u0027t it? Shouldn\u0027t it be `half2 coords`?",
+      "range": {
+        "startLine": 826,
+        "startChar": 13,
+        "endLine": 826,
+        "endChar": 18
+      },
+      "revId": "2fadf35b8432b48e73b3b097aee144a1915f7a5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c10ac49d_d0af49a8",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 42
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-09T17:03:10Z",
+      "side": 1,
+      "message": "Fixed FunctionDeclaration\u0027s description().",
+      "parentUuid": "bd96bb6d_3fb245f4",
       "range": {
         "startLine": 826,
         "startChar": 13,
