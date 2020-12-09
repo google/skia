@@ -568,7 +568,12 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(qe);
 
+#if defined(SK_BUILD_FOR_IOS)
+            // GL on iOS 14 needs more precision for the quadedge attributes
+            GrGLSLVarying v(kFloat4_GrSLType);
+#else
             GrGLSLVarying v(kHalf4_GrSLType);
+#endif
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge.name());
 
@@ -592,13 +597,13 @@ public:
             fragBuilder->codeAppendf("half2 duvdy = half2(dFdy(%s.xy));", v.fsIn());
             fragBuilder->codeAppendf("if (%s.z > 0.0 && %s.w > 0.0) {", v.fsIn(), v.fsIn());
             // today we know z and w are in device space. We could use derivatives
-            fragBuilder->codeAppendf("edgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);", v.fsIn(),
+            fragBuilder->codeAppendf("edgeAlpha = half(min(min(%s.z, %s.w) + 0.5, 1.0));", v.fsIn(),
                                      v.fsIn());
             fragBuilder->codeAppendf ("} else {");
-            fragBuilder->codeAppendf("half2 gF = half2(2.0*%s.x*duvdx.x - duvdx.y,"
-                                     "               2.0*%s.x*duvdy.x - duvdy.y);",
+            fragBuilder->codeAppendf("half2 gF = half2(half(2.0*%s.x*duvdx.x - duvdx.y),"
+                                     "                 half(2.0*%s.x*duvdy.x - duvdy.y));",
                                      v.fsIn(), v.fsIn());
-            fragBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
+            fragBuilder->codeAppendf("edgeAlpha = half(%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
                                      v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = "
                                      "saturate(0.5 - edgeAlpha / length(gF));}");
@@ -645,7 +650,12 @@ private:
             , fUsesLocalCoords(usesLocalCoords) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInColor = MakeColorAttribute("inColor", wideColor);
+#if defined(SK_BUILD_FOR_IOS)
+        // GL on iOS 14 needs more precision for the quadedge attributes
+        fInQuadEdge = {"inQuadEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
+#else
         fInQuadEdge = {"inQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+#endif
         this->setVertexAttributes(&fInPosition, 3);
     }
 
