@@ -16,6 +16,29 @@
       "message": "Definitely going to need to think more about how SymbolTables will work in future CLs, but I think this is ok for right now.",
       "revId": "6d5650cc99ee84bec452d807c13fd70babaf69d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b37b2aa_0bff23f7",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-09T22:05:41Z",
+      "side": 1,
+      "message": "Maybe deserves a new name now that it\u0027s doing two things, but that can be in a followup",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 23
+      },
+      "revId": "6d5650cc99ee84bec452d807c13fd70babaf69d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
