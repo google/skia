@@ -1748,14 +1748,9 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
 
 const SkPoint& SkPath::Iter::cons_moveTo() {
     if (fSegmentState == kAfterMove_SegmentState) {
-        // Set the first return pt to the move pt
         fSegmentState = kAfterPrimitive_SegmentState;
-        return fMoveTo;
     }
-
-    SkASSERT(fSegmentState == kAfterPrimitive_SegmentState);
-    // Set the first return pt to the last pt of the previous primitive.
-    return fPts[-1];
+    return fLastPt;
 }
 
 SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
