@@ -18,7 +18,7 @@
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrTexture.h"
 
-void GrOpsRenderPass::begin() {
+void GrOpsRenderPass::begin1() {
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
 #ifdef SK_DEBUG
     fScissorStatus = DynamicStateStatus::kDisabled;
@@ -58,7 +58,7 @@ void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
     this->onExecuteDrawable(std::move(drawable));
 }
 
-void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+void GrOpsRenderPass::bindPipeline1(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
 #ifdef SK_DEBUG
     // Both the 'programInfo' and this renderPass have an origin. Since they come from the same
     // place (i.e., the target renderTargetProxy) they had best agree.
@@ -132,7 +132,7 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     fXferBarrierType = programInfo.pipeline().xferBarrierType(*this->gpu()->caps());
 }
 
-void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
+void GrOpsRenderPass::setScissorRect1(const SkIRect& scissor) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         return;

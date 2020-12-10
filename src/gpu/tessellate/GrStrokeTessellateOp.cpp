@@ -586,7 +586,7 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     SkASSERT(fColorProgram);
     SkASSERT(chainBounds == this->bounds());
 
-    flushState->bindPipelineAndScissorClip(*fColorProgram, this->bounds());
+    flushState->bindPipelineAndScissorClip3(*fColorProgram, this->bounds());
     flushState->bindTextures(fColorProgram->primProc(), nullptr, fColorProgram->pipeline());
     for (const auto& chunk : fPatchChunks) {
         if (chunk.fPatchBuffer) {

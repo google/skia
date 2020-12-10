@@ -521,6 +521,8 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
                                                  fCurrentPipelineBounds);
     }
+    //$$
+    // maybe have a new virtual akin but parallel
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB,
                                                programInfo.pipeline().writeSwizzle(),
