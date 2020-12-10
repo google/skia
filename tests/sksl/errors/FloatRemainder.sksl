@@ -1,0 +1,7 @@
+// Expect 2 errors (one per function)
+
+float x;
+float y;
+
+void rem()    { x = x % y; }
+void rem_eq() { x %= y; }

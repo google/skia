@@ -218,10 +218,6 @@ DEF_TEST(SkSLInterpreterDivide, r) {
 }
 
 DEF_TEST(SkSLInterpreterRemainder, r) {
-    test(r, "void main(inout half4 color) { color.r = color.r % color.g; }", 3.125, 2, 0, 0,
-         1.125, 2, 0, 0);
-    test(r, "void main(inout half4 color) { color %= half4(1, 2, 3, 4); }", 9.5, 9.5, 9.5, 9.5,
-         0.5, 1.5, 0.5, 1.5);
     test(r, "void main(inout half4 color) { color.r = int(color.r) % int(color.g); }", 8, 3, 0, 0,
          2, 3, 0, 0);
     test(r, "void main(inout half4 color) { color.rg = half2(int2(int(color.r), int(color.g)) % "
