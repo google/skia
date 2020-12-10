@@ -68,8 +68,6 @@ public:
             result += separator;
             separator = ", ";
             result += p->type().displayName();
-            result += " ";
-            result += p->name();
         }
         result += ")";
         return result;
