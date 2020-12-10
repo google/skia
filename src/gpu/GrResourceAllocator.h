@@ -76,7 +76,7 @@ public:
     void incOps() { fNumOps++; }
 
     /** Indicates whether a given call to addInterval represents an actual usage of the
-     *  provided proxy. This is mainly here to accomodate deferred proxies attached to opsTasks.
+     *  provided proxy. This is mainly here to accommodate deferred proxies attached to opsTasks.
      *  In that case we need to create an extra long interval for them (due to the upload) but
      *  don't want to count that usage/reference towards the proxy's recyclability.
      */

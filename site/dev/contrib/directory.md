@@ -9,7 +9,7 @@ The Skia Directory
 *   Code Repositories
     -   [Git repository](https://skia.googlesource.com/skia/)
     -   [Other Skia project repositories](https://skia.googlesource.com/)
-    -   [Github Mirror](https://github.com/google/skia)
+    -   [GitHub Mirror](https://github.com/google/skia)
     -   [Code Search](https://cs.skia.org) based on the version of Skia in the
         Chromium tree.
 
