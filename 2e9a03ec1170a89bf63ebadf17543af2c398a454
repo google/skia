@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16f382b3_d293e6c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-10T13:31:52Z",
+      "side": 1,
+      "message": "Skia\u0027s straddling C++14 and C++17.  You can use C++17 language features, but not in public headers or headers used by public headers, and can only assume a C++14 standard library.",
+      "revId": "2e9a03ec1170a89bf63ebadf17543af2c398a454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
