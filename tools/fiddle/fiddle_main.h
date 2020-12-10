@@ -71,7 +71,7 @@ struct DrawOptions {
     const char* source;
 
     // This flag is used when a GPU texture resource is created and exposed as a GrBackendTexture.
-    // In this case the resource is created with extra room to accomodate mipmaps.
+    // In this case the resource is created with extra room to accommodate mipmaps.
     // TODO: The SkImage::makeTextureImage API would need to be widened to allow this to be true
     // for the non-backend gpu SkImages.
     GrMipmapped fMipMapping;
