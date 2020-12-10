@@ -48,7 +48,11 @@
         }
         GL.makeContextCurrent(handle);
         return handle;
-      }
+      };
+
+      CanvasKit.deleteContext = function(handle) {
+        GL.deleteContext(handle);
+      };
 
       // idOrElement can be of types:
       //  - String - in which case it is interpreted as an id of a

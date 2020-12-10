@@ -62,6 +62,7 @@ var CanvasKit = {
   Free: function() {},
   computeTonalColors: function() {},
   currentContext: function() {},
+  deleteContext: function() {},
   getColorComponents: function() {},
   getDecodeCacheLimitBytes: function() {},
   getDecodeCacheUsageBytes: function() {},
@@ -72,7 +73,7 @@ var CanvasKit = {
   setDecodeCacheLimitBytes: function() {},
 
   // Defined by emscripten.
-  createContext:function() {},
+  createContext: function() {},
 
   // private API (i.e. things declared in the bindings that we use
   // in the pre-js file)
