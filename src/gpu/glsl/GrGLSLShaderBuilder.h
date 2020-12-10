@@ -17,14 +17,6 @@
 
 #include <stdarg.h>
 
-namespace SkSL {
-
-namespace dsl {
-    class DSLStatement;
-} // namespace dsl
-
-} // namespace SkSL
-
 class GrGLSLColorSpaceXformHelper;
 
 /**
@@ -116,8 +108,6 @@ public:
     void codeAppend(const char* str) { this->code().append(str); }
 
     void codeAppend(const char* str, size_t length) { this->code().append(str, length); }
-
-    void codeAppend(SkSL::dsl::DSLStatement stmt);
 
     void codePrependf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
        va_list args;
