@@ -1532,20 +1532,22 @@ static bool op_is_logical(Token::Kind op) {
 }
 
 /**
- * Defines the set of operators which perform bitwise math.
+ * Defines the set of operators which are only valid on integral types.
  */
-static bool op_is_bitwise(Token::Kind op) {
+static bool op_only_valid_for_integral_types(Token::Kind op) {
     switch (op) {
         case Token::Kind::TK_SHL:
         case Token::Kind::TK_SHR:
         case Token::Kind::TK_BITWISEAND:
         case Token::Kind::TK_BITWISEOR:
         case Token::Kind::TK_BITWISEXOR:
+        case Token::Kind::TK_PERCENT:
         case Token::Kind::TK_SHLEQ:
         case Token::Kind::TK_SHREQ:
         case Token::Kind::TK_BITWISEANDEQ:
         case Token::Kind::TK_BITWISEOREQ:
         case Token::Kind::TK_BITWISEXOREQ:
+        case Token::Kind::TK_PERCENTEQ:
             return true;
         default:
             return false;
@@ -1716,7 +1718,7 @@ static bool determine_binary_type(const Context& context,
                                                 : left.coercionCost(right);
 
     if ((left.isScalar() && right.isScalar()) || (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
-        if (op_is_bitwise(op)) {
+        if (op_only_valid_for_integral_types(op)) {
             if (!leftComponentType.isInteger() || !rightComponentType.isInteger()) {
                 return false;
             }
