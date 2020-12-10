@@ -146,6 +146,24 @@
       "parentUuid": "e05f1cdf_39f1ef75",
       "revId": "0f9783f0fa908966323f895146c95798d17e297c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdfe774e_8fea24d8",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-10T16:37:52Z",
+      "side": 1,
+      "message": "Awesome!",
+      "parentUuid": "bd962cfd_b5071814",
+      "revId": "0f9783f0fa908966323f895146c95798d17e297c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

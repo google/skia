@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9f4f6ce_050759c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-10T16:37:52Z",
+      "side": 1,
+      "message": "The quadratic one is looking a lot more manageable! I bet we can make this work.",
+      "revId": "6357e9acdd1a4bbd4746831cd8e0ecf63edf563f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74ff84e7_9a756a1c",
+        "filename": "tests/WangsFormulaTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-10T16:37:52Z",
+      "side": 1,
+      "message": "Can we set min_x\u003dmax_x\u003dP[0].fX, min_y\u003dmax_y\u003dP[0].fY, then loop for (int i \u003d 1;...)?",
+      "range": {
+        "startLine": 47,
+        "startChar": 18,
+        "endLine": 47,
+        "endChar": 51
+      },
+      "revId": "6357e9acdd1a4bbd4746831cd8e0ecf63edf563f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
