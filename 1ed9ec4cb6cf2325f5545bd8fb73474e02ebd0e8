@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29af128d_36b0b113",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-10T18:11:50Z",
+      "side": 1,
+      "message": "gonna be fun when we impl NxM matrix math for fp16 in skvm...",
+      "revId": "1ed9ec4cb6cf2325f5545bd8fb73474e02ebd0e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
