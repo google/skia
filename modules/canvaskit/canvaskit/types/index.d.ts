@@ -264,6 +264,12 @@ export interface CanvasKit {
     setCurrentContext(ctx: WebGLContextHandle): void;
 
     /**
+     * Deletes the associated WebGLContext. Function not available on the CPU version.
+     * @param ctx
+     */
+    deleteContext(ctx: WebGLContextHandle): void;
+
+    /**
      * Returns the max size of the global cache for bitmaps used by CanvasKit.
      */
     getDecodeCacheLimitBytes(): number;

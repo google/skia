@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `getImageInfo()` and `getColorSpace()` to the `Image` type.
+ - `CanvasKit.deleteContext` for deleting WebGL contexts when done with them, resizing, etc.
 
 ### Breaking
  - `Path.addPoly()` no longer accepts a 2d array of points, but a flattened 1d array.
