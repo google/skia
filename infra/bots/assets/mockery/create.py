@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2017 Google Inc.
+# Copyright 2020 Google LLC.
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -8,13 +8,21 @@
 
 """Create the asset."""
 
-import common # fixes python import path
 import argparse
+import subprocess
+import os
 
+
+URL = "https://github.com/vektra/mockery/releases/download/v2.4.0/mockery_2.4.0_Linux_x86_64.tar.gz"
 
 def create_asset(target_dir):
   """Create the asset."""
-  raise NotImplementedError('Implement me!')
+  os.chdir(target_dir)
+  output = subprocess.check_output(["wget", URL, "--output-document=mockery.tar.gz"])
+  print(output)
+  output = subprocess.check_output(["tar", "-xvf", "mockery.tar.gz"])
+  print(output)
+  os.remove("mockery.tar.gz")
 
 
 def main():
