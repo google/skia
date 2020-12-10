@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8073b5e0_aef96933",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-10T19:57:01Z",
+      "side": 1,
+      "message": "is it worth having this assignment do a \"if (this !\u003d \u0026that)\" check like above? It would mean adding an equality check for gr_cb and sk_sp. Is that weird to have?",
+      "range": {
+        "startLine": 98,
+        "startChar": 8,
+        "endLine": 98,
+        "endChar": 49
+      },
+      "revId": "bf88ecffd9e47174a6192c0ae1d761b61945ef03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
