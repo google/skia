@@ -153,15 +153,16 @@ public:
                                              fUInt3_Type.get(), fUInt4_Type.get() }))
     , fGenBType_Type(new Type("$genBType", { fBool_Type.get(), fBool2_Type.get(),
                                              fBool3_Type.get(), fBool4_Type.get() }))
-    , fMat_Type(new Type("$mat", { fFloat2x2_Type.get(),  fFloat2x3_Type.get(),
-                                   fFloat2x4_Type.get(),  fFloat3x2_Type.get(),
-                                   fFloat3x3_Type.get(),  fFloat3x4_Type.get(),
-                                   fFloat4x2_Type.get(),  fFloat4x3_Type.get(),
-                                   fFloat4x4_Type.get(),  fHalf2x2_Type.get(),
-                                   fHalf2x3_Type.get(),   fHalf2x4_Type.get(),
-                                   fHalf3x2_Type.get(),   fHalf3x3_Type.get(),
-                                   fHalf3x4_Type.get(),   fHalf4x2_Type.get(),
-                                   fHalf4x3_Type.get(),   fHalf4x4_Type.get() }))
+    , fMat_Type(new Type("$mat", { fFloat2x2_Type.get(), fFloat2x3_Type.get(),
+                                   fFloat2x4_Type.get(), fFloat3x2_Type.get(),
+                                   fFloat3x3_Type.get(), fFloat3x4_Type.get(),
+                                   fFloat4x2_Type.get(), fFloat4x3_Type.get(),
+                                   fFloat4x4_Type.get() }))
+    , fMatH_Type(new Type("$matH", { fHalf2x2_Type.get(), fHalf2x3_Type.get(),
+                                     fHalf2x4_Type.get(), fHalf3x2_Type.get(),
+                                     fHalf3x3_Type.get(), fHalf3x4_Type.get(),
+                                     fHalf4x2_Type.get(), fHalf4x3_Type.get(),
+                                     fHalf4x4_Type.get() }))
     , fVec_Type(new Type("$vec", { fInvalid_Type.get(), fFloat2_Type.get(),
                                    fFloat3_Type.get(), fFloat4_Type.get() }))
     , fGVec_Type(new Type("$gvec"))
@@ -322,6 +323,7 @@ public:
     const std::unique_ptr<Type> fGenBType_Type;
 
     const std::unique_ptr<Type> fMat_Type;
+    const std::unique_ptr<Type> fMatH_Type;
 
     const std::unique_ptr<Type> fVec_Type;
 

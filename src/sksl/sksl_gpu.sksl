@@ -143,6 +143,7 @@ $genHType reflect($genHType I, $genHType N);
 $genType refract($genType I, $genType N, float eta);
 $genHType refract($genHType I, $genHType N, float eta);
 $mat matrixCompMult($mat x, $mat y);
+$matH matrixCompMult($matH x, $matH y);
 float2x2 outerProduct(float2 c, float2 r);
 float3x3 outerProduct(float3 c, float3 r);
 float4x3 outerProduct(float4 c, float4 r);
