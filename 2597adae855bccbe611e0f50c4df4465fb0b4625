@@ -16,6 +16,24 @@
       "message": "FWIW this was my first thought, too, when looking through the code.  Thanks.",
       "revId": "2597adae855bccbe611e0f50c4df4465fb0b4625",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5c2575b_90a86461",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-10T19:49:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c1f2048b_92028201",
+      "revId": "2597adae855bccbe611e0f50c4df4465fb0b4625",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
