@@ -179,16 +179,15 @@ private:
 
                     // clamp/clamp shader
                     SkPaint clampPaint;
-                    clampPaint.setFilterQuality(q);
-                    clampPaint.setShader(fGradImgs[i]->makeShader());
+                    clampPaint.setShader(fGradImgs[i]->makeShader(SkSamplingOptions(q)));
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), clampPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
                     // repeat/mirror shader
                     SkPaint repeatPaint;
-                    repeatPaint.setFilterQuality(q);
                     repeatPaint.setShader(fGradImgs[i]->makeShader(SkTileMode::kRepeat,
-                                                                   SkTileMode::kMirror));
+                                                                   SkTileMode::kMirror,
+                                                                   SkSamplingOptions(q)));
                     canvas->drawRect(SkRect::MakeWH(1.5f*w, 1.5f*h), repeatPaint);
                     canvas->translate(1.5f*w + kPad, 0);
 
@@ -220,11 +219,11 @@ private:
                     SkMatrix lm;
                     lm.setRotate(45.f, 1, 1);
                     lm.postScale(6.5f, 6.5f);
-                    auto shader = fSmallImg->makeShader(static_cast<SkTileMode>(tx),
-                                                        static_cast<SkTileMode>(ty), &lm);
                     SkPaint paint;
-                    paint.setShader(std::move(shader));
-                    paint.setFilterQuality(static_cast<SkFilterQuality>(fq));
+                    paint.setShader(fSmallImg->makeShader(static_cast<SkTileMode>(tx),
+                                                          static_cast<SkTileMode>(ty),
+                                                          SkSamplingOptions((SkFilterQuality)fq),
+                                                          lm));
                     canvas->drawRect(dstRect, paint);
                     canvas->translate(dstRect.width() + kPad, 0);
                 }
