@@ -48,6 +48,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
+    fIntrinsicMap[String("faceforward")]        = SPECIAL(Faceforward);
     fIntrinsicMap[String("length")]             = SPECIAL(Length);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
@@ -615,6 +616,27 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write(", ");
                 this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(")");
+            }
+            break;
+        }
+        case kFaceforward_SpecialIntrinsic: {
+            if (arguments[0]->type().columns() == 1) {
+                // ((((Nref) * (I) < 0) ? 1 : -1) * (N))
+                this->write("((((");
+                this->writeExpression(*arguments[2], kSequence_Precedence);
+                this->write(") * (");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(") < 0) ? 1 : -1) * (");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+                this->write("))");
+            } else {
+                this->write("faceforward(");
+                this->writeExpression(*arguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*arguments[1], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*arguments[2], kSequence_Precedence);
                 this->write(")");
             }
             break;

@@ -1,1 +1,6 @@
-in half a, b, c; void main() { sk_FragColor.x = faceforward(a, b, c); }
+in half a, b, c;
+in half4 d, e, f;
+void main() {
+    sk_FragColor.x = faceforward(a, b, c);
+    sk_FragColor = faceforward(d, e, f);
+}
