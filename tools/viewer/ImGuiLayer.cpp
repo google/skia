@@ -55,10 +55,9 @@ ImGuiLayer::ImGuiLayer() {
     SkPixmap pmap(info, pixels, info.minRowBytes());
     SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(&localMatrix);
+    auto fontShader = fontImage->makeShader(SkSamplingOptions(kLow_SkFilterQuality), localMatrix);
     fFontPaint.setShader(fontShader);
     fFontPaint.setColor(SK_ColorWHITE);
-    fFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fFontPaint;
 }
 
