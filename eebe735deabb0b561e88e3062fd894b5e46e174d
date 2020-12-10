@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fed9b65_dcb3b492",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-12-10T20:12:42Z",
+      "side": 1,
+      "message": "Android roll failed with, because GrRenderTargetContext could not be found:\n\nout/soong/.intermediates/frameworks/base/libs/hwui/libhwui/android_x86_64_silvermont_static/obj/frameworks/base/libs/hwui/pipeline/skia/GLFunctorDrawable.o.d -o out/soong/.intermediates/frameworks/base/libs/hwui/libhwui/android_x86_64_silvermont_static/obj/frameworks/base/libs/hwui/pipeline/skia/GLFunctorDrawable.o frameworks/base/libs/hwui/pipeline/skia/GLFunctorDrawable.cpp\nframeworks/base/libs/hwui/pipeline/skia/GLFunctorDrawable.cpp:23:10: fatal error: \u0027GrRenderTargetContext.h\u0027 file not found\n\nhttps://android-build.googleplex.com/builds/pending/P18369925/cf_x86_64_phone-userdebug/latest/view/logs/build_error.log\n",
+      "revId": "eebe735deabb0b561e88e3062fd894b5e46e174d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
