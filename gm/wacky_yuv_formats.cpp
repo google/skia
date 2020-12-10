@@ -1144,7 +1144,9 @@ static void split_into_yuv(const SkImage* img, SkYUVColorSpace cs, const SkPixma
 
 static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
                       const SkImage* a, const SkImage* b) {
-    auto sh = SkShaders::Blend(SkBlendMode::kDifference, a->makeShader(), b->makeShader());
+    auto sh = SkShaders::Blend(SkBlendMode::kDifference,
+                               a->makeShader(SkSamplingOptions()),
+                               b->makeShader(SkSamplingOptions()));
     SkPaint paint;
     paint.setShader(sh);
     canvas->save();

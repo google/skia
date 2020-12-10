@@ -181,7 +181,7 @@ DEF_TEST(SVGDevice_whitespace_pos, reporter) {
 void SetImageShader(SkPaint* paint, int imageWidth, int imageHeight, SkTileMode xTile,
                     SkTileMode yTile) {
     auto surface = SkSurface::MakeRasterN32Premul(imageWidth, imageHeight);
-    paint->setShader(surface->makeImageSnapshot()->makeShader(xTile, yTile, nullptr));
+    paint->setShader(surface->makeImageSnapshot()->makeShader(xTile, yTile, SkSamplingOptions()));
 }
 
 // Attempt to find the three nodes on which we have expectations:
