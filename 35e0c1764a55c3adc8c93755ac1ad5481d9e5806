@@ -16,6 +16,24 @@
       "message": "Seems like it would be simpler to just re-map these intrinsics to the as_type\u003c\u003e calls directly (rather than introduce a new helper). I think that\u0027s keeping with the spirit of intrinsics (effectively, Metal spells \u0027floatBitsToUint\u0027 as \u0027as_type\u003cuint\u003e`)\n\n  name \u003d String::printf(\"as_type\u003c%s\u003e\", c.type().displayName().c_str());",
       "revId": "35e0c1764a55c3adc8c93755ac1ad5481d9e5806",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c60a62ed_6eba21ac",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-10T15:35:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "556827fd_b1df9042",
+      "revId": "35e0c1764a55c3adc8c93755ac1ad5481d9e5806",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
