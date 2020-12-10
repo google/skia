@@ -881,13 +881,51 @@ DEF_TEST(DSLWhile, r) {
 
 DEF_TEST(DSLBuiltins, r) {
     AutoDisableMangle disableMangle;
-    Var a(kHalf4, "a"), b(kHalf4, "b");
-    REPORTER_ASSERT(r, ceil(a).release()->description()        == "ceil(a)");
-    REPORTER_ASSERT(r, clamp(a, 0, 1).release()->description() == "clamp(a, 0.0, 1.0)");
-    REPORTER_ASSERT(r, dot(a, b).release()->description()      == "dot(a, b)");
-    REPORTER_ASSERT(r, floor(a).release()->description()       == "floor(a)");
-    REPORTER_ASSERT(r, saturate(a).release()->description()    == "saturate(a)");
-    REPORTER_ASSERT(r, unpremul(a).release()->description()    == "unpremul(a)");
+    Var a(kHalf4, "a"), b(kHalf4, "b"), c(kHalf4, "c");
+    Var h3(kHalf3, "h3");
+    Var b4(kBool4, "b4");
+    REPORTER_ASSERT(r, abs(a).release()->description()                 == "abs(a)");
+    REPORTER_ASSERT(r, all(b4).release()->description()                == "all(b4)");
+    REPORTER_ASSERT(r, any(b4).release()->description()                == "any(b4)");
+    REPORTER_ASSERT(r, ceil(a).release()->description()                == "ceil(a)");
+    REPORTER_ASSERT(r, clamp(a, 0, 1).release()->description()         == "clamp(a, 0.0, 1.0)");
+    REPORTER_ASSERT(r, cos(a).release()->description()                 == "cos(a)");
+    REPORTER_ASSERT(r, cross(h3, h3).release()->description()          == "cross(h3, h3)");
+    REPORTER_ASSERT(r, degrees(a).release()->description()             == "degrees(a)");
+    REPORTER_ASSERT(r, distance(a, b).release()->description()         == "distance(a, b)");
+    REPORTER_ASSERT(r, dot(a, b).release()->description()              == "dot(a, b)");
+    REPORTER_ASSERT(r, equal(a, b).release()->description()            == "equal(a, b)");
+    REPORTER_ASSERT(r, exp(a).release()->description()                 == "exp(a)");
+    REPORTER_ASSERT(r, exp2(a).release()->description()                == "exp2(a)");
+    REPORTER_ASSERT(r, faceforward(a, b, c).release()->description()   == "faceforward(a, b, c)");
+    REPORTER_ASSERT(r, floor(a).release()->description()               == "floor(a)");
+    REPORTER_ASSERT(r, fract(a).release()->description()               == "fract(a)");
+    REPORTER_ASSERT(r, greaterThan(a, b).release()->description()      == "greaterThan(a, b)");
+    REPORTER_ASSERT(r, greaterThanEqual(a, b).release()->description() == "greaterThanEqual(a, b)");
+    REPORTER_ASSERT(r, inversesqrt(a).release()->description()         == "inversesqrt(a)");
+    REPORTER_ASSERT(r, lessThan(a, b).release()->description()         == "lessThan(a, b)");
+    REPORTER_ASSERT(r, lessThanEqual(a, b).release()->description()    == "lessThanEqual(a, b)");
+    REPORTER_ASSERT(r, length(a).release()->description()              == "length(a)");
+    REPORTER_ASSERT(r, log(a).release()->description()                 == "log(a)");
+    REPORTER_ASSERT(r, log2(a).release()->description()                == "log2(a)");
+    REPORTER_ASSERT(r, max(a, b).release()->description()              == "max(a, b)");
+    REPORTER_ASSERT(r, min(a, b).release()->description()              == "min(a, b)");
+    REPORTER_ASSERT(r, mix(a, b, c).release()->description()           == "mix(a, b, c)");
+    REPORTER_ASSERT(r, mod(a, b).release()->description()              == "mod(a, b)");
+    REPORTER_ASSERT(r, normalize(a).release()->description()           == "normalize(a)");
+    REPORTER_ASSERT(r, notEqual(a, b).release()->description()         == "notEqual(a, b)");
+    REPORTER_ASSERT(r, pow(a, b).release()->description()              == "pow(a, b)");
+    REPORTER_ASSERT(r, radians(a).release()->description()             == "radians(a)");
+    REPORTER_ASSERT(r, reflect(a, b).release()->description()          == "reflect(a, b)");
+    REPORTER_ASSERT(r, refract(a, b, 1).release()->description()       == "refract(a, b, 1.0)");
+    REPORTER_ASSERT(r, saturate(a).release()->description()            == "saturate(a)");
+    REPORTER_ASSERT(r, sign(a).release()->description()                == "sign(a)");
+    REPORTER_ASSERT(r, sin(a).release()->description()                 == "sin(a)");
+    REPORTER_ASSERT(r, smoothstep(a, b, c).release()->description()    == "smoothstep(a, b, c)");
+    REPORTER_ASSERT(r, sqrt(a).release()->description()                == "sqrt(a)");
+    REPORTER_ASSERT(r, step(a, b).release()->description()             == "step(a, b)");
+    REPORTER_ASSERT(r, tan(a).release()->description()                 == "tan(a)");
+    REPORTER_ASSERT(r, unpremul(a).release()->description()            == "unpremul(a)");
 
     // these calls all go through the normal channels, so it ought to be sufficient to prove that
     // one of them reports errors correctly
