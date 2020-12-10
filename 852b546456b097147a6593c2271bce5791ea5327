@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "64c81220_c74231f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-10T15:58:48Z",
+      "side": 1,
+      "message": "The Flutter Canary failure is due to an existing breakage on their end.",
+      "revId": "852b546456b097147a6593c2271bce5791ea5327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ffacc37_a12908b4",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-10T15:58:48Z",
+      "side": 1,
+      "message": "nit: try*",
+      "range": {
+        "startLine": 762,
+        "startChar": 30,
+        "endLine": 762,
+        "endChar": 35
+      },
+      "revId": "852b546456b097147a6593c2271bce5791ea5327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e3e7a46_a93c5123",
@@ -14,6 +54,24 @@
       "writtenOn": "2020-12-10T13:17:07Z",
       "side": 1,
       "message": "If you prefer, I can just delete this test.",
+      "revId": "852b546456b097147a6593c2271bce5791ea5327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "853046a8_8610c2a2",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-10T15:58:48Z",
+      "side": 1,
+      "message": "Removing sgtm.",
+      "parentUuid": "1e3e7a46_a93c5123",
       "revId": "852b546456b097147a6593c2271bce5791ea5327",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
