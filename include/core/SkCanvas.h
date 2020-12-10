@@ -2742,7 +2742,7 @@ private:
     // into the canvas' global space.
     SkRect computeDeviceClipBounds() const;
 
-    class AutoValidateClip;
+    class AutoUpdateQRBounds;
     void validateClip() const;
 
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
