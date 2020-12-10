@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "02894dcc_6b652138",
+        "filename": "infra/bots/assets/mockery/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-10T17:53:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3dae7b64_2b41fcbd",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "004dacbc46552df297720a7004a7f8f57f883643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92beaed9_8b87e296",
