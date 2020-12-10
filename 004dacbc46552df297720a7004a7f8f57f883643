@@ -45,6 +45,30 @@
       },
       "revId": "004dacbc46552df297720a7004a7f8f57f883643",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43e79c6f_b0e9a2d1",
+        "filename": "infra/bots/assets/scripts/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-10T16:30:58Z",
+      "side": 1,
+      "message": "I\u0027m aware this is not needed. However, I don\u0027t know how else to effectively document this so I don\u0027t waste several hours of debugging next time I add a CIPD asset.",
+      "parentUuid": "92beaed9_8b87e296",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "004dacbc46552df297720a7004a7f8f57f883643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
