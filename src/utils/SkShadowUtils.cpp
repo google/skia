@@ -499,13 +499,6 @@ static bool tilted(const SkPoint3& zPlaneParams) {
     return !SkScalarNearlyZero(zPlaneParams.fX) || !SkScalarNearlyZero(zPlaneParams.fY);
 }
 
-static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
-    SkPoint3 result;
-    m.mapXY(pt.fX, pt.fY, (SkPoint*)&result.fX);
-    result.fZ = pt.fZ;
-    return result;
-}
-
 void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotColor,
                                        SkColor* outAmbientColor, SkColor* outSpotColor) {
     // For tonal color we only compute color values for the spot shadow.
@@ -563,18 +556,24 @@ void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotCol
 
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
-                               const SkPoint3& devLightPos, SkScalar lightRadius,
+                               const SkPoint3& lightPos, SkScalar lightRadius,
                                SkColor ambientColor, SkColor spotColor,
                                uint32_t flags) {
-    SkMatrix inverse;
-    if (!canvas->getTotalMatrix().invert(&inverse)) {
-        return;
+
+    SkPoint pt = { lightPos.fX, lightPos.fY };
+    // If light position is in device space, need to transform to local space
+    // before applying to SkCanvas.
+    if (!SkToBool(flags & kRelativeLightPosition_ShadowFlag)) {
+        SkMatrix inverse;
+        if (!canvas->getTotalMatrix().invert(&inverse)) {
+            return;
+        }
+        inverse.mapPoints(&pt, 1);
     }
-    SkPoint pt = inverse.mapXY(devLightPos.fX, devLightPos.fY);
 
     SkDrawShadowRec rec;
     rec.fZPlaneParams   = zPlaneParams;
-    rec.fLightPos       = { pt.fX, pt.fY, devLightPos.fZ };
+    rec.fLightPos       = { pt.fX, pt.fY, lightPos.fZ };
     rec.fLightRadius    = lightRadius;
     rec.fAmbientColor   = ambientColor;
     rec.fSpotColor      = spotColor;
@@ -617,7 +616,13 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     bool uncached = tiltZPlane || path.isVolatile();
 
     SkPoint3 zPlaneParams = rec.fZPlaneParams;
-    SkPoint3 devLightPos = map(viewMatrix, rec.fLightPos);
+    SkPoint3 devLightPos = rec.fLightPos;
+    if (SkToBool(rec.fFlags & kRelativeLightPosition_ShadowFlag)) {
+        devLightPos.fX += viewMatrix.getTranslateX();
+        devLightPos.fY += viewMatrix.getTranslateY();
+    } else {
+        viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
+    }
     float lightRadius = rec.fLightRadius;
 
     if (SkColorGetA(rec.fAmbientColor) > 0) {
