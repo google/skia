@@ -16,6 +16,29 @@
       "message": "Probably a less heavy-handed way to solve this, but this should get it working and we can revisit.",
       "revId": "b1fee02817e3b005fd71b54cd062ea0da6680743",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "508bcf3c_77a6e625",
+        "filename": "tests/SkSLDSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-10T21:50:11Z",
+      "side": 1,
+      "message": "I\u0027m landing the CL that makes this invalid SkSL. Want to convert these to integer mod before re-landing?",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 1
+      },
+      "revId": "b1fee02817e3b005fd71b54cd062ea0da6680743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
