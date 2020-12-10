@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3723b7aa_10c41b95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-10T23:08:49Z",
+      "side": 1,
+      "message": "... also remove any mention of FilterQuality enums on Paints...?",
+      "revId": "ac4d6049324fc1a182aa5e9b95cb1d437721f561",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
