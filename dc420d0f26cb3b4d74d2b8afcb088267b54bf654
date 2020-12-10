@@ -80,6 +80,30 @@
       },
       "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d8b70fe_7c02bc42",
+        "filename": "docs/examples/UnpremulGPU.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-12-10T19:46:28Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "e46b0c4b_35e344a4",
+      "range": {
+        "startLine": 32,
+        "startChar": 58,
+        "endLine": 32,
+        "endChar": 77
+      },
+      "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
