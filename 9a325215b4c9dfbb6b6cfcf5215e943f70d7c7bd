@@ -22,6 +22,30 @@
       },
       "revId": "9a325215b4c9dfbb6b6cfcf5215e943f70d7c7bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3b8bd83_e4f149ea",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-10T14:30:03Z",
+      "side": 1,
+      "message": "Yeah, dunno why I did that!",
+      "parentUuid": "b9cd177a_37fc4ea8",
+      "range": {
+        "startLine": 620,
+        "startChar": 48,
+        "endLine": 620,
+        "endChar": 65
+      },
+      "revId": "9a325215b4c9dfbb6b6cfcf5215e943f70d7c7bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
