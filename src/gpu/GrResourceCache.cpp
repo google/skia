@@ -31,6 +31,11 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrTextureFreedMessage);
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fSingleOwner)
 
+#undef GR_CACHE_STATS
+#define GR_CACHE_STATS true
+#undef GR_TEST_UTILS
+#define GR_TEST_UTILS true
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
@@ -164,6 +169,15 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     }
 
     this->purgeAsNeeded();
+
+    SkString dump;
+    dumpStats(&dump);
+    fprintf(stderr, "%s %s \n", __func__, dump.c_str());
+
+    // fprintf(stderr, "%s fBudgetedCount %d fHighWaterCount %d \n", __func__, fBudgetedCount,
+    // fHighWaterCount); float byteUtilization = (100.f * fBudgetedBytes) / fMaxBytes;
+    // fprintf(stderr, "%s current bytes %d budgeted %d byteUtilization %.2g%% high %d\n", __func__,
+    // SkToInt(fBytes), SkToInt(fBudgetedBytes), byteUtilization, SkToInt(fHighWaterBytes));
 }
 
 void GrResourceCache::removeResource(GrGpuResource* resource) {

@@ -184,7 +184,7 @@ public:
     /** Maintain a ref to this texture until we receive a GrTextureFreedMessage. */
     void insertDelayedTextureUnref(GrTexture*);
 
-#if GR_CACHE_STATS
+    // #if GR_CACHE_STATS
     struct Stats {
         int fTotal;
         int fNumPurgeable;
@@ -220,13 +220,13 @@ public:
 
     void getStats(Stats*) const;
 
-#if GR_TEST_UTILS
+    // #if GR_TEST_UTILS
     void dumpStats(SkString*) const;
 
     void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
-#endif
+    // #endif
 
-#endif
+    // #endif
 
 #ifdef SK_DEBUG
     int countUniqueKeysWithTag(const char* tag) const;
@@ -344,12 +344,12 @@ private:
     // our budget, used in purgeAsNeeded()
     size_t                              fMaxBytes = kDefaultMaxSize;
 
-#if GR_CACHE_STATS
+    // #if GR_CACHE_STATS
     int                                 fHighWaterCount = 0;
     size_t                              fHighWaterBytes = 0;
     int                                 fBudgetedHighWaterCount = 0;
     size_t                              fBudgetedHighWaterBytes = 0;
-#endif
+    // #endif
 
     // our current stats for all resources
     SkDEBUGCODE(int                     fCount = 0;)
