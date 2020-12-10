@@ -107,14 +107,15 @@ public:
     // smoothness.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(Mode mode, const SkStrokeRec& stroke, float parametricIntolerance,
-                             float numRadialSegmentsPerRadian, const SkMatrix& viewMatrix,
-                             SkPMColor4f color)
+    GrStrokeTessellateShader(Mode mode, bool hasConics, const SkStrokeRec& stroke,
+                             float parametricIntolerance, float numRadialSegmentsPerRadian,
+                             const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            (mode == Mode::kTessellation) ?
                                    GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
                            (mode == Mode::kTessellation) ? 1 : 0)
             , fMode(mode)
+            , fHasConics(hasConics)
             , fStroke(stroke)
             , fParametricIntolerance(parametricIntolerance)
             , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
@@ -154,6 +155,7 @@ private:
                                          const GrShaderCaps&) const override;
 
     const Mode fMode;
+    const bool fHasConics;
     const SkStrokeRec fStroke;
     const float fParametricIntolerance;
     const float fNumRadialSegmentsPerRadian;

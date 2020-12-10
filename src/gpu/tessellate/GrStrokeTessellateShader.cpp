@@ -33,6 +33,8 @@ private:
         const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
         auto* uniHandler = args.fUniformHandler;
 
+        SkASSERT(!shader.fHasConics);
+
         args.fVaryingHandler->emitAttributes(shader);
 
         // uNumSegmentsInJoin, uWangsTermPow2, uNumRadialSegmentsPerRadian, uMiterLimitInvPow2.
@@ -298,13 +300,15 @@ float atan2(float2 v) {
     return atan(v.y, v.x) + bias;
 })";
 
+static const char* kLengthPow2Fn = R"(
+float length_pow2(float2 v) {
+    return dot(v, v);
+})";
+
 // Calculates the number of evenly spaced (in the parametric sense) segments to chop a cubic into.
 // (See GrWangsFormula::cubic() for more documentation on this formula.) The final tessellated strip
 // will be a composition of these parametric segments as well as radial segments.
 static const char* kWangsFormulaCubicFn = R"(
-float length_pow2(float2 v) {
-    return dot(v, v);
-}
 float wangs_formula_cubic(float4x2 P, float wangsTermPow2) {
     float m = max(length_pow2(fma(float2(-2), P[1], P[2]) + P[0]),
                   length_pow2(fma(float2(-2), P[2], P[3]) + P[1])) * wangsTermPow2;
@@ -372,6 +376,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     })");
 
     code.append(kAtan2Fn);
+    code.append(kLengthPow2Fn);
     code.append(kWangsFormulaCubicFn);
     code.append(kMiterExtentFn);
 
@@ -518,127 +523,172 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
 // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
 // We override this result anyway when t==1 so it shouldn't be a problem.
 static const char* kUncheckedMixFn = R"(
-float2 unchecked_mix(float2 a, float2 b, float t) {
-    return fma(b - a, float2(t), a);
+float unchecked_mix(float a, float b, float T) {
+    return fma(b - a, T, a);
+}
+float2 unchecked_mix(float2 a, float2 b, float T) {
+    return fma(b - a, float2(T), a);
 })";
 
 // Computes the location and tangent direction of the stroke edge with the integral id
 // "combinedEdgeID", where combinedEdgeID is the sorted-order index of parametric and radial edges.
-static const char* kEvalStrokeEdgeFn = R"(
-void eval_stroke_edge(in float4x2 P, in float numParametricSegments, in float combinedEdgeID,
-                      in float2 tan0, in float radsPerSegment, in float angle0,
-                      out float2 tangent, out float2 position) {
-    // Start by finding the cubic's power basis coefficients. These define a tangent direction
-    // (scaled by uniform 1/3) as:
-    //                                                 |T^2|
-    //     Tangent_Direction(T) = dx,dy = |A  2B  C| * |T  |
-    //                                    |.   .  .|   |1  |
-    float2 C = P[1] - P[0];
-    float2 D = P[2] - P[1];
-    float2 E = P[3] - P[0];
-    float2 B = D - C;
-    float2 A = fma(float2(-3), D, E);
+static void append_eval_stroke_edge_fn(SkString* code, bool hasConics) {
+    code->append(R"(
+    void eval_stroke_edge(in float4x2 P, )");
+    if (hasConics) {
+        code->append(R"(
+                          in float w, )");
+    }
+    code->append(R"(
+                          in float numParametricSegments, in float combinedEdgeID, in float2 tan0,
+                          in float radsPerSegment, in float angle0, out float2 tangent,
+                          out float2 position) {
+        // Start by finding the tangent function's power basis coefficients. These define a tangent
+        // direction (scaled by some uniform value) as:
+        //                                                 |T^2|
+        //     Tangent_Direction(T) = dx,dy = |A  2B  C| * |T  |
+        //                                    |.   .  .|   |1  |
+        float2 A, B, C = P[1] - P[0];
+        float2 D = P[3] - P[0];)");
+    if (hasConics) {
+        code->append(R"(
+        if (w >= 0) {
+            // P0..P2 represent a conic and P3==P2. The derivative of a conic has a cumbersome
+            // order-4 denominator. However, this isn't necessary if we are only interested in a
+            // vector in the same *direction* as a given tangent line. Since the denominator scales
+            // dx and dy uniformly, we can throw it out completely after evaluating the derivative
+            // with the standard quotient rule. This leaves us with a simpler quadratic function
+            // that we use to find a tangent.
+            C *= w;
+            B = .5*D - C;
+            A = (w - 1) * D;
+            P[1] *= w;
+        } else {)");
+    } else {
+        code->append(R"(
+        {)");
+    }
+    code->append(R"(
+            float2 E = P[2] - P[1];
+            B = E - C;
+            A = fma(float2(-3), E, D);
+        }
 
-    // Now find the coefficients that give a tangent direction from a parametric edge ID:
-    //
-    //                                                                 |parametricEdgeID^2|
-    //     Tangent_Direction(parametricEdgeID) = dx,dy = |A  B_  C_| * |parametricEdgeID  |
-    //                                                   |.   .   .|   |1                 |
-    //
-    float2 B_ = B * (numParametricSegments * 2);
-    float2 C_ = C * (numParametricSegments * numParametricSegments);
+        // Now find the coefficients that give a tangent direction from a parametric edge ID:
+        //
+        //                                                                 |parametricEdgeID^2|
+        //     Tangent_Direction(parametricEdgeID) = dx,dy = |A  B_  C_| * |parametricEdgeID  |
+        //                                                   |.   .   .|   |1                 |
+        //
+        float2 B_ = B * (numParametricSegments * 2);
+        float2 C_ = C * (numParametricSegments * numParametricSegments);
 
-    // Run a binary search to determine the highest parametric edge that is located on or before the
-    // combinedEdgeID. A combined ID is determined by the sum of complete parametric and radial
-    // segments behind it. i.e., find the highest parametric edge where:
-    //
-    //    parametricEdgeID + floor(numRadialSegmentsAtParametricT) <= combinedEdgeID
-    //
-    float lastParametricEdgeID = 0;
-    float maxParametricEdgeID = min(numParametricSegments - 1, combinedEdgeID);
-    float2 tan0norm = normalize(tan0);
-    float negAbsRadsPerSegment = -abs(radsPerSegment);
-    float maxRotation0 = (1 + combinedEdgeID) * abs(radsPerSegment);
-    for (int exp = MAX_PARAMETRIC_SEGMENTS_LOG2 - 1; exp >= 0; --exp) {
-        // Test the parametric edge at lastParametricEdgeID + 2^exp.
-        float testParametricID = lastParametricEdgeID + (1 << exp);
-        if (testParametricID <= maxParametricEdgeID) {
-            float2 testTan = fma(float2(testParametricID), A, B_);
-            testTan = fma(float2(testParametricID), testTan, C_);
-            float cosRotation = dot(normalize(testTan), tan0norm);
-            float maxRotation = fma(testParametricID, negAbsRadsPerSegment, maxRotation0);
-            maxRotation = min(maxRotation, PI);
-            // Is rotation <= maxRotation? (i.e., is the number of complete radial segments
-            // behind testT, + testParametricID <= combinedEdgeID?)
-            if (cosRotation >= cos(maxRotation)) {
-                // testParametricID is on or before the combinedEdgeID. Keep it!
-                lastParametricEdgeID = testParametricID;
+        // Run a binary search to determine the highest parametric edge that is located on or before
+        // the combinedEdgeID. A combined ID is determined by the sum of complete parametric and
+        // radial segments behind it. i.e., find the highest parametric edge where:
+        //
+        //    parametricEdgeID + floor(numRadialSegmentsAtParametricT) <= combinedEdgeID
+        //
+        float lastParametricEdgeID = 0;
+        float maxParametricEdgeID = min(numParametricSegments - 1, combinedEdgeID);
+        float2 tan0norm = normalize(tan0);
+        float negAbsRadsPerSegment = -abs(radsPerSegment);
+        float maxRotation0 = (1 + combinedEdgeID) * abs(radsPerSegment);
+        for (int exp = MAX_PARAMETRIC_SEGMENTS_LOG2 - 1; exp >= 0; --exp) {
+            // Test the parametric edge at lastParametricEdgeID + 2^exp.
+            float testParametricID = lastParametricEdgeID + (1 << exp);
+            if (testParametricID <= maxParametricEdgeID) {
+                float2 testTan = fma(float2(testParametricID), A, B_);
+                testTan = fma(float2(testParametricID), testTan, C_);
+                float cosRotation = dot(normalize(testTan), tan0norm);
+                float maxRotation = fma(testParametricID, negAbsRadsPerSegment, maxRotation0);
+                maxRotation = min(maxRotation, PI);
+                // Is rotation <= maxRotation? (i.e., is the number of complete radial segments
+                // behind testT, + testParametricID <= combinedEdgeID?)
+                if (cosRotation >= cos(maxRotation)) {
+                    // testParametricID is on or before the combinedEdgeID. Keep it!
+                    lastParametricEdgeID = testParametricID;
+                }
             }
         }
+
+        // Find the T value of the parametric edge at lastParametricEdgeID.
+        float parametricT = lastParametricEdgeID / numParametricSegments;
+
+        // Now that we've identified the highest parametric edge on or before the combinedEdgeID,
+        // the highest radial edge is easy:
+        float lastRadialEdgeID = combinedEdgeID - lastParametricEdgeID;
+
+        // Find the tangent vector on the edge at lastRadialEdgeID.
+        float radialAngle = fma(lastRadialEdgeID, radsPerSegment, angle0);
+        tangent = float2(cos(radialAngle), sin(radialAngle));
+        float2 norm = float2(-tangent.y, tangent.x);
+
+        // Find the T value where the cubic's tangent is orthogonal to norm. This is a quadratic:
+        //
+        //     dot(norm, Tangent_Direction(T)) == 0
+        //
+        //                         |T^2|
+        //     norm * |A  2B  C| * |T  | == 0
+        //            |.   .  .|   |1  |
+        //
+        float3 coeffs = norm * float3x2(A,B,C);
+        float a=coeffs.x, b_over_2=coeffs.y, c=coeffs.z;
+        float discr_over_4 = max(b_over_2*b_over_2 - a*c, 0);
+        float q = sqrt(discr_over_4);
+        if (b_over_2 > 0) {
+            q = -q;
+        }
+        q -= b_over_2;
+
+        // Roots are q/a and c/q. Since each curve section does not inflect or rotate more than 180
+        // degrees, there can only be one tangent orthogonal to "norm" inside 0..1. Pick the root
+        // nearest .5.
+        float _5qa = -.5*q*a;
+        float2 root = (abs(fma(q,q,_5qa)) < abs(fma(a,c,_5qa))) ? float2(q,a) : float2(c,q);
+        float radialT = (root.t != 0) ? root.s / root.t : 0;
+        radialT = clamp(radialT, 0, 1);
+
+        if (lastRadialEdgeID == 0) {
+            // The root finder above can become unstable when lastRadialEdgeID == 0 (e.g., if there
+            // are roots at exatly 0 and 1 both). radialT should always == 0 in this case.
+            radialT = 0;
+        }
+
+        // Now that we've identified the T values of the last parametric and radial edges, our final
+        // T value for combinedEdgeID is whichever is larger.
+        float T = max(parametricT, radialT);
+
+        // Evaluate the cubic at T. Use De Casteljau's for its accuracy and stability.
+        float2 ab = unchecked_mix(P[0], P[1], T);
+        float2 bc = unchecked_mix(P[1], P[2], T);
+        float2 cd = unchecked_mix(P[2], P[3], T);
+        float2 abc = unchecked_mix(ab, bc, T);
+        float2 bcd = unchecked_mix(bc, cd, T);
+        float2 abcd = unchecked_mix(abc, bcd, T);)");
+
+    if (hasConics) {
+        code->append(R"(
+        // Evaluate the conic weights at T.
+        float u = unchecked_mix(1, w, T);
+        float v = unchecked_mix(w, 1, T);
+        float uv = unchecked_mix(u, v, T);)");
     }
 
-    // Find the T value of the parametric edge at lastParametricEdgeID.
-    float parametricT = lastParametricEdgeID / numParametricSegments;
+    code->appendf(R"(
+        position =%s abcd;)", (hasConics) ? " (w >= 0) ? abc/uv :" : "");
 
-    // Now that we've identified the highest parametric edge on or before the combinedEdgeID, the
-    // highest radial edge is easy:
-    float lastRadialEdgeID = combinedEdgeID - lastParametricEdgeID;
-
-    // Find the tangent vector on the edge at lastRadialEdgeID.
-    float radialAngle = fma(lastRadialEdgeID, radsPerSegment, angle0);
-    tangent = float2(cos(radialAngle), sin(radialAngle));
-    float2 norm = float2(-tangent.y, tangent.x);
-
-    // Find the T value where the cubic's tangent is orthogonal to norm. This is a quadratic:
-    //
-    //     dot(norm, Tangent_Direction(T)) == 0
-    //
-    //                         |T^2|
-    //     norm * |A  2B  C| * |T  | == 0
-    //            |.   .  .|   |1  |
-    //
-    float3 coeffs = norm * float3x2(A,B,C);
-    float a=coeffs.x, b_over_2=coeffs.y, c=coeffs.z;
-    float discr_over_4 = max(b_over_2*b_over_2 - a*c, 0);
-    float q = sqrt(discr_over_4);
-    if (b_over_2 > 0) {
-        q = -q;
-    }
-    q -= b_over_2;
-
-    // Roots are q/a and c/q. Since each curve section does not inflect or rotate more than 180
-    // degrees, there can only be one tangent orthogonal to "norm" inside 0..1. Pick the root
-    // nearest .5.
-    float _5qa = -.5*q*a;
-    float2 root = (abs(fma(q,q,_5qa)) < abs(fma(a,c,_5qa))) ? float2(q,a) : float2(c,q);
-    float radialT = (root.t != 0) ? root.s / root.t : 0;
-    radialT = clamp(radialT, 0, 1);
-
-    if (lastRadialEdgeID == 0) {
-        // The root finder above can become unstable when lastRadialEdgeID == 0 (e.g., if there
-        // are roots at exatly 0 and 1 both). radialT should always == 0 in this case.
-        radialT = 0;
-    }
-
-    // Now that we've identified the T values of the last parametric and radial edges, our final
-    // T value for combinedEdgeID is whichever is larger.
-    float T = max(parametricT, radialT);
-
-    // Evaluate the cubic at T. Use De Casteljau's for its accuracy and stability.
-    float2 ab = unchecked_mix(P[0], P[1], T);
-    float2 bc = unchecked_mix(P[1], P[2], T);
-    float2 cd = unchecked_mix(P[2], P[3], T);
-    float2 abc = unchecked_mix(ab, bc, T);
-    float2 bcd = unchecked_mix(bc, cd, T);
-    position = unchecked_mix(abc, bcd, T);
-
-    // If we went with T=parametricT, then update the tangent. Otherwise leave it at the radial
-    // tangent found previously. (In the event that parametricT == radialT, we keep the radial
-    // tangent.)
-    if (T != radialT) {
-        tangent = bcd - abc;
-    }
-})";
+    code->appendf(R"(
+        // If we went with T=parametricT, then update the tangent. Otherwise leave it at the radial
+        // tangent found previously. (In the event that parametricT == radialT, we keep the radial
+        // tangent.)
+        if (T != radialT) {)");
+    code->appendf(R"(
+            tangent =%s bcd - abc;)", (hasConics) ? " (w >= 0) ? bc*u - ab*v :" : "");
+    code->appendf(R"(
+        }
+    })");
+}
 
 SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         const GrGLSLPrimitiveProcessor* glslPrimProc, const char* versionAndExtensionDecls,
@@ -685,7 +735,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     uniform vec4 sk_RTAdjust;)");
 
     code.append(kUncheckedMixFn);
-    code.append(kEvalStrokeEdgeFn);
+    append_eval_stroke_edge_fn(&code, false/*hasConics*/);
 
     code.append(R"(
     void main() {
@@ -783,13 +833,17 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         args.fVertBuilder->defineConstant("MAX_PARAMETRIC_SEGMENTS_LOG2",
                                           GrTessellationPathRenderer::kMaxResolveLevel);
         args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
+        args.fVertBuilder->defineConstant("QUAD_TERM_POW2",
+                                          GrWangsFormula::length_term_pow2<2>(1));
+        args.fVertBuilder->defineConstant("CUBIC_TERM_POW2",
+                                          GrWangsFormula::length_term_pow2<3>(1));
 
         // Helper functions.
         args.fVertBuilder->insertFunction(kAtan2Fn);
-        args.fVertBuilder->insertFunction(kWangsFormulaCubicFn);
+        args.fVertBuilder->insertFunction(kLengthPow2Fn);
         args.fVertBuilder->insertFunction(kMiterExtentFn);
         args.fVertBuilder->insertFunction(kUncheckedMixFn);
-        args.fVertBuilder->insertFunction(kEvalStrokeEdgeFn);
+        append_eval_stroke_edge_fn(&args.fVertBuilder->functions(), shader.fHasConics);
         args.fVertBuilder->insertFunction(R"(
         float cosine_between_vectors(float2 a, float2 b) {
             float ab_cosTheta = dot(a,b);
@@ -801,20 +855,37 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         const char* tessArgsName;
         fTessControlArgsUniform = args.fUniformHandler->addUniform(
                 nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "tessControlArgs", &tessArgsName);
-        args.fVertBuilder->codeAppendf("float uWangsTermPow2 = %s.x;\n", tessArgsName);
+        args.fVertBuilder->codeAppendf("float uParametricIntolerance = %s.x;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uNumRadialSegmentsPerRadian = %s.y;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uMiterLimitInvPow2 = %s.z;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uStrokeRadius = %s.w;\n", tessArgsName);
 
         // Tessellation code.
         args.fVertBuilder->codeAppend(R"(
-        float4x2 P = float4x2(pts01, pts23);
+        float4x2 P = float4x2(pts01, pts23);)");
+        if (shader.fHasConics) {
+            args.fVertBuilder->codeAppend(R"(
+            float w = -1;  // w<0 means the curve is an integral cubic.
+            if (isinf(P[3].y)) {
+                w = P[3].x;  // The curve is actually a conic.
+                P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
+            })");
+        }
+        args.fVertBuilder->codeAppend(R"(
         float2 lastControlPoint = args.xy;
         float numTotalEdges = abs(args.z);
 
-        // Find how many parametric segments this stroke requires.
-        float numParametricSegments = min(wangs_formula_cubic(P, uWangsTermPow2),
-                                          1 << MAX_PARAMETRIC_SEGMENTS_LOG2);
+        // Use wang's formula to find how many parametric segments this stroke requires.
+        float l0 = length_pow2(fma(float2(-2), P[1], P[2]) + P[0]);
+        float l1 = length_pow2(fma(float2(-2), P[2], P[3]) + P[1]);)");
+
+        args.fVertBuilder->codeAppendf(R"(
+        float m =%s CUBIC_TERM_POW2 * max(l0, l1);)",
+                (shader.fHasConics) ? " (w >= 0) ? QUAD_TERM_POW2 * l0 :" : "");
+
+        args.fVertBuilder->codeAppend(R"(
+        float numParametricSegments = ceil(sqrt(uParametricIntolerance * sqrt(m)));
+        numParametricSegments = clamp(numParametricSegments, 1, 1 << MAX_PARAMETRIC_SEGMENTS_LOG2);
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how we describe lines, but Wang's formula does not return 1 in this case.
             numParametricSegments = 1;
@@ -929,11 +1000,18 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
             })");
         }
 
-        args.fVertBuilder->codeAppend(R"(
+        args.fVertBuilder->codeAppendf(R"(
         float2 tangent, localCoord;
-        eval_stroke_edge(P, numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
-                         tangent, localCoord);
+        eval_stroke_edge(P,)");
+        if (shader.fHasConics) {
+            args.fVertBuilder->codeAppend(R"(
+                         w,)");
+        }
+        args.fVertBuilder->codeAppend(R"(
+                         numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
+                         tangent, localCoord);)");
 
+        args.fVertBuilder->codeAppend(R"(
         if (combinedEdgeID == 0) {
             // Edges at the beginning of their section use P[0] and tan0. This ensures crack-free
             // seaming between instances.
@@ -983,7 +1061,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         // Set up the tessellation control uniforms.
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessControlArgsUniform,
-            GrWangsFormula::length_term_pow2<3>(shader.fParametricIntolerance),  // uWangsTermPow2
+            shader.fParametricIntolerance,  // uParametricIntolerance
             shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
             1 / (miterLimit * miterLimit),  // uMiterLimitInvPow2.
             shader.fStroke.getWidth() * .5);  // uStrokeRadius.
@@ -1012,6 +1090,7 @@ void GrStrokeTessellateShader::getGLSLProcessorKey(const GrShaderCaps&,
         SkASSERT(fStroke.getJoin() >> 2 == 0);
         key = (key << 2) | fStroke.getJoin();
     }
+    key = (key << 1) | (uint32_t)fHasConics;
     key = (key << 1) | (uint32_t)fMode;  // Must be last.
     b->add32(key);
 }

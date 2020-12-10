@@ -588,6 +588,25 @@ static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
     return SkNx_fma(f, Sk4f(m), a);
 }
 
+// Finds the root nearest 0.5. Returns 0.5 if the roots are undefined or outside 0..1.
+static float solve_quadratic_equation_for_midtangent(float a, float b, float c, float discr) {
+    // Quadratic formula from Numerical Recipes in C:
+    float q = -.5f * (b + copysignf(sqrtf(discr), b));
+    // The roots are q/a and c/q. Pick the midtangent closer to T=.5.
+    float _5qa = -.5f*q*a;
+    float T = fabsf(q*q + _5qa) < fabsf(a*c + _5qa) ? sk_ieee_float_divide(q,a)
+                                                    : sk_ieee_float_divide(c,q);
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=NaN will take this branch.
+        // Either the curve is a flat line with no rotation or FP precision failed us. Chop at .5.
+        T = .5;
+    }
+    return T;
+}
+
+static float solve_quadratic_equation_for_midtangent(float a, float b, float c) {
+    return solve_quadratic_equation_for_midtangent(a, b, c, b*b - 4*a*c);
+}
+
 float SkFindCubicMidTangent(const SkPoint src[4]) {
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
@@ -623,13 +642,7 @@ float SkFindCubicMidTangent(const SkPoint src[4]) {
     float a=coeffs[0], b=coeffs[1], c=coeffs[2];
     float discr = b*b - 4*a*c;
     if (discr > 0) {  // This will only be false if the curve is a line.
-        // Quadratic formula from Numerical Recipes in C:
-        float q = -.5f * (b + copysignf(std::sqrt(discr), b));
-        // The roots are q/a and c/q. Pick the midtangent closer to T=.5.
-        float qa_5 = .5f*q*a;
-        if (a != 0 || q != 0) {
-            T = std::abs(q*q - qa_5) < std::abs(a*c - qa_5) ? q/a : c/q;
-        }
+        return solve_quadratic_equation_for_midtangent(a, b, c, discr);
     } else {
         // This is a 0- or 360-degree flat line. It doesn't have single points of midtangent.
         // (tangent == midtangent at every point on the curve except the cusp points.)
@@ -651,13 +664,13 @@ float SkFindCubicMidTangent(const SkPoint src[4]) {
             //     -b / (2*a)
             T = -b / (2*a);
         }
+        if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=NaN will take this branch.
+            // Either the curve is a flat line with no rotation or FP precision failed us. Chop at
+            // .5.
+            T = .5;
+        }
+        return T;
     }
-    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=NaN will take this branch.
-        // Either the curve is a flat line with no rotation or FP precision failed us. Chop at .5.
-        T = .5;
-    }
-
-    return T;
 }
 
 static void flatten_double_cubic_extrema(SkScalar coords[14]) {
@@ -1497,6 +1510,43 @@ commonFinitePtCheck:
         }
     }
     return 1 << pow2;
+}
+
+float SkConic::findMidTangent() const {
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
+    //
+    //     bisector dot midtangent = 0
+    //
+    SkVector tan0 = fPts[1] - fPts[0];
+    SkVector tan1 = fPts[2] - fPts[1];
+    SkVector bisector = SkFindBisector(tan0, -tan1);
+
+    // Start by finding the tangent function's power basis coefficients. These define a tangent
+    // direction (scaled by some uniform value) as:
+    //                                                |T^2|
+    //     Tangent_Direction(T) = dx,dy = |A  B  C| * |T  |
+    //                                    |.  .  .|   |1  |
+    //
+    // The derivative of a conic has a cumbersome order-4 denominator. However, this isn't necessary
+    // if we are only interested in a vector in the same *direction* as a given tangent line. Since
+    // the denominator scales dx and dy uniformly, we can throw it out completely after evaluating
+    // the derivative with the standard quotient rule. This leaves us with a simpler quadratic
+    // function that we use to find a tangent.
+    SkVector A = (fPts[2] - fPts[0]) * (fW - 1);
+    SkVector B = (fPts[2] - fPts[0]) - (fPts[1] - fPts[0]) * (fW*2);
+    SkVector C = (fPts[1] - fPts[0]) * fW;
+
+    // Now solve for "bisector dot midtangent = 0":
+    //
+    //                            |T^2|
+    //     bisector * |A  B  C| * |T  | = 0
+    //                |.  .  .|   |1  |
+    //
+    float a = bisector.dot(A);
+    float b = bisector.dot(B);
+    float c = bisector.dot(C);
+    return solve_quadratic_equation_for_midtangent(a, b, c);
 }
 
 bool SkConic::findXExtrema(SkScalar* t) const {

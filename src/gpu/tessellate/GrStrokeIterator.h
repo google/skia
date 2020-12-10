@@ -22,6 +22,7 @@
 //     while (iter.next()) {  // Call next() first.
 //         iter.verb();
 //         iter.pts();
+//         iter.w();
 //         iter.prevVerb();
 //         iter.prevPts();
 //     }
@@ -39,6 +40,7 @@ public:
         // Verbs that describe stroke geometry.
         kLine = (int)SkPathVerb::kLine,
         kQuad = (int)SkPathVerb::kQuad,
+        kConic = (int)SkPathVerb::kConic,
         kCubic = (int)SkPathVerb::kCubic,
         kCircle,  // A stroke-width circle drawn as a 180-degree point stroke.
 
@@ -75,6 +77,7 @@ public:
                 case SkPathVerb::kCubic:
                     if (pts[3] == pts[2]) {
                         [[fallthrough]];  // i.e., "if (p3 == p2 && p2 == p1 && p1 == p0)"
+                case SkPathVerb::kConic:
                 case SkPathVerb::kQuad:
                     if (pts[2] == pts[1]) {
                         [[fallthrough]];  // i.e., "if (p2 == p1 && p1 == p0)"
@@ -83,11 +86,12 @@ public:
                         fLastDegenerateStrokePt = pts;
                         continue;
                     }}}
-                    this->enqueue((Verb)verb, pts);
+                    this->enqueue((Verb)verb, pts, w);
                     if (fQueueCount == 1) {
                         // Defer the first verb until the end when we know what it's joined to.
                         fFirstVerbInContour = (Verb)verb;
                         fFirstPtsInContour = pts;
+                        fFirstWInContour = w;
                         continue;
                     }
                     break;
@@ -99,15 +103,13 @@ public:
                     if (pts[0] != fFirstPtsInContour[0]) {
                         // Draw a line back to the contour's starting point.
                         fClosePts = {pts[0], fFirstPtsInContour[0]};
-                        this->enqueue(Verb::kLine, fClosePts.data());
+                        this->enqueue(Verb::kLine, fClosePts.data(), nullptr);
                     }
                     // Repeat the first verb, this time as the "current" stroke instead of the prev.
-                    this->enqueue(fFirstVerbInContour, fFirstPtsInContour);
-                    this->enqueue(Verb::kContourFinished, nullptr);
+                    this->enqueue(fFirstVerbInContour, fFirstPtsInContour, fFirstWInContour);
+                    this->enqueue(Verb::kContourFinished, nullptr, nullptr);
                     fLastDegenerateStrokePt = nullptr;
                     break;
-                case SkPathVerb::kConic:
-                    SkUNREACHABLE;
             }
             SkASSERT(fQueueCount >= 2);
             ++fIter;
@@ -121,6 +123,7 @@ public:
 
     Verb verb() const { return this->atVerb(1); }
     const SkPoint* pts() const { return this->atPts(1); }
+    float w() const { return this->atW(1); }
 
     Verb firstVerbInContour() const { SkASSERT(fQueueCount > 0); return fFirstVerbInContour; }
     const SkPoint* firstPtsInContour() const {
@@ -144,11 +147,18 @@ private:
     const SkPoint* backPts() const {
         return this->atPts(fQueueCount - 1);
     }
-    void enqueue(Verb verb, const SkPoint* pts) {
+    float atW(int i) const {
+        SkASSERT(0 <= i && i < fQueueCount);
+        const float* w = fW[(fQueueFrontIdx + i) & (kQueueBufferCount - 1)];
+        SkASSERT(w);
+        return *w;
+    }
+    void enqueue(Verb verb, const SkPoint* pts, const float* w) {
         SkASSERT(fQueueCount < kQueueBufferCount);
         int i = (fQueueFrontIdx + fQueueCount) & (kQueueBufferCount - 1);
         fVerbs[i] = verb;
         fPts[i] = pts;
+        fW[i] = w;
         ++fQueueCount;
     }
     void popFront() {
@@ -163,30 +173,30 @@ private:
     bool finishOpenContour() {
         if (fQueueCount) {
             SkASSERT(this->backVerb() == Verb::kLine || this->backVerb() == Verb::kQuad ||
-                     this->backVerb() == Verb::kCubic);
+                     this->backVerb() == Verb::kConic || this->backVerb() == Verb::kCubic);
             switch (fCapType) {
                 case SkPaint::kButt_Cap:
                     // There are no caps, but inject a "move" so the first stroke doesn't get joined
                     // with the end of the contour when it's processed.
-                    this->enqueue(Verb::kMoveWithinContour, fFirstPtsInContour);
+                    this->enqueue(Verb::kMoveWithinContour, fFirstPtsInContour, fFirstWInContour);
                     break;
                 case SkPaint::kRound_Cap: {
                     // The "kCircle" verb serves as our barrier to prevent the first stroke from
                     // getting joined with the end of the contour. We just need to make sure that
                     // the first point of the contour goes last.
                     int backIdx = SkPathPriv::PtsInIter((unsigned)this->backVerb()) - 1;
-                    this->enqueue(Verb::kCircle, this->backPts() + backIdx);
-                    this->enqueue(Verb::kCircle, fFirstPtsInContour);
+                    this->enqueue(Verb::kCircle, this->backPts() + backIdx, nullptr);
+                    this->enqueue(Verb::kCircle, fFirstPtsInContour, fFirstWInContour);
                     break;
                 }
                 case SkPaint::kSquare_Cap:
                     this->fillSquareCapPoints();  // Fills in fEndingCapPts and fBeginningCapPts.
                     // Append the ending cap onto the current contour.
-                    this->enqueue(Verb::kLine, fEndingCapPts.data());
+                    this->enqueue(Verb::kLine, fEndingCapPts.data(), nullptr);
                     // Move to the beginning cap and append it right before (and joined to) the
                     // first stroke (that we will add below).
-                    this->enqueue(Verb::kMoveWithinContour, fBeginningCapPts.data());
-                    this->enqueue(Verb::kLine, fBeginningCapPts.data());
+                    this->enqueue(Verb::kMoveWithinContour, fBeginningCapPts.data(), nullptr);
+                    this->enqueue(Verb::kLine, fBeginningCapPts.data(), nullptr);
                     break;
             }
         } else if (fLastDegenerateStrokePt) {
@@ -203,22 +213,24 @@ private:
                     // generate.
                     return false;
                 case SkPaint::kRound_Cap:
-                    this->enqueue(Verb::kCircle, fLastDegenerateStrokePt);
+                    this->enqueue(Verb::kCircle, fLastDegenerateStrokePt, nullptr);
                     // Setting the "first" stroke as the circle causes it to be added again below,
                     // this time as the "current" stroke.
                     fFirstVerbInContour = Verb::kCircle;
                     fFirstPtsInContour = fLastDegenerateStrokePt;
+                    fFirstWInContour = nullptr;
                     break;
                 case SkPaint::kSquare_Cap:
                     fEndingCapPts = {*fLastDegenerateStrokePt - SkPoint{fStrokeRadius, 0},
                                      *fLastDegenerateStrokePt + SkPoint{fStrokeRadius, 0}};
                     // Add the square first as the "prev" join.
-                    this->enqueue(Verb::kLine, fEndingCapPts.data());
-                    this->enqueue(Verb::kMoveWithinContour, fEndingCapPts.data());
+                    this->enqueue(Verb::kLine, fEndingCapPts.data(), nullptr);
+                    this->enqueue(Verb::kMoveWithinContour, fEndingCapPts.data(), nullptr);
                     // Setting the "first" stroke as the square causes it to be added again below,
                     // this time as the "current" stroke.
                     fFirstVerbInContour = Verb::kLine;
                     fFirstPtsInContour = fEndingCapPts.data();
+                    fFirstWInContour = nullptr;
                     break;
             }
         } else {
@@ -228,8 +240,8 @@ private:
         }
 
         // Repeat the first verb, this time as the "current" stroke instead of the prev.
-        this->enqueue(fFirstVerbInContour, fFirstPtsInContour);
-        this->enqueue(Verb::kContourFinished, nullptr);
+        this->enqueue(fFirstVerbInContour, fFirstPtsInContour, fFirstWInContour);
+        this->enqueue(Verb::kContourFinished, nullptr, nullptr);
         fLastDegenerateStrokePt = nullptr;
         return true;
     }
@@ -248,6 +260,7 @@ private:
                     break;
                 }
                 [[fallthrough]];
+            case Verb::kConic:
             case Verb::kQuad:
                 lastTangent = lastPts[2] - lastPts[1];
                 if (!lastTangent.isZero()) {
@@ -268,7 +281,8 @@ private:
         // Find the endpoints of the cap at the beginning of the contour.
         SkVector firstTangent = fFirstPtsInContour[1] - fFirstPtsInContour[0];
         if (firstTangent.isZero()) {
-            SkASSERT(fFirstVerbInContour == Verb::kQuad || fFirstVerbInContour == Verb::kCubic);
+            SkASSERT(fFirstVerbInContour == Verb::kQuad || fFirstVerbInContour == Verb::kConic ||
+                     fFirstVerbInContour == Verb::kCubic);
             firstTangent = fFirstPtsInContour[2] - fFirstPtsInContour[0];
             if (firstTangent.isZero()) {
                 SkASSERT(fFirstVerbInContour == Verb::kCubic);
@@ -290,11 +304,13 @@ private:
     // Info for the current contour we are iterating.
     Verb fFirstVerbInContour;
     const SkPoint* fFirstPtsInContour;
+    const float* fFirstWInContour;
     const SkPoint* fLastDegenerateStrokePt = nullptr;
 
     // The queue is implemented as a roll-over array with a floating front index.
     Verb fVerbs[kQueueBufferCount];
     const SkPoint* fPts[kQueueBufferCount];
+    const float* fW[kQueueBufferCount];
     int fQueueFrontIdx = 0;
     int fQueueCount = 0;
 

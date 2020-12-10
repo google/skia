@@ -352,6 +352,7 @@ struct SkConic {
      */
     int SK_SPI SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
+    float findMidTangent() const;
     bool findXExtrema(SkScalar* t) const;
     bool findYExtrema(SkScalar* t) const;
     bool chopAtXExtrema(SkConic dst[2]) const;
