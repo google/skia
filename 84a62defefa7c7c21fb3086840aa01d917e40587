@@ -39,6 +39,30 @@
       },
       "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b22ab84e_68219412",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-10T17:14:14Z",
+      "side": 1,
+      "message": "Are you okay with this direction instead? https://skia-review.googlesource.com/c/skia/+/342922",
+      "parentUuid": "d34dd672_6c5f53f4",
+      "range": {
+        "startLine": 387,
+        "startChar": 8,
+        "endLine": 387,
+        "endChar": 26
+      },
+      "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
