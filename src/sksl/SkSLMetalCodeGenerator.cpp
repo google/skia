@@ -41,11 +41,13 @@ public:
 void MetalCodeGenerator::setupIntrinsics() {
 #define METAL(x) std::make_pair(kMetal_IntrinsicKind, k ## x ## _MetalIntrinsic)
 #define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
+    fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
     fIntrinsicMap[String("length")]             = SPECIAL(Length);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
+    fIntrinsicMap[String("radians")]            = SPECIAL(Radians);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("floatBitsToInt")]     = SPECIAL(Bitcast);
     fIntrinsicMap[String("floatBitsToUint")]    = SPECIAL(Bitcast);
@@ -634,6 +636,18 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write("(");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(")");
+            break;
+        }
+        case kDegrees_SpecialIntrinsic: {
+            this->write("((");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(") * 57.2957795)");
+            break;
+        }
+        case kRadians_SpecialIntrinsic: {
+            this->write("((");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(") * 0.0174532925)");
             break;
         }
         default:

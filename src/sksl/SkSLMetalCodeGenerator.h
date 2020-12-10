@@ -104,13 +104,15 @@ protected:
     };
 
     enum SpecialIntrinsic {
+        kBitcast_SpecialIntrinsic,
+        kDegrees_SpecialIntrinsic,
         kDistance_SpecialIntrinsic,
         kDot_SpecialIntrinsic,
         kLength_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
         kNormalize_SpecialIntrinsic,
+        kRadians_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
-        kBitcast_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {
