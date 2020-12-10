@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1114a0a3_a19f8f33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-10T19:33:08Z",
+      "side": 1,
+      "message": "Looks like the DSL tests were breaking this rule too :) ",
+      "revId": "a96fa933a51b9dc91b5933baeb51d2533b295596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
