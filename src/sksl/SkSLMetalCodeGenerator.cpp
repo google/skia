@@ -45,11 +45,13 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("floatBitsToUint")]    = SPECIAL(Bitcast);
     fIntrinsicMap[String("intBitsToFloat")]     = SPECIAL(Bitcast);
     fIntrinsicMap[String("uintBitsToFloat")]    = SPECIAL(Bitcast);
+    fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
     fIntrinsicMap[String("length")]             = SPECIAL(Length);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
+    fIntrinsicMap[String("radians")]            = SPECIAL(Radians);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
@@ -634,6 +636,18 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write("(");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(")");
+            break;
+        }
+        case kDegrees_SpecialIntrinsic: {
+            this->write("((");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(") * 57.2957795)");
+            break;
+        }
+        case kRadians_SpecialIntrinsic: {
+            this->write("((");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(") * 0.0174532925)");
             break;
         }
         default:
