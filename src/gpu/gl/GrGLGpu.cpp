@@ -1751,6 +1751,15 @@ void GrGLGpu::flushScissorRect(const SkIRect& scissor, int rtWidth, int rtHeight
     }
 }
 
+void GrGLGpu::flushViewport(SkIRect viewport, int rtHeight, GrSurfaceOrigin rtOrigin) {
+    auto nativeViewport = GrNativeRect::MakeRelativeTo(rtOrigin, rtHeight, viewport);
+    if (fHWViewport != nativeViewport) {
+        GL_CALL(Viewport(nativeViewport.fX, nativeViewport.fY,
+                         nativeViewport.fWidth, nativeViewport.fHeight));
+        fHWViewport = nativeViewport;
+    }
+}
+
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
                                     const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
 #ifndef USE_NSIGHT
@@ -2204,7 +2213,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         }
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
-        this->flushViewport(target->width(), target->height());
+        this->flushViewportOld(target->width(), target->height());
     }
 
     if (this->glCaps().srgbWriteControl()) {
@@ -2230,12 +2239,12 @@ void GrGLGpu::flushFramebufferSRGB(bool enable) {
     }
 }
 
-void GrGLGpu::flushViewport(int width, int height) {
-    GrNativeRect viewport = {0, 0, width, height};
-    if (fHWViewport != viewport) {
-        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
-        fHWViewport = viewport;
-    }
+void GrGLGpu::flushViewportOld(int width, int height) {
+//    GrNativeRect viewport = {0, 0, width, height};
+//    if (fHWViewport != viewport) {
+//        GL_CALL(Viewport(viewport.fX, viewport.fY, viewport.fWidth, viewport.fHeight));
+//        fHWViewport = viewport;
+//    }
 }
 
 GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
@@ -3259,7 +3268,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     // We don't swizzle at all in our copies.
     this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
     this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-    this->flushViewport(dst->width(), dst->height());
+    this->flushViewportOld(dst->width(), dst->height());
     fHWBoundRenderTargetUniqueID.makeInvalid();
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
     this->flushProgram(fCopyPrograms[progIdx].fProgram);
@@ -3466,7 +3475,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
         width = std::max(1, width / 2);
         height = std::max(1, height / 2);
-        this->flushViewport(width, height);
+        this->flushViewportOld(width, height);
 
         GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     }
@@ -4007,6 +4016,21 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
     GL_CALL(WaitSync(glSem->sync(), 0, GR_GL_TIMEOUT_IGNORED));
+}
+
+void GrGLGpu::setViewport(SkIRect viewport, SkISize size) {
+    int tmp[4];
+    GL_CALL(GetIntegerv(GR_GL_VIEWPORT, tmp));
+    SkDebugf("prior viewport %d %d %d %d\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+
+    int yLower = size.fHeight - viewport.fBottom;
+    SkDebugf("new data: %d %d -- %d %d %d %d\n",
+             size.fWidth, size.fHeight,
+             viewport.fLeft, viewport.fTop,
+             viewport.width(), viewport.height());
+
+    GL_CALL(Viewport(viewport.fLeft, yLower, // Note: this is LL
+                     viewport.width(), viewport.height()));
 }
 
 void GrGLGpu::checkFinishProcs() {

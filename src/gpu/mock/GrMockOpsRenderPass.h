@@ -34,6 +34,8 @@ private:
         }
     }
     bool onBindPipeline(const GrProgramInfo&, const SkRect&) override { return true; }
+    void onBooyah2(SkIRect viewport) override {};
+
     void onSetScissorRect(const SkIRect&) override {}
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override { return true; }

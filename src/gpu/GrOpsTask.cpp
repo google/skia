@@ -623,7 +623,11 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
     flushState->setOpsRenderPass(renderPass);
-    renderPass->begin();
+    renderPass->begin1();
+
+    if (proxy == flushState->viewportOffsetTarget()) {
+        renderPass->booyah2(proxy->backingStoreBoundsIRect().makeOffset(flushState->viewportOffset()));
+    }
 
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
