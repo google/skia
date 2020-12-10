@@ -135,6 +135,7 @@ struct SK_API SkIRect {
 
     // Experimental
     SkIPoint topLeft() const { return {fLeft, fTop}; }
+    SkIPoint bottomRigt() const { return {fRight, fBottom}; }
 
     /** Returns span on the x-axis. This does not check if SkIRect is sorted, or if
         result fits in 32-bit signed integer; result may be negative.

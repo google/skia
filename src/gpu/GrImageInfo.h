@@ -50,6 +50,11 @@ public:
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
 
+    bool operator==(const GrImageInfo& that) const {
+        return fDimensions == that.fDimensions && fColorInfo == that.fColorInfo;
+    }
+    bool operator!=(const GrImageInfo& that) const { return !(*this == that); }
+
     GrColorType colorType() const { return fColorInfo.colorType(); }
 
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
