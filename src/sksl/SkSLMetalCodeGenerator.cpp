@@ -47,6 +47,10 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
+    fIntrinsicMap[String("floatBitsToInt")]     = SPECIAL(Bitcast);
+    fIntrinsicMap[String("floatBitsToUint")]    = SPECIAL(Bitcast);
+    fIntrinsicMap[String("intBitsToFloat")]     = SPECIAL(Bitcast);
+    fIntrinsicMap[String("uintBitsToFloat")]    = SPECIAL(Bitcast);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
     fIntrinsicMap[String("lessThan")]           = METAL(LessThan);
@@ -411,9 +415,6 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 this->write("-");
             }
             name = "dfdy";
-        } else if (name == "floatBitsToInt" || name == "floatBitsToUint" ||
-                   name == "intBitsToFloat" || name == "uintBitsToFloat") {
-            name = this->getBitcastIntrinsic(c.type());
         }
     }
 
@@ -624,6 +625,13 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
         }
         case kNormalize_SpecialIntrinsic: {
             this->write(arguments[0]->type().columns() == 1 ? "sign(" : "normalize(");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(")");
+            break;
+        }
+        case kBitcast_SpecialIntrinsic: {
+            this->write(this->getBitcastIntrinsic(c.type()));
+            this->write("(");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(")");
             break;

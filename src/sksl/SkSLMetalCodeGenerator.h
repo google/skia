@@ -110,6 +110,7 @@ protected:
         kMod_SpecialIntrinsic,
         kNormalize_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
+        kBitcast_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {
