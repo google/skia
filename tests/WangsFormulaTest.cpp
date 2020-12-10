@@ -32,6 +32,51 @@ static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint
                               (p[1] - p[2]*2 + p[3]).length()));
 }
 
+// Returns number of segments for linearized quadratic rational. This is an analogue
+// to Wang's formula, taken from:
+//
+//   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
+//   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
+// See Thm 3, Corollary 1.
+//
+// Input points should be in projected space.
+static float wangs_formula_conic_reference_impl(float intolerance,
+                                                const SkPoint P[3],
+                                                const float w) {
+    // Compute center of bounding box in projected space
+    float min_x = P[0].fX, max_x = min_x,
+          min_y = P[0].fY, max_y = min_y;
+    for (int i = 1; i < 3; i++) {
+        min_x = std::min(min_x, P[i].fX);
+        max_x = std::max(max_x, P[i].fX);
+        min_y = std::min(min_y, P[i].fY);
+        max_y = std::max(max_y, P[i].fY);
+    }
+    const SkPoint C = SkPoint::Make(0.5f * (min_x + max_x), 0.5f * (min_y + max_y));
+
+    // Translate control points and compute max length
+    SkPoint tP[3] = {P[0] - C, P[1] - C, P[2] - C};
+    float max_len = 0;
+    for (int i = 0; i < 3; i++) {
+        max_len = std::max(max_len, tP[i].length());
+    }
+    SkASSERT(max_len > 0);
+
+    // Compute delta = parametric step size of linearization
+    const float eps = 1 / intolerance;
+    const float r_minus_eps = std::max(0.f, max_len - eps);
+    const float min_w = std::min(w, 1.f);
+    const float numer = 4 * min_w * eps;
+    const float denom =
+            (tP[2] - tP[1] * 2 * w + tP[0]).length() + r_minus_eps * std::abs(1 - 2 * w + 1);
+    const float delta = sqrtf(numer / denom);
+
+    // Return corresponding num segments in the interval [tmin,tmax]
+    constexpr float tmin = 0, tmax = 1;
+    SkASSERT(delta > 0);
+    return (tmax - tmin) / delta;
+}
+
 static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
     SkMatrix m;
     m.setIdentity();
@@ -346,4 +391,58 @@ DEF_TEST(WangsFormula_quad_within_tol, r) {
             REPORTER_ASSERT(r, d <= (1.f / kIntolerance) + SK_ScalarNearlyZero);
         }
     }, maxExponent);
+}
+
+// Ensure the specialized version for rational quads reduces to regular Wang's
+// formula when all weights are equal to one
+DEF_TEST(WangsFormula_rational_quad_reduces, r) {
+    constexpr static float kTessellationTolerance = 1 / 128.f;
+
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        for_random_beziers(3, &rand, [&r](const SkPoint pts[]) {
+            const float rational_nsegs = wangs_formula_conic_reference_impl(kIntolerance, pts, 1.f);
+            const float integral_nsegs = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(
+                    r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
+        });
+    }
+}
+
+// Ensure the rational quad version (used for conics) produces max error within tolerance.
+DEF_TEST(WangsFormula_conic_within_tol, r) {
+    constexpr int maxExponent = 15;
+
+    SkRandom rand;
+    for (int i = -10; i <= 10; ++i) {
+        const float w = std::ldexp(1 + rand.nextF(), i);
+        for_random_beziers(
+                3, &rand,
+                [&r, w](const SkPoint pts[]) {
+                    const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / w), pts[2]};
+                    const int nsegs = static_cast<int>(std::ceil(
+                            wangs_formula_conic_reference_impl(kIntolerance, projPts, w)));
+
+                    const SkConic conic(projPts[0], projPts[1], projPts[2], w);
+                    const float tdelta = 1.f / nsegs;
+                    for (int j = 0; j < nsegs; ++j) {
+                        const float tmin = j * tdelta, tmax = (j + 1) * tdelta,
+                                    tmid = 0.5f * (tmin + tmax);
+
+                        SkPoint p0, p1, p2;
+                        conic.evalAt(tmin, &p0);
+                        conic.evalAt(tmid, &p1);
+                        conic.evalAt(tmax, &p2);
+
+                        // Get distance of p1 to baseline (p0, p2).
+                        const SkPoint n = {p2.fY - p0.fY, p0.fX - p2.fX};
+                        SkASSERT(n.length() != 0);
+                        const float d = std::abs((p1 - p0).dot(n)) / n.length();
+
+                        // Check distance is within tolerance
+                        REPORTER_ASSERT(r, d <= (1.f / kIntolerance) + SK_ScalarNearlyZero);
+                    }
+                },
+                maxExponent);
+    }
 }
