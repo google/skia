@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
 
     canvas->translate(120, 0);
 
-    p.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+    p.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions()));
     SkPoint texs[3] = {{0, 0}, {0, 128}, {64, 256}};
     canvas->drawVertices(
             SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, texs, nullptr),

@@ -26,10 +26,10 @@ void draw(SkCanvas* canvas) {
 
     SkPaint paint;
     const SkTileMode tile = SkTileMode::kRepeat;
-    paint.setShader(premulImage->makeShader(tile, tile, nullptr));
+    paint.setShader(premulImage->makeShader(tile, tile, SkSamplingOptions()));
     canvas->drawCircle(10.0f, 10.0f, 10.0f, paint);
 
-    paint.setShader(unpremulImage->makeShader(tile, tile, nullptr));
+    paint.setShader(unpremulImage->makeShader(tile, tile, SkSamplingOptions()));
     canvas->drawCircle(10.0f, 35.0f, 10.0f, paint);
 }
 }  // END FIDDLE

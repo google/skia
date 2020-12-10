@@ -698,10 +698,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     auto gamutImage = GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
-        fImGuiGamutPaint.setShader(gamutImage->makeShader());
+        fImGuiGamutPaint.setShader(gamutImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear,
+                                                                            SkMipmapMode::kNone)));
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
-    fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
     fWindow->attach(backend_type_for_window(fBackendType));
     this->setCurrentSlide(this->startupSlide());

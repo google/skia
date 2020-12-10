@@ -225,10 +225,9 @@ protected:
             }
             SkMatrix m;
             m.setRotate(45, image->width()/2.f, image->height()/2.f);
-            auto shader = image->makeShader(SkTileMode::kMirror, SkTileMode::kDecal, m);
             SkPaint paint;
-            paint.setFilterQuality(fq);
-            paint.setShader(std::move(shader));
+            paint.setShader(image->makeShader(SkTileMode::kMirror, SkTileMode::kDecal,
+                                              SkSamplingOptions(fq), m));
             auto rect = SkRect::MakeWH(image->width() * 1.3f, image->height());
             canvas->drawRect(rect, paint);
             return {rect.width(), rect.height()};

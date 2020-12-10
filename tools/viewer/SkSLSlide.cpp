@@ -65,7 +65,7 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
     shader = SkGradientShader::MakeSweep(128, 128, colors, nullptr, 2);
     fShaders.push_back(std::make_pair("Sweep Gradient", shader));
 
-    shader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
+    shader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
     fShaders.push_back(std::make_pair("Mandrill", shader));
 
     shader = SkPerlinNoiseShader::MakeImprovedNoise(0.025f, 0.025f, 3, 0.0f);
