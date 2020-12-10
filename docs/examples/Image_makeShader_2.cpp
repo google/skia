@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     matrix.setRotate(45);
     matrix.postTranslate(125, 30);
     SkPaint paint;
-    paint.setShader(image->makeShader(&matrix));
+    paint.setShader(image->makeShader(SkSamplingOptions(), matrix));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

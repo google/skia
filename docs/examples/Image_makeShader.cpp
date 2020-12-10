@@ -7,7 +7,8 @@ void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setRotate(45);
     SkPaint paint;
-    paint.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kMirror, &matrix));
+    paint.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kMirror,
+                                      SkSamplingOptions(), matrix));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

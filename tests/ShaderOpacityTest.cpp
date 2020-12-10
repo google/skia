@@ -99,6 +99,7 @@ DEF_TEST(ShaderOpacity, reporter) {
     test_bitmap(reporter);
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
 DEF_TEST(image_shader_filtering, reporter) {
     auto make_checker_img = [](int w, int h) {
         auto info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
@@ -147,3 +148,4 @@ DEF_TEST(image_shader_filtering, reporter) {
         }
     }
 }
+#endif
