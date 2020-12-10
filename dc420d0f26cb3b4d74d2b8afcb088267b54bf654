@@ -33,6 +33,29 @@
       "message": "(right Kevin this time)\n\nNeed to switch canvaskit off of deprecated imageshader factories",
       "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bb94f4d_0f074138",
+        "filename": "docs/examples/UnpremulGPU.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-10T19:40:48Z",
+      "side": 1,
+      "message": "this is recurring a lot... not sure if quite worth adding a default-initialized makeShader flavor.",
+      "range": {
+        "startLine": 32,
+        "startChar": 58,
+        "endLine": 32,
+        "endChar": 77
+      },
+      "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
