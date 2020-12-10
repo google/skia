@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b97c9508_db6b5f27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-10T13:07:19Z",
+      "side": 1,
+      "message": "ping. It seems some of the tests still crash or hang.",
+      "revId": "e4530a7c534ffcd52d7ce9be48d82b78844e6c86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
