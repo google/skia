@@ -1813,7 +1813,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
 bool Compiler::optimize(LoadedModule& module) {
     SkASSERT(!fErrorCount);
-    const Program::Settings* oldSettings = fIRGenerator->fSettings;
     Program::Settings settings;
     fIRGenerator->fKind = module.fKind;
     fIRGenerator->fSettings = &settings;
@@ -1838,7 +1837,6 @@ bool Compiler::optimize(LoadedModule& module) {
             break;
         }
     }
-    fIRGenerator->fSettings = oldSettings;
     return fErrorCount == 0;
 }
 
@@ -2161,13 +2159,10 @@ void Compiler::error(int offset, String msg) {
     fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
 }
 
-String Compiler::errorText(bool showCount) {
-    if (showCount) {
-        this->writeErrorCount();
-    }
+String Compiler::errorText() {
+    this->writeErrorCount();
     fErrorCount = 0;
     String result = fErrorText;
-    fErrorText = "";
     return result;
 }
 
