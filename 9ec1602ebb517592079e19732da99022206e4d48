@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf997e61_ba55174e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-10T16:57:46Z",
+      "side": 1,
+      "message": "I implemented stencil state as dynamic (with local hacks) and transparent stroking got faster in GL.\n\nBut to do it properly would require more work and I\u0027m not sure if now is the time to prioritize it. GrStencilSettings stores optimization flags that might change depending on your dynamic ref or masks, for example, and the different backends have different ways of generating their GrStencilSettings on the fly.\n\nThis part seems fine though and worth checking it at this point.",
+      "revId": "9ec1602ebb517592079e19732da99022206e4d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
