@@ -16,6 +16,23 @@
       "message": "Kevin, how can we have canvaskit not rely on the legacy imageshader factories?",
       "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44d2c897_480ae3f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-10T18:36:34Z",
+      "side": 1,
+      "message": "(right Kevin this time)\n\nNeed to switch canvaskit off of deprecated imageshader factories",
+      "revId": "dc420d0f26cb3b4d74d2b8afcb088267b54bf654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
