@@ -19,7 +19,7 @@ public:
 
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
         return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
-               node->tag() == SkSVGTag::kFeComposite;
+               node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood;
     }
 
     sk_sp<SkImageFilter> makeImageFilter(const SkSVGRenderContext& ctx,

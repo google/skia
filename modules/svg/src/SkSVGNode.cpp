@@ -18,6 +18,8 @@ SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     // Uninherited presentation attributes need a non-null default value.
     fPresentationAttributes.fStopColor.set(SkSVGColor(SK_ColorBLACK));
     fPresentationAttributes.fStopOpacity.set(SkSVGNumberType(1.0f));
+    fPresentationAttributes.fFloodColor.set(SkSVGColor(SK_ColorBLACK));
+    fPresentationAttributes.fFloodOpacity.set(SkSVGNumberType(1.0f));
 }
 
 SkSVGNode::~SkSVGNode() { }
@@ -93,6 +95,8 @@ bool SkSVGNode::parseAndSetAttribute(const char* n, const char* v) {
            || PARSE_AND_SET("fill-opacity"     , FillOpacity)
            || PARSE_AND_SET("fill-rule"        , FillRule)
            || PARSE_AND_SET("filter"           , Filter)
+           || PARSE_AND_SET("flood-color"      , FloodColor)
+           || PARSE_AND_SET("flood-opacity"    , FloodOpacity)
            || PARSE_AND_SET("font-family"      , FontFamily)
            || PARSE_AND_SET("font-size"        , FontSize)
            || PARSE_AND_SET("font-style"       , FontStyle)

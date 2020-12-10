@@ -102,6 +102,8 @@ struct SkSVGPresentationAttributes {
     SkSVGProperty<SkSVGFilterType, false> fFilter;
     SkSVGProperty<SkSVGColor     , false> fStopColor;
     SkSVGProperty<SkSVGNumberType, false> fStopOpacity;
+    SkSVGProperty<SkSVGColor     , false> fFloodColor;
+    SkSVGProperty<SkSVGNumberType, false> fFloodOpacity;
 };
 
 #endif // SkSVGAttribute_DEFINED

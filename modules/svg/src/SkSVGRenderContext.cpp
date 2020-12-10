@@ -461,6 +461,8 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     // TODO: resolve these in a pre-render styling pass and assert here that they are values.
     // - stop-color
     // - stop-opacity
+    // - flood-color
+    // - flood-opacity
 }
 
 void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {

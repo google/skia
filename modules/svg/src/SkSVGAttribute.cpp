@@ -36,6 +36,8 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
 
     result.fStopColor.set(SkSVGColor(SK_ColorBLACK));
     result.fStopOpacity.set(SkSVGNumberType(1));
+    result.fFloodColor.set(SkSVGColor(SK_ColorBLACK));
+    result.fFloodOpacity.set(SkSVGNumberType(1));
 
     return result;
 }
