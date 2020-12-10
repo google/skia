@@ -98,7 +98,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("distance")]    = ALL_GLSL(Distance);
     fIntrinsicMap[String("cross")]       = ALL_GLSL(Cross);
     fIntrinsicMap[String("normalize")]   = ALL_GLSL(Normalize);
-    fIntrinsicMap[String("faceForward")] = ALL_GLSL(FaceForward);
+    fIntrinsicMap[String("faceforward")] = ALL_GLSL(FaceForward);
     fIntrinsicMap[String("reflect")]     = ALL_GLSL(Reflect);
     fIntrinsicMap[String("refract")]     = ALL_GLSL(Refract);
     fIntrinsicMap[String("findLSB")]     = ALL_GLSL(FindILsb);
