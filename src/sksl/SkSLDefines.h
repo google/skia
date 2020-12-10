@@ -28,8 +28,9 @@
 #define NORETURN __attribute__((__noreturn__))
 #endif
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#if (defined(SK_BUILD_FOR_IOS) && \
+        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)) || \
+    (defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION <= 1101))
 #define SKSL_USE_THREAD_LOCAL 0
 #else
 #define SKSL_USE_THREAD_LOCAL 1
