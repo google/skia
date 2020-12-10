@@ -153,6 +153,7 @@ public:
             GrResourceProvider::SemaphoreWrapType wrapType, GrWrapOwnership ownership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
+    void setViewport(SkIRect) override;
 
     // These match the definitions in SkDrawable, from whence they came
     typedef void* SubmitContext;

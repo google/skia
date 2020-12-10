@@ -183,7 +183,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
                               &shader, GrPrimitiveType::kTriangleStrip, 0,
                               state->renderPassBarriers(), state->colorLoadOp());
 
-    state->bindPipelineAndScissorClip(programInfo, this->bounds());
+    state->bindPipelineAndScissorClip3(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);
     state->bindBuffers(nullptr, std::move(fInstanceBuffer), nullptr);
     state->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
