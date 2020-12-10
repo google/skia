@@ -1669,7 +1669,6 @@ SkPath::Iter::Iter() {
     fConicWeights = nullptr;
     fMoveTo.fX = fMoveTo.fY = fLastPt.fX = fLastPt.fY = 0;
     fForceClose = fCloseLine = false;
-    fSegmentState = kEmptyContour_SegmentState;
 #endif
     // need to init enough to make next() harmlessly return kDone_Verb
     fVerbs = nullptr;
@@ -1693,7 +1692,6 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fMoveTo.fX = fMoveTo.fY = 0;
     fForceClose = SkToU8(forceClose);
     fNeedClose = false;
-    fSegmentState = kEmptyContour_SegmentState;
 }
 
 bool SkPath::Iter::isClosedContour() const {
@@ -1746,24 +1744,12 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
     }
 }
 
-const SkPoint& SkPath::Iter::cons_moveTo() {
-    if (fSegmentState == kAfterMove_SegmentState) {
-        // Set the first return pt to the move pt
-        fSegmentState = kAfterPrimitive_SegmentState;
-        return fMoveTo;
-    }
-
-    SkASSERT(fSegmentState == kAfterPrimitive_SegmentState);
-    // Set the first return pt to the last pt of the previous primitive.
-    return fPts[-1];
-}
-
 SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
     SkASSERT(ptsParam);
 
     if (fVerbs == fVerbStop) {
         // Close the curve if requested and if there is some curve to close
-        if (fNeedClose && fSegmentState == kAfterPrimitive_SegmentState) {
+        if (fNeedClose) {
             if (kLine_Verb == this->autoClose(ptsParam)) {
                 return kLine_Verb;
             }
@@ -1793,12 +1779,11 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
             fMoveTo = *srcPts;
             pts[0] = *srcPts;
             srcPts += 1;
-            fSegmentState = kAfterMove_SegmentState;
             fLastPt = fMoveTo;
             fNeedClose = fForceClose;
             break;
         case kLine_Verb:
-            pts[0] = this->cons_moveTo();
+            pts[0] = fLastPt;
             pts[1] = srcPts[0];
             fLastPt = srcPts[0];
             fCloseLine = false;
@@ -1808,13 +1793,13 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
             fConicWeights += 1;
             [[fallthrough]];
         case kQuad_Verb:
-            pts[0] = this->cons_moveTo();
+            pts[0] = fLastPt;
             memcpy(&pts[1], srcPts, 2 * sizeof(SkPoint));
             fLastPt = srcPts[1];
             srcPts += 2;
             break;
         case kCubic_Verb:
-            pts[0] = this->cons_moveTo();
+            pts[0] = fLastPt;
             memcpy(&pts[1], srcPts, 3 * sizeof(SkPoint));
             fLastPt = srcPts[2];
             srcPts += 3;
@@ -1825,7 +1810,6 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
                 fVerbs--; // move back one verb
             } else {
                 fNeedClose = false;
-                fSegmentState = kEmptyContour_SegmentState;
             }
             fLastPt = fMoveTo;
             break;

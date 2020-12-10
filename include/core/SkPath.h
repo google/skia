@@ -1518,17 +1518,7 @@ public:
         bool            fForceClose;
         bool            fNeedClose;
         bool            fCloseLine;
-        enum SegmentState : uint8_t {
-            /** The current contour is empty. Starting processing or have just closed a contour. */
-            kEmptyContour_SegmentState,
-            /** Have seen a move, but nothing else. */
-            kAfterMove_SegmentState,
-            /** Have seen a primitive but not yet closed the path. Also the initial state. */
-            kAfterPrimitive_SegmentState
-        };
-        SegmentState    fSegmentState;
 
-        inline const SkPoint& cons_moveTo();
         Verb autoClose(SkPoint pts[2]);
     };
 
