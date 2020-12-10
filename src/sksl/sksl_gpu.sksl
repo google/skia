@@ -136,7 +136,6 @@ float3 cross(float3 x, float3 y);
 half3 cross(half3 x, half3 y);
 $genType normalize($genType x);
 $genHType normalize($genHType x);
-float4 ftransform();
 $genType faceforward($genType N, $genType I, $genType Nref);
 $genHType faceforward($genHType N, $genHType I, $genHType Nref);
 $genType reflect($genType I, $genType N);
