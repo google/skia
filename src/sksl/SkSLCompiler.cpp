@@ -119,7 +119,7 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
         TYPE(Half4x2),  TYPE(Half4x3),  TYPE(Half4x4),
 
         TYPE(GenType), TYPE(GenHType), TYPE(GenIType), TYPE(GenUType), TYPE(GenBType),
-        TYPE(Mat), TYPE(Vec),
+        TYPE(Mat), TYPE(MatH), TYPE(Vec),
         TYPE(GVec), TYPE(GVec2), TYPE(GVec3), TYPE(GVec4),
         TYPE(HVec), TYPE(IVec), TYPE(UVec), TYPE(SVec), TYPE(USVec),
         TYPE(ByteVec), TYPE(UByteVec), TYPE(BVec),

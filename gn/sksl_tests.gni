@@ -244,6 +244,7 @@ sksl_shared_tests = [
   "$_tests/sksl/intrinsics/LessThanEqual.sksl",
   "$_tests/sksl/intrinsics/Log.sksl",
   "$_tests/sksl/intrinsics/Log2.sksl",
+  "$_tests/sksl/intrinsics/MatrixCompMult.sksl",
   "$_tests/sksl/intrinsics/Max.sksl",
   "$_tests/sksl/intrinsics/Min.sksl",
   "$_tests/sksl/intrinsics/Mix.sksl",
