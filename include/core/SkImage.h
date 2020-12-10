@@ -8,10 +8,6 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#ifndef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-#define SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
-#endif
-
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
