@@ -11,6 +11,6 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = intBitsToFloat(_in.a);
+    _out->sk_FragColor.x = as_type<float>(_in.a);
     return *_out;
 }
