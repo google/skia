@@ -1300,7 +1300,7 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 
     for (int i = 0; i < 3; ++i) {
         if (fProgramInfos[i] && fMeshes[i]) {
-            flushState->bindPipelineAndScissorClip(*fProgramInfos[i], chainBounds);
+            flushState->bindPipelineAndScissorClip3(*fProgramInfos[i], chainBounds);
             flushState->bindTextures(fProgramInfos[i]->primProc(), nullptr,
                                      fProgramInfos[i]->pipeline());
             flushState->drawMesh(*fMeshes[i]);

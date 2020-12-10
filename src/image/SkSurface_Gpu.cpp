@@ -361,7 +361,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == rtc->origin() &&
            characterization.backendFormat() == rtc->asSurfaceProxy()->backendFormat() &&
-           characterization.width() == rtc->width() && characterization.height() == rtc->height() &&
+//           characterization.width() == rtc->width() && characterization.height() == rtc->height() &&
            characterization.colorType() == rtcColorType &&
            characterization.sampleCount() == rtc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(), rtc->colorInfo().colorSpace()) &&

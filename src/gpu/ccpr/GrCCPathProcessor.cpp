@@ -148,7 +148,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                               this, primitiveType, 0, flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
 
-    flushState->bindPipelineAndScissorClip(programInfo, bounds);
+    flushState->bindPipelineAndScissorClip3(programInfo, bounds);
     flushState->bindTextures(*this, atlasProxy, pipeline);
     flushState->bindBuffers(resources.indexBuffer(), resources.instanceBuffer(),
                             resources.vertexBuffer(), enablePrimitiveRestart);
