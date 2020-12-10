@@ -8,7 +8,7 @@
 
 """Create the cockroachDB asset."""
 
-
+import common # fixes python import path
 import argparse
 import shutil
 import subprocess
