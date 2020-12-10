@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "47f13d66_65d32150",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-10T22:41:47Z",
+      "side": 1,
+      "message": "These were breaking the Chrome roll, and thinking about it, they are kinda dicey! They\u0027re allocating SkSL::Variable objects before main() even runs, and freeing them after main() exits. Maybe we could lazily allocate them when DSL first gets started up or something?\n\n\n\n[24779/24780] ACTION //chrome/android:monochrome_static_initializers(//build/toolchain/android:android_clang_arm64)\nFAILED: gen/chrome/android/monochrome_static_initializers.stamp\n/b/s/w/ir/cipd_bin_packages/cpython/bin/python ../../build/android/gyp/assert_static_initializers.py --expected-count\u003d2 --tool-prefix ../../third_party/android_ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android- --touch gen/chrome/android/monochrome_static_initializers.stamp apks/MonochromePublic.aab\nExpected 2 static initializers, but found 3.\nDumping static initializers via dump-static-initializers.py:\n# DSL_core.cpp SkSL::dsl::DSLVar::DSLVar(char const*)\n# DSL_core.cpp SkSL::to_string(double)+0x20",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 32
+      },
+      "revId": "b1fee02817e3b005fd71b54cd062ea0da6680743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "508bcf3c_77a6e625",
         "filename": "tests/SkSLDSLTest.cpp",
         "patchSetId": 2
