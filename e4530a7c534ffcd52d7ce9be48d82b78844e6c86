@@ -16,6 +16,24 @@
       "message": "ping. It seems some of the tests still crash or hang.",
       "revId": "e4530a7c534ffcd52d7ce9be48d82b78844e6c86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75f64fba_523dd8a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-10T21:34:08Z",
+      "side": 1,
+      "message": "It passes locally. I thought this was a transient error, based on the fact that the tryjob is not a normal failure, but a \"mishap\". I don\u0027t find anything useful in the logs, so I will have to find a way to reproduce what the tryjob does.",
+      "parentUuid": "b97c9508_db6b5f27",
+      "revId": "e4530a7c534ffcd52d7ce9be48d82b78844e6c86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
