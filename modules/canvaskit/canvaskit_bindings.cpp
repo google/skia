@@ -1233,7 +1233,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                  SkTileMode tx, SkTileMode ty,
                                  uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
             OptionalMatrix localMatrix(mPtr);
-            return self->makeShader(tx, ty, &localMatrix);
+            // Need to take SkSamplingOptions explicitly from the caller
+            return SkImage_makeShaderImplicitFilterQuality(self.get(), tx, ty, &localMatrix);
         }), allow_raw_pointers())
         .function("_readPixels", optional_override([](sk_sp<SkImage> self,
                                  SimpleImageInfo sii, uintptr_t /* uint8_t*  */ pPtr,

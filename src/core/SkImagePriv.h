@@ -85,4 +85,8 @@ bool SkImage_pinAsTexture(const SkImage*, GrRecordingContext*);
  */
 void SkImage_unpinAsTexture(const SkImage*, GrRecordingContext*);
 
+// Temporary, since we are working to remove support for paint-based filterquality enums
+sk_sp<SkShader> SkImage_makeShaderImplicitFilterQuality(const SkImage*, SkTileMode, SkTileMode,
+                                                        const SkMatrix*);
+
 #endif
