@@ -381,6 +381,10 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     return name;
 }
 
+String MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
+    return "as_type<" +  outType.displayName() + ">";
+}
+
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
@@ -390,34 +394,38 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         return;
     }
     String name = function.name();
-    bool builtin = function.isBuiltin();
 
-    if (builtin && name == "atan" && arguments.size() == 2) {
-        name = "atan2";
-    } else if (builtin && name == "inversesqrt") {
-        name = "rsqrt";
-    } else if (builtin && name == "inverse") {
-        SkASSERT(arguments.size() == 1);
-        name = this->getInverseHack(*arguments[0]);
-    } else if (builtin && name == "dFdx") {
-        name = "dfdx";
-    } else if (builtin && name == "dFdy") {
-        // Flipping Y also negates the Y derivatives.
-        if (fProgram.fSettings.fFlipY) {
-            this->write("-");
+    if (function.isBuiltin()) {
+        if (name == "atan" && arguments.size() == 2) {
+            name = "atan2";
+        } else if (name == "inversesqrt") {
+            name = "rsqrt";
+        } else if (name == "inverse") {
+            SkASSERT(arguments.size() == 1);
+            name = this->getInverseHack(*arguments[0]);
+        } else if (name == "dFdx") {
+            name = "dfdx";
+        } else if (name == "dFdy") {
+            // Flipping Y also negates the Y derivatives.
+            if (fProgram.fSettings.fFlipY) {
+                this->write("-");
+            }
+            name = "dfdy";
+        } else if (name == "floatBitsToInt" || name == "floatBitsToUint" ||
+                   name == "intBitsToFloat" || name == "uintBitsToFloat") {
+            name = this->getBitcastIntrinsic(c.type());
         }
-        name = "dfdy";
     }
 
-    // GLSL supports passing swizzled variables to out params; Metal doesn't. Walk the list of
-    // parameters and see if any are out parameters; if so, check if the passed-in expression is a
-    // swizzle. Take a note of all the swizzled variables that we find.
+    // We emulate GLSL's out-param semantics for Metal using a helper function. (Specifically,
+    // results are only written back to the original variable at the end of the function call; also,
+    // swizzles are supported, whereas Metal doesn't allow a swizzle to be passed to a `floatN&`.)
     const std::vector<const Variable*>& parameters = function.parameters();
     SkASSERT(arguments.size() == parameters.size());
 
     bool foundOutParam = false;
     SkSTArray<16, VariableReference*> outVars;
-    outVars.push_back_n(arguments.size(), (VariableReference*)nullptr);
+    outVars.push_back_n(arguments.count(), (VariableReference*)nullptr);
 
     for (int index = 0; index < arguments.count(); ++index) {
         // If this is an out parameter...

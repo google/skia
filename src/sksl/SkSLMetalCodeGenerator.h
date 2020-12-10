@@ -215,6 +215,8 @@ protected:
 
     String getInverseHack(const Expression& mat);
 
+    String getBitcastIntrinsic(const Type& outType);
+
     void writeFunctionCall(const FunctionCall& c);
 
     bool matrixConstructHelperIsNeeded(const Constructor& c);
