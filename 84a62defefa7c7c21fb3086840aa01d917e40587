@@ -87,6 +87,30 @@
       },
       "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e39ff2e9_2af51b57",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-10T17:48:43Z",
+      "side": 1,
+      "message": "That CL would be a follow up, and FOR_EACH_TOP would switch to TOP_DEVICE if this lands. I mentioned it since it makes updating UPDATE_DEVICE_CLIP\u0027s name unnecessary since it\u0027s a shortlived macro at this point.",
+      "parentUuid": "c9588010_9742fbe6",
+      "range": {
+        "startLine": 387,
+        "startChar": 8,
+        "endLine": 387,
+        "endChar": 26
+      },
+      "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
