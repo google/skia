@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22cfd35f_f0f26aaa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-10T19:52:02Z",
+      "side": 1,
+      "message": "I\u0027ll revive/rebase https://skia-review.googlesource.com/c/skia/+/315855 when this lands.",
+      "revId": "4594a7acd9ebf924d588b39793ba632d6ae9f9ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
