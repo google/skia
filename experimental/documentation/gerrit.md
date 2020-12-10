@@ -12,7 +12,7 @@ identify which review a change applies to.
 
     experimental/tools/set-change-id-hook
 
-If you acquired Skia from a mirror (such as github), you need to change the
+If you acquired Skia from a mirror (such as GitHub), you need to change the
 `origin` remote to point to point to googlesource.  Advanced uses will note
 that there is nothing special about the string `origin` and that you could call
 this remote anything you want, as long as you use that name for `get push`.

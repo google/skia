@@ -17,12 +17,12 @@ main [skia](http://cs/#skia/skia/) repo, internal Code Search indexes the
 and [skia_internal](https://cs/#skia/skia_internal/) repos. However,
 cross-references and code analysis are not available.
 
-The Github mirrors of the [skia](https://github.com/google/skia) and
+The GitHub mirrors of the [skia](https://github.com/google/skia) and
 [skia-buildbot](https://github.com/google/skia-buildbot) repos are useful for
 investigating history and blame, or for exploring release branches or other
 branches. However, the search functionality is fairly limited, cross-references
 are not available, and in history the original committer's username is replaced
-with that person's Github username.
+with that person's GitHub username.
 
 You can also navigate through the
 [Skia repos on googlesource.com](https://skia.googlesource.com/). All commits
@@ -32,12 +32,12 @@ appear here first.
   --------------------|-------|-----|--------|------------------------------|---------|---------------
   [cs.skia.org][1]    |regexp | yes |yes     |skia [buildbot][5]            |master   |last DEPS roll
   [Internal][2]       |regexp | no  |yes     |skia buildbot common internal |master   |hours
-  [Github][3]         |basic  | no  |yes     |skia buildbot                 |all      |hour
+  [GitHub][3]         |basic  | no  |yes     |skia buildbot                 |all      |hour
   [googlesource][4]   |none   | no  |yes     |all                           |all      |N/A
 
 [1]: http://cs.skia.org/             "Chromium code search"
 [2]: http://cs/#skia/                "Internal Code Search"
-[3]: https://github.com/google/skia  "Github mirror of skia"
+[3]: https://github.com/google/skia  "GitHub mirror of skia"
 [4]: https://skia.googlesource.com/  "Primary Skia repos on googlesource.com"
 [5]: https://cs.chromium.org/chromium/skia/buildbot/
 

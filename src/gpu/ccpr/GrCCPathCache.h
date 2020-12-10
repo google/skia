@@ -119,7 +119,7 @@ public:
 
     // As we evict entries from our local path cache, we accumulate a list of invalidated atlas
     // textures. This call purges the invalidated atlas textures from the mainline GrResourceCache.
-    // This call is available with two different "provider" objects, to accomodate whatever might
+    // This call is available with two different "provider" objects, to accommodate whatever might
     // be available at the callsite.
     void purgeInvalidatedAtlasTextures(GrOnFlushResourceProvider*);
     void purgeInvalidatedAtlasTextures(GrProxyProvider*);
