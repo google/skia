@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75b39d69_e1f754e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-10T17:49:48Z",
+      "side": 1,
+      "message": "Looks like Mike K is OOO, so I\u0027ll land this, and if we want to make any follow-up changes, we can address them later.",
+      "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d34dd672_6c5f53f4",
