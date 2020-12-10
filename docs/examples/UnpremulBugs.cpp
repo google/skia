@@ -20,7 +20,7 @@ void doCell(SkCanvas* canvas, float x, float y, SkAlphaType at, SkColor c, int n
     SkPaint paint;
     const SkTileMode tile = SkTileMode::kRepeat;
 
-    paint.setShader(img->makeShader(tile, tile, nullptr));
+    paint.setShader(img->makeShader(tile, tile, SkSamplingOptions()));
     canvas->drawRect(SkRect::MakeXYWH(x, y, 50, 50), paint);
 }
 

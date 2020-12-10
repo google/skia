@@ -99,7 +99,7 @@ void draw(SkCanvas* canvas) {
     p.setStrokeWidth(10);
     p.setBlendMode(SkBlendMode::kDstOver);
     p.setStrokeCap(SkPaint::kRound_Cap);
-    p.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+    p.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions()));
 
     auto s = PaintStringDump(p);
     SkDebugf("%s", s.c_str());
