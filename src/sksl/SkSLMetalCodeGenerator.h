@@ -104,6 +104,7 @@ protected:
     };
 
     enum SpecialIntrinsic {
+        kBitcast_SpecialIntrinsic,
         kDistance_SpecialIntrinsic,
         kDot_SpecialIntrinsic,
         kLength_SpecialIntrinsic,
