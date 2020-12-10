@@ -686,9 +686,8 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     if (!conic_in_line(conic)) {
         return kQuad_ReductionType;
     }
-    // SkFindConicMaxCurvature would be a better solution, once we know how to
-    // implement it. Quad curvature is a reasonable substitute
-    SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
+    // The "cusp" point on a degenerate conic always occurs at the midtangent.
+    SkScalar t = conic.findMidTangent();
     if (0 == t) {
         return kLine_ReductionType;
     }
@@ -709,7 +708,8 @@ SkPathStroker::ReductionType SkPathStroker::CheckQuadLinear(const SkPoint quad[3
     if (!quad_in_line(quad)) {
         return kQuad_ReductionType;
     }
-    SkScalar t = SkFindQuadMaxCurvature(quad);
+    // The "cusp" point on a degenerate quad always occurs at the midtangent.
+    SkScalar t = SkFindQuadMidTangent(quad);
     if (0 == t || 1 == t) {
         return kLine_ReductionType;
     }
