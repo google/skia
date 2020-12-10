@@ -150,7 +150,7 @@
     }
 
     // Implementation Detail:
-    // The shared threads need two seperate queues to keep the threads that were added after the
+    // The shared threads need two separate queues to keep the threads that were added after the
     // exclusive lock separate from the threads added before.
     void SkSharedMutex::release() {
         ANNOTATE_RWLOCK_RELEASED(this, 1);

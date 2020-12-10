@@ -166,7 +166,7 @@ static constexpr uint32_t kICCTagTable[3 * kICCNumEntries] {
 
 // This is like SkFloatToFixed, but rounds to nearest, preserving as much accuracy as possible
 // when going float -> fixed -> float (it has the same accuracy when going fixed -> float -> fixed).
-// The use of double is necessary to accomodate the full potential 32-bit mantissa of the 16.16
+// The use of double is necessary to accommodate the full potential 32-bit mantissa of the 16.16
 // SkFixed value, and so avoiding rounding problems with float. Also, see the comment in SkFixed.h.
 static SkFixed float_round_to_fixed(float x) {
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
