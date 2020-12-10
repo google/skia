@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9e7b30e_28eec61c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-10T16:13:17Z",
+      "side": 1,
+      "message": "Here\u0027s the next step in canvas cleanup after unclipped layers are gone. With this CL, we\u0027ll have removed all(I think?) vestiges of the multiple top devices. Subsequence CLs will just be about simplifying/cleaning up the internals of SkCanvas a bit more.\n\nFor instance, with this CL, we replace the draw macros with an \"if\" that checks for an image filter. On one branch we allocate the AutoLayerForImageFilter and draw in that, but in the common case we just draw to the top device directly.\n\nA simplification, here: https://skia-review.googlesource.com/c/skia/+/342920, is where we just always use AutoLayerForImageFilter and move the predraw notifications into it as well. It may be useful to view both of them together before sorting out what we want to do moving forward.",
+      "revId": "84a62defefa7c7c21fb3086840aa01d917e40587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
