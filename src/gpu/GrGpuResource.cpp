@@ -97,10 +97,15 @@ bool GrGpuResource::isPurgeable() const {
     // Resources in the kUnbudgetedCacheable state are never purgeable when they have a unique
     // key. The key must be removed/invalidated to make them purgeable.
     return !this->hasRef() &&
+           !this->hasCommandBufferUsageRef() &&
            !(fBudgetedType == GrBudgetedType::kUnbudgetedCacheable && fUniqueKey.isValid());
 }
 
 bool GrGpuResource::hasRef() const { return this->internalHasRef(); }
+
+bool GrGpuResource::hasCommandBufferUsageRef() const {
+    return this->internalHasCommandBufferUsageRef();
+}
 
 SkString GrGpuResource::getResourceName() const {
     // Dump resource as "skia/gpu_resources/resource_#".
