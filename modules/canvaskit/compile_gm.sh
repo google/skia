@@ -135,6 +135,24 @@ ${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a \
 
 echo "Generating final wasm"
 
+# Defines for the emscripten compilation step, which builds the tests
+# Aim to match the defines that would be set by gn for the skia compilation step.
+SKIA_DEFINES="
+-DSK_DISABLE_AAA \
+-DSK_FORCE_8_BYTE_ALIGNMENT \
+-DGR_OP_ALLOCATE_USE_NEW \
+-DSK_HAS_WUFFS_LIBRARY \
+-DSK_HAS_HEIF_LIBRARY \
+-DSK_ENCODE_WEBP \
+-DSK_CODEC_DECODES_WEBP \
+-DSK_ENCODE_PNG \
+-DSK_CODEC_DECODES_PNG \
+-DSK_ENCODE_JPEG \
+-DSK_CODEC_DECODES_JPEG \
+-DSK_SHAPER_HARFBUZZ_AVAILABLE \
+-DSK_UNICODE_AVAILABLE \
+-DSK_ENABLE_SVG"
+
 # Disable '-s STRICT=1' outside of Linux until
 # https://github.com/emscripten-core/emscripten/issues/12118 is resovled.
 STRICTNESS="-s STRICT=1"
@@ -185,9 +203,8 @@ GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
 # Emscripten will use LLD, which may relax this requirement.
 EMCC_DEBUG=1 ${EMCXX} \
     $RELEASE_CONF \
-    -I. \
-    -DSK_DISABLE_AAA \
-    -DSK_FORCE_8_BYTE_ALIGNMENT \
+    -I. \ \
+    $SKIA_DEFINES \
     $WASM_GPU \
     -std=c++17 \
     --profiling-funcs \
