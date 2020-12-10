@@ -49,6 +49,10 @@ void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     fGpu->flushScissorRect(scissor, fRenderTarget->width(), fRenderTarget->height(), fOrigin);
 }
 
+void GrGLOpsRenderPass::onSetViewport8(SkIRect viewport) {
+    fGpu->flushViewport(viewport, fRenderTarget->height(), fOrigin);
+}
+
 bool GrGLOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                        const GrSurfaceProxy* const primProcTextures[],
                                        const GrPipeline& pipeline) {

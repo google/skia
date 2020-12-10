@@ -230,7 +230,7 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        flushState->bindPipeline(*fProgramInfo, SkRect::MakeIWH(kWidth, kHeight));
+        flushState->bindPipeline2(*fProgramInfo, SkRect::MakeIWH(kWidth, kHeight));
         flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
         flushState->draw(4, 0);
 

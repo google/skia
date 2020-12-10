@@ -812,7 +812,7 @@ void GrStrokeIndirectOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     SkASSERT(fColorProgram);
     SkASSERT(chainBounds == this->bounds());
 
-    flushState->bindPipelineAndScissorClip(*fColorProgram, this->bounds());
+    flushState->bindPipelineAndScissorClip3(*fColorProgram, this->bounds());
     flushState->bindTextures(fColorProgram->primProc(), nullptr, fColorProgram->pipeline());
     flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
     flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset, fDrawIndirectCount);
