@@ -344,6 +344,7 @@ function fontMgrTests(CK: CanvasKit) {
 function globalTests(CK: CanvasKit) {
     const ctx = CK.currentContext();
     CK.setCurrentContext(ctx);
+    CK.deleteContext(ctx);
     const n = CK.getDecodeCacheLimitBytes();
     const u = CK.getDecodeCacheUsedBytes();
     CK.setDecodeCacheLimitBytes(1000);
