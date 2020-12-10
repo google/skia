@@ -1073,34 +1073,20 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
     }
 
+    bool initBackdrop = (rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop;
     if (!newDevice) {
-        if (modifiedRec) {
-            // In this case there will be no layer in which to stash the matrix so we need to
-            // revert the prior MCRec to its earlier state.
-            modifiedRec->fMatrix = SkM44(stashedMatrix);
-        }
-        if (strategy == kNoLayer_SaveLayerStrategy) {
-            // replaceClip() serves two purposes here:
-            // 1. When 'ir' is empty, it forces the top level device to reject all subsequent
-            //    nested draw calls.
-            // 2. When 'ir' is not empty, this canvas represents a recording canvas, so the
-            //    replaceClip() simulates what a new top-level device's canvas would be in
-            //    the non-recording scenario. This allows the canvas to report the expanding
-            //    effects of image filters on the temporary clip bounds.
-            UPDATE_DEVICE_CLIP(device->replaceClip(ir));
-        } else {
-            // else the layer device failed to be created, so the saveLayer() effectively
-            // becomes just a save(). The clipRegion() explicitly applies the bounds of the
-            // failed layer, without resetting the clip of the prior device that all subsequent
-            // nested draw calls need to respect.
-            UPDATE_DEVICE_CLIP(device->clipRegion(SkRegion(ir), SkClipOp::kIntersect));
-        }
-        return;
+        // Either we weren't meant to allocate a full layer, or the full layer creation failed.
+        // Using an explicit NoPixelsDevice lets us reflect what the layer state would have been
+        // on success (or kFull_LayerStrategy) while squashing draw calls that target something that
+        // doesn't exist.
+        newDevice = sk_make_sp<SkNoPixelsDevice>(SkIRect::MakeWH(ir.width(), ir.height()), fProps,
+                                                 this->imageInfo().colorSpace());
+        initBackdrop = false;
     }
 
     newDevice->setMarkerStack(fMarkerStack.get());
 
-    if ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop) {
+    if (initBackdrop) {
         DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(), { ir.fLeft, ir.fTop },
                              fMCRec->fMatrix.asM33());
     }
