@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7ca767c_ef459a49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:43:24Z",
+      "side": 1,
+      "message": "Looks good to me, it seems like in the future, we can use the new rescaleInto() to similarly let us compute decal blurs by keeping the edges transparent, instead of relying on a shader decal.",
+      "revId": "8b9835802f60af12974219edc074c1702e53d9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31d1a0b2_8ae56a2e",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:43:24Z",
+      "side": 1,
+      "message": "nit: rescale",
+      "range": {
+        "startLine": 599,
+        "startChar": 14,
+        "endLine": 599,
+        "endChar": 21
+      },
+      "revId": "8b9835802f60af12974219edc074c1702e53d9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eecc86fa_0a8111e7",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:43:24Z",
+      "side": 1,
+      "message": "nit: remove",
+      "range": {
+        "startLine": 1083,
+        "startChar": 33,
+        "endLine": 1083,
+        "endChar": 38
+      },
+      "revId": "8b9835802f60af12974219edc074c1702e53d9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2df5f4a_1947661d",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1195,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:43:24Z",
+      "side": 1,
+      "message": "temp is a little vague. Maybe stepDst or iterDst?",
+      "range": {
+        "startLine": 1195,
+        "startChar": 30,
+        "endLine": 1195,
+        "endChar": 38
+      },
+      "revId": "8b9835802f60af12974219edc074c1702e53d9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
