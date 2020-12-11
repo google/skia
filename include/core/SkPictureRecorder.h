@@ -89,6 +89,15 @@ public:
      */
     sk_sp<SkDrawable> finishRecordingAsDrawable();
 
+    /**
+     *  Searches record for SkImage references backed by GPU textures and replaces them with
+     *  immutable SkImage copies in regular memory.
+     *  to be called just before finishRecordingAsPicture.
+     *  This is intended for use in Android where GPU backed textures in RenderEngine cannot be
+     *  expected to outlive this picture.
+     */
+    void freezeAllImages();
+
 private:
     void reset();
 
