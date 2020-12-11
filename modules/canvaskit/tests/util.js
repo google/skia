@@ -49,7 +49,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
             done();
         });
     })
-}
+};
 
 /**
  * Takes a name, a callback, and any number of assets or promises. It executes the
@@ -65,7 +65,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
  */
 const gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
     _commonGM(it, false, name, callback, assetsToFetchOrPromisesToWaitOn);
-}
+};
 
 /**
  *  fgm is like gm, except only tests declared with fgm, force_gm, or fit will be
@@ -73,7 +73,7 @@ const gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
  */
 const fgm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
     _commonGM(fit, false, name, callback, assetsToFetchOrPromisesToWaitOn);
-}
+};
 
 /**
  *  force_gm is like gm, except only tests declared with fgm, force_gm, or fit will be
@@ -81,7 +81,7 @@ const fgm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
  */
 const force_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
     fgm(name, callback, assetsToFetchOrPromisesToWaitOn);
-}
+};
 
 /**
  *  skip_gm does nothing. It is a convenient way to skip a test temporarily.
@@ -89,7 +89,7 @@ const force_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
 const skip_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
     console.log(`Skipping gm ${name}`);
     // do nothing, skip the test for now
-}
+};
 
 /**
  *  pause_gm is like fgm, except the test will not finish right away and clear,
@@ -97,7 +97,7 @@ const skip_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
  */
 const pause_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
     _commonGM(fit, true, name, callback, assetsToFetchOrPromisesToWaitOn);
-}
+};
 
 const _commonMultipleCanvasGM = (it, pause, name, callback) => {
     it(`draws gm ${name} on both CanvasKit and using Canvas2D`, (done) => {
@@ -133,7 +133,7 @@ const _commonMultipleCanvasGM = (it, pause, name, callback) => {
             done();
         }).catch(reportError(done));
     });
-}
+};
 
 /**
  * Takes a name and a callback. It executes the callback (presumably, the test)
@@ -145,7 +145,7 @@ const _commonMultipleCanvasGM = (it, pause, name, callback) => {
  */
 const multipleCanvasGM = (name, callback) => {
     _commonMultipleCanvasGM(it, false, name, callback);
-}
+};
 
 /**
  *  fmultipleCanvasGM is like multipleCanvasGM, except only tests declared with
@@ -154,7 +154,7 @@ const multipleCanvasGM = (name, callback) => {
  */
 const fmultipleCanvasGM = (name, callback) => {
     _commonMultipleCanvasGM(fit, false, name, callback);
-}
+};
 
 /**
  *  force_multipleCanvasGM is like multipleCanvasGM, except only tests declared
@@ -163,7 +163,7 @@ const fmultipleCanvasGM = (name, callback) => {
  */
 const force_multipleCanvasGM = (name, callback) => {
     fmultipleCanvasGM(name, callback);
-}
+};
 
 /**
  *  pause_multipleCanvasGM is like fmultipleCanvasGM, except the test will not
@@ -171,14 +171,14 @@ const force_multipleCanvasGM = (name, callback) => {
  */
 const pause_multipleCanvasGM = (name, callback) => {
     _commonMultipleCanvasGM(fit, true, name, callback);
-}
+};
 
 /**
  *  skip_multipleCanvasGM does nothing. It is a convenient way to skip a test temporarily.
  */
 const skip_multipleCanvasGM = (name, callback) => {
     console.log(`Skipping multiple canvas gm ${name}`);
-}
+};
 
 
 function reportSurface(surface, testname, done) {
