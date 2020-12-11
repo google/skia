@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d6ee46d_f501f710",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T17:05:03Z",
+      "side": 1,
+      "message": "So here is the second part of the CL that uses the new command buffer tracking in vulkan.\n\nThis isn\u0027t really the final state I want us to land. For example we probably don\u0027t need to keep tracking as many of the GrVkResources if we are keeping the GrGpuResources alive. However, we will probably try to merge this back to m88 and I\u0027d rather keep this change as simple as possible. Nothing hurts us by tracking by the GrGpuResource as well as the GrVkResources.",
+      "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
