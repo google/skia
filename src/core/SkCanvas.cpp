@@ -410,6 +410,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
+    SkASSERT(fBaseDevice->isNoPixelsDevice());
     static_cast<SkNoPixelsDevice*>(fBaseDevice.get())->resetForNextPicture(bounds);
     fMCRec->reset(fBaseDevice.get());
     fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
@@ -974,7 +975,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
 
     SkImageFilter* imageFilter = paint.get() ? paint->getImageFilter() : nullptr;
     SkMatrix stashedMatrix = fMCRec->fMatrix.asM33();
-    MCRec* modifiedRec = nullptr;
 
     /*
      *  Many ImageFilters (so far) do not (on their own) correctly handle matrices (CTM) that
@@ -1001,7 +1001,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         if (as_IFB(modifiedFilter)->uniqueID() != as_IFB(imageFilter)->uniqueID()) {
             // The original filter couldn't support the CTM entirely
             SkASSERT(modifiedCTM.isScaleTranslate() || as_IFB(imageFilter)->canHandleComplexCTM());
-            modifiedRec = fMCRec;
             this->internalSetMatrix(SkM44(modifiedCTM));
             imageFilter = modifiedFilter.get();
             paint.writable()->setImageFilter(std::move(modifiedFilter));
@@ -1045,34 +1044,20 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
     }
 
+    bool initBackdrop = (rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop;
     if (!newDevice) {
-        if (modifiedRec) {
-            // In this case there will be no layer in which to stash the matrix so we need to
-            // revert the prior MCRec to its earlier state.
-            modifiedRec->fMatrix = SkM44(stashedMatrix);
-        }
-        if (strategy == kNoLayer_SaveLayerStrategy) {
-            // replaceClip() serves two purposes here:
-            // 1. When 'ir' is empty, it forces the top level device to reject all subsequent
-            //    nested draw calls.
-            // 2. When 'ir' is not empty, this canvas represents a recording canvas, so the
-            //    replaceClip() simulates what a new top-level device's canvas would be in
-            //    the non-recording scenario. This allows the canvas to report the expanding
-            //    effects of image filters on the temporary clip bounds.
-            UPDATE_DEVICE_CLIP(replaceClip(ir));
-        } else {
-            // else the layer device failed to be created, so the saveLayer() effectively
-            // becomes just a save(). The clipRegion() explicitly applies the bounds of the
-            // failed layer, without resetting the clip of the prior device that all subsequent
-            // nested draw calls need to respect.
-            UPDATE_DEVICE_CLIP(clipRegion(SkRegion(ir), SkClipOp::kIntersect));
-        }
-        return;
+        // Either we weren't meant to allocate a full layer, or the full layer creation failed.
+        // Using an explicit NoPixelsDevice lets us reflect what the layer state would have been
+        // on success (or kFull_LayerStrategy) while squashing draw calls that target something that
+        // doesn't exist.
+        newDevice = sk_make_sp<SkNoPixelsDevice>(SkIRect::MakeWH(ir.width(), ir.height()), fProps,
+                                                 this->imageInfo().refColorSpace());
+        initBackdrop = false;
     }
 
     newDevice->setMarkerStack(fMarkerStack.get());
 
-    if ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop) {
+    if (initBackdrop) {
         DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(), { ir.fLeft, ir.fTop },
                              fMCRec->fMatrix.asM33());
     }
@@ -1277,6 +1262,12 @@ static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
 }
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
+    // Nothing to draw, and we know snapSpecial() would have returned null and 'srcDev' likely
+    // wasn't returned from onCreateDevice() so isn't allowed to be passed to drawDevice()
+    if (srcDev->isNoPixelsDevice()) {
+        return;
+    }
+
     SkTCopyOnFirstWrite<SkPaint> noFilterPaint(paint);
     noFilterPaint.initIfNeeded();
 
