@@ -256,20 +256,38 @@ public:
     }
 };
 
-class SkCanvas::AutoValidateClip {
+static inline SkRect qr_clip_bounds(const SkRect& bounds) {
+    if (bounds.isEmpty()) {
+        return SkRect::MakeEmpty();
+    }
+
+    // Expand bounds out by 1 in case we are anti-aliasing.  We store the
+    // bounds as floats to enable a faster quick reject implementation.
+    SkRect dst;
+    (Sk4f::Load(&bounds.fLeft) + Sk4f(-1.f, -1.f, 1.f, 1.f)).store(&dst.fLeft);
+    return dst;
+}
+
+class SkCanvas::AutoUpdateQRBounds {
 public:
-    explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
+    explicit AutoUpdateQRBounds(SkCanvas* canvas) : fCanvas(canvas) {
+        // pre-condition, fQuickRejectBounds and other state should be valid before anything
+        // modifies the device's clip.
         fCanvas->validateClip();
     }
-    ~AutoValidateClip() { fCanvas->validateClip(); }
+    ~AutoUpdateQRBounds() {
+        fCanvas->fQuickRejectBounds = qr_clip_bounds(fCanvas->computeDeviceClipBounds());
+        // post-condition, we should remain valid after re-computing the bounds
+        fCanvas->validateClip();
+    }
 
 private:
-    const SkCanvas* fCanvas;
+    SkCanvas* fCanvas;
 
-    AutoValidateClip(AutoValidateClip&&) = delete;
-    AutoValidateClip(const AutoValidateClip&) = delete;
-    AutoValidateClip& operator=(AutoValidateClip&&) = delete;
-    AutoValidateClip& operator=(const AutoValidateClip&) = delete;
+    AutoUpdateQRBounds(AutoUpdateQRBounds&&) = delete;
+    AutoUpdateQRBounds(const AutoUpdateQRBounds&) = delete;
+    AutoUpdateQRBounds& operator=(AutoUpdateQRBounds&&) = delete;
+    AutoUpdateQRBounds& operator=(const AutoUpdateQRBounds&) = delete;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -369,8 +387,6 @@ private:
     SkDEBUGCODE(int              fSaveCount;)
 };
 
-////////// macros to place around the internal draw calls //////////////////
-
 // Helper macro to run code on the top layer's SkBaseDevice if it's not null. What would be
 // "this->getTopDevice()->code;" is "TOP_DEVICE(code);", while handling whether or not the top
 // device is actually null.
@@ -384,26 +400,7 @@ private:
         }                                                                 \
     } while(0)
 
-#define UPDATE_DEVICE_CLIP(code)                                          \
-    do {                                                                  \
-    AutoValidateClip avc(this);                                           \
-    TOP_DEVICE(code);                                                     \
-    fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds()); \
-    } while(0)
-
 ////////////////////////////////////////////////////////////////////////////
-
-static inline SkRect qr_clip_bounds(const SkRect& bounds) {
-    if (bounds.isEmpty()) {
-        return SkRect::MakeEmpty();
-    }
-
-    // Expand bounds out by 1 in case we are anti-aliasing.  We store the
-    // bounds as floats to enable a faster quick reject implementation.
-    SkRect dst;
-    (Sk4f::Load(&bounds.fLeft) + Sk4f(-1.f, -1.f, 1.f, 1.f)).store(&dst.fLeft);
-    return dst;
-}
 
 void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     this->restoreToCount(1);
@@ -1432,7 +1429,9 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     SkASSERT(rect.isSorted());
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(clipRect(rect, op, isAA));
+
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(clipRect(rect, op, isAA));
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
@@ -1442,12 +1441,16 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
         // removing it (i.e. rect is empty).
         this->checkForDeferredSave();
     }
-    UPDATE_DEVICE_CLIP(androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
 }
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     this->checkForDeferredSave();
-    UPDATE_DEVICE_CLIP(replaceClip(rect));
+
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(replaceClip(rect));
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
@@ -1462,7 +1465,9 @@ void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(clipRRect(rrect, op, isAA));
+
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(clipRRect(rrect, op, isAA));
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
@@ -1492,7 +1497,9 @@ void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
 
 void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeStyle) {
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-    UPDATE_DEVICE_CLIP(clipPath(path, op, isAA));
+
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(clipPath(path, op, isAA));
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
@@ -1513,7 +1520,8 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
 }
 
 void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
-    UPDATE_DEVICE_CLIP(clipShader(sh, op));
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(clipShader(sh, op));
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
@@ -1522,7 +1530,8 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    UPDATE_DEVICE_CLIP(clipRegion(rgn, op));
+    AutoUpdateQRBounds aqr(this);
+    TOP_DEVICE(clipRegion(rgn, op));
 }
 
 void SkCanvas::validateClip() const {
