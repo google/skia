@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b31ab8d_59f05f87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-11T19:38:50Z",
+      "side": 1,
+      "message": "This CL marks what I would consider the point of feature completeness for tessellated stroking",
+      "revId": "28fef9d6d10d989b4ebac427294e5ad0f5324aa5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
