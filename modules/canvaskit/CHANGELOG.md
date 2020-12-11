@@ -8,18 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `getImageInfo()` and `getColorSpace()` to the `Image` type.
- - `CanvasKit.deleteContext` for deleting WebGL contexts when done with them, resizing, etc.
+ - `CanvasKit.deleteContext()` for deleting WebGL contexts when done with them, resizing, etc.
+ - `Image.makeCopyWithDefaultMipmaps()` for use with `Image.makeShaderOptions`; necessary if
+   choosing a `MipmapMode` that is not `None`.
 
 ### Breaking
  - `Path.addPoly()` no longer accepts a 2d array of points, but a flattened 1d array.
  - `MakeVertices()` no longer accepts 2d arrays of points or texture coordinates, but
    flattened 1d arrays in both places.
+ - `Paint.setFilterQuality`, `Paint.getFilterQuality`, `Image.makeShader` have been removed.
+   The new way to specify interpolation settings is with the newly added `Image.makeShader*`
+   methods. `Image.makeShaderCubic` is a replacement for high quality; `Image.makeShaderOptions`
+   is for medium/low.
 
 ### Changed
  - `MakeImage` is now documented in the Typescript types (index.d.ts). The parameters have been
    streamlined to align with other, similar APIs.
  - `MakeAnimatedImageFromEncoded` respects Exif metadata. `MakeImageFromEncoded` already did so
    (and continues to do so).
+ - The Canvas2D emulation layer always uses high quality image smoothing (this drastically
+   simplifies the underlying code).
 
 ### Fixed
  - `Canvas.drawPoints` correctly takes a flattened Array or TypedArray of points (as the

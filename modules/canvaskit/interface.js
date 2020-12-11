@@ -904,9 +904,26 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   };
 
-  CanvasKit.Image.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
+  // makeShaderCubic returns a shader for a given image, allowing it to be used on
+  // a paint as well as other purposes. This shader will be higher quality than
+  // other shader functions. See CubicResampler in SkSamplingOptions.h for more information
+  // on the cubicResampler params.
+  CanvasKit.Image.prototype.makeShaderCubic = function(xTileMode, yTileMode,
+                                                       cubicResamplerB, cubicResamplerC,
+                                                       localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
-    return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
+    return this._makeShaderCubic(xTileMode, yTileMode, cubicResamplerB,
+                                 cubicResamplerC, localMatrixPtr);
+  };
+
+  // makeShaderCubic returns a shader for a given image, allowing it to be used on
+  // a paint as well as other purposes. This shader will draw more quickly than
+  // other shader functions, but at a lower quality.
+  CanvasKit.Image.prototype.makeShaderOptions = function(xTileMode, yTileMode,
+                                                         filterMode, mipmapMode,
+                                                         localMatrix) {
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
+    return this._makeShaderOptions(xTileMode, yTileMode, filterMode, mipmapMode, localMatrixPtr);
   };
 
   function readPixels(source, srcX, srcY, imageInfo, destMallocObj, bytesPerRow) {

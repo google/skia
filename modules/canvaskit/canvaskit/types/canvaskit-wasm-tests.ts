@@ -250,7 +250,11 @@ function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     const bytes = CK.getDataBytes(dTwo); // $ExpectType Uint8Array
     const h = img.height();
     const w = img.width();
-    const shader = img.makeShader(CK.TileMode.Decal, CK.TileMode.Repeat); // $ExpectType Shader
+    const s1 = img.makeShaderCubic(CK.TileMode.Decal, CK.TileMode.Repeat, 1 / 3, 1 / 3); // $ExpectType Shader
+    const mm = img.makeCopyWithDefaultMipmaps(); // $ExpectType Image
+    const s2 = mm.makeShaderOptions(CK.TileMode.Decal, CK.TileMode.Repeat, // $ExpectType Shader
+        CK.FilterMode.Nearest, CK.MipmapMode.Linear,
+        CK.Matrix.identity());
     const pixels = img.readPixels(85, 1000, { // $ExpectType Float32Array | Uint8Array | null
         width: 79,
         height: 205,
@@ -359,7 +363,6 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     const newPaint = paint.copy(); // $ExpectType Paint
     const bm = paint.getBlendMode();
     const color = paint.getColor(); // $ExpectType Float32Array
-    const fq = paint.getFilterQuality();
     const sc = paint.getStrokeCap();
     const sj = paint.getStrokeJoin();
     const limit = paint.getStrokeMiter(); // $ExpectType number
@@ -374,7 +377,6 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     paint.setColorFilter(colorFilter);
     paint.setColorInt(CK.ColorAsInt(20, 30, 40));
     paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.ColorSpace.SRGB);
-    paint.setFilterQuality(CK.FilterQuality.Medium);
     paint.setImageFilter(imageFilter);
     paint.setMaskFilter(maskFilter);
     paint.setPathEffect(pathEffect);

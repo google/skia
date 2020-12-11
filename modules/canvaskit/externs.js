@@ -372,12 +372,20 @@ var CanvasKit = {
     // public API (from C++ bindings)
     getColorSpace: function() {},
     getImageInfo: function() {},
+    makeCopyWithDefaultMipmaps: function() {},
     height: function() {},
     width: function() {},
+
+    prototype: {
+      encodeToData: function() {},
+      makeShaderCubic: function() {},
+      makeShaderOptions: function() {},
+    },
     // private API
     _encodeToData: function() {},
     _encodeToDataWithFormat: function() {},
-    _makeShader: function() {},
+    _makeShaderCubic: function() {},
+    _makeShaderOptions: function() {},
   },
 
   ImageFilter: {
@@ -1001,9 +1009,6 @@ CanvasKit.Surface.prototype.dispose = function() {};
 CanvasKit.Surface.prototype.flush = function() {};
 CanvasKit.Surface.prototype.requestAnimationFrame = function() {};
 CanvasKit.Surface.prototype.drawOnce = function() {};
-
-CanvasKit.Image.prototype.encodeToData = function() {};
-CanvasKit.Image.prototype.makeShader = function() {};
 
 CanvasKit.FontMgr.prototype.MakeTypefaceFromData = function() {};
 
