@@ -548,7 +548,7 @@ SkISize SkCanvas::getBaseLayerSize() const {
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
 }
 
-SkIRect SkCanvas::getTopLayerBounds() const {
+SkIRect SkCanvas::internalGetTopLayerBounds() const {
     SkBaseDevice* d = this->getTopDevice();
     if (!d) {
         return SkIRect::MakeEmpty();
@@ -1706,6 +1706,28 @@ GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetConte
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTargetContext() : nullptr;
 }
+
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
+
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
+
+GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
+    SkBaseDevice* dev = this->getTopDevice();
+    if (!dev) {
+        return {};
+    }
+    GrSurfaceDrawContext* sdc = dev->accessRenderTargetContext();
+    if (!sdc) {
+        return {};
+    }
+    GrRenderTargetProxy* proxy = sdc->asRenderTargetProxy();
+    SkASSERT(proxy);
+    GrRenderTarget* renderTarget = proxy->peekRenderTarget();
+    return renderTarget ? renderTarget->getBackendRenderTarget() : GrBackendRenderTarget();
+}
+#endif
 
 GrRecordingContext* SkCanvas::recordingContext() {
     SkBaseDevice* device = this->getTopDevice();
