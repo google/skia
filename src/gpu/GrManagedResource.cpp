@@ -38,7 +38,7 @@ void GrTextureResource::notifyFinishedWithWorkOnGpu() const {
         return;
     }
     if (fOwningTexture) {
-        if (fOwningTexture->resourcePriv().hasRef()) {
+        if (fOwningTexture->resourcePriv().hasRefOrCommandBufferUsage()) {
             // Wait for the texture to become idle in the cache to call the procs.
             return;
         }

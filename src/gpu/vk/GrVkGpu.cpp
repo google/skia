@@ -660,7 +660,8 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect&
                                      VK_ACCESS_TRANSFER_READ_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      false);
-
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
     this->currentCommandBuffer()->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
 }
 
@@ -1710,6 +1711,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
                                               backendTexture.fMipmapped, data->color());
         }
 
+        cmdBuffer->addGrSurface(texture);
         cmdBuffer->copyBufferToImage(this, static_cast<GrVkTransferBuffer*>(slice.fBuffer),
                                      texture.get(), texture->currentLayout(), regions.count(),
                                      regions.begin());
@@ -2180,6 +2182,8 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* 
     copyRegion.dstOffset = { dstPoint.fX, dstPoint.fY, 0 };
     copyRegion.extent = { (uint32_t)srcRect.width(), (uint32_t)srcRect.height(), 1 };
 
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
     this->currentCommandBuffer()->copyImage(this,
                                             srcImage,
                                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -2244,6 +2248,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, GrVkImage* dstIm
     blitRegion.dstOffsets[0] = { dstRect.fLeft, dstRect.fTop, 0 };
     blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 1 };
 
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(src));
+    this->currentCommandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(dst));
     this->currentCommandBuffer()->blitImage(this,
                                             *srcImage,
                                             *dstImage,

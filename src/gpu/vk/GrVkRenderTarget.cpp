@@ -452,6 +452,7 @@ GrVkRenderTarget::~GrVkRenderTarget() {
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
                                     bool withStencil,
                                     SelfDependencyFlags selfDepFlags) {
+    commandBuffer.addGrSurface(sk_ref_sp<const GrSurface>(this));
     commandBuffer.addResource(this->getFramebuffer(withStencil, selfDepFlags));
     commandBuffer.addResource(this->colorAttachmentView());
     commandBuffer.addResource(fMSAAAttachment ? fMSAAAttachment->resource() : this->resource());
