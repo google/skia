@@ -9,6 +9,7 @@
 #define GrVkCommandBuffer_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/GrCommandBufferRef.h"
 #include "src/gpu/GrManagedResource.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
@@ -126,6 +127,10 @@ public:
         fTrackedGpuBuffers.push_back(std::move(buffer));
     }
 
+    void addGrSurface(sk_sp<const GrSurface> surface) {
+        fTrackedGpuSurfaces.push_back(std::move(surface));
+    }
+
     void releaseResources();
 
     void freeGPUData(const GrGpu* gpu, VkCommandPool pool) const;
@@ -147,9 +152,10 @@ protected:
 
     void submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfDependency = false);
 
-    SkTDArray<const GrManagedResource*>  fTrackedResources;
-    SkTDArray<const GrRecycledResource*> fTrackedRecycledResources;
-    SkSTArray<16, sk_sp<const GrBuffer>> fTrackedGpuBuffers;
+    SkTDArray<const GrManagedResource*>   fTrackedResources;
+    SkTDArray<const GrRecycledResource*>  fTrackedRecycledResources;
+    SkSTArray<16, sk_sp<const GrBuffer>>  fTrackedGpuBuffers;
+    SkSTArray<16, gr_cb<const GrSurface>> fTrackedGpuSurfaces;
 
     // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
     // new commands to the buffer;
