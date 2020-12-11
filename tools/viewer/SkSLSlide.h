@@ -35,6 +35,15 @@ private:
     SkTArray<sk_sp<SkShader>> fChildren;
     float fSeconds = 0.0f;
 
+    enum Geometry {
+        kFill,
+        kCircle,
+        kRoundRect,
+        kCapsule,
+        kText,
+    };
+    int fGeometry = kFill;
+
     // Named shaders that can be selected as inputs
     SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
 };

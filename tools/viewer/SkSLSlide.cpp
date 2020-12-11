@@ -8,6 +8,7 @@
 #include "tools/viewer/SkSLSlide.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "src/core/SkEnumerate.h"
@@ -180,6 +181,12 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     static SkColor4f gPaintColor { 1.0f, 1.0f, 1.0f , 1.0f };
     ImGui::ColorEdit4("Paint Color", gPaintColor.vec());
 
+    ImGui::RadioButton("Fill",      &fGeometry, kFill);      ImGui::SameLine();
+    ImGui::RadioButton("Circle",    &fGeometry, kCircle);    ImGui::SameLine();
+    ImGui::RadioButton("RoundRect", &fGeometry, kRoundRect); ImGui::SameLine();
+    ImGui::RadioButton("Capsule",   &fGeometry, kCapsule);   ImGui::SameLine();
+    ImGui::RadioButton("Text",      &fGeometry, kText);
+
     ImGui::End();
 
     auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->uniformSize());
@@ -189,7 +196,28 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     SkPaint p;
     p.setColor4f(gPaintColor);
     p.setShader(std::move(shader));
-    canvas->drawPaint(p);
+
+    switch (fGeometry) {
+        case kFill:
+            canvas->drawPaint(p);
+            break;
+        case kCircle:
+            canvas->drawCircle({ 256, 256 }, 256, p);
+            break;
+        case kRoundRect:
+            canvas->drawRoundRect({ 0, 0, 512, 512 }, 64, 64, p);
+            break;
+        case kCapsule:
+            canvas->drawRoundRect({ 0, 224, 512, 288 }, 32, 32, p);
+            break;
+        case kText: {
+            SkFont font;
+            font.setSize(SkIntToScalar(96));
+            canvas->drawSimpleText("Hello World", strlen("Hello World"), SkTextEncoding::kUTF8, 0,
+                                   256, font, p);
+        } break;
+        default: break;
+    }
 }
 
 bool SkSLSlide::animate(double nanos) {
