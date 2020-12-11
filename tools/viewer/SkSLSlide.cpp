@@ -80,9 +80,11 @@ void SkSLSlide::unload() {
 }
 
 bool SkSLSlide::rebuild() {
-    auto [effect, errorText] = SkRuntimeEffect::Make(fSkSL);
+    SkString sksl("uniform float iTime;\n");
+    sksl.append(fSkSL);
+    auto [effect, errorText] = SkRuntimeEffect::Make(sksl);
     if (!effect) {
-        Viewer::ShaderErrorHandler()->compileError(fSkSL.c_str(), errorText.c_str());
+        Viewer::ShaderErrorHandler()->compileError(sksl.c_str(), errorText.c_str());
         return false;
     }
 
@@ -121,6 +123,10 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     }
 
     for (const auto& v : fEffect->uniforms()) {
+        if (v.fName.equals("iTime")) {
+            *(float*)(fInputs.get() + v.fOffset) = fSeconds;
+            continue;
+        }
         switch (v.fType) {
             case SkRuntimeEffect::Uniform::Type::kFloat:
             case SkRuntimeEffect::Uniform::Type::kFloat2:
@@ -184,4 +190,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     p.setColor4f(gPaintColor);
     p.setShader(std::move(shader));
     canvas->drawRect({ 0, 0, 256, 256 }, p);
+}
+
+bool SkSLSlide::animate(double nanos) {
+    fSeconds = static_cast<float>(nanos * 1E-9);
+    return true;
 }
