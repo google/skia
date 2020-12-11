@@ -113,12 +113,14 @@ half4 main(float2 xy) {
                 const spiralEffect = CanvasKit.RuntimeEffect.Make(spiralSkSL);
                 expect(spiralEffect).toBeTruthy('spiral did not compile');
 
-                const brickShader = brickImg.makeShader(
+                const brickShader = brickImg.makeShaderCubic(
                     CanvasKit.TileMode.Decal, CanvasKit.TileMode.Decal,
+                    1/3 /*B*/, 1/3 /*C*/,
                     CanvasKit.Matrix.scaled(CANVAS_WIDTH/brickImg.width(),
                                               CANVAS_HEIGHT/brickImg.height()));
-                const mandrillShader = mandrillImg.makeShader(
+                const mandrillShader = mandrillImg.makeShaderCubic(
                     CanvasKit.TileMode.Decal, CanvasKit.TileMode.Decal,
+                    1/3 /*B*/, 1/3 /*C*/,
                     CanvasKit.Matrix.scaled(CANVAS_WIDTH/mandrillImg.width(),
                                               CANVAS_HEIGHT/mandrillImg.height()));
                 const spiralShader = spiralEffect.makeShader([

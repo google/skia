@@ -42,26 +42,27 @@ function CanvasPattern(image, repetition) {
     if (allAreFinite(t)) {
       this._transform = t;
     }
-  }
+  };
 
   this._copy = function() {
-    var cp = new CanvasPattern()
+    var cp = new CanvasPattern();
     cp._tileX = this._tileX;
     cp._tileY = this._tileY;
     return cp;
-  }
+  };
 
   this._dispose = function() {
     if (this._shader) {
       this._shader.delete();
       this._shader = null;
     }
-  }
+  };
 
   this._getShader = function(currentTransform) {
     // Ignore currentTransform since it will be applied later
     this._dispose();
-    this._shader = this._image.makeShader(this._tileX, this._tileY, this._transform);
+    // A shader with cubic sampling options is high quality.
+    this._shader = this._image.makeShaderCubic(this._tileX, this._tileY, 1/3, 1/3, this._transform);
     return this._shader;
   }
 
