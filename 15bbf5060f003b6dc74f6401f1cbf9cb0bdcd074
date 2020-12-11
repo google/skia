@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c967602_4d60f145",
+        "filename": "src/sksl/SkSLContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T20:03:43Z",
+      "side": 1,
+      "message": "The results of the autoformatter aren\u0027t quite as good as hand-made artisinal formatting, but I couldn\u0027t bring myself to reformat hundreds of individual lines by hand.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "15bbf5060f003b6dc74f6401f1cbf9cb0bdcd074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "582c1da5_7c30ec1a",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T20:03:43Z",
+      "side": 1,
+      "message": "Worth pointing out: I don\u0027t see anywhere that sets these two fields to true.",
+      "range": {
+        "startLine": 510,
+        "startChar": 0,
+        "endLine": 511,
+        "endChar": 42
+      },
+      "revId": "15bbf5060f003b6dc74f6401f1cbf9cb0bdcd074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
