@@ -1241,27 +1241,37 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         FT_LayerIterator layerIterator = { 0, 0, nullptr };
         FT_UInt layerGlyphIndex;
         FT_UInt layerColorIndex;
-        while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(),
-                                        &layerGlyphIndex, &layerColorIndex, &layerIterator))
-        {
-            haveLayers = true;
-            err = FT_Load_Glyph(fFace, layerGlyphIndex,
-                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
-            if (err != 0) {
-                glyph->zeroMetrics();
-                return;
-            }
-            emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-            if (0 < fFace->glyph->outline.n_contours) {
-                FT_BBox bbox;
-                getBBoxForCurrentGlyph(glyph, &bbox, true);
+        FT_OpaquePaint opaqueLayerPaint;
+        opaqueLayerPaint.p = nullptr;
+        haveLayers = FT_Get_Color_Glyph_Paint(fFace, glyph->getGlyphID(), &opaqueLayerPaint);
+        if (haveLayers) {
+            // For COLRv1 take the glyph bounding box from the degnerate contour in the glyf table,
+            // see spec.
+            getBBoxForCurrentGlyph(glyph, &bounds, true);
+        } else {
+            // For COLRv0 compute the glyph bounding box from the union of layer bounding boxes.
+            while (FT_Get_Color_Glyph_Layer(fFace, glyph->getGlyphID(), &layerGlyphIndex,
+                                            &layerColorIndex, &layerIterator)) {
+                haveLayers = true;
+                err = FT_Load_Glyph(fFace, layerGlyphIndex,
+                                    fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+                if (err != 0) {
+                    glyph->zeroMetrics();
+                    return;
+                }
+                emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
-                // Union
-                bounds.xMin = std::min(bbox.xMin, bounds.xMin);
-                bounds.yMin = std::min(bbox.yMin, bounds.yMin);
-                bounds.xMax = std::max(bbox.xMax, bounds.xMax);
-                bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                if (0 < fFace->glyph->outline.n_contours) {
+                    FT_BBox bbox;
+                    getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                    // Union
+                    bounds.xMin = std::min(bbox.xMin, bounds.xMin);
+                    bounds.yMin = std::min(bbox.yMin, bounds.yMin);
+                    bounds.xMax = std::max(bbox.xMax, bounds.xMax);
+                    bounds.yMax = std::max(bbox.yMax, bounds.yMax);
+                }
             }
         }
 
@@ -1392,7 +1402,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                                            SkFixedToScalar(glyph.getSubYFixed()));
         bitmapMatrix = &subpixelBitmapMatrix;
     }
-    generateGlyphImage(fFace, glyph, *bitmapMatrix);
+    generateGlyphImage(fFace, glyph, *bitmapMatrix, fScale);
 }
 
 
