@@ -362,7 +362,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(GrSurfaceDrawContext* renderTargetContext,
+static void apply_morphology_rect(GrSurfaceDrawContext* surfaceDrawContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -376,12 +376,12 @@ static void apply_morphology_rect(GrSurfaceDrawContext* renderTargetContext,
                                                              srcAlphaType, direction, radius,
                                                              morphType, range));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
-                                        SkMatrix::I(), SkRect::Make(dstRect),
-                                        SkRect::Make(srcRect));
+    surfaceDrawContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
+                                       SkMatrix::I(), SkRect::Make(dstRect),
+                                       SkRect::Make(srcRect));
 }
 
-static void apply_morphology_rect_no_bounds(GrSurfaceDrawContext* renderTargetContext,
+static void apply_morphology_rect_no_bounds(GrSurfaceDrawContext* surfaceDrawContext,
                                             GrSurfaceProxyView view,
                                             SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
@@ -393,12 +393,12 @@ static void apply_morphology_rect_no_bounds(GrSurfaceDrawContext* renderTargetCo
     paint.setColorFragmentProcessor(GrMorphologyEffect::Make(
             /*inputFP=*/nullptr, std::move(view), srcAlphaType, direction, radius, morphType));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
-                                        SkMatrix::I(), SkRect::Make(dstRect),
-                                        SkRect::Make(srcRect));
+    surfaceDrawContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
+                                       SkMatrix::I(), SkRect::Make(dstRect),
+                                       SkRect::Make(srcRect));
 }
 
-static void apply_morphology_pass(GrSurfaceDrawContext* renderTargetContext,
+static void apply_morphology_pass(GrSurfaceDrawContext* surfaceDrawContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -431,15 +431,15 @@ static void apply_morphology_pass(GrSurfaceDrawContext* renderTargetContext,
     }
     if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(renderTargetContext, std::move(view), srcAlphaType, srcRect,
+        apply_morphology_rect(surfaceDrawContext, std::move(view), srcAlphaType, srcRect,
                               dstRect, radius, morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(renderTargetContext, view, srcAlphaType, lowerSrcRect,
+        apply_morphology_rect(surfaceDrawContext, view, srcAlphaType, lowerSrcRect,
                               lowerDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect(renderTargetContext, view, srcAlphaType, upperSrcRect,
+        apply_morphology_rect(surfaceDrawContext, view, srcAlphaType, upperSrcRect,
                               upperDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect_no_bounds(renderTargetContext, std::move(view), srcAlphaType,
+        apply_morphology_rect_no_bounds(surfaceDrawContext, std::move(view), srcAlphaType,
                                         middleSrcRect, middleDstRect, radius, morphType, direction);
     }
 }

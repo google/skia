@@ -306,10 +306,10 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
 
     // TODO: investigate preallocating mip maps here
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             ctx, ct, nullptr, SkBackingFit::kExact, this->dimensions(), 1, GrMipmapped::kNo,
             GrProtected::kNo, kTopLeft_GrSurfaceOrigin, budgeted);
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return {};
     }
 
@@ -348,10 +348,10 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     SkMatrix m = SkEncodedOriginToMatrix(yuvaPixmaps.yuvaInfo().origin(),
                                          this->width(),
                                          this->height());
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
 
-    SkASSERT(renderTargetContext->asTextureProxy());
-    return renderTargetContext->readSurfaceView();
+    SkASSERT(surfaceDrawContext->asTextureProxy());
+    return surfaceDrawContext->readSurfaceView();
 }
 
 sk_sp<SkCachedData> SkImage_Lazy::getPlanes(

@@ -125,7 +125,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
     if (srcView.asTextureProxy()) {
-        // The renderTargetContext coming out of SkGpuDevice should always be exact and the
+        // The surfaceDrawContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcView.proxy()->priv().isExact());
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,

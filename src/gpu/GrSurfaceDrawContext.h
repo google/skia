@@ -774,7 +774,7 @@ private:
 
     GrSurfaceProxyView fWriteView;
 
-    // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
+    // In MDB-mode the GrOpsTask can be closed by some other surfaceDrawContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
     sk_sp<GrOpsTask> fOpsTask;
 

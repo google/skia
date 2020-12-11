@@ -59,10 +59,10 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 }
 
 /**
- * Draws 'rtcRect' into 'renderTargetContext' evaluating a 1D Gaussian over 'srcView'. The src rect
+ * Draws 'rtcRect' into 'surfaceDrawContext' evaluating a 1D Gaussian over 'srcView'. The src rect
  * is 'rtcRect' offset by 'rtcToSrcOffset'. 'mode' and 'bounds' are applied to the src coords.
  */
-static void convolve_gaussian_1d(GrSurfaceDrawContext* renderTargetContext,
+static void convolve_gaussian_1d(GrSurfaceDrawContext* surfaceDrawContext,
                                  GrSurfaceProxyView srcView,
                                  const SkIRect srcSubset,
                                  SkIVector rtcToSrcOffset,
@@ -83,11 +83,11 @@ static void convolve_gaussian_1d(GrSurfaceDrawContext* renderTargetContext,
     // two convolution effects?
     std::unique_ptr<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(srcView), srcAlphaType, direction, radius, sigma, wm, srcSubset, &srcRect,
-            *renderTargetContext->caps()));
+            *surfaceDrawContext->caps()));
     paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                        SkRect::Make(rtcRect), SkRect::Make(srcRect));
+    surfaceDrawContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                       SkRect::Make(rtcRect), SkRect::Make(srcRect));
 }
 
 static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingContext* context,
@@ -105,10 +105,10 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingCon
     SkASSERT(radiusX && radiusY);
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaX) &&
              !SkGpuBlurUtils::IsEffectivelyZeroSigma(sigmaY));
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), 1,
             GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
@@ -125,7 +125,7 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingCon
     fill_in_2D_gaussian_kernel(kernel, size.width(), size.height(), sigmaX, sigmaY);
     auto conv = GrMatrixConvolutionEffect::Make(context, std::move(srcView), srcBounds,
                                                 size, kernel, 1.0f, 0.0f, kernelOffset, wm, true,
-                                                *renderTargetContext->caps());
+                                                *surfaceDrawContext->caps());
 
     paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -133,10 +133,10 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingCon
     // 'dstBounds' is actually in 'srcView' proxy space. It represents the blurred area from src
     // space that we want to capture in the new RTC at {0, 0}. Hence, we use its size as the rect to
     // draw and it directly as the local rect.
-    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                        SkRect::Make(dstBounds.size()), SkRect::Make(dstBounds));
+    surfaceDrawContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                       SkRect::Make(dstBounds.size()), SkRect::Make(dstBounds));
 
-    return renderTargetContext;
+    return surfaceDrawContext;
 }
 
 static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContext* context,
