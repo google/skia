@@ -7,6 +7,7 @@
 
 #include "tools/SkSharingProc.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSerialProcs.h"
@@ -28,6 +29,14 @@ sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
 
 sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
   const void* data, size_t length, void* ctx) {
+    if (!data || !length || !ctx) {
+        SkDebugf("SkSharingDeserialContext::deserializeImage arguments invalid %p %d %p.\n",
+            data, length, ctx);
+        // Return something so the rest of the debugger can proceeed.
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
+        return SkImage::MakeFromBitmap(bm);
+    }
     SkSharingDeserialContext* context = reinterpret_cast<SkSharingDeserialContext*>(ctx);
     uint32_t fid;
     // If the data is an image fid, look up an already deserialized image from our map
