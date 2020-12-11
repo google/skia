@@ -143,3 +143,10 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
 
     return drawable;
 }
+
+void SkPictureRecorder::freezeAllImages() {
+    ImageCopyMutator mutator;
+    for (int i = 0; i < fRecord->count(); i++) {
+        fRecord.mutate(i, &mutator);
+    }
+}

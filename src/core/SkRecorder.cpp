@@ -206,6 +206,7 @@ void SkRecorder::onDrawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkRecorder::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                              const SkPaint* paint) {
+    // what if I did image->makeNonTextureImage() instead
     this->append<SkRecords::DrawImage>(this->copy(paint), sk_ref_sp(image), left, top);
 }
 
