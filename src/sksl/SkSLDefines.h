@@ -28,8 +28,11 @@
 #define NORETURN __attribute__((__noreturn__))
 #endif
 
-#if defined(SK_BUILD_FOR_IOS) && \
-        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#if defined(SK_BUILD_FOR_IOS) &&                                                        \
+        (!defined(__IPHONE_9_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0) ||  \
+    /* thread_local actually works for modern Android, but Android doesn't provide a */ \
+    /* convenient version macro                                                      */ \
+    defined(__ANDROID__)
 #define SKSL_USE_THREAD_LOCAL 0
 #else
 #define SKSL_USE_THREAD_LOCAL 1
