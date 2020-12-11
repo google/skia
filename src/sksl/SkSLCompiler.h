@@ -46,11 +46,6 @@ class SkSLCompileBench;
 
 namespace SkSL {
 
-namespace dsl {
-    class DSL;
-    class DSLWriter;
-} // namespace dsl
-
 class ByteCode;
 class ExternalValue;
 class IRGenerator;
@@ -184,7 +179,7 @@ public:
 
     void error(int offset, String msg) override;
 
-    String errorText(bool showCount = true);
+    String errorText();
 
     void writeErrorCount();
 
@@ -311,8 +306,6 @@ private:
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
-    friend class dsl::DSL;
-    friend class dsl::DSLWriter;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
