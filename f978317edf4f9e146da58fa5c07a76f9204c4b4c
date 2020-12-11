@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30296dcf_6004346a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-11T15:58:40Z",
+      "side": 1,
+      "message": "Diffs on gold are the untriaged ones from feFlood CL",
+      "revId": "f978317edf4f9e146da58fa5c07a76f9204c4b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
