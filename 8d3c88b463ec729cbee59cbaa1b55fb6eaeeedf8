@@ -16,6 +16,24 @@
       "message": "I ended up deciding it was better to just turn them into functions.",
       "revId": "8d3c88b463ec729cbee59cbaa1b55fb6eaeeedf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5346b43_3839a355",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T15:15:58Z",
+      "side": 1,
+      "message": "Yeah, I think that\u0027s the right tradeoff--no headaches, users will learn to write ().",
+      "parentUuid": "bb2dd666_ef33281a",
+      "revId": "8d3c88b463ec729cbee59cbaa1b55fb6eaeeedf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

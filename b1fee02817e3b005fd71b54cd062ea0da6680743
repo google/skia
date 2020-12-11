@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fb29cd8_ed48827c",
+        "filename": "src/sksl/dsl/DSL_core.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T15:15:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47f13d66_65d32150",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 32
+      },
+      "revId": "b1fee02817e3b005fd71b54cd062ea0da6680743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "508bcf3c_77a6e625",
