@@ -27,5 +27,5 @@ SkColor SkSVGFeFlood::resolveFloodColor(const SkSVGRenderContext& ctx) const {
 sk_sp<SkImageFilter> SkSVGFeFlood::onMakeImageFilter(const SkSVGRenderContext& ctx,
                                                      const SkSVGFilterContext& fctx) const {
     return SkImageFilters::Shader(SkShaders::Color(resolveFloodColor(ctx)),
-                                  fctx.filterEffectsRegion());
+                                  this->resolveFilterSubregion(ctx, fctx));
 }
