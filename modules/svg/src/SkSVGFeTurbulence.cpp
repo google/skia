@@ -74,5 +74,5 @@ sk_sp<SkImageFilter> SkSVGFeTurbulence::onMakeImageFilter(const SkSVGRenderConte
             break;
     }
 
-    return SkImageFilters::Shader(shader, fctx.filterEffectsRegion());
+    return SkImageFilters::Shader(shader, this->resolveFilterSubregion(ctx, fctx));
 }

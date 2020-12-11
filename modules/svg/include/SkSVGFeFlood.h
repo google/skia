@@ -19,6 +19,8 @@ protected:
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const override;
 
+    std::vector<SkSVGFeInputType> getInputs() const override { return {}; }
+
 private:
     SkSVGFeFlood() : INHERITED(SkSVGTag::kFeFlood) {}
 

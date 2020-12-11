@@ -29,6 +29,10 @@ protected:
     sk_sp<SkImageFilter> onMakeImageFilter(const SkSVGRenderContext&,
                                            const SkSVGFilterContext&) const override;
 
+    std::vector<SkSVGFeInputType> getInputs() const override {
+        return {this->getIn(), this->getIn2()};
+    }
+
     bool parseAndSetAttribute(const char*, const char*) override;
 
 private:

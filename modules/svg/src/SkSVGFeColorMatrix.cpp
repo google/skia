@@ -93,7 +93,7 @@ sk_sp<SkImageFilter> SkSVGFeColorMatrix::onMakeImageFilter(const SkSVGRenderCont
                                                            const SkSVGFilterContext& fctx) const {
     return SkImageFilters::ColorFilter(SkColorFilters::Matrix(makeMatrixForType()),
                                        fctx.resolveInput(ctx, this->getIn()),
-                                       fctx.filterEffectsRegion());
+                                       this->resolveFilterSubregion(ctx, fctx));
 }
 
 template <> bool SkSVGAttributeParser::parse(SkSVGFeColorMatrixValues* values) {
