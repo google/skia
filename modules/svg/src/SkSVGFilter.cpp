@@ -12,36 +12,16 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
-void SkSVGFilter::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
-    switch (attr) {
-        case SkSVGAttribute::kX:
-            if (const auto* x = v.as<SkSVGLengthValue>()) {
-                this->setX(*x);
-            }
-            break;
-        case SkSVGAttribute::kY:
-            if (const auto* y = v.as<SkSVGLengthValue>()) {
-                this->setY(*y);
-            }
-            break;
-        case SkSVGAttribute::kWidth:
-            if (const auto* w = v.as<SkSVGLengthValue>()) {
-                this->setWidth(*w);
-            }
-            break;
-        case SkSVGAttribute::kHeight:
-            if (const auto* h = v.as<SkSVGLengthValue>()) {
-                this->setHeight(*h);
-            }
-            break;
-        case SkSVGAttribute::kFilterUnits:
-            if (const auto* filterUnits = v.as<SkSVGObjectBoundingBoxUnitsValue>()) {
-                this->setFilterUnits(*filterUnits);
-            }
-            break;
-        default:
-            this->INHERITED::onSetAttribute(attr, v);
-    }
+bool SkSVGFilter::parseAndSetAttribute(const char* name, const char* value) {
+    return INHERITED::parseAndSetAttribute(name, value) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value)) ||
+           this->setWidth(SkSVGAttributeParser::parse<SkSVGLength>("width", name, value)) ||
+           this->setHeight(SkSVGAttributeParser::parse<SkSVGLength>("height", name, value)) ||
+           this->setFilterUnits(SkSVGAttributeParser::parse<SkSVGObjectBoundingBoxUnits>(
+                   "filterUnits", name, value)) ||
+           this->setPrimitiveUnits(SkSVGAttributeParser::parse<SkSVGObjectBoundingBoxUnits>(
+                   "primitiveUnits", name, value));
 }
 
 SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
