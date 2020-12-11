@@ -16,6 +16,7 @@
 #include "tools/viewer/Viewer.h"
 
 #include <algorithm>
+#include <cstdio>
 #include "imgui.h"
 
 using namespace sk_app;
@@ -88,7 +89,21 @@ bool SkSLSlide::rebuild() {
                   "uniform float  iTime;\n"
                   "uniform float4 iMouse;\n");
     sksl.append(fSkSL);
+
+    // It shouldn't happen, but it's possible to assert in the compiler, especially mid-edit.
+    // To guard against losing your work, write out the shader to a backup file, then remove it
+    // when we compile successfully.
+    constexpr char kBackupFile[] = "sksl.bak";
+    FILE* backup = fopen(kBackupFile, "w");
+    if (backup) {
+        fwrite(fSkSL.c_str(), 1, fSkSL.size(), backup);
+        fclose(backup);
+    }
     auto [effect, errorText] = SkRuntimeEffect::Make(sksl);
+    if (backup) {
+        std::remove(kBackupFile);
+    }
+
     if (!effect) {
         Viewer::ShaderErrorHandler()->compileError(sksl.c_str(), errorText.c_str());
         return false;
