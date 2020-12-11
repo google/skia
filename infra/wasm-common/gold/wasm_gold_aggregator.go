@@ -44,7 +44,7 @@ var (
 	config           = flag.String("config", "Release", "Configuration (e.g. Debug/Release) key")
 	gitHash          = flag.String("git_hash", "-", "The git commit hash of the version being tested")
 	hostOS           = flag.String("host_os", "Debian9", "OS Key")
-	issue            = flag.String("issue", "", "ChangeListID (if tryjob)")
+	issue            = flag.String("issue", "", "ChangelistID (if tryjob)")
 	patchset         = flag.Int("patchset", 0, "patchset (if tryjob)")
 	taskId           = flag.String("task_id", "", "swarming task id")
 	sourceType       = flag.String("source_type", "pathkit", "Gold Source type, like pathkit,canvaskit")
@@ -177,12 +177,12 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 
 	dmresults := jsonio.GoldResults{
 		Builder:                     *builder,
-		ChangeListID:                *issue,
+		ChangelistID:                *issue,
 		CodeReviewSystem:            "gerrit",
 		ContinuousIntegrationSystem: "buildbucket",
 		GitHash:                     *gitHash,
 		Key:                         defaultKeys,
-		PatchSetOrder:               *patchset,
+		PatchsetOrder:               *patchset,
 		Results:                     results,
 		TaskID:                      *taskId,
 		TryJobID:                    *buildBucketID,

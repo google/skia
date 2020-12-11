@@ -14,6 +14,10 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 
+pushd $PATHKIT_DIR
+npm ci
+popd
+
 # Start the aggregator in the background
 /opt/perf-aggregator $@ &
 # Run the tests 10 times to get a wide set of data

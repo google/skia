@@ -14,6 +14,10 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
+pushd $CANVASKIT_DIR
+npm ci
+popd
+
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
 # Run the tests
