@@ -13,7 +13,6 @@
 
 class SkSVGLinearGradient final : public SkSVGGradient {
 public:
-    ~SkSVGLinearGradient() override = default;
     static sk_sp<SkSVGLinearGradient> Make() {
         return sk_sp<SkSVGLinearGradient>(new SkSVGLinearGradient());
     }

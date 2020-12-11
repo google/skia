@@ -14,8 +14,6 @@
 // Handles <polygon> and <polyline> elements.
 class SkSVGPoly final : public SkSVGShape {
 public:
-    ~SkSVGPoly() override = default;
-
     static sk_sp<SkSVGPoly> MakePolygon() {
         return sk_sp<SkSVGPoly>(new SkSVGPoly(SkSVGTag::kPolygon));
     }

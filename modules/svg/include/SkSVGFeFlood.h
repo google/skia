@@ -13,7 +13,6 @@
 
 class SkSVGFeFlood : public SkSVGFe {
 public:
-    ~SkSVGFeFlood() override = default;
     static sk_sp<SkSVGFeFlood> Make() { return sk_sp<SkSVGFeFlood>(new SkSVGFeFlood()); }
 
 protected:
@@ -28,4 +27,4 @@ private:
     using INHERITED = SkSVGFe;
 };
 
-#endif  // SkSVGStop_DEFINED
+#endif  // SkSVGFeFlood_DEFINED

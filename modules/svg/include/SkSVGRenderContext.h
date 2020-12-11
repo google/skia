@@ -122,6 +122,8 @@ public:
     const SkPaint* fillPaint() const;
     const SkPaint* strokePaint() const;
 
+    SkSVGColorType resolveSvgColor(const SkSVGColor&) const;
+
     // The local computed clip path (not inherited).
     const SkPath* clipPath() const { return fClipPath.getMaybeNull(); }
 

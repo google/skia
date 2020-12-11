@@ -13,8 +13,6 @@
 
 class SkSVGContainer : public SkSVGTransformableNode {
 public:
-    ~SkSVGContainer() override = default;
-
     void appendChild(sk_sp<SkSVGNode>) override;
 
 protected:

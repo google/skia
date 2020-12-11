@@ -16,8 +16,6 @@ class SkSVGLengthContext;
 
 class SkSVGSVG : public SkSVGContainer {
 public:
-    ~SkSVGSVG() override = default;
-
     static sk_sp<SkSVGSVG> Make() { return sk_sp<SkSVGSVG>(new SkSVGSVG()); }
 
     SVG_ATTR(X                  , SkSVGLength, SkSVGLength(0))

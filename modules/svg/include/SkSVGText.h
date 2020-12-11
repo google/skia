@@ -56,8 +56,6 @@ private:
 
 class SkSVGTextLiteral final : public SkSVGNode {
 public:
-    ~SkSVGTextLiteral() override;
-
     static sk_sp<SkSVGTextLiteral> Make() {
         return sk_sp<SkSVGTextLiteral>(new SkSVGTextLiteral());
     }

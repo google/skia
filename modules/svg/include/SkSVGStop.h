@@ -15,7 +15,6 @@ class SkSVGLengthContext;
 
 class SkSVGStop : public SkSVGHiddenContainer {
 public:
-    ~SkSVGStop() override = default;
     static sk_sp<SkSVGStop> Make() {
         return sk_sp<SkSVGStop>(new SkSVGStop());
     }

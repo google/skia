@@ -334,5 +334,3 @@ SkPath SkSVGTextLiteral::onAsPath(const SkSVGRenderContext&) const {
     // TODO
     return SkPath();
 }
-
-SkSVGTextLiteral::~SkSVGTextLiteral() = default; // just to pin the vtable

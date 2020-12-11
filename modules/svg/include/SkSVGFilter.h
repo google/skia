@@ -13,8 +13,6 @@
 
 class SkSVGFilter final : public SkSVGHiddenContainer {
 public:
-    ~SkSVGFilter() override = default;
-
     static sk_sp<SkSVGFilter> Make() { return sk_sp<SkSVGFilter>(new SkSVGFilter()); }
 
     sk_sp<SkImageFilter> buildFilterDAG(const SkSVGRenderContext&) const;
