@@ -318,7 +318,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromVulkanSecond
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
 // GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
-// when the renderTargetContext attempts to use it (via getOpsTask).
+// when the surfaceDrawContext attempts to use it (via getOpsTask).
 GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
                                            GrSurfaceProxyView readView,
                                            GrSurfaceProxyView writeView,

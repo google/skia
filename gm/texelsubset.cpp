@@ -86,7 +86,7 @@ protected:
         SkASSERT(fBitmap.dimensions() == kImageSize);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrMipmapped mipmapped = (fMipmapMode != MipmapMode::kNone) ? GrMipmapped::kYes
                                                                    : GrMipmapped::kNo;
@@ -168,7 +168,7 @@ protected:
                                                                   drawRect,
                                                                   localRect.makeOffset(kT),
                                                                   SkMatrix::Translate(-kT))) {
-                        renderTargetContext->addDrawOp(std::move(op));
+                        surfaceDrawContext->addDrawOp(std::move(op));
                     }
 
                     x += localRect.width() + kTestPad;
@@ -186,7 +186,7 @@ protected:
                                                      caps);
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,
                                                                   localRect)) {
-                        renderTargetContext->addDrawOp(std::move(op));
+                        surfaceDrawContext->addDrawOp(std::move(op));
                     }
 
                     if (mx < GrSamplerState::kWrapModeCount - 1) {

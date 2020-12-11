@@ -88,10 +88,10 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         return nullptr;
     }
 
-    auto renderTargetContext = GrSurfaceDrawContext::MakeWithFallback(
+    auto surfaceDrawContext = GrSurfaceDrawContext::MakeWithFallback(
             direct, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
             this->dimensions());
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
@@ -105,16 +105,16 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     paint.setColorFragmentProcessor(std::move(colorFP));
 
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                  SkRect::MakeIWH(this->width(), this->height()));
-    if (!renderTargetContext->asTextureProxy()) {
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                 SkRect::MakeIWH(this->width(), this->height()));
+    if (!surfaceDrawContext->asTextureProxy()) {
         return nullptr;
     }
 
-    targetCT = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
-    // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    targetCT = GrColorTypeToSkColorType(surfaceDrawContext->colorInfo().colorType());
+    // MDB: this call is okay bc we know 'surfaceDrawContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID,
-                                   renderTargetContext->readSurfaceView(), targetCT,
+                                   surfaceDrawContext->readSurfaceView(), targetCT,
                                    this->alphaType(), std::move(targetCS));
 }
 

@@ -31,7 +31,7 @@ static SkPath create_concave_path() {
 }
 
 static void draw_path(GrRecordingContext* rContext,
-                      GrSurfaceDrawContext* renderTargetContext,
+                      GrSurfaceDrawContext* surfaceDrawContext,
                       const SkPath& path,
                       GrPathRenderer* pr,
                       GrAAType aaType,
@@ -40,8 +40,8 @@ static void draw_path(GrRecordingContext* rContext,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-    SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
-                                                     renderTargetContext->height());
+    SkIRect clipConservativeBounds = SkIRect::MakeWH(surfaceDrawContext->width(),
+                                                     surfaceDrawContext->height());
     GrStyledShape shape(path, style);
     if (shape.style().applies()) {
         shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.0f);
@@ -51,7 +51,7 @@ static void draw_path(GrRecordingContext* rContext,
     GrPathRenderer::DrawPathArgs args{rContext,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
-                                      renderTargetContext,
+                                      surfaceDrawContext,
                                       nullptr,
                                       &clipConservativeBounds,
                                       &matrix,

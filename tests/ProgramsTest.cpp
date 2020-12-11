@@ -281,9 +281,9 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        auto renderTargetContext = random_render_target_context(direct, &random, caps);
-        if (!renderTargetContext) {
-            SkDebugf("Could not allocate renderTargetContext");
+        auto surfaceDrawContext = random_render_target_context(direct, &random, caps);
+        if (!surfaceDrawContext) {
+            SkDebugf("Could not allocate surfaceDrawContext");
             return false;
         }
 
@@ -291,18 +291,18 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
         GrProcessorTestData ptd(&random, direct, /*maxTreeDepth=*/1, SK_ARRAY_COUNT(views), views);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
-        GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
+        GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     direct->flush(GrFlushInfo());
     direct->submit(false);
 
     // Validate that GrFPs work correctly without an input.
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight});
-    if (!renderTargetContext) {
-        SkDebugf("Could not allocate a renderTargetContext");
+    if (!surfaceDrawContext) {
+        SkDebugf("Could not allocate a surfaceDrawContext");
         return false;
     }
 
@@ -318,7 +318,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &ptd);
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.setColorFragmentProcessor(std::move(blockFP));
-            GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
+            GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
 
             direct->flush(GrFlushInfo());
             direct->submit(false);

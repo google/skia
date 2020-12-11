@@ -287,23 +287,23 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox, bounds.size());
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
-                                  SkRect::Make(bounds));
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
+                                 SkRect::Make(bounds));
 
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               renderTargetContext->readSurfaceView(),
-                                               renderTargetContext->colorInfo().colorType(),
-                                               renderTargetContext->colorInfo().refColorSpace());
+                                               surfaceDrawContext->readSurfaceView(),
+                                               surfaceDrawContext->colorInfo().colorType(),
+                                               surfaceDrawContext->colorInfo().refColorSpace());
 }
 
 #endif

@@ -62,7 +62,7 @@ public:
     // The following two ctors are used exclusively by the GPU, and will always use the global
     // strike cache.
     SkGlyphRunListPainter(const SkSurfaceProps&, const GrColorInfo&);
-    explicit SkGlyphRunListPainter(const GrSurfaceDrawContext& renderTargetContext);
+    explicit SkGlyphRunListPainter(const GrSurfaceDrawContext& surfaceDrawContext);
 #endif  // SK_SUPPORT_GPU
 
     class BitmapDevicePainter {

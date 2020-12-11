@@ -129,7 +129,7 @@ public:
 
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
-     * renderTargetContext at the specified position.
+     * surfaceDrawContext at the specified position.
      * @param dContext      The direct context to use
      * @param srcInfo       image info for the source pixels
      * @param src           source for the write

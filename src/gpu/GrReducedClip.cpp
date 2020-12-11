@@ -865,8 +865,8 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
 // Create a 1-bit clip mask in the stencil buffer.
 
 bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
-                                        GrSurfaceDrawContext* renderTargetContext) const {
-    GrStencilMaskHelper helper(context, renderTargetContext);
+                                        GrSurfaceDrawContext* surfaceDrawContext) const {
+    GrStencilMaskHelper helper(context, surfaceDrawContext);
     if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticElements())) {
         // The stencil mask doesn't need updating
         return true;

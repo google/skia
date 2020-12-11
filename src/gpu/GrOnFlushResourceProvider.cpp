@@ -32,17 +32,17 @@ std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeRenderTarge
         return nullptr;
     }
 
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, colorType, std::move(colorSpace), std::move(proxy),
             origin, props, true);
 
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
-    renderTargetContext->discard();
+    surfaceDrawContext->discard();
 
-    return renderTargetContext;
+    return surfaceDrawContext;
 }
 
 void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> textureProxy,

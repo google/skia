@@ -22,7 +22,7 @@ namespace SkGpuBlurUtils {
 
 /**
  * Applies a 2D Gaussian blur to a given texture. The blurred result is returned
- * as a renderTargetContext in case the caller wishes to draw into the result.
+ * as a surfaceDrawContext in case the caller wishes to draw into the result.
  * The GrSurfaceOrigin of the result will watch the GrSurfaceOrigin of srcView. The output
  * color type, color space, and alpha type will be the same as the src.
  *
@@ -39,7 +39,7 @@ namespace SkGpuBlurUtils {
  * @param sigmaY          The blur's standard deviation in Y.
  * @param tileMode        The mode to handle samples outside bounds.
  * @param fit             backing fit for the returned render target context
- * @return                The renderTargetContext containing the blurred result.
+ * @return                The surfaceDrawContext containing the blurred result.
  */
 std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                                    GrSurfaceProxyView srcView,

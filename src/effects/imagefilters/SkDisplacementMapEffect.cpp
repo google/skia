@@ -347,15 +347,15 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
-        auto renderTargetContext = GrSurfaceDrawContext::Make(
+        auto surfaceDrawContext = GrSurfaceDrawContext::Make(
                 context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
                 bounds.size(), 1, GrMipmapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
-        if (!renderTargetContext) {
+        if (!surfaceDrawContext) {
             return nullptr;
         }
 
-        renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
-                                      SkRect::Make(colorBounds));
+        surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
+                                     SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -363,9 +363,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
                 context,
                 SkIRect::MakeWH(bounds.width(), bounds.height()),
                 kNeedNewImageUniqueID_SpecialImage,
-                renderTargetContext->readSurfaceView(),
-                renderTargetContext->colorInfo().colorType(),
-                renderTargetContext->colorInfo().refColorSpace());
+                surfaceDrawContext->readSurfaceView(),
+                surfaceDrawContext->colorInfo().colorType(),
+                surfaceDrawContext->colorInfo().refColorSpace());
     }
 #endif
 

@@ -595,24 +595,24 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
             SkBackingFit::kApprox, bounds.size(), 1, GrMipmapped::kNo, isProtected,
             kBottomLeft_GrSurfaceOrigin);
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
     SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
-    renderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                        dstRect, srcRect);
+    surfaceDrawContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                       dstRect, srcRect);
 
     return SkSpecialImage::MakeDeferredFromGpu(
             context, dstIRect, kNeedNewImageUniqueID_SpecialImage,
-            renderTargetContext->readSurfaceView(), renderTargetContext->colorInfo().colorType(),
-            renderTargetContext->colorInfo().refColorSpace());
+            surfaceDrawContext->readSurfaceView(), surfaceDrawContext->colorInfo().colorType(),
+            surfaceDrawContext->colorInfo().refColorSpace());
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,

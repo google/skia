@@ -84,7 +84,7 @@ protected:
         }
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
         GrSurfaceProxyView views[3];
 
@@ -135,7 +135,7 @@ protected:
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setColorFragmentProcessor(std::move(fp));
-                    renderTargetContext->drawRect(
+                    surfaceDrawContext->drawRect(
                             nullptr, std::move(grPaint), GrAA::kYes, ctm, rect);
                 }
                 x += rect.width() + kTestPad;

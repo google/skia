@@ -603,7 +603,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             break;
     }
 
-    // NOTE: If fMustPreserveStencil is set, then we are executing a renderTargetContext that split
+    // NOTE: If fMustPreserveStencil is set, then we are executing a surfaceDrawContext that split
     // its opsTask.
     //
     // FIXME: We don't currently flag render passes that don't use stencil at all. In that case

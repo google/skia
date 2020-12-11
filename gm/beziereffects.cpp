@@ -226,7 +226,7 @@ protected:
         return SkISize::Make(kCellWidth, kNumConics*kCellHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
 
         const SkScalar w = kCellWidth, h = kCellHeight;
@@ -297,7 +297,7 @@ protected:
 
                 GrOp::Owner op = BezierConicTestOp::Make(context, bounds,
                                                          kOpaqueBlack, klm);
-                renderTargetContext->addDrawOp(std::move(op));
+                surfaceDrawContext->addDrawOp(std::move(op));
             }
         }
     }
@@ -426,7 +426,7 @@ protected:
         return SkISize::Make(kCellWidth, kNumQuads*kCellHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
 
         const SkScalar w = kCellWidth, h = kCellHeight;
@@ -490,7 +490,7 @@ protected:
 
                 GrOp::Owner op = BezierQuadTestOp::Make(context, bounds,
                                                         kOpaqueBlack, DevToUV);
-                renderTargetContext->addDrawOp(std::move(op));
+                surfaceDrawContext->addDrawOp(std::move(op));
             }
         }
     }

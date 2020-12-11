@@ -35,14 +35,14 @@ public:
                                       SkIRect* devClipBounds);
 
 private:
-    static void DrawNonAARect(GrSurfaceDrawContext* renderTargetContext,
+    static void DrawNonAARect(GrSurfaceDrawContext* surfaceDrawContext,
                               GrPaint&& paint,
                               const GrUserStencilSettings& userStencilSettings,
                               const GrClip* clip,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
-    static void DrawAroundInvPath(GrSurfaceDrawContext* renderTargetContext,
+    static void DrawAroundInvPath(GrSurfaceDrawContext* surfaceDrawContext,
                                   GrPaint&& paint,
                                   const GrUserStencilSettings& userStencilSettings,
                                   const GrClip* clip,
@@ -54,7 +54,7 @@ private:
     // space. The 'viewMatrix' will be used to ensure the correct local coords are provided to
     // any fragment processors in the paint.
     static void DrawToTargetWithShapeMask(GrSurfaceProxyView,
-                                          GrSurfaceDrawContext* renderTargetContext,
+                                          GrSurfaceDrawContext* surfaceDrawContext,
                                           GrPaint&& paint,
                                           const GrUserStencilSettings& userStencilSettings,
                                           const GrClip* clip,

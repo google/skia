@@ -79,7 +79,7 @@ protected:
                                                SkTileMode::kClamp);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
@@ -144,7 +144,7 @@ protected:
                                                               renderRect.makeOffset(x, y),
                                                               renderRect,
                                                               SkMatrix::I())) {
-                    renderTargetContext->addDrawOp(std::move(op));
+                    surfaceDrawContext->addDrawOp(std::move(op));
                 }
 
                 // Draw labels for the input to the processor and the processor to the right of
