@@ -46,6 +46,30 @@
       },
       "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5390c3c_168ca409",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T16:15:59Z",
+      "side": 1,
+      "message": "Doh, I guess I never landed a CL to make componentType() safe for scalars. I\u0027ve written that change at least twice now but it\u0027s never gotten past the rough draft stage. It\u0027s about time :)",
+      "parentUuid": "3dad1977_00c08fb2",
+      "range": {
+        "startLine": 1647,
+        "startChar": 0,
+        "endLine": 1651,
+        "endChar": 0
+      },
+      "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
