@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca78d616_05970a8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T18:53:14Z",
+      "side": 1,
+      "message": "Yep! Other comments addressed here: https://skia-review.googlesource.com/c/skia/+/343431/",
+      "parentUuid": "c7ca767c_ef459a49",
+      "revId": "8b9835802f60af12974219edc074c1702e53d9bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31d1a0b2_8ae56a2e",
