@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa14781e_f2c95029",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1243,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-11T19:41:10Z",
+      "side": 1,
+      "message": "return self-\u003emakeShader(tx, ty, {B, C}, OptionalMatrix(mPtr));",
+      "range": {
+        "startLine": 1240,
+        "startChar": 12,
+        "endLine": 1243,
+        "endChar": 62
+      },
+      "revId": "05d21cfc258aef2bd2fefa6ce08e385948f62440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7296dba5_eea63382",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1251,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-11T19:41:10Z",
+      "side": 1,
+      "message": "return self-\u003emakeShader(tx, ty, {filter, mipmap}, OptionalMatrix(mPtr));",
+      "range": {
+        "startLine": 1249,
+        "startChar": 12,
+        "endLine": 1251,
+        "endChar": 62
+      },
+      "revId": "05d21cfc258aef2bd2fefa6ce08e385948f62440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
