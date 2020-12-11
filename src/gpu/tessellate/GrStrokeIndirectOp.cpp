@@ -16,13 +16,6 @@
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-GrStrokeIndirectOp::GrStrokeIndirectOp(GrAAType aaType, const SkMatrix& viewMatrix,
-                                       const SkPath& path, const SkStrokeRec& stroke,
-                                       GrPaint&& paint)
-        : GrStrokeOp(ClassID(), aaType, viewMatrix, stroke, path, std::move(paint))
-        , fResolveLevelForCircles(sk_float_nextlog2(fNumRadialSegmentsPerRadian * SK_ScalarPI)) {
-}
-
 void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
                                       const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
@@ -35,8 +28,8 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
         return;
     }
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
-            fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+            GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke, fViewMatrix,
+            fColor);
     this->prePreparePrograms(context->priv().recordTimeAllocator(), strokeTessellateShader,
                              writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
                              colorLoadOp, *context->priv().caps());
@@ -89,18 +82,19 @@ template<int N> SK_ALWAYS_INLINE vec<N> unchecked_mix(vec<N> a, vec<N> b, vec<N>
 // in batches.
 class ResolveLevelCounter {
 public:
-    ResolveLevelCounter(float parametricIntolerance, float numRadialSegmentsPerRadian,
-                        bool isRoundJoin, int* resolveLevelCounts)
-#ifdef SKNX_NO_SIMD
-            : fParametricIntolerance(parametricIntolerance)
-#else
-            : fWangsTermQuadratic(GrWangsFormula::length_term<2>(parametricIntolerance))
-            , fWangsTermCubic(GrWangsFormula::length_term<3>(parametricIntolerance))
+    ResolveLevelCounter(const SkStrokeRec& stroke, GrStrokeTessellateShader::Tolerances tolerances,
+                        int* resolveLevelCounts)
+            : fIsRoundJoin(stroke.getJoin() == SkPaint::kRound_Join)
+            , fTolerances(tolerances)
+#ifndef SKNX_NO_SIMD
+            , fWangsTermQuadratic(
+                    GrWangsFormula::length_term<2>(fTolerances.fParametricIntolerance))
+            , fWangsTermCubic(GrWangsFormula::length_term<3>(fTolerances.fParametricIntolerance))
 #endif
-            , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
-            , fIsRoundJoin(isRoundJoin)
             , fResolveLevelCounts(resolveLevelCounts) {
     }
+
+    bool isRoundJoin() const { return fIsRoundJoin; }
 
 #ifdef SKNX_NO_SIMD
     bool SK_WARN_UNUSED_RESULT countLine(const SkPoint pts[2], SkPoint lastControlPoint,
@@ -116,7 +110,8 @@ public:
     }
 
     void countQuad(const SkPoint pts[3], SkPoint lastControlPoint, int8_t* resolveLevelPtr) {
-        float numParametricSegments = GrWangsFormula::quadratic(fParametricIntolerance, pts);
+        float numParametricSegments =
+                GrWangsFormula::quadratic(fTolerances.fParametricIntolerance, pts);
         float rotation = SkMeasureQuadRotation(pts);
         if (fIsRoundJoin) {
             SkVector nextTan = ((pts[0] == pts[1]) ? pts[2] : pts[1]) - pts[0];
@@ -126,7 +121,8 @@ public:
     }
 
     void countCubic(const SkPoint pts[4], SkPoint lastControlPoint, int8_t* resolveLevelPtr) {
-        float numParametricSegments = GrWangsFormula::cubic(fParametricIntolerance, pts);
+        float numParametricSegments =
+                GrWangsFormula::cubic(fTolerances.fParametricIntolerance, pts);
         SkVector tan0 = ((pts[0] == pts[1]) ? pts[2] : pts[1]) - pts[0];
         SkVector tan1 = pts[3] - ((pts[3] == pts[2]) ? pts[1] : pts[2]);
         float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
@@ -150,13 +146,12 @@ public:
 private:
     void writeResolveLevel(float numParametricSegments, float rotation,
                            int8_t* resolveLevelPtr) const {
-        float numCombinedSegments = fNumRadialSegmentsPerRadian * rotation + numParametricSegments;
+        float numCombinedSegments =
+                fTolerances.fNumRadialSegmentsPerRadian * rotation + numParametricSegments;
         int8_t resolveLevel = sk_float_nextlog2(numCombinedSegments);
         resolveLevel = std::min(resolveLevel, GrStrokeIndirectOp::kMaxResolveLevel);
         ++fResolveLevelCounts[(*resolveLevelPtr = resolveLevel)];
     }
-
-    const float fParametricIntolerance;
 
 #else // !defined(SKNX_NO_SIMD)
     ~ResolveLevelCounter() {
@@ -388,7 +383,7 @@ private:
             vec<N> numParametricSegments, vec<N> rotation, int count,
             int8_t* const* resolveLevelPtrs, int offset = 0) const {
         auto numCombinedSegments = grvx::fast_madd<N>(
-                fNumRadialSegmentsPerRadian, rotation, numParametricSegments);
+                fTolerances.fNumRadialSegmentsPerRadian, rotation, numParametricSegments);
 
         // Find ceil(log2(numCombinedSegments)) by twiddling the exponents. See sk_float_nextlog2().
         auto bits = skvx::bit_pun<uvec<N>>(numCombinedSegments);
@@ -406,18 +401,21 @@ private:
         }
     }
 
+#endif
+    const bool fIsRoundJoin;
+    GrStrokeTessellateShader::Tolerances fTolerances;
+
+#ifndef SKNX_NO_SIMD
+    const float fWangsTermQuadratic;
+    const float fWangsTermCubic;
+
     SIMDQueue<2> fLineQueue;
     SIMDQueue<3> fQuadQueue;
     SIMDQueue<4> fCubicQueue;
     SIMDQueue<4> fChoppedCubicQueue;
     float fCubicChopTs[4];
 
-    const float fWangsTermQuadratic;
-    const float fWangsTermCubic;
-
 #endif
-    const float fNumRadialSegmentsPerRadian;
-    const bool fIsRoundJoin;
     int* const fResolveLevelCounts;
 };
 
@@ -443,11 +441,12 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
     fChopTs = alloc->makeArrayDefault<float>(chopTAllocCount);
     float* nextChopTs = fChopTs;
 
-    SkPoint lastControlPoint = {0,0};
-    bool isRoundJoin = (fStroke.getJoin() == SkPaint::kRound_Join);
-    ResolveLevelCounter counter(fParametricIntolerance, fNumRadialSegmentsPerRadian,
-                                isRoundJoin, fResolveLevelCounts);
+    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
+    fResolveLevelForCircles =
+            sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI);
+    ResolveLevelCounter counter(fStroke, tolerances, fResolveLevelCounts);
 
+    SkPoint lastControlPoint = {0,0};
     for (const SkPath& path : fPathList) {
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
         GrStrokeIterator iter(path, fStroke);
@@ -459,7 +458,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
                 continue;
             }
             const SkPoint* pts = iter.pts();
-            if (isRoundJoin) {
+            if (counter.isRoundJoin()) {
                 // Round joins need a "lastControlPoint" so we can measure the angle of the previous
                 // join. This doesn't have to be the exact control point we will send the GPU after
                 // any chopping; we just need a direction.
@@ -589,7 +588,7 @@ void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
         }
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
-                fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                fViewMatrix, fColor);
         this->prePreparePrograms(arena, strokeTessellateShader, flushState->writeView(),
                                  flushState->detachAppliedClip(), flushState->dstProxyView(),
                                  flushState->renderPassBarriers(), flushState->colorLoadOp(),

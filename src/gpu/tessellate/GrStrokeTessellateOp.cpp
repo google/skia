@@ -22,7 +22,7 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                fViewMatrix, fColor);
     this->prePreparePrograms(arena, strokeTessellateShader, writeView, std::move(*clip),
                              dstProxyView, renderPassXferBarriers, colorLoadOp,
                              *context->priv().caps());
@@ -39,7 +39,7 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
         SkArenaAlloc* arena = flushState->allocator();
         auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
                 GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fParametricIntolerance, fNumRadialSegmentsPerRadian, fViewMatrix, fColor);
+                fViewMatrix, fColor);
         this->prePreparePrograms(flushState->allocator(), strokeTessellateShader,
                                  flushState->writeView(), flushState->detachAppliedClip(),
                                  flushState->dstProxyView(), flushState->renderPassBarriers(),
@@ -64,18 +64,20 @@ void GrStrokeTessellateOp::prepareBuffers() {
     // has the potential to introduce an extra segment.
     fMaxTessellationSegments = fTarget->caps().shaderCaps()->maxTessellationSegments() - 2;
 
+    fTolerances.set(fViewMatrix.getMaxScale(), fStroke.getWidth());
+
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate
     // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to
     // send almost all curves directly to the hardware without having to chop.
     float numRadialSegments180 = std::max(std::ceil(
-            SK_ScalarPI * fNumRadialSegmentsPerRadian), 1.f);
+            SK_ScalarPI * fTolerances.fNumRadialSegmentsPerRadian), 1.f);
     float maxParametricSegments180 = NumParametricSegments(fMaxTessellationSegments,
                                                            numRadialSegments180);
     fMaxParametricSegments180_pow4 = pow4(maxParametricSegments180);
 
     float numRadialSegments360 = std::max(std::ceil(
-            2*SK_ScalarPI * fNumRadialSegmentsPerRadian), 1.f);
+            2*SK_ScalarPI * fTolerances.fNumRadialSegmentsPerRadian), 1.f);
     float maxParametricSegments360 = NumParametricSegments(fMaxTessellationSegments,
                                                            numRadialSegments360);
     fMaxParametricSegments360_pow4 = pow4(maxParametricSegments360);
@@ -217,7 +219,8 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     //
     // An informal survey of skottie animations and gms revealed that even with a bare minimum of 64
     // tessellation segments, 99.9%+ of quadratics take this early out.
-    float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricIntolerance, p);
+    float numParametricSegments_pow4 =
+            GrWangsFormula::quadratic_pow4(fTolerances.fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, asCubic);
@@ -238,7 +241,7 @@ void GrStrokeTessellateOp::quadraticTo(const SkPoint p[3], JoinType prevJoinType
 
     // We still might have enough tessellation segments to render the curve. Check again with the
     // actual rotation.
-    float numRadialSegments = SkMeasureQuadRotation(p) * fNumRadialSegmentsPerRadian;
+    float numRadialSegments = SkMeasureQuadRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
     float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
@@ -303,7 +306,8 @@ void GrStrokeTessellateOp::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     //
     // An informal survey of skottie animations revealed that with a bare minimum of 64 tessellation
     // segments, 95% of cubics take this early out.
-    float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricIntolerance, p);
+    float numParametricSegments_pow4 =
+            GrWangsFormula::cubic_pow4(fTolerances.fParametricIntolerance, p);
     if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, p);
@@ -351,7 +355,8 @@ void GrStrokeTessellateOp::cubicTo(const SkPoint p[4], JoinType prevJoinType,
 
     // We still might have enough tessellation segments to render the curve. Check again with
     // its actual rotation.
-    float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRadian;
+    float numRadialSegments =
+            SkMeasureNonInflectCubicRotation(p) * fTolerances.fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
     float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
@@ -402,7 +407,7 @@ void GrStrokeTessellateOp::joinTo(JoinType joinType, SkPoint nextControlPoint, i
         SkVector tan0 = fCurrentPoint - fLastControlPoint;
         SkVector tan1 = nextControlPoint - fCurrentPoint;
         float rotation = SkMeasureAngleBetweenVectors(tan0, tan1);
-        float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
+        float numRadialSegments = rotation * fTolerances.fNumRadialSegmentsPerRadian;
         if (numRadialSegments > fMaxTessellationSegments) {
             // This is a round join that requires more segments than the tessellator supports.
             // Split it and recurse.

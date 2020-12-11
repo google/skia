@@ -261,17 +261,19 @@ private:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
+        Tolerances tolerances(shader.viewMatrix().getMaxScale(), shader.fStroke.getWidth());
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
-            numSegmentsInJoin,  // uNumSegmentsInJoin
-            GrWangsFormula::length_term_pow2<3>(shader.fParametricIntolerance),  // uWangsTermPow2
-            shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
-            1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2.
+                    numSegmentsInJoin,  // uNumSegmentsInJoin
+                    GrWangsFormula::length_term_pow2<3>(
+                            tolerances.fParametricIntolerance),  // uWangsTermPow2
+                    tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
+                    1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2
         float strokeRadius = shader.fStroke.getWidth() * .5;
-        float joinTolerance = 1 / (strokeRadius * shader.fParametricIntolerance);
+        float joinTolerance = 1 / (strokeRadius * tolerances.fParametricIntolerance);
         pdman.set2f(fTessArgs2Uniform,
-                    joinTolerance * joinTolerance,  // uJoinTolerancePow2.
-                    strokeRadius);  // uStrokeRadius.
+                    joinTolerance * joinTolerance,  // uJoinTolerancePow2
+                    strokeRadius);  // uStrokeRadius
         const SkMatrix& m = shader.viewMatrix();
         if (!m.isIdentity()) {
             pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
@@ -1059,12 +1061,13 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
 
         // Set up the tessellation control uniforms.
+        Tolerances tolerances(shader.viewMatrix().getMaxScale(), shader.fStroke.getWidth());
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessControlArgsUniform,
-            shader.fParametricIntolerance,  // uParametricIntolerance
-            shader.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
-            1 / (miterLimit * miterLimit),  // uMiterLimitInvPow2.
-            shader.fStroke.getWidth() * .5);  // uStrokeRadius.
+                    tolerances.fParametricIntolerance,  // uParametricIntolerance
+                    tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
+                    1 / (miterLimit * miterLimit),  // uMiterLimitInvPow2
+                    shader.fStroke.getWidth() * .5);  // uStrokeRadius
 
         // Set up the view matrix, if any.
         const SkMatrix& m = shader.viewMatrix();
