@@ -554,14 +554,95 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     GrColorInfo colorInfo(srcColorType, srcAlphaType, colorSpace);
     auto srcCtx = GrSurfaceContext::Make(context, srcView, colorInfo);
     SkASSERT(srcCtx);
-    GrImageInfo rescaledII(colorInfo, rescaledSize);
-    srcCtx = srcCtx->rescale(rescaledII, srcCtx->origin(), srcBounds, SkSurface::RescaleGamma::kSrc,
-                             kLow_SkFilterQuality);
-    if (!srcCtx) {
+    // When we are in clamp mode any artifacts in the edge pixels due to downscaling may be
+    // exacerbated because of the tile mode. The particularly egregious case is when the original
+    // image has transparent black around the edges and the downscaling pulls in some non-zero
+    // values from the interior. Ultimately it'd be better for performance if the calling code could
+    // give us extra context around the blur to account for this. We don't currently have a good way
+    // to communicate this up stack. So we leave a 1 pixel border around the rescaled src bounds.
+    // We populate the top 1 pixel tall row of this border by rescaling the top row of the original
+    // source bounds into it. Because this is only rescaling in x (i.e. rescaling a 1 pixel high
+    // row into a shorter but still 1 pixel high row) we won't read any interior values. And similar
+    // for the other three borders. We'll adjust the source/dest bounds rescaled blur so that this
+    // border of extra pixels is used as the edge pixels for clamp mode but the dest bounds
+    // corresponds only to the pixels inside the border (the normally rescaled pixels inside this
+    // border).
+#ifdef SK_IGNORE_GPU_CLAMP_BLUR_FIX
+    int pad = 0;
+#else
+    int pad = mode == SkTileMode::kClamp ? 1 : 0;
+#endif
+    auto rescaledSDC = GrSurfaceDrawContext::Make(
+            srcCtx->recordingContext(),
+            colorInfo.colorType(),
+            colorInfo.refColorSpace(),
+            SkBackingFit::kApprox,
+            {rescaledSize.width() + 2*pad, rescaledSize.height() + 2*pad},
+            1,
+            GrMipmapped::kNo,
+            srcCtx->asSurfaceProxy()->isProtected(),
+            srcCtx->origin());
+
+    if (!rescaledSDC) {
         return nullptr;
     }
-    srcView = srcCtx->readSurfaceView();
-    // Drop the context so we don't hold the proxy longer than necessary.
+    if (!srcCtx->rescaleInto(rescaledSDC.get(),
+                             SkIRect::MakeSize(rescaledSize).makeOffset(pad, pad),
+                             srcBounds,
+                             SkSurface::RescaleGamma::kSrc,
+                             kLow_SkFilterQuality)) {
+        return nullptr;
+    }
+    if (pad) {
+        // Rather than run a potentially multi-pass rescaler on single rows/columns we just do a
+        // single bilerp draw. If we find this quality unacceptable we should think more about how
+        // to resale these with better quality but without 4 separate multi-pass downscales.
+        // These all batch together into a single draw (and with the above rescaling when there
+        // is only one pass in the interior rescale).
+        auto cheapDownscale = [&](SkIRect dstRect, SkRect srcRect) {
+            rescaledSDC->drawTexture(nullptr,
+                                     srcCtx->readSurfaceView(),
+                                     srcAlphaType,
+                                     GrSamplerState::Filter::kLinear,
+                                     GrSamplerState::MipmapMode::kNone,
+                                     SkBlendMode::kSrc,
+                                     SK_PMColor4fWHITE,
+                                     srcRect,
+                                     SkRect::Make(dstRect),
+                                     GrAA::kNo,
+                                     GrQuadAAFlags::kNone,
+                                     SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint,
+                                     SkMatrix::I(),
+                                     nullptr);
+        };
+        auto [dw, dh] = rescaledSDC->dimensions();
+        // The are the src rows and columns from the source that we will scale into the dst padding.
+        float sLCol = srcBounds.left();
+        float sTRow = srcBounds.top();
+        float sRCol = srcBounds.right() - 1;
+        float sBRow = srcBounds.bottom() - 1;
+
+        // Calculate src offsets and lengths for y when copying a col and x when copying a row.
+        float isx = 1.f/scaleX;
+        float isy = 1.f/scaleY;
+        float sx = srcBounds.left()   - isx;
+        float sy = srcBounds.top()    - isy;
+        float sw = srcBounds.width()  + 2*isx;
+        float sh = srcBounds.height() + 2*isy;
+
+        // We double hit the four corners (last hit wins) rather than complicate the rects here.
+        cheapDownscale(SkIRect::MakeXYWH(     0,      0,  1, dh),
+                        SkRect::MakeXYWH( sLCol,     sy,  1, sh));
+        cheapDownscale(SkIRect::MakeXYWH(     0,      0, dw,  1),
+                        SkRect::MakeXYWH(    sx,  sTRow, sw,  1));
+        cheapDownscale(SkIRect::MakeXYWH(dw - 1,      0,  1, dh),
+                        SkRect::MakeXYWH( sRCol,     sy,  1, sh));
+        cheapDownscale(SkIRect::MakeXYWH(     0, dh - 1, dw,  1),
+                        SkRect::MakeXYWH(    sx,  sBRow, sw,  1));
+    }
+    srcView = rescaledSDC->readSurfaceView();
+    // Drop the contexts so we don't hold the proxies longer than necessary.
+    rescaledSDC.reset();
     srcCtx.reset();
 
     // Compute the dst bounds in the scaled down space. First move the origin to be at the top
@@ -572,19 +653,30 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     scaledDstBounds.fTop    *= scaleY;
     scaledDstBounds.fRight  *= scaleX;
     scaledDstBounds.fBottom *= scaleY;
+    // Account for padding in our rescaled src, if any.
+    scaledDstBounds.offset(pad, pad);
     // Turn the scaled down dst bounds into an integer pixel rect.
     auto scaledDstBoundsI = scaledDstBounds.roundOut();
 
-    auto rtc = GaussianBlur(context, std::move(srcView), srcColorType, srcAlphaType, colorSpace,
-                            scaledDstBoundsI, SkIRect::MakeSize(rescaledSize), sigmaX, sigmaY, mode,
+    SkIRect scaledSrcBounds = SkIRect::MakeSize(srcView.dimensions());
+    auto sdc = GaussianBlur(context,
+                            std::move(srcView),
+                            srcColorType,
+                            srcAlphaType,
+                            colorSpace,
+                            scaledDstBoundsI,
+                            scaledSrcBounds,
+                            sigmaX,
+                            sigmaY,
+                            mode,
                             fit);
-    if (!rtc) {
+    if (!sdc) {
         return nullptr;
     }
     // We rounded out the integer scaled dst bounds. Select the fractional dst bounds from the
     // integer dimension blurred result when we scale back up.
     scaledDstBounds.offset(-scaledDstBoundsI.left(), -scaledDstBoundsI.top());
-    return reexpand(context, std::move(rtc), scaledDstBounds, dstBounds.size(),
+    return reexpand(context, std::move(sdc), scaledDstBounds, dstBounds.size(),
                     std::move(colorSpace), fit);
 }
 
