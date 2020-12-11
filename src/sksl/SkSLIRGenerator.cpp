@@ -378,7 +378,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         if (iter != varDecl.end()) {
             if (varData.fIsArray) {
                 if (type->isOpaque()) {
-                    fErrors.error(type->fOffset,
+                    fErrors.error(varDecl.fOffset,
                                   "opaque type '" + type->name() + "' may not be used in an array");
                 }
                 const ASTNode& rawSize = *iter++;
@@ -1477,33 +1477,31 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
                                      expr->type().displayName() + "'");
         return nullptr;
     }
-    if (type.isScalar()) {
-        ExpressionArray args;
-        args.push_back(std::move(expr));
-        std::unique_ptr<Expression> ctor;
-        if (type == *fContext.fFloatLiteral_Type) {
-            ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
-                                                   "float"));
-        } else if (type == *fContext.fIntLiteral_Type) {
-            ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
-                                                   "int"));
-        } else {
-            ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
-                                                   type.name()));
-        }
-        if (!ctor) {
-            printf("error, null identifier: %s\n", String(type.name()).c_str());
-        }
-        SkASSERT(ctor);
-        return this->call(/*offset=*/-1, std::move(ctor), std::move(args));
-    }
     if (expr->kind() == Expression::Kind::kNullLiteral) {
         SkASSERT(type.typeKind() == Type::TypeKind::kNullable);
-        return std::unique_ptr<Expression>(new NullLiteral(expr->fOffset, &type));
+        return std::make_unique<NullLiteral>(expr->fOffset, &type);
     }
     ExpressionArray args;
     args.push_back(std::move(expr));
-    return std::make_unique<Constructor>(/*offset=*/-1, &type, std::move(args));
+    if (!type.isScalar()) {
+        return std::make_unique<Constructor>(args.front()->fOffset, &type, std::move(args));
+    }
+    std::unique_ptr<Expression> ctor;
+    if (type == *fContext.fFloatLiteral_Type) {
+        ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
+                                               "float"));
+    } else if (type == *fContext.fIntLiteral_Type) {
+        ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
+                                               "int"));
+    } else {
+        ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
+                                               type.name()));
+    }
+    if (!ctor) {
+        printf("error, null identifier: %s\n", String(type.name()).c_str());
+    }
+    SkASSERT(ctor);
+    return this->call(args.front()->fOffset, std::move(ctor), std::move(args));
 }
 
 static bool is_matrix_multiply(const Type& left, Token::Kind op, const Type& right) {
