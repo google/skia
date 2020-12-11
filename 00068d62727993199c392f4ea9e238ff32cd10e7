@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb7000b0_150e78b9",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-11T20:48:44Z",
+      "side": 1,
+      "message": "Oh, if we\u0027re allocating this dynamically then we do need to delete it.  I was suggesting we store it inline - then we don\u0027t need to worry about it.  Doesn\u0027t something like this work?\n\n    explicit OboeAudioPlayer(sk_sp\u003cSkData\u003e data)\n        : fData(std::move(data))\n        , fMemInputStream(const_cast\u003cunsigned char *\u003e(static_cast\u003cconst unsigned char *\u003e(fData-\u003edata())),\n                          static_cast\u003cint32_t\u003e(fData-\u003esize()))\n    {\n      fReader \u003d std::make_unique\u003cparselib::WavStreamReader\u003e(\u0026fMemInputStream);\n      ...\n    }\nprivate:\n    parselib::MemInputStream fMemInputStream;  // not a pointer",
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e50a76a_c5755047",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-11T20:48:44Z",
+      "side": 1,
+      "message": "nit: tabs -\u003e spaces",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 9
+      },
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86f5885a_a20958bd",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-11T20:48:44Z",
+      "side": 1,
+      "message": "nit: tabs -\u003e spaces",
+      "range": {
+        "startLine": 110,
+        "startChar": 28,
+        "endLine": 110,
+        "endChar": 31
+      },
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
