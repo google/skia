@@ -1,7 +1,7 @@
 Docker
 ======
 
-Docker files to ease working with PathKit and WASM.
+Docker files to ease working with PathKit and CanvasKit.
 
 emsdk-base
 ----------
