@@ -596,7 +596,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     if (pad) {
         // Rather than run a potentially multi-pass rescaler on single rows/columns we just do a
         // single bilerp draw. If we find this quality unacceptable we should think more about how
-        // to resale these with better quality but without 4 separate multi-pass downscales.
+        // to rescale these with better quality but without 4 separate multi-pass downscales.
         // These all batch together into a single draw (and with the above rescaling when there
         // is only one pass in the interior rescale).
         auto cheapDownscale = [&](SkIRect dstRect, SkRect srcRect) {
