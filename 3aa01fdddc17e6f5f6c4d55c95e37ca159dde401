@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a24e85fa_0f84c381",
+        "filename": "modules/svg/include/SkSVGFeFlood.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-11T14:58:58Z",
+      "side": 1,
+      "message": "This is definitely just copy/paste propagation on my part. Some brief googling tells me that the only potentially useful thing this does is produce a compiler warning/error if someone tries to make the SVG node base class destructor non-virtual (SkRefCnt in our case). If it\u0027s all right I\u0027ll clean this up in a \"cleanup\" CL as there are a couple other tiny things I\u0027ve noticed too.",
+      "parentUuid": "53e22c36_5953d820",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 39
+      },
+      "revId": "3aa01fdddc17e6f5f6c4d55c95e37ca159dde401",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0acee36d_67989e2a",
         "filename": "modules/svg/src/SkSVGFeFlood.cpp",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-11T14:38:09Z",
       "side": 1,
       "message": "nit: this reads familiar - could we share with the regular color code path?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 5
+      },
+      "revId": "3aa01fdddc17e6f5f6c4d55c95e37ca159dde401",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26189b98_a545dcda",
+        "filename": "modules/svg/src/SkSVGFeFlood.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-11T14:58:58Z",
+      "side": 1,
+      "message": "Great idea -- I\u0027ll include in the cleanup CL?",
+      "parentUuid": "0acee36d_67989e2a",
       "range": {
         "startLine": 23,
         "startChar": 0,
