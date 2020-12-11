@@ -665,13 +665,6 @@ public:
     }
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* localMatrix,
-                               SkFilterQuality fq) const {
-        return this->makeShader(tmx, tmy, SkSamplingOptions(fq), localMatrix);
-    }
-#endif
-
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return
         false and leave pixmap unchanged.
@@ -965,13 +958,6 @@ public:
     */
     bool scalePixels(const SkPixmap& dst, const SkSamplingOptions&,
                      CachingHint cachingHint = kAllow_CachingHint) const;
-
-#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-    bool scalePixels(const SkPixmap& dst, SkFilterQuality fq,
-                     CachingHint cachingHint = kAllow_CachingHint) const {
-        return this->scalePixels(dst, SkSamplingOptions(fq), cachingHint);
-    }
-#endif
 
     /** Encodes SkImage pixels, returning result as SkData.
 

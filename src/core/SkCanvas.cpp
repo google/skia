@@ -1374,19 +1374,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     if (matrix.isIdentity()) {
         return;
     }
-
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
-    this->checkForDeferredSave();
-    fMCRec->fMatrix.preConcat(matrix);
-
-    fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
-
-    TOP_DEVICE(setGlobalCTM(fMCRec->fMatrix));
-
-    this->didConcat(matrix);
-#else
     this->concat(SkM44(matrix));
-#endif
 }
 
 void SkCanvas::internalConcat44(const SkM44& m) {
@@ -1413,13 +1401,7 @@ void SkCanvas::internalSetMatrix(const SkM44& m) {
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
-    this->checkForDeferredSave();
-    this->internalSetMatrix(SkM44(matrix));
-    this->didSetMatrix(matrix);
-#else
     this->setMatrix(SkM44(matrix));
-#endif
 }
 
 void SkCanvas::setMatrix(const SkM44& m) {
@@ -1429,11 +1411,7 @@ void SkCanvas::setMatrix(const SkM44& m) {
 }
 
 void SkCanvas::resetMatrix() {
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
-    this->setMatrix(SkMatrix::I());
-#else
     this->setMatrix(SkM44());
-#endif
 }
 
 void SkCanvas::markCTM(const char* name) {

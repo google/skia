@@ -106,22 +106,6 @@ public:
         return RotateDeg(SkRadiansToDegrees(rad));
     }
 
-#ifdef SK_SUPPORT_LEGACY_MATRIX_FACTORIES
-    // DEPRECATED
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy) {
-        return Translate(dx, dy);
-    }
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy) {
-        return Scale(sx, sy);
-    }
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale) {
-        return Scale(scale, scale);
-    }
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.x(), t.y()); }
-    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkIVector t) { return MakeTrans(t.x(), t.y()); }
-    // end DEPRECATED
-#endif
-
     /** Sets SkMatrix to:
 
             | scaleX  skewX transX |

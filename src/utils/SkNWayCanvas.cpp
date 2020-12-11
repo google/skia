@@ -115,22 +115,6 @@ void SkNWayCanvas::didSetM44(const SkM44& matrix) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
-void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->concat(matrix);
-    }
-}
-
-void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->setMatrix(matrix);
-    }
-}
-#endif
-
 void SkNWayCanvas::didTranslate(SkScalar x, SkScalar y) {
     Iter iter(fList);
     while (iter.next()) {

@@ -259,12 +259,6 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& s
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality fq) const {
-    return this->scalePixels(dst, SkSamplingOptions(fq));
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColor SkPixmap::getColor(int x, int y) const {

@@ -662,10 +662,6 @@ public:
     */
     bool scalePixels(const SkPixmap& dst, const SkSamplingOptions&) const;
 
-#ifdef SK_SUPPORT_LEGACY_SCALEPIXELS_PARAM
-    bool scalePixels(const SkPixmap& dst, SkFilterQuality fq) const;
-#endif
-
     /** Writes color to pixels bounded by subset; returns true on success.
         Returns false if colorType() is kUnknown_SkColorType, or if subset does
         not intersect bounds().
