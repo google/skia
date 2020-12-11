@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06d17dc2_fdc125be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:31:44Z",
+      "side": 1,
+      "message": "As discussed yesterday, let\u0027s make sure this is actual policy in layer creation. And removes the clip shenanigans it used to do.",
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58f7b149_55a7e1d4",
@@ -54,6 +71,30 @@
       "writtenOn": "2020-12-11T17:53:57Z",
       "side": 1,
       "message": "this seems fine, but we could also add a virtual to device::drawSelf(paint), and have the nopixelsdevice just do nothing. Just a thought.",
+      "range": {
+        "startLine": 1264,
+        "startChar": 15,
+        "endLine": 1264,
+        "endChar": 33
+      },
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47770951_246ca740",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T18:31:44Z",
+      "side": 1,
+      "message": "That\u0027s tricky, since this really is drawing \u0027srcDev\u0027 into the new top device. For bitmap and gpu devices, we now are in the situation where the src and dst are either the same class, or src is a no-pixels-device. In this case, a src.drawSelfInto(dst) would be okay.\n\nPDF (and maybe other document devices) complicate things because during the saveLayer, the dst device chooses between making another PDF device or a bitmap device (when there\u0027s an image filter). Then dst.drawDevice(src) for the PDF device knows to check if src is a bitmap or pdf and proceed accordingly. If we switch to drawSelfInto(), then the bitmap device needs to \"know\" how the PDF device wants the bitmap content.\n\nIn actuality, it ought to be fine, because the bitmap\u0027s drawSelfInto() behavior is likely to snap a special image and then call drawSpecial(), which is exactly what the PDF device does when it detects it has a bitmap device. Maybe that\u0027s okay, though? and drawSelfInto() has nicer behavior than the current drawDevice. Any new thoughts on this?",
+      "parentUuid": "f23b0e34_c8a896c0",
       "range": {
         "startLine": 1264,
         "startChar": 15,
