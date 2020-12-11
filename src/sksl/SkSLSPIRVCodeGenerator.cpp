@@ -1776,8 +1776,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             SpvId typeId;
             const Variable& var = *expr.as<VariableReference>().variable();
             if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
-                typeId = this->getType(Type("sk_in", Type::TypeKind::kArray,
-                                            var.type().componentType(), fSkInCount));
+                typeId = this->getType(*Type::MakeArrayType("sk_in", var.type().componentType(),
+                                                            fSkInCount));
             } else {
                 typeId = this->getType(type);
             }
@@ -1894,8 +1894,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                     0),
                         SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
                 StringFragment name("sksl_synthetic_uniforms");
-                Type intfStruct(-1, name, fields);
-
+                std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
+                                                                        fields);
                 int binding = fProgram.fSettings.fRTHeightBinding;
                 if (binding == -1) {
                     fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
@@ -1912,7 +1912,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                         std::make_unique<Variable>(/*offset=*/-1,
                                                    fProgram.fModifiers->addToPool(modifiers),
                                                    name,
-                                                   &intfStruct,
+                                                   intfStruct.get(),
                                                    /*builtin=*/false,
                                                    Variable::Storage::kGlobal));
                 InterfaceBlock intf(/*offset=*/-1, intfVar, name,
@@ -2734,6 +2734,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                 MemoryLayout(MemoryLayout::k430_Standard) :
                                 fDefaultLayout;
     SpvId result = this->nextId();
+    std::unique_ptr<Type> rtHeightStructType;
     const Type* type = &intf.variable().type();
     if (!MemoryLayout::LayoutIsSupported(*type)) {
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
@@ -2748,8 +2749,10 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fRTHeightStructId = result;
         fRTHeightFieldIndex = fields.size();
         fRTHeightStorageClass = storageClass;
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
-        type = new Type(type->fOffset, type->name(), fields);
+        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
+                            fContext.fFloat_Type.get());
+        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
+        type = rtHeightStructType.get();
     }
     SpvId typeId;
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
@@ -2759,10 +2762,9 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                 update_sk_in_count(m, &fSkInCount);
             }
         }
-        typeId = this->getType(Type("sk_in", Type::TypeKind::kArray,
-                                    intf.variable().type().componentType(),
-                                    fSkInCount),
-                               memoryLayout);
+        typeId = this->getType(
+                *Type::MakeArrayType("sk_in", intf.variable().type().componentType(), fSkInCount),
+                memoryLayout);
     } else {
         typeId = this->getType(*type, memoryLayout);
     }
@@ -2780,9 +2782,6 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     }
     this->writeLayout(layout, result);
     fVariableMap[&intf.variable()] = result;
-    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
-        delete type;
-    }
     return result;
 }
 
@@ -2857,7 +2856,7 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
     SpvId typeId;
     if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
         typeId = this->getPointerType(
-                Type("sk_in", Type::TypeKind::kArray, type.componentType(), fSkInCount),
+                *Type::MakeArrayType("sk_in", type.componentType(), fSkInCount),
                 storageClass);
     } else {
         typeId = this->getPointerType(type, storageClass);
