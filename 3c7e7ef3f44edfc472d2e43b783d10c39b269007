@@ -16,6 +16,29 @@
       "message": "I\u0027d normally send this one to Michael or Rob, as they\u0027re familiar with this code, but they are both out today. Michael\u0027s on CC because I think he may want to be aware of this.",
       "revId": "3c7e7ef3f44edfc472d2e43b783d10c39b269007",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f9e74f6_e137f0a5",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-11T17:10:50Z",
+      "side": 1,
+      "message": "I get the gist, but something seems to be missing here.",
+      "range": {
+        "startLine": 563,
+        "startChar": 52,
+        "endLine": 563,
+        "endChar": 82
+      },
+      "revId": "3c7e7ef3f44edfc472d2e43b783d10c39b269007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
