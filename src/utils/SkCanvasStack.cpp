@@ -62,25 +62,6 @@ void SkCanvasStack::clipToZOrderedBounds() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_CANVASMATRIX33
-/**
- * We need to handle setMatrix specially as it overwrites the matrix in each
- * canvas unlike all other matrix operations (i.e. translate, scale, etc) which
- * just pre-concatenate with the existing matrix.
- */
-void SkCanvasStack::didSetMatrix(const SkMatrix& matrix) {
-    SkASSERT(fList.count() == fCanvasData.count());
-    for (int i = 0; i < fList.count(); ++i) {
-
-        SkMatrix tempMatrix = matrix;
-        tempMatrix.postTranslate(SkIntToScalar(-fCanvasData[i].origin.x()),
-                                 SkIntToScalar(-fCanvasData[i].origin.y()));
-        fList[i]->setMatrix(tempMatrix);
-    }
-    this->SkCanvas::didSetMatrix(matrix);
-}
-#endif
-
 /**
  * We need to handle setMatrix specially as it overwrites the matrix in each
  * canvas unlike all other matrix operations (i.e. translate, scale, etc) which
