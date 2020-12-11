@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "fd4efbdf_59f3018b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-12-11T20:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03022f65_8906151a",
+      "range": {
+        "startLine": 14,
+        "startChar": 1,
+        "endLine": 14,
+        "endChar": 9
+      },
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c60996f3_5b0c57fa",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -113,6 +137,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "17c3ffcf_0cf73543",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-12-11T20:55:53Z",
+      "side": 1,
+      "message": "OK, I\u0027ve now parameterized this so Chromium can turn it on/off via a feature flag.  \n\nThe most obvious way to do this, IMO, was a flag added to SkSurfaceProps.  If you (or Ben) know an easier way to do this, let me know.\n\nThe flag is propagated into the SkScalerContextRec and then SkMaskGamma, and we switch on it when building the gamma table.\n\nI templatized the innermost code so that we wouldn\u0027t have a conditional in the tight loops.  This may have been an unnecessary optimization... Ben: let me know if this isn\u0027t called often enough to warrant the extra complexity.",
+      "parentUuid": "6925d85c_0e0170fc",
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cceaa380_a24cbde5",
         "filename": "src/core/SkScalerContext.h",
         "patchSetId": 3
@@ -124,6 +166,30 @@
       "writtenOn": "2020-11-16T17:59:36Z",
       "side": 1,
       "message": "I think this should be \u0027(\u0027 since this is open (a contrast of 0 is allowed). The \u0027[\u0027 makes it look like the range is closed on this end (a contrast of 0 isn\u0027t allowed). I\u0027m not sure about the other end, I think 4.0 is allowed.",
+      "range": {
+        "startLine": 90,
+        "startChar": 29,
+        "endLine": 90,
+        "endChar": 30
+      },
+      "revId": "7adaa208d5812befa8355ded97d2731061a6ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69428cf9_1256da3e",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-12-11T20:55:53Z",
+      "side": 1,
+      "message": "I thought it was the other way around, no?  (Admittedly, I get this backwards all the time.)\n\nPer Wikipedia: https://en.wikipedia.org/wiki/Interval_(mathematics)\n\"A closed interval is an interval which includes all its limit points, and is denoted with square brackets.\"\n\n(FWIW, yes, both 0.0 and 4.0 are allowed.)",
+      "parentUuid": "cceaa380_a24cbde5",
       "range": {
         "startLine": 90,
         "startChar": 29,
