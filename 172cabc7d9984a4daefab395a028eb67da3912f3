@@ -56,6 +56,30 @@
       },
       "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9e0ff4e_a0b110ce",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T17:28:32Z",
+      "side": 1,
+      "message": "Yeah I was trying to remember my self if I\u0027m refing the GrGpuBuffer here just to keep the internals alive or to also not allow the resource to be reused. Buffers are harder than surfaces since we can\u0027t allow them to be mapped while in use by previous frames. Anyways I\u0027ll have to go back and find where I added this and remember all the details",
+      "parentUuid": "96755dda_d6068988",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 61
+      },
+      "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
