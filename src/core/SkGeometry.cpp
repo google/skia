@@ -229,7 +229,7 @@ float SkFindQuadMidTangent(const SkPoint src[3]) {
     //                     = 2*T * ((tan1 - tan0) dot bisector) + (2*tan0 dot bisector)
     //
     //   T = (tan0 dot bisector) / ((tan0 - tan1) dot bisector)
-    float T = tan0.dot(bisector) / (tan0 - tan1).dot(bisector);
+    float T = sk_ieee_float_divide(tan0.dot(bisector), (tan0 - tan1).dot(bisector));
     if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
         T = .5;  // The quadratic was a line or near-line. Just chop at .5.
     }
