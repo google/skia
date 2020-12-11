@@ -16,6 +16,52 @@
       "message": "As discussed yesterday, let\u0027s make sure this is actual policy in layer creation. And removes the clip shenanigans it used to do.\n\nThe canary failures in flutter and android appear to be infra issues, so I don\u0027t think anyone was relying on the old behavior.",
       "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58f7b149_55a7e1d4",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-11T17:53:57Z",
+      "side": 1,
+      "message": "This seems fine, but perhaps we could also make resetForNextPicture be a virtual, and asserts on any device but nopixels...?",
+      "range": {
+        "startLine": 413,
+        "startChar": 26,
+        "endLine": 413,
+        "endChar": 42
+      },
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f23b0e34_c8a896c0",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-11T17:53:57Z",
+      "side": 1,
+      "message": "this seems fine, but we could also add a virtual to device::drawSelf(paint), and have the nopixelsdevice just do nothing. Just a thought.",
+      "range": {
+        "startLine": 1264,
+        "startChar": 15,
+        "endLine": 1264,
+        "endChar": 33
+      },
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
