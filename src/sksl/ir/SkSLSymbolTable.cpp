@@ -127,9 +127,8 @@ const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
         String arrayName = (arraySize != Type::kUnsizedArray)
                                    ? String::printf("%s[%d]", baseName.c_str(), arraySize)
                                    : String::printf("%s[]", baseName.c_str());
-        type = this->takeOwnershipOfSymbol(std::make_unique<Type>(std::move(arrayName),
-                                                                  Type::TypeKind::kArray,
-                                                                  *type, arraySize));
+        type = this->takeOwnershipOfSymbol(Type::MakeArrayType(std::move(arrayName),
+                                                               *type, arraySize));
     }
     return type;
 }
