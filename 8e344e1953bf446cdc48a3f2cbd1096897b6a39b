@@ -94,6 +94,30 @@
       },
       "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0afec04_2f7dc038",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T16:22:27Z",
+      "side": 1,
+      "message": "My idea would be for componentType() to be bulletproof on all types (return *this if fComponentType is null) then forget `columns()` entirely and just call componentType:\n\n    const Type\u0026 leftComponentType(left.componentType());\n    const Type\u0026 rightComponentType(right.componentType());\n \n\nWhen I say \"my idea\" I really mean \"I\u0027ve written this before and scrapped it because it turned out to be unnecessary for the bug I was fixing\"",
+      "parentUuid": "cf2e5193_5562781b",
+      "range": {
+        "startLine": 1647,
+        "startChar": 0,
+        "endLine": 1651,
+        "endChar": 0
+      },
+      "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
