@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f0003b_44a2c982",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df9b032d_e8e5d557",
+      "range": {
+        "startLine": 13,
+        "startChar": 61,
+        "endLine": 13,
+        "endChar": 67
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8224d22c_2b0921cb",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-11T14:07:58Z",
       "side": 1,
       "message": "feel free to ignore, but terms like add/remove inc/dec make a little more sense than ref/unref in this context to me.",
+      "range": {
+        "startLine": 17,
+        "startChar": 13,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2085d44e_57ba47ab",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8224d22c_2b0921cb",
       "range": {
         "startLine": 17,
         "startChar": 13,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9df4f446_a5b8bca9",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a696b04_d4256b6b",
+      "range": {
+        "startLine": 22,
+        "startChar": 60,
+        "endLine": 22,
+        "endChar": 67
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7a7e18f_505c55d0",
@@ -83,6 +155,30 @@
       "writtenOn": "2020-12-11T14:07:58Z",
       "side": 1,
       "message": "We don\u0027t need this, right? This is what ~sk_sp is for.",
+      "range": {
+        "startLine": 64,
+        "startChar": 66,
+        "endLine": 64,
+        "endChar": 94
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1880e21_a8781aad",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "yeah it was a workaround for another bug I had previously, then never went back and removed this when I fix the other.",
+      "parentUuid": "b7a7e18f_505c55d0",
       "range": {
         "startLine": 64,
         "startChar": 66,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "976fe421_5228680b",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "562ba25d_18479838",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 41
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61d093ad_610f1f39",
@@ -129,6 +249,30 @@
       "writtenOn": "2020-12-11T14:07:58Z",
       "side": 1,
       "message": "rm?",
+      "range": {
+        "startLine": 114,
+        "startChar": 7,
+        "endLine": 114,
+        "endChar": 36
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8113548_001cbf6b",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61d093ad_610f1f39",
       "range": {
         "startLine": 114,
         "startChar": 7,
@@ -164,6 +308,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1e6fef94_ef01c615",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "They are convenient helper functions for this class so I just moved them to private.",
+      "parentUuid": "d63352c7_b40bc64d",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 5
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "185643c5_49fa960e",
         "filename": "src/gpu/GrGpuResource.h",
         "patchSetId": 6
@@ -175,6 +343,30 @@
       "writtenOn": "2020-12-11T14:07:58Z",
       "side": 1,
       "message": "I think maybe thread model here should be that only the main GrContext thread can add refs/cbusages but they can be removed on other threads (e.g. ~SkImage for refs and the VK cmd cleanup thread). In which, case we should probably only allow a query for zero refs,  something like SkRefCnt::unique but for 0 rather than 1.",
+      "range": {
+        "startLine": 43,
+        "startChar": 23,
+        "endLine": 43,
+        "endChar": 47
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a9a709d_04752271",
+        "filename": "src/gpu/GrGpuResource.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "added hasNoCommandBufferUsages() function and removed getter.",
+      "parentUuid": "185643c5_49fa960e",
       "range": {
         "startLine": 43,
         "startChar": 23,

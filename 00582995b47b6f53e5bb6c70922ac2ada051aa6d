@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbb56a42_e4fcbd69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Updated and added ResourceCache test.",
+      "revId": "00582995b47b6f53e5bb6c70922ac2ada051aa6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

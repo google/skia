@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0677e7f_3d16317e",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e667a64_35f1dee1",
+      "range": {
+        "startLine": 34,
+        "startChar": 75,
+        "endLine": 34,
+        "endChar": 85
+      },
+      "revId": "831af661f316f7729d96cc234d37bf6fdd2f694d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "beb72840_1b724a29",
@@ -83,6 +107,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e63295fc_460a5879",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Add comment on sk_sp version.",
+      "parentUuid": "beb72840_1b724a29",
+      "range": {
+        "startLine": 60,
+        "startChar": 7,
+        "endLine": 60,
+        "endChar": 84
+      },
+      "revId": "831af661f316f7729d96cc234d37bf6fdd2f694d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6666e738_10c42dc9",
         "filename": "src/gpu/GrCommandBufferRef.h",
         "patchSetId": 5
@@ -94,6 +142,30 @@
       "writtenOn": "2020-12-10T22:21:09Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 105,
+        "startChar": 6,
+        "endLine": 105,
+        "endChar": 52
+      },
+      "revId": "831af661f316f7729d96cc234d37bf6fdd2f694d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a409b3ac_c6dcd665",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-11T15:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6666e738_10c42dc9",
       "range": {
         "startLine": 105,
         "startChar": 6,
