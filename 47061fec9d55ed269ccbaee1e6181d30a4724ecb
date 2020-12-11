@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f4c8f439_1756e26f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-11T19:33:34Z",
+      "side": 1,
+      "message": "There is, but it doesn\u0027t really add readability IMO and saves 1-2 lines of shared code (the local matrix and makeShader line). I would like to keep it as-is because it\u0027s easier (for me) to understand.",
+      "parentUuid": "692a9fd3_96d7603d",
+      "range": {
+        "startLine": 1236,
+        "startChar": 19,
+        "endLine": 1236,
+        "endChar": 35
+      },
+      "revId": "47061fec9d55ed269ccbaee1e6181d30a4724ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4a5f6b95_2fa97029",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 3
@@ -54,6 +78,30 @@
       "writtenOn": "2020-12-11T19:22:37Z",
       "side": 1,
       "message": "nit: filter",
+      "range": {
+        "startLine": 1247,
+        "startChar": 46,
+        "endLine": 1247,
+        "endChar": 52
+      },
+      "revId": "47061fec9d55ed269ccbaee1e6181d30a4724ecb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "989be4c7_f98b6fe6",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-11T19:33:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a5f6b95_2fa97029",
       "range": {
         "startLine": 1247,
         "startChar": 46,
