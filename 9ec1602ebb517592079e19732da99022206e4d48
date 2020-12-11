@@ -16,6 +16,29 @@
       "message": "I implemented stencil state as dynamic (with local hacks) and transparent stroking got faster in GL.\n\nBut to do it properly would require more work and I\u0027m not sure if now is the time to prioritize it. GrStencilSettings stores optimization flags that might change depending on your dynamic ref or masks, for example, and the different backends have different ways of generating their GrStencilSettings on the fly.\n\nThis part seems fine though and worth checking it at this point.",
       "revId": "9ec1602ebb517592079e19732da99022206e4d48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb74175f_acc953c3",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T17:09:48Z",
+      "side": 1,
+      "message": "I don\u0027t like these tuples. It\u0027s not obvious here what the values other than \u003cValidState, uint16_t\u003e are and so you have go check all the code where they\u0027re used for consistency of what goes in which slot in the tuple (the fact that there is one GLenum type and that it\u0027s an integer type and so is uint16_t are contributing factors here). I think structs or just un-tupling these as separate fields in GrGLGpu would be an improvement.",
+      "range": {
+        "startLine": 718,
+        "startChar": 0,
+        "endLine": 720,
+        "endChar": 67
+      },
+      "revId": "9ec1602ebb517592079e19732da99022206e4d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
