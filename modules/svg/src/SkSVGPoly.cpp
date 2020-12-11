@@ -46,3 +46,7 @@ SkPath SkSVGPoly::onAsPath(const SkSVGRenderContext& ctx) const {
     this->mapToParent(&path);
     return path;
 }
+
+SkRect SkSVGPoly::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    return fPath.getBounds();
+}
