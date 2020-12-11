@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "942e896e_9aa63be7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T22:36:43Z",
+      "side": 1,
+      "message": "This time the Android Canary bot has been added to the CQ",
+      "revId": "9c27eeab536b6e5caa47a63ca332d4dede4d956c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
