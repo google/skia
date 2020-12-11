@@ -20,6 +20,7 @@ public:
     SkISize getDimensions() const override { return SkISize::MakeEmpty(); }
 
     void draw(SkCanvas* canvas) override;
+    bool animate(double nanos) override;
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
@@ -32,6 +33,7 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     SkAutoTMalloc<char> fInputs;
     SkTArray<sk_sp<SkShader>> fChildren;
+    float fSeconds = 0.0f;
 
     // Named shaders that can be selected as inputs
     SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
