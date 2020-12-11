@@ -58,11 +58,11 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
     shader = SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp);
     fShaders.push_back(std::make_pair("Linear Gradient", shader));
 
-    shader = SkGradientShader::MakeRadial({ 128, 128 }, 128, colors, nullptr, 2,
+    shader = SkGradientShader::MakeRadial({ 256, 256 }, 256, colors, nullptr, 2,
                                           SkTileMode::kClamp);
     fShaders.push_back(std::make_pair("Radial Gradient", shader));
 
-    shader = SkGradientShader::MakeSweep(128, 128, colors, nullptr, 2);
+    shader = SkGradientShader::MakeSweep(256, 256, colors, nullptr, 2);
     fShaders.push_back(std::make_pair("Sweep Gradient", shader));
 
     shader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
@@ -189,7 +189,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     SkPaint p;
     p.setColor4f(gPaintColor);
     p.setShader(std::move(shader));
-    canvas->drawRect({ 0, 0, 256, 256 }, p);
+    canvas->drawPaint(p);
 }
 
 bool SkSLSlide::animate(double nanos) {
