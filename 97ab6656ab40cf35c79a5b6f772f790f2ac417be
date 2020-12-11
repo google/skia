@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39b53726_27635ae1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T14:52:06Z",
+      "side": 1,
+      "message": "I\u0027d like to make it so Android doesn\u0027t need to include src/ headers to get the FBO info needed for the WebView integration. The top-layer-bounds change is just opportunistic since I\u0027ll have to update both sides of this anyway but I can toss it if it isn\u0027t wanted.",
+      "revId": "97ab6656ab40cf35c79a5b6f772f790f2ac417be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b32cf3_29c765d9",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2700,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T14:52:06Z",
+      "side": 1,
+      "message": "Today this isn\u0027t used anywhere but by internal_private_getTopLayerBounds, which in turn is only used by Android Framework. So after updating Android I\u0027d delete the private method and move it\u0027s implementation into the public-but-only-framework topLayerBounds().",
+      "range": {
+        "startLine": 2700,
+        "startChar": 0,
+        "endLine": 2700,
+        "endChar": 46
+      },
+      "revId": "97ab6656ab40cf35c79a5b6f772f790f2ac417be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
