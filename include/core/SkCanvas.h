@@ -35,7 +35,6 @@
 // Working on allow this to be undefined
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 
-class GrBackendRenderTarget;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
 class SkBaseDevice;
@@ -2459,13 +2458,7 @@ public:
 
     // don't call
     virtual GrSurfaceDrawContext* internal_private_accessTopLayerRenderTargetContext();
-    SkIRect internal_private_getTopLayerBounds() const { return this->internalGetTopLayerBounds(); }
-
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // These methods exist to support WebView in Android Framework.
-    SkIRect topLayerBounds() const { return this->internalGetTopLayerBounds(); }
-    GrBackendRenderTarget topLayerBackendRenderTarget() const;
-#endif
+    SkIRect internal_private_getTopLayerBounds() const { return getTopLayerBounds(); }
 
     // TEMP helpers until we switch virtual over to const& for src-rect
     void legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
@@ -2693,7 +2686,7 @@ private:
      * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
      * to be public because it exposes decisions about layer sizes that are internal to the canvas.
      */
-    SkIRect internalGetTopLayerBounds() const;
+    SkIRect getTopLayerBounds() const;
 
     // All base onDrawX() functions should call this and skip drawing if it returns true.
     // If 'matrix' is non-null, it maps the paint's fast bounds before checking for quick rejection
