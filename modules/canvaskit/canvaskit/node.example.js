@@ -1,114 +1,123 @@
-const CanvasKitInit = require('./bin/canvaskit.js');
 const fs = require('fs');
 const path = require('path');
 
-CanvasKitInit({
-  locateFile: (file) => __dirname + '/bin/'+file,
-}).then((CanvasKit) => {
-  let canvas = CanvasKit.MakeCanvas(300, 300);
 
-  let img = fs.readFileSync(path.join(__dirname, 'test.png'));
-  img = canvas.decodeImage(img);
+async function main() {
+  const {default: CanvasKitInit, } = await import('./bin/canvaskit.mjs');
+  console.log(CanvasKitInit);
+  const dirname = path.resolve();
+  console.log(dirname);
 
-  let fontData = fs.readFileSync(path.join(__dirname, './Roboto-Regular.woff'));
-  canvas.loadFont(fontData, {
-                                'family': 'Roboto',
-                                'style': 'normal',
-                                'weight': '400',
-                              });
+  CanvasKitInit({
+    locateFile: (file) => dirname + '/bin/'+file,
+  }).then((CanvasKit) => {
+    let canvas = CanvasKit.MakeCanvas(300, 300);
 
-  let ctx = canvas.getContext('2d');
-  ctx.font = '30px Roboto';
-  ctx.rotate(.1);
-  let text = ctx.measureText('Awesome');
-  ctx.fillText('Awesome ', 50, 100);
-  ctx.strokeText('Groovy!', 60+text.width, 100);
+    let img = fs.readFileSync(path.join(dirname, 'test.png'));
+    img = canvas.decodeImage(img);
 
-  // Draw line under Awesome
-  ctx.strokeStyle = 'rgba(125,0,0,0.5)';
-  ctx.beginPath();
-  ctx.lineWidth = 6;
-  ctx.lineTo(50, 102);
-  ctx.lineTo(50 + text.width, 102);
-  ctx.stroke();
+    let fontData = fs.readFileSync(path.join(dirname, './Roboto-Regular.woff'));
+    canvas.loadFont(fontData, {
+                      'family': 'Roboto',
+                      'style': 'normal',
+                      'weight': '400',
+                    });
 
-  // squished vertically
-  ctx.globalAlpha = 0.7
-  ctx.imageSmoothingQuality = 'medium';
-  ctx.drawImage(img, 150, 150, 150, 100);
-  ctx.rotate(-.2);
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, 100, 150, 400, 350, 10, 200, 150, 100);
+    let ctx = canvas.getContext('2d');
+    ctx.font = '30px Roboto';
+    ctx.rotate(.1);
+    let text = ctx.measureText('Awesome');
+    ctx.fillText('Awesome ', 50, 100);
+    ctx.strokeText('Groovy!', 60+text.width, 100);
 
-  console.log('<img src="' + canvas.toDataURL() + '" />');
+    // Draw line under Awesome
+    ctx.strokeStyle = 'rgba(125,0,0,0.5)';
+    ctx.beginPath();
+    ctx.lineWidth = 6;
+    ctx.lineTo(50, 102);
+    ctx.lineTo(50 + text.width, 102);
+    ctx.stroke();
 
-  fancyAPI(CanvasKit);
-});
+    // squished vertically
+    ctx.globalAlpha = 0.7
+    ctx.imageSmoothingQuality = 'medium';
+    ctx.drawImage(img, 150, 150, 150, 100);
+    ctx.rotate(-.2);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 100, 150, 400, 350, 10, 200, 150, 100);
 
-function fancyAPI(CanvasKit) {
-  let surface = CanvasKit.MakeSurface(300, 300);
-  const canvas = surface.getCanvas();
+    console.log('<img src="' + canvas.toDataURL() + '" />');
 
-  const paint = new CanvasKit.Paint();
+    fancyAPI(CanvasKit);
+  });
 
-  const fontMgr = CanvasKit.FontMgr.RefDefault();
-  let robotoData = fs.readFileSync(path.join(__dirname, './Roboto-Regular.woff'));
-  const roboto = fontMgr.MakeTypefaceFromData(robotoData);
+  function fancyAPI(CanvasKit) {
+    let surface = CanvasKit.MakeSurface(300, 300);
+    const canvas = surface.getCanvas();
 
-  const textPaint = new CanvasKit.Paint();
-  textPaint.setColor(CanvasKit.Color(40, 0, 0));
-  textPaint.setAntiAlias(true);
+    const paint = new CanvasKit.Paint();
 
-  const textFont = new CanvasKit.Font(roboto, 30);
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
+    let robotoData = fs.readFileSync(path.join(dirname, './Roboto-Regular.woff'));
+    const roboto = fontMgr.MakeTypefaceFromData(robotoData);
 
-  const skpath = starPath(CanvasKit);
-  const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], 1);
+    const textPaint = new CanvasKit.Paint();
+    textPaint.setColor(CanvasKit.Color(40, 0, 0));
+    textPaint.setAntiAlias(true);
 
-  paint.setPathEffect(dpe);
-  paint.setStyle(CanvasKit.PaintStyle.Stroke);
-  paint.setStrokeWidth(5.0);
-  paint.setAntiAlias(true);
-  paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
+    const textFont = new CanvasKit.Font(roboto, 30);
 
-  canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
+    const skpath = starPath(CanvasKit);
+    const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], 1);
 
-  canvas.drawPath(skpath, paint);
-  canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
+    paint.setPathEffect(dpe);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setStrokeWidth(5.0);
+    paint.setAntiAlias(true);
+    paint.setColor(CanvasKit.Color(66, 129, 164, 1.0));
 
-  surface.flush();
+    canvas.clear(CanvasKit.Color(255, 255, 255, 1.0));
 
-  const img = surface.makeImageSnapshot()
-  if (!img) {
-    console.error('no snapshot');
-    return;
+    canvas.drawPath(skpath, paint);
+    canvas.drawText('Try Clicking!', 10, 280, textPaint, textFont);
+
+    surface.flush();
+
+    const img = surface.makeImageSnapshot()
+    if (!img) {
+      console.error('no snapshot');
+      return;
+    }
+    const png = img.encodeToData()
+    if (!png) {
+      console.error('encoding failure');
+      return
+    }
+    const pngBytes = CanvasKit.getDataBytes(png);
+    // See https://stackoverflow.com/a/12713326
+    let b64encoded = Buffer.from(pngBytes).toString('base64');
+    console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
+
+    // These delete calls free up memeory in the C++ WASM memory block.
+    dpe.delete();
+    skpath.delete();
+    textPaint.delete();
+    paint.delete();
+    roboto.delete();
+    textFont.delete();
+
+    surface.dispose();
   }
-  const png = img.encodeToData()
-  if (!png) {
-    console.error('encoding failure');
-    return
+
+  function starPath(CanvasKit, X=128, Y=128, R=116) {
+    let p = new CanvasKit.Path();
+    p.moveTo(X + R, Y);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+    }
+    return p;
   }
-  const pngBytes = CanvasKit.getDataBytes(png);
-  // See https://stackoverflow.com/a/12713326
-  let b64encoded = Buffer.from(pngBytes).toString('base64');
-  console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
-
-  // These delete calls free up memeory in the C++ WASM memory block.
-  dpe.delete();
-  skpath.delete();
-  textPaint.delete();
-  paint.delete();
-  roboto.delete();
-  textFont.delete();
-
-  surface.dispose();
 }
 
-function starPath(CanvasKit, X=128, Y=128, R=116) {
-  let p = new CanvasKit.Path();
-  p.moveTo(X + R, Y);
-  for (let i = 1; i < 8; i++) {
-    let a = 2.6927937 * i;
-    p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
-  }
-  return p;
-}
+main();
