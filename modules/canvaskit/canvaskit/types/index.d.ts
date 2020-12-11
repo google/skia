@@ -418,10 +418,12 @@ export interface CanvasKit {
     readonly ClipOp: ClipOpEnumValues;
     readonly ColorType: ColorTypeEnumValues;
     readonly FillType: FillTypeEnumValues;
+    readonly FilterMode: FilterModeEnumValues;
     readonly FilterQuality: FilterQualityEnumValues;
     readonly FontEdging: FontEdgingEnumValues;
     readonly FontHinting: FontHintingEnumValues;
     readonly ImageFormat: ImageFormatEnumValues;
+    readonly MipmapMode: MipmapModeEnumValues;
     readonly PaintStyle: PaintStyleEnumValues;
     readonly PathOp: PathOpEnumValues;
     readonly PointMode: PointModeEnumValues;
@@ -1586,12 +1588,33 @@ export interface Image extends EmbindObject<Image> {
     height(): number;
 
     /**
-     * Returns this image as a shader with the specified tiling.
+     * Returns an Image with the same "base" pixels as the this image, but with mipmap levels
+     * automatically generated and attached.
+     */
+    makeCopyWithDefaultMipmaps(): Image;
+
+    /**
+     * Returns this image as a shader with the specified tiling. It will use cubic sampling.
      * @param tx - tile mode in the x direction.
      * @param ty - tile mode in the y direction.
+     * @param b - See CubicResampler in SkSamplingOptions.h for more information
+     * @param c - See CubicResampler in SkSamplingOptions.h for more information
      * @param localMatrix
      */
-    makeShader(tx: TileMode, ty: TileMode, localMatrix?: InputMatrix): Shader;
+    makeShaderCubic(tx: TileMode, ty: TileMode, b: number, c: number,
+                    localMatrix?: InputMatrix): Shader;
+
+    /**
+     * Returns this image as a shader with the specified tiling. It will use cubic sampling.
+     * @param tx - tile mode in the x direction.
+     * @param ty - tile mode in the y direction.
+     * @param fm - The filter mode.
+     * @param mm - The mipmap mode. Note: for settings other than None, the image must have mipmaps
+     *             calculated with makeCopyWithDefaultMipmaps;
+     * @param localMatrix
+     */
+    makeShaderOptions(tx: TileMode, ty: TileMode, fm: FilterMode, mm: MipmapMode,
+                    localMatrix?: InputMatrix): Shader;
 
     /**
      * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not
@@ -1667,12 +1690,6 @@ export interface Paint extends EmbindObject<Paint> {
     getColor(): Color;
 
     /**
-     * Returns the image filtering level.
-     * [deprecated] This will be removed in an upcoming release.
-     */
-    getFilterQuality(): FilterQuality;
-
-    /**
      * Returns the geometry drawn at the beginning and end of strokes.
      */
     getStrokeCap(): StrokeCap;
@@ -1746,13 +1763,6 @@ export interface Paint extends EmbindObject<Paint> {
      * @param colorSpace - defaults to sRGB.
      */
     setColorInt(color: ColorInt, colorSpace?: ColorSpace): void;
-
-    /**
-     * Sets the image filtering level.
-     * [deprecated] This will be removed in an upcoming release.
-     * @param quality
-     */
-    setFilterQuality(quality: FilterQuality): void;
 
     /**
      * Sets the current image filter, replacing the existing one if there was one.
@@ -3470,11 +3480,13 @@ export type ColorSpace = EmbindObject<ColorSpace>;
 export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
 export type FillType = EmbindEnumEntity;
+export type FilterMode = EmbindEnumEntity;
 export type FilterQuality = EmbindEnumEntity;
 export type FontEdging = EmbindEnumEntity;
 export type FontHinting = EmbindEnumEntity;
-export type PathOp = EmbindEnumEntity;
+export type MipmapMode = EmbindEnumEntity;
 export type PaintStyle = EmbindEnumEntity;
+export type PathOp = EmbindEnumEntity;
 export type PointMode = EmbindEnumEntity;
 export type StrokeCap = EmbindEnumEntity;
 export type StrokeJoin = EmbindEnumEntity;
@@ -3590,6 +3602,11 @@ export interface FillTypeEnumValues extends EmbindEnum {
     EvenOdd: FillType;
 }
 
+export interface FilterModeEnumValues extends EmbindEnum {
+    Linear: FilterMode;
+    Nearest: FilterMode;
+}
+
 export interface FilterQualityEnumValues extends EmbindEnum {
     None: FilterQuality;
     Low: FilterQuality;
@@ -3648,6 +3665,12 @@ export interface ImageFormatEnumValues extends EmbindEnum {
     PNG: EncodedImageFormat;
     JPEG: EncodedImageFormat;
     WEBP: EncodedImageFormat;
+}
+
+export interface MipmapModeEnumValues extends EmbindEnum {
+    None: MipmapMode;
+    Nearest: MipmapMode;
+    Linear: MipmapMode;
 }
 
 export interface PaintStyleEnumValues extends EmbindEnum {
