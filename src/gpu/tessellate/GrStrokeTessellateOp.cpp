@@ -19,11 +19,8 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers,
                                         GrLoadOp colorLoadOp) {
-    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-    auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fViewMatrix, fColor);
-    this->prePreparePrograms(arena, strokeTessellateShader, writeView, std::move(*clip),
+    this->prePreparePrograms(GrStrokeTessellateShader::Mode::kTessellation,
+                             context->priv().recordTimeAllocator(), writeView, std::move(*clip),
                              dstProxyView, renderPassXferBarriers, colorLoadOp,
                              *context->priv().caps());
     if (fStencilProgram) {
@@ -36,14 +33,11 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fFillProgram && !fStencilProgram) {
-        SkArenaAlloc* arena = flushState->allocator();
-        auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fViewMatrix, fColor);
-        this->prePreparePrograms(flushState->allocator(), strokeTessellateShader,
-                                 flushState->writeView(), flushState->detachAppliedClip(),
-                                 flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                 flushState->colorLoadOp(), flushState->caps());
+        this->prePreparePrograms(GrStrokeTessellateShader::Mode::kTessellation,
+                                 flushState->allocator(), flushState->writeView(),
+                                 flushState->detachAppliedClip(), flushState->dstProxyView(),
+                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                 flushState->caps());
     }
     SkASSERT(fFillProgram || fStencilProgram);
 
@@ -64,7 +58,7 @@ void GrStrokeTessellateOp::prepareBuffers() {
     // has the potential to introduce an extra segment.
     fMaxTessellationSegments = fTarget->caps().shaderCaps()->maxTessellationSegments() - 2;
 
-    fTolerances.set(fViewMatrix.getMaxScale(), fStroke.getWidth());
+    fTolerances = this->preTransformTolerances();
 
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate
