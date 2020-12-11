@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab179ba4_f65ec962",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-11T17:15:01Z",
+      "side": 1,
+      "message": "I\u0027m not seeing any significant diffs from this -- running a chromium bot to make sure it\u0027ll pass layout tests.",
+      "revId": "5d3074c57d30aa8a54ea6cbe63f2c694a343bfe6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
