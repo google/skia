@@ -118,6 +118,30 @@
       },
       "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1c6a3ef_6ff00afe",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-11T16:38:37Z",
+      "side": 1,
+      "message": "Ah, I see. Yeah, that would be nice. I\u0027ve written similar things elsewhere (like my BaseNumberKind helper in VM generator). I\u0027m definitely in favor of that.",
+      "parentUuid": "e0afec04_2f7dc038",
+      "range": {
+        "startLine": 1647,
+        "startChar": 0,
+        "endLine": 1651,
+        "endChar": 0
+      },
+      "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
