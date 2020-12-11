@@ -37,7 +37,7 @@ private:
      */
     void release() {
         fResource->release();
-        if (!fResource->hasRef()) {
+        if (!fResource->hasRef() && fResource->hasNoCommandBufferUsages()) {
             delete fResource;
         }
     }
@@ -47,7 +47,7 @@ private:
      */
     void abandon() {
         fResource->abandon();
-        if (!fResource->hasRef()) {
+        if (!fResource->hasRef() && fResource->hasNoCommandBufferUsages()) {
             delete fResource;
         }
     }
