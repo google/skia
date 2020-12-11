@@ -18,10 +18,6 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
         , fStroke(stroke)
-        , fParametricIntolerance(
-                fViewMatrix.getMaxScale() * GrTessellationPathRenderer::kLinearizationIntolerance)
-        , fNumRadialSegmentsPerRadian(
-                .5f / acosf(std::max(1 - 2/(fParametricIntolerance * fStroke.getWidth()), -1.f)))
         , fColor(paint.getColor4f())
         , fProcessors(std::move(paint))
         , fPathList(path)
@@ -30,7 +26,6 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
     // We don't support hairline strokes. For now, the client can transform the path into device
     // space and then use a stroke width of 1.
     SkASSERT(fStroke.getWidth() > 0);
-    SkASSERT(fParametricIntolerance >= 0);
     SkRect devBounds = path.getBounds();
     float inflationRadius = fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);

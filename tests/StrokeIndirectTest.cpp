@@ -264,6 +264,7 @@ static float test_tolerance(SkPaint::Join joinType) {
 
 void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                                                        GrMeshDrawOp::Target* target) {
+    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
     float tolerance = test_tolerance(fStroke.getJoin());
     // Fill in fResolveLevels with our resolve levels for each curve.
     this->prePrepareResolveLevels(target->allocator());
@@ -297,7 +298,7 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                     if (fStroke.getJoin() == SkPaint::kRound_Join) {
                         float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
                                                                       pts[1] - pts[0]);
-                        float numSegments = rotation * fNumRadialSegmentsPerRadian;
+                        float numSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
                         if (isFirstStroke) {
                             firstNumSegments.push_back(numSegments);
                         } else if (!check_resolve_level(r, numSegments, *nextResolveLevel++,
@@ -324,14 +325,14 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                         }
                     }
                     float numParametricSegments = (hasCusp) ? 0 : GrWangsFormula::quadratic(
-                            fParametricIntolerance, pts);
+                            tolerances.fParametricIntolerance, pts);
                     float rotation = (hasCusp) ? 0 : SkMeasureQuadRotation(pts);
                     if (fStroke.getJoin() == SkPaint::kRound_Join) {
                         SkVector controlPoint = (pts[0] == pts[1]) ? pts[2] : pts[1];
                         rotation += SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
                                                                  controlPoint - pts[0]);
                     }
-                    float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
+                    float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
                     float numSegments = numParametricSegments + numRadialSegments;
                     if (!hasCusp || fStroke.getJoin() == SkPaint::kRound_Join) {
                         if (isFirstStroke) {
@@ -366,7 +367,7 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                         // it matches the answer we got already.
                         SkPoint* p = chops + i*3;
                         float numParametricSegments =
-                                GrWangsFormula::cubic(fParametricIntolerance, p);
+                                GrWangsFormula::cubic(tolerances.fParametricIntolerance, p);
                         SkVector tan0 =
                                 ((p[0] == p[1]) ? (p[1] == p[2]) ? p[3] : p[2] : p[1]) - p[0];
                         SkVector tan1 =
@@ -375,7 +376,7 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                         if (i == 0 && fStroke.getJoin() == SkPaint::kRound_Join) {
                             rotation += SkMeasureAngleBetweenVectors(p[0] - lastControlPoint, tan0);
                         }
-                        float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
+                        float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
                         float numSegments = numParametricSegments + numRadialSegments;
                         if (isFirstStroke) {
                             firstNumSegments.push_back(numSegments);
@@ -398,8 +399,9 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
                             // Line from pts[0] to startPoint, with a preceding join.
                             float rotation = SkMeasureAngleBetweenVectors(pts[0] - lastControlPoint,
                                                                           startPoint - pts[0]);
-                            if (!check_resolve_level(r, rotation * fNumRadialSegmentsPerRadian,
-                                                     *nextResolveLevel++, tolerance)) {
+                            if (!check_resolve_level(
+                                    r, rotation * tolerances.fNumRadialSegmentsPerRadian,
+                                    *nextResolveLevel++, tolerance)) {
                                 return;
                             }
                         }
@@ -423,6 +425,7 @@ void GrStrokeIndirectOp::verifyPrePrepareResolveLevels(skiatest::Reporter* r,
 
 void GrStrokeIndirectOp::verifyPrepareBuffers(skiatest::Reporter* r, GrMeshDrawOp::Target* target) {
     using IndirectInstance = GrStrokeTessellateShader::IndirectInstance;
+    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
     float tolerance = test_tolerance(fStroke.getJoin());
     // Make sure the resolve level we assign to each instance agrees with the actual data.
     this->prepareBuffers(target);
@@ -442,7 +445,8 @@ void GrStrokeIndirectOp::verifyPrepareBuffers(skiatest::Reporter* r, GrMeshDrawO
         for (unsigned j = 0; j < indirect->fInstanceCount; ++j) {
             SkASSERT(fabsf(instance->fNumTotalEdges) == indirect->fVertexCount/2);
             const SkPoint* p = instance->fPts.data();
-            float numParametricSegments = GrWangsFormula::cubic(fParametricIntolerance, p);
+            float numParametricSegments = GrWangsFormula::cubic(
+                    tolerances.fParametricIntolerance, p);
             float alternateNumParametricSegments = numParametricSegments;
             if (p[0] == p[1] && p[2] == p[3]) {
                 // We articulate lines as "p0,p0,p1,p1". This one might actually expect 0 parametric
@@ -463,7 +467,7 @@ void GrStrokeIndirectOp::verifyPrepareBuffers(skiatest::Reporter* r, GrMeshDrawO
             if (p[0] == p[1] && p[1] == p[2] && p[2] == p[3]) {
                 rotation = SK_ScalarPI;
             }
-            float numRadialSegments = rotation * fNumRadialSegmentsPerRadian;
+            float numRadialSegments = rotation * tolerances.fNumRadialSegmentsPerRadian;
             float numSegments = numParametricSegments + numRadialSegments;
             float alternateNumSegments = alternateNumParametricSegments + numRadialSegments;
             if (!check_resolve_level(r, numSegments, resolveLevel, tolerance, false) &&

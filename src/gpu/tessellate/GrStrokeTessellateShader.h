@@ -98,17 +98,32 @@ public:
         float fNumTotalEdges;
     };
 
-    // 'parametricIntolerance' controls the number of parametric segments we add for each curve.
-    // We add enough parametric segments so that the center of each one falls within
-    // 1/parametricIntolerance local path units from the true curve.
-    //
-    // 'numRadialSegmentsPerRadian' controls the number of radial segments we add for each curve.
-    // We add this number of radial segments for each radian of rotation, in order to guarantee
-    // smoothness.
-    //
+    // These tolerances decide the number of parametric and radial segments the tessellator will
+    // linearize curves into. These decisions are made in (pre-viewMatrix) local path space.
+    struct Tolerances {
+        Tolerances() = default;
+        Tolerances(float matrixMaxScale, float strokeWidth) {
+            this->set(matrixMaxScale, strokeWidth);
+        }
+        void set(float matrixMaxScale, float strokeWidth) {
+            fParametricIntolerance =
+                    matrixMaxScale * GrTessellationPathRenderer::kLinearizationIntolerance;
+            fNumRadialSegmentsPerRadian =
+                    .5f / acosf(std::max(1 - 2/(fParametricIntolerance * strokeWidth), -1.f));
+        }
+        // Decides the number of parametric segments the tessellator adds for each curve. (Uniform
+        // steps in parametric space.) The tessellator will add enough parametric segments so that,
+        // once transformed into device space, they never deviate by more than
+        // 1/GrTessellationPathRenderer::kLinearizationIntolerance pixels from the true curve.
+        float fParametricIntolerance;
+        // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
+        // in tangent angle.) The tessellator will add this number of radial segments for each
+        // radian of rotation in local path space.
+        float fNumRadialSegmentsPerRadian;
+    };
+
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
     GrStrokeTessellateShader(Mode mode, bool hasConics, const SkStrokeRec& stroke,
-                             float parametricIntolerance, float numRadialSegmentsPerRadian,
                              const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            (mode == Mode::kTessellation) ?
@@ -117,8 +132,6 @@ public:
             , fMode(mode)
             , fHasConics(hasConics)
             , fStroke(stroke)
-            , fParametricIntolerance(parametricIntolerance)
-            , fNumRadialSegmentsPerRadian(numRadialSegmentsPerRadian)
             , fColor(color) {
         SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
         if (fMode == Mode::kTessellation) {
@@ -157,8 +170,6 @@ private:
     const Mode fMode;
     const bool fHasConics;
     const SkStrokeRec fStroke;
-    const float fParametricIntolerance;
-    const float fNumRadialSegmentsPerRadian;
     const SkPMColor4f fColor;
 
     class TessellationImpl;

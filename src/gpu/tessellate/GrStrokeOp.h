@@ -67,14 +67,6 @@ protected:
     const GrAAType fAAType;
     const SkMatrix fViewMatrix;
     const SkStrokeRec fStroke;
-    // Controls the number of parametric segments the tessellator adds for each curve. The
-    // tessellator will add enough parametric segments so that the center of each one falls within
-    // 1/parametricIntolerance local path units from the true curve.
-    const float fParametricIntolerance;
-    // Controls the number of radial segments the tessellator adds for each curve. The tessellator
-    // will add this number of radial segments for each radian of rotation, in order to guarantee
-    // smoothness.
-    const float fNumRadialSegmentsPerRadian;
     SkPMColor4f fColor;
     bool fNeedsStencil = false;
     GrProcessorSet fProcessors;

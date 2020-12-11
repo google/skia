@@ -25,7 +25,11 @@ public:
     constexpr static int8_t kMaxResolveLevel = 15;
 
 private:
-    GrStrokeIndirectOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    GrStrokeIndirectOp(GrAAType aaType, const SkMatrix& viewMatrix, const SkPath& path,
+                       const SkStrokeRec& stroke, GrPaint&& paint)
+            : GrStrokeOp(ClassID(), aaType, viewMatrix, stroke, path, std::move(paint)) {
+    }
+
     const char* name() const override { return "GrStrokeIndirectOp"; }
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
@@ -51,13 +55,13 @@ private:
     // just 0.)
     SkDEBUGCODE(int fResolveLevelArrayCount = 0;)
 
-    // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. We draw them at cusp
-    // points on curves and for round caps.
-    const int8_t fResolveLevelForCircles;
-
     // Stores the in-order chop locations for all chops indicated by fResolveLevels.
     float* fChopTs = nullptr;
     SkDEBUGCODE(int fChopTsArrayCount = 0;)
+
+    // A "circle" is a stroke-width circle drawn as a 180-degree point stroke. We draw them at cusp
+    // points on curves and for round caps.
+    int8_t fResolveLevelForCircles;
 
     // GPU buffers for drawing.
     sk_sp<const GrBuffer> fDrawIndirectBuffer;

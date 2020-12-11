@@ -84,6 +84,10 @@ private:
     // The maximum number of tessellation segments the hardware can emit for a single patch.
     int fMaxTessellationSegments;
 
+    // Tolerances the tessellation shader will use for determining how much subdivision to do. We
+    // need to ensure every curve we emit doesn't require more than fMaxTessellationSegments.
+    GrStrokeTessellateShader::Tolerances fTolerances;
+
     // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
     // our hardware can support for the current stroke radius. They assume curve rotations of 180
     // and 360 degrees respectively. These are used for "quick accepts" that allow us to send almost
