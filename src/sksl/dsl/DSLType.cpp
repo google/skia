@@ -163,8 +163,7 @@ TYPE(Short)
 DSLType Array(const DSLType& base, int count) {
     SkSL::String name = base.skslType().name() + "[" + SkSL::to_string(count) + "]";
     return DSLType(DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
-                                    std::make_unique<SkSL::Type>(name, SkSL::Type::TypeKind::kArray,
-                                                                 base.skslType(), count)));
+            Type::MakeArrayType(name, base.skslType(), count)));
 }
 
 } // namespace dsl
