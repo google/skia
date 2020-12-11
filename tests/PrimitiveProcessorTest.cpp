@@ -174,9 +174,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrGpu* gpu = context->priv().getGpu();
 #endif
 
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;
     }
@@ -192,18 +192,18 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
-    renderTargetContext->discard();
+    surfaceDrawContext->discard();
 
     GrPaint grPaint;
     // This one should succeed.
-    renderTargetContext->addDrawOp(Op::Make(context, attribCnt));
+    surfaceDrawContext->addDrawOp(Op::Make(context, attribCnt));
     context->flushAndSubmit();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     context->priv().resetGpuStats();
-    renderTargetContext->addDrawOp(Op::Make(context, attribCnt + 1));
+    surfaceDrawContext->addDrawOp(Op::Make(context, attribCnt + 1));
     context->flushAndSubmit();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);

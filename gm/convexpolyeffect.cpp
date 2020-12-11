@@ -106,7 +106,7 @@ protected:
         fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
         SkScalar y = 0;
         static constexpr SkScalar kDX = 12.f;
@@ -136,7 +136,7 @@ protected:
 
                 auto rect = p.getBounds().makeOutset(kOutset, kOutset);
                 auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), rect);
-                renderTargetContext->addDrawOp(std::move(op));
+                surfaceDrawContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -176,7 +176,7 @@ protected:
                 auto drawRect = rect.makeOutset(kOutset, kOutset);
                 auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(grPaint), drawRect);
 
-                renderTargetContext->addDrawOp(std::move(op));
+                surfaceDrawContext->addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

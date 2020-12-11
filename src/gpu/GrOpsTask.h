@@ -120,7 +120,7 @@ private:
         fInitialStencilContent = initialContent;
     }
 
-    // If a renderTargetContext splits its opsTask, it uses this method to guarantee stencil values
+    // If a surfaceDrawContext splits its opsTask, it uses this method to guarantee stencil values
     // get preserved across its split tasks.
     void setMustPreserveStencil() { fMustPreserveStencil = true; }
 

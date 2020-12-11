@@ -644,7 +644,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
     dstBounds.offset(input->subset().topLeft());
     inputBounds.offset(input->subset().topLeft());
-    auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(
+    auto surfaceDrawContext = SkGpuBlurUtils::GaussianBlur(
             context,
             std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
@@ -655,15 +655,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             sigma.x(),
             sigma.y(),
             fTileMode);
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeSize(dstBounds.size()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               renderTargetContext->readSurfaceView(),
-                                               renderTargetContext->colorInfo().colorType(),
+                                               surfaceDrawContext->readSurfaceView(),
+                                               surfaceDrawContext->colorInfo().colorType(),
                                                sk_ref_sp(input->getColorSpace()),
                                                ctx.surfaceProps());
 }

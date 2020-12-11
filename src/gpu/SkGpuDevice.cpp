@@ -76,20 +76,20 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context,
-                                     std::unique_ptr<GrSurfaceDrawContext> renderTargetContext,
+                                     std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext,
                                      InitContents init) {
-    if (!renderTargetContext || context->abandoned()) {
+    if (!surfaceDrawContext || context->abandoned()) {
         return nullptr;
     }
 
-    SkColorType ct = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
+    SkColorType ct = GrColorTypeToSkColorType(surfaceDrawContext->colorInfo().colorType());
 
     unsigned flags;
     if (!context->colorTypeSupportedAsSurface(ct) ||
         !CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
         return nullptr;
     }
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(surfaceDrawContext), flags));
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted budgeted,
@@ -102,13 +102,13 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted bud
         return nullptr;
     }
 
-    auto renderTargetContext =
+    auto surfaceDrawContext =
             MakeRenderTargetContext(context, budgeted, info, sampleCount, origin, props, mipMapped);
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(surfaceDrawContext), flags));
 }
 
 static SkImageInfo make_info(GrSurfaceDrawContext* context, bool opaque) {
@@ -119,12 +119,12 @@ static SkImageInfo make_info(GrSurfaceDrawContext* context, bool opaque) {
 }
 
 SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
-                         std::unique_ptr<GrSurfaceDrawContext> renderTargetContext,
+                         std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext,
                          unsigned flags)
-        : INHERITED(make_info(renderTargetContext.get(), SkToBool(flags & kIsOpaque_Flag)),
-                    renderTargetContext->surfaceProps())
+        : INHERITED(make_info(surfaceDrawContext.get(), SkToBool(flags & kIsOpaque_Flag)),
+                    surfaceDrawContext->surfaceProps())
         , fContext(SkRef(context))
-        , fRenderTargetContext(std::move(renderTargetContext))
+        , fRenderTargetContext(std::move(surfaceDrawContext))
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
         , fClip(SkIRect::MakeWH(fRenderTargetContext->width(),
                                 fRenderTargetContext->height()),

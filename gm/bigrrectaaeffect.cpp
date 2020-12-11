@@ -65,7 +65,7 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* renderTargetContext,
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
         SkPaint paint;
 
@@ -88,7 +88,7 @@ protected:
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
-                const auto& caps = *renderTargetContext->caps()->shaderCaps();
+                const auto& caps = *surfaceDrawContext->caps()->shaderCaps();
                 auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, rrect,
                                                          caps);
                 SkASSERT(success);
@@ -102,7 +102,7 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    renderTargetContext->addDrawOp(GrFillRectOp::MakeNonAARect(
+                    surfaceDrawContext->addDrawOp(GrFillRectOp::MakeNonAARect(
                             context, std::move(grPaint), SkMatrix::I(), bounds));
                 }
             canvas->restore();
