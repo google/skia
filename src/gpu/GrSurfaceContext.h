@@ -173,6 +173,16 @@ public:
                                                   SkImage::RescaleGamma,
                                                   SkFilterQuality);
 
+    /**
+     * Like the above but allows the caller ot specify a destination render target context and
+     * rect within that context. The dst rect must be contained by the dst or this will fail.
+     */
+    bool rescaleInto(GrSurfaceDrawContext* dst,
+                     SkIRect dstRect,
+                     SkIRect srcRect,
+                     SkImage::RescaleGamma,
+                     SkFilterQuality);
+
     GrAuditTrail* auditTrail();
 
 #if GR_TEST_UTILS
