@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9d71277_b336bc5b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-11T16:07:23Z",
+      "side": 1,
+      "message": "Would it work to move this down slightly and then check:\n\n   if (!leftComponentType.isScalar() || !rightComponentType.isScalar())\n\n?",
+      "range": {
+        "startLine": 1647,
+        "startChar": 0,
+        "endLine": 1651,
+        "endChar": 0
+      },
+      "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
