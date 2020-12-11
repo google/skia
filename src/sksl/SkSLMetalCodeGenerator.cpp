@@ -141,9 +141,9 @@ bool MetalCodeGenerator::writeStructDefinition(const Type& type) {
 
 // Flags an error if an array type is found. Meant to be used in places where an array type might
 // appear in the SkSL/IR, but can't be represented by Metal.
-void MetalCodeGenerator::disallowArrayTypes(const Type& type) {
+void MetalCodeGenerator::disallowArrayTypes(const Type& type, int offset) {
     if (type.isArray()) {
-        fErrors.error(type.fOffset, "Metal does not support array types in this context");
+        fErrors.error(offset, "Metal does not support array types in this context");
     }
 }
 
@@ -952,7 +952,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
 
     // Explicitly invoke the constructor, passing in the necessary arguments.
     this->writeBaseType(constructorType);
-    this->disallowArrayTypes(constructorType);  // constructors of array types aren't valid exprs
+    this->disallowArrayTypes(constructorType, c.fOffset);
     this->write("(");
     const char* separator = "";
     int scalarCount = 0;
@@ -1377,7 +1377,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         separator = ", ";
     } else {
         this->writeBaseType(f.returnType());
-        this->disallowArrayTypes(f.returnType());  // return types can't be arrays in SkSL/GLSL
+        this->disallowArrayTypes(f.returnType(), f.fOffset);
         this->write(" ");
         this->writeName(f.name());
         this->write("(");
@@ -1583,7 +1583,7 @@ void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glo
     }
     this->writeModifiers(var.var().modifiers(), global);
     this->writeBaseType(var.baseType());
-    this->disallowArrayTypes(var.baseType());  // `float[2] x` shouldn't be possible (invalid SkSL)
+    this->disallowArrayTypes(var.baseType(), var.fOffset);
     this->write(" ");
     this->writeName(var.var().name());
     if (var.arraySize() > 0) {

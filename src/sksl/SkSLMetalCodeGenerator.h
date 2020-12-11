@@ -171,7 +171,7 @@ protected:
 
     bool writeStructDefinition(const Type& type);
 
-    void disallowArrayTypes(const Type& type);
+    void disallowArrayTypes(const Type& type, int offset);
 
     void writeBaseType(const Type& type);
 
