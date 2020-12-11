@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "555431b5_8dcaf5d2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-11T17:46:23Z",
+      "side": 1,
+      "message": "As discussed yesterday, let\u0027s make sure this is actual policy in layer creation. And removes the clip shenanigans it used to do.\n\nThe canary failures in flutter and android appear to be infra issues, so I don\u0027t think anyone was relying on the old behavior.",
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
