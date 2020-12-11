@@ -1647,8 +1647,8 @@ static bool determine_binary_type(const Context& context,
 
     // Boolean types only support the operators listed above (, = == != || && ^^).
     // If we've gotten this far with a boolean, we have an unsupported operator.
-    const Type& leftComponentType(left.columns() > 1 ? left.componentType() : left);
-    const Type& rightComponentType(right.columns() > 1 ? right.componentType() : right);
+    const Type& leftComponentType = left.componentType();
+    const Type& rightComponentType = right.componentType();
     if (leftComponentType.isBoolean() || rightComponentType.isBoolean()) {
         return false;
     }
