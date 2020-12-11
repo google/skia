@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "767b229a_811bb0aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-11T14:07:58Z",
+      "side": 1,
+      "message": "I already triaged 1000+ images on gold from this CL. What is the risk of losing those if we revert?",
+      "revId": "f9812345543d8345d6764ece65259e62fbf13438",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
