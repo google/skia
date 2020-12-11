@@ -57,6 +57,9 @@ private:
 
     /** Is the resource ref'ed */
     bool hasRef() const { return fResource->hasRef(); }
+    bool hasRefOrCommandBufferUsage() const {
+        return this->hasRef() || !fResource->hasNoCommandBufferUsages();
+    }
 
     /** Called by the cache to make the unique key invalid. */
     void removeUniqueKey() { fResource->fUniqueKey.reset(); }
