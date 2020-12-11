@@ -32,6 +32,8 @@ protected:
 
     SkPath onAsPath(const SkSVGRenderContext&) const override;
 
+    SkRect onObjectBoundingBox(const SkSVGRenderContext&) const override;
+
 private:
     SkSVGPoly(SkSVGTag);
 

@@ -34,8 +34,8 @@ SkRect SkSVGFilter::resolveFilterRegion(const SkSVGRenderContext& ctx) const {
     if (fFilterUnits.type() == SkSVGObjectBoundingBoxUnits::Type::kObjectBoundingBox) {
         SkASSERT(ctx.node());
         const SkRect objBounds = ctx.node()->objectBoundingBox(ctx);
-        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + filterRegion.fLeft * objBounds.fLeft,
-                                        objBounds.fTop + filterRegion.fTop * objBounds.fTop,
+        filterRegion = SkRect::MakeXYWH(objBounds.fLeft + filterRegion.fLeft * objBounds.width(),
+                                        objBounds.fTop + filterRegion.fTop * objBounds.height(),
                                         filterRegion.width() * objBounds.width(),
                                         filterRegion.height() * objBounds.height());
     }
