@@ -330,6 +330,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "67d4844d_24bdccf8",
+        "filename": "src/gpu/GrCommandBufferRef.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T16:01:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1e6fef94_ef01c615",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 5
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "185643c5_49fa960e",
@@ -367,6 +391,30 @@
       "side": 1,
       "message": "added hasNoCommandBufferUsages() function and removed getter.",
       "parentUuid": "185643c5_49fa960e",
+      "range": {
+        "startLine": 43,
+        "startChar": 23,
+        "endLine": 43,
+        "endChar": 47
+      },
+      "revId": "403ab3cc13165d67b69c23b2129f9d69e3da9a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d8acb80_7e6c9bcf",
+        "filename": "src/gpu/GrGpuResource.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T16:01:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7a9a709d_04752271",
       "range": {
         "startLine": 43,
         "startChar": 23,
