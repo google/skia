@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5158fb32_f6a88d2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-11T15:16:24Z",
+      "side": 1,
+      "message": ", ",
+      "revId": "dd03a9d65ca26678243f2bdc6f18ded89269091d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21a82460_ca58f631",
@@ -14,6 +31,30 @@
       "writtenOn": "2020-12-11T15:13:43Z",
       "side": 1,
       "message": "highly optional: you\u0027re following the existing style, but all the type punning in here should probably be using memcpy",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 60
+      },
+      "revId": "dd03a9d65ca26678243f2bdc6f18ded89269091d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fda648ce_da87b1c9",
+        "filename": "tools/viewer/SkSLSlide.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-11T15:16:24Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ll probably do that in a follow-up. I realize I could easily add several more of the shadertoy builtins, so I\u0027ll convert to memcpy() when I do.",
+      "parentUuid": "21a82460_ca58f631",
       "range": {
         "startLine": 127,
         "startChar": 12,
