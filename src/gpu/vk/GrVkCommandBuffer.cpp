@@ -45,6 +45,7 @@ void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) con
     SkASSERT(!fTrackedResources.count());
     SkASSERT(!fTrackedRecycledResources.count());
     SkASSERT(!fTrackedGpuBuffers.count());
+    SkASSERT(!fTrackedGpuSurfaces.count());
     SkASSERT(cmdPool != VK_NULL_HANDLE);
     SkASSERT(!this->isWrapped());
 
@@ -78,6 +79,7 @@ void GrVkCommandBuffer::releaseResources() {
     }
 
     fTrackedGpuBuffers.reset();
+    fTrackedGpuSurfaces.reset();
 
     this->invalidateState();
 
