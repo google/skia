@@ -1,0 +1,54 @@
+void functionLeft() {
+    float x = functionLeft * 2;
+}
+
+void functionRight() {
+    float x = 2 * functionRight;
+}
+
+void functionBoth() {
+    float x = functionBoth * functionBoth;
+}
+
+struct S {
+} s;
+
+void structLeft() {
+    float x = s * 2;
+}
+
+void structRight() {
+    float x = 2 * s;
+}
+
+void structBoth() {
+    float x = s * s;
+}
+
+sampler2D smp;
+
+void samplerLeft() {
+    float x = smp * 2;
+}
+
+void samplerRight() {
+    float x = 2 * smp;
+}
+
+void samplerBoth() {
+    float x = smp * smp;
+}
+
+int array[1];
+
+void arrayLeft() {
+    float x = array * 2;
+}
+
+void arrayRight() {
+    float x = 2 * array;
+}
+
+void arrayBoth() {
+    float x = array * array;
+}

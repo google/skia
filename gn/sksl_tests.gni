@@ -81,6 +81,7 @@ sksl_error_tests = [
   "$_tests/sksl/errors/BadFieldAccess.sksl",
   "$_tests/sksl/errors/BadIndex.sksl",
   "$_tests/sksl/errors/BadModifiers.sksl",
+  "$_tests/sksl/errors/BinaryInvalidType.sksl",
   "$_tests/sksl/errors/BinaryTypeCoercion.sksl",
   "$_tests/sksl/errors/BinaryTypeMismatch.sksl",
   "$_tests/sksl/errors/BitShiftFloat.sksl",
