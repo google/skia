@@ -29,6 +29,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
@@ -1227,15 +1228,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return result;
         }))
         .function("height", &SkImage::height)
-        .function("width", &SkImage::width)
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
         .function("_encodeToDataWithFormat", select_overload<sk_sp<SkData>(SkEncodedImageFormat encodedImageFormat, int quality)const>(&SkImage::encodeToData))
-        .function("_makeShader", optional_override([](sk_sp<SkImage> self,
+        .function("makeCopyWithDefaultMipmaps", optional_override([](sk_sp<SkImage> self)->sk_sp<SkImage> {
+            return self->withDefaultMipmaps();
+        }))
+        .function("_makeShaderCubic", optional_override([](sk_sp<SkImage> self,
                                  SkTileMode tx, SkTileMode ty,
+                                 float B, float C, // See SkImage::CubicResampler for docs.
                                  uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
-            OptionalMatrix localMatrix(mPtr);
-            // Need to take SkSamplingOptions explicitly from the caller
-            return SkImage_makeShaderImplicitFilterQuality(self.get(), tx, ty, &localMatrix);
+            return self->makeShader(tx, ty, SkSamplingOptions({B, C}), OptionalMatrix(mPtr));
+        }), allow_raw_pointers())
+        .function("_makeShaderOptions", optional_override([](sk_sp<SkImage> self,
+                                 SkTileMode tx, SkTileMode ty,
+                                 SkFilterMode filter, SkMipmapMode mipmap,
+                                 uintptr_t /* SkScalar*  */ mPtr)->sk_sp<SkShader> {
+            return self->makeShader(tx, ty, {filter, mipmap}, OptionalMatrix(mPtr));
         }), allow_raw_pointers())
         .function("_readPixels", optional_override([](sk_sp<SkImage> self,
                                  SimpleImageInfo sii, uintptr_t /* uint8_t*  */ pPtr,
@@ -1248,7 +1256,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             dContext = GrAsDirectContext(as_IB(self.get())->context());
 #endif
             return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
-        }), allow_raw_pointers());
+        }), allow_raw_pointers())
+        .function("width", &SkImage::width);
 
     class_<SkImageFilter>("ImageFilter")
         .smart_ptr<sk_sp<SkImageFilter>>("sk_sp<ImageFilter>")
@@ -1287,7 +1296,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             float* fourFloats = reinterpret_cast<float*>(cPtr);
             memcpy(fourFloats, c.vec(), 4 * sizeof(SkScalar));
         }))
-        .function("getFilterQuality", &SkPaint::getFilterQuality)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
         .function("getStrokeJoin", &SkPaint::getStrokeJoin)
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
@@ -1307,7 +1315,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.setColor(SkColor4f::FromColor(color), colorSpace.get());
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
-        .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setImageFilter", &SkPaint::setImageFilter)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
@@ -1832,6 +1839,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Winding",           SkPathFillType::kWinding)
         .value("EvenOdd",           SkPathFillType::kEvenOdd);
 
+    enum_<SkFilterMode>("FilterMode")
+        .value("Nearest",   SkFilterMode::kNearest)
+        .value("Linear",    SkFilterMode::kLinear);
+
     enum_<SkFilterQuality>("FilterQuality")
         .value("None",   SkFilterQuality::kNone_SkFilterQuality)
         .value("Low",    SkFilterQuality::kLow_SkFilterQuality)
@@ -1844,6 +1855,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("PNG",  SkEncodedImageFormat::kPNG)
         .value("JPEG",  SkEncodedImageFormat::kJPEG)
         .value("WEBP",  SkEncodedImageFormat::kWEBP);
+
+    enum_<SkMipmapMode>("MipmapMode")
+        .value("None",    SkMipmapMode::kNone)
+        .value("Nearest", SkMipmapMode::kNearest)
+        .value("Linear",  SkMipmapMode::kLinear);
 
     enum_<SkPaint::Style>("PaintStyle")
         .value("Fill",            SkPaint::Style::kFill_Style)
