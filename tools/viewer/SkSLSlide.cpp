@@ -71,6 +71,8 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
 
     shader = SkPerlinNoiseShader::MakeImprovedNoise(0.025f, 0.025f, 3, 0.0f);
     fShaders.push_back(std::make_pair("Perlin Noise", shader));
+
+    fResolution = { winWidth, winHeight, 1.0f };
 }
 
 void SkSLSlide::unload() {
@@ -81,7 +83,10 @@ void SkSLSlide::unload() {
 }
 
 bool SkSLSlide::rebuild() {
-    SkString sksl("uniform float iTime;\n");
+    // Some of the standard shadertoy inputs:
+    SkString sksl("uniform float3 iResolution;\n"
+                  "uniform float  iTime;\n"
+                  "uniform float4 iMouse;\n");
     sksl.append(fSkSL);
     auto [effect, errorText] = SkRuntimeEffect::Make(sksl);
     if (!effect) {
@@ -123,9 +128,31 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         return;
     }
 
+    // Update fMousePos
+    ImVec2 mousePos = ImGui::GetMousePos();
+    if (ImGui::IsMouseDown(0)) {
+        fMousePos.x = mousePos.x;
+        fMousePos.y = mousePos.y;
+    }
+    if (ImGui::IsMouseClicked(0)) {
+        fMousePos.z = mousePos.x;
+        fMousePos.w = mousePos.y;
+    }
+    fMousePos.z = abs(fMousePos.z) * (ImGui::IsMouseDown(0)    ? 1 : -1);
+    fMousePos.w = abs(fMousePos.w) * (ImGui::IsMouseClicked(0) ? 1 : -1);
+
     for (const auto& v : fEffect->uniforms()) {
+        char* data = fInputs.get() + v.fOffset;
+        if (v.fName.equals("iResolution")) {
+            memcpy(data, &fResolution, sizeof(fResolution));
+            continue;
+        }
         if (v.fName.equals("iTime")) {
-            *(float*)(fInputs.get() + v.fOffset) = fSeconds;
+            memcpy(data, &fSeconds, sizeof(fSeconds));
+            continue;
+        }
+        if (v.fName.equals("iMouse")) {
+            memcpy(data, &fMousePos, sizeof(fMousePos));
             continue;
         }
         switch (v.fType) {
@@ -134,7 +161,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
             case SkRuntimeEffect::Uniform::Type::kFloat3:
             case SkRuntimeEffect::Uniform::Type::kFloat4: {
                 int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat) + 1;
-                float* f = (float*)(fInputs.get() + v.fOffset);
+                float* f = reinterpret_cast<float*>(data);
                 for (int c = 0; c < v.fCount; ++c, f += rows) {
                     SkString name = v.isArray() ? SkStringPrintf("%s[%d]", v.fName.c_str(), c)
                                                 : v.fName;
@@ -149,7 +176,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
             case SkRuntimeEffect::Uniform::Type::kFloat4x4: {
                 int rows = ((int)v.fType - (int)SkRuntimeEffect::Uniform::Type::kFloat2x2) + 2;
                 int cols = rows;
-                float* f = (float*)(fInputs.get() + v.fOffset);
+                float* f = reinterpret_cast<float*>(data);
                 for (int e = 0; e < v.fCount; ++e) {
                     for (int c = 0; c < cols; ++c, f += rows) {
                         SkString name = v.isArray()
