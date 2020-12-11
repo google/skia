@@ -16,6 +16,41 @@
       "message": "Diffs on gold are the untriaged ones from feFlood CL",
       "revId": "f978317edf4f9e146da58fa5c07a76f9204c4b4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a32b3d2c_97b5c59a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-11T16:18:10Z",
+      "side": 1,
+      "message": "ah, whew, I was scratching my head over those.",
+      "parentUuid": "30296dcf_6004346a",
+      "revId": "f978317edf4f9e146da58fa5c07a76f9204c4b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60a19c51_7a4ef9cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-11T16:18:10Z",
+      "side": 1,
+      "message": "lgtm, thanks!",
+      "revId": "f978317edf4f9e146da58fa5c07a76f9204c4b4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
