@@ -70,6 +70,30 @@
       },
       "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf2e5193_5562781b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-11T16:17:53Z",
+      "side": 1,
+      "message": "It\u0027s safe for scalars, but not for other types:\n\n  SkASSERT(this-\u003eisScalar() || this-\u003eisVector() || this-\u003eisMatrix() || this-\u003eisArray());",
+      "parentUuid": "e5390c3c_168ca409",
+      "range": {
+        "startLine": 1647,
+        "startChar": 0,
+        "endLine": 1651,
+        "endChar": 0
+      },
+      "revId": "8e344e1953bf446cdc48a3f2cbd1096897b6a39b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
