@@ -13,7 +13,9 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.x = float(findLSB(_in.a));
-    _out->sk_FragColor.y = float(findLSB(int(_in.b)));
+    int _skTemp0;
+    int _skTemp1;
+    _out->sk_FragColor.x = float((_skTemp0 = (_in.a), select(ctz(_skTemp0), int(-1), _skTemp0 == int(0))));
+    _out->sk_FragColor.y = float((_skTemp1 = (int(_in.b)), select(ctz(_skTemp1), int(-1), _skTemp1 == int(0))));
     return *_out;
 }
