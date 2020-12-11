@@ -205,10 +205,10 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = GrSurfaceDrawContext::Make(
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
             this->dimensions(), 1, GrMipmapped::kNo, GrProtected::kNo);
-    if (!renderTargetContext) {
+    if (!surfaceDrawContext) {
         return;
     }
 
@@ -232,9 +232,9 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
     paint.setColorFragmentProcessor(std::move(fp));
 
-    renderTargetContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
 
-    fRGBView = renderTargetContext->readSurfaceView();
+    fRGBView = surfaceDrawContext->readSurfaceView();
     SkASSERT(fRGBView.swizzle() == GrSwizzle());
     for (auto& v : fViews) {
         v.reset();

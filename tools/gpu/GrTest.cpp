@@ -137,8 +137,8 @@ DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
 DRAW_OP_TEST_EXTERN(TextureOp);
 
-void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* renderTargetContext, GrPaint&& paint) {
-    auto context = renderTargetContext->recordingContext();
+void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* surfaceDrawContext, GrPaint&& paint) {
+    auto context = surfaceDrawContext->recordingContext();
     using MakeDrawOpFn = GrOp::Owner (GrPaint&&, SkRandom*,
                                       GrRecordingContext*, int numSamples);
     static constexpr MakeDrawOpFn* gFactories[] = {
@@ -168,11 +168,11 @@ void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* renderTargetContext,
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
     auto op = gFactories[index](
-            std::move(paint), random, context, renderTargetContext->numSamples());
+            std::move(paint), random, context, surfaceDrawContext->numSamples());
 
     // Creating a GrAtlasTextOp my not produce an op if for example, it is totally outside the
     // render target context.
     if (op) {
-        renderTargetContext->addDrawOp(std::move(op));
+        surfaceDrawContext->addDrawOp(std::move(op));
     }
 }

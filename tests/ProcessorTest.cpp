@@ -157,7 +157,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-            auto renderTargetContext = GrSurfaceDrawContext::Make(
+            auto surfaceDrawContext = GrSurfaceDrawContext::Make(
                     context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
@@ -176,10 +176,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         clone = fp->clone();
                     }
                     GrOp::Owner op = TestOp::Make(context, std::move(fp));
-                    renderTargetContext->addDrawOp(std::move(op));
+                    surfaceDrawContext->addDrawOp(std::move(op));
                     if (clone) {
                         op = TestOp::Make(context, std::move(clone));
-                        renderTargetContext->addDrawOp(std::move(op));
+                        surfaceDrawContext->addDrawOp(std::move(op));
                     }
                 }
 

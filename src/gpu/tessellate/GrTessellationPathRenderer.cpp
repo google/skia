@@ -177,7 +177,7 @@ static GrOp::Owner make_stroke_op(GrRecordingContext* context, GrAAType aaType,
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GrSurfaceDrawContext* renderTargetContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
     const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();
 
     SkPath path;
@@ -211,10 +211,10 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
 #endif
         auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
-                renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
+                surfaceDrawContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
                 std::move(args.fPaint));
-        renderTargetContext->addDrawOp(args.fClip, std::move(op));
+        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
 
@@ -225,8 +225,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                                       devBounds.height());
     if (worstCaseResolveLevel > kMaxResolveLevel) {
         // The path is too large for our internal indirect draw shaders. Crop it to the viewport.
-        auto viewport = SkRect::MakeIWH(renderTargetContext->width(),
-                                        renderTargetContext->height());
+        auto viewport = SkRect::MakeIWH(surfaceDrawContext->width(),
+                                        surfaceDrawContext->height());
         float inflationRadius = 1;
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         if (stroke.getStyle() == SkStrokeRec::kHairline_Style) {
@@ -274,7 +274,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         devStroke.setStrokeStyle(1);
         auto op = make_stroke_op(args.fContext, args.fAAType, SkMatrix::I(), devStroke, devPath,
                                  std::move(args.fPaint), shaderCaps);
-        renderTargetContext->addDrawOp(args.fClip, std::move(op));
+        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
 
@@ -283,7 +283,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
         auto op = make_stroke_op(args.fContext, args.fAAType, *args.fViewMatrix, stroke, path,
                                  std::move(args.fPaint), shaderCaps);
-        renderTargetContext->addDrawOp(args.fClip, std::move(op));
+        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
 
@@ -298,7 +298,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     auto op = GrOp::Make<GrPathTessellateOp>(
             args.fContext, *args.fViewMatrix, path, std::move(args.fPaint),
             args.fAAType, drawPathFlags);
-    renderTargetContext->addDrawOp(args.fClip, std::move(op));
+    surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 
@@ -426,7 +426,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
     auto aaType = GrAAType::kMSAA;
     auto fillRectFlags = GrFillRectOp::InputFlags::kNone;
 
-    // This will be the final op in the renderTargetContext. So if Ganesh is planning to discard the
+    // This will be the final op in the surfaceDrawContext. So if Ganesh is planning to discard the
     // stencil values anyway, then we might not actually need to reset the stencil values back to 0.
     bool mustResetStencil = !onFlushRP->caps()->discardStencilValuesAfterRenderPass();
 

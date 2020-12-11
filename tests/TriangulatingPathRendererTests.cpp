@@ -701,7 +701,7 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
 }
 
 static void test_path(GrRecordingContext* rContext,
-                      GrSurfaceDrawContext* renderTargetContext,
+                      GrSurfaceDrawContext* surfaceDrawContext,
                       const SkPath& path,
                       const SkMatrix& matrix = SkMatrix::I(),
                       GrAAType aaType = GrAAType::kNone,
@@ -715,14 +715,14 @@ static void test_path(GrRecordingContext* rContext,
         paint.setColorFragmentProcessor(std::move(fp));
     }
 
-    SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
-                                                     renderTargetContext->height());
+    SkIRect clipConservativeBounds = SkIRect::MakeWH(surfaceDrawContext->width(),
+                                                     surfaceDrawContext->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrStyledShape shape(path, style);
     GrPathRenderer::DrawPathArgs args{rContext,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
-                                      renderTargetContext,
+                                      surfaceDrawContext,
                                       nullptr,
                                       &clipConservativeBounds,
                                       &matrix,
