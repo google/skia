@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5880c713_86ad6c55",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "52690063_58661a6b",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44ff7a90_8a03f195",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-12-08T17:53:11Z",
       "side": 1,
       "message": "nit: line break @100",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d37ff634_e7c2e27c",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "44ff7a90_8a03f195",
       "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -52,6 +88,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "763b4aad_f4804370",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "If garbage is passed for input, the worst that can happen is that the dataChunk stays set as 0. Then when we try to read the data, there is a check:\n\nif (mDataChunk \u003d\u003d 0 || mFmtChunk \u003d\u003d 0) {\n        return 0;\n}\n\nWe can handle it on our end to avoid unnecessary work though. I\u0027ll make another CL.",
+      "parentUuid": "4560d9e1_b967e711",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f591a1f_a7e1f89a",
@@ -65,6 +119,24 @@
       "writtenOn": "2020-12-08T17:53:11Z",
       "side": 1,
       "message": "nit: since it\u0027s only done at construction time, let\u0027s move this initialization to the field declaration.",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2661bc1_9553d1d8",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "5f591a1f_a7e1f89a",
       "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -86,6 +158,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "58b04e75_504613a3",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "827757a8_529b141e",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90171252_dba9d120",
@@ -99,6 +189,24 @@
       "writtenOn": "2020-12-08T17:53:11Z",
       "side": 1,
       "message": "nit: you can hide this as private.",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d4db8d8_64258fde",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "90171252_dba9d120",
       "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -120,6 +228,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edb1cb5b_0df88268",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Didn\u0027t see that builder option, nice.",
+      "parentUuid": "9c0aec9f_de2793cd",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "248656e3_1e70d05b",
@@ -137,6 +263,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "945da82b_08989053",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done, we now use the different openStream flavor.",
+      "parentUuid": "248656e3_1e70d05b",
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6dd56c55_ad9a319e",
@@ -150,6 +294,30 @@
       "writtenOn": "2020-12-08T17:53:11Z",
       "side": 1,
       "message": "for Skia style \u0026 local consistency, let\u0027s prefix all fields with \"f\": fStream, etc",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 67
+      },
+      "revId": "726e35fcff23d7b052faf8d9d29120ec532b2aa8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "827c37fe_4919adac",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-11T19:28:10Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "6dd56c55_ad9a319e",
       "range": {
         "startLine": 108,
         "startChar": 0,
