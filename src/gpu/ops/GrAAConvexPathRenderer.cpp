@@ -568,12 +568,9 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(qe);
 
-#if defined(SK_BUILD_FOR_IOS)
             // GL on iOS 14 needs more precision for the quadedge attributes
+            // We might as well enable it everywhere
             GrGLSLVarying v(kFloat4_GrSLType);
-#else
-            GrGLSLVarying v(kHalf4_GrSLType);
-#endif
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge.name());
 
@@ -650,12 +647,8 @@ private:
             , fUsesLocalCoords(usesLocalCoords) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInColor = MakeColorAttribute("inColor", wideColor);
-#if defined(SK_BUILD_FOR_IOS)
         // GL on iOS 14 needs more precision for the quadedge attributes
         fInQuadEdge = {"inQuadEdge", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
-#else
-        fInQuadEdge = {"inQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
-#endif
         this->setVertexAttributes(&fInPosition, 3);
     }
 
