@@ -16,6 +16,46 @@
       "message": "So here is the second part of the CL that uses the new command buffer tracking in vulkan.\n\nThis isn\u0027t really the final state I want us to land. For example we probably don\u0027t need to keep tracking as many of the GrVkResources if we are keeping the GrGpuResources alive. However, we will probably try to merge this back to m88 and I\u0027d rather keep this change as simple as possible. Nothing hurts us by tracking by the GrGpuResource as well as the GrVkResources.",
       "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "007be590_1e50c55c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T17:15:16Z",
+      "side": 1,
+      "message": "Agreed that it\u0027d be better longer term to unify things more to not redundantly track surface-related allocated and also track keyable GrGpuReosources other than GrSurfaces (e.g. vertex buffers) using this same system. But I get that this covers most of the important memory usage and is easier to move back to 88.",
+      "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96755dda_d6068988",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T17:15:16Z",
+      "side": 1,
+      "message": "Curious if this could/should be gr_cb\u003cconst GrGpuBuffer\u003e. (not for this change)",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 61
+      },
+      "revId": "172cabc7d9984a4daefab395a028eb67da3912f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
