@@ -51,7 +51,10 @@ public:
 
         create_gradient(&bm);
 
-        fPaint.setShader(bm.makeShader(xTile, yTile));
+        fPaint.setShader(bm.makeShader(xTile, yTile,
+                                       SkSamplingOptions(doFilter ? SkFilterMode::kLinear
+                                                                  : SkFilterMode::kNearest,
+                                                         SkMipmapMode::kNone)));
 
         fName.printf("constXTile_");
 
@@ -80,8 +83,6 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
-        paint.setFilterQuality(fDoFilter ? kLow_SkFilterQuality
-                                         : kNone_SkFilterQuality);
         if (fDoTrans) {
             paint.setColor(SkColorSetARGB(0x80, 0xFF, 0xFF, 0xFF));
         }
