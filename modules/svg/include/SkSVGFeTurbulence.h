@@ -13,7 +13,6 @@
 
 class SkSVGFeTurbulence : public SkSVGFe {
 public:
-    ~SkSVGFeTurbulence() override = default;
     static sk_sp<SkSVGFeTurbulence> Make() {
         return sk_sp<SkSVGFeTurbulence>(new SkSVGFeTurbulence());
     }
@@ -37,4 +36,4 @@ private:
     using INHERITED = SkSVGFe;
 };
 
-#endif  // SkSVGStop_DEFINED
+#endif  // SkSVGFeTurbulence_DEFINED

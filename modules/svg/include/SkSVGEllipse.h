@@ -15,7 +15,6 @@ struct SkRect;
 
 class SkSVGEllipse final : public SkSVGShape {
 public:
-    ~SkSVGEllipse() override = default;
     static sk_sp<SkSVGEllipse> Make() { return sk_sp<SkSVGEllipse>(new SkSVGEllipse()); }
 
     void setCx(const SkSVGLength&);

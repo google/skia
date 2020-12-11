@@ -13,8 +13,6 @@
 
 class SkSVGTransformableNode : public SkSVGNode {
 public:
-    ~SkSVGTransformableNode() override = default;
-
     void setTransform(const SkSVGTransformType& t) { fTransform = t; }
 
 protected:

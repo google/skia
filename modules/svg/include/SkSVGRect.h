@@ -15,7 +15,6 @@ class SkRRect;
 
 class SkSVGRect final : public SkSVGShape {
 public:
-    ~SkSVGRect() override = default;
     static sk_sp<SkSVGRect> Make() { return sk_sp<SkSVGRect>(new SkSVGRect()); }
 
     void setX(const SkSVGLength&);

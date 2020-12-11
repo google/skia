@@ -13,7 +13,6 @@
 
 class SkSVGRadialGradient final : public SkSVGGradient {
 public:
-    ~SkSVGRadialGradient() override = default;
     static sk_sp<SkSVGRadialGradient> Make() {
         return sk_sp<SkSVGRadialGradient>(new SkSVGRadialGradient());
     }

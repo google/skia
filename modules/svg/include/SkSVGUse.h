@@ -17,8 +17,6 @@
  */
 class SkSVGUse final : public SkSVGTransformableNode {
 public:
-    ~SkSVGUse() override = default;
-
     static sk_sp<SkSVGUse> Make() { return sk_sp<SkSVGUse>(new SkSVGUse()); }
 
     void appendChild(sk_sp<SkSVGNode>) override;

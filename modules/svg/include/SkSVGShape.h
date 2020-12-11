@@ -16,8 +16,6 @@ class SkPaint;
 
 class SkSVGShape : public SkSVGTransformableNode {
 public:
-    ~SkSVGShape() override = default;
-
     void appendChild(sk_sp<SkSVGNode>) override;
 
 protected:

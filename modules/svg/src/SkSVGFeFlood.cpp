@@ -20,19 +20,7 @@ SkColor SkSVGFeFlood::resolveFloodColor(const SkSVGRenderContext& ctx) const {
         return SK_ColorBLACK;
     }
 
-    SkColor color;
-    switch (floodColor->type()) {
-        case SkSVGColor::Type::kColor:
-            color = floodColor->color();
-            break;
-        case SkSVGColor::Type::kCurrentColor:
-            color = *ctx.presentationContext().fInherited.fColor;
-            break;
-        case SkSVGColor::Type::kICCColor:
-            SkDebugf("unimplemented 'icccolor' flood-color type\n");
-            color = SK_ColorBLACK;
-            break;
-    }
+    const SkColor color = ctx.resolveSvgColor(*floodColor);
     return SkColorSetA(color, SkScalarRoundToInt(*floodOpacity * 255));
 }
 

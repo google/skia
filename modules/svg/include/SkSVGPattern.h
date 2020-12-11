@@ -15,8 +15,6 @@ class SkSVGRenderContext;
 
 class SkSVGPattern final : public SkSVGHiddenContainer {
 public:
-    ~SkSVGPattern() override = default;
-
     static sk_sp<SkSVGPattern> Make() {
         return sk_sp<SkSVGPattern>(new SkSVGPattern());
     }

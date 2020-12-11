@@ -15,7 +15,6 @@ struct SkPoint;
 
 class SkSVGCircle final : public SkSVGShape {
 public:
-    ~SkSVGCircle() override = default;
     static sk_sp<SkSVGCircle> Make() { return sk_sp<SkSVGCircle>(new SkSVGCircle()); }
 
     void setCx(const SkSVGLength&);

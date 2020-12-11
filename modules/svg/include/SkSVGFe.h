@@ -15,8 +15,6 @@ class SkSVGFilterContext;
 
 class SkSVGFe : public SkSVGHiddenContainer {
 public:
-    ~SkSVGFe() override = default;
-
     static bool IsFilterEffect(const sk_sp<SkSVGNode>& node) {
         return node->tag() == SkSVGTag::kFeTurbulence || node->tag() == SkSVGTag::kFeColorMatrix ||
                node->tag() == SkSVGTag::kFeComposite || node->tag() == SkSVGTag::kFeFlood;

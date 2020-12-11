@@ -14,7 +14,6 @@
 
 class SkSVGFeColorMatrix final : public SkSVGFe {
 public:
-    ~SkSVGFeColorMatrix() override = default;
     static sk_sp<SkSVGFeColorMatrix> Make() {
         return sk_sp<SkSVGFeColorMatrix>(new SkSVGFeColorMatrix());
     }
@@ -42,4 +41,4 @@ private:
     using INHERITED = SkSVGFe;
 };
 
-#endif  // SkSVGStop_DEFINED
+#endif  // SkSVGFeColorMatrix_DEFINED

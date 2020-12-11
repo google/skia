@@ -103,23 +103,10 @@ SkPaint::Join toSkJoin(const SkSVGLineJoin& join) {
     }
 }
 
-SkSVGColorType resolveSvgColor(const SkSVGRenderContext& ctx, const SkSVGColor& color) {
-    switch (color.type()) {
-        case SkSVGColor::Type::kColor:
-            return color.color();
-        case SkSVGColor::Type::kCurrentColor:
-            return *ctx.presentationContext().fInherited.fColor;
-        case SkSVGColor::Type::kICCColor:
-            SkDebugf("ICC color unimplemented");
-            return SK_ColorBLACK;
-    }
-    SkUNREACHABLE;
-}
-
 void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, SkPaint* p) {
     switch (svgPaint.type()) {
     case SkSVGPaint::Type::kColor:
-        p->setColor(SkColorSetA(resolveSvgColor(ctx, svgPaint.color()), p->getAlpha()));
+        p->setColor(SkColorSetA(ctx.resolveSvgColor(svgPaint.color()), p->getAlpha()));
         break;
     case SkSVGPaint::Type::kIRI: {
         const auto node = ctx.findNodeById(svgPaint.iri());
@@ -575,4 +562,17 @@ const SkPaint* SkSVGRenderContext::fillPaint() const {
 const SkPaint* SkSVGRenderContext::strokePaint() const {
     const SkSVGPaint::Type paintType = fPresentationContext->fInherited.fStroke->type();
     return paintType != SkSVGPaint::Type::kNone ? &fPresentationContext->fStrokePaint : nullptr;
+}
+
+SkSVGColorType SkSVGRenderContext::resolveSvgColor(const SkSVGColor& color) const {
+    switch (color.type()) {
+        case SkSVGColor::Type::kColor:
+            return color.color();
+        case SkSVGColor::Type::kCurrentColor:
+            return *fPresentationContext->fInherited.fColor;
+        case SkSVGColor::Type::kICCColor:
+            SkDebugf("ICC color unimplemented");
+            return SK_ColorBLACK;
+    }
+    SkUNREACHABLE;
 }

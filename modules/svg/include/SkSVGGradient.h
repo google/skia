@@ -18,8 +18,6 @@ class SkSVGStop;
 
 class SkSVGGradient : public SkSVGHiddenContainer {
 public:
-    ~SkSVGGradient() override = default;
-
     SVG_ATTR(Href, SkSVGIRI, SkSVGIRI())
     SVG_ATTR(GradientTransform, SkSVGTransformType, SkSVGTransformType(SkMatrix::I()))
     SVG_ATTR(SpreadMethod, SkSVGSpreadMethod, SkSVGSpreadMethod(SkSVGSpreadMethod::Type::kPad))

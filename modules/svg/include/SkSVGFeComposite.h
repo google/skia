@@ -14,7 +14,6 @@
 
 class SkSVGFeComposite final : public SkSVGFe {
 public:
-    ~SkSVGFeComposite() override = default;
     static sk_sp<SkSVGFeComposite> Make() {
         return sk_sp<SkSVGFeComposite>(new SkSVGFeComposite());
     }
