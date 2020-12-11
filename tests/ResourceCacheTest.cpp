@@ -464,6 +464,74 @@ static void test_purge_unlocked(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
 }
 
+static void test_purge_command_buffer_usage(skiatest::Reporter* reporter) {
+    Mock mock(30000);
+    GrResourceCache* cache = mock.cache();
+    GrGpu* gpu = mock.gpu();
+
+    // Create two resource w/ scratch keys.
+    TestResource* a = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty, 11);
+
+    TestResource* b = TestResource::CreateScratch(gpu, SkBudgeted::kYes,
+                                                  TestResource::kA_SimulatedProperty, 12);
+
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() == cache->getResourceBytes());
+
+    // Should be safe to purge without deleting the resources since we still have refs.
+    cache->purgeUnlockedResources(true);
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    // Add command buffer usages to all resources
+    a->addCommandBufferUsage();
+    b->addCommandBufferUsage();
+
+    // Should be safe to purge without deleting the resources since we still have refs and command
+    // buffer usages.
+    cache->purgeUnlockedResources(true);
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    // Unref the first resource
+    a->unref();
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() == cache->getResourceBytes());
+
+    // Should be safe to purge without deleting the resources since we still have command buffer
+    // usages and the second still has a ref.
+    cache->purgeUnlockedResources(true);
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    // Remove command buffer usages
+    a->removeCommandBufferUsage();
+    b->removeCommandBufferUsage();
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() == cache->getResourceBytes());
+
+    // Purge this time should remove the first resources since it no longer has any refs or command
+    // buffer usages.
+    cache->purgeUnlockedResources(true);
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, b->gpuMemorySize() == cache->getResourceBytes());
+
+    // Unref the second resource
+    b->unref();
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, b->gpuMemorySize() == cache->getResourceBytes());
+
+    // Purge the last resource
+    cache->purgeUnlockedResources(false);
+
+    REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
+}
+
 static void test_budgeting(skiatest::Reporter* reporter) {
     Mock mock(300);
     GrResourceCache* cache = mock.cache();
@@ -1515,6 +1583,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
     test_purge_unlocked(reporter);
+    test_purge_command_buffer_usage(reporter);
     test_budgeting(reporter);
     test_unbudgeted(reporter);
     test_unbudgeted_to_scratch(reporter);
