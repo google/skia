@@ -388,7 +388,7 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
         fPurgeableBytes -= resource->gpuMemorySize();
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
-    } else if (!resource->cacheAccess().hasRef() &&
+    } else if (!resource->cacheAccess().hasRefOrCommandBufferUsage() &&
                resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
         SkASSERT(fNumBudgetedResourcesFlushWillMakePurgeable > 0);
         fNumBudgetedResourcesFlushWillMakePurgeable--;
@@ -487,7 +487,8 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         fBudgetedHighWaterBytes = std::max(fBudgetedBytes, fBudgetedHighWaterBytes);
         fBudgetedHighWaterCount = std::max(fBudgetedCount, fBudgetedHighWaterCount);
 #endif
-        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef()) {
+        if (!resource->resourcePriv().isPurgeable() &&
+            !resource->cacheAccess().hasRefOrCommandBufferUsage()) {
             ++fNumBudgetedResourcesFlushWillMakePurgeable;
         }
         this->purgeAsNeeded();
@@ -495,7 +496,8 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         SkASSERT(resource->resourcePriv().budgetedType() != GrBudgetedType::kUnbudgetedCacheable);
         --fBudgetedCount;
         fBudgetedBytes -= size;
-        if (!resource->resourcePriv().isPurgeable() && !resource->cacheAccess().hasRef()) {
+        if (!resource->resourcePriv().isPurgeable() &&
+            !resource->cacheAccess().hasRefOrCommandBufferUsage()) {
             --fNumBudgetedResourcesFlushWillMakePurgeable;
         }
     }
@@ -909,7 +911,7 @@ void GrResourceCache::validate() const {
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
         SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
         if (fNonpurgeableResources[i]->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted &&
-            !fNonpurgeableResources[i]->cacheAccess().hasRef() &&
+            !fNonpurgeableResources[i]->cacheAccess().hasRefOrCommandBufferUsage() &&
             fNewlyPurgeableResourceForValidation != fNonpurgeableResources[i]) {
             ++numBudgetedResourcesFlushWillMakePurgeable;
         }
