@@ -39,6 +39,30 @@
       },
       "revId": "3c7e7ef3f44edfc472d2e43b783d10c39b269007",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28c24268_dbcfa378",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-11T18:43:01Z",
+      "side": 1,
+      "message": "I think it\u0027s clearer now.",
+      "parentUuid": "6f9e74f6_e137f0a5",
+      "range": {
+        "startLine": 563,
+        "startChar": 52,
+        "endLine": 563,
+        "endChar": 82
+      },
+      "revId": "3c7e7ef3f44edfc472d2e43b783d10c39b269007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
