@@ -157,7 +157,7 @@ const Symbol* Rehydrator::symbol() {
                 name += "[" + to_string(count) + "]";
             }
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kArray, *componentType, count));
+                    Type::MakeArrayType(name, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }
@@ -165,7 +165,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::TypeKind::kEnum));
+                    Type::MakeSimpleType(name, Type::TypeKind::kEnum));
             this->addSymbol(id, result);
             return result;
         }
@@ -198,7 +198,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             const Type* base = this->type();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(base->name() + "?", Type::TypeKind::kNullable, *base));
+                    Type::MakeNullableType(base->name() + "?", *base));
             this->addSymbol(id, result);
             return result;
         }
@@ -215,7 +215,7 @@ const Symbol* Rehydrator::symbol() {
                 fields.emplace_back(m, fieldName, type);
             }
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(/*offset=*/-1, name, std::move(fields)));
+                    Type::MakeStructType(/*offset=*/-1, name, std::move(fields)));
             this->addSymbol(id, result);
             return result;
         }

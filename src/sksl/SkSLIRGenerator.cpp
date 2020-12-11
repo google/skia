@@ -1141,8 +1141,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             }
         }
     }
-    const Type* type = old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName,
-                                                                         fields));
+    const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset, id.fTypeName,
+                                                                       fields));
     int arraySize = 0;
     if (id.fIsArray) {
         const ASTNode& size = *(iter++);
@@ -1290,8 +1290,8 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
                                             "an array");
             }
-            result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                    String(result->name()) + "?", Type::TypeKind::kNullable, *result));
+            result = fSymbolTable->takeOwnershipOfSymbol(
+                    Type::MakeNullableType(String(result->name()) + "?", *result));
         } else {
             fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
         }
