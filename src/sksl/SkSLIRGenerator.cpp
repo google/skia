@@ -1644,6 +1644,11 @@ static bool determine_binary_type(const Context& context,
             break;
     }
 
+    if ((!left.isScalar() && !left.isVector() && !left.isMatrix()) ||
+        (!right.isScalar() && !right.isVector() && !right.isMatrix())) {
+        return false;
+    }
+
     // Boolean types only support the operators listed above (, = == != || && ^^).
     // If we've gotten this far with a boolean, we have an unsupported operator.
     const Type& leftComponentType(left.columns() > 1 ? left.componentType() : left);
