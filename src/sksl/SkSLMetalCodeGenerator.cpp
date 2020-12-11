@@ -49,6 +49,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
     fIntrinsicMap[String("faceforward")]        = SPECIAL(Faceforward);
+    fIntrinsicMap[String("findLSB")]            = SPECIAL(FindLSB);
     fIntrinsicMap[String("length")]             = SPECIAL(Length);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
     fIntrinsicMap[String("normalize")]          = SPECIAL(Normalize);
@@ -550,6 +551,12 @@ String MetalCodeGenerator::getInverseHack(const Expression& mat) {
     return name;
 }
 
+String MetalCodeGenerator::getTempVariable(const Type& type) {
+    String tempVar = "_skTemp" + to_string(fVarCount++);
+    this->fFunctionHeader += "    " + this->typeName(type) + " " + tempVar + ";\n";
+    return tempVar;
+}
+
 void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
@@ -562,8 +569,7 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             const Type& arg1Type = arguments[1]->type();
             if (arg1Type == *fContext.fFloat3_Type) {
                 // have to store the vector in a temp variable to avoid double evaluating it
-                String tmpVar = "tmpCoord" + to_string(fVarCount++);
-                this->fFunctionHeader += "    " + this->typeName(arg1Type) + " " + tmpVar + ";\n";
+                String tmpVar = this->getTempVariable(arg1Type);
                 this->write("(" + tmpVar + " = ");
                 this->writeExpression(*arguments[1], kSequence_Precedence);
                 this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
@@ -576,10 +582,8 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
         }
         case kMod_SpecialIntrinsic: {
             // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
-            String tmpX = "tmpX" + to_string(fVarCount++);
-            String tmpY = "tmpY" + to_string(fVarCount++);
-            this->fFunctionHeader += "    " + this->typeName(arguments[0]->type()) +
-                                     " " + tmpX + ", " + tmpY + ";\n";
+            String tmpX = this->getTempVariable(arguments[0]->type());
+            String tmpY = this->getTempVariable(arguments[0]->type());
             this->write("(" + tmpX + " = ");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(", " + tmpY + " = ");
@@ -670,6 +674,30 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write("((");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(") * 0.0174532925)");
+            break;
+        }
+        case kFindLSB_SpecialIntrinsic: {
+            // Create a temp variable to store the expression, to avoid double-evaluating it.
+            String skTemp = this->getTempVariable(arguments[0]->type());
+            String exprType = this->typeName(arguments[0]->type());
+
+            // ctz returns numbits(type) on zero inputs; GLSL documents it as generating -1 instead.
+            // Use select to detect zero inputs and force a -1 result.
+
+            // (_skTemp1 = (.....), select(ctz(_skTemp1), int4(-1), _skTemp1 == int4(0)))
+            this->write("(");
+            this->write(skTemp);
+            this->write(" = (");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write("), select(ctz(");
+            this->write(skTemp);
+            this->write("), ");
+            this->write(exprType);
+            this->write("(-1), ");
+            this->write(skTemp);
+            this->write(" == ");
+            this->write(exprType);
+            this->write("(0)))");
             break;
         }
         default:
