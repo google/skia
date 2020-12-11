@@ -12,6 +12,8 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrSTArenaList.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include <array>
 
 class GrStrokeTessellateShader;
 
@@ -34,10 +36,10 @@ protected:
                                       bool hasMixedSampledCoverage, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
-    void prePreparePrograms(SkArenaAlloc* arena, GrStrokeTessellateShader*,
+    void prePreparePrograms(GrStrokeTessellateShader::Mode, SkArenaAlloc*,
                             const GrSurfaceProxyView&, GrAppliedClip&&,
-                            const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
-                            GrLoadOp colorLoadOp, const GrCaps&);
+                            const GrXferProcessor::DstProxyView&, GrXferBarrierFlags, GrLoadOp
+                            colorLoadOp, const GrCaps&);
 
     static float NumCombinedSegments(float numParametricSegments, float numRadialSegments) {
         // The first and last edges are shared by both the parametric and radial sets of edges, so
@@ -62,6 +64,25 @@ protected:
         // numCombinedSegments = numParametricSegments + numRadialSegments - 1.
         // (See num_combined_segments()).
         return std::max(numCombinedSegments + 1 - numRadialSegments, 0.f);
+    }
+
+    // Returns the tessellation tolerances to use on (pre-viewMatrix) local path coordinates. If the
+    // stroke is hairline then we conservatively approximate the values using
+    // strokeWidth ~= 1/matrixMinScale.
+    GrStrokeTessellateShader::Tolerances preTransformTolerances() const {
+        std::array<float,2> matrixScales;
+        if (!fViewMatrix.getMinMaxScales(matrixScales.data())) {
+            matrixScales.fill(1);
+        }
+        auto [matrixMinScale, matrixMaxScale] = matrixScales;
+        float localStrokeWidth = fStroke.getWidth();
+        if (fStroke.isHairlineStyle()) {
+            // Conservatively approximate the tolerances using strokeWidth ~= 1/matrixMinScale. But
+            // if the matrix has strong skew, don't let it shoot off to infinity.
+            float approxScale = std::max(matrixMinScale, matrixMaxScale * .25f);
+            localStrokeWidth = 1/approxScale;
+        }
+        return GrStrokeTessellateShader::Tolerances(matrixMaxScale, localStrokeWidth);
     }
 
     const GrAAType fAAType;
