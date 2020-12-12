@@ -86,8 +86,8 @@ private:
 
         for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
             constexpr SkTileMode kTM = SkTileMode::kRepeat;
-            bmpPaint.setShader(fBmp.makeShader(kTM, kTM, &lm));
-            bmpPaint.setFilterQuality(kQualities[q].fQuality);
+            bmpPaint.setShader(fBmp.makeShader(kTM, kTM,
+                                               SkSamplingOptions(kQualities[q].fQuality), lm));
             canvas->drawRect(rect, bmpPaint);
             canvas->drawString(kQualities[q].fName, 20, 40, font, textPaint);
             canvas->translate(250, 0);

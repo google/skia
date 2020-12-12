@@ -75,7 +75,7 @@ static sk_sp<SkShader> make_bg_shader() {
 
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(), m);
 }
 
 namespace skiagm {

@@ -21,6 +21,7 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkEmptyShader.h"
+#include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkPictureShader.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -137,15 +138,22 @@ sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const {
 sk_sp<SkShader> SkShaders::Empty() { return sk_make_sp<SkEmptyShader>(); }
 sk_sp<SkShader> SkShaders::Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
 
+sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
+                                     const SkSamplingOptions& sampling,
+                                     const SkMatrix* lm) const {
+    if (lm && !lm->invert(nullptr)) {
+        return nullptr;
+    }
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
+                               tmx, tmy, &sampling, lm);
+}
+
 sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* lm) const {
     if (lm && !lm->invert(nullptr)) {
         return nullptr;
     }
-    return SkMakeBitmapShader(*this, tmx, tmy, lm, kIfMutable_SkCopyPixelsMode);
-}
-
-sk_sp<SkShader> SkBitmap::makeShader(const SkMatrix* lm) const {
-    return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, lm);
+    return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
+                               tmx, tmy, nullptr, lm);
 }
 
 bool SkShaderBase::appendStages(const SkStageRec& rec) const {

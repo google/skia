@@ -61,9 +61,11 @@ DEF_SIMPLE_GM_BG(bigmatrix, canvas, 50, 50, ToolUtils::color_to_565(0xFF66AA99))
     SkMatrix s;
     s.reset();
     s.setScale(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
-    paint.setShader(bmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &s));
+    paint.setShader(bmp.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                   SkSamplingOptions(SkFilterMode::kLinear,
+                                                     SkMipmapMode::kNone),
+                                   s));
     paint.setAntiAlias(false);
-    paint.setFilterQuality(kLow_SkFilterQuality);
     rect.setLTRB(pt.fX - small, pt.fY - small, pt.fX + small, pt.fY + small);
     canvas->drawRect(rect, paint);
 }

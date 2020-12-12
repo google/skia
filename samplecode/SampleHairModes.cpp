@@ -61,10 +61,8 @@ static sk_sp<SkShader> make_bg_shader() {
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
     *bm.getAddr32(1, 0) = *bm.getAddr32(0, 1) = SkPackARGB32(0xFF, 0xCC, 0xCC, 0xCC);
 
-    SkMatrix m;
-    m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-
-    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(),
+                         SkMatrix::Scale(6, 6));
 }
 
 class HairModesView : public Sample {
