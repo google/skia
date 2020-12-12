@@ -37,7 +37,9 @@ class CameraView : public Sample {
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
-                fShaders.push_back(bm.makeShader(&matrix));
+                fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
+                                                                   SkMipmapMode::kNone),
+                                                 matrix));
             }
         }
         this->setBGColor(0xFFDDDDDD);
@@ -61,7 +63,6 @@ class CameraView : public Sample {
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setShader(fShaders[fShaderIndex]);
-            paint.setFilterQuality(kLow_SkFilterQuality);
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
         }

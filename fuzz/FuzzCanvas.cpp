@@ -209,7 +209,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (useMatrix) {
                 FuzzNiceMatrix(fuzz, &matrix);
             }
-            return bitmap.makeShader(tmX, tmY, useMatrix ? &matrix : nullptr);
+            return bitmap.makeShader(tmX, tmY, SkSamplingOptions(), useMatrix ? &matrix : nullptr);
         case 5:
             shader1 = make_fuzz_shader(fuzz, depth - 1);  // limit recursion.
             FuzzNiceMatrix(fuzz, &matrix);

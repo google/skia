@@ -295,7 +295,7 @@ protected:
             srcBM.allocN32Pixels(10, 1);
             srcBM.eraseColor(0xFF00FF00);
 
-            paint.setShader(srcBM.makeShader());
+            paint.setShader(srcBM.makeShader(SkSamplingOptions()));
         }
         for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {

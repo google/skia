@@ -115,8 +115,10 @@ protected:
             SkScalar scale = 11*SK_Scalar1/12;
             m.setScale(scale, scale);
         }
-        paint.setShader(getBitmap().makeShader(fMode, fMode, &m));
-        paint.setFilterQuality(fDoFilter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
+        paint.setShader(getBitmap().makeShader(fMode, fMode,
+                                               SkSamplingOptions(fDoFilter ? kLow_SkFilterQuality
+                                                                           : kNone_SkFilterQuality),
+                                               m));
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 

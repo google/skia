@@ -416,7 +416,7 @@ static CanvasTest kCanvasTests[] = {
         pts[3].set(0, SkIntToScalar(kHeight));
         SkPaint paint;
         SkBitmap bitmap(make_n32_bitmap(kWidth, kHeight, 0x05060708));
-        paint.setShader(bitmap.makeShader());
+        paint.setShader(bitmap.makeShader(SkSamplingOptions()));
         c->drawVertices(
             SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pts, pts, nullptr),
             SkBlendMode::kModulate, paint);

@@ -23,7 +23,7 @@ static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
         SkColorSetARGB(0,   0, 0, 0),
     };
     return SkShaders::Blend(SkBlendMode::kDstIn,
-                            bm.makeShader(),
+                            bm.makeShader(SkSamplingOptions()),
                             SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
                                                          SkTileMode::kClamp));
 }
