@@ -34,7 +34,8 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     pixels[0] = pixels[2] = color0;
     pixels[1] = pixels[3] = color1;
 
-    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat);
+    return bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone));
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
@@ -73,7 +74,6 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setDither(true);
-        paint.setFilterQuality(kLow_SkFilterQuality);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
             auto verts = SkVertices::MakeCopy(fRecs[i].fMode, fRecs[i].fCount,
