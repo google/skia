@@ -174,9 +174,10 @@ protected:
         draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
         SkMatrix s;
         s.reset();
-        fColorBitmapShader = fColorBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &s);
-        fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat,
-                                                       SkTileMode::kRepeat, &s);
+        fColorBitmapShader = fColorBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                     SkSamplingOptions(), s);
+        fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                       SkSamplingOptions(), s);
         fLinearGradientShader = make_linear_gradient_shader(squareLength);
     }
 
