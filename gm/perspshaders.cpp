@@ -60,7 +60,6 @@ protected:
                 kCellSize, kCellSize, SK_ColorBLUE, SK_ColorYELLOW, kCellSize / 10);
         fBitmap.setImmutable();
 
-        fBitmapShader = fBitmap.makeShader();
         SkPoint pts1[] = {
             { 0, 0 },
             { SkIntToScalar(kCellSize), SkIntToScalar(kCellSize) }
@@ -96,8 +95,7 @@ protected:
         filterPaint.setAntiAlias(fDoAA);
 
         SkPaint pathPaint;
-        pathPaint.setShader(fBitmapShader);
-        pathPaint.setFilterQuality(filterQ);
+        pathPaint.setShader(fBitmap.makeShader(SkSamplingOptions(filterQ)));
         pathPaint.setAntiAlias(fDoAA);
 
         SkPaint gradPaint1;
@@ -170,7 +168,6 @@ private:
 
     bool            fDoAA;
     SkPath          fPath;
-    sk_sp<SkShader> fBitmapShader;
     sk_sp<SkShader> fLinearGrad1;
     sk_sp<SkShader> fLinearGrad2;
     SkMatrix        fPerspMatrix;
