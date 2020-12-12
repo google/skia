@@ -167,7 +167,7 @@ constexpr int gHeight = 32;
 static sk_sp<SkShader> make_bm(SkTileMode tx, SkTileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
-    return bm.makeShader(tx, ty);
+    return bm.makeShader(tx, ty, SkSamplingOptions());
 }
 
 static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {

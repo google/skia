@@ -60,7 +60,7 @@ protected:
                 kCellSize, kCellSize, SK_ColorBLUE, SK_ColorYELLOW, kCellSize / 10);
         fBitmap.setImmutable();
 
-        fBitmapShader = fBitmap.makeShader();
+        fBitmapShader = fBitmap.makeShader(SkSamplingOptions());
         SkPoint pts1[] = {
             { 0, 0 },
             { SkIntToScalar(kCellSize), SkIntToScalar(kCellSize) }
