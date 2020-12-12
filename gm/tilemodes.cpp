@@ -47,10 +47,9 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     canvas.drawPaint(paint);
 }
 
-static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
+static void setup(SkPaint* paint, const SkBitmap& bm, SkFilterMode fm,
                   SkTileMode tmx, SkTileMode tmy) {
-    paint->setShader(bm.makeShader(tmx, tmy));
-    paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
+    paint->setShader(bm.makeShader(tmx, tmy, SkSamplingOptions(fm, SkMipmapMode::kNone)));
 }
 
 constexpr SkColorType gColorTypes[] = {
@@ -100,7 +99,7 @@ protected:
 
         const char* gConfigNames[] = { "8888", "565", "4444" };
 
-        constexpr bool gFilters[] = { false, true };
+        constexpr SkFilterMode gFilters[] = { SkFilterMode::kNearest, SkFilterMode::kLinear };
         static const char* gFilterNames[] = { "point", "bilinear" };
 
         constexpr SkTileMode gModes[] = {
@@ -171,7 +170,7 @@ constexpr int gHeight = 32;
 static sk_sp<SkShader> make_bm(SkTileMode tx, SkTileMode ty) {
     SkBitmap bm;
     makebm(&bm, kN32_SkColorType, gWidth, gHeight);
-    return bm.makeShader(tx, ty);
+    return bm.makeShader(tx, ty, SkSamplingOptions());
 }
 
 static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {
