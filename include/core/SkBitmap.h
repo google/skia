@@ -1133,14 +1133,14 @@ public:
         return this->makeShader(sampling, &localMatrix);
     }
 
-//#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
+#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
     // defaults to Clamp in x, and y
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
-//#endif
+#endif
     /** Asserts if internal values are illegal or inconsistent. Only available if
         SK_DEBUG is defined at compile time.
     */
