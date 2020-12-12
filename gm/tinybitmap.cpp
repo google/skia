@@ -29,7 +29,8 @@ class TinyBitmapGM : public skiagm::GM {
         *bm.getAddr32(0, 0) = SkPackARGB32(0x80, 0x80, 0, 0);
         SkPaint paint;
         paint.setAlphaf(0.5f);
-        paint.setShader(bm.makeShader(SkTileMode::kRepeat, SkTileMode::kMirror));
+        paint.setShader(bm.makeShader(SkTileMode::kRepeat, SkTileMode::kMirror,
+                                      SkSamplingOptions()));
         canvas->drawPaint(paint);
     }
 };

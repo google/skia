@@ -328,7 +328,7 @@ DEF_SIMPLE_GM(sksl_sample_chaining, canvas, 380, 306) {
     auto nextRow = [&] { canvas->restore(); canvas->translate(0, 64 + 10); canvas->save(); };
 
     auto draw = [&](std::initializer_list<EffectType> effectTypes) {
-        auto shader = bmp.makeShader();
+        auto shader = bmp.makeShader(SkSamplingOptions());
 
         for (EffectType effectType : effectTypes) {
             SkRuntimeShaderBuilder builder(effects[effectType]);

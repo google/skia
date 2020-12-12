@@ -10,7 +10,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
@@ -59,8 +58,10 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     SkMatrix localM;
     localM.setRotate(35.f);
     localM.postTranslate(10.f, 0.f);
-    paint.setShader(bmp.makeShader(SkTileMode::kMirror, SkTileMode::kMirror, &localM));
-    paint.setFilterQuality(kMedium_SkFilterQuality);
+    paint.setShader(bmp.makeShader(SkTileMode::kMirror, SkTileMode::kMirror,
+                                   SkSamplingOptions(SkFilterMode::kLinear,
+                                                     SkMipmapMode::kNearest),
+                                   localM));
     canvas->drawPaint(paint);
 }
 

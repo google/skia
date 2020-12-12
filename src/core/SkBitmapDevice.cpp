@@ -579,7 +579,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
         draw.fRC = &fRCStack.rc();
 
         SkPaint deviceAsShader = paint;
-        deviceAsShader.setShader(src->fBitmap.makeShader());
+        deviceAsShader.setShader(src->fBitmap.makeShader(SkSamplingOptions()));
         draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, deviceAsShader);
     } else {
         this->INHERITED::drawDevice(device, paint);

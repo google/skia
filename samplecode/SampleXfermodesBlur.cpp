@@ -98,7 +98,7 @@ protected:
         const SkScalar h = SkIntToScalar(H);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        auto s = fBG.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &m);
+        auto s = fBG.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(), m);
 
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);

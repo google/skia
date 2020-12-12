@@ -148,6 +148,7 @@ sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
                                tmx, tmy, &sampling, lm);
 }
 
+//#ifdef SK_SUPPORT_LEGACY_IMPLICIT_FILTERQUALITY
 sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix* lm) const {
     if (lm && !lm->invert(nullptr)) {
         return nullptr;
@@ -155,6 +156,7 @@ sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy, const SkMat
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
                                tmx, tmy, nullptr, lm);
 }
+//#endif
 
 bool SkShaderBase::appendStages(const SkStageRec& rec) const {
     return this->onAppendStages(rec);

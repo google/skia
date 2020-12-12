@@ -9,7 +9,8 @@ void draw(SkCanvas* canvas) {
    bitmap.setInfo(SkImageInfo::MakeA8(5, 1), 5);  // bitmap only contains alpha
    uint8_t pixels[5] = { 0x22, 0x55, 0x88, 0xBB, 0xFF };
    bitmap.setPixels(pixels);
-   paint.setShader(bitmap.makeShader(SkTileMode::kMirror, SkTileMode::kMirror));
+   paint.setShader(bitmap.makeShader(SkTileMode::kMirror, SkTileMode::kMirror,
+                                     SkSamplingOptions()));
    for (SkColor c : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {
        paint.setColor(c);  // all components in color affect shader
        canvas->drawCircle(50, 50, 50, paint);

@@ -193,7 +193,7 @@ static sk_sp<SkShader> make_RGBW_shader() {
     bmp.pixmap().erase(SK_ColorGREEN, topLeft.makeOffset(1, 0));
     bmp.pixmap().erase(SK_ColorBLUE,  topLeft.makeOffset(0, 1));
     bmp.pixmap().erase(SK_ColorWHITE, topLeft.makeOffset(1, 1));
-    return bmp.makeShader();
+    return bmp.makeShader(SkSamplingOptions());
 }
 
 static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext* rContext) {

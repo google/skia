@@ -245,7 +245,8 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
 
     decode_file("/skimages/logo.gif", &bm);
     size->set(bm.width(), bm.height());
-    return bm.makeShader();
+    return bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
+                                           SkMipmapMode::kNone));
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
@@ -362,7 +363,6 @@ static void mesh_slide(SkCanvas* canvas) {
 
     SkPaint paint;
     paint.setDither(true);
-    paint.setFilterQuality(kLow_SkFilterQuality);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
         auto verts = SkVertices::MakeCopy(fRecs[i].fMode, fRecs[i].fCount,
