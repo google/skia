@@ -182,7 +182,8 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
         SkAssertResult(pm.erase({1,0,0,1}, p3.get()));
 
         SkPaint paint;
-        paint.setShader(bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat));
+        paint.setShader(bm.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                      SkSamplingOptions()));
 
         canvas->drawRect({10,10,70,70}, paint);
         compare_pixel("drawBitmapAsShader P3 red, from SkPixmap::erase",
@@ -347,8 +348,8 @@ DEF_SIMPLE_GM(p3, canvas, 450, 1300) {
 
         SkPaint as_shader;
         as_shader.setColor4f({1,0,0,1}, p3.get());
-        as_shader.setFilterQuality(kLow_SkFilterQuality);
-        as_shader.setShader(bm.makeShader());
+        as_shader.setShader(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear,
+                                                            SkMipmapMode::kNone)));
 
         canvas->drawBitmap(bm, 10,10, &as_bitmap);
         compare_pixel("A8 sprite bitmap P3 red",

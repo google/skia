@@ -60,13 +60,13 @@ protected:
         SkPaint paint;
 
         paint.setAntiAlias(true);
-        paint.setFilterQuality(kHigh_SkFilterQuality);
 
         SkMatrix mat;
         mat.setScale(121.f/360.f, 93.f/288.f);
         mat.postTranslate(-72, -72);
 
-        paint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, &mat));
+        paint.setShader(fBitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                           SkSamplingOptions({1.0f/3, 1.0f/3}), mat));
         canvas->drawRect({ 8, 8, 1008, 608 }, paint);
     }
 
