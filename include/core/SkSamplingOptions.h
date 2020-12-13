@@ -10,6 +10,8 @@
 
 #include "include/core/SkFilterQuality.h"
 
+class SkPaint;
+
 enum class SkFilterMode {
     kNearest,   // single sample point (nearest neighbor)
     kLinear,    // interporate between 2x2 sample points (bilinear interpolation)
@@ -75,6 +77,8 @@ struct SK_API SkSamplingOptions {
             && mipmap   == other.mipmap;
     }
     bool operator!=(const SkSamplingOptions& other) const { return !(*this == other); }
+
+    static SkSamplingOptions FromPaint(const SkPaint*);
 };
 
 #endif

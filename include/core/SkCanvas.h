@@ -60,6 +60,8 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
+#define SK_SUPPORT_LEGACY_DRAWIMAGERECT_SANS_SAMPLING
+
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
@@ -1470,6 +1472,7 @@ public:
         kFast_SrcRectConstraint,   //!< sample outside bounds; faster
     };
 
+#ifdef SK_SUPPORT_LEGACY_DRAWIMAGERECT_SANS_SAMPLING
     /** Draws SkRect src of SkImage image, scaled and translated to fill SkRect dst.
         Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
 
@@ -1640,11 +1643,14 @@ public:
     void drawImageRect(const sk_sp<SkImage>& image, const SkRect& dst, const SkPaint* paint) {
         this->drawImageRect(image.get(), dst, paint);
     }
+#endif
 
     void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkSamplingOptions&,
                    const SkPaint* = nullptr);
+
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint* = nullptr);
+    void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst);
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
