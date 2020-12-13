@@ -1843,10 +1843,43 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     this->onDrawPath(path, paint);
 }
 
+#define SK_TEST_DRAWIMAGE_AS_SHADER
+
+#ifdef SK_TEST_DRAWIMAGE_AS_SHADER
+static bool is_alpha_only(SkColorType ct) {
+    return ct == kAlpha_8_SkColorType
+        || ct == kA16_float_SkColorType
+        || ct == kA16_unorm_SkColorType;
+}
+
+#include "src/shaders/SkImageShader.h"
+
+static void merge_shaders(SkPaint* paint, const SkImage* image, const SkMatrix& mx) {
+    auto sh = SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(image)),
+                                  SkTileMode::kClamp,
+                                  SkTileMode::kClamp,
+                                  nullptr,
+                                  &mx);
+    if (paint->getShader() && is_alpha_only(image->colorType())) {
+        sh = SkShaders::Blend(SkBlendMode::kDstIn, paint->refShader(), std::move(sh));
+    }
+    paint->setShader(std::move(sh));
+}
+#endif
+
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+#ifdef SK_TEST_DRAWIMAGE_AS_SHADER
+    SkPaint p;
+    if (paint) {
+        p = *paint;
+    }
+    merge_shaders(&p, image, SkMatrix::Translate(x, y));
+    this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
+#else
     this->onDrawImage(image, x, y, paint);
+#endif
 }
 
 // Returns true if the rect can be "filled" : non-empty and finite
@@ -1863,6 +1896,17 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
+#ifdef SK_TEST_DRAWIMAGE_AS_SHADER
+    if (constraint == kFast_SrcRectConstraint) {
+        SkPaint p;
+        if (paint) {
+            p = *paint;
+        }
+        merge_shaders(&p, image, SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit));
+        this->drawRect(dst, p);
+        return;
+    }
+#endif
     this->onDrawImageRect(image, &src, dst, paint, constraint);
 }
 
