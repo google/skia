@@ -1856,6 +1856,7 @@ static bool fillable(const SkRect& r) {
     return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWIMAGERECT_SANS_SAMPLING
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -1877,6 +1878,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPa
     this->drawImageRect(image, SkRect::MakeIWH(image->width(), image->height()), dst, paint,
                         kFast_SrcRectConstraint);
 }
+#endif
 
 namespace {
 class LatticePaint : SkNoncopyable {
@@ -2369,14 +2371,30 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     }
 }
 
+static bool is_alpha_only(SkColorType ct) {
+    return ct == kAlpha_8_SkColorType
+        || ct == kA16_float_SkColorType
+        || ct == kA16_unorm_SkColorType;
+}
+
+static void merge_shaders(SkPaint* paint, const SkImage* image, const SkSamplingOptions& sampling,
+                          const SkMatrix& mx) {
+    auto sh = image->makeShader(sampling, mx);
+    if (paint->getShader() && is_alpha_only(image->colorType())) {
+        sh = SkShaders::Blend(SkBlendMode::kDstIn, paint->refShader(), std::move(sh));
+    }
+    paint->setShader(std::move(sh));
+}
+
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                          const SkSamplingOptions& sampling, const SkPaint* paint) {
     RETURN_ON_NULL(image);
 
-    // If we need more per-device control, add new virtual
-    auto mx = SkMatrix::Translate(x, y);
-    SkPaint p = paint ? *paint : SkPaint();
-    p.setShader(image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, sampling, &mx));
+    SkPaint p;
+    if (paint) {
+        p = *paint;
+    }
+    merge_shaders(&p, image, sampling, SkMatrix::Translate(x, y));
     this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), p);
 }
 
@@ -2390,10 +2408,17 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     // If we need more per-device control, add new virtual
     SkMatrix mx = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     if (mx.isFinite()) {
-        SkPaint p = paint ? *paint : SkPaint();
-        p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
+        SkPaint p;
+        if (paint) {
+            p = *paint;
+        }
+        merge_shaders(&p, image, sampling, mx);
         this->drawRect(dst, p);
     }
+}
+
+void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst) {
+    this->drawImageRect(image, src, dst, SkSamplingOptions(), nullptr);
 }
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,

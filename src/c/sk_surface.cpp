@@ -333,11 +333,12 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
     const SkImage* image = AsImage(cimage);
     const SkRect& dst = AsRect(*cdstR);
     const SkPaint* paint = AsPaint(cpaint);
+    auto sampling = SkSamplingOptions::FromPaint(paint);
 
     if (csrcR) {
-        canvas->drawImageRect(image, AsRect(*csrcR), dst, paint);
+        canvas->drawImageRect(image, AsRect(*csrcR), dst, sampling, paint);
     } else {
-        canvas->drawImageRect(image, dst, paint);
+        canvas->drawImageRect(image, dst, dst, sampling, paint);
     }
 }
 

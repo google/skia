@@ -63,7 +63,6 @@ class AnimatedTextView : public Sample {
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterQuality(kMedium_SkFilterQuality);
 
         canvas->save();
 
@@ -72,8 +71,12 @@ class AnimatedTextView : public Sample {
         if (direct) {
             sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
                                                                 GrMaskFormat::kA8_GrMaskFormat);
-            canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f), &paint);
+            canvas->drawImageRect(image.get(),
+                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f),
+                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f),
+                                  SkSamplingOptions(SkFilterMode::kLinear,
+                                                    SkMipmapMode::kNearest),
+                                  &paint);
         }
 #endif
         canvas->translate(180, 180);

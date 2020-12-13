@@ -39,6 +39,11 @@
 // e.g. setTextSize(-1)
 //#define SK_REPORT_API_RANGE_CHECK
 
+SkSamplingOptions SkSamplingOptions::FromPaint(const SkPaint* paint) {
+    return paint ? SkSamplingOptions(paint->getFilterQuality())
+                 : SkSamplingOptions();
+}
+
 
 SkPaint::SkPaint()
     : fColor4f{0, 0, 0, 1}  // opaque black
