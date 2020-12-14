@@ -16,6 +16,23 @@
       "message": "PTAL\nI changed to using from using virtuals to using static polymorphism because the virtual dtor increased the code size by 96K. With this current CL, the code is 3K smaller. I could measure no performance difference for nanobench on nytimes_desk.skp. The maxrss is the same as measured by nanobench.\n\nPlease ignore all the Gr changes. Brian and I agree that we should make all the place that friend SkArenaAlloc to have public ctors instead of friending. I\u0027m going to work on that CL.",
       "revId": "06372163fa986bc8a8d7b6afd4f9b95e093bdc41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "188dd986_36dd4e00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T19:53:41Z",
+      "side": 1,
+      "message": "I think there\u0027s a pattern that we can offer to let constructors stay private and friendless:\n\n#include \u003cnew\u003e\n#include \u003ctype_traits\u003e\n\nclass Alloc {\npublic:\n    template \u003ctypename Constructor\u003e\n    auto make(Constructor\u0026\u0026 ctor) {\n        using T \u003d std::remove_pointer_t\u003cdecltype(ctor(nullptr))\u003e;\n\n        void* ptr \u003d this-\u003ealloc(sizeof(T), alignof(T));\n        return ctor(ptr);\n    }\n\nprivate:\n    void* alloc(size_t size, size_t align);\n};\n\nclass Foo {\npublic:\n    Foo* make(Alloc* alloc, float f) {\n        return alloc-\u003emake([\u0026](void* ptr) {\n            return new (ptr) Foo(f);\n        });\n    }\n\nprivate:\n    Foo(float);\n};",
+      "revId": "06372163fa986bc8a8d7b6afd4f9b95e093bdc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
