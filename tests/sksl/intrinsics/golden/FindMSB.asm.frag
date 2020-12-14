@@ -38,11 +38,10 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %19 = OpConvertSToF %float %20
 %22 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
 OpStore %22 %19
-%28 = OpLoad %uint %b
-%27 = OpBitcast %int %28
-%26 = OpExtInst %int %1 FindSMsb %27
+%27 = OpLoad %uint %b
+%26 = OpExtInst %int %1 FindUMsb %27
 %25 = OpConvertSToF %float %26
-%29 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
-OpStore %29 %25
+%28 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
+OpStore %28 %25
 OpReturn
 OpFunctionEnd
