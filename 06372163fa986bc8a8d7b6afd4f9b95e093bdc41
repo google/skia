@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e578ff7b_fd52b679",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-14T19:18:19Z",
+      "side": 1,
+      "message": "PTAL\nI changed to using from using virtuals to using static polymorphism because the virtual dtor increased the code size by 96K. With this current CL, the code is 3K smaller. I could measure no performance difference for nanobench on nytimes_desk.skp. The maxrss is the same as measured by nanobench.\n\nPlease ignore all the Gr changes. Brian and I agree that we should make all the place that friend SkArenaAlloc to have public ctors instead of friending. I\u0027m going to work on that CL.",
+      "revId": "06372163fa986bc8a8d7b6afd4f9b95e093bdc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
