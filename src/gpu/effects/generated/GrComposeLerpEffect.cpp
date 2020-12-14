@@ -31,9 +31,9 @@ public:
         SkString _sample0 = this->invokeChild(0, args);
         SkString _sample1 = this->invokeChild(1, args);
         fragBuilder->codeAppendf(
-                R"SkSL(%s = mix(%s, %s, half(%s));
+                R"SkSL(return mix(%s, %s, half(%s));
 )SkSL",
-                args.fOutputColor, _sample0.c_str(), _sample1.c_str(),
+                _sample0.c_str(), _sample1.c_str(),
                 args.fUniformHandler->getUniformCStr(weightVar));
     }
 
@@ -56,7 +56,7 @@ bool GrComposeLerpEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (weight != that.weight) return false;
     return true;
 }
-bool GrComposeLerpEffect::usesExplicitReturn() const { return false; }
+bool GrComposeLerpEffect::usesExplicitReturn() const { return true; }
 GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     this->cloneAndRegisterAllChildProcessors(src);

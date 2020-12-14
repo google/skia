@@ -108,7 +108,7 @@ color = clamp(color, 0.0, 1.0);
 @if (%s) {
     color.xyz = sqrt(color.xyz);
 }
-%s = half4(color.xyz, 1.0) * inColor.w;
+return half4(color.xyz, 1.0) * inColor.w;
 )SkSL",
                 _sample0.c_str(), (_outer.linearize ? "true" : "false"),
                 (_outer.grayscale ? "true" : "false"), (_outer.invertBrightness ? "true" : "false"),
@@ -117,7 +117,7 @@ color = clamp(color, 0.0, 1.0);
                 (_outer.hasContrast ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
                 args.fUniformHandler->getUniformCStr(contrastModVar),
-                (_outer.linearize ? "true" : "false"), args.fOutputColor);
+                (_outer.linearize ? "true" : "false"));
     }
 
 private:
@@ -150,7 +150,7 @@ bool GrHighContrastFilterEffect::onIsEqual(const GrFragmentProcessor& other) con
     if (linearize != that.linearize) return false;
     return true;
 }
-bool GrHighContrastFilterEffect::usesExplicitReturn() const { return false; }
+bool GrHighContrastFilterEffect::usesExplicitReturn() const { return true; }
 GrHighContrastFilterEffect::GrHighContrastFilterEffect(const GrHighContrastFilterEffect& src)
         : INHERITED(kGrHighContrastFilterEffect_ClassID, src.optimizationFlags())
         , contrastMod(src.contrastMod)
