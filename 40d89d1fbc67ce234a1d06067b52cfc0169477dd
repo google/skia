@@ -52,6 +52,24 @@
       "parentUuid": "0ff41e36_cc0b8f0c",
       "revId": "40d89d1fbc67ce234a1d06067b52cfc0169477dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "999c6dd6_44a31579",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T22:20:47Z",
+      "side": 1,
+      "message": "Yeah, the lambda has to be written in a function that\u0027s got visibility.\n\nYou _could_ follow this pattern, like this:\n\n  template \u003ctypename Ctor\u003e\n  auto make_unique(Ctor\u0026\u0026 ctor) -\u003e \n  std::unique_ptr\u003cstd::remove_pointer_t\u003cdecltype(ctor(nullptr))\u003e\u003e {\n      using T \u003d std::remove_pointer_t\u003cdecltype(ctor(nullptr))\u003e;\n      void* ptr \u003d operator new(sizeof(T));\n      return std::unique_ptr\u003cT\u003e(ctor(ptr));\n  }\n\n  class Foo {\n  public:\n      std::unique_ptr\u003cFoo\u003e makeUnique(float f) {\n          return make_unique([\u0026](void* ptr) {\n              return new (ptr) Foo(f);\n          });\n      }\n\n  private:\n      Foo(float);\n  };\n\nbut it\u0027s kind of easier to do\n\n  class Foo {\n  public:\n      std::unique_ptr\u003cFoo\u003e makeUnique(float f) {\n          return std::unique_ptr\u003cFoo\u003e(new Foo(f));\n      }\n\n  private:\n      Foo(float);\n  };\n\n\n:D",
+      "parentUuid": "9e83c835_bc781a5a",
+      "revId": "40d89d1fbc67ce234a1d06067b52cfc0169477dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
