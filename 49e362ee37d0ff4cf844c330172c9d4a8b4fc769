@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd6399dc_605cd684",
+        "filename": "tests/sksl/shared/golden/ArrayIndexTypes.metal",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T14:04:40Z",
+      "side": 1,
+      "message": "Not a big deal, just curious: Why do we report this four times?",
+      "revId": "49e362ee37d0ff4cf844c330172c9d4a8b4fc769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
