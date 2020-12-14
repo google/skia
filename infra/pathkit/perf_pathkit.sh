@@ -14,6 +14,14 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 
+pushd $PATHKIT_DIR
+# delete old cache directory due to bug in earlier npm versions. Otherwise, npm ci fails.
+rm -rf ./.npm
+npm ci
+# Make all node_modules directories and files writeable (so non-docker can delete them).
+chmod -R ugo+w ./node_modules
+popd
+
 # Start the aggregator in the background
 /opt/perf-aggregator $@ &
 # Run the tests 10 times to get a wide set of data

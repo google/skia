@@ -14,6 +14,14 @@ set -ex
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
+pushd $CANVASKIT_DIR
+# delete old cache directory due to bug in earlier npm versions. Otherwise, npm ci fails.
+rm -rf ./.npm
+npm ci
+# Make all node_modules directories and files writeable (so non-docker can delete them).
+chmod -R ugo+w ./node_modules
+popd
+
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
 # Run the tests
