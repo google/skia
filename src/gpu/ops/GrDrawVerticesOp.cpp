@@ -118,9 +118,11 @@ public:
                                      const SkVertices::Attribute* attrs,
                                      int attrCount,
                                      const MarkedMatrices* customMatrices) {
-        return arena->make<VerticesGP>(localCoordsType, colorArrayType, color,
-                                       std::move(colorSpaceXform), viewMatrix, attrs, attrCount,
-                                       customMatrices);
+        return arena->make([&](void* ptr) {
+            return new (ptr) VerticesGP(localCoordsType, colorArrayType, color,
+                                        std::move(colorSpaceXform), viewMatrix, attrs, attrCount,
+                                        customMatrices);
+        });
     }
 
     const char* name() const override { return "VerticesGP"; }
@@ -375,8 +377,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     VerticesGP(LocalCoordsType localCoordsType,
                ColorArrayType colorArrayType,
                const SkPMColor4f& color,

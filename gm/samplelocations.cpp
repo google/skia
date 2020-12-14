@@ -96,7 +96,9 @@ private:
 class SampleLocationsTestProcessor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, GradType gradType) {
-        return arena->make<SampleLocationsTestProcessor>(gradType);
+        return arena->make([&](void* ptr) {
+            return new (ptr) SampleLocationsTestProcessor(gradType);
+        });
     }
 
     const char* name() const override { return "SampleLocationsTestProcessor"; }
@@ -108,8 +110,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     SampleLocationsTestProcessor(GradType gradType)
             : GrGeometryProcessor(kSampleLocationsTestProcessor_ClassID)
             , fGradType(gradType) {

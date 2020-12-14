@@ -39,8 +39,10 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool localCoordsWillBeRead,
                                      uint8_t coverage) {
-        return arena->make<DefaultGeoProc>(gpTypeFlags, color, viewMatrix, localMatrix, coverage,
-                                           localCoordsWillBeRead);
+        return arena->make([&](void* ptr) {
+            return new (ptr) DefaultGeoProc(gpTypeFlags, color, viewMatrix, localMatrix, coverage,
+                                            localCoordsWillBeRead);
+        });
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -194,8 +196,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     DefaultGeoProc(uint32_t gpTypeFlags,
                    const SkPMColor4f& color,
                    const SkMatrix& viewMatrix,

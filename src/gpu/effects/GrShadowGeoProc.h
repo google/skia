@@ -22,7 +22,9 @@ class GrSurfaceProxyView;
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const GrSurfaceProxyView& lutView) {
-        return arena->make<GrRRectShadowGeoProc>(lutView);
+        return arena->make([&](void* ptr) {
+            return new (ptr) GrRRectShadowGeoProc(lutView);
+        });
     }
 
     const char* name() const override { return "RRectShadow"; }
@@ -37,8 +39,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView);
 
     const TextureSampler& onTextureSampler(int i) const override { return fLUTTextureSampler; }

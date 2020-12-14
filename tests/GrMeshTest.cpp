@@ -453,7 +453,9 @@ private:
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool instanced, bool hasVertexBuffer) {
-        return arena->make<GrMeshTestProcessor>(instanced, hasVertexBuffer);
+        return arena->make([&](void* ptr) {
+            return new (ptr) GrMeshTestProcessor(instanced, hasVertexBuffer);
+        });
     }
 
     const char* name() const override { return "GrMeshTestProcessor"; }
@@ -471,7 +473,6 @@ public:
 
 private:
     friend class GLSLMeshTestProcessor;
-    friend class ::SkArenaAlloc; // for access to ctor
 
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
             : INHERITED(kGrMeshTestProcessor_ClassID) {

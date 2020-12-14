@@ -533,7 +533,9 @@ public:
     using Saturate = GrTextureOp::Saturate;
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const VertexSpec& spec) {
-        return arena->make<QuadPerEdgeAAGeometryProcessor>(spec);
+        return arena->make([&](void* ptr) {
+            return new (ptr) QuadPerEdgeAAGeometryProcessor(spec);
+        });
     }
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
@@ -544,9 +546,11 @@ public:
                                      const GrSwizzle& swizzle,
                                      sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                      Saturate saturate) {
-        return arena->make<QuadPerEdgeAAGeometryProcessor>(
-                vertexSpec, caps, backendFormat, samplerState, swizzle,
-                std::move(textureColorSpaceXform), saturate);
+        return arena->make([&](void* ptr) {
+            return new (ptr) QuadPerEdgeAAGeometryProcessor(
+                    vertexSpec, caps, backendFormat, samplerState, swizzle,
+                    std::move(textureColorSpaceXform), saturate);
+        });
     }
 
     const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
@@ -726,8 +730,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
             , fTextureColorSpaceXform(nullptr) {

@@ -837,7 +837,6 @@ public:
 
 private:
     friend class GLDashingCircleEffect;
-    friend class ::SkArenaAlloc; // for access to ctor
 
     DashingCircleEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
@@ -969,7 +968,9 @@ GrGeometryProcessor* DashingCircleEffect::Make(SkArenaAlloc* arena,
                                                AAMode aaMode,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords) {
-    return arena->make<DashingCircleEffect>(color, aaMode, localMatrix, usesLocalCoords);
+    return arena->make([&](void* ptr) {
+        return new (ptr) DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords);
+    });
 }
 
 void DashingCircleEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -1047,7 +1048,6 @@ public:
 
 private:
     friend class GLDashingLineEffect;
-    friend class ::SkArenaAlloc; // for access to ctor
 
     DashingLineEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
@@ -1195,7 +1195,9 @@ GrGeometryProcessor* DashingLineEffect::Make(SkArenaAlloc* arena,
                                              AAMode aaMode,
                                              const SkMatrix& localMatrix,
                                              bool usesLocalCoords) {
-    return arena->make<DashingLineEffect>(color, aaMode, localMatrix, usesLocalCoords);
+    return arena->make([&](void* ptr) {
+        return new (ptr) DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords);
+    });
 }
 
 void DashingLineEffect::getGLSLProcessorKey(const GrShaderCaps& caps,

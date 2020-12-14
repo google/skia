@@ -78,7 +78,9 @@ class ClockwiseGM : public skiagm::GpuGM {
 class ClockwiseTestProcessor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool readSkFragCoord) {
-        return arena->make<ClockwiseTestProcessor>(readSkFragCoord);
+        return arena->make([&](void* ptr) {
+            return new (ptr) ClockwiseTestProcessor(readSkFragCoord);
+        });
     }
 
     const char* name() const final { return "ClockwiseTestProcessor"; }
@@ -92,8 +94,6 @@ public:
     bool readSkFragCoord() const { return fReadSkFragCoord; }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     ClockwiseTestProcessor(bool readSkFragCoord)
             : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)
             , fReadSkFragCoord(readSkFragCoord) {
