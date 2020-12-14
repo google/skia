@@ -25,6 +25,9 @@ EMCC=`which emcc`
 EMCXX=`which em++`
 EMAR=`which emar`
 
+echo "Compiling using EMSDK version"
+$EMCC --version
+
 RELEASE_CONF="-Oz --closure 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js"
 EXTRA_CFLAGS="\"-DSK_RELEASE\","
 IS_OFFICIAL_BUILD="true"
@@ -395,8 +398,9 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s FORCE_FILESYSTEM=0 \
     -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
+    -s EXPORT_ES6=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s INITIAL_MEMORY=128MB \
     -s WASM=1 \
     $STRICTNESS \
-    -o $BUILD_DIR/canvaskit.js
+    -o $BUILD_DIR/canvaskit.mjs

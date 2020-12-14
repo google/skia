@@ -47,14 +47,12 @@
 <canvas id=shape2 width=600 height=600></canvas>
 <canvas id=textonpath width=300 height=300></canvas>
 
-<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+<script type="module" charset="utf-8">
+  import CanvasKitInit from '/canvaskit/bin/canvaskit.mjs';
+  let CanvasKit = null;
+  const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
-<script type="text/javascript" charset="utf-8">
-
-  var CanvasKit = null;
-  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
-
-  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/canvaskit/bin/'+file});
 
   const loadRoboto = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   const loadNotoSerif = fetch(cdn + 'NotoSerif-Regular.ttf').then((response) => response.arrayBuffer());
