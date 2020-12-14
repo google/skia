@@ -66,6 +66,16 @@ struct MultiPictureDocument final : public SkDocument {
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);
         fPages.push_back(fPictureRecorder.finishRecordingAsPicture());
+
+        // Collect images before GPU-backed textures expire
+        // TODO, this needs to be turned off for PDFs
+        if (true) {
+            SkSerialProcs endPageProc;
+            endPageProc.fImageCtx = fProcs.fImageCtx; // same context
+            endPageProc.fImageProc = SkSharingSerialContext::collectNonTextureImages; // different function
+            auto ns = SkNullWStream();
+            fPages.end()->serialize(ns, endPageProc);
+        }
     }
     void onClose(SkWStream* wStream) override {
         SkASSERT(wStream);
