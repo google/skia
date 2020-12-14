@@ -471,6 +471,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = "Mac"
 			// iPhone11 requires xcode 11.4.1 which requires >10.15.2.
 			if b.parts["model"] == "iPhone11" {
+				// TODO(westont): Make this Mac10.15.7. We only have a single 10.15.5.
 				task_os = "Mac10.15.5"
 			}
 		} else if b.matchOs("Win") {
@@ -483,6 +484,9 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = COMPILE_TASK_NAME_OS_LINUX
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
+			if b.extraConfig("CommandBuffer") {
+				task_os = "Mac10.15.7"
+			}
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
@@ -545,6 +549,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac10.14":   "Mac-10.14.3",
 			"Mac10.15":   "Mac-10.15.1",
 			"Mac10.15.5": "Mac-10.15.5", // We have some builders at 10.15.5 to run Xcode 11.4.1
+			"Mac10.15.7": "Mac-10.15.7", // We have some Golo machines at 10.15.7 to run Xcode 12.2
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18363",
