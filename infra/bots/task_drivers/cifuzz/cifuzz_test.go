@@ -8,13 +8,38 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
+
+	"go.skia.org/infra/go/testutils/unittest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.skia.org/infra/task_driver/go/td"
 )
+
+func TestSetupCIFuzzRepoAndDocker_Success(t *testing.T) {
+	unittest.LinuxOnlyTest(t)
+	base := t.TempDir()
+	fakeWorkDir := filepath.Join(base, "work")
+	gb, err := exec.Command("which", "git").Output()
+	require.NoError(t, err)
+	gitExe := strings.TrimSpace(string(gb))
+	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
+		return setupCIFuzzRepoAndDocker(ctx, fakeWorkDir, gitExe)
+	})
+	require.Empty(t, res.Errors)
+	require.Empty(t, res.Exceptions)
+	require.Len(t, res.Steps, 1)
+	step := res.Steps[0]
+	assert.Equal(t, td.STEP_RESULT_SUCCESS, step.Result)
+	assert.Empty(t, step.Errors)
+	assert.Empty(t, step.Exceptions)
+	// Make sure the output directory is created
+	assert.DirExists(t, filepath.Join(fakeWorkDir, "out"))
+}
 
 func TestExtractOutput_OnlyCopyFuzzOutputs(t *testing.T) {
 	base := t.TempDir()
@@ -34,11 +59,15 @@ func TestExtractOutput_OnlyCopyFuzzOutputs(t *testing.T) {
 	require.Error(t, err)
 
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
-		extractOutput(ctx, fakeWorkDir, fakeOutput)
-		return nil
+		return extractOutput(ctx, fakeWorkDir, fakeOutput)
 	})
 	require.Empty(t, res.Errors)
 	require.Empty(t, res.Exceptions)
+	require.Len(t, res.Steps, 1)
+	step := res.Steps[0]
+	assert.Equal(t, td.STEP_RESULT_SUCCESS, step.Result)
+	assert.Empty(t, step.Errors)
+	assert.Empty(t, step.Exceptions)
 
 	copiedFiles, err := ioutil.ReadDir(fakeOutput)
 	require.NoError(t, err)

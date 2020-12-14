@@ -121,11 +121,15 @@ func setupCIFuzzRepoAndDocker(ctx context.Context, workdir, gitAbsPath string) e
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
-	if _, err := exec.RunCwd(ctx, workdir, dockerExe, "build", "--tag", buildFuzzersDockerImage, "oss-fuzz/infra/cifuzz/actions/build_fuzzers"); err != nil {
+	ossFuzzDir := filepath.Join(workdir, "oss-fuzz", "infra")
+
+	if _, err := exec.RunCwd(ctx, ossFuzzDir, dockerExe, "build", "--tag", buildFuzzersDockerImage,
+		"--file", "build_fuzzers.Dockerfile", "."); err != nil {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
-	if _, err := exec.RunCwd(ctx, workdir, dockerExe, "build", "--tag", runFuzzersDockerImage, "oss-fuzz/infra/cifuzz/actions/run_fuzzers"); err != nil {
+	if _, err := exec.RunCwd(ctx, ossFuzzDir, dockerExe, "build", "--tag", runFuzzersDockerImage,
+		"--file", "run_fuzzers.Dockerfile", "."); err != nil {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
 
