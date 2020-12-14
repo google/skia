@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <io.h>
 
-#include <cstdio>
 #include <cstring>
 #include <mutex>
 #include <string>
@@ -25,29 +24,24 @@ static void* win_mmap(const char* dataFile) {
     struct FCloseWrapper { void operator()(FILE* f) { fclose(f); } };
     std::unique_ptr<FILE, FCloseWrapper> stream(fopen(dataFile, "rb"));
     if (!stream) {
-        fprintf(stderr, "SkIcuLoader: datafile missing: %s.\n", dataFile);
         return nullptr;
     }
     int fileno = _fileno(stream.get());
     if (fileno < 0) {
-        fprintf(stderr, "SkIcuLoader: datafile fileno error.\n");
         return nullptr;
     }
     HANDLE file = (HANDLE)_get_osfhandle(fileno);
     if ((HANDLE)INVALID_HANDLE_VALUE == file) {
-        fprintf(stderr, "SkIcuLoader: datafile handle error.\n");
         return nullptr;
     }
     struct CloseHandleWrapper { void operator()(HANDLE h) { CloseHandle(h); } };
     std::unique_ptr<void, CloseHandleWrapper> mmapHandle(
         CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr));
     if (!mmapHandle) {
-        fprintf(stderr, "SkIcuLoader: datafile mmap error.\n");
         return nullptr;
     }
     void* addr = MapViewOfFile(mmapHandle.get(), FILE_MAP_READ, 0, 0, 0);
     if (nullptr == addr) {
-        fprintf(stderr, "SkIcuLoader: datafile view error.\n");
         return nullptr;
     }
     return addr;
@@ -57,12 +51,10 @@ static bool init_icu(void* addr) {
     UErrorCode err = U_ZERO_ERROR;
     udata_setCommonData(addr, &err);
     if (err != U_ZERO_ERROR) {
-        fprintf(stderr, "udata_setCommonData() returned %d.\n", (int)err);
         return false;
     }
     udata_setFileAccess(UDATA_ONLY_PACKAGES, &err);
     if (err != U_ZERO_ERROR) {
-        fprintf(stderr, "udata_setFileAccess() returned %d.\n", (int)err);
         return false;
     }
     return true;
