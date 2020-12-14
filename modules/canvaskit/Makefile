@@ -30,7 +30,7 @@ debug:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
 debug_cpu:
 	# Does an incremental build where possible.
@@ -38,7 +38,7 @@ debug_cpu:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
 experimental_simd:
 	# Does an incremental build where possible.
@@ -46,7 +46,7 @@ experimental_simd:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm.map ./canvaskit/bin
+	#cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm.map ./canvaskit/bin
 
 debug_viewer:
 	# Does an incremental build where possible.
@@ -54,7 +54,7 @@ debug_viewer:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
+	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
 profile:
 	./compile.sh profiling
