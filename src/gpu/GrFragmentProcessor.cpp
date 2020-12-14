@@ -262,11 +262,12 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                          const GrSwizzle& swizzle) {
             return std::unique_ptr<GrFragmentProcessor>(
-                new SwizzleFragmentProcessor(std::move(fp), swizzle));
+                    new SwizzleFragmentProcessor(std::move(fp), swizzle));
         }
 
         const char* name() const override { return "Swizzle"; }
         const GrSwizzle& swizzle() const { return fSwizzle; }
+        bool usesExplicitReturn() const override { return true; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return Make(this->childProcessor(0)->clone(), fSwizzle);
@@ -289,8 +290,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
                     const GrSwizzle& swizzle = sfp.swizzle();
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-                    fragBuilder->codeAppendf("%s = %s.%s;",
-                            args.fOutputColor, childColor.c_str(), swizzle.asString().c_str());
+                    fragBuilder->codeAppendf("return %s.%s;",
+                                             childColor.c_str(), swizzle.asString().c_str());
                 }
             };
             return new GLFP;
@@ -334,6 +335,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
         }
 
         const char* name() const override { return "Premultiply"; }
+        bool usesExplicitReturn() const override { return true; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return Make(this->childProcessor(0)->clone());
@@ -350,11 +352,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    SkString temp = this->invokeChild(0, "half4(1)", args);
-                    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
-                    fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
-                                                                  args.fInputColor);
-                    fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+                    SkString temp = this->invokeChild(/*childIndex=*/0, "half4(1)", args);
+                    fragBuilder->codeAppendf("half4 color = %s;", temp.c_str());
+                    fragBuilder->codeAppendf("color.rgb *= %s.rgb;", args.fInputColor);
+                    fragBuilder->codeAppendf("return color * %s.a;", args.fInputColor);
                 }
             };
             return new GLFP;

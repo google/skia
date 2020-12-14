@@ -33,6 +33,8 @@ public:
 
     const char* name() const override { return "Bicubic"; }
 
+    bool usesExplicitReturn() const override { return true; }
+
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(*this));
     }

@@ -197,6 +197,7 @@ public:
     }
 
     const char* name() const override { return "Morphology"; }
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrMorphologyEffect(*this));
@@ -243,7 +244,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             const char* func = me.fType == MorphType::kErode ? "min" : "max";
 
             char initialValue = me.fType == MorphType::kErode ? '1' : '0';
-            fragBuilder->codeAppendf("%s = half4(%c);", args.fOutputColor, initialValue);
+            fragBuilder->codeAppendf("half4 color = half4(%c);", initialValue);
 
             char dir = me.fDirection == MorphDirection::kX ? 'x' : 'y';
 
@@ -262,8 +263,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             }
             fragBuilder->codeAppendf("for (int i = 0; i < %d; i++) {", width);
             SkString sample = this->invokeChild(kTexEffectIndex, args, "coord");
-            fragBuilder->codeAppendf("    %s = %s(%s, %s);", args.fOutputColor, func,
-                                     args.fOutputColor, sample.c_str());
+            fragBuilder->codeAppendf("    color = %s(color, %s);", func, sample.c_str());
             // coord.x += 1;
             fragBuilder->codeAppendf("    coord.%c += 1;", dir);
             if (me.fUseRange) {
@@ -273,7 +273,7 @@ GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {
             fragBuilder->codeAppend("}");
 
             SkString inputColor = this->invokeChild(kInputFPIndex, args);
-            fragBuilder->codeAppendf("%s *= %s;", args.fOutputColor, inputColor.c_str());
+            fragBuilder->codeAppendf("return color * %s;", inputColor.c_str());
         }
 
     protected:

@@ -51,6 +51,7 @@ public:
     ~CircularRRectEffect() override {}
 
     const char* name() const override { return "CircularRRect"; }
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -298,7 +299,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
 
     SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
-    fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
+    fragBuilder->codeAppendf("return %s * alpha;", inputSample.c_str());
 }
 
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -408,6 +409,8 @@ public:
     ~EllipticalRRectEffect() override {}
 
     const char* name() const override { return "EllipticalRRect"; }
+
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -625,7 +628,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
 
     SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
-    fragBuilder->codeAppendf("%s = %s * alpha;", args.fOutputColor, inputSample.c_str());
+    fragBuilder->codeAppendf("return %s * alpha;", inputSample.c_str());
 }
 
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
