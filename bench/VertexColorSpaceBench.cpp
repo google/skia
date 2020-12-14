@@ -38,7 +38,9 @@ class GP : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, Mode mode,
                                      sk_sp<GrColorSpaceXform> colorSpaceXform) {
-        return arena->make<GP>(mode, std::move(colorSpaceXform));
+        return arena->make([&](void* ptr) {
+            return new (ptr) GP(mode, std::move(colorSpaceXform));
+        });
     }
 
     const char* name() const override { return "VertexColorXformGP"; }
@@ -95,8 +97,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)

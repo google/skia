@@ -72,8 +72,10 @@ public:
 
     ~SkArenaAlloc();
 
-    template <typename T, typename... Args>
-    T* make(Args&&... args) {
+    template <typename Ctor>
+    auto make(Ctor&& ctor) -> decltype(ctor(nullptr)) {
+        using T = std::remove_pointer_t<decltype(ctor(nullptr))>;
+
         uint32_t size      = ToU32(sizeof(T));
         uint32_t alignment = ToU32(alignof(T));
         char* objStart;
@@ -95,8 +97,14 @@ public:
             this->installFooter(releaser, padding);
         }
 
-        // This must be last to make objects with nested use of this allocator work.
-        return new(objStart) T(std::forward<Args>(args)...);
+        return ctor(objStart);
+    }
+
+    template <typename T, typename... Args>
+    T* make(Args&&... args) {
+        return this->make([&](void* objStart) {
+            return new(objStart) T(std::forward<Args>(args)...);
+        });
     }
 
     template <typename T>
