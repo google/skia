@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea338a44_0d329a90",
+        "filename": "third_party/icu/SkLoadICU.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-14T15:46:30Z",
+      "side": 0,
+      "message": "This one helped me few times. It\u0027s actually good to know why ICU breaks.",
+      "revId": "371967f791a343138c72dfae4c873d3203b42b08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
