@@ -76,6 +76,9 @@ public:
     bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
     void flushScissorRect(const SkIRect&, int rtWidth, int rtHeight, GrSurfaceOrigin);
 
+    // Need not be called if flushRenderTarget is used.
+    void flushViewport(SkIRect viewport, int rtHeight, GrSurfaceOrigin rtOrigin);
+
     // Returns the last program bound by flushGLState(), or nullptr if a different program has since
     // been put into use via some other method (e.g., resetContext, copySurfaceAsDraw).
     // The returned GrGLProgram can be used for binding textures and vertex attributes.
@@ -420,9 +423,6 @@ private:
     void flushRenderTarget(GrGLRenderTarget*);
     // This version can be used when the render target's colors will not be written.
     void flushRenderTargetNoColorWrites(GrGLRenderTarget*);
-
-    // Need not be called if flushRenderTarget is used.
-    void flushViewport(int width, int height);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();

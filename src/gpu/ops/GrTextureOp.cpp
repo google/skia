@@ -917,7 +917,7 @@ private:
             SkASSERT(fDesc->fProgramInfo);
         }
 
-        flushState->bindPipelineAndScissorClip(*fDesc->fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fDesc->fProgramInfo, chainBounds);
         flushState->bindBuffers(std::move(fDesc->fIndexBuffer), nullptr,
                                 std::move(fDesc->fVertexBuffer));
 

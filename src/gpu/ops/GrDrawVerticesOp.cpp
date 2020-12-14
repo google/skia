@@ -738,7 +738,7 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
         return;
     }
 
-    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }

@@ -45,19 +45,23 @@ public:
         GrStoreOp fStoreOp;
     };
 
-    void begin();
+    void begin1();
     // Signals the end of recording to the GrOpsRenderPass and that it can now be submitted.
     void end();
 
     // Updates the internal pipeline state for drawing with the provided GrProgramInfo. Enters an
     // internal "bad" state if the pipeline could not be set.
-    void bindPipeline(const GrProgramInfo&, const SkRect& drawBounds);
+    void bindPipeline1(const GrProgramInfo&, const SkRect& drawBounds);
 
     // The scissor rect is always dynamic state and therefore not stored on GrPipeline. If scissor
     // test is enabled on the current pipeline, then the client must call setScissorRect() before
     // drawing. The scissor rect may also be updated between draws without having to bind a new
     // pipeline.
-    void setScissorRect(const SkIRect&);
+    void setScissorRect1(const SkIRect&);
+
+    void setViewport8(SkIRect viewport) {
+        this->onSetViewport8(viewport);
+    }
 
     // Binds textures for the primitive processor and any FP on the GrPipeline. Texture bindings are
     // dynamic state and therefore not set during bindPipeline(). If the current program uses
@@ -177,6 +181,7 @@ private:
     virtual void onEnd() {}
     virtual bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) = 0;
     virtual void onSetScissorRect(const SkIRect&) = 0;
+    virtual void onSetViewport8(SkIRect viewport) = 0;
     virtual bool onBindTextures(const GrPrimitiveProcessor&,
                                 const GrSurfaceProxy* const primProcTextures[],
                                 const GrPipeline&) = 0;
@@ -215,6 +220,7 @@ private:
         kConfigured
     };
 
+    // Add a fViewportStatus ?
     DynamicStateStatus fScissorStatus;
     DynamicStateStatus fTextureBindingStatus;
     bool fHasIndexBuffer;
