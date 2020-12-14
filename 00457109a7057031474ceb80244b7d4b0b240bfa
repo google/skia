@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1efbe4d_10fbd574",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T16:40:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d12ff640_f145e0a0",
+      "range": {
+        "startLine": 488,
+        "startChar": 20,
+        "endLine": 488,
+        "endChar": 29
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9b99dd6c_9559b181",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-12-14T15:57:22Z",
       "side": 1,
       "message": "Can we keep the strong {F32,F32} / {F32,F32,F32,F32} typing for these?  It\u0027ll be nice to see the distinction of types once I get Half-based Colors plumbed through.",
+      "range": {
+        "startLine": 495,
+        "startChar": 8,
+        "endLine": 496,
+        "endChar": 28
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca880801_f54a7bc4",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T16:40:30Z",
+      "side": 1,
+      "message": "Yeah. I was originally trying to keep the signature generic/flexible (I\u0027ve been planning how to convert particles to use the new generator). But that generic use-case is going to wind up with a different entry point anyway (no device/local coords), so customizing ProgramToSkVM for the actual rasterization case makes sense.\n\nWith that in mind, I\u0027ve tailored the signature further, and moved this parameter sniffing and id juggling into ProgramToSkVM, and made it just return an skvm::Color",
+      "parentUuid": "9b99dd6c_9559b181",
       "range": {
         "startLine": 495,
         "startChar": 8,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a979b5c6_4ecbee14",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T16:40:30Z",
+      "side": 1,
+      "message": "It\u0027s actually different - parameters() will only have one variable (a float2). The number of arg()s expected is really the sum of # of components across the parameters.",
+      "parentUuid": "18f137af_d4709845",
+      "range": {
+        "startLine": 497,
+        "startChar": 27,
+        "endLine": 497,
+        "endChar": 86
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "186bfb11_c0d40427",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 17
@@ -100,6 +172,30 @@
       "writtenOn": "2020-12-14T15:57:22Z",
       "side": 1,
       "message": "Might be clearer to keep device/local on the same line together?",
+      "range": {
+        "startLine": 499,
+        "startChar": 54,
+        "endLine": 500,
+        "endChar": 52
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad418184_378cc547",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T16:40:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "186bfb11_c0d40427",
       "range": {
         "startLine": 499,
         "startChar": 54,
@@ -123,6 +219,24 @@
       "writtenOn": "2020-12-14T15:57:22Z",
       "side": 1,
       "message": "(Same deal for everything down here.)",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d408a97_bf6f2795",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T16:40:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e2997b9_dfe0b536",
       "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
