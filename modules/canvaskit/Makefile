@@ -46,7 +46,6 @@ experimental_simd:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm ./canvaskit/bin
-	#cp ../../out/canvaskit_wasm_experimental_simd/canvaskit.wasm.map ./canvaskit/bin
 
 debug_viewer:
 	# Does an incremental build where possible.
@@ -54,7 +53,6 @@ debug_viewer:
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./canvaskit/bin
-	#cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
 profile:
 	./compile.sh profiling
@@ -71,10 +69,10 @@ npm:
 	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin
 
-	mkdir -p ./canvaskit/bin/core
-	./compile.sh release no_skottie no_particles no_pathops no_rt_shader no_font no_skp_serialization no_effects_deserialization
-	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin/core
-	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin/core
+	mkdir -p ./canvaskit/bin/profiling
+	./compile.sh profiling no_skottie no_particles no_rt_shader no_alias_font no_effects_deserialization
+	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin/profiling
+	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin/profiling
 
 gm_tests:
 	./compile_gm.sh
