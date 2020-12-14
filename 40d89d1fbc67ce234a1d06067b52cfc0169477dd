@@ -16,6 +16,24 @@
       "message": "If this works and you both like this, I\u0027ll get rid of the rest of the friends.",
       "revId": "40d89d1fbc67ce234a1d06067b52cfc0169477dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ff41e36_cc0b8f0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-14T22:09:35Z",
+      "side": 1,
+      "message": "Cool! Definite improvement over friends. It might be nice to pull the same trick for a sknonstd::make_unique.",
+      "parentUuid": "bddbfc29_1af2d3ec",
+      "revId": "40d89d1fbc67ce234a1d06067b52cfc0169477dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
