@@ -1,4 +1,4 @@
 // Test that '%' is expanded to '%%' in emitCode
-void main() {
+half4 main() {
     sk_OutColor.r = half(1 % int(sqrt(2)));
 }

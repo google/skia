@@ -22,9 +22,9 @@ public:
         auto w = _outer.w;
         (void) w;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(1.0);
+R"SkSL(return half4(1.0);
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -42,7 +42,7 @@ bool GrSectionConstructorParams::onIsEqual(const GrFragmentProcessor& other) con
     return true;
 }
 bool GrSectionConstructorParams::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrSectionConstructorParams::GrSectionConstructorParams(const GrSectionConstructorParams& src)
 : INHERITED(kGrSectionConstructorParams_ClassID, src.optimizationFlags())

@@ -20,9 +20,9 @@ public:
         const GrSectionFields& _outer = args.fFp.cast<GrSectionFields>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(1.0);
+R"SkSL(return half4(1.0);
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -39,7 +39,7 @@ bool GrSectionFields::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrSectionFields::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 #if GR_TEST_UTILS
 SkString GrSectionFields::onDumpInfo() const {
