@@ -28,11 +28,11 @@ void DDLTileHelper::TileData::init(int id,
     fClip = clip;
     fPaddingOutsets = paddingOutsets;
 
-    fCharacterization = dstSurfaceCharacterization.createResized(this->paddedRectSize().width(),
-                                                                 this->paddedRectSize().height());
-    SkASSERT(fCharacterization.isValid());
+    fPlaybackChar  = dstSurfaceCharacterization.createResized(this->paddedRectSize().width(),
+                                                              this->paddedRectSize().height());
+    SkASSERT(fPlaybackChar.isValid());
 
-    GrBackendFormat backendFormat = direct->defaultBackendFormat(fCharacterization.colorType(),
+    GrBackendFormat backendFormat = direct->defaultBackendFormat(fPlaybackChar.colorType(),
                                                                  GrRenderable::kYes);
     SkDEBUGCODE(const GrCaps* caps = direct->priv().caps());
     SkASSERT(caps->isFormatTexturable(backendFormat));
@@ -46,9 +46,12 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
                                                     const DDLPromiseImageHelper& helper) {
     SkASSERT(!fReconstitutedPicture);
 
+    auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
+    SkASSERT(recordingChar.isValid());
+
     // This is bending the DDLRecorder contract! The promise images in the SKP should be
     // created by the same recorder used to create the matching DDL.
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
+    SkDeferredDisplayListRecorder recorder(recordingChar);
 
     fReconstitutedPicture = helper.reinflateSKP(&recorder, compressedPictureData, &fPromiseImages);
 
@@ -64,7 +67,10 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
 void DDLTileHelper::TileData::createDDL() {
     SkASSERT(!fDisplayList && fReconstitutedPicture);
 
-    SkDeferredDisplayListRecorder recorder(fCharacterization);
+    auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
+    SkASSERT(recordingChar.isValid());
+
+    SkDeferredDisplayListRecorder recorder(recordingChar);
 
     // DDL TODO: the DDLRecorder's GrContext isn't initialized until getCanvas is called.
     // Maybe set it up in the ctor?
@@ -139,11 +145,11 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
     // backed by the same backendTexture - unbeknownst to Ganesh.
     return SkSurface::MakeFromBackendTexture(context,
                                              promiseImageTexture->backendTexture(),
-                                             fCharacterization.origin(),
-                                             fCharacterization.sampleCount(),
-                                             fCharacterization.colorType(),
-                                             fCharacterization.refColorSpace(),
-                                             &fCharacterization.surfaceProps());
+                                             fPlaybackChar.origin(),
+                                             fPlaybackChar.sampleCount(),
+                                             fPlaybackChar.colorType(),
+                                             fPlaybackChar.refColorSpace(),
+                                             &fPlaybackChar.surfaceProps());
 }
 
 void DDLTileHelper::TileData::drawSKPDirectly(GrRecordingContext* context) {
@@ -198,9 +204,9 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
                                          this->paddedRectSize().height(),
                                          GrMipmapped::kNo,
                                          GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
-                                         fCharacterization.colorType(),
+                                         fPlaybackChar.colorType(),
                                          kPremul_SkAlphaType,
-                                         fCharacterization.refColorSpace(),
+                                         fPlaybackChar.refColorSpace(),
                                          PromiseImageCallbackContext::PromiseImageFulfillProc,
                                          PromiseImageCallbackContext::PromiseImageReleaseProc,
                                          (void*)this->refCallbackContext().release());
@@ -211,7 +217,8 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
-    const SkSurfaceCharacterization& c = tile->fCharacterization;
+
+    const SkSurfaceCharacterization& c = tile->fPlaybackChar;
     GrBackendTexture beTex = direct->createBackendTexture(c.width(), c.height(), c.colorType(),
                                                           GrMipMapped(c.isMipMapped()),
                                                           GrRenderable::kYes);
