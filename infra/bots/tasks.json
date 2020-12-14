@@ -451,12 +451,6 @@
         "Build-Mac-Clang-x86_64-Debug-ASAN_Metal"
       ]
     },
-    "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
-      "tasks": [
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
-      ],
-      "trigger": "master"
-    },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-Metal"
@@ -471,12 +465,6 @@
       "tasks": [
         "Build-Mac-Clang-x86_64-Release"
       ]
-    },
-    "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
-      "tasks": [
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer"
-      ],
-      "trigger": "master"
     },
     "Build-Mac-Clang-x86_64-Release-Metal": {
       "tasks": [
@@ -512,6 +500,18 @@
       "tasks": [
         "Build-Mac10.15.5-Clang-arm64-Release-iOS_Metal"
       ]
+    },
+    "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer": {
+      "tasks": [
+        "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer"
+      ],
+      "trigger": "master"
+    },
+    "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer": {
+      "tasks": [
+        "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer"
+      ],
+      "trigger": "master"
     },
     "Build-Win-Clang-arm64-Debug": {
       "tasks": [
@@ -10299,114 +10299,6 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
-      "caches": [
-        {
-          "name": "ccache",
-          "path": "cache/ccache"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        },
-        {
-          "name": "xcode",
-          "path": "cache/Xcode.app"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/mac-amd64",
-          "path": "cipd_bin_packages",
-          "version": "version:2.29.2.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/mac_toolchain/${platform}",
-          "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
-        },
-        {
-          "name": "skia/bots/ccache_mac",
-          "path": "ccache_mac",
-          "version": "version:1"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
-        "os:Mac-10.14.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "build"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "caches": [
         {
@@ -10647,114 +10539,6 @@
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "build"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
-      "caches": [
-        {
-          "name": "ccache",
-          "path": "cache/ccache"
-        },
-        {
-          "name": "git",
-          "path": "cache/git"
-        },
-        {
-          "name": "git_cache",
-          "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "work",
-          "path": "cache/work"
-        },
-        {
-          "name": "xcode",
-          "path": "cache/Xcode.app"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/mac-amd64",
-          "path": "cipd_bin_packages",
-          "version": "version:2.29.2.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
-        },
-        {
-          "name": "infra/tools/mac_toolchain/${platform}",
-          "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
-        },
-        {
-          "name": "skia/bots/ccache_mac",
-          "path": "ccache_mac",
-          "version": "version:1"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "sync_and_compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-E5-2697_v2",
-        "gpu:none",
-        "os:Mac-10.14.6",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 7200000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 7200000000000,
-      "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -11345,6 +11129,220 @@
       "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2.29.2.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 7200000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 7200000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2.29.2.chromium.6"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:14be8b751c0fb567535f520f8a7bc60c3f40b378"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/ccache_mac",
+          "path": "ccache_mac",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "sync_and_compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 7200000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 7200000000000,
+      "isolate": "swarm_recipe.isolate",
       "max_attempts": 2,
       "outputs": [
         "build"
@@ -21911,7 +21909,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22145,7 +22143,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22302,7 +22300,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22459,7 +22457,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Release-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -39157,7 +39155,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -39859,7 +39857,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -40250,7 +40248,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -40720,7 +40718,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
