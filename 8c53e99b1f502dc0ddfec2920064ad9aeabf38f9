@@ -16,6 +16,75 @@
       "message": "Still need to address some higher level comments, but here\u0027s a chunk.",
       "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f63b7f4_5f453d44",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "Worth double checking if you need these either?",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 43
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dc2fcee_0153a944",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "These comments helped tremendously.\n\nIs it important that we delay allocation until a Variable is first referenced?  If not, it might be easier to work with if we allocate one big array of skvm::Val ahead of time.  That\u0027d let us use pointers for indirection, I think making SkSL::(anon)::Value and this whole explanatory paragraph moot?  We could probably boil it down to,\n\n   // Each SkSL::Variable is backed by one (scalar) or more (vector, matrix) skvm::Vals.\n   SkSpan\u003cskvm::Val\u003e vals(const Variable\u0026);",
+      "range": {
+        "startLine": 187,
+        "startChar": 48,
+        "endLine": 188,
+        "endChar": 18
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ded5fa6_228b7812",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "Now I\u0027m wondering about getLocation(Expression) and whether Expressions need long term storage Location for their values at all.  Aren\u0027t we going to just use them in a way that a simple signature like this would work?\n\n   std::array\u003cskvm::Val,16\u003e vals(const Expression\u0026);\n\nOr do we support non-Variable lvalue expressions like `(foo ? x : y) \u003d 5.0;` ?",
+      "range": {
+        "startLine": 198,
+        "startChar": 3,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

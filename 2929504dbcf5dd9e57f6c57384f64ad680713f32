@@ -184,6 +184,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "64138a6d_9fc86b0d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "Ah, yeah, that\u0027s a good point.  I had forgotten loops will still support break and continue.",
+      "parentUuid": "18328272_5970ec48",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c9743a3_ba9dcebe",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 19
@@ -219,6 +237,30 @@
       "side": 1,
       "message": "You\u0027re right about this - these rules do need to be enforced in the front-end. This is actually a subset of a larger class of things that need to be prevented in the front-end (for runtime effects): all bitwise integer operators.\n\nGLES 2.0 doesn\u0027t allow any bitwise ops (though the integer type does exist, and arithmetic can be used). This is their concession to the fact that hardware may not have had actual integers, and could be approximating it using floats. (skbug.com/11088)",
       "parentUuid": "4c9743a3_ba9dcebe",
+      "range": {
+        "startLine": 567,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 0
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c8018ae_ccf5123b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "sgtm.\n\nIn case it wasn\u0027t obvious, this comment here was really just me happening to glance at a chunk of code near an unrelated edit in the diff view.  I would like to push all the language enforcement to the frontend, if there are any other rules.  By the time we get here I don\u0027t want to fail for language reasons.  (Though I don\u0027t at all mind _asserting_ language rules are followed in the backends.)  It\u0027s just that if we enforce rules in the backends, we\u0027ll end up enforcing subtly different rules in each.\n\nIncidentally, skvm could support shifts by variables like `I32 sra(I32, I32)` if we want.  In practice they weren\u0027t needed for Skia\u0027s effects, but we can do them if useful.",
+      "parentUuid": "99e63aa2_ffaae88b",
       "range": {
         "startLine": 567,
         "startChar": 0,
@@ -283,6 +325,24 @@
       "side": 1,
       "message": "Yes, it actually kills that particular pixel (so no writes happen to any buffers). It\u0027s a statement type that shouldn\u0027t even be permitted in public SkSL - though it is today). Filed skbug.com/11085",
       "parentUuid": "c88616e9_9ddcdf7a",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "922f9ac6_e19d92b4",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "Ah.  That\u0027s interesting.  Of course I\u0027m ok to kill it.\n\nBut now hypothetically if we didn\u0027t, we\u0027d need to track another discard mask kind of how we do for knowing if a value\u0027s already returned, right?  And return that mask along with the color, and it becomes the blitter\u0027s job to handle things from there?\n\nIt\u0027s a short step away from there to returning a color and its coverage from the shader, where today\u0027s ordinary path is 1.0, discard is 0.0, and something new happens in the middle.",
+      "parentUuid": "b108a7c0_73d568f0",
       "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },

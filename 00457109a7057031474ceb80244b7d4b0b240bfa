@@ -413,6 +413,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7862a62b_f63b644d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T21:01:25Z",
+      "side": 1,
+      "message": "Oh, yeah, that makes sense.  If you give me enough time to forget, I bet I\u0027ll look at the pile of mutually recursive functions passing around a common context object and say \"hey, these are really methods on that context object, aren\u0027t they?\".  :P",
+      "parentUuid": "2d0951cc_f98e6d83",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ffe52ac8_98898c5b",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 17
