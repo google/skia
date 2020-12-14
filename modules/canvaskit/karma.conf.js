@@ -12,11 +12,12 @@ module.exports = function(config) {
     files: [
       { pattern: 'canvaskit/bin/canvaskit.wasm', included:false, served:true},
       { pattern: 'tests/assets/*', included:false, served:true},
-      'tests/testReporter.js',
-      'canvaskit/bin/canvaskit.js',
-      'tests/canvaskitinit.js',
-      'tests/util.js',
-      'tests/*.spec.js'
+      //'tests/testReporter.js',
+      {pattern: 'canvaskit/bin/canvaskit.mjs', type: 'module'},
+      { pattern: 'tests/canvaskitinit.js', type: 'module'},
+      // 'tests/util.js',
+      {pattern: 'tests/skottie.spec.js', type: 'module'},
+    //  'tests/*.spec.js'
     ],
 
     proxies: {

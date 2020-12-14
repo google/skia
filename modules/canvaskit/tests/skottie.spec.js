@@ -1,3 +1,5 @@
+import LoadCanvasKit from './canvaskitinit.js'
+
 describe('Skottie behavior', () => {
     let container;
 

@@ -395,8 +395,9 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s FORCE_FILESYSTEM=0 \
     -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
+    -s EXPORT_ES6=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s INITIAL_MEMORY=128MB \
     -s WASM=1 \
     $STRICTNESS \
-    -o $BUILD_DIR/canvaskit.js
+    -o $BUILD_DIR/canvaskit.mjs

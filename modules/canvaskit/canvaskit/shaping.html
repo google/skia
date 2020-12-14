@@ -19,14 +19,12 @@
 <textarea id=input></textarea>
 <canvas id=shaped_text width=300 height=300></canvas>
 
-<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
-
-<script type="text/javascript" charset="utf-8">
-
+<script type="module" charset="utf-8">
+  import CanvasKitInit from '/canvaskit/bin/canvaskit.mjs';
   let CanvasKit = null;
   const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
 
-  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/canvaskit/bin/'+file});
   const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   // This font works with interobang.
   //const loadFont = fetch('https://storage.googleapis.com/skia-cdn/google-web-fonts/SourceSansPro-Regular.ttf').then((response) => response.arrayBuffer());
