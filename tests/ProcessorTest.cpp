@@ -98,6 +98,7 @@ public:
     }
 
     const char* name() const override { return "test"; }
+    bool usesExplicitReturn() const override { return true; }
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         static std::atomic<int32_t> nextKey{0};
@@ -130,7 +131,7 @@ private:
         public:
             TestGLSLFP() {}
             void emitCode(EmitArgs& args) override {
-                args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
+                args.fFragBuilder->codeAppendf("return half4(1);");
             }
 
         private:
