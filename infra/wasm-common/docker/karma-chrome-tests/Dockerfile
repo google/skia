@@ -4,7 +4,7 @@
 # Tests will be run as non-root (user skia, in fact), so /OUT should have permissions
 # 777 so as to be able to create output there.
 
-FROM node:8.11
+FROM node:14.15
 
 RUN apt-get update && apt-get upgrade -y
 
@@ -16,14 +16,6 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
 RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
 RUN apt-get update && apt-get install -y google-chrome-stable
-
-RUN npm install --global jasmine-core@3.1.0 karma@2.0.5 \
-        karma-chrome-launcher@2.2.0 karma-jasmine@1.1.2 requirejs@2.3.5 \
-        is-docker@1.1.0
-
-# Allows require('is-docker') or require('karma') to work from anywhere.
-# https://stackoverflow.com/a/15646750
-ENV NODE_PATH=/usr/local/lib/node_modules
 
 #Add user so we don't have to run as root (prevents us from over-writing files in /SRC)
 RUN groupadd -g 2000 skia \

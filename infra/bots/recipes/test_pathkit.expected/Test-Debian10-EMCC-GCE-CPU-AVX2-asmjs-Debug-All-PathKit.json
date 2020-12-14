@@ -171,7 +171,7 @@
       "type=bind,source=[START_DIR]/[SWARM_OUT_DIR],target=/OUT",
       "--env",
       "ASM_JS=1",
-      "gcr.io/skia-public/gold-karma-chrome-tests:77.0.3865.120_v2",
+      "gcr.io/skia-public/gold-karma-chrome-tests:87.0.4280.88_v1",
       "/SRC/skia/infra/pathkit/test_pathkit.sh",
       "--builder",
       "Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit",

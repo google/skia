@@ -16,7 +16,7 @@ aggregator:
 
 # Can check CHROME_VERSION with
 # docker run karma-chrome-tests /usr/bin/google-chrome-stable --version
-CHROME_VERSION=77.0.3865.120_v2
+CHROME_VERSION=87.0.4280.88_v1
 
 publish_gold_karma_chrome_tests: gold_docker_image
 	docker tag gold-karma-chrome-tests gcr.io/skia-public/gold-karma-chrome-tests:${CHROME_VERSION}
