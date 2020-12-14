@@ -116,28 +116,35 @@ public:
         outParameterTypes->reserve_back(arguments.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
+            // Non-generic parameters are final as-is.
             const Type& parameterType = parameters[i]->type();
-            if (parameterType.typeKind() == Type::TypeKind::kGeneric) {
-                const std::vector<const Type*>& types = parameterType.coercibleTypes();
-                if (genericIndex == -1) {
-                    for (size_t j = 0; j < types.size(); j++) {
-                        if (arguments[i]->type().canCoerceTo(*types[j], /*allowNarrowing=*/true)) {
-                            genericIndex = j;
-                            break;
-                        }
-                    }
-                    if (genericIndex == -1) {
-                        return false;
+            if (parameterType.typeKind() != Type::TypeKind::kGeneric) {
+                outParameterTypes->push_back(&parameterType);
+                continue;
+            }
+            // We use the first generic parameter we find to lock in the generic index;
+            // e.g. if we find `float3` here, all `$genType`s will be assumed to be `float3`.
+            const std::vector<const Type*>& types = parameterType.coercibleTypes();
+            if (genericIndex == -1) {
+                for (size_t j = 0; j < types.size(); j++) {
+                    if (arguments[i]->type().canCoerceTo(*types[j], /*allowNarrowing=*/true)) {
+                        genericIndex = j;
+                        break;
                     }
                 }
-                outParameterTypes->push_back(types[genericIndex]);
-            } else {
-                outParameterTypes->push_back(&parameterType);
+                if (genericIndex == -1) {
+                    // The passed-in type wasn't a match for ANY of the generic possibilities.
+                    // This function isn't a match at all.
+                    return false;
+                }
             }
+            outParameterTypes->push_back(types[genericIndex]);
         }
+        // Apply the generic index to our return type.
         const Type& returnType = this->returnType();
         if (returnType.typeKind() == Type::TypeKind::kGeneric) {
             if (genericIndex == -1) {
+                // We don't support functions with a generic return type and no other generics.
                 return false;
             }
             *outReturnType = returnType.coercibleTypes()[genericIndex];

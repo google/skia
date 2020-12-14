@@ -14,6 +14,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     _out->sk_FragColor.x = float(findMSB(_in.a));
-    _out->sk_FragColor.y = float(findMSB(int(_in.b)));
+    _out->sk_FragColor.y = float(findMSB(_in.b));
     return *_out;
 }
