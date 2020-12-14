@@ -16,6 +16,24 @@
       "message": "... possibly we can just add a guard around these, and only Julia need enable it locally.",
       "revId": "bf49b37c29bd2e0ec754553ead2283052671aed0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bf3af68_f1031aa1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-14T15:58:33Z",
+      "side": 1,
+      "message": "Or whoever has trouble building Flutter as I did few times...",
+      "parentUuid": "82547a5a_eaa76a81",
+      "revId": "bf49b37c29bd2e0ec754553ead2283052671aed0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
