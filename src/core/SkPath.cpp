@@ -1368,6 +1368,10 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
         if (int numWeights = src->fPathRef->countWeights()) {
             memcpy(newWeights, src->fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
         }
+        // fiddle with fLastMoveToIndex, as we do in SkPath::close()
+        if ((SkPathVerb)fPathRef->verbsEnd()[-1] == SkPathVerb::kClose) {
+            fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
+        }
         return this->dirtyAfterEdit();
     }
 
