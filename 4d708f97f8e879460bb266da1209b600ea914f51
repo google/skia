@@ -16,6 +16,24 @@
       "message": "Nice. (Going to be able to remove sk_OutColor from sksl_fp_raw.sksl soon?)",
       "revId": "4d708f97f8e879460bb266da1209b600ea914f51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6db304f9_817601b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-14T20:32:32Z",
+      "side": 1,
+      "message": "There\u0027s a fair number of GMs/tests that still use fOutputColor and sk_OutColor, but I\u0027m chewing through them now.",
+      "parentUuid": "a7ec9f57_636b81f2",
+      "revId": "4d708f97f8e879460bb266da1209b600ea914f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
