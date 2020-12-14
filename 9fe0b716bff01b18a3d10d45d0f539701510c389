@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96d93aef_9b83df67",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-14T00:08:52Z",
+      "side": 1,
+      "message": "I tried this, since I initially agreed, but it ended up feeling clunky as well, since we end up with a virtual that only is implemented to really do something for one subclass. As written, the canvas code is pretty clear, that we assert we\u0027ve got a subclass, cast to it, and use a subclass-specific capability.\n\nI think this sort of reflection could be addressed along with the virtual draw device re-org, if we think about how devices organize themselves and expose what they are capable of.",
+      "parentUuid": "58f7b149_55a7e1d4",
+      "range": {
+        "startLine": 413,
+        "startChar": 26,
+        "endLine": 413,
+        "endChar": 42
+      },
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f23b0e34_c8a896c0",
@@ -95,6 +119,30 @@
       "side": 1,
       "message": "That\u0027s tricky, since this really is drawing \u0027srcDev\u0027 into the new top device. For bitmap and gpu devices, we now are in the situation where the src and dst are either the same class, or src is a no-pixels-device. In this case, a src.drawSelfInto(dst) would be okay.\n\nPDF (and maybe other document devices) complicate things because during the saveLayer, the dst device chooses between making another PDF device or a bitmap device (when there\u0027s an image filter). Then dst.drawDevice(src) for the PDF device knows to check if src is a bitmap or pdf and proceed accordingly. If we switch to drawSelfInto(), then the bitmap device needs to \"know\" how the PDF device wants the bitmap content.\n\nIn actuality, it ought to be fine, because the bitmap\u0027s drawSelfInto() behavior is likely to snap a special image and then call drawSpecial(), which is exactly what the PDF device does when it detects it has a bitmap device. Maybe that\u0027s okay, though? and drawSelfInto() has nicer behavior than the current drawDevice. Any new thoughts on this?",
       "parentUuid": "f23b0e34_c8a896c0",
+      "range": {
+        "startLine": 1264,
+        "startChar": 15,
+        "endLine": 1264,
+        "endChar": 33
+      },
+      "revId": "9fe0b716bff01b18a3d10d45d0f539701510c389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b8c05c7_4b26db07",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-14T00:08:52Z",
+      "side": 1,
+      "message": "It would be nice to have this handled by a virtual somehow, but it ended up being trickier than I\u0027d like. SkBitmapDevice has an experimental coverage support for its layers, which makes having it snap a special image and draw into something else difficult. It would need to be able to know that the destination device was either another SkBitmapDevice (to receive the coverage support), or a PDF device (to just be drawn as a raster image into the document).\n\nNot rejecting this idea as never possible, nor something we shouldn\u0027t strive for, but I think it\u0027ll take a larger refactoring effort to work out nicely.",
+      "parentUuid": "47770951_246ca740",
       "range": {
         "startLine": 1264,
         "startChar": 15,
