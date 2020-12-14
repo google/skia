@@ -273,6 +273,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f018075_81e7524c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "Agreed about enforcement - having late-stage enforcement like this has been a problem in the past - it\u0027s always too late to do anything (or really let the user know). I\u0027ve got a set of bugs to address some of these, but I am planning on a series of CLs to enforce all of these kinds of rules up front, so that we\u0027re not producing errors at this stage.",
+      "parentUuid": "0c8018ae_ccf5123b",
+      "range": {
+        "startLine": 567,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 0
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bfced628_7dd8bc49",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 19
@@ -347,6 +371,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90e44d8f_32160960",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "Yeah, after I filed the bug, I waffled briefly and thought that we could let users write discard. As you point out, that lets people control coverage. Of course, it would happen somewhat silently from the SkShader side of things (unless we surfaced that), and could end up violating some existing analysis we do. (eg: a full-screen draw in kSrc mode means we can throw away all previous draw ops). So for now, I\u0027m going to hide it - we\u0027d need to be pretty deliberate about exposing it, given the Skia drawing model.",
+      "parentUuid": "922f9ac6_e19d92b4",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b205329_edee70ad",
@@ -360,6 +402,30 @@
       "writtenOn": "2020-12-14T17:37:55Z",
       "side": 1,
       "message": "This is of course moot given that these are all unhandled, but is there not some sort of unifying representation for do/for/while?  I\u0027d have expected everything to be reduced to while loops by the frontend.  Is there value in preserving the original control flow construct?",
+      "range": {
+        "startLine": 1427,
+        "startChar": 8,
+        "endLine": 1430,
+        "endChar": 37
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "253fd72c_c95e10a5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "This (and some other things you pointed out) reflect that the IR today is largely modeled around GLSL (syntax, not just semantics). In this case, there are some GPU profiles that only support for loops (and restricted for loops, at that).",
+      "parentUuid": "6b205329_edee70ad",
       "range": {
         "startLine": 1427,
         "startChar": 8,

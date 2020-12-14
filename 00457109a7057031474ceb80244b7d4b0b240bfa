@@ -284,6 +284,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "189c2dc1_d4c9eac9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "I\u0027m not sure - are you picturing that the IR itself is scalarized? That\u0027s possible, but it\u0027s still going to require a pass that knows quite a bit about the vector types (and some vector types as intermediates in the IR, unless we want to fully lower certain intrinsics - things like matrix multiplication and geometric intrinsics). I do have a bug to remove all of the implicit scalar vs. vector binary operation stuff - the IR should explicitly capture that both sides of any binary op are the same size, rather than reflecting the GLSL \u0027magic\u0027 of splatting scalars when they\u0027re combined with vectors. But that\u0027s going to impact the other backends, so planning that as a future CL.",
+      "parentUuid": "abe15632_169fc756",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ad05799f_5ad81deb",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 17

@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9eb2c92f_c83c03ca",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "They\u0027re still used in a bunch of places (where we\u0027re generating scalar values using skvm functions or operators), rather than explicitly creating a Value and setting one id.",
+      "parentUuid": "4f63b7f4_5f453d44",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 43
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1dc2fcee_0153a944",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 20
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "be83590f_7ca59c88",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "It\u0027s only important because we don\u0027t hoist declarations, so a local variable that\u0027s declared in some smaller scope won\u0027t be seen until we get there (unless we did a pre-pass to find them all). We already put all the uniforms, global variables, and entry point parameters in the array up front.",
+      "parentUuid": "1dc2fcee_0153a944",
+      "range": {
+        "startLine": 187,
+        "startChar": 48,
+        "endLine": 188,
+        "endChar": 18
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ded5fa6_228b7812",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 20
@@ -77,6 +125,30 @@
       "writtenOn": "2020-12-14T21:01:25Z",
       "side": 1,
       "message": "Now I\u0027m wondering about getLocation(Expression) and whether Expressions need long term storage Location for their values at all.  Aren\u0027t we going to just use them in a way that a simple signature like this would work?\n\n   std::array\u003cskvm::Val,16\u003e vals(const Expression\u0026);\n\nOr do we support non-Variable lvalue expressions like `(foo ? x : y) \u003d 5.0;` ?",
+      "range": {
+        "startLine": 198,
+        "startChar": 3,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db8d30e9_bc692c88",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T22:15:33Z",
+      "side": 1,
+      "message": "I can tweak this comment some more. There isn\u0027t any long-term storage specific to Expressions, it\u0027s just that field access and array indexing can return a sub-set of the Vals from the variable that forms the (ultimnate) base of the expression. In that regard, if we did do the up-front allocation of Variables described above, this could also return SkSpan\u003cskvm::Val\u003e.\n\neg: the expression passed here is only ever a (struct) field access or array indexing operation, like:\n\nfoo.bar[1]\n\nThe returned location points to the middle of the range of Vals associated with \u0027foo\u0027.",
+      "parentUuid": "4ded5fa6_228b7812",
       "range": {
         "startLine": 198,
         "startChar": 3,
