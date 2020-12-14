@@ -39,6 +39,7 @@ public:
                                                      const GrCaps&);
 
     const char* name() const override { return "GaussianConvolution"; }
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
