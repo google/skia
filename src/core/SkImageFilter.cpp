@@ -591,28 +591,32 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
                                                      SkColorType colorType,
                                                      const SkColorSpace* colorSpace,
                                                      GrProtected isProtected) {
-    GrPaint paint;
-    paint.setColorFragmentProcessor(std::move(fp));
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    GrImageInfo info(SkColorTypeToGrColorType(colorType),
+                     kPremul_SkAlphaType,
+                     sk_ref_sp(colorSpace),
+                     bounds.size());
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
-            SkBackingFit::kApprox, bounds.size(), 1, GrMipmapped::kNo, isProtected,
-            kBottomLeft_GrSurfaceOrigin);
-    if (!surfaceDrawContext) {
+    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
+                                                         info,
+                                                         SkBackingFit::kApprox,
+                                                         1,
+                                                         GrMipmapped::kNo,
+                                                         isProtected,
+                                                         kBottomLeft_GrSurfaceOrigin);
+    if (!surfaceFillContext) {
         return nullptr;
     }
 
     SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
     SkRect srcRect = SkRect::Make(bounds);
-    SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
-    surfaceDrawContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                       dstRect, srcRect);
+    surfaceFillContext->fillRectToRectWithFP(srcRect, dstIRect, std::move(fp));
 
-    return SkSpecialImage::MakeDeferredFromGpu(
-            context, dstIRect, kNeedNewImageUniqueID_SpecialImage,
-            surfaceDrawContext->readSurfaceView(), surfaceDrawContext->colorInfo().colorType(),
-            surfaceDrawContext->colorInfo().refColorSpace());
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               dstIRect,
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               surfaceFillContext->readSurfaceView(),
+                                               surfaceFillContext->colorInfo().colorType(),
+                                               surfaceFillContext->colorInfo().refColorSpace());
 }
 
 sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(SkSpecialImage* src,
