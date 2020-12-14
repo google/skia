@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f947369d_7dcbeeec",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-14T19:57:45Z",
+      "side": 1,
+      "message": "Ah I see, that\u0027ll work. Done.",
+      "parentUuid": "cb7000b0_150e78b9",
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e50a76a_c5755047",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f96de2b_586d8c35",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-14T19:57:45Z",
+      "side": 1,
+      "message": "Oh no, I didn\u0027t save my vim settings! So sorry, done.",
+      "parentUuid": "2e50a76a_c5755047",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 9
+      },
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86f5885a_a20958bd",
@@ -54,6 +96,30 @@
       "writtenOn": "2020-12-11T20:48:44Z",
       "side": 1,
       "message": "nit: tabs -\u003e spaces",
+      "range": {
+        "startLine": 110,
+        "startChar": 28,
+        "endLine": 110,
+        "endChar": 31
+      },
+      "revId": "00068d62727993199c392f4ea9e238ff32cd10e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8ca92f9_e359f0dd",
+        "filename": "modules/audioplayer/SkAudioPlayer_oboe.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-12-14T19:57:45Z",
+      "side": 1,
+      "message": "See above 😞",
+      "parentUuid": "86f5885a_a20958bd",
       "range": {
         "startLine": 110,
         "startChar": 28,
