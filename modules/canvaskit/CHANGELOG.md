@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    (and continues to do so).
  - The Canvas2D emulation layer always uses high quality image smoothing (this drastically
    simplifies the underlying code).
+ - We now compile CanvasKit with emsdk 2.0.10 when testing and deploying to npm.
 
 ### Fixed
  - `Canvas.drawPoints` correctly takes a flattened Array or TypedArray of points (as the
