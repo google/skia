@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15e883b0_e45d39d3",
+        "filename": "src/sksl/dsl/DSL_core.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T14:10:44Z",
+      "side": 1,
+      "message": "Add a comment (like on mix/smoothstep/etc) about min and max being same dimension as x, or scalar)",
+      "revId": "e72ba0df94eda55c1a2a388ef1852b0066c7bcd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
