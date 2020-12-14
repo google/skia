@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6791bf60_2e5ae3da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "now looking at the big file...",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d12ff640_f145e0a0",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "With the F32-\u003eVal change, maybe swap below to\n\n   int bits;\n   memcpy(\u0026bits, ...);\n   uniform.push_back(p-\u003euniform32(uniforms-\u003epush(bits)).id);\n\n?",
+      "range": {
+        "startLine": 488,
+        "startChar": 20,
+        "endLine": 488,
+        "endChar": 29
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b99dd6c_9559b181",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "Can we keep the strong {F32,F32} / {F32,F32,F32,F32} typing for these?  It\u0027ll be nice to see the distinction of types once I get Half-based Colors plumbed through.",
+      "range": {
+        "startLine": 495,
+        "startChar": 8,
+        "endLine": 496,
+        "endChar": 28
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18f137af_d4709845",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "This feels roundabout?  Is this the same?\n\n    size_t numParams \u003d fEffect-\u003efMain-\u003edeclaration().parameters().size();\n    SkASSERT(numParams \u003d\u003d 0 || numParams \u003d\u003d 2);",
+      "range": {
+        "startLine": 497,
+        "startChar": 27,
+        "endLine": 497,
+        "endChar": 86
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "186bfb11_c0d40427",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "Might be clearer to keep device/local on the same line together?",
+      "range": {
+        "startLine": 499,
+        "startChar": 54,
+        "endLine": 500,
+        "endChar": 52
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e2997b9_dfe0b536",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T15:57:22Z",
+      "side": 1,
+      "message": "(Same deal for everything down here.)",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
