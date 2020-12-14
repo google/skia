@@ -28,6 +28,7 @@ public:
     }
 
     const char* name() const override { return "SampleMatrixConstantEffect"; }
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         SkASSERT(false);
@@ -46,7 +47,7 @@ class GLSLSampleMatrixConstantEffect : public GrGLSLFragmentProcessor {
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString sample = this->invokeChildWithMatrix(0, args);
-        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+        fragBuilder->codeAppendf("return %s;\n", sample.c_str());
     }
 };
 

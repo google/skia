@@ -28,6 +28,7 @@ public:
     }
 
     const char* name() const override { return "SampleMatrixVariableEffect"; }
+    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         SkASSERT(false);
@@ -57,8 +58,7 @@ class GLSLSampleMatrixVariableEffect : public GrGLSLFragmentProcessor {
                                                                       "%g, %g, 1)",
                                                                       smve.fXOffset,
                                                                       smve.fYOffset).c_str());
-        fragBuilder->codeAppendf("%s = (%s + %s) / 2;\n", args.fOutputColor, sample1.c_str(),
-                                 sample2.c_str());
+        fragBuilder->codeAppendf("return (%s + %s) / 2;\n", sample1.c_str(), sample2.c_str());
     }
 };
 
