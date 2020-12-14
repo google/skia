@@ -1168,6 +1168,20 @@ public:
         return this->invertNonIdentity(inverse);
     }
 
+    /** Sets transpose to transpose matrix
+
+        @param transpose  storage for transposed SkMatrix; may be this
+    */
+    void transpose(SkMatrix* transpose) const {
+        SkASSERT(transpose);
+        // Allow the trivial case to be inlined.
+        if (transpose != this && this->isIdentity()) {
+            transpose->reset();
+            return;
+        }
+        this->transposeNonIdentity(transpose);
+    }
+
     /** Fills affine with identity values in column major order.
         Sets affine to:
 
@@ -1897,6 +1911,7 @@ private:
     }
 
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;
+    void transposeNonIdentity(SkMatrix* transpose) const;
 
     static bool Poly2Proc(const SkPoint[], SkMatrix*);
     static bool Poly3Proc(const SkPoint[], SkMatrix*);

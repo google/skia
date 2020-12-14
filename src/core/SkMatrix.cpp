@@ -891,6 +891,26 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
     return true;
 }
 
+void SkMatrix::transposeNonIdentity(SkMatrix* transpose) const {
+    SkASSERT(transpose);
+    if (transpose != this) {
+        transpose->fMat[kMScaleX] = fMat[kMScaleX];
+        transpose->fMat[kMSkewX] = fMat[kMSkewY];
+        transpose->fMat[kMTransX] = fMat[kMPersp0];
+        transpose->fMat[kMSkewY] = fMat[kMSkewX];
+        transpose->fMat[kMScaleY] = fMat[kMScaleY];
+        transpose->fMat[kMTransY] = fMat[kMPersp1];
+        transpose->fMat[kMPersp0] = fMat[kMTransX];
+        transpose->fMat[kMPersp1] = fMat[kMTransY];
+        transpose->fMat[kMPersp2] = fMat[kMPersp2];
+    } else {
+        using std::swap;
+        swap(transpose->fMat[kMSkewX], transpose->fMat[kMSkewY]);
+        swap(transpose->fMat[kMTransX], transpose->fMat[kMPersp0]);
+        swap(transpose->fMat[kMTransY], transpose->fMat[kMPersp1]);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::Identity_pts(const SkMatrix& m, SkPoint dst[], const SkPoint src[], int count) {
