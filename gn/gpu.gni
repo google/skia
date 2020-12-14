@@ -224,6 +224,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrSurfaceContext.h",
   "$_src/gpu/GrSurfaceDrawContext.cpp",
   "$_src/gpu/GrSurfaceDrawContext.h",
+  "$_src/gpu/GrSurfaceFillContext.cpp",
+  "$_src/gpu/GrSurfaceFillContext.h",
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
