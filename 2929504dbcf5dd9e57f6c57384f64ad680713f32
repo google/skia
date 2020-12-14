@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16e739a4_65669b7e",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "Aha, I missed that part when I changed this over.",
+      "parentUuid": "2bf53d5e_d0434aac",
+      "range": {
+        "startLine": 492,
+        "startChar": 40,
+        "endLine": 492,
+        "endChar": 41
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "578db284_49c8c6ab",
@@ -58,6 +82,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b4b501c_ed2ff4fa",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "I had the same thought - and at this point, we always know the size. (I wasn\u0027t sure when I started). Switched things over, removed the push_back API here entirely.",
+      "parentUuid": "578db284_49c8c6ab",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99084cce_39d22519",
@@ -71,6 +113,30 @@
       "writtenOn": "2020-12-14T17:37:55Z",
       "side": 1,
       "message": "I don\u0027t think these give you any extra type safety over\n    \n    template \u003ctypename Fn\u003e\n    Value unary(const Value\u0026 v, Fn\u0026\u0026 fn) {\n        Value result(v.size());\n        for (size_t i \u003d 0; i \u003c v.size(); ++i) {\n            result.push_back( fn({fBuilder, v[i]}) );\n        }\n        return result;\n    }",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 5
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8e89e41_26e948e5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99084cce_39d22519",
       "range": {
         "startLine": 195,
         "startChar": 0,
@@ -100,6 +166,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "18328272_5970ec48",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "Could be YAGNI, but I was trying to protect myself once I implement loops. Even with unrolling, we\u0027re going to need the break/continue logic, so I think mask() is going to be more complex than it is right now.",
+      "parentUuid": "bed5b08d_e2a39970",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c9743a3_ba9dcebe",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 19
@@ -111,6 +195,30 @@
       "writtenOn": "2020-12-14T17:37:55Z",
       "side": 1,
       "message": "I think I\u0027m skipping ahead here just from the way diffs are showing up in the code review, but since I\u0027m here.... this sort of thing feels like it wants to be way more up-front in the compiler, enforcing the language rules in the frontend rather than each backend?  I would expect the only errors we\u0027d have in this file are of the not-yet-implemented variety?\n\nThe main reason I ask is, is this sort of thing what\u0027s putting such a heavy burden on the callers of writeExpression() to always check for errors?  If there were one or two exceptional places that needed error-checking, sure, but as it is it looks easy to forget to check _and_ very likely that if you do forget to check, you\u0027ll blow up.  If we\u0027re going to be very likely errorful, let\u0027s make writeExpression() return a std::tuple\u003cValue,bool\u003e or something so you have to actively unpack the value and error and really choose to ignore the error?",
+      "range": {
+        "startLine": 567,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 0
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99e63aa2_ffaae88b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "You\u0027re right about this - these rules do need to be enforced in the front-end. This is actually a subset of a larger class of things that need to be prevented in the front-end (for runtime effects): all bitwise integer operators.\n\nGLES 2.0 doesn\u0027t allow any bitwise ops (though the integer type does exist, and arithmetic can be used). This is their concession to the fact that hardware may not have had actual integers, and could be approximating it using floats. (skbug.com/11088)",
+      "parentUuid": "4c9743a3_ba9dcebe",
       "range": {
         "startLine": 567,
         "startChar": 0,
@@ -163,6 +271,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b108a7c0_73d568f0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "Yes, it actually kills that particular pixel (so no writes happen to any buffers). It\u0027s a statement type that shouldn\u0027t even be permitted in public SkSL - though it is today). Filed skbug.com/11085",
+      "parentUuid": "c88616e9_9ddcdf7a",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6b205329_edee70ad",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 19
@@ -197,6 +323,24 @@
       "writtenOn": "2020-12-14T17:37:55Z",
       "side": 1,
       "message": "Can we write this out a longer way that makes clear what you explained to me in the other file?  Some sort of sum over parameters[i].components()?",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9069e3a_b0e7ee94",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-14T19:53:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "701b25df_49cb9d19",
       "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
