@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94510ccb_4e630598",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Sorry this round is awkwardly straddling different topics.  I\u0027ll let you get everything in and then start over again on the big file.",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bf53d5e_d0434aac",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "This will all work just fine since we\u0027re only after `.id`, but for clarity it\u0027s probably better to use uniform32().",
+      "range": {
+        "startLine": 492,
+        "startChar": 40,
+        "endLine": 492,
+        "endChar": 41
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "578db284_49c8c6ab",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Is there anywhere we use this constructor that we don\u0027t know the size exactly?\nCan this be\n\n  Value(int size) { fVals.reset(size); }\n\nand then we set fields using operator[] instead of push_back()?",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99084cce_39d22519",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "I don\u0027t think these give you any extra type safety over\n    \n    template \u003ctypename Fn\u003e\n    Value unary(const Value\u0026 v, Fn\u0026\u0026 fn) {\n        Value result(v.size());\n        for (size_t i \u003d 0; i \u003c v.size(); ++i) {\n            result.push_back( fn({fBuilder, v[i]}) );\n        }\n        return result;\n    }",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 5
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bed5b08d_e2a39970",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Might be clearer to use fMask everywhere?",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c9743a3_ba9dcebe",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "I think I\u0027m skipping ahead here just from the way diffs are showing up in the code review, but since I\u0027m here.... this sort of thing feels like it wants to be way more up-front in the compiler, enforcing the language rules in the frontend rather than each backend?  I would expect the only errors we\u0027d have in this file are of the not-yet-implemented variety?\n\nThe main reason I ask is, is this sort of thing what\u0027s putting such a heavy burden on the callers of writeExpression() to always check for errors?  If there were one or two exceptional places that needed error-checking, sure, but as it is it looks easy to forget to check _and_ very likely that if you do forget to check, you\u0027ll blow up.  If we\u0027re going to be very likely errorful, let\u0027s make writeExpression() return a std::tuple\u003cValue,bool\u003e or something so you have to actively unpack the value and error and really choose to ignore the error?",
+      "range": {
+        "startLine": 567,
+        "startChar": 0,
+        "endLine": 577,
+        "endChar": 0
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfced628_7dd8bc49",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Some of this feels like fluff that\u0027s made it through a layer of the compiler it didn\u0027t need to... can\u0027t we just rewrite all these as (0-x) and (~0^x) as we see them in the frontend?",
+      "range": {
+        "startLine": 1222,
+        "startChar": 0,
+        "endLine": 1235,
+        "endChar": 70
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c88616e9_9ddcdf7a",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Out of curiosity, what are the semantics of discard?  Different from return {0,0,0,0}?",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b205329_edee70ad",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "This is of course moot given that these are all unhandled, but is there not some sort of unifying representation for do/for/while?  I\u0027d have expected everything to be reduced to while loops by the frontend.  Is there value in preserving the original control flow construct?",
+      "range": {
+        "startLine": 1427,
+        "startChar": 8,
+        "endLine": 1430,
+        "endChar": 37
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "701b25df_49cb9d19",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Can we write this out a longer way that makes clear what you explained to me in the other file?  Some sort of sum over parameters[i].components()?",
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

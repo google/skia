@@ -161,6 +161,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "73eb6a7d_59e82bd0",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Ah.  I did misunderstand that.",
+      "parentUuid": "a979b5c6_4ecbee14",
+      "range": {
+        "startLine": 497,
+        "startChar": 27,
+        "endLine": 497,
+        "endChar": 86
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "186bfb11_c0d40427",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 17
@@ -237,6 +261,126 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "0e2997b9_dfe0b536",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abe15632_169fc756",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "I haven\u0027t gotten very deep in here yet, but would it be valuable to split off a front-patch pass that scalarizes vectors and matrices, so you\u0027ve got one area of code exclusively dealing with that translation and another area of code exclusively dealing with scalars?",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad05799f_5ad81deb",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "This is all unrelated to the code review right?  A consequence of checking writeExpression()?",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d3d18c9_8a8ebc74",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "let\u0027s mark the end of the namespace, or indent them?\n\nI really don\u0027t understand why style guides don\u0027t indent namespaces or #if blocks, as if they were somehow not worthy of clarity...",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 1
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fda7e33a_f81a61c5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "Feels like SkVMGenerator is secretly a function in disguise.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffe52ac8_98898c5b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "It feels off to comment and name non-existent enum values, like we\u0027re forgetting to enumerate them and kSin should start at 2.\n\nIs it even important to call out each individual thing not implemented here?  Maybe just\n\n   // sksl_public.sksl declares these intrinsics (and defines some others inline too).",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 19
+      },
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d361813_ab548c0e",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T17:37:55Z",
+      "side": 1,
+      "message": "This is throwing me a little, but maybe I just don\u0027t know the SkSL lingo.  I would have thought we\u0027d have Variables holding Values, not Locations holding Variables.  Is Location an indirection between Variables/Expressions and Values?\n\nThink we can get a quick primer up here at the top explaining the relationships between Variable, Expression, Location, Value?  (The declaration of Value did at least make it pretty clear the relationship between Value and skvm::Val.)\n\nIs a Variable itself not an expression?  Or I guess, is it something like\n\n    Location getLocation(const Variable\u0026 v) { return this-\u003egetLocation(RValue(v)); }\n\n?",
       "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
