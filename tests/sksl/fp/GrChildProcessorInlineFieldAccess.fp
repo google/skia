@@ -1,9 +1,9 @@
 in fragmentProcessor child;
 
-void main() {
+half4 main() {
     if (child.preservesOpaqueInput) {
-        sk_OutColor = sample(child);
+        return sample(child);
     } else {
-        sk_OutColor = half4(1);
+        return half4(1);
     }
 }

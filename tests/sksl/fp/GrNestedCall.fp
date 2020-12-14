@@ -18,6 +18,6 @@ half4 func3() {
     return sample(fp);
 }
 
-void main() {
-    sk_OutColor = func1();
+half4 main() {
+    return func1();
 }

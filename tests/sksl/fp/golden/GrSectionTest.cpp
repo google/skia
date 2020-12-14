@@ -20,9 +20,9 @@ public:
         const GrSectionTest& _outer = args.fFp.cast<GrSectionTest>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(1.0);
+R"SkSL(return half4(1.0);
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -39,7 +39,7 @@ bool GrSectionTest::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrSectionTest::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrSectionTest::GrSectionTest(const GrSectionTest& src)
 : INHERITED(kGrSectionTest_ClassID, src.optimizationFlags()) {

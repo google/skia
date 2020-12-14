@@ -23,9 +23,9 @@ public:
         SkString _matrix0 = SkStringPrintf("0.5 * %s", args.fUniformHandler->getUniformCStr(matrixVar));
         SkString _sample0 = this->invokeChildWithMatrix(0, args, _matrix0.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s;
+R"SkSL(return %s;
 )SkSL"
-, args.fOutputColor, _sample0.c_str());
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -43,7 +43,7 @@ bool GrChildProcessorSampleMatrixSingleUniformExpr::onIsEqual(const GrFragmentPr
     return true;
 }
 bool GrChildProcessorSampleMatrixSingleUniformExpr::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrChildProcessorSampleMatrixSingleUniformExpr::GrChildProcessorSampleMatrixSingleUniformExpr(const GrChildProcessorSampleMatrixSingleUniformExpr& src)
 : INHERITED(kGrChildProcessorSampleMatrixSingleUniformExpr_ClassID, src.optimizationFlags()) {

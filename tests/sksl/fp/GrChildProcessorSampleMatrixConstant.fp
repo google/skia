@@ -1,5 +1,5 @@
 in fragmentProcessor? child;
 
-void main() {
-    sk_OutColor = sample(child, float3x3(2));
+half4 main() {
+    return sample(child, float3x3(2));
 }

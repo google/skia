@@ -1,8 +1,8 @@
 in fragmentProcessor? child;
-void main() {
+half4 main() {
     if (child != null) {
-        sk_OutColor = sample(child);
+        return sample(child);
     } else {
-        sk_OutColor = half4(0.5);
+        return half4(0.5);
     }
 }
