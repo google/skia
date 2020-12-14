@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "866e39ad_cc50e9fe",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2557,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-14T23:55:42Z",
+      "side": 1,
+      "message": "This doesn\u0027t use AutoLayerForImageFilter since we know paint doesn\u0027t have anything that requires one. We could just have it use it so it\u0027s consistent with other draws.\n\nIt previously did use the CheckOverwrite::kYes variant in the old code, but that actually is a mistake. Originally it was a per-edge AA rect drawing function, where I had kept checking for overwrite to mirror the behavior of onDrawRect. Later, we added the optional 4-sided clip polygon that\u0027s defined to be contained in \u0027r\u0027. When that\u0027s present, we don\u0027t actually satisfy the check-overwrite conditions, nor does it really buy us much, so I switched it to do the basic draw notify.",
+      "range": {
+        "startLine": 2556,
+        "startChar": 4,
+        "endLine": 2557,
+        "endChar": 61
+      },
+      "revId": "bf0574122adb947f56b1c5dbd4f01936d4f7885d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

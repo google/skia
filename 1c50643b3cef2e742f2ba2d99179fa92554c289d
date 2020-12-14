@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da4d9358_82482c09",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2609,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-14T23:55:42Z",
+      "side": 0,
+      "message": "I found calling the non-boolean version to be much more readable.",
+      "range": {
+        "startLine": 2606,
+        "startChar": 4,
+        "endLine": 2609,
+        "endChar": 5
+      },
+      "revId": "1c50643b3cef2e742f2ba2d99179fa92554c289d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
