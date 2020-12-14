@@ -2603,10 +2603,6 @@ private:
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify(bool willOverwritesEntireSurface = false);
     void predrawNotify(const SkRect* rect, const SkPaint* paint, ShaderOverrideOpacity);
-    void predrawNotify(const SkRect* rect, const SkPaint* paint, bool shaderOverrideIsOpaque) {
-        this->predrawNotify(rect, paint, shaderOverrideIsOpaque ? kOpaque_ShaderOverrideOpacity
-                                                                : kNotOpaque_ShaderOverrideOpacity);
-    }
 
     SkBaseDevice* getDevice() const;
 
