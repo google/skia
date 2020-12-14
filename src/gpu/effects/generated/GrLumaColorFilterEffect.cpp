@@ -29,9 +29,9 @@ public:
                 R"SkSL(half4 inputColor = %s;
 ;
 half luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295), inputColor.xyz), 0.0, 1.0);
-%s = half4(0.0, 0.0, 0.0, luma);
+return half4(0.0, 0.0, 0.0, luma);
 )SkSL",
-                _sample0.c_str(), args.fOutputColor);
+                _sample0.c_str());
     }
 
 private:
@@ -48,7 +48,7 @@ bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const 
     (void)that;
     return true;
 }
-bool GrLumaColorFilterEffect::usesExplicitReturn() const { return false; }
+bool GrLumaColorFilterEffect::usesExplicitReturn() const { return true; }
 GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src)
         : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);

@@ -84,10 +84,9 @@ half alpha;
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
-half4 inputColor = %s;
-%s = inputColor * alpha;
+return %s * alpha;
 )SkSL",
-                _sample0.c_str(), args.fOutputColor);
+                _sample0.c_str());
     }
 
 private:
@@ -151,7 +150,7 @@ bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (radii != that.radii) return false;
     return true;
 }
-bool GrEllipseEffect::usesExplicitReturn() const { return false; }
+bool GrEllipseEffect::usesExplicitReturn() const { return true; }
 GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         : INHERITED(kGrEllipseEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)

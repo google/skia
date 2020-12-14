@@ -378,17 +378,13 @@ half2 texCoord = translatedFragPosHalf / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
         SkString _sample0 = this->invokeChild(0, args);
-        fragBuilder->codeAppendf(
-                R"SkSL(
-half4 inputColor = %s;)SkSL",
-                _sample0.c_str());
         SkString _coords1("float2(texCoord)");
         SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
-%s = inputColor * %s;
+return %s * %s;
 )SkSL",
-                args.fOutputColor, _sample1.c_str());
+                _sample0.c_str(), _sample1.c_str());
     }
 
 private:
@@ -431,7 +427,7 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (cornerRadius != that.cornerRadius) return false;
     return true;
 }
-bool GrRRectBlurEffect::usesExplicitReturn() const { return false; }
+bool GrRRectBlurEffect::usesExplicitReturn() const { return true; }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         : INHERITED(kGrRRectBlurEffect_ClassID, src.optimizationFlags())
         , sigma(src.sigma)

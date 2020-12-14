@@ -37,9 +37,9 @@ public:
         SkString _sample2 = this->invokeChild(2, _input2.c_str(), args);
         fragBuilder->codeAppendf(
                 R"SkSL(
-%s = mix(%s, %s, %s);
+return mix(%s, %s, %s);
 )SkSL",
-                args.fOutputColor, _sample1.c_str(), _sample2.c_str(),
+                _sample1.c_str(), _sample2.c_str(),
                 args.fUniformHandler->getUniformCStr(weightVar));
     }
 
@@ -62,7 +62,7 @@ bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (weight != that.weight) return false;
     return true;
 }
-bool GrMixerEffect::usesExplicitReturn() const { return false; }
+bool GrMixerEffect::usesExplicitReturn() const { return true; }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     this->cloneAndRegisterAllChildProcessors(src);

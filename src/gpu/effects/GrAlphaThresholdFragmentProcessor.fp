@@ -15,7 +15,7 @@ in uniform half outerThreshold;
     ((outerThreshold >= 1.0) ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags)
 }
 
-void main() {
+half4 main() {
     half4 color = sample(inputFP);
     half4 mask_color = sample(maskFP);
     if (mask_color.a < 0.5) {
@@ -29,7 +29,7 @@ void main() {
         color.rgb *= scale;
         color.a = innerThreshold;
     }
-    sk_OutColor = color;
+    return color;
 }
 
 @test(testData) {

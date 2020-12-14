@@ -17,20 +17,21 @@ layout(key) in bool premulOutput;
     kConstantOutputForConstantInput_OptimizationFlag
 }
 
-void main() {
-    half4 inputColor = sample(inputFP);
+half4 main() {
+    half4 color = sample(inputFP);
     @if (unpremulInput) {
-        inputColor = unpremul(inputColor);
+        color = unpremul(color);
     }
-    sk_OutColor = m * inputColor + v;
+    color = m * color + v;
     @if (clampRGBOutput) {
-        sk_OutColor = saturate(sk_OutColor);
+        color = saturate(color);
     } else {
-        sk_OutColor.a = saturate(sk_OutColor.a);
+        color.a = saturate(color.a);
     }
     @if (premulOutput) {
-        sk_OutColor.rgb *= sk_OutColor.a;
+        color.rgb *= color.a;
     }
+    return color;
 }
 
 @class {

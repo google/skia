@@ -115,10 +115,9 @@ float2 pos = sk_FragCoord.xy;
         SkString _sample6 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
-half4 inputColor = %s;
-%s = (inputColor * xCoverage) * yCoverage;
+return (%s * xCoverage) * yCoverage;
 )SkSL",
-                _sample6.c_str(), args.fOutputColor);
+                _sample6.c_str());
     }
 
 private:
@@ -173,7 +172,7 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (isFast != that.isFast) return false;
     return true;
 }
-bool GrRectBlurEffect::usesExplicitReturn() const { return false; }
+bool GrRectBlurEffect::usesExplicitReturn() const { return true; }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)

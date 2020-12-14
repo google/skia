@@ -14,16 +14,17 @@ in fragmentProcessor dstFP;
 layout(ctype=SkV4) in uniform float4 k;
 layout(key) in bool enforcePMColor;
 
-void main() {
+half4 main() {
     half4 src = sample(srcFP);
     half4 dst = sample(dstFP);
-    sk_OutColor = saturate(half(k.x) * src * dst +
+    half4 color = saturate(half(k.x) * src * dst +
                            half(k.y) * src +
                            half(k.z) * dst +
                            half(k.w));
     @if (enforcePMColor) {
-        sk_OutColor.rgb = min(sk_OutColor.rgb, sk_OutColor.a);
+        color.rgb = min(color.rgb, color.a);
     }
+    return color;
 }
 
 @optimizationFlags {

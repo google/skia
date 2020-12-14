@@ -63,10 +63,9 @@ half alpha;
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
-half4 inputColor = %s;
-%s = inputColor * alpha;
+return %s * alpha;
 )SkSL",
-                _sample0.c_str(), args.fOutputColor);
+                _sample0.c_str());
     }
 
 private:
@@ -103,7 +102,7 @@ bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (rect != that.rect) return false;
     return true;
 }
-bool GrAARectEffect::usesExplicitReturn() const { return false; }
+bool GrAARectEffect::usesExplicitReturn() const { return true; }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)

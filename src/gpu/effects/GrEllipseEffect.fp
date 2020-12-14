@@ -75,7 +75,7 @@ layout(when=medPrecision) uniform float2 scale;
     }
 }
 
-void main() {
+half4 main() {
     // d is the offset to the ellipse center
     float2 d = sk_FragCoord.xy - ellipse.xy;
     // If we're on a device with a "real" mediump then we'll do the distance computation in a space
@@ -119,8 +119,7 @@ void main() {
             // hairline not supported
             discard;
     }
-    half4 inputColor = sample(inputFP);
-    sk_OutColor = inputColor * alpha;
+    return sample(inputFP) * alpha;
 }
 
 @test(testData) {

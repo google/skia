@@ -179,7 +179,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
      }
 }
 
-void main() {
+half4 main() {
     half xCoverage, yCoverage;
     float2 pos = sk_FragCoord.xy;
     @if (applyInvVM) {
@@ -229,8 +229,7 @@ void main() {
         yCoverage = 1 - sample(integral, half2(rect.T, 0.5)).a
                       - sample(integral, half2(rect.B, 0.5)).a;
     }
-    half4 inputColor = sample(inputFP);
-    sk_OutColor = inputColor * xCoverage * yCoverage;
+    return sample(inputFP) * xCoverage * yCoverage;
 }
 
 @setData(pdman) {

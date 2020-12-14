@@ -27,7 +27,7 @@
 
 in fragmentProcessor? inputFP;
 
-void main() {
+half4 main() {
     half4 c = sample(inputFP);
     half4 p = (c.g < c.b) ? half4(c.bg, -1,  2/3.0)
                           : half4(c.gb,  0, -1/3.0);
@@ -46,7 +46,7 @@ void main() {
     half   S = pmC / (c.a + eps - abs(pmL * 2 - c.a));
     half   L = pmL / (c.a + eps);
 
-    sk_OutColor = half4(H, S, L, c.a);
+    return half4(H, S, L, c.a);
 }
 
 @optimizationFlags {

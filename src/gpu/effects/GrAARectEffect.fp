@@ -16,7 +16,7 @@ uniform float4 rectUniform;
      kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
-void main() {
+half4 main() {
     half alpha;
     @switch (edgeType) {
         case GrClipEdgeType::kFillBW: // fall through
@@ -41,8 +41,7 @@ void main() {
     @if (edgeType == GrClipEdgeType::kInverseFillBW || edgeType == GrClipEdgeType::kInverseFillAA) {
         alpha = 1.0 - alpha;
     }
-    half4 inputColor = sample(inputFP);
-    sk_OutColor = inputColor * alpha;
+    return sample(inputFP) * alpha;
 }
 
 @setData(pdman) {

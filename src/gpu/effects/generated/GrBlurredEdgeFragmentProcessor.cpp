@@ -39,9 +39,9 @@ half factor = 1.0 - inputAlpha;
         factor = smoothstep(1.0, 0.0, factor);
         break;
 }
-%s = half4(factor);
+return half4(factor);
 )SkSL",
-                _sample0.c_str(), (int)_outer.mode, args.fOutputColor);
+                _sample0.c_str(), (int)_outer.mode);
     }
 
 private:
@@ -61,7 +61,7 @@ bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
     if (mode != that.mode) return false;
     return true;
 }
-bool GrBlurredEdgeFragmentProcessor::usesExplicitReturn() const { return false; }
+bool GrBlurredEdgeFragmentProcessor::usesExplicitReturn() const { return true; }
 GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         const GrBlurredEdgeFragmentProcessor& src)
         : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, src.optimizationFlags())
