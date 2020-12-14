@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bddbfc29_1af2d3ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T22:02:47Z",
+      "side": 1,
+      "message": "If this works and you both like this, I\u0027ll get rid of the rest of the friends.",
+      "revId": "40d89d1fbc67ce234a1d06067b52cfc0169477dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
