@@ -12,7 +12,7 @@ module.exports = function(config) {
     files: [
       { pattern: 'canvaskit/bin/canvaskit.wasm', included:false, served:true},
       { pattern: 'perf/assets/*', included:false, served:true},
-      '../../modules/pathkit/perf/perfReporter.js',
+      'perf/perfReporter.js',
       'canvaskit/bin/canvaskit.js',
       'tests/canvaskitinit.js',
       'tests/util.js',
