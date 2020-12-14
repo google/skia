@@ -148,7 +148,7 @@ TESTS_TO_BUILD="tests/*.cpp"
 # When developing locally, it can be faster to focus only on the gms or tests you care about
 # (since they all have to be recompiled/relinked) every time. To do so, mark the following as true
 if false; then
-   GMS_TO_BUILD="gm/bleed.cpp gm/gm.cpp"
+   GMS_TO_BUILD="gm/coloremoji.cpp gm/gm.cpp"
    TESTS_TO_BUILD="tests/OctoBoundsTest.cpp tests/Test.cpp"
 fi
 
@@ -208,8 +208,8 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="InitWasmGMTests" \
     -s EXPORTED_FUNCTIONS=['_malloc','_free'] \
-    -s FORCE_FILESYSTEM=0 \
-    -s FILESYSTEM=0 \
+    -s FORCE_FILESYSTEM=1 \
+    -s FILESYSTEM=1 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s INITIAL_MEMORY=256MB \
