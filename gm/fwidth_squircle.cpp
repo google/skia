@@ -64,7 +64,9 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 class FwidthSquircleTestProcessor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
-        return arena->make<FwidthSquircleTestProcessor>(viewMatrix);
+        return arena->make([&](void* ptr) {
+            return new (ptr) FwidthSquircleTestProcessor(viewMatrix);
+        });
     }
 
     const char* name() const override { return "FwidthSquircleTestProcessor"; }
@@ -74,8 +76,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
             : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID)
             , fViewMatrix(viewMatrix) {

@@ -299,7 +299,9 @@ GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, co
 class FillRRectOp::Processor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, ProcessorFlags flags) {
-        return arena->make<Processor>(aaType, flags);
+        return arena->make([&](void* ptr) {
+            return new (ptr) Processor(aaType, flags);
+        });
     }
 
     const char* name() const final { return "GrFillRRectOp::Processor"; }
@@ -311,8 +313,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     Processor(GrAAType aaType, ProcessorFlags flags)
             : INHERITED(kGrFillRRectOp_Processor_ClassID)
             , fAAType(aaType)

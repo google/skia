@@ -67,7 +67,9 @@ private:
         class GP : public GrGeometryProcessor {
         public:
             static GrGeometryProcessor* Make(SkArenaAlloc* arena, int numAttribs) {
-                return arena->make<GP>(numAttribs);
+                return arena->make([&](void* ptr) {
+                    return new (ptr) GP(numAttribs);
+                });
             }
 
             const char* name() const override { return "Dummy GP"; }
@@ -95,8 +97,6 @@ private:
             }
 
         private:
-            friend class ::SkArenaAlloc; // for access to ctor
-
             GP(int numAttribs) : INHERITED(kGP_ClassID), fNumAttribs(numAttribs) {
                 SkASSERT(numAttribs > 1);
                 fAttribNames = std::make_unique<SkString[]>(numAttribs);

@@ -548,7 +548,9 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool usesLocalCoords,
                                      bool wideColor) {
-        return arena->make<QuadEdgeEffect>(localMatrix, usesLocalCoords, wideColor);
+        return arena->make([&](void* ptr) {
+            return new (ptr) QuadEdgeEffect(localMatrix, usesLocalCoords, wideColor);
+        });
     }
 
     ~QuadEdgeEffect() override {}
@@ -639,8 +641,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords, bool wideColor)
             : INHERITED(kQuadEdgeEffect_ClassID)
             , fLocalMatrix(localMatrix)

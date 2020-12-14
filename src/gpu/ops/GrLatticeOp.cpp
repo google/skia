@@ -34,7 +34,9 @@ public:
                                      sk_sp<GrColorSpaceXform> csxf,
                                      GrSamplerState::Filter filter,
                                      bool wideColor) {
-        return arena->make<LatticeGP>(view, std::move(csxf), filter, wideColor);
+        return arena->make([&](void* ptr) {
+            return new (ptr) LatticeGP(view, std::move(csxf), filter, wideColor);
+        });
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -88,8 +90,6 @@ public:
     }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     LatticeGP(const GrSurfaceProxyView& view, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter, bool wideColor)
             : INHERITED(kLatticeGP_ClassID)

@@ -59,7 +59,9 @@ struct Vertex {
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena) {
-        return arena->make<GrPipelineDynamicStateTestProcessor>();
+        return arena->make([&](void* ptr) {
+            return new (ptr) GrPipelineDynamicStateTestProcessor();
+        });
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
@@ -72,8 +74,6 @@ public:
     const Attribute& inColor() const { return kAttributes[1]; }
 
 private:
-    friend class ::SkArenaAlloc; // for access to ctor
-
     GrPipelineDynamicStateTestProcessor()
             : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
         this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
