@@ -149,7 +149,7 @@ bool GrDawnOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return true;
 }
 
-void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+void GrDawnOpsRenderPass::onSetScissorRect(SkIRect scissor) {
     // Higher-level GrSurfaceDrawContext and clips should have already ensured draw bounds are
     // restricted to the render target.
     SkASSERT(SkIRect::MakeSize(fRenderTarget->dimensions()).contains(scissor));

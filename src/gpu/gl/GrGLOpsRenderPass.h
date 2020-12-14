@@ -54,7 +54,8 @@ private:
     void onBegin() override;
     void onEnd() override;
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;
-    void onSetScissorRect(const SkIRect& scissor) override;
+    void onSetScissorRect(SkIRect scissor) override;
+    void onSetViewport8(SkIRect viewport) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline& pipeline) override;
     void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,

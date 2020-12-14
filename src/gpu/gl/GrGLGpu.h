@@ -76,6 +76,10 @@ public:
     bool flushGLState(GrRenderTarget*, const GrProgramInfo&);
     void flushScissorRect(const SkIRect&, int rtWidth, int rtHeight, GrSurfaceOrigin);
 
+    // The flushRenderTarget methods will all set the initial viewport to the full extent of the
+    // backing render target.
+    void flushViewport(SkIRect viewport, int rtHeight, GrSurfaceOrigin rtOrigin);
+
     // Returns the last program bound by flushGLState(), or nullptr if a different program has since
     // been put into use via some other method (e.g., resetContext, copySurfaceAsDraw).
     // The returned GrGLProgram can be used for binding textures and vertex attributes.
@@ -104,7 +108,7 @@ public:
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
-    void clear(const GrScissorState&, std::array<float, 4> color, GrRenderTarget*, GrSurfaceOrigin);
+    void clear1(const GrScissorState&, std::array<float, 4> color, GrRenderTarget*, GrSurfaceOrigin);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
@@ -393,7 +397,7 @@ private:
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
-    void flushScissor(const GrScissorState& scissorState, int rtWidth, int rtHeight,
+    void flushScissor1(const GrScissorState& scissorState, int rtWidth, int rtHeight,
                       GrSurfaceOrigin rtOrigin) {
         this->flushScissorTest(GrScissorTest(scissorState.enabled()));
         if (scissorState.enabled()) {
@@ -420,9 +424,6 @@ private:
     void flushRenderTarget(GrGLRenderTarget*);
     // This version can be used when the render target's colors will not be written.
     void flushRenderTargetNoColorWrites(GrGLRenderTarget*);
-
-    // Need not be called if flushRenderTarget is used.
-    void flushViewport(int width, int height);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();

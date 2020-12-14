@@ -75,7 +75,7 @@ public:
         return fRect;
     }
 
-private:
+//private:
     // The scissor is considered enabled if the rectangle does not cover the render target
     SkISize fRTSize;
     SkIRect fRect;
