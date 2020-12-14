@@ -30,6 +30,7 @@ public:
     }
 
     const char* name() const override { return "ConstantMatrixEffect"; }
+    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -38,7 +39,7 @@ public:
         class Impl : public GrGLSLFragmentProcessor {
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(0, args);
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
         return new Impl;
@@ -57,6 +58,7 @@ public:
     }
 
     const char* name() const override { return "UniformMatrixEffect"; }
+    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -67,7 +69,7 @@ public:
                 fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
                                                               kFloat3x3_GrSLType, "matrix");
                 SkString sample = this->invokeChildWithMatrix(0, args);
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
             void onSetData(const GrGLSLProgramDataManager& pdman,
                            const GrFragmentProcessor& proc) override {
@@ -93,6 +95,7 @@ public:
     }
 
     const char* name() const override { return "VariableMatrixEffect"; }
+    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -102,7 +105,7 @@ public:
             void emitCode(EmitArgs& args) override {
                 SkString sample = this->invokeChildWithMatrix(
                         0, args, "float3x3(1, 0, 0, 0, 1, 0, 8, 0, 1)");
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
         return new Impl;
@@ -122,6 +125,7 @@ public:
     }
 
     const char* name() const override { return "ExplicitCoordEffect"; }
+    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -132,7 +136,7 @@ public:
                 args.fFragBuilder->codeAppendf("float2 coord = %s + float2(0, 8);",
                                                args.fSampleCoord);
                 SkString sample = this->invokeChild(0, args, "coord");
-                args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+                args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
         return new Impl;
@@ -149,6 +153,7 @@ public:
     }
 
     const char* name() const override { return "TestPatternEffect"; }
+    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -159,7 +164,7 @@ public:
                 auto fb = args.fFragBuilder;
                 fb->codeAppendf("float2 coord = %s / 64.0;", args.fSampleCoord);
                 fb->codeAppendf("coord = floor(coord * 4) / 3;");
-                fb->codeAppendf("%s = half4(half2(coord.rg), 0, 1);\n", args.fOutputColor);
+                fb->codeAppendf("return half2(coord).rg01;\n");
             }
         };
         return new Impl;
