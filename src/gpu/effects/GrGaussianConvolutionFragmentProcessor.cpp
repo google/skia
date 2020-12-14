@@ -57,24 +57,20 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fragBuilder->codeAppendf("%s = half4(0);", args.fOutputColor);
+    fragBuilder->codeAppendf("half4 color = half4(0);");
 
     fragBuilder->codeAppendf("float2 coord = %s - %d.0 * %s;", args.fSampleCoord, ce.fRadius, inc);
-    fragBuilder->codeAppend("float2 coordSampled = half2(0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
-    static constexpr const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
     for (int i = 0; i < width; i++) {
-        SkString kernelIndex;
-        kernelIndex.printf("%s[%d]", kernel, i/4);
-        kernelIndex.append(kVecSuffix[i & 0x3]);
-
-        fragBuilder->codeAppend("coordSampled = coord;");
-        auto sample = this->invokeChild(0, args, "coordSampled");
-        fragBuilder->codeAppendf("%s += %s", args.fOutputColor, sample.c_str());
-        fragBuilder->codeAppendf(" * %s;", kernelIndex.c_str());
-        fragBuilder->codeAppendf("coord += %s;", inc);
+        auto sample = this->invokeChild(/*childIndex=*/0, args, "coord");
+        if (i != 0) {
+            fragBuilder->codeAppendf("coord += %s;", inc);
+        }
+        fragBuilder->codeAppendf("color += %s * %s[%d][%d];",
+                                 sample.c_str(), kernel, i / 4, i & 0x3);
     }
+    fragBuilder->codeAppendf("return color;");
 }
 
 void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
