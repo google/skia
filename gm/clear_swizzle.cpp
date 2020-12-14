@@ -23,19 +23,18 @@ DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, rtCtx, canvas, 6*kSize, 2*kSize) {
     auto make_offscreen = [&](const SkISize dimensions) {
         GrSwizzle readSwizzle  = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
         GrSwizzle writeSwizzle = GrSwizzle::Concat(rtCtx->readSwizzle(), GrSwizzle{"bgra"});
-        return GrSurfaceDrawContext::Make(ctx,
-                                          rtCtx->colorInfo().refColorSpace(),
-                                          SkBackingFit::kExact,
-                                          dimensions,
-                                          rtCtx->asSurfaceProxy()->backendFormat(),
-                                          /* sample count*/ 1,
-                                          GrMipmapped::kNo,
-                                          rtCtx->asSurfaceProxy()->isProtected(),
-                                          readSwizzle,
-                                          writeSwizzle,
-                                          kTopLeft_GrSurfaceOrigin,
-                                          SkBudgeted::kYes,
-                                          /* surface props */ nullptr);
+        return GrSurfaceFillContext::Make(ctx,
+                                           kPremul_SkAlphaType,
+                                           rtCtx->colorInfo().refColorSpace(),
+                                           dimensions,
+                                           SkBackingFit::kExact,
+                                           rtCtx->asSurfaceProxy()->backendFormat(),
+                                           /* sample count*/ 1,
+                                           GrMipmapped::kNo,
+                                           rtCtx->asSurfaceProxy()->isProtected(),
+                                           readSwizzle,
+                                           writeSwizzle,
+                                           kTopLeft_GrSurfaceOrigin);
     };
 
     struct {

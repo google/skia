@@ -914,6 +914,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                         for (const auto& rect : rects) {
                             const auto readInfo = SkImageInfo::Make(rect.width(), rect.height(),
                                                                     readCT, readAT, readCS);
+                            SkDebugf("R [%03d, %03d, %03d, %03d] SCT: %d, SAT: %d, RCT: %d, RAT: %d CS: %d\n",
+                                     rect.x(), rect.y(), rect.right(), rect.bottom(), srcCT, srcAT, readCT, readAT, SkColorSpace::Equals(readCS.get(), SkColorSpace::MakeSRGBLinear().get()));
                             const SkIVector offset = rect.topLeft();
                             GpuReadResult r = runTest(src, srcPixels, readInfo, offset);
                             if (r == GpuReadResult::kSuccess) {
@@ -962,14 +964,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
                 if (src.colorType() == kRGB_888x_SkColorType) {
                     return Surface();
                 }
-                std::unique_ptr<GrSurfaceContext> surfContext;
-                // Renderable + unpremul/unknown is not allowed (yet!), skbug.com/11019
-                if (renderable == GrRenderable::kNo        ||
-                    src.alphaType() == kPremul_SkAlphaType ||
-                    src.alphaType() == kOpaque_SkAlphaType) {
-                    surfContext = GrSurfaceContext::Make(direct, src.info(), SkBackingFit::kExact,
-                                                         origin, renderable);
-                }
+                auto surfContext = GrSurfaceContext::Make(direct,
+                                                          src.info(),
+                                                          SkBackingFit::kExact,
+                                                          origin,
+                                                          renderable);
                 if (surfContext) {
                     surfContext->writePixels(direct,
                                              src.info(),
