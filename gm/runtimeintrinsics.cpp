@@ -277,23 +277,21 @@ static SkString make_bvec_sksl(const char* fn) {
     return SkStringPrintf(
             "half4 main(float2 p) {"
             "    float2 v1 = float2(1.0);"
-            "    p.x = p.x < 0.33 ? 0.0 : (p.x < 0.66 ? 1.0 : 2.0);"
-            "    p.y = p.y < 0.33 ? 0.0 : (p.y < 0.66 ? 1.0 : 2.0);"
+            "    p = floor(p * 3);"
+            "    int2 i = int2(p);"
+            "    uint2 u = uint2(p);"
             "    bool2 cmp = %s;"
             "    return half4(cmp.x ? 1.0 : 0.0, cmp.y ? 1.0 : 0.0, 0, 1);"
             "}",
             fn);
 }
 
-static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label = nullptr) {
+static void plot_bvec(SkCanvas* canvas, const SkString& fn, const char* label) {
     canvas->save();
 
     SkFont font(ToolUtils::create_portable_typeface());
     SkPaint p(SkColors::kBlack);
     SkRect bounds;
-    if (!label) {
-        label = fn;
-    }
     font.measureText(label, strlen(label), SkTextEncoding::kUTF8, &bounds);
 
     canvas->drawSimpleText(label, strlen(label), SkTextEncoding::kUTF8,
@@ -302,7 +300,7 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label = null
     canvas->translate(0, kLabelHeight);
 
     {
-        auto [effect, error] = SkRuntimeEffect::Make(make_bvec_sksl(fn));
+        auto [effect, error] = SkRuntimeEffect::Make(fn);
         if (!effect) {
             SkDebugf("Error: %s\n", error.c_str());
             return;
@@ -331,36 +329,57 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label = null
     }
 
     canvas->restore();
+    col(canvas);
 }
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.6
 DEF_SIMPLE_GM_BG(runtime_intrinsics_relational,
                  canvas,
-                 columns_to_width(2),
+                 columns_to_width(6),
                  rows_to_height(6),
                  SK_ColorWHITE) {
     canvas->translate(kPadding, kPadding);
     canvas->save();
 
-    // TODO: ivec versions of these. (Not declared in sksl_public.sksl yet).
+    // TODO: ivec relational support is missing from the software rasterizer.
 
-    plot_bvec(canvas, "lessThan(p, v1)",      "lessThan");      col(canvas);
-    plot_bvec(canvas, "lessThanEqual(p, v1)", "lessThanEqual"); row(canvas);
+    plot_bvec(canvas, make_bvec_sksl("lessThan(p, v1)"),      "lessThan(f)");
+    plot_bvec(canvas, make_bvec_sksl("lessThan(i, v1)"),      "lessThan(i)");
+    plot_bvec(canvas, make_bvec_sksl("lessThan(u, v1)"),      "lessThan(u)");
+    plot_bvec(canvas, make_bvec_sksl("lessThanEqual(p, v1)"), "lessThanEqual(f)");
+    plot_bvec(canvas, make_bvec_sksl("lessThanEqual(i, v1)"), "lessThanEqual(i)");
+    plot_bvec(canvas, make_bvec_sksl("lessThanEqual(u, v1)"), "lessThanEqual(u)");
+    row(canvas);
 
-    plot_bvec(canvas, "greaterThan(p, v1)",      "greaterThan");      col(canvas);
-    plot_bvec(canvas, "greaterThanEqual(p, v1)", "greaterThanEqual"); row(canvas);
+    plot_bvec(canvas, make_bvec_sksl("greaterThan(p, v1)"),      "greaterThan(f)");
+    plot_bvec(canvas, make_bvec_sksl("greaterThan(i, v1)"),      "greaterThan(i)");
+    plot_bvec(canvas, make_bvec_sksl("greaterThan(u, v1)"),      "greaterThan(u)");
+    plot_bvec(canvas, make_bvec_sksl("greaterThanEqual(p, v1)"), "greaterThanEqual(f)");
+    plot_bvec(canvas, make_bvec_sksl("greaterThanEqual(i, v1)"), "greaterThanEqual(i)");
+    plot_bvec(canvas, make_bvec_sksl("greaterThanEqual(u, v1)"), "greaterThanEqual(u)");
+    row(canvas);
 
-    plot_bvec(canvas, "equal(p, v1)",    "equal");    col(canvas);
-    plot_bvec(canvas, "notEqual(p, v1)", "notEqual"); row(canvas);
+    plot_bvec(canvas, make_bvec_sksl("equal(p, v1)"),    "equal(f)");
+    plot_bvec(canvas, make_bvec_sksl("equal(i, v1)"),    "equal(i)");
+    plot_bvec(canvas, make_bvec_sksl("equal(u, v1)"),    "equal(u)");
+    plot_bvec(canvas, make_bvec_sksl("notEqual(p, v1)"), "notEqual(f)");
+    plot_bvec(canvas, make_bvec_sksl("notEqual(i, v1)"), "notEqual(i)");
+    plot_bvec(canvas, make_bvec_sksl("notEqual(u, v1)"), "notEqual(u)");
+    row(canvas);
 
-    plot_bvec(canvas, "equal(lessThanEqual(p, v1), greaterThanEqual(p, v1))",
-                      "equal(bvec)"); col(canvas);
-    plot_bvec(canvas, "notEqual(lessThanEqual(p, v1), greaterThanEqual(p, v1))",
-                      "notequal(bvec)"); row(canvas);
+    plot_bvec(canvas,
+              make_bvec_sksl("equal(lessThanEqual(p, v1), greaterThanEqual(p, v1))"),
+              "equal(bvec)");
+    plot_bvec(canvas,
+              make_bvec_sksl("notEqual(lessThanEqual(p, v1), greaterThanEqual(p, v1))"),
+              "notequal(bvec)");
+    row(canvas);
 
-    plot_bvec(canvas, "not(notEqual(p, v1))", "not(notEqual)"); col(canvas);
-    plot_bvec(canvas, "not(equal(p, v1))",    "not(equal)");    row(canvas);
+    plot_bvec(canvas, make_bvec_sksl("not(notEqual(p, v1))"), "not(notEqual)");
+    plot_bvec(canvas, make_bvec_sksl("not(equal(p, v1))"),    "not(equal)");
+    row(canvas);
 
-    plot_bvec(canvas, "bool2(any(equal(p, v1)))", "any(equal)"); col(canvas);
-    plot_bvec(canvas, "bool2(all(equal(p, v1)))", "all(equal)"); row(canvas);
+    plot_bvec(canvas, make_bvec_sksl("bool2(any(equal(p, v1)))"), "any(equal)");
+    plot_bvec(canvas, make_bvec_sksl("bool2(all(equal(p, v1)))"), "all(equal)");
+    row(canvas);
 }
