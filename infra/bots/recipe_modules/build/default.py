@@ -94,7 +94,7 @@ def compile_fn(api, checkout_root, out_dir):
   args = {'werror': 'true'}
   env = {}
 
-  if os == 'Mac' or os == 'Mac10.15.5':
+  if os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7':
     # XCode build is listed in parentheses after the version at
     # https://developer.apple.com/news/releases/, or on Wikipedia here:
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
@@ -102,6 +102,8 @@ def compile_fn(api, checkout_root, out_dir):
     XCODE_BUILD_VERSION = '11c29'
     if os == 'Mac10.15.5':
       XCODE_BUILD_VERSION = '11e503a'
+    if os == 'Mac10.15.7':
+      XCODE_BUILD_VERSION = '12b45b'
     extra_cflags.append(
         '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
@@ -143,7 +145,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_generate_workarounds'] = 'true'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5') and 'Tidy' not in extra_tokens:
+  if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
       ccache = api.vars.workdir.join('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
