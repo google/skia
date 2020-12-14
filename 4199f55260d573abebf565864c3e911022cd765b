@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d49566a_38f4724b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-14T17:51:35Z",
+      "side": 1,
+      "message": "If you want to hold off on landing this until you\u0027ve got the software rasterizer part implemented, that\u0027s fine with me.",
+      "revId": "4199f55260d573abebf565864c3e911022cd765b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
