@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006754109",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/342557?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1f0fbb3b_891b1cf7",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-14T19:13:36Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 224,
+        "startChar": 87,
+        "endLine": 224,
+        "endChar": 93
+      },
+      "revId": "06372163fa986bc8a8d7b6afd4f9b95e093bdc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
