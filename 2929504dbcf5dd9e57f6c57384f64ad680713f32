@@ -438,6 +438,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1c4a7ea4_65c67d53",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T22:40:15Z",
+      "side": 1,
+      "message": "Oh sure... what I really mean is that it\u0027s straightforward both to transform a for-loop into a while-loop and to do the opposite from while to for.  They\u0027re two ways of expressing the same core concept, and even do-loops boil down to that with a little pre-patch bit of code that runs once unconditionally.  So I found it surprising that we\u0027ve got hooks to handle the three differently, as if we\u0027d need to.  It just seems like we\u0027re setting ourselves up to have bugs creep into whichever loop construct is least often used.",
+      "parentUuid": "253fd72c_c95e10a5",
+      "range": {
+        "startLine": 1427,
+        "startChar": 8,
+        "endLine": 1430,
+        "endChar": 37
+      },
+      "revId": "2929504dbcf5dd9e57f6c57384f64ad680713f32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "701b25df_49cb9d19",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 19

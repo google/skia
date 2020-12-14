@@ -302,6 +302,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b6629f63_3082a202",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-14T22:40:15Z",
+      "side": 1,
+      "message": "I don\u0027t have a strong opinion on the whole IR being scalarized---I\u0027ve been assuming it was somehow important to preserve the vectors and matrices through to the GPU backends, if only to hit the intrinsics that operate on those types---but what I was thinking is a pass here that converts arbitrarily mixed SkSL IR into SkSL IR that we can assert only uses scalars.  It\u0027s really just an organizational idea, first an aggregate-\u003escalar pass all in SkSL terms, then bring in SkVM concepts only once we\u0027re all scalar.\n\n(Though now that I\u0027m thinking about it, it being a factored separate SkSL -\u003e SkSL pass would be pretty neat, as we could then use it to answer my assumption about whether preserving aggregates to the GPU backends matters.)",
+      "parentUuid": "189c2dc1_d4c9eac9",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ad05799f_5ad81deb",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 17
