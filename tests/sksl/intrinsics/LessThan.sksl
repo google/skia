@@ -1,1 +1,8 @@
-in half4 a, b; void main() { sk_FragColor.x = lessThan(a, b).x ? 1 : 0; }
+in half4 a, b;
+in uint2 c, d;
+in int3 e, f;
+void main() {
+    sk_FragColor.x = lessThan(a, b).x ? 1 : 0;
+    sk_FragColor.y = lessThan(c, d).y ? 1 : 0;
+    sk_FragColor.z = lessThan(e, f).z ? 1 : 0;
+}

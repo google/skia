@@ -24,69 +24,69 @@ public:
             : fInvalid_Type(Type::MakeOtherType("<INVALID>"))
             , fVoid_Type(Type::MakeOtherType("void"))
             , fNull_Type(Type::MakeOtherType("null"))
-            , fFloatLiteral_Type(Type::MakeScalarType(
-                      "$floatLiteral", Type::NumberKind::kFloat, /*priority=*/3))
-            , fIntLiteral_Type(Type::MakeScalarType(
-                      "$intLiteral", Type::NumberKind::kSigned, /*priority=*/1))
-            , fFloat_Type(Type::MakeScalarType(
-                      "float", Type::NumberKind::kFloat, /*priority=*/5, /*highPrecision=*/true))
+            , fFloatLiteral_Type(Type::MakeScalarType("$floatLiteral", Type::NumberKind::kFloat,
+                                                                       /*priority=*/8))
+            , fIntLiteral_Type(Type::MakeScalarType("$intLiteral", Type::NumberKind::kSigned,
+                                                                   /*priority=*/5))
+            , fFloat_Type(Type::MakeScalarType("float", Type::NumberKind::kFloat, /*priority=*/10,
+                                                        /*highPrecision=*/true))
             , fFloat2_Type(Type::MakeVectorType("float2", *fFloat_Type, /*columns=*/2))
             , fFloat3_Type(Type::MakeVectorType("float3", *fFloat_Type, /*columns=*/3))
             , fFloat4_Type(Type::MakeVectorType("float4", *fFloat_Type, /*columns=*/4))
-            , fHalf_Type(Type::MakeScalarType("half", Type::NumberKind::kFloat, /*priority=*/4))
+            , fHalf_Type(Type::MakeScalarType("half", Type::NumberKind::kFloat, /*priority=*/9))
             , fHalf2_Type(Type::MakeVectorType("half2", *fHalf_Type, /*columns=*/2))
             , fHalf3_Type(Type::MakeVectorType("half3", *fHalf_Type, /*columns=*/3))
             , fHalf4_Type(Type::MakeVectorType("half4", *fHalf_Type, /*columns=*/4))
-            , fUInt_Type(Type::MakeScalarType(
-                      "uint", Type::NumberKind::kUnsigned, /*priority=*/2, /*highPrecision=*/true))
-            , fUInt2_Type(Type::MakeVectorType("uint2", *fUInt_Type, /*columns=*/2))
-            , fUInt3_Type(Type::MakeVectorType("uint3", *fUInt_Type, /*columns=*/3))
-            , fUInt4_Type(Type::MakeVectorType("uint4", *fUInt_Type, /*columns=*/4))
-            , fInt_Type(Type::MakeScalarType(
-                      "int", Type::NumberKind::kSigned, /*priority=*/2, /*highPrecision=*/true))
+            , fInt_Type(Type::MakeScalarType("int", Type::NumberKind::kSigned, /*priority=*/7,
+                                                    /*highPrecision=*/true))
             , fInt2_Type(Type::MakeVectorType("int2", *fInt_Type, /*columns=*/2))
             , fInt3_Type(Type::MakeVectorType("int3", *fInt_Type, /*columns=*/3))
             , fInt4_Type(Type::MakeVectorType("int4", *fInt_Type, /*columns=*/4))
-            , fUShort_Type(
-                      Type::MakeScalarType("ushort", Type::NumberKind::kUnsigned, /*priority=*/0))
-            , fUShort2_Type(Type::MakeVectorType("ushort2", *fUShort_Type, /*columns=*/2))
-            , fUShort3_Type(Type::MakeVectorType("ushort3", *fUShort_Type, /*columns=*/3))
-            , fUShort4_Type(Type::MakeVectorType("ushort4", *fUShort_Type, /*columns=*/4))
-            , fShort_Type(Type::MakeScalarType("short", Type::NumberKind::kSigned, /*priority=*/0))
+            , fUInt_Type(Type::MakeScalarType("uint", Type::NumberKind::kUnsigned, /*priority=*/6,
+                                                      /*highPrecision=*/true))
+            , fUInt2_Type(Type::MakeVectorType("uint2", *fUInt_Type, /*columns=*/2))
+            , fUInt3_Type(Type::MakeVectorType("uint3", *fUInt_Type, /*columns=*/3))
+            , fUInt4_Type(Type::MakeVectorType("uint4", *fUInt_Type, /*columns=*/4))
+            , fShort_Type(Type::MakeScalarType("short", Type::NumberKind::kSigned, /*priority=*/4))
             , fShort2_Type(Type::MakeVectorType("short2", *fShort_Type, /*columns=*/2))
             , fShort3_Type(Type::MakeVectorType("short3", *fShort_Type, /*columns=*/3))
             , fShort4_Type(Type::MakeVectorType("short4", *fShort_Type, /*columns=*/4))
-            , fUByte_Type(
-                      Type::MakeScalarType("ubyte", Type::NumberKind::kUnsigned, /*priority=*/0))
-            , fUByte2_Type(Type::MakeVectorType("ubyte2", *fUByte_Type, /*columns=*/2))
-            , fUByte3_Type(Type::MakeVectorType("ubyte3", *fUByte_Type, /*columns=*/3))
-            , fUByte4_Type(Type::MakeVectorType("ubyte4", *fUByte_Type, /*columns=*/4))
-            , fByte_Type(Type::MakeScalarType("byte", Type::NumberKind::kSigned, /*priority=*/0))
+            , fUShort_Type(Type::MakeScalarType("ushort", Type::NumberKind::kUnsigned,
+                                                          /*priority=*/3))
+            , fUShort2_Type(Type::MakeVectorType("ushort2", *fUShort_Type, /*columns=*/2))
+            , fUShort3_Type(Type::MakeVectorType("ushort3", *fUShort_Type, /*columns=*/3))
+            , fUShort4_Type(Type::MakeVectorType("ushort4", *fUShort_Type, /*columns=*/4))
+            , fByte_Type(Type::MakeScalarType("byte", Type::NumberKind::kSigned, /*priority=*/2))
             , fByte2_Type(Type::MakeVectorType("byte2", *fByte_Type, /*columns=*/2))
             , fByte3_Type(Type::MakeVectorType("byte3", *fByte_Type, /*columns=*/3))
             , fByte4_Type(Type::MakeVectorType("byte4", *fByte_Type, /*columns=*/4))
-            , fBool_Type(Type::MakeScalarType("bool", Type::NumberKind::kBoolean, /*priority=*/-1))
+            , fUByte_Type(Type::MakeScalarType("ubyte", Type::NumberKind::kUnsigned,
+                                                        /*priority=*/1))
+            , fUByte2_Type(Type::MakeVectorType("ubyte2", *fUByte_Type, /*columns=*/2))
+            , fUByte3_Type(Type::MakeVectorType("ubyte3", *fUByte_Type, /*columns=*/3))
+            , fUByte4_Type(Type::MakeVectorType("ubyte4", *fUByte_Type, /*columns=*/4))
+            , fBool_Type(Type::MakeScalarType("bool", Type::NumberKind::kBoolean, /*priority=*/0))
             , fBool2_Type(Type::MakeVectorType("bool2", *fBool_Type, /*columns=*/2))
             , fBool3_Type(Type::MakeVectorType("bool3", *fBool_Type, /*columns=*/3))
             , fBool4_Type(Type::MakeVectorType("bool4", *fBool_Type, /*columns=*/4))
-            , fFloat2x2_Type(
-                      Type::MakeMatrixType("float2x2", *fFloat_Type, /*columns=*/2, /*rows=*/2))
-            , fFloat2x3_Type(
-                      Type::MakeMatrixType("float2x3", *fFloat_Type, /*columns=*/2, /*rows=*/3))
-            , fFloat2x4_Type(
-                      Type::MakeMatrixType("float2x4", *fFloat_Type, /*columns=*/2, /*rows=*/4))
-            , fFloat3x2_Type(
-                      Type::MakeMatrixType("float3x2", *fFloat_Type, /*columns=*/3, /*rows=*/2))
-            , fFloat3x3_Type(
-                      Type::MakeMatrixType("float3x3", *fFloat_Type, /*columns=*/3, /*rows=*/3))
-            , fFloat3x4_Type(
-                      Type::MakeMatrixType("float3x4", *fFloat_Type, /*columns=*/3, /*rows=*/4))
-            , fFloat4x2_Type(
-                      Type::MakeMatrixType("float4x2", *fFloat_Type, /*columns=*/4, /*rows=*/2))
-            , fFloat4x3_Type(
-                      Type::MakeMatrixType("float4x3", *fFloat_Type, /*columns=*/4, /*rows=*/3))
-            , fFloat4x4_Type(
-                      Type::MakeMatrixType("float4x4", *fFloat_Type, /*columns=*/4, /*rows=*/4))
+            , fFloat2x2_Type(Type::MakeMatrixType("float2x2", *fFloat_Type,
+                                                              /*columns=*/2, /*rows=*/2))
+            , fFloat2x3_Type(Type::MakeMatrixType("float2x3", *fFloat_Type,
+                                                              /*columns=*/2, /*rows=*/3))
+            , fFloat2x4_Type(Type::MakeMatrixType("float2x4", *fFloat_Type,
+                                                              /*columns=*/2, /*rows=*/4))
+            , fFloat3x2_Type(Type::MakeMatrixType("float3x2", *fFloat_Type,
+                                                              /*columns=*/3, /*rows=*/2))
+            , fFloat3x3_Type(Type::MakeMatrixType("float3x3", *fFloat_Type,
+                                                              /*columns=*/3, /*rows=*/3))
+            , fFloat3x4_Type(Type::MakeMatrixType("float3x4", *fFloat_Type,
+                                                              /*columns=*/3, /*rows=*/4))
+            , fFloat4x2_Type(Type::MakeMatrixType("float4x2", *fFloat_Type,
+                                                              /*columns=*/4, /*rows=*/2))
+            , fFloat4x3_Type(Type::MakeMatrixType("float4x3", *fFloat_Type,
+                                                              /*columns=*/4, /*rows=*/3))
+            , fFloat4x4_Type(Type::MakeMatrixType("float4x4", *fFloat_Type,
+                                                              /*columns=*/4, /*rows=*/4))
             , fHalf2x2_Type(Type::MakeMatrixType("half2x2", *fHalf_Type, /*columns=*/2, /*rows=*/2))
             , fHalf2x3_Type(Type::MakeMatrixType("half2x3", *fHalf_Type, /*columns=*/2, /*rows=*/3))
             , fHalf2x4_Type(Type::MakeMatrixType("half2x4", *fHalf_Type, /*columns=*/2, /*rows=*/4))
@@ -302,35 +302,35 @@ public:
     const std::unique_ptr<Type> fHalf3_Type;
     const std::unique_ptr<Type> fHalf4_Type;
 
-    const std::unique_ptr<Type> fUInt_Type;
-    const std::unique_ptr<Type> fUInt2_Type;
-    const std::unique_ptr<Type> fUInt3_Type;
-    const std::unique_ptr<Type> fUInt4_Type;
-
     const std::unique_ptr<Type> fInt_Type;
     const std::unique_ptr<Type> fInt2_Type;
     const std::unique_ptr<Type> fInt3_Type;
     const std::unique_ptr<Type> fInt4_Type;
 
-    const std::unique_ptr<Type> fUShort_Type;
-    const std::unique_ptr<Type> fUShort2_Type;
-    const std::unique_ptr<Type> fUShort3_Type;
-    const std::unique_ptr<Type> fUShort4_Type;
+    const std::unique_ptr<Type> fUInt_Type;
+    const std::unique_ptr<Type> fUInt2_Type;
+    const std::unique_ptr<Type> fUInt3_Type;
+    const std::unique_ptr<Type> fUInt4_Type;
 
     const std::unique_ptr<Type> fShort_Type;
     const std::unique_ptr<Type> fShort2_Type;
     const std::unique_ptr<Type> fShort3_Type;
     const std::unique_ptr<Type> fShort4_Type;
 
-    const std::unique_ptr<Type> fUByte_Type;
-    const std::unique_ptr<Type> fUByte2_Type;
-    const std::unique_ptr<Type> fUByte3_Type;
-    const std::unique_ptr<Type> fUByte4_Type;
+    const std::unique_ptr<Type> fUShort_Type;
+    const std::unique_ptr<Type> fUShort2_Type;
+    const std::unique_ptr<Type> fUShort3_Type;
+    const std::unique_ptr<Type> fUShort4_Type;
 
     const std::unique_ptr<Type> fByte_Type;
     const std::unique_ptr<Type> fByte2_Type;
     const std::unique_ptr<Type> fByte3_Type;
     const std::unique_ptr<Type> fByte4_Type;
+
+    const std::unique_ptr<Type> fUByte_Type;
+    const std::unique_ptr<Type> fUByte2_Type;
+    const std::unique_ptr<Type> fUByte3_Type;
+    const std::unique_ptr<Type> fUByte4_Type;
 
     const std::unique_ptr<Type> fBool_Type;
     const std::unique_ptr<Type> fBool2_Type;
