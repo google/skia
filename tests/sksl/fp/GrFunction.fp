@@ -10,6 +10,6 @@ half4 flip(half4 c) {
     return c.abgr;
 }
 
-void main() {
-    sk_OutColor = flip(flip(flip(color)));
+half4 main() {
+    return flip(flip(flip(color)));
 }

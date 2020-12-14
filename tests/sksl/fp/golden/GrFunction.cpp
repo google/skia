@@ -57,9 +57,9 @@ R"SkSL(int x = 42;
 return c.wzyx;
 )SkSL");
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s(%s(%s(%s)));
+R"SkSL(return %s(%s(%s(%s)));
 )SkSL"
-, args.fOutputColor, flip_name.c_str(), flip_name.c_str(), flip_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar));
+, flip_name.c_str(), flip_name.c_str(), flip_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -77,7 +77,7 @@ bool GrFunction::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrFunction::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrFunction::GrFunction(const GrFunction& src)
 : INHERITED(kGrFunction_ClassID, src.optimizationFlags()) {

@@ -21,9 +21,9 @@ public:
         (void) _outer;
         colorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf4_GrSLType, "color");
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s;
+R"SkSL(return %s;
 )SkSL"
-, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar));
+, args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -41,7 +41,7 @@ bool GrUniform::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrUniform::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrUniform::GrUniform(const GrUniform& src)
 : INHERITED(kGrUniform_ClassID, src.optimizationFlags()) {

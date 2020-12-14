@@ -22,6 +22,10 @@ public:
         if (someExpression(someOtherExpression())) {
             sometimesVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType, "sometimes");
         }
+        fragBuilder->codeAppendf(
+R"SkSL(return half4(1.0);
+)SkSL"
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -39,7 +43,7 @@ bool GrLayoutWhen::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrLayoutWhen::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrLayoutWhen::GrLayoutWhen(const GrLayoutWhen& src)
 : INHERITED(kGrLayoutWhen_ClassID, src.optimizationFlags()) {

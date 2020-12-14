@@ -22,9 +22,9 @@ public:
 x = 10.0;
  fragBuilder->codeAppendf("half y = %d\n", x * 2);         fragBuilder->codeAppendf(
 R"SkSL(half x = %f;
-%s = half4(1.0);
+return half4(1.0);
 )SkSL"
-, x, args.fOutputColor);
+, x);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -42,7 +42,7 @@ bool GrSectionEmitCode::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrSectionEmitCode::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrSectionEmitCode::GrSectionEmitCode(const GrSectionEmitCode& src)
 : INHERITED(kGrSectionEmitCode_ClassID, src.optimizationFlags()) {
