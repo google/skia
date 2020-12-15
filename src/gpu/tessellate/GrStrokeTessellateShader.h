@@ -133,7 +133,6 @@ public:
             , fHasConics(hasConics)
             , fStroke(stroke)
             , fColor(color) {
-        SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
         if (fMode == Mode::kTessellation) {
             constexpr static Attribute kTessellationAttribs[] = {
                     {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},

@@ -12,6 +12,8 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrSTArenaList.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include <array>
 
 class GrStrokeTessellateShader;
 
@@ -34,7 +36,7 @@ protected:
                                       bool hasMixedSampledCoverage, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
-    void prePreparePrograms(SkArenaAlloc* arena, GrStrokeTessellateShader*,
+    void prePreparePrograms(GrStrokeTessellateShader::Mode, SkArenaAlloc*,
                             const GrSurfaceProxyView&, GrAppliedClip&&,
                             const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
                             GrLoadOp colorLoadOp, const GrCaps&);
@@ -62,6 +64,29 @@ protected:
         // numCombinedSegments = numParametricSegments + numRadialSegments - 1.
         // (See num_combined_segments()).
         return std::max(numCombinedSegments + 1 - numRadialSegments, 0.f);
+    }
+
+    // Returns the equivalent tolerances in (pre-viewMatrix) local path space that the tessellator
+    // will use when rendering this stroke.
+    GrStrokeTessellateShader::Tolerances preTransformTolerances() const {
+        std::array<float,2> matrixScales;
+        if (!fViewMatrix.getMinMaxScales(matrixScales.data())) {
+            matrixScales.fill(1);
+        }
+        auto [matrixMinScale, matrixMaxScale] = matrixScales;
+        float localStrokeWidth = fStroke.getWidth();
+        if (fStroke.isHairlineStyle()) {
+            // If the stroke is hairline then the tessellator will operate in post-transform space
+            // instead. But for the sake of CPU methods that need to conservatively approximate the
+            // number of segments to emit, we use localStrokeWidth ~= 1/matrixMinScale.
+            float approxScale = matrixMinScale;
+            // If the matrix has strong skew, don't let the scale shoot off to infinity. (This does
+            // not affect the tessellator; only the CPU methods that approximate the number of
+            // segments to emit.)
+            approxScale = std::max(matrixMinScale, matrixMaxScale * .25f);
+            localStrokeWidth = 1/approxScale;
+        }
+        return GrStrokeTessellateShader::Tolerances(matrixMaxScale, localStrokeWidth);
     }
 
     const GrAAType fAAType;
