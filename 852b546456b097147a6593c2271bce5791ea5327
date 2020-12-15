@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "263f24c2_17d8986a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-12-15T09:32:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ffacc37_a12908b4",
+      "range": {
+        "startLine": 762,
+        "startChar": 30,
+        "endLine": 762,
+        "endChar": 35
+      },
+      "revId": "852b546456b097147a6593c2271bce5791ea5327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e3e7a46_a93c5123",
@@ -72,6 +96,24 @@
       "side": 1,
       "message": "Removing sgtm.",
       "parentUuid": "1e3e7a46_a93c5123",
+      "revId": "852b546456b097147a6593c2271bce5791ea5327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75e2fd4_846e8075",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2020-12-15T09:32:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "853046a8_8610c2a2",
       "revId": "852b546456b097147a6593c2271bce5791ea5327",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
