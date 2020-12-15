@@ -92,7 +92,7 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorCG::MakeFromEncodedCG(sk_sp<Sk
         origin = (SkEncodedOrigin) originInt;
     }
 
-    if (SkPixmapPriv::ShouldSwapWidthHeight(origin)) {
+    if (SkEncodedOriginSwapsWidthHeight(origin)) {
         info = SkPixmapPriv::SwapWidthHeight(info);
     }
 
