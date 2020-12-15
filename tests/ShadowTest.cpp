@@ -43,10 +43,17 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
     verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, false);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true, false);
     check_result(reporter, verts, expectVerts, expectSuccess);
 
-    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false,
+                                          false);
+    check_result(reporter, verts, expectVerts, expectSuccess);
+
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true, true);
+    check_result(reporter, verts, expectVerts, expectSuccess);
+
+    verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false, true);
     check_result(reporter, verts, expectVerts, expectSuccess);
 }
 
@@ -124,6 +131,7 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
         0x40000000,
         0
     };
+    // TODO: implement bounds calculation for directional lights
     SkRect bounds;
     SkDrawShadowMetrics::GetLocalBounds(path, rec, ctm, &bounds);
     ctm.mapRect(&bounds);
@@ -136,7 +144,7 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
     SkPoint mapXY = ctm.mapXY(rec.fLightPos.fX, rec.fLightPos.fY);
     SkPoint3 devLightPos = SkPoint3::Make(mapXY.fX, mapXY.fY, rec.fLightPos.fZ);
     verts = SkShadowTessellator::MakeSpot(path, ctm, rec.fZPlaneParams, devLightPos,
-                                          rec.fLightRadius, false);
+                                          rec.fLightRadius, false, false);
     if (verts) {
         REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
     }

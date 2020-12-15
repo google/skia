@@ -16,8 +16,10 @@ enum SkShadowFlags {
     kTransparentOccluder_ShadowFlag = 0x01,
     /** Don't try to use analytic shadows. */
     kGeometricOnly_ShadowFlag = 0x02,
+    /** Light position represents a direction, light radius is blur radius at elevation 1 */
+    kDirectionalLight_ShadowFlag = 0x04,
     /** mask for all shadow flags */
-    kAll_ShadowFlag = 0x03
+    kAll_ShadowFlag = 0x07
 };
 
 #endif
