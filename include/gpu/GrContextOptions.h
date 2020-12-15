@@ -265,7 +265,7 @@ struct SK_API GrContextOptions {
     /**
      * If true, the caps will never support tessellation shaders.
      */
-    bool fSuppressTessellationShaders = false;
+    bool fSuppressTessellationShaders = true;
 
     /**
      * If greater than zero and less than the actual hardware limit, overrides the maximum number of
