@@ -20,7 +20,6 @@ public:
     GrFunction(const GrFunction& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Function"; }
-    bool usesExplicitReturn() const override;
 private:
     GrFunction()
     : INHERITED(kGrFunction_ClassID, kNone_OptimizationFlags) {

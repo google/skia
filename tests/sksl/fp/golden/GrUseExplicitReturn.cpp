@@ -38,9 +38,6 @@ bool GrUseExplicitReturn::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrUseExplicitReturn::usesExplicitReturn() const {
-    return true;
-}
 GrUseExplicitReturn::GrUseExplicitReturn(const GrUseExplicitReturn& src)
 : INHERITED(kGrUseExplicitReturn_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

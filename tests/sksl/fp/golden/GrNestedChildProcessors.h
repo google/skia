@@ -20,7 +20,6 @@ public:
     GrNestedChildProcessors(const GrNestedChildProcessors& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "NestedChildProcessors"; }
-    bool usesExplicitReturn() const override;
 private:
     GrNestedChildProcessors(std::unique_ptr<GrFragmentProcessor> child1, std::unique_ptr<GrFragmentProcessor> child2)
     : INHERITED(kGrNestedChildProcessors_ClassID, kNone_OptimizationFlags) {

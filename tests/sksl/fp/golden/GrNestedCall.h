@@ -20,7 +20,6 @@ public:
     GrNestedCall(const GrNestedCall& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "NestedCall"; }
-    bool usesExplicitReturn() const override;
 private:
     GrNestedCall(std::unique_ptr<GrFragmentProcessor> fp)
     : INHERITED(kGrNestedCall_ClassID, kNone_OptimizationFlags) {

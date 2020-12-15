@@ -198,7 +198,6 @@ public:
     const SkVector& scale() const { return fScale; }
 
     const char* name() const override { return "DisplacementMap"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 

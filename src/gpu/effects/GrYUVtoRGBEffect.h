@@ -26,7 +26,6 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     const char* name() const override { return "YUVtoRGBEffect"; }
-    bool usesExplicitReturn() const override { return true; }
 
 private:
     GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4],

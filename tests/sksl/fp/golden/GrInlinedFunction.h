@@ -20,7 +20,6 @@ public:
     GrInlinedFunction(const GrInlinedFunction& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "InlinedFunction"; }
-    bool usesExplicitReturn() const override;
 private:
     GrInlinedFunction()
     : INHERITED(kGrInlinedFunction_ClassID, kNone_OptimizationFlags) {

@@ -91,7 +91,6 @@ public:
             const float border[4] = kDefaultBorder);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
-    bool usesExplicitReturn() const override { return true; }
 
     const char* name() const override { return "TextureEffect"; }
 

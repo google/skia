@@ -25,7 +25,6 @@ public:
     GrSingleIntervalGradientColorizer(const GrSingleIntervalGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SingleIntervalGradientColorizer"; }
-    bool usesExplicitReturn() const override;
     SkPMColor4f start;
     SkPMColor4f end;
 

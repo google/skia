@@ -264,7 +264,6 @@ public:
     ~ColorTableEffect() override {}
 
     const char* name() const override { return "ColorTableEffect"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(*this));

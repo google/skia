@@ -20,7 +20,6 @@ public:
     GrUniform(const GrUniform& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Uniform"; }
-    bool usesExplicitReturn() const override;
 private:
     GrUniform()
     : INHERITED(kGrUniform_ClassID, kNone_OptimizationFlags) {

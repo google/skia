@@ -60,7 +60,6 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     if (color != that.color) return false;
     return true;
 }
-bool GrConstColorProcessor::usesExplicitReturn() const { return true; }
 GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
         : INHERITED(kGrConstColorProcessor_ClassID, src.optimizationFlags()), color(src.color) {
     this->cloneAndRegisterAllChildProcessors(src);

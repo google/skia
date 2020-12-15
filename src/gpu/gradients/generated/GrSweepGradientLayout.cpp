@@ -76,7 +76,6 @@ bool GrSweepGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     if (scale != that.scale) return false;
     return true;
 }
-bool GrSweepGradientLayout::usesExplicitReturn() const { return true; }
 GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
         , bias(src.bias)

@@ -20,7 +20,6 @@ public:
     GrKeyIn(const GrKeyIn& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "KeyIn"; }
-    bool usesExplicitReturn() const override;
     SkRect color;
 private:
     GrKeyIn(SkRect color)

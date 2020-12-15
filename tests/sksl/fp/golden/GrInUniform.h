@@ -20,7 +20,6 @@ public:
     GrInUniform(const GrInUniform& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "InUniform"; }
-    bool usesExplicitReturn() const override;
     SkRect color;
 private:
     GrInUniform(SkRect color)

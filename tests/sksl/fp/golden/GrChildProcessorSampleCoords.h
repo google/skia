@@ -20,7 +20,6 @@ public:
     GrChildProcessorSampleCoords(const GrChildProcessorSampleCoords& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorSampleCoords"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessorSampleCoords(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorSampleCoords_ClassID, kNone_OptimizationFlags) {

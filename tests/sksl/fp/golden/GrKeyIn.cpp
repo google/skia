@@ -47,9 +47,6 @@ bool GrKeyIn::onIsEqual(const GrFragmentProcessor& other) const {
     if (color != that.color) return false;
     return true;
 }
-bool GrKeyIn::usesExplicitReturn() const {
-    return true;
-}
 GrKeyIn::GrKeyIn(const GrKeyIn& src)
 : INHERITED(kGrKeyIn_ClassID, src.optimizationFlags())
 , color(src.color) {

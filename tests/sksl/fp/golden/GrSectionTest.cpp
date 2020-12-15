@@ -38,9 +38,6 @@ bool GrSectionTest::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrSectionTest::usesExplicitReturn() const {
-    return true;
-}
 GrSectionTest::GrSectionTest(const GrSectionTest& src)
 : INHERITED(kGrSectionTest_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

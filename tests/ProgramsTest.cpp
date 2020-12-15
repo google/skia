@@ -63,8 +63,6 @@ public:
 
     const char* name() const override { return "Big_Ole_Key"; }
 
-    bool usesExplicitReturn() const override { return true; }
-
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLBigKeyProcessor;
     }
@@ -100,8 +98,6 @@ public:
     }
 
     const char* name() const override { return "Block_Input"; }
-
-    bool usesExplicitReturn() const override { return true; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 

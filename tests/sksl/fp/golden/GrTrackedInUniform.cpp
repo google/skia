@@ -52,9 +52,6 @@ bool GrTrackedInUniform::onIsEqual(const GrFragmentProcessor& other) const {
     if (color != that.color) return false;
     return true;
 }
-bool GrTrackedInUniform::usesExplicitReturn() const {
-    return true;
-}
 GrTrackedInUniform::GrTrackedInUniform(const GrTrackedInUniform& src)
 : INHERITED(kGrTrackedInUniform_ClassID, src.optimizationFlags())
 , color(src.color) {

@@ -38,9 +38,6 @@ bool GrSectionMake::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrSectionMake::usesExplicitReturn() const {
-    return true;
-}
 GrSectionMake::GrSectionMake(const GrSectionMake& src)
 : INHERITED(kGrSectionMake_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

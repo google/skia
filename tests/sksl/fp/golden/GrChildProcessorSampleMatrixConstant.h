@@ -20,7 +20,6 @@ public:
     GrChildProcessorSampleMatrixConstant(const GrChildProcessorSampleMatrixConstant& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorSampleMatrixConstant"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessorSampleMatrixConstant(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorSampleMatrixConstant_ClassID, kNone_OptimizationFlags) {

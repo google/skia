@@ -20,7 +20,6 @@ public:
     GrSectionHeader(const GrSectionHeader& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionHeader"; }
-    bool usesExplicitReturn() const override;
 private:
     GrSectionHeader()
     : INHERITED(kGrSectionHeader_ClassID, kNone_OptimizationFlags) {

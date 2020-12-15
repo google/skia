@@ -41,9 +41,6 @@ bool GrChildProcessorSampleMatrixSingleUniform::onIsEqual(const GrFragmentProces
     (void) that;
     return true;
 }
-bool GrChildProcessorSampleMatrixSingleUniform::usesExplicitReturn() const {
-    return true;
-}
 GrChildProcessorSampleMatrixSingleUniform::GrChildProcessorSampleMatrixSingleUniform(const GrChildProcessorSampleMatrixSingleUniform& src)
 : INHERITED(kGrChildProcessorSampleMatrixSingleUniform_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

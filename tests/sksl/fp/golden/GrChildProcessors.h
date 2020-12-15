@@ -20,7 +20,6 @@ public:
     GrChildProcessors(const GrChildProcessors& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessors"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessors(std::unique_ptr<GrFragmentProcessor> child1, std::unique_ptr<GrFragmentProcessor> child2)
     : INHERITED(kGrChildProcessors_ClassID, kNone_OptimizationFlags) {

@@ -23,7 +23,6 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrMatrixEffect(matrix, std::move(child)));
     }
 
-    bool usesExplicitReturn() const override { return true; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MatrixEffect"; }
     const SkMatrix& matrix() const { return fMatrix; }

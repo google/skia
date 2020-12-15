@@ -30,7 +30,6 @@ public:
     }
 
     const char* name() const override { return "ConstantMatrixEffect"; }
-    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -58,7 +57,6 @@ public:
     }
 
     const char* name() const override { return "UniformMatrixEffect"; }
-    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -95,7 +93,6 @@ public:
     }
 
     const char* name() const override { return "VariableMatrixEffect"; }
-    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -125,7 +122,6 @@ public:
     }
 
     const char* name() const override { return "ExplicitCoordEffect"; }
-    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }
@@ -153,7 +149,6 @@ public:
     }
 
     const char* name() const override { return "TestPatternEffect"; }
-    bool usesExplicitReturn() const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor& that) const override { return this == &that; }
     std::unique_ptr<GrFragmentProcessor> clone() const override { return nullptr; }

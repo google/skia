@@ -20,7 +20,6 @@ public:
     GrGrSLTypesAreSupported(const GrGrSLTypesAreSupported& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "GrSLTypesAreSupported"; }
-    bool usesExplicitReturn() const override;
 private:
     GrGrSLTypesAreSupported()
     : INHERITED(kGrGrSLTypesAreSupported_ClassID, kNone_OptimizationFlags) {

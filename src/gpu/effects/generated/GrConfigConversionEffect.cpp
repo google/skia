@@ -61,7 +61,6 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const
     if (pmConversion != that.pmConversion) return false;
     return true;
 }
-bool GrConfigConversionEffect::usesExplicitReturn() const { return true; }
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(kGrConfigConversionEffect_ClassID, src.optimizationFlags())
         , pmConversion(src.pmConversion) {

@@ -20,7 +20,6 @@ public:
     GrUniformArrays(const GrUniformArrays& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "UniformArrays"; }
-    bool usesExplicitReturn() const override;
 private:
     GrUniformArrays()
     : INHERITED(kGrUniformArrays_ClassID, kNone_OptimizationFlags) {

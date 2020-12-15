@@ -49,9 +49,6 @@ bool GrSectionSetData::onIsEqual(const GrFragmentProcessor& other) const {
     if (provided != that.provided) return false;
     return true;
 }
-bool GrSectionSetData::usesExplicitReturn() const {
-    return true;
-}
 GrSectionSetData::GrSectionSetData(const GrSectionSetData& src)
 : INHERITED(kGrSectionSetData_ClassID, src.optimizationFlags())
 , provided(src.provided) {

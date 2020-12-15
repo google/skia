@@ -152,7 +152,6 @@ public:
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
-    bool usesExplicitReturn() const override;
     SkRect rect;
     bool applyInvVM;
     SkMatrix invVM;

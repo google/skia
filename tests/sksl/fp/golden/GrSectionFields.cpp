@@ -38,9 +38,6 @@ bool GrSectionFields::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrSectionFields::usesExplicitReturn() const {
-    return true;
-}
 #if GR_TEST_UTILS
 SkString GrSectionFields::onDumpInfo() const {
 

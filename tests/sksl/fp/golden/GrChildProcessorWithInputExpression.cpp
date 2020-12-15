@@ -42,9 +42,6 @@ bool GrChildProcessorWithInputExpression::onIsEqual(const GrFragmentProcessor& o
     (void) that;
     return true;
 }
-bool GrChildProcessorWithInputExpression::usesExplicitReturn() const {
-    return true;
-}
 GrChildProcessorWithInputExpression::GrChildProcessorWithInputExpression(const GrChildProcessorWithInputExpression& src)
 : INHERITED(kGrChildProcessorWithInputExpression_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

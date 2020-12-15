@@ -20,7 +20,6 @@ class section    static std::unique_ptr<GrFragmentProcessor> Make() {
     GrSectionClass(const GrSectionClass& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionClass"; }
-    bool usesExplicitReturn() const override;
 private:
     GrSectionClass()
     : INHERITED(kGrSectionClass_ClassID, kNone_OptimizationFlags) {

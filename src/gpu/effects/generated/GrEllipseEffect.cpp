@@ -150,7 +150,6 @@ bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (radii != that.radii) return false;
     return true;
 }
-bool GrEllipseEffect::usesExplicitReturn() const { return true; }
 GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         : INHERITED(kGrEllipseEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)

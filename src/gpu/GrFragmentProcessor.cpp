@@ -267,7 +267,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
 
         const char* name() const override { return "Swizzle"; }
         const GrSwizzle& swizzle() const { return fSwizzle; }
-        bool usesExplicitReturn() const override { return true; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return Make(this->childProcessor(0)->clone(), fSwizzle);
@@ -335,7 +334,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
         }
 
         const char* name() const override { return "Premultiply"; }
-        bool usesExplicitReturn() const override { return true; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return Make(this->childProcessor(0)->clone());
@@ -448,7 +446,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
-        bool usesExplicitReturn() const override { return true; }
 
         SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& inColor) const override {
             SkPMColor4f color = inColor;

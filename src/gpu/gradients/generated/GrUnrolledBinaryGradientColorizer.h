@@ -26,7 +26,6 @@ public:
     GrUnrolledBinaryGradientColorizer(const GrUnrolledBinaryGradientColorizer& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "UnrolledBinaryGradientColorizer"; }
-    bool usesExplicitReturn() const override;
     int32_t intervalCount;
     SkPMColor4f scale0_1;
     SkPMColor4f scale2_3;

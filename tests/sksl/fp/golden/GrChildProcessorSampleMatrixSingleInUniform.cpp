@@ -48,9 +48,6 @@ bool GrChildProcessorSampleMatrixSingleInUniform::onIsEqual(const GrFragmentProc
     if (matrix != that.matrix) return false;
     return true;
 }
-bool GrChildProcessorSampleMatrixSingleInUniform::usesExplicitReturn() const {
-    return true;
-}
 GrChildProcessorSampleMatrixSingleInUniform::GrChildProcessorSampleMatrixSingleInUniform(const GrChildProcessorSampleMatrixSingleInUniform& src)
 : INHERITED(kGrChildProcessorSampleMatrixSingleInUniform_ClassID, src.optimizationFlags())
 , matrix(src.matrix) {

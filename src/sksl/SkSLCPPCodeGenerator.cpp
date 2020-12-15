@@ -1475,10 +1475,6 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
-    this->writef("bool %s::usesExplicitReturn() const {\n"
-                 "    return true;\n"
-                 "}\n",
-                 fullName);
     this->writeClone();
     this->writeDumpInfo();
     this->writeOnTextureSampler();

@@ -48,9 +48,6 @@ bool GrNonInlinedInUniform::onIsEqual(const GrFragmentProcessor& other) const {
     if (point != that.point) return false;
     return true;
 }
-bool GrNonInlinedInUniform::usesExplicitReturn() const {
-    return true;
-}
 GrNonInlinedInUniform::GrNonInlinedInUniform(const GrNonInlinedInUniform& src)
 : INHERITED(kGrNonInlinedInUniform_ClassID, src.optimizationFlags())
 , point(src.point) {

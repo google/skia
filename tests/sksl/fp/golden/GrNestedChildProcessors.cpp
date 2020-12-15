@@ -44,9 +44,6 @@ bool GrNestedChildProcessors::onIsEqual(const GrFragmentProcessor& other) const 
     (void) that;
     return true;
 }
-bool GrNestedChildProcessors::usesExplicitReturn() const {
-    return true;
-}
 GrNestedChildProcessors::GrNestedChildProcessors(const GrNestedChildProcessors& src)
 : INHERITED(kGrNestedChildProcessors_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

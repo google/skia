@@ -20,7 +20,6 @@ public:
     GrSectionDumpInfo(const GrSectionDumpInfo& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionDumpInfo"; }
-    bool usesExplicitReturn() const override;
 private:
     GrSectionDumpInfo()
     : INHERITED(kGrSectionDumpInfo_ClassID, kNone_OptimizationFlags) {

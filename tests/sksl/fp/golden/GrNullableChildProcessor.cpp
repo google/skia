@@ -46,9 +46,6 @@ bool GrNullableChildProcessor::onIsEqual(const GrFragmentProcessor& other) const
     (void) that;
     return true;
 }
-bool GrNullableChildProcessor::usesExplicitReturn() const {
-    return true;
-}
 GrNullableChildProcessor::GrNullableChildProcessor(const GrNullableChildProcessor& src)
 : INHERITED(kGrNullableChildProcessor_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);
