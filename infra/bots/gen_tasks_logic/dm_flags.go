@@ -454,7 +454,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
-			args = append(args, "--pr", "tess")
+			args = append(args, "--hwtess", "--pr", "tess")
 		}
 
 		// Test non-nvpr on NVIDIA.
