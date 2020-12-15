@@ -20,7 +20,7 @@ static DEFINE_bool(allPathsVolatile, false,
                    "Causes all GPU paths to be processed as if 'setIsVolatile' had been called.");
 
 static DEFINE_bool(gs, true, "Enables support for geometry shaders (if hw allows).");
-static DEFINE_bool(ts, true, "Enables support for tessellation shaders (if hw allows.).");
+static DEFINE_bool(hwtess, false, "Enables support for tessellation shaders (if hw allows.).");
 
 static DEFINE_int(maxTessellationSegments, 0,
                   "Overrides the max number of tessellation segments supported by the caps.");
@@ -98,7 +98,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fAllPathsVolatile                    = FLAGS_allPathsVolatile;
     ctxOptions->fSuppressGeometryShaders             = !FLAGS_gs;
-    ctxOptions->fSuppressTessellationShaders         = !FLAGS_ts;
+    ctxOptions->fSuppressTessellationShaders         = !FLAGS_hwtess;
     ctxOptions->fMaxTessellationSegmentsOverride     = FLAGS_maxTessellationSegments;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
