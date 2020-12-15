@@ -22,6 +22,30 @@
       },
       "revId": "f4933a77e5a1b7198cbba76c0494e3133fb8ccc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fd998b6_d280e738",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2020-12-15T18:47:37Z",
+      "side": 1,
+      "message": "Changed the cache to apply only to breakers using the default locale",
+      "parentUuid": "a8937140_9fe11d18",
+      "range": {
+        "startLine": 166,
+        "startChar": 54,
+        "endLine": 166,
+        "endChar": 60
+      },
+      "revId": "f4933a77e5a1b7198cbba76c0494e3133fb8ccc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
