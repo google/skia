@@ -72,13 +72,10 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec,
     // and applied in the following order:
     //      [crop] X [origin] X [scale]
     const auto origin = fCodec->codec()->getOrigin();
-    if (fCodec->fOrientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kRespect
-            && origin != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
+    if (origin != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
         // The origin is applied after scaling, so use scaledSize, which is the final scaled size.
         fMatrix = SkEncodedOriginToMatrix(origin, scaledSize.width(), scaledSize.height());
 
-        fCodec = SkAndroidCodec::MakeFromCodec(std::move(fCodec->fCodec),
-                SkAndroidCodec::ExifOrientationBehavior::kIgnore);
         if (SkPixmapPriv::ShouldSwapWidthHeight(origin)) {
             // The client asked for sizes post-rotation. Swap back to the pre-rotation sizes to pass
             // to fCodec and for the scale matrix computation.

@@ -270,7 +270,5 @@ private:
     const SkImageInfo               fInfo;
     const ExifOrientationBehavior   fOrientationBehavior;
     std::unique_ptr<SkCodec>        fCodec;
-
-    friend class SkAnimatedImage;
 };
 #endif // SkAndroidCodec_DEFINED
