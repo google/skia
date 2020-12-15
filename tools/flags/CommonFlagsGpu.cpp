@@ -20,7 +20,7 @@ static DEFINE_bool(allPathsVolatile, false,
                    "Causes all GPU paths to be processed as if 'setIsVolatile' had been called.");
 
 static DEFINE_bool(gs, true, "Enables support for geometry shaders (if hw allows).");
-static DEFINE_bool(ts, true, "Enables support for tessellation shaders (if hw allows.).");
+static DEFINE_bool(ts, false, "Enables support for tessellation shaders (if hw allows.).");
 
 static DEFINE_int(maxTessellationSegments, 0,
                   "Overrides the max number of tessellation segments supported by the caps.");

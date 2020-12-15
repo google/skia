@@ -175,15 +175,15 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fMustWriteToFragColor);
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
     }
+    if (options.fSuppressTessellationShaders) {
+        fMaxTessellationSegments = 0;
+    }
 #if GR_TEST_UTILS
     if (options.fSuppressDualSourceBlending) {
         fDualSourceBlendingSupport = false;
     }
     if (options.fSuppressGeometryShaders) {
         fGeometryShaderSupport = false;
-    }
-    if (options.fSuppressTessellationShaders) {
-        fMaxTessellationSegments = 0;
     }
     if (options.fMaxTessellationSegmentsOverride > 0) {
         fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,
