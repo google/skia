@@ -57,7 +57,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -559,7 +558,8 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (!statement) {
         return nullptr;
     }
-    return std::make_unique<WhileStatement>(w.fOffset, std::move(test), std::move(statement));
+    return std::make_unique<ForStatement>(w.fOffset, /*initializer=*/nullptr, std::move(test),
+                                          /*next=*/nullptr, std::move(statement), fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {

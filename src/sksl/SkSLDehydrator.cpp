@@ -47,7 +47,6 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 #ifdef SKSL_STANDALONE
 
@@ -492,13 +491,6 @@ void Dehydrator::write(const Statement* s) {
                 this->write(v.baseType());
                 this->writeS8(v.arraySize());
                 this->write(v.value().get());
-                break;
-            }
-            case Statement::Kind::kWhile: {
-                const WhileStatement& w = s->as<WhileStatement>();
-                this->writeCommand(Rehydrator::kWhile_Command);
-                this->write(w.test().get());
-                this->write(w.statement().get());
                 break;
             }
         }

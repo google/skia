@@ -51,7 +51,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 namespace {
@@ -100,7 +99,6 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
                            this->visitStatement(*block.children().back());
                 }
                 case Statement::Kind::kSwitch:
-                case Statement::Kind::kWhile:
                 case Statement::Kind::kDo:
                 case Statement::Kind::kFor:
                     // Don't introspect switches or loop structures at all.
@@ -132,7 +130,6 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
                 case Statement::Kind::kSwitch:
-                case Statement::Kind::kWhile:
                 case Statement::Kind::kDo:
                 case Statement::Kind::kFor: {
                     ++fInsideBreakableConstruct;
@@ -257,7 +254,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 
     // No changes necessary if the parent statement doesn't require a scope.
     if (!parentStmt || !(parentStmt->is<IfStatement>() || parentStmt->is<ForStatement>() ||
-                         parentStmt->is<DoStatement>() || parentStmt->is<WhileStatement>())) {
+                         parentStmt->is<DoStatement>())) {
         return;
     }
 
@@ -573,10 +570,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
             return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
                                                     std::move(initialValue));
-        }
-        case Statement::Kind::kWhile: {
-            const WhileStatement& w = statement.as<WhileStatement>();
-            return std::make_unique<WhileStatement>(offset, expr(w.test()), stmt(w.statement()));
         }
         default:
             SkASSERT(false);
@@ -954,20 +947,6 @@ public:
                 VarDeclaration& varDeclStmt = (*stmt)->as<VarDeclaration>();
                 // Don't need to scan the declaration's sizes; those are always IntLiterals.
                 this->visitExpression(&varDeclStmt.value());
-                break;
-            }
-            case Statement::Kind::kWhile: {
-                WhileStatement& whileStmt = (*stmt)->as<WhileStatement>();
-                // The loop body is a candidate for inlining.
-                this->visitStatement(&whileStmt.statement());
-                // The inliner isn't smart enough to inline the test-expression for a while loop at
-                // this time. There are two limitations:
-                // - We would need to insert the inlined-body block at the very beginning of the
-                //   while loop's inner fStatement. We don't support that today, but it's doable.
-                // - The while-loop's built-in test-expression would need to be replaced with a
-                //   `true` BoolLiteral, and the loop would be halted via a break statement at the
-                //   end of the inlined test-expression. This is again something we don't support
-                //   today, but it could be implemented.
                 break;
             }
             default:

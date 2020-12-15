@@ -35,7 +35,6 @@
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 // Expressions
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -615,10 +614,6 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         case Statement::Kind::kVarDeclaration: {
             auto& v = s.template as<VarDeclaration>();
             return v.value() && this->visitExpression(*v.value());
-        }
-        case Statement::Kind::kWhile: {
-            auto& w = s.template as<WhileStatement>();
-            return this->visitExpression(*w.test()) || this->visitStatement(*w.statement());
         }
         default:
             SkUNREACHABLE;

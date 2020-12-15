@@ -49,7 +49,6 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -445,12 +444,6 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
-        case Rehydrator::kWhile_Command: {
-            std::unique_ptr<Expression> expr = this->expression();
-            std::unique_ptr<Statement> stmt = this->statement();
-            return std::unique_ptr<Statement>(new WhileStatement(-1, std::move(expr),
-                                                                 std::move(stmt)));
-        }
         default:
             printf("unsupported statement %d\n", kind);
             SkASSERT(false);

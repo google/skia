@@ -45,7 +45,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 #include "src/sksl/spirv.h"
 
 namespace SkSL {
@@ -282,7 +281,6 @@ private:
     void writeContinueStatement(const ContinueStatement& c);
     void writeIfStatement(const IfStatement& stmt);
     void writeForStatement(const ForStatement& f);
-    void writeWhileStatement(const WhileStatement& w);
     void writeDoStatement(const DoStatement& d);
     void writeSwitchStatement(const SwitchStatement& s);
     void writeReturnStatement(const ReturnStatement& r);
