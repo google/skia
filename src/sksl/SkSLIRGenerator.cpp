@@ -697,6 +697,10 @@ std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTNode& c) {
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
     SkASSERT(d.fKind == ASTNode::Kind::kDiscard);
+    if (fKind != Program::kFragment_Kind && fKind != Program::kFragmentProcessor_Kind) {
+        fErrors.error(d.fOffset, "discard statement is only permitted in fragment shaders");
+        return nullptr;
+    }
     return std::make_unique<DiscardStatement>(d.fOffset);
 }
 
