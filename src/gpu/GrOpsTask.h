@@ -76,6 +76,19 @@ public:
 
     void discard();
 
+    enum class CanDiscardPreviousOps : bool {
+        kYes = true,
+        kNo = false
+    };
+
+    // Perform book-keeping for a fullscreen clear, regardless of how the clear is implemented later
+    // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
+    // Returns true if the clear can be converted into a load op (barring device caps).
+    bool resetForFullscreenClear(CanDiscardPreviousOps);
+
+    // Must only be called if native color buffer clearing is enabled.
+    void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
+
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
@@ -123,19 +136,6 @@ private:
     // If a surfaceDrawContext splits its opsTask, it uses this method to guarantee stencil values
     // get preserved across its split tasks.
     void setMustPreserveStencil() { fMustPreserveStencil = true; }
-
-    // Must only be called if native color buffer clearing is enabled.
-    void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
-
-    enum class CanDiscardPreviousOps : bool {
-        kYes = true,
-        kNo = false
-    };
-
-    // Perform book-keeping for a fullscreen clear, regardless of how the clear is implemented later
-    // (i.e. setColorLoadOp(), adding a ClearOp, or adding a GrFillRectOp that covers the device).
-    // Returns true if the clear can be converted into a load op (barring device caps).
-    bool resetForFullscreenClear(CanDiscardPreviousOps);
 
     class OpChain {
     public:

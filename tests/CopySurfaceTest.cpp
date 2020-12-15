@@ -115,8 +115,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                                   srcRect,
                                                                   dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
-                                    SkASSERT(dstContext->asRenderTargetContext());
-                                    result = dstContext->asRenderTargetContext()->blitTexture(
+                                    SkASSERT(dstContext->asFillContext());
+                                    result = dstContext->asFillContext()->blitTexture(
                                             std::move(srcView), srcRect, dstPoint);
                                 }
 
