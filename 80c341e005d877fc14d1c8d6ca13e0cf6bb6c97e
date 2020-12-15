@@ -51,6 +51,23 @@
       "parentUuid": "feb16067_96ad3f2e",
       "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9fb7a4d_ffd6a408",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T15:38:36Z",
+      "side": 1,
+      "message": "We could also add a clean_paint_for_drawPoints(), since that forces it to be a stroked style? Regardless, I\u0027m happy with all of this.",
+      "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
