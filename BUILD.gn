@@ -3108,3 +3108,9 @@ if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
     deps = [ "tools/skottie_ios_app" ]
   }
 }
+
+executable("skia_c_api_example") {
+  sources = [ "experimental/c-api-example/skia-c-example.c" ]
+  include_dirs = [ "." ]
+  deps = [ ":skia" ]
+}

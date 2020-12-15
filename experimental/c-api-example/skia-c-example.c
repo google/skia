@@ -50,12 +50,14 @@ void draw(sk_canvas_t* canvas) {
     sk_paint_set_antialias(stroke, true);
     sk_paint_set_stroke(stroke, true);
     sk_paint_set_stroke_width(stroke, 5.0f);
-    sk_path_t* path = sk_path_new();
 
-    sk_path_move_to(path, 50.0f, 50.0f);
-    sk_path_line_to(path, 590.0f, 50.0f);
-    sk_path_cubic_to(path, -490.0f, 50.0f, 1130.0f, 430.0f, 50.0f, 430.0f);
-    sk_path_line_to(path, 590.0f, 430.0f);
+    sk_pathbuilder_t* path_builder = sk_pathbuilder_new();
+    sk_pathbuilder_move_to(path_builder, 50.0f, 50.0f);
+    sk_pathbuilder_line_to(path_builder, 590.0f, 50.0f);
+    sk_pathbuilder_cubic_to(path_builder, -490.0f, 50.0f, 1130.0f, 430.0f, 50.0f, 430.0f);
+    sk_pathbuilder_line_to(path_builder, 590.0f, 430.0f);
+
+    sk_path_t* path = sk_pathbuilder_detach_path(path_builder);
     sk_canvas_draw_path(canvas, path, stroke);
 
     sk_paint_set_color(fill, sk_color_set_argb(0x80, 0x00, 0xFF, 0x00));
@@ -66,6 +68,7 @@ void draw(sk_canvas_t* canvas) {
     rect2.bottom = 360.0f;
     sk_canvas_draw_oval(canvas, &rect2, fill);
 
+    sk_pathbuilder_delete(path_builder);
     sk_path_delete(path);
     sk_paint_delete(stroke);
     sk_paint_delete(fill);
