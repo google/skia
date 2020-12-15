@@ -16,6 +16,24 @@
       "message": "fun!\n\nDoes colormatrix seems like an easy candidate for native half-color math?",
       "revId": "9b0fc9c9c19f7617ed1cf71a71e95f150bdd08dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f2950c_7128fe13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T20:57:56Z",
+      "side": 1,
+      "message": "I have been looking at that very effect, and I\u0027ve decided it\u0027s actually subtly tricky, one of the most difficult effects to implement if we don\u0027t want to rule out fixed-point Half.  The more I think about that effect in particular, the more I think it may make sense to give up on ever supporting fixed point Half, and requiring it to simply be fp16 or fp32.\n\nThat both gives us enough range to not have to worry about the order of operations as we accumulate intermediates when applying the matrix, and even more fundamentally enough range to faithfully represent the values of the matrix themselves without breaking reasonable user expectations.\n\nBeing able to unpremultiply (and so divide) is a distant third reason to ditch fixed point... that one\u0027s probably not impossible to work around, but it\u0027s a pain and declaring fp16-or-fp32 will make things a lot more straightforward when reasoning about division, sqrts, ±inf, NaN, etc.",
+      "parentUuid": "ac107f48_8c4952e7",
+      "revId": "9b0fc9c9c19f7617ed1cf71a71e95f150bdd08dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
