@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "b95374d74d2930652729e235fc6c5788633ac821",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7732e1d2_5513309f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T21:05:19Z",
+      "side": 1,
+      "message": "I think I still don\u0027t fundamentally understand why there needs to be a new type.  Can\u0027t we structure SkArenaAlloc to have all the APIs and behaviors available?",
+      "revId": "b95374d74d2930652729e235fc6c5788633ac821",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
