@@ -32,6 +32,7 @@ private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
         auto* uniHandler = args.fUniformHandler;
+        auto* v = args.fVertBuilder;
 
         SkASSERT(!shader.fHasConics);
 
@@ -48,9 +49,17 @@ private:
         if (!shader.viewMatrix().isIdentity()) {
             fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
                                                        kFloat2_GrSLType, "translate", nullptr);
-            fAffineMatrixUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+            const char* affineMatrixName;
+            // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
+            // Otherwise the entire view matrix gets applied at the end of the tess eval shader.
+            auto affineMatrixVisibility = (shader.fStroke.isHairlineStyle()) ?
+                    kVertex_GrShaderFlag : kTessEvaluation_GrShaderFlag;
+            fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility,
                                                           kFloat4_GrSLType, "affineMatrix",
-                                                          nullptr);
+                                                          &affineMatrixName);
+            if (affineMatrixVisibility & kVertex_GrShaderFlag) {
+                v->codeAppendf("float2x2 uAffineMatrix = float2x2(%s);\n", affineMatrixName);
+            }
         }
         const char* colorUniformName;
         fColorUniform = uniHandler->addUniform(nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType,
@@ -64,7 +73,6 @@ private:
         // still don't have 3 sections after that then we just subdivide uniformly in parametric
         // space.
         using TypeModifier = GrShaderVar::TypeModifier;
-        auto* v = args.fVertBuilder;
         v->defineConstantf("float", "kParametricEpsilon", "1.0 / (%i * 128)",
                            args.fShaderCaps->maxTessellationSegments());  // 1/128 of a segment.
         v->declareGlobal(GrShaderVar("vsPts01", kFloat4_GrSLType, TypeModifier::Out));
@@ -87,7 +95,16 @@ private:
         v->codeAppendf(R"(
         // Unpack the control points.
         float4x2 P = float4x2(inputPts01, inputPts23);
-        float2 prevJoinTangent = P[0] - inputPrevCtrlPt;
+        float2 prevControlPoint = inputPrevCtrlPt;)");
+        if (shader.fStroke.isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+            // Hairline case. Transform the points before tessellation. We can still hold off on the
+            // translate until the end; we just need to perform the scale and skew right now.
+            v->codeAppend(R"(
+            P = uAffineMatrix * P;
+            prevControlPoint = uAffineMatrix * prevControlPoint;)");
+        }
+        v->codeAppendf(R"(
+        float2 prevJoinTangent = P[0] - prevControlPoint;
 
         // Find the beginning and ending tangents. It's imperative that we compute these tangents
         // form the original input points or else the seams might crack.
@@ -249,19 +266,27 @@ private:
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
+        const auto& stroke = shader.fStroke;
         float numSegmentsInJoin;
-        switch (shader.fStroke.getJoin()) {
+        switch (stroke.getJoin()) {
             case SkPaint::kBevel_Join:
                 numSegmentsInJoin = 1;
                 break;
             case SkPaint::kMiter_Join:
-                numSegmentsInJoin = (shader.fStroke.getMiter() > 0) ? 2 : 1;
+                numSegmentsInJoin = (stroke.getMiter() > 0) ? 2 : 1;
                 break;
             case SkPaint::kRound_Join:
                 numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
                 break;
         }
-        Tolerances tolerances(shader.viewMatrix().getMaxScale(), shader.fStroke.getWidth());
+        Tolerances tolerances;
+        if (!stroke.isHairlineStyle()) {
+            tolerances.set(shader.viewMatrix().getMaxScale(), stroke.getWidth());
+        } else {
+            // In the hairline case we transform prior to tessellation. Set up tolerances for an
+            // identity viewMatrix and a strokeWidth of 1.
+            tolerances.set(1, 1);
+        }
         float miterLimit = shader.fStroke.getMiter();
         pdman.set4f(fTessArgs1Uniform,
                     numSegmentsInJoin,  // uNumSegmentsInJoin
@@ -269,7 +294,7 @@ private:
                             tolerances.fParametricIntolerance),  // uWangsTermPow2
                     tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
                     1 / (miterLimit * miterLimit));  // uMiterLimitInvPow2
-        float strokeRadius = shader.fStroke.getWidth() * .5;
+        float strokeRadius = (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5;
         float joinTolerance = 1 / (strokeRadius * tolerances.fParametricIntolerance);
         pdman.set2f(fTessArgs2Uniform,
                     joinTolerance * joinTolerance,  // uJoinTolerancePow2
@@ -722,9 +747,13 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         const char* translateName = impl->getTranslateUniformName(uniformHandler);
         code.appendf("uniform vec2 %s;\n", translateName);
         code.appendf("#define uTranslate %s\n", translateName);
-        const char* affineMatrixName = impl->getAffineMatrixUniformName(uniformHandler);
-        code.appendf("uniform vec4 %s;\n", affineMatrixName);
-        code.appendf("#define uAffineMatrix %s\n", affineMatrixName);
+        if (!fStroke.isHairlineStyle()) {
+            // In the normal case we need the affine matrix too. (In the hairline case we already
+            // applied the affine matrix in the vertex shader.)
+            const char* affineMatrixName = impl->getAffineMatrixUniformName(uniformHandler);
+            code.appendf("uniform vec4 %s;\n", affineMatrixName);
+            code.appendf("#define uAffineMatrix mat2(%s)\n", affineMatrixName);
+        }
     }
 
     code.append(R"(
@@ -811,10 +840,14 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;
     )");
 
-    // Transform after tessellation. Stroke widths and normals are defined in (pre-transform) local
-    // path space.
     if (!this->viewMatrix().isIdentity()) {
-        code.append("vertexPos = mat2(uAffineMatrix) * vertexPos + uTranslate;");
+        if (!fStroke.isHairlineStyle()) {
+            // Normal case. Do the transform after tessellation.
+            code.append("vertexPos = uAffineMatrix * vertexPos + uTranslate;");
+        } else {
+            // Hairline case. The scale and skew already happened before tessellation.
+            code.append("vertexPos = vertexPos + uTranslate;");
+        }
     }
 
     code.append(R"(
@@ -862,9 +895,23 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         args.fVertBuilder->codeAppendf("float uMiterLimitInvPow2 = %s.z;\n", tessArgsName);
         args.fVertBuilder->codeAppendf("float uStrokeRadius = %s.w;\n", tessArgsName);
 
+        // View matrix uniforms.
+        if (!shader.viewMatrix().isIdentity()) {
+            const char* translateName, *affineMatrixName;
+            fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                    nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix",
+                    &affineMatrixName);
+            fTranslateUniform = args.fUniformHandler->addUniform(
+                    nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translateName);
+            args.fVertBuilder->codeAppendf("float2x2 uAffineMatrix = float2x2(%s);\n",
+                                           affineMatrixName);
+            args.fVertBuilder->codeAppendf("float2 uTranslate = %s;\n", translateName);
+        }
+
         // Tessellation code.
         args.fVertBuilder->codeAppend(R"(
-        float4x2 P = float4x2(pts01, pts23);)");
+        float4x2 P = float4x2(pts01, pts23);
+        float2 lastControlPoint = args.xy;)");
         if (shader.fHasConics) {
             args.fVertBuilder->codeAppend(R"(
             float w = -1;  // w<0 means the curve is an integral cubic.
@@ -873,8 +920,14 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
                 P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
             })");
         }
+        if (shader.fStroke.isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+            // Hairline case. Transform the points before tessellation. We can still hold off on the
+            // translate until the end; we just need to perform the scale and skew right now.
+            args.fVertBuilder->codeAppend(R"(
+            P = uAffineMatrix * P;
+            lastControlPoint = uAffineMatrix * lastControlPoint;)");
+        }
         args.fVertBuilder->codeAppend(R"(
-        float2 lastControlPoint = args.xy;
         float numTotalEdges = abs(args.z);
 
         // Use wang's formula to find how many parametric segments this stroke requires.
@@ -1003,7 +1056,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         }
 
         args.fVertBuilder->codeAppendf(R"(
-        float2 tangent, localCoord;
+        float2 tangent, strokeCoord;
         eval_stroke_edge(P,)");
         if (shader.fHasConics) {
             args.fVertBuilder->codeAppend(R"(
@@ -1011,42 +1064,44 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
         }
         args.fVertBuilder->codeAppend(R"(
                          numParametricSegments, combinedEdgeID, tan0, radsPerSegment, angle0,
-                         tangent, localCoord);)");
+                         tangent, strokeCoord);)");
 
         args.fVertBuilder->codeAppend(R"(
         if (combinedEdgeID == 0) {
             // Edges at the beginning of their section use P[0] and tan0. This ensures crack-free
             // seaming between instances.
-            localCoord = P[0];
+            strokeCoord = P[0];
             tangent = tan0;
         }
 
         if (combinedEdgeID == numCombinedSegments) {
             // Edges at the end of their section use P[1] and tan1. This ensures crack-free seaming
             // between instances.
-            localCoord = P[3];
+            strokeCoord = P[3];
             tangent = tan1;
         }
 
         float2 ortho = normalize(float2(tangent.y, -tangent.x));
-        localCoord += ortho * (uStrokeRadius * outset);)");
+        strokeCoord += ortho * (uStrokeRadius * outset);)");
 
-        // Do the transform after tessellation. Stroke widths and normals are defined in
-        // (pre-transform) local path space.
-        if (!shader.viewMatrix().isIdentity()) {
-            const char* translateName, *affineMatrixName;
-            fTranslateUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translateName);
-            fAffineMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix",
-                    &affineMatrixName);
-            args.fVertBuilder->codeAppendf("float2 devCoord = float2x2(%s) * localCoord + %s;",
-                                           affineMatrixName, translateName);
+        if (shader.viewMatrix().isIdentity()) {
+            // No transform matrix.
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "strokeCoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "strokeCoord");
+        } else if (!shader.fStroke.isHairlineStyle()) {
+            // Normal case. Do the transform after tessellation.
+            args.fVertBuilder->codeAppend(R"(
+            float2 devCoord = uAffineMatrix * strokeCoord + uTranslate;)");
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "devCoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "strokeCoord");
         } else {
-            gpArgs->fPositionVar.set(kFloat2_GrSLType, "localCoord");
+            // Hairline case. The scale and skew already happened before tessellation.
+            args.fVertBuilder->codeAppend(R"(
+            float2 devCoord = strokeCoord + uTranslate;
+            float2 localCoord = inverse(uAffineMatrix) * strokeCoord;)");
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "devCoord");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localCoord");
         }
-        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localCoord");
 
         // The fragment shader just outputs a uniform color.
         const char* colorUniformName;
@@ -1059,15 +1114,23 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
+        const auto& stroke = shader.fStroke;
 
         // Set up the tessellation control uniforms.
-        Tolerances tolerances(shader.viewMatrix().getMaxScale(), shader.fStroke.getWidth());
-        float miterLimit = shader.fStroke.getMiter();
+        Tolerances tolerances;
+        if (!stroke.isHairlineStyle()) {
+            tolerances.set(shader.viewMatrix().getMaxScale(), stroke.getWidth());
+        } else {
+            // In the hairline case we transform prior to tessellation. Set up tolerances for an
+            // identity viewMatrix and a strokeWidth of 1.
+            tolerances.set(1, 1);
+        }
+        float miterLimit = stroke.getMiter();
         pdman.set4f(fTessControlArgsUniform,
                     tolerances.fParametricIntolerance,  // uParametricIntolerance
                     tolerances.fNumRadialSegmentsPerRadian,  // uNumRadialSegmentsPerRadian
                     1 / (miterLimit * miterLimit),  // uMiterLimitInvPow2
-                    shader.fStroke.getWidth() * .5);  // uStrokeRadius
+                    (stroke.isHairlineStyle()) ? .5f : stroke.getWidth() * .5);  // uStrokeRadius
 
         // Set up the view matrix, if any.
         const SkMatrix& m = shader.viewMatrix();
@@ -1093,6 +1156,7 @@ void GrStrokeTessellateShader::getGLSLProcessorKey(const GrShaderCaps&,
         SkASSERT(fStroke.getJoin() >> 2 == 0);
         key = (key << 2) | fStroke.getJoin();
     }
+    key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();
     key = (key << 1) | (uint32_t)fHasConics;
     key = (key << 1) | (uint32_t)fMode;  // Must be last.
     b->add32(key);
