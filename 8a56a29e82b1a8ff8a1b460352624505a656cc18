@@ -22,6 +22,52 @@
       },
       "revId": "8a56a29e82b1a8ff8a1b460352624505a656cc18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26824a51_6bdd5078",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T22:53:04Z",
+      "side": 1,
+      "message": "Just pass in combo.fColor here ?",
+      "range": {
+        "startLine": 720,
+        "startChar": 73,
+        "endLine": 720,
+        "endChar": 78
+      },
+      "revId": "8a56a29e82b1a8ff8a1b460352624505a656cc18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11a5fed3_f586f895",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T22:53:04Z",
+      "side": 1,
+      "message": "ditto ?",
+      "range": {
+        "startLine": 898,
+        "startChar": 40,
+        "endLine": 898,
+        "endChar": 45
+      },
+      "revId": "8a56a29e82b1a8ff8a1b460352624505a656cc18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
