@@ -92,7 +92,11 @@ private:
 
     void onClearStencilClip(const GrScissorState& scissor, bool insideStencilMask) override;
 
+    bool beginRenderPass(const VkClearValue& clearColor);
+
     void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
+
+    void setAttachmentLayouts();
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;

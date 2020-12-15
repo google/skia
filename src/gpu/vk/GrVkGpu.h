@@ -171,8 +171,9 @@ public:
 
     bool beginRenderPass(const GrVkRenderPass*,
                          const VkClearValue* colorClear,
-                         GrVkRenderTarget*, GrSurfaceOrigin,
-                         const SkIRect& bounds, bool forSecondaryCB);
+                         GrVkRenderTarget*,
+                         const SkIRect& renderPassBounds,
+                         bool forSecondaryCB);
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
     // Returns true if VkResult indicates success and also checks for device lost or OOM. Every

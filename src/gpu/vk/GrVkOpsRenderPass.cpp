@@ -61,19 +61,8 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
 
 GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
-bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-                             std::array<float, 4> clearColor,
-                             bool withStencil) {
-    VkAttachmentLoadOp loadOp;
-    VkAttachmentStoreOp storeOp;
-    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
-                          &loadOp, &storeOp);
-    GrVkRenderPass::LoadStoreOps vkColorOps(loadOp, storeOp);
-
-    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
-                          &loadOp, &storeOp);
-    GrVkRenderPass::LoadStoreOps vkStencilOps(loadOp, storeOp);
+void GrVkOpsRenderPass::setAttachmentLayouts() {
+    bool withStencil = fCurrentRenderPass->hasStencilAttachment();
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
     GrVkImage* targetImage = vkRT->colorAttachmentImage();
@@ -114,6 +103,103 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                   VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                                   false);
     }
+}
+
+// The RenderArea bounds we pass into BeginRenderPass must have a start x value that is a multiple
+// of the granularity. The width must also be a multiple of the granularity or eaqual to the width
+// the the entire attachment. Similar requirements for the y and height components.
+void adjust_bounds_to_granularity(SkIRect* dstBounds,
+                                  const SkIRect& srcBounds,
+                                  const VkExtent2D& granularity,
+                                  int maxWidth,
+                                  int maxHeight) {
+    // Adjust Width
+    if ((0 != granularity.width && 1 != granularity.width)) {
+        // Start with the right side of rect so we know if we end up going pass the maxWidth.
+        int rightAdj = srcBounds.fRight % granularity.width;
+        if (rightAdj != 0) {
+            rightAdj = granularity.width - rightAdj;
+        }
+        dstBounds->fRight = srcBounds.fRight + rightAdj;
+        if (dstBounds->fRight > maxWidth) {
+            dstBounds->fRight = maxWidth;
+            dstBounds->fLeft = 0;
+        } else {
+            dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
+        }
+    } else {
+        dstBounds->fLeft = srcBounds.fLeft;
+        dstBounds->fRight = srcBounds.fRight;
+    }
+
+    // Adjust height
+    if ((0 != granularity.height && 1 != granularity.height)) {
+        // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
+        int bottomAdj = srcBounds.fBottom % granularity.height;
+        if (bottomAdj != 0) {
+            bottomAdj = granularity.height - bottomAdj;
+        }
+        dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
+        if (dstBounds->fBottom > maxHeight) {
+            dstBounds->fBottom = maxHeight;
+            dstBounds->fTop = 0;
+        } else {
+            dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
+        }
+    } else {
+        dstBounds->fTop = srcBounds.fTop;
+        dstBounds->fBottom = srcBounds.fBottom;
+    }
+}
+
+bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor) {
+    this->setAttachmentLayouts();
+
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+
+    bool firstSubpassUsesSecondaryCB = SkToBool(fCurrentSecondaryCommandBuffer);
+
+    auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, vkRT->height(), fBounds);
+    // The bounds we use for the render pass should be of the granularity supported
+    // by the device.
+    const VkExtent2D& granularity = fCurrentRenderPass->granularity();
+    SkIRect adjustedBounds;
+    if ((0 != granularity.width && 1 != granularity.width) ||
+        (0 != granularity.height && 1 != granularity.height)) {
+        adjust_bounds_to_granularity(&adjustedBounds, nativeBounds.asSkIRect(), granularity,
+                                     vkRT->width(), vkRT->height());
+    } else {
+        adjustedBounds = nativeBounds.asSkIRect();
+    }
+
+    if (!fGpu->beginRenderPass(fCurrentRenderPass, &clearColor, vkRT, adjustedBounds,
+                               firstSubpassUsesSecondaryCB)) {
+        if (fCurrentSecondaryCommandBuffer) {
+            fCurrentSecondaryCommandBuffer->end(fGpu);
+        }
+        fCurrentRenderPass = nullptr;
+        return false;
+    }
+
+    return true;
+}
+
+bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+                             std::array<float, 4> clearColor,
+                             bool withStencil) {
+    VkAttachmentLoadOp loadOp;
+    VkAttachmentStoreOp storeOp;
+    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
+                          &loadOp, &storeOp);
+    GrVkRenderPass::LoadStoreOps vkColorOps(loadOp, storeOp);
+
+    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
+                          &loadOp, &storeOp);
+    GrVkRenderPass::LoadStoreOps vkStencilOps(loadOp, storeOp);
+
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
             vkRT->compatibleRenderPassHandle(withStencil, fSelfDependencyFlags);
     if (rpHandle.isValid()) {
@@ -132,12 +218,6 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         return false;
     }
 
-    VkClearValue vkClearColor;
-    vkClearColor.color.float32[0] = clearColor[0];
-    vkClearColor.color.float32[1] = clearColor[1];
-    vkClearColor.color.float32[2] = clearColor[2];
-    vkClearColor.color.float32[3] = clearColor[3];
-
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
         SkASSERT(fGpu->cmdPool());
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
@@ -149,15 +229,13 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                 fGpu, vkRT->getFramebuffer(withStencil, fSelfDependencyFlags), fCurrentRenderPass);
     }
 
-    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                               SkToBool(fCurrentSecondaryCommandBuffer))) {
-        if (fCurrentSecondaryCommandBuffer) {
-            fCurrentSecondaryCommandBuffer->end(fGpu);
-        }
-        fCurrentRenderPass = nullptr;
-        return false;
-    }
-    return true;
+    VkClearValue vkClearColor;
+    vkClearColor.color.float32[0] = clearColor[0];
+    vkClearColor.color.float32[1] = clearColor[1];
+    vkClearColor.color.float32[2] = clearColor[2];
+    vkClearColor.color.float32[3] = clearColor[3];
+
+    return this->beginRenderPass(vkClearColor);
 }
 
 bool GrVkOpsRenderPass::initWrapped() {
@@ -401,7 +479,6 @@ void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float,
 
 void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                             VK_ATTACHMENT_STORE_OP_STORE);
@@ -410,6 +487,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
 
     bool withStencil = fCurrentRenderPass->hasStencilAttachment();
 
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
             vkRT->compatibleRenderPassHandle(withStencil, fSelfDependencyFlags);
     SkASSERT(fCurrentRenderPass);
@@ -430,9 +508,6 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
         return;
     }
 
-    VkClearValue vkClearColor;
-    memset(&vkClearColor, 0, sizeof(VkClearValue));
-
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
         mustUseSecondaryCommandBuffer) {
         SkASSERT(fGpu->cmdPool());
@@ -445,15 +520,10 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
                 fGpu, vkRT->getFramebuffer(withStencil, fSelfDependencyFlags), fCurrentRenderPass);
     }
 
-    // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the
-    // bounds in GrOpsTask for parts before and after inline uploads separately.
-    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                               SkToBool(fCurrentSecondaryCommandBuffer))) {
-        if (fCurrentSecondaryCommandBuffer) {
-            fCurrentSecondaryCommandBuffer->end(fGpu);
-        }
-        fCurrentRenderPass = nullptr;
-    }
+    VkClearValue vkClearColor;
+    memset(&vkClearColor, 0, sizeof(VkClearValue));
+
+    this->beginRenderPass(vkClearColor);
 }
 
 void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
