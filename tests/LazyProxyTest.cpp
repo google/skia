@@ -152,6 +152,7 @@ public:
 
     private:
         const char* name() const override { return "LazyProxyTest::ClipFP"; }
+        bool usesExplicitReturn() const override { return true; }
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return std::make_unique<ClipFP>(fContext, fProxyProvider, fTest, fAtlas);
         }

@@ -42,7 +42,7 @@ static const uint32_t kMaxKeySize = 1024;
 class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
-        args.fFragBuilder->codeAppendf("%s = half4(1);\n", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("return half4(1);\n");
     }
 
     static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
@@ -62,6 +62,8 @@ public:
     }
 
     const char* name() const override { return "Big_Ole_Key"; }
+
+    bool usesExplicitReturn() const override { return true; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLBigKeyProcessor;
@@ -99,6 +101,8 @@ public:
 
     const char* name() const override { return "Block_Input"; }
 
+    bool usesExplicitReturn() const override { return true; }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
@@ -110,7 +114,7 @@ private:
     public:
         void emitCode(EmitArgs& args) override {
             SkString temp = this->invokeChild(0, args);
-            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
+            args.fFragBuilder->codeAppendf("return %s;", temp.c_str());
         }
 
     private:
