@@ -8,8 +8,8 @@
 #include "src/codec/SkAndroidCodecAdapter.h"
 #include "src/codec/SkCodecPriv.h"
 
-SkAndroidCodecAdapter::SkAndroidCodecAdapter(SkCodec* codec, ExifOrientationBehavior behavior)
-    : INHERITED(codec, behavior)
+SkAndroidCodecAdapter::SkAndroidCodecAdapter(SkCodec* codec)
+    : INHERITED(codec)
 {}
 
 SkISize SkAndroidCodecAdapter::onGetSampledDimensions(int sampleSize) const {
