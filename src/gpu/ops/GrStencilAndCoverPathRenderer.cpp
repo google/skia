@@ -49,7 +49,8 @@ GrStencilAndCoverPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const 
     // path.
     if (args.fShape->style().strokeRec().isHairlineStyle() ||
         args.fShape->style().hasNonDashPathEffect() ||
-        args.fHasUserStencilSettings) {
+        args.fHasUserStencilSettings ||
+        !args.fShape->hasUnstyledKey()) {
         return CanDrawPath::kNo;
     }
     if (GrAAType::kCoverage == args.fAAType && !args.fProxy->canUseMixedSamples(*args.fCaps)) {
