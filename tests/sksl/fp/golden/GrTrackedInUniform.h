@@ -20,7 +20,6 @@ public:
     GrTrackedInUniform(const GrTrackedInUniform& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TrackedInUniform"; }
-    bool usesExplicitReturn() const override;
     SkRect color;
 private:
     GrTrackedInUniform(SkRect color)

@@ -20,7 +20,6 @@ public:
     GrSectionFields(const GrSectionFields& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionFields"; }
-    bool usesExplicitReturn() const override;
 fields sectionprivate:
     GrSectionFields()
     : INHERITED(kGrSectionFields_ClassID, kNone_OptimizationFlags) {

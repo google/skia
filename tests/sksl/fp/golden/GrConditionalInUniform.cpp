@@ -64,9 +64,6 @@ bool GrConditionalInUniform::onIsEqual(const GrFragmentProcessor& other) const {
     if (color != that.color) return false;
     return true;
 }
-bool GrConditionalInUniform::usesExplicitReturn() const {
-    return true;
-}
 GrConditionalInUniform::GrConditionalInUniform(const GrConditionalInUniform& src)
 : INHERITED(kGrConditionalInUniform_ClassID, src.optimizationFlags())
 , test(src.test)

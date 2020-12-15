@@ -38,9 +38,6 @@ bool GrMainCoords::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrMainCoords::usesExplicitReturn() const {
-    return true;
-}
 GrMainCoords::GrMainCoords(const GrMainCoords& src)
 : INHERITED(kGrMainCoords_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

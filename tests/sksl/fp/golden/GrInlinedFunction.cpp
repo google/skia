@@ -45,9 +45,6 @@ bool GrInlinedFunction::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrInlinedFunction::usesExplicitReturn() const {
-    return true;
-}
 GrInlinedFunction::GrInlinedFunction(const GrInlinedFunction& src)
 : INHERITED(kGrInlinedFunction_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

@@ -76,9 +76,6 @@ bool GrFunction::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrFunction::usesExplicitReturn() const {
-    return true;
-}
 GrFunction::GrFunction(const GrFunction& src)
 : INHERITED(kGrFunction_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

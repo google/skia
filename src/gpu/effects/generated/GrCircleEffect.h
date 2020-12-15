@@ -33,7 +33,6 @@ public:
     GrCircleEffect(const GrCircleEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
-    bool usesExplicitReturn() const override;
     GrClipEdgeType edgeType;
     SkPoint center;
     float radius;
