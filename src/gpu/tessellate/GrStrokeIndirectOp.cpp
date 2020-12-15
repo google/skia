@@ -28,8 +28,8 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
         return;
     }
     this->prePreparePrograms(GrStrokeTessellateShader::Mode::kIndirect, arena, writeView,
-                             std::move(*clip), dstProxyView, renderPassXferBarriers, colorLoadOp,
-                             *context->priv().caps());
+                             (clip) ? std::move(*clip) : GrAppliedClip::Disabled(), dstProxyView,
+                             renderPassXferBarriers, colorLoadOp, *context->priv().caps());
     if (fFillProgram) {
         context->priv().recordProgramInfo(fFillProgram);
     }

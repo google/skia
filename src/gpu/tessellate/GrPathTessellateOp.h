@@ -38,7 +38,7 @@ private:
     }
 
     const char* name() const override { return "GrPathTessellateOp"; }
-    void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
+    void visitProxies(const VisitProxyFunc& fn) const override;
     GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                       bool hasMixedSampledCoverage,
                                       GrClampType clampType) override {

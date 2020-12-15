@@ -29,6 +29,16 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
 }
 
+void GrStrokeOp::visitProxies(const VisitProxyFunc& fn) const {
+    if (fFillProgram) {
+        fFillProgram->visitFPProxies(fn);
+    } else if (fStencilProgram) {
+        fStencilProgram->visitFPProxies(fn);
+    } else {
+        fProcessors.visitProxies(fn);
+    }
+}
+
 GrDrawOp::FixedFunctionFlags GrStrokeOp::fixedFunctionFlags() const {
     // We might not actually end up needing stencil, but won't know for sure until finalize().
     // Request it just in case we do end up needing it.

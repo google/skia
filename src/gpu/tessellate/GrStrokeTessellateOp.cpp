@@ -20,9 +20,9 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         GrXferBarrierFlags renderPassXferBarriers,
                                         GrLoadOp colorLoadOp) {
     this->prePreparePrograms(GrStrokeTessellateShader::Mode::kTessellation,
-                             context->priv().recordTimeAllocator(), writeView, std::move(*clip),
-                             dstProxyView, renderPassXferBarriers, colorLoadOp,
-                             *context->priv().caps());
+                             context->priv().recordTimeAllocator(), writeView,
+                             (clip) ? std::move(*clip) : GrAppliedClip::Disabled(), dstProxyView,
+                             renderPassXferBarriers, colorLoadOp, *context->priv().caps());
     if (fStencilProgram) {
         context->priv().recordProgramInfo(fStencilProgram);
     }
