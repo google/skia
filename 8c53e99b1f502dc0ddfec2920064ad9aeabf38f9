@@ -162,6 +162,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0332bc93_1554bba0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-15T20:30:13Z",
+      "side": 1,
+      "message": "Not really - though I took a crack at it, and it generally ends up with more code (and more passes over things). I also tried just replacing getLocation with a thing that returns SkSpan\u003cskvm::Val\u003e, which can be done by computing the spans on the fly from the offsets. That might be an improvement, although it really just moved the fiddly bits around. Tempted to leave it as-is, then revisit once I fix function calling (which introduces new variable storage for parameters), and loop unrolling (which I don\u0027t think requires new storage - each iteration can re-use the same Vals?)",
+      "parentUuid": "8818005e_ea78b0da",
+      "range": {
+        "startLine": 187,
+        "startChar": 48,
+        "endLine": 188,
+        "endChar": 18
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ded5fa6_228b7812",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 20

@@ -320,6 +320,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "25cf3e64_8828c3f3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-15T20:30:13Z",
+      "side": 1,
+      "message": "My gut feeling here is that it\u0027s possible, with a bunch of caveats (and it\u0027s likely to be error-prone). There are vector intrinsics that have (to my knowledge) hardware assistance in some cases, so we\u0027d be missing out there. There are also builtin functions that - by their signature - take vectors (eg, sampling a texture takes a float2 coordinate). So the IR would still end up with vector types, at least as a final re-aggregation step before invoking those. Similarly, the return of something like sample would need to be splatted out - so there would be some kind of IR node that still knows it has 4 values (presumably then storing in temporary, before splatting out)?\n\nIt\u0027s also worth noting that SPIR-V (for example) is not scalarized - all arithmetic ops, and most intrinsics work on contiguous chunk of value-ids, with a count parameter passed to the op.",
+      "parentUuid": "b6629f63_3082a202",
+      "revId": "00457109a7057031474ceb80244b7d4b0b240bfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ad05799f_5ad81deb",
         "filename": "src/sksl/SkSLVMGenerator.cpp",
         "patchSetId": 17
