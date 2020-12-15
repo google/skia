@@ -34,6 +34,24 @@
       "parentUuid": "ac107f48_8c4952e7",
       "revId": "9b0fc9c9c19f7617ed1cf71a71e95f150bdd08dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd406745_ee74e5ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-15T21:04:33Z",
+      "side": 1,
+      "message": "oh right, I forgot about the unpremul step :(",
+      "parentUuid": "54f2950c_7128fe13",
+      "revId": "9b0fc9c9c19f7617ed1cf71a71e95f150bdd08dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
