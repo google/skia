@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb74f904_73afe760",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T15:15:07Z",
+      "side": 1,
+      "message": "Thought it looked ripe for this.  All pretty mechanical except one place where we\u0027ve already checked for the device.",
+      "revId": "8138cb58e41fd2ab7a3377aaeead94937b398587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
