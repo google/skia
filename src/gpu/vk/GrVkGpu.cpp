@@ -1955,7 +1955,11 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     }
 
     GrVkRenderPass::LoadFromResolve loadFromResolve = GrVkRenderPass::LoadFromResolve::kNo;
-
+    if (programInfo.targetHasResolveTexture() && programInfo.targetSupportsVkInputAttachment() &&
+        programInfo.colorLoadOp() == GrLoadOp::kLoad &&
+        this->vkCaps().alwaysUseDiscardableMSAAAttachment()) {
+        loadFromResolve = GrVkRenderPass::LoadFromResolve::kLoad;
+    }
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
             &attachmentsDescriptor, attachmentFlags, selfDepFlags, loadFromResolve));
     if (!renderPass) {
