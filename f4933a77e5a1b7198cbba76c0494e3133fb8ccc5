@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8937140_9fe11d18",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-15T15:34:15Z",
+      "side": 1,
+      "message": "I don\u0027t think we should add locale to the cache key. We can (and I think we should) always go with default locale.\nI did ask you once about libtxt and you said libtxt always uses the default.",
+      "range": {
+        "startLine": 166,
+        "startChar": 54,
+        "endLine": 166,
+        "endChar": 60
+      },
+      "revId": "f4933a77e5a1b7198cbba76c0494e3133fb8ccc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
