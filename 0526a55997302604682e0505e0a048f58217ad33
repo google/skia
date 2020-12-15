@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "565a22ca_cb5b7499",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T15:43:46Z",
+      "side": 1,
+      "message": "What\u0027s your thoughts on this approach? I introduced the isNoPixelsDevice() in https://skia-review.googlesource.com/c/skia/+/342924 and you mentioned it\u0027s nice to not have these sorts of ad-hoc reflection based methods on the device API (which I\u0027m in agreement with). After it landed, I realized I could get what I needed (\"don\u0027t draw during internalRestore for a failed layer\") by just using SkPaint::nothingToDraw().",
+      "revId": "0526a55997302604682e0505e0a048f58217ad33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
