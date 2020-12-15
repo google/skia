@@ -156,7 +156,7 @@ class SkWuffsFrame final : public SkFrame {
 public:
     SkWuffsFrame(wuffs_base__frame_config* fc);
 
-    uint64_t           ioPosition() const;
+    uint64_t ioPosition() const;
 
     // SkFrame overrides.
     SkEncodedInfo::Alpha onReportedAlpha() const override;
@@ -200,34 +200,10 @@ public:
     const SkWuffsFrame* frame(int i) const;
 
 private:
-    // It is valid, in terms of the SkCodec API, to call SkCodec::getFrameCount
-    // while in an incremental decode (after onStartIncrementalDecode returns
-    // and before the rest of the image is decoded). Some Skia users expect
-    // getFrameCount to increase, and the SkStream to advance, when given more
-    // data.
-    //
-    // On the other hand, while in an incremental decode, the underlying Wuffs
-    // object is suspended in a coroutine. To keep its internal proof-of-safety
-    // invariants consistent, there's only two things you can safely do with a
-    // suspended Wuffs object: resume the coroutine, or reset all state (memset
-    // to zero and start again).
-    //
-    // The Wuffs API provides a limited, optional form of seeking, to the start
-    // of an animation frame's data, but does not provide arbitrary save and
-    // load of its internal state whilst in the middle of an animation frame.
-    //
-    // SkWuffsCodec therefore uses two Wuffs decoders: a primary decoder
-    // (kIncrDecode) to support startIncrementalDecode / incrementalDecode, and
-    // a secondary decoder (kFrameCount) to support getFrameCount. The two
-    // decoders' states can change independently.
-    //
-    // As of Wuffs version 0.2, both of these decoders have the same type. A
-    // future Wuffs version might let us use a different type for kFrameCount,
-    // one that is much lighter weight (in terms of memory requirements), as it
-    // doesn't have to handle decompressing pixel data.
+    // TODO: delete this enum and all of the "which" function arguments. The
+    // "array of 1 Foo" typed fields can also simplify to "Foo".
     enum WhichDecoder {
         kIncrDecode,
-        kFrameCount,
         kNumDecoders,
     };
 
@@ -288,7 +264,6 @@ private:
 
     // Incremental decoding state.
     uint8_t*                fIncrDecDst;
-    uint64_t                fIncrDecReaderIOPosition;
     size_t                  fIncrDecRowBytes;
     wuffs_base__pixel_blend fIncrDecPixelBlend;
     bool                    fIncrDecOnePass;
@@ -298,7 +273,6 @@ private:
     std::unique_ptr<uint8_t, decltype(&sk_free)> fTwoPassPixbufPtr;
     size_t                                       fTwoPassPixbufLen;
 
-    uint64_t                  fFrameCountReaderIOPosition;
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
     bool                      fFramesComplete;
@@ -377,29 +351,24 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fWorkbufLen(workbuf_len),
       fDecoders{
           std::move(dec),
-          std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)>(nullptr, sk_free),
       },
       fFirstFrameIOPosition(imgcfg.first_frame_io_position()),
       fFrameConfigs{
-          wuffs_base__null_frame_config(),
           wuffs_base__null_frame_config(),
       },
       fPixelConfig(imgcfg.pixcfg),
       fPixelBuffer(wuffs_base__null_pixel_buffer()),
       fIOBuffer(wuffs_base__empty_io_buffer()),
       fIncrDecDst(nullptr),
-      fIncrDecReaderIOPosition(0),
       fIncrDecRowBytes(0),
       fIncrDecPixelBlend(WUFFS_BASE__PIXEL_BLEND__SRC),
       fIncrDecOnePass(false),
       fFirstCallToIncrementalDecode(false),
       fTwoPassPixbufPtr(nullptr, &sk_free),
       fTwoPassPixbufLen(0),
-      fFrameCountReaderIOPosition(0),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
       fDecoderIsSuspended{
-          false,
           false,
       } {
     fFrameHolder.init(this, imgcfg.pixcfg.width(), imgcfg.pixcfg.height());
@@ -501,7 +470,6 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     }
 
     fIncrDecDst = static_cast<uint8_t*>(dst);
-    fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
     fIncrDecRowBytes = rowBytes;
     fFirstCallToIncrementalDecode = true;
     return SkCodec::kSuccess;
@@ -603,17 +571,6 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         return SkCodec::kInternalError;
     }
 
-    // If multiple SkCodec::incrementalDecode calls are made consecutively (or
-    // if SkCodec::incrementalDecode is called immediately after
-    // SkCodec::startIncrementalDecode), then this seek should be a no-op.
-    // However, it is possible to interleave SkCodec::getFrameCount calls in
-    // between SkCodec::incrementalDecode calls, and those other calls may
-    // advance the stream. This seek restores the stream to where the last
-    // SkCodec::startIncrementalDecode or SkCodec::incrementalDecode stopped.
-    if (!seek_buffer(&fIOBuffer, fStream.get(), fIncrDecReaderIOPosition)) {
-        return SkCodec::kInternalError;
-    }
-
     if (rowsDecoded) {
         *rowsDecoded = dstInfo().height();
     }
@@ -622,12 +579,9 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fIncrDecOnePass ? this->onIncrementalDecodeOnePass() : this->onIncrementalDecodeTwoPass();
     if (result == SkCodec::kSuccess) {
         fIncrDecDst = nullptr;
-        fIncrDecReaderIOPosition = 0;
         fIncrDecRowBytes = 0;
         fIncrDecPixelBlend = WUFFS_BASE__PIXEL_BLEND__SRC;
         fIncrDecOnePass = false;
-    } else {
-        fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
     }
     return result;
 }
@@ -785,30 +739,54 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
 }
 
 int SkWuffsCodec::onGetFrameCount() {
-    if (!fFramesComplete && seek_buffer(&fIOBuffer, fStream.get(), fFrameCountReaderIOPosition)) {
+    // It is valid, in terms of the SkCodec API, to call SkCodec::getFrameCount
+    // while in an incremental decode (after onStartIncrementalDecode returns
+    // and before onIncrementalDecode returns kSuccess).
+    //
+    // We should not advance the SkWuffsCodec' stream while doing so, even
+    // though other SkCodec implementations can return increasing values from
+    // onGetFrameCount when given more data. If we tried to do so, the
+    // subsequent resume of the incremental decode would continue reading from
+    // a different position in the I/O stream, leading to an incorrect error.
+    //
+    // Other SkCodec implementations can move the stream forward during
+    // onGetFrameCount because they assume that the stream is rewindable /
+    // seekable. For example, an alternative GIF implementation may choose to
+    // store, for each frame walked past when merely counting the number of
+    // frames, the I/O position of each of the frame's GIF data blocks. (A GIF
+    // frame's compressed data can have multiple data blocks, each at most 255
+    // bytes in length). Obviously, this can require O(numberOfFrames) extra
+    // memory to store these I/O positions. The constant factor is small, but
+    // it's still O(N), not O(1).
+    //
+    // Wuffs and SkWuffsCodec try to minimize relying on the rewindable /
+    // seekable assumption. By design, Wuffs per se aims for O(1) memory use
+    // (after any pixel buffers are allocated) instead of O(N), and its I/O
+    // type, wuffs_base__io_buffer, is not necessarily rewindable or seekable.
+    //
+    // The Wuffs API provides a limited, optional form of seeking, to the start
+    // of an animation frame's data, but does not provide arbitrary save and
+    // load of its internal state whilst in the middle of an animation frame.
+    bool incrementalDecodeIsInProgress = fIncrDecDst != nullptr;
+
+    if (!fFramesComplete && !incrementalDecodeIsInProgress) {
         this->onGetFrameCountInternal();
-        fFrameCountReaderIOPosition =
-            fDecoders[WhichDecoder::kFrameCount] ? fIOBuffer.reader_io_position() : 0;
+        this->updateNumFullyReceivedFrames(WhichDecoder::kIncrDecode);
     }
     return fFrames.size();
 }
 
 void SkWuffsCodec::onGetFrameCountInternal() {
-    if (!fDecoders[WhichDecoder::kFrameCount]) {
-        void* decoder_raw = sk_malloc_canfail(sizeof__wuffs_gif__decoder());
-        if (!decoder_raw) {
-            return;
-        }
-        std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> decoder(
-            reinterpret_cast<wuffs_gif__decoder*>(decoder_raw), &sk_free);
-        reset_and_decode_image_config(decoder.get(), nullptr, &fIOBuffer, fStream.get());
-        fDecoders[WhichDecoder::kFrameCount] = std::move(decoder);
+    size_t n = fFrames.size();
+    int    i = n ? n - 1 : 0;
+    if (this->seekFrame(WhichDecoder::kIncrDecode, i) != SkCodec::kSuccess) {
+        return;
     }
 
     // Iterate through the frames, converting from Wuffs'
     // wuffs_base__frame_config type to Skia's SkWuffsFrame type.
-    while (true) {
-        const char* status = this->decodeFrameConfig(WhichDecoder::kFrameCount);
+    for (; i < INT_MAX; i++) {
+        const char* status = this->decodeFrameConfig(WhichDecoder::kIncrDecode);
         if (status == nullptr) {
             // No-op.
         } else if (status == wuffs_base__note__end_of_data) {
@@ -817,24 +795,15 @@ void SkWuffsCodec::onGetFrameCountInternal() {
             return;
         }
 
-        uint64_t i = fDecoders[WhichDecoder::kFrameCount]->num_decoded_frame_configs();
-        if (i > INT_MAX) {
-            break;
-        }
-        if ((i == 0) || (static_cast<size_t>(i - 1) != fFrames.size())) {
+        if (static_cast<size_t>(i) < fFrames.size()) {
             continue;
         }
-        fFrames.emplace_back(&fFrameConfigs[WhichDecoder::kFrameCount]);
+        fFrames.emplace_back(&fFrameConfigs[WhichDecoder::kIncrDecode]);
         SkWuffsFrame* f = &fFrames[fFrames.size() - 1];
         fFrameHolder.setAlphaAndRequiredFrame(f);
     }
 
     fFramesComplete = true;
-
-    // We've seen the end of the animation. There'll be no more frames, so we
-    // no longer need the kFrameCount decoder. Releasing it earlier than the
-    // SkWuffsCodec destructor might help peak memory use.
-    fDecoders[WhichDecoder::kFrameCount].reset(nullptr);
 }
 
 bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
