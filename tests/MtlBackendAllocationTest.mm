@@ -7,37 +7,34 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/mtl/GrMtlCaps.h"
 #include "tests/Test.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 
 #import <Metal/Metal.h>
-#include "src/gpu/mtl/GrMtlCaps.h"
+
+using sk_gpu_test::ManagedBackendTexture;
 
 // In BackendAllocationTest.cpp
 void test_wrapping(GrDirectContext*,
                    skiatest::Reporter*,
-                   std::function<GrBackendTexture (GrDirectContext*,
-                                                   GrMipmapped,
-                                                   GrRenderable)> create,
+                   std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
+                                                              GrMipmapped,
+                                                              GrRenderable)> create,
                    GrColorType,
                    GrMipmapped,
-                   GrRenderable,
-                   bool* finishedBackendCreation);
+                   GrRenderable);
 
 void test_color_init(GrDirectContext*,
                      skiatest::Reporter*,
-                     std::function<GrBackendTexture (GrDirectContext*,
-                                                     const SkColor4f&,
-                                                     GrMipmapped,
-                                                     GrRenderable)> create,
+                     std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
+                                                                const SkColor4f&,
+                                                                GrMipmapped,
+                                                                GrRenderable)> create,
                      GrColorType,
                      const SkColor4f&,
                      GrMipmapped,
-                     GrRenderable,
-                     bool* finishedBackendCreation);
-
-static void mark_signaled(void* context) {
-    *(bool*)context = true;
-}
+                     GrRenderable);
 
 DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
@@ -121,13 +118,16 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     auto uninitCreateMtd = [format](GrDirectContext* dContext,
                                                     GrMipmapped mipMapped,
                                                     GrRenderable renderable) {
-                        return dContext->createBackendTexture(32, 32, format,
-                                                              mipMapped, renderable,
-                                                              GrProtected::kNo);
+                        return ManagedBackendTexture::MakeWithoutData(dContext,
+                                                                      32, 32,
+                                                                      format,
+                                                                      mipMapped,
+                                                                      renderable,
+                                                                      GrProtected::kNo);
                     };
 
-                    test_wrapping(dContext, reporter, uninitCreateMtd,
-                                  combo.fColorType, mipMapped, renderable, nullptr);
+                    test_wrapping(dContext, reporter, uninitCreateMtd, combo.fColorType, mipMapped,
+                                  renderable);
                 }
 
                 {
@@ -154,34 +154,21 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                             break;
                     }
 
-                    bool finishedBackendCreation = false;
-                    bool* finishedPtr = &finishedBackendCreation;
-
-                    auto createWithColorMtd = [format, swizzle, finishedPtr](
-                            GrDirectContext* dContext,
-                            const SkColor4f& color,
-                            GrMipmapped mipMapped,
-                            GrRenderable renderable) {
+                    auto createWithColorMtd = [format, swizzle](GrDirectContext* dContext,
+                                                                const SkColor4f& color,
+                                                                GrMipmapped mipMapped,
+                                                                GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
-                        return dContext->createBackendTexture(32, 32, format, swizzledColor,
-                                                              mipMapped, renderable,
-                                                              GrProtected::kNo,
-                                                              mark_signaled, finishedPtr);
+                        return ManagedBackendTexture::MakeWithData(dContext,
+                                                                   32, 32,
+                                                                   format,
+                                                                   swizzledColor,
+                                                                   mipMapped,
+                                                                   renderable,
+                                                                   GrProtected::kNo);
                     };
-                    // We make our comparison color using SkPixmap::erase(color) on a pixmap of
-                    // combo.fColorType and then calling SkPixmap::readPixels(). erase() will premul
-                    // the color passed to it. However, createBackendTexture() that takes a
-                    // SkColor4f is color type/alpha type unaware and will simply compute luminance
-                    // from the r, g, b, channels.
-                    SkColor4f color = combo.fColor;
-                    if (combo.fColorType == GrColorType::kGray_8) {
-                        color = {color.fR * color.fA,
-                            color.fG * color.fA,
-                            color.fB * color.fA,
-                            1.f};
-                    }
-                    test_color_init(dContext, reporter, createWithColorMtd, combo.fColorType, color,
-                                    mipMapped, renderable, finishedPtr);
+                    test_color_init(dContext, reporter, createWithColorMtd, combo.fColorType,
+                                    combo.fColor, mipMapped, renderable);
                 }
             }
         }
