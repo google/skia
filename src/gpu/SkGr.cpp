@@ -176,6 +176,7 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
         case GrColorType::kAlpha_8:
         case GrColorType::kAlpha_8xxx:
         case GrColorType::kGray_8:
+        case GrColorType::kGrayAlpha_88:
         case GrColorType::kGray_8xxx:
         case GrColorType::kR_8:
         case GrColorType::kRG_88:

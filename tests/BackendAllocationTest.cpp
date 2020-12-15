@@ -301,16 +301,16 @@ void test_color_init(GrDirectContext* dContext,
                                                                 GrRenderable)> create,
                      GrColorType colorType,
                      const SkColor4f& color,
-                     GrMipmapped mipMapped,
+                     GrMipmapped mipmapped,
                      GrRenderable renderable) {
-    sk_sp<ManagedBackendTexture> mbet = create(dContext, color, mipMapped, renderable);
+    sk_sp<ManagedBackendTexture> mbet = create(dContext, color, mipmapped, renderable);
     if (!mbet) {
         // errors here should be reported by the test_wrapping test
         return;
     }
 
     auto checkBackendTexture = [&](const SkColor4f& testColor) {
-        if (mipMapped == GrMipmapped::kYes) {
+        if (mipmapped == GrMipmapped::kYes) {
             SkColor4f expectedColor = get_expected_color(testColor, colorType);
             SkColor4f expectedColors[6] = {expectedColor, expectedColor, expectedColor,
                                            expectedColor, expectedColor, expectedColor};
@@ -732,8 +732,9 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
     const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(context->priv().caps());
 
-    constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
-    constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 0.75f };
+    constexpr SkColor4f kTransCol     { 0,     0.25f, 0.75f, 0.5f };
+    constexpr SkColor4f kGrayCol      { 0.75f, 0.75f, 0.75f, 1.f  };
+    constexpr SkColor4f kTransGrayCol { 0.5f,  0.5f,  0.5f,  .8f  };
 
     struct {
         GrColorType   fColorType;
@@ -759,6 +760,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kGray_8,           GR_GL_LUMINANCE8,           kGrayCol             },
         { GrColorType::kGray_8,           GR_GL_R8,                   kGrayCol             },
+
+        { GrColorType::kGrayAlpha_88,     GR_GL_LUMINANCE8_ALPHA8,    kTransGrayCol        },
 
         { GrColorType::kRGBA_F32,         GR_GL_RGBA32F,              SkColors::kRed       },
 

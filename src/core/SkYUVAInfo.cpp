@@ -101,6 +101,13 @@ static bool channel_index_to_channel(uint32_t channelFlags,
                 return true;
             }
             return false;
+        case kGrayAlpha_SkColorChannelFlags:
+            switch (channelIdx) {
+                case 0: *channel = SkColorChannel::kR; return true;
+                case 1: *channel = SkColorChannel::kA; return true;
+
+                default: return false;
+            }
         case kAlpha_SkColorChannelFlag:
             if (channelIdx == 0) {
                 *channel = SkColorChannel::kA;

@@ -2334,6 +2334,9 @@ STAGE(bt709_luminance_or_luma_to_alpha, Ctx::None) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
 }
+STAGE(bt709_luminance_or_luma_to_rgb, Ctx::None) {
+    r = g = b = r*0.2126f + g*0.7152f + b*0.0722f;
+}
 
 STAGE(matrix_translate, const float* m) {
     r += m[0];
@@ -3721,6 +3724,9 @@ STAGE_PP(alpha_to_gray_dst, Ctx::None) {
 STAGE_PP(bt709_luminance_or_luma_to_alpha, Ctx::None) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;
+}
+STAGE_PP(bt709_luminance_or_luma_to_rgb, Ctx::None) {
+    r = g = b =(r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
 }
 
 // ~~~~~~ Coverage scales / lerps ~~~~~~ //

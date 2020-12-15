@@ -388,6 +388,9 @@ static GrSwizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kGray_8:           *load = SkRasterPipeline::load_a8;
                                              swizzle = GrSwizzle("aaa1");
                                              break;
+        case GrColorType::kGrayAlpha_88:    *load = SkRasterPipeline::load_rg88;
+                                             swizzle = GrSwizzle("rrrg");
+                                             break;
         case GrColorType::kBGRA_8888:        *load = SkRasterPipeline::load_8888;
                                              swizzle = GrSwizzle("bgra");
                                              break;
@@ -407,12 +410,18 @@ static GrSwizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipeline::Stoc
     return swizzle;
 }
 
+enum class LumMode {
+    kNone,
+    kToRGB,
+    kToAlpha
+};
+
 static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::StockStage* store,
-                                           bool* doLumToAlpha, bool* isNormalized, bool* isSRGB) {
+                                           LumMode* lumMode, bool* isNormalized, bool* isSRGB) {
     GrSwizzle swizzle("rgba");
     *isNormalized = true;
     *isSRGB = false;
-    *doLumToAlpha = false;
+    *lumMode = LumMode::kNone;
     switch (ct) {
         case GrColorType::kAlpha_8:          *store = SkRasterPipeline::store_a8;       break;
         case GrColorType::kAlpha_16:         *store = SkRasterPipeline::store_a16;      break;
@@ -468,15 +477,19 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kR_F16:            swizzle = GrSwizzle("agbr");
                                              *store = SkRasterPipeline::store_af16;
                                              break;
-        case GrColorType::kGray_F16:         *doLumToAlpha = true;
+        case GrColorType::kGray_F16:         *lumMode = LumMode::kToAlpha;
                                              *store = SkRasterPipeline::store_af16;
                                              break;
-        case GrColorType::kGray_8:           *doLumToAlpha = true;
+        case GrColorType::kGray_8:           *lumMode = LumMode::kToAlpha;
                                              *store = SkRasterPipeline::store_a8;
                                              break;
-        case GrColorType::kGray_8xxx:        *doLumToAlpha = true;
+        case GrColorType::kGrayAlpha_88:     *lumMode = LumMode::kToRGB;
+                                             swizzle = GrSwizzle("ragb");
+                                             *store = SkRasterPipeline::store_rg88;
+                                             break;
+        case GrColorType::kGray_8xxx:        *lumMode = LumMode::kToRGB;
                                              *store = SkRasterPipeline::store_8888;
-                                             swizzle = GrSwizzle("a000");
+                                             swizzle = GrSwizzle("r000");
                                              break;
 
         // These are color types we don't expect to ever have to store.
@@ -571,10 +584,10 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             get_load_and_src_swizzle(srcInfo.colorType(), &load, &srcIsNormalized, &srcIsSRGB);
 
     SkRasterPipeline::StockStage store;
-    bool doLumToAlpha;
+    LumMode lumMode;
     bool dstIsNormalized;
     bool dstIsSRGB;
-    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &doLumToAlpha,
+    auto storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &lumMode,
                                                   &dstIsNormalized, &dstIsSRGB);
 
     bool clampGamut;
@@ -606,7 +619,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         std::swap(cnt, height);
     }
 
-    bool hasConversion = alphaOrCSConversion || clampGamut || doLumToAlpha;
+    bool hasConversion = alphaOrCSConversion || clampGamut || lumMode != LumMode::kNone;
 
     if (srcIsSRGB && dstIsSRGB && !hasConversion) {
         // No need to convert from srgb if we are just going to immediately convert it back.
@@ -629,14 +642,20 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
             if (clampGamut) {
                 append_clamp_gamut(&pipeline);
             }
-            if (doLumToAlpha) {
-                pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
-                // If we ever needed to convert from linear-encoded gray to sRGB-encoded
-                // gray we'd have a problem here because the subsequent transfer function stage
-                // ignores the alpha channel (where we just stashed the gray). There are
-                // several ways that could be fixed but given our current set of color types
-                // this should never happen.
-                SkASSERT(!dstIsSRGB);
+            switch (lumMode) {
+                case LumMode::kNone:
+                    break;
+                case LumMode::kToRGB:
+                    pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_rgb);
+                    break;
+                case LumMode::kToAlpha:
+                    pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+                    // If we ever need to store srgb-encoded gray (e.g. GL_SLUMINANCE8) then we
+                    // should use ToRGB and then a swizzle stage rather than ToAlpha. The subsequent
+                    // transfer function stage ignores the alpha channel (where we just stashed the
+                    // gray).
+                    SkASSERT(!dstIsSRGB);
+                    break;
             }
             if (dstIsSRGB) {
                 pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
@@ -677,24 +696,29 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f
         return true;
     }
 
-    bool doLumToAlpha;
+    LumMode lumMode;
     bool isNormalized;
     bool dstIsSRGB;
     SkRasterPipeline::StockStage store;
-    GrSwizzle storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &doLumToAlpha,
+    GrSwizzle storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &lumMode,
                                                        &isNormalized, &dstIsSRGB);
     char block[64];
     SkArenaAlloc alloc(block, sizeof(block), 1024);
     SkRasterPipeline_<256> pipeline;
     pipeline.append_constant_color(&alloc, color);
-    if (doLumToAlpha) {
-        pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
-        // If we ever needed to convert from linear-encoded gray to sRGB-encoded
-        // gray we'd have a problem here because the subsequent transfer function stage
-        // ignores the alpha channel (where we just stashed the gray). There are
-        // several ways that could be fixed but given our current set of color types
-        // this should never happen.
-        SkASSERT(!dstIsSRGB);
+    switch (lumMode) {
+        case LumMode::kNone:
+            break;
+        case LumMode::kToRGB:
+            pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_rgb);
+            break;
+        case LumMode::kToAlpha:
+            pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+            // If we ever need to store srgb-encoded gray (e.g. GL_SLUMINANCE8) then we should use
+            // ToRGB and then a swizzle stage rather than ToAlpha. The subsequent transfer function
+            // stage ignores the alpha channel (where we just stashed the gray).
+            SkASSERT(!dstIsSRGB);
+            break;
     }
     if (dstIsSRGB) {
         pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());

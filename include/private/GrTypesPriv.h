@@ -816,6 +816,7 @@ enum class GrColorType {
     kRGBA_1010102,
     kBGRA_1010102,
     kGray_8,
+    kGrayAlpha_88,
     kAlpha_F16,
     kRGBA_F16,
     kRGBA_F16_Clamped,
@@ -863,6 +864,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_SkColorType;
         case GrColorType::kBGRA_1010102:     return kBGRA_1010102_SkColorType;
         case GrColorType::kGray_8:           return kGray_8_SkColorType;
+        case GrColorType::kGrayAlpha_88:     return kUnknown_SkColorType;
         case GrColorType::kAlpha_F16:        return kA16_float_SkColorType;
         case GrColorType::kRGBA_F16:         return kRGBA_F16_SkColorType;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_F16Norm_SkColorType;
@@ -932,6 +934,7 @@ static constexpr uint32_t GrColorTypeChannelFlags(GrColorType ct) {
         case GrColorType::kRGBA_1010102:     return kRGBA_SkColorChannelFlags;
         case GrColorType::kBGRA_1010102:     return kRGBA_SkColorChannelFlags;
         case GrColorType::kGray_8:           return kGray_SkColorChannelFlag;
+        case GrColorType::kGrayAlpha_88:     return kGrayAlpha_SkColorChannelFlags;
         case GrColorType::kAlpha_F16:        return kAlpha_SkColorChannelFlag;
         case GrColorType::kRGBA_F16:         return kRGBA_SkColorChannelFlags;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_SkColorChannelFlags;
@@ -1005,6 +1008,10 @@ public:
         return {0, 0, 0, 0, grayBits, e};
     }
 
+    static constexpr GrColorTypeDesc MakeGrayAlpha(int grayAlpha, GrColorTypeEncoding e) {
+        return {0, 0, 0, 0, grayAlpha, e};
+    }
+
     static constexpr GrColorTypeDesc MakeInvalid() { return {}; }
 
     constexpr int r() const { return fRBits; }
@@ -1069,6 +1076,8 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
         case GrColorType::kGray_8:
             return GrColorTypeDesc::MakeGray(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kGrayAlpha_88:
+            return GrColorTypeDesc::MakeGrayAlpha(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kAlpha_F16:
             return GrColorTypeDesc::MakeAlpha(16, GrColorTypeEncoding::kFloat);
         case GrColorType::kRGBA_F16:
@@ -1151,6 +1160,7 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kRGBA_1010102:     return 4;
         case GrColorType::kBGRA_1010102:     return 4;
         case GrColorType::kGray_8:           return 1;
+        case GrColorType::kGrayAlpha_88:     return 2;
         case GrColorType::kAlpha_F16:        return 2;
         case GrColorType::kRGBA_F16:         return 8;
         case GrColorType::kRGBA_F16_Clamped: return 8;
@@ -1289,6 +1299,7 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
         case GrColorType::kBGRA_1010102:     return "kBGRA_1010102";
         case GrColorType::kGray_8:           return "kGray_8";
+        case GrColorType::kGrayAlpha_88:     return "kGrayAlpha_88";
         case GrColorType::kAlpha_F16:        return "kAlpha_F16";
         case GrColorType::kRGBA_F16:         return "kRGBA_F16";
         case GrColorType::kRGBA_F16_Clamped: return "kRGBA_F16_Clamped";
