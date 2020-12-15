@@ -23,10 +23,11 @@
 class GrAuditTrail;
 class GrDrawingManager;
 class GrRecordingContext;
-class GrSurfaceDrawContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
+class GrSurfaceDrawContext;
+class GrSurfaceFillContext;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
@@ -43,7 +44,8 @@ public:
                                                   GrSurfaceProxyView readView,
                                                   const GrColorInfo&);
 
-    // Makes either a GrSurfaceContext or a GrSurfaceDrawContext, depending on GrRenderable.
+    // Makes either a GrSurfaceContext, GrFillDrawContext, or a GrSurfaceDrawContext, depending on
+    // GrRenderable and the GrImageInfo.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   const GrImageInfo&,
                                                   const GrBackendFormat&,
@@ -55,6 +57,7 @@ public:
                                                   GrProtected = GrProtected::kNo,
                                                   SkBudgeted = SkBudgeted::kYes);
 
+    // Same as the above but chooses the texture format using the default format for the color type.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   const GrImageInfo&,
                                                   SkBackingFit = SkBackingFit::kExact,
@@ -159,6 +162,7 @@ public:
     }
 
     virtual GrSurfaceDrawContext* asRenderTargetContext() { return nullptr; }
+    virtual GrSurfaceFillContext* asFillContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
