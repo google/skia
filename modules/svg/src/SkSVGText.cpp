@@ -118,7 +118,7 @@ public:
     {}
 
     // Queues codepoints for rendering.
-    void appendFragment(const SkString& txt, const SkSVGRenderContext& ctx) {
+    void appendFragment(const SkString& txt, const SkSVGRenderContext& ctx, SkSVGXmlSpace xs) {
         // https://www.w3.org/TR/SVG11/text.html#WhiteSpace
         // https://www.w3.org/TR/2008/REC-xml-20081126/#NT-S
         auto filterWSDefault = [this](SkUnichar ch) -> SkUnichar {
@@ -151,8 +151,6 @@ public:
             return ch;
         };
 
-        const auto xmlSpace = ctx.getXmlSpace();
-
         SkSTArray<128, char, true> filtered;
         filtered.reserve_back(SkToInt(txt.size()));
 
@@ -161,7 +159,7 @@ public:
 
         while (ch_ptr < ch_end) {
             auto ch = SkUTF::NextUTF8(&ch_ptr, ch_end);
-            ch = (xmlSpace == SkSVGXmlSpace::kDefault)
+            ch = (xs == SkSVGXmlSpace::kDefault)
                     ? filterWSDefault(ch)
                     : filterWSPreserve(ch);
 
@@ -275,22 +273,40 @@ private:
     bool                            fPrevCharSpace = true; // WS filter state
 };
 
+void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
+                                   SkSVGXmlSpace xs) const {
+    SkSVGRenderContext localContext(ctx, this);
+
+    if (this->onPrepareToRender(&localContext)) {
+        this->onRenderText(localContext, tctx, xs);
+    }
+}
+
+SkPath SkSVGTextFragment::onAsPath(const SkSVGRenderContext&) const {
+    // TODO
+    return SkPath();
+}
+
 void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
     // Only allow text nodes.
     switch (child->tag()) {
     case SkSVGTag::kText:
     case SkSVGTag::kTextLiteral:
     case SkSVGTag::kTSpan:
-        this->INHERITED::appendChild(child);
+        fChildren.push_back(
+            sk_sp<SkSVGTextFragment>(static_cast<SkSVGTextFragment*>(child.release())));
         break;
     default:
         break;
     }
 }
 
-bool SkSVGTextContainer::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    ctx->setXmlSpace(this->getXmlSpace());
-    return this->INHERITED::onPrepareToRender(ctx);
+void SkSVGTextContainer::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
+                                      SkSVGXmlSpace) const {
+    for (const auto& frag : fChildren) {
+        // Containers always override xml:space with the local value.
+        frag->renderText(ctx, tctx, this->getXmlSpace());
+    }
 }
 
 // https://www.w3.org/TR/SVG11/text.html#WhiteSpace
@@ -311,26 +327,18 @@ bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* valu
            this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
-void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
-    // <text> establishes a new text layout context.
+void SkSVGTextContainer::onRender(const SkSVGRenderContext& ctx) const {
+    // Root text nodes establish a new text layout context.
     SkSVGTextContext tctx(*this, ctx);
 
-    SkSVGRenderContext local_ctx(ctx, tctx);
-    this->INHERITED::onRender(local_ctx);
+    this->onRenderText(ctx, &tctx, this->getXmlSpace());
 
     tctx.flushChunk(ctx);
 }
 
-void SkSVGTextLiteral::onRender(const SkSVGRenderContext& ctx) const {
-    auto* tctx = ctx.textContext();
-    if (!tctx) {
-        return;
-    }
+void SkSVGTextLiteral::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
+                                    SkSVGXmlSpace xs) const {
+    SkASSERT(tctx);
 
-    tctx->appendFragment(this->getText(), ctx);
-}
-
-SkPath SkSVGTextLiteral::onAsPath(const SkSVGRenderContext&) const {
-    // TODO
-    return SkPath();
+    tctx->appendFragment(this->getText(), ctx, xs);
 }
