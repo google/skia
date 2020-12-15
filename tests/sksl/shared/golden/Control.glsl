@@ -7,7 +7,7 @@ void main() {
         discard;
     }
     int i = 0;
-    while (i < 10) {
+    for (; i < 10; ) {
         sk_FragColor *= 0.5;
         i++;
     }

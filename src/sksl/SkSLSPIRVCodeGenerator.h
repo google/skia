@@ -39,7 +39,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 #include "src/sksl/spirv.h"
 
 union ConstantValue {
@@ -313,8 +312,6 @@ private:
     void writeIfStatement(const IfStatement& stmt, OutputStream& out);
 
     void writeForStatement(const ForStatement& f, OutputStream& out);
-
-    void writeWhileStatement(const WhileStatement& w, OutputStream& out);
 
     void writeDoStatement(const DoStatement& d, OutputStream& out);
 

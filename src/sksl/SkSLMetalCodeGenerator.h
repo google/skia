@@ -43,7 +43,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
-#include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
@@ -273,8 +272,6 @@ protected:
     void writeIfStatement(const IfStatement& stmt);
 
     void writeForStatement(const ForStatement& f);
-
-    void writeWhileStatement(const WhileStatement& w);
 
     void writeDoStatement(const DoStatement& d);
 

@@ -15,7 +15,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         discard_fragment();
     }
     int i = 0;
-    while (i < 10) {
+    for (; i < 10; ) {
         _out->sk_FragColor *= 0.5;
         i++;
     }
