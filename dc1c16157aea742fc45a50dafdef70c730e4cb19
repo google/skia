@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6f72f98_26c81938",
+        "filename": "src/gpu/tessellate/GrStrokeIterator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T18:02:41Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "883d951a_316f4012",
+      "range": {
+        "startLine": 231,
+        "startChar": 23,
+        "endLine": 233,
+        "endChar": 25
+      },
+      "revId": "dc1c16157aea742fc45a50dafdef70c730e4cb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2b9a88a_faaf6dea",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "\u003e\u003e And in this case, we\u0027d clamp and end up with a stroke that starts to get much larger than one device-space pixel?\n\nThat\u0027s not a concern. Hopefully the new comments are more clear\n\n\u003e\u003e it\u0027s really bad, we pre-transform the path into device space on the CPU\n\nWe can\u0027t always pre-transform on CPU because it invalidates local coordinates",
       "parentUuid": "d2b9a88a_faaf6dea",
+      "range": {
+        "startLine": 83,
+        "startChar": 57,
+        "endLine": 83,
+        "endChar": 78
+      },
+      "revId": "dc1c16157aea742fc45a50dafdef70c730e4cb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bce9466_0cb958ac",
+        "filename": "src/gpu/tessellate/GrStrokeOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T18:02:41Z",
+      "side": 1,
+      "message": "gotcha, that makes sense and the new comments are much clearer",
+      "parentUuid": "b2ceda0f_4b5fe3a6",
       "range": {
         "startLine": 83,
         "startChar": 57,
