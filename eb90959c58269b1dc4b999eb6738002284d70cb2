@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a19d7df_5e9ad66d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-15T01:02:02Z",
+      "side": 1,
+      "message": "Brian, do you mind taking a look since this affects the public API?",
+      "revId": "eb90959c58269b1dc4b999eb6738002284d70cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
