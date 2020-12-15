@@ -16,6 +16,23 @@
       "message": "Thought it looked ripe for this.  All pretty mechanical except one place where we\u0027ve already checked for the device.",
       "revId": "8138cb58e41fd2ab7a3377aaeead94937b398587",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa2ab0d6_60de556d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T15:35:07Z",
+      "side": 1,
+      "message": "I had been working on something similar last night, but didn\u0027t finish it, but goes slightly different direction.\n\nInstead of expanding TOP_DEVICE, if we check for a null device in init() and replace it with an SkNoPixelsDevice(0,0), we should get equivalent behavior as before but can then assert in getTopDevice() that it is never null.\n\nThen all of the TOP_DEVICE macros can just be switched to this-\u003egetTopDevice()-\u003e, and some other areas can be cleaned up that had previously done the device null check manually.",
+      "revId": "8138cb58e41fd2ab7a3377aaeead94937b398587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
