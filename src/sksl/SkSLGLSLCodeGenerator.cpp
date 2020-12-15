@@ -1308,9 +1308,6 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kFor:
             this->writeForStatement(s.as<ForStatement>());
             break;
-        case Statement::Kind::kWhile:
-            this->writeWhileStatement(s.as<WhileStatement>());
-            break;
         case Statement::Kind::kDo:
             this->writeDoStatement(s.as<DoStatement>());
             break;
@@ -1391,13 +1388,6 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     }
     this->write(") ");
     this->writeStatement(*f.statement());
-}
-
-void GLSLCodeGenerator::writeWhileStatement(const WhileStatement& w) {
-    this->write("while (");
-    this->writeExpression(*w.test(), kTopLevel_Precedence);
-    this->write(") ");
-    this->writeStatement(*w.statement());
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
