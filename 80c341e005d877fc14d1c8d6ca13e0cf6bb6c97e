@@ -33,6 +33,24 @@
       "message": "good reminder to me that drawNine needs samplingoptions (or some other way to get off of filterquality)",
       "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "200f342c_8957cb60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T15:29:01Z",
+      "side": 1,
+      "message": "Yeah, by this logic, just an SkFilterMode.",
+      "parentUuid": "feb16067_96ad3f2e",
+      "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
