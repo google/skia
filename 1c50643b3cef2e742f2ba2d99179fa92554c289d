@@ -46,6 +46,30 @@
       },
       "revId": "1c50643b3cef2e742f2ba2d99179fa92554c289d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cdf267f_bdf83cae",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2609,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T15:35:19Z",
+      "side": 0,
+      "message": "Looks like most just use the default false arg, but writePixels() uses it with a computed argument :( I\u0027ll leave it for now and I think it can be cleaned up in a follow up if we want.",
+      "parentUuid": "95ac3bb1_76866ce3",
+      "range": {
+        "startLine": 2606,
+        "startChar": 4,
+        "endLine": 2609,
+        "endChar": 5
+      },
+      "revId": "1c50643b3cef2e742f2ba2d99179fa92554c289d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
