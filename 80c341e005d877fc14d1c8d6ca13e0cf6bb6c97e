@@ -16,6 +16,23 @@
       "message": "I noticed that we handle lattice paints slightly differently, then went a little further to make everything feel similar.",
       "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "feb16067_96ad3f2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-15T15:27:50Z",
+      "side": 1,
+      "message": "good reminder to me that drawNine needs samplingoptions (or some other way to get off of filterquality)",
+      "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
