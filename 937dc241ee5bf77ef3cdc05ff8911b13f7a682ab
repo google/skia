@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3314108_574e7553",
+        "filename": "src/utils/SkMultiPictureDocument.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 12520
+      },
+      "writtenOn": "2020-12-15T21:13:38Z",
+      "side": 1,
+      "message": "nit: normally i\u0027d remove if(true) blocks and the leave the TODO",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 19
+      },
+      "revId": "937dc241ee5bf77ef3cdc05ff8911b13f7a682ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "230b430b_02a32f1e",
+        "filename": "tools/SkSharingProc.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 12520
+      },
+      "writtenOn": "2020-12-15T21:13:38Z",
+      "side": 1,
+      "message": "nit: could this be constexpr?",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "937dc241ee5bf77ef3cdc05ff8911b13f7a682ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57935a32_ea92f697",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 12520
+      },
+      "writtenOn": "2020-12-15T21:13:38Z",
+      "side": 1,
+      "message": "nit: the line breaking looks bit awkward here",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 43
+      },
+      "revId": "937dc241ee5bf77ef3cdc05ff8911b13f7a682ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
