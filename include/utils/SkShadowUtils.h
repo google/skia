@@ -28,13 +28,13 @@ public:
      * @param path  The occluder used to generate the shadows.
      * @param zPlaneParams  Values for the plane function which returns the Z offset of the
      *  occluder from the canvas based on local x and y values (the current matrix is not applied).
-     * @param lightPos  The 3D position of the light relative to the canvas plane. This is
-     *  independent of the canvas's current matrix.
+     * @param lightPos  The 3D position of the light relative to the canvas plane. Unless otherwise
+     *  specified in flags, this is independent of the canvas's current matrix.
      * @param lightRadius  The radius of the disc light.
      * @param ambientColor  The color of the ambient shadow.
      * @param spotColor  The color of the spot shadow.
-     * @param flags  Options controlling opaque occluder optimizations and shadow appearance. See
-     *               SkShadowFlags.
+     * @param flags  Options controlling opaque occluder optimizations, shadow appearance,
+     *               and light position. See SkShadowFlags.
      */
     static void DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
                            const SkPoint3& lightPos, SkScalar lightRadius,

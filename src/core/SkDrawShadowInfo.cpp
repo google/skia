@@ -19,7 +19,8 @@ static SkScalar compute_z(SkScalar x, SkScalar y, const SkPoint3& params) {
 
 bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
                             const SkMatrix& ctm, const SkPoint3& zPlaneParams,
-                            const SkRect& pathBounds, SkMatrix* shadowTransform, SkScalar* radius) {
+                            const SkRect& pathBounds, bool directional,
+                            SkMatrix* shadowTransform, SkScalar* radius) {
     auto heightFunc = [zPlaneParams] (SkScalar x, SkScalar y) {
         return zPlaneParams.fX*x + zPlaneParams.fY*y + zPlaneParams.fZ;
     };
@@ -28,8 +29,15 @@ bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
     if (!ctm.hasPerspective()) {
         SkScalar scale;
         SkVector translate;
-        SkDrawShadowMetrics::GetSpotParams(occluderHeight, lightPos.fX, lightPos.fY, lightPos.fZ,
-                                           lightRadius, radius, &scale, &translate);
+        if (directional) {
+            SkDrawShadowMetrics::GetDirectionalParams(occluderHeight, lightPos.fX, lightPos.fY,
+                                                      lightPos.fZ, lightRadius, radius,
+                                                      &scale, &translate);
+        } else {
+            SkDrawShadowMetrics::GetSpotParams(occluderHeight, lightPos.fX, lightPos.fY,
+                                               lightPos.fZ, lightRadius, radius,
+                                               &scale, &translate);
+        }
         shadowTransform->setScaleTranslate(scale, scale, translate.fX, translate.fY);
         shadowTransform->preConcat(ctm);
     } else {
