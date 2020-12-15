@@ -405,10 +405,6 @@ protected:
         return nullptr;
     }
 
-    // SkCanvas uses NoPixelsDevice when onCreateDevice fails; but then it needs to be able to
-    // inspect a layer's device to know if calling drawDevice() later is allowed.
-    virtual bool isNoPixelsDevice() const { return false; }
-
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
@@ -532,8 +528,6 @@ protected:
 
     void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
                            const SkImageFilter* filter, const SkPaint& paint) override {}
-
-    bool isNoPixelsDevice() const override { return true; }
 
 private:
 struct ClipState {

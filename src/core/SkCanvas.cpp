@@ -407,7 +407,6 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
-    SkASSERT(fBaseDevice->isNoPixelsDevice());
     static_cast<SkNoPixelsDevice*>(fBaseDevice.get())->resetForNextPicture(bounds);
     fMCRec->reset(fBaseDevice.get());
     fQuickRejectBounds = qr_clip_bounds(this->computeDeviceClipBounds());
@@ -1050,6 +1049,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         newDevice = sk_make_sp<SkNoPixelsDevice>(SkIRect::MakeWH(ir.width(), ir.height()), fProps,
                                                  this->imageInfo().refColorSpace());
         initBackdrop = false;
+
+        // Set paint to something that draws nothing so that we skip attempting to restore the layer
+        paint.writable()->setBlendMode(SkBlendMode::kDst);
+        SkASSERT(paint->nothingToDraw());
     }
 
     newDevice->setMarkerStack(fMarkerStack.get());
@@ -1259,9 +1262,9 @@ static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
 }
 
 void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
-    // Nothing to draw, and we know snapSpecial() would have returned null and 'srcDev' likely
-    // wasn't returned from onCreateDevice() so isn't allowed to be passed to drawDevice()
-    if (srcDev->isNoPixelsDevice()) {
+    // Nothing to draw: this happens when a saveLayer failed to create a device, so 'srcDev' is
+    // actually an SkNoPixelsDevice that can't be passed into the dst's drawDevice().
+    if (paint && paint->nothingToDraw()) {
         return;
     }
 
