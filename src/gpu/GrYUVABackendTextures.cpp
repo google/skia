@@ -9,13 +9,14 @@
 
 static int num_channels(const GrBackendFormat& format) {
     switch (format.channelMask()) {
-        case kRed_SkColorChannelFlag  : return 1;
-        case kAlpha_SkColorChannelFlag: return 1;
-        case kGray_SkColorChannelFlag : return 1;
-        case kRG_SkColorChannelFlags  : return 2;
-        case kRGB_SkColorChannelFlags : return 3;
-        case kRGBA_SkColorChannelFlags: return 4;
-        default                       : return 0;
+        case kRed_SkColorChannelFlag        : return 1;
+        case kAlpha_SkColorChannelFlag      : return 1;
+        case kGray_SkColorChannelFlag       : return 1;
+        case kGrayAlpha_SkColorChannelFlags : return 2;
+        case kRG_SkColorChannelFlags        : return 2;
+        case kRGB_SkColorChannelFlags       : return 3;
+        case kRGBA_SkColorChannelFlags      : return 4;
+        default                             : return 0;
     }
 }
 
