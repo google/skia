@@ -686,7 +686,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     }
 
     const Block& body = function.body()->as<Block>();
-    auto inlineBlock = std::make_unique<Block>(offset, StatementArray{});
+    auto inlineBlock = std::make_unique<Block>(offset, StatementArray{},
+                                               /*symbols=*/nullptr, /*isScope=*/hasEarlyReturn);
     inlineBlock->children().reserve_back(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
