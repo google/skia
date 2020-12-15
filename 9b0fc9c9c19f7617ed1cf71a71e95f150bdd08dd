@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac107f48_8c4952e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-15T20:04:46Z",
+      "side": 1,
+      "message": "fun!\n\nDoes colormatrix seems like an easy candidate for native half-color math?",
+      "revId": "9b0fc9c9c19f7617ed1cf71a71e95f150bdd08dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
