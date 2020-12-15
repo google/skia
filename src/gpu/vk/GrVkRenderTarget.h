@@ -60,7 +60,9 @@ public:
      */
     GrVkImage* msaaImage();
 
-    const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
+    const GrVkImageView* resolveAttachmentView() const {
+        return fResolveAttachmentView.get();
+    }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 

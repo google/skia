@@ -30,6 +30,7 @@
 
 class GrVkCommandPool;
 class GrVkGpu;
+class GrVkMSAALoadPipeline;
 class GrVkPipeline;
 class GrVkPipelineState;
 class GrVkPrimaryCommandBuffer;
@@ -137,9 +138,16 @@ public:
             VkRenderPass compatibleRenderPass,
             GrGpu::Stats::ProgramCacheResult* stat);
 
+    GrVkMSAALoadPipeline* findOrCreateMSAALoadPipeline(const GrVkRenderPass& renderPass,
+                                                       const GrVkRenderTarget* dst,
+                                                       VkPipelineShaderStageCreateInfo*,
+                                                       VkPipelineLayout);
+
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
                                        GrVkDescriptorSetManager::Handle* handle);
+
+    void getZeroSamplerDescriptorSetHandle(GrVkDescriptorSetManager::Handle* handle);
 
     // Returns the compatible VkDescriptorSetLayout to use for uniform buffers. The caller does not
     // own the VkDescriptorSetLayout and thus should not delete it. This function should be used
@@ -276,6 +284,9 @@ private:
 
     // Central cache for creating pipelines
     VkPipelineCache fPipelineCache;
+
+    // Cache of previously created msaa load pipelines
+    SkTArray<GrVkMSAALoadPipeline*> fMSAALoadPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 
