@@ -16,6 +16,24 @@
       "message": "woot!\n\nnit: topDevice() is easier to say than getTopDevice(), but I\u0027m happy either way.",
       "revId": "029f38f2f6a92a65eef1dd460b1a0ae310f3801c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b54e564_dec1ecba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T20:27:12Z",
+      "side": 1,
+      "message": "I can get behind that. Could then rename getDevice() to device() or baseDevice() (or since it\u0027s now just a private getter, have usages replaced with fBaseDevice).\n\nI think we should also move getTopDevice() to private, since it\u0027s only used internally, or by SkCanvasStateUtils (which is already a friend). That will prevent subclasses from accessing the non-public SkBaseDevice type. That can all be a follow up.",
+      "parentUuid": "106ca714_c96ad80e",
+      "revId": "029f38f2f6a92a65eef1dd460b1a0ae310f3801c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
