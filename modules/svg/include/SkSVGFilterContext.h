@@ -20,21 +20,33 @@ class SkSVGRenderContext;
 
 class SkSVGFilterContext {
 public:
-    SkSVGFilterContext(const SkRect& filterEffectsRegion)
-            : fFilterEffectsRegion(filterEffectsRegion) {}
+    SkSVGFilterContext(const SkRect& filterEffectsRegion,
+                       const SkSVGObjectBoundingBoxUnits& primitiveUnits)
+            : fFilterEffectsRegion(filterEffectsRegion), fPrimitiveUnits(primitiveUnits) {}
 
     const SkRect& filterEffectsRegion() const { return fFilterEffectsRegion; }
 
-    void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&);
+    const SkRect& filterPrimitiveSubregion(const SkSVGFeInputType&) const;
+
+    const SkSVGObjectBoundingBoxUnits& primitiveUnits() const { return fPrimitiveUnits; }
+
+    void registerResult(const SkSVGStringType&, const sk_sp<SkImageFilter>&, const SkRect&);
 
     sk_sp<SkImageFilter> resolveInput(const SkSVGRenderContext&, const SkSVGFeInputType&) const;
 
 private:
+    struct Result {
+        sk_sp<SkImageFilter> fImageFilter;
+        SkRect fFilterSubregion;
+    };
+
     sk_sp<SkImageFilter> findResultById(const SkSVGStringType&) const;
 
     SkRect fFilterEffectsRegion;
 
-    SkTHashMap<SkSVGStringType, sk_sp<SkImageFilter>> fResults;
+    SkSVGObjectBoundingBoxUnits fPrimitiveUnits;
+
+    SkTHashMap<SkSVGStringType, Result> fResults;
 };
 
 #endif  // SkSVGFilterContext_DEFINED

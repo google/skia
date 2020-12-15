@@ -12,14 +12,22 @@
 #include "modules/svg/include/SkSVGTypes.h"
 
 sk_sp<SkImageFilter> SkSVGFilterContext::findResultById(const SkSVGStringType& id) const {
-    const sk_sp<SkImageFilter>* res = fResults.find(id);
-    return res ? *res : nullptr;
+    const Result* res = fResults.find(id);
+    return res ? res->fImageFilter : nullptr;
+}
+
+const SkRect& SkSVGFilterContext::filterPrimitiveSubregion(const SkSVGFeInputType& input) const {
+    const Result* res = input.type() == SkSVGFeInputType::Type::kFilterPrimitiveReference
+                                ? fResults.find(input.id())
+                                : nullptr;
+    return res ? res->fFilterSubregion : fFilterEffectsRegion;
 }
 
 void SkSVGFilterContext::registerResult(const SkSVGStringType& id,
-                                        const sk_sp<SkImageFilter>& result) {
+                                        const sk_sp<SkImageFilter>& result,
+                                        const SkRect& subregion) {
     SkASSERT(!id.isEmpty());
-    fResults[id] = result;
+    fResults[id] = {result, subregion};
 }
 
 sk_sp<SkImageFilter> SkSVGFilterContext::resolveInput(const SkSVGRenderContext& ctx,

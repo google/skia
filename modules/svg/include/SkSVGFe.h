@@ -46,6 +46,11 @@ protected:
     bool parseAndSetAttribute(const char*, const char*) override;
 
 private:
+    /**
+     * Resolves this filter effect's x/y/w/h rect according to primitiveUnits in filter context.
+     */
+    SkRect resolveBoundaries(const SkSVGRenderContext&, const SkSVGFilterContext&) const;
+
     using INHERITED = SkSVGHiddenContainer;
 };
 
