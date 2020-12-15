@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d9e1c33_ce7ec524",
+        "filename": "src/gpu/GrProgramInfo.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T22:34:22Z",
+      "side": 1,
+      "message": "Why isn\u0027t this just \u0027targetIsTextureable\u0027 ?",
+      "range": {
+        "startLine": 79,
+        "startChar": 9,
+        "endLine": 79,
+        "endChar": 32
+      },
+      "revId": "8cc07ca54016318d1f43c6a52e82f9552acde265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
