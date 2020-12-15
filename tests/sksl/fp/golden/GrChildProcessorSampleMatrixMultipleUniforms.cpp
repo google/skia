@@ -61,9 +61,6 @@ bool GrChildProcessorSampleMatrixMultipleUniforms::onIsEqual(const GrFragmentPro
     if (matrixB != that.matrixB) return false;
     return true;
 }
-bool GrChildProcessorSampleMatrixMultipleUniforms::usesExplicitReturn() const {
-    return false;
-}
 GrChildProcessorSampleMatrixMultipleUniforms::GrChildProcessorSampleMatrixMultipleUniforms(const GrChildProcessorSampleMatrixMultipleUniforms& src)
 : INHERITED(kGrChildProcessorSampleMatrixMultipleUniforms_ClassID, src.optimizationFlags())
 , matrixA(src.matrixA)

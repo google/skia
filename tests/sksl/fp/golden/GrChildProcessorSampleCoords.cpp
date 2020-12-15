@@ -41,9 +41,6 @@ bool GrChildProcessorSampleCoords::onIsEqual(const GrFragmentProcessor& other) c
     (void) that;
     return true;
 }
-bool GrChildProcessorSampleCoords::usesExplicitReturn() const {
-    return false;
-}
 GrChildProcessorSampleCoords::GrChildProcessorSampleCoords(const GrChildProcessorSampleCoords& src)
 : INHERITED(kGrChildProcessorSampleCoords_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

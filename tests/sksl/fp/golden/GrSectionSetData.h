@@ -20,7 +20,6 @@ public:
     GrSectionSetData(const GrSectionSetData& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionSetData"; }
-    bool usesExplicitReturn() const override;
     float provided;
 private:
     GrSectionSetData(float provided)

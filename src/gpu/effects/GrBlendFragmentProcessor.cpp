@@ -176,8 +176,6 @@ private:
         return fMode == cs.fMode;
     }
 
-    bool usesExplicitReturn() const override { return true; }
-
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
         const auto* src = this->childProcessor(0);
         const auto* dst = this->childProcessor(1);

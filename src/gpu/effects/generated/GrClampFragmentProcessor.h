@@ -33,7 +33,6 @@ public:
     GrClampFragmentProcessor(const GrClampFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ClampFragmentProcessor"; }
-    bool usesExplicitReturn() const override;
     bool clampToPremul;
 
 private:

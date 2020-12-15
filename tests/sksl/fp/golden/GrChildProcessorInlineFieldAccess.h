@@ -20,7 +20,6 @@ public:
     GrChildProcessorInlineFieldAccess(const GrChildProcessorInlineFieldAccess& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorInlineFieldAccess"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessorInlineFieldAccess(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorInlineFieldAccess_ClassID, kNone_OptimizationFlags) {

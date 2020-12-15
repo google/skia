@@ -45,7 +45,6 @@ public:
 
 private:
     const char* name() const override { return "VisualizeCrossProductSignFP"; }
-    bool usesExplicitReturn() const override { return true; }
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new VisualizeCrossProductSignFP(fA, fB));
     }

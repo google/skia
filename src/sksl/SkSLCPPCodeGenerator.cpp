@@ -317,6 +317,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     }
     switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
+            // TODO(skia:10549) -- delete this
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
             this->setReturnType(ref.fOffset, ReturnType::kUsesSkOutColor);
@@ -1492,10 +1493,6 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
-    this->writef("bool %s::usesExplicitReturn() const {\n"
-                 "    return %s;\n"
-                 "}\n",
-                 fullName, fReturnType == ReturnType::kUsesExplicitReturn ? "true" : "false");
     this->writeClone();
     this->writeDumpInfo();
     this->writeOnTextureSampler();

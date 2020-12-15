@@ -158,6 +158,7 @@ private:
     int fSampleCounter = 0;
 
     // Keeps track of how main() returns a color to the caller. An FP file cannot mix return types.
+    // TODO(skia:10549): main() always returns half4; remove this
     ReturnType fReturnType = ReturnType::kNothing;
 
     // if not null, we are accumulating SkSL for emitCode into fOut, which

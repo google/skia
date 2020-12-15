@@ -17,7 +17,6 @@ public:
 make section    GrSectionMake(const GrSectionMake& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SectionMake"; }
-    bool usesExplicitReturn() const override;
 private:
     GrSectionMake()
     : INHERITED(kGrSectionMake_ClassID, kNone_OptimizationFlags) {

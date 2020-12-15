@@ -35,7 +35,6 @@ public:
     GrMixerEffect(const GrMixerEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MixerEffect"; }
-    bool usesExplicitReturn() const override;
     float weight;
 
 private:

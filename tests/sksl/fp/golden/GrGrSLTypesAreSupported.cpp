@@ -85,9 +85,6 @@ bool GrGrSLTypesAreSupported::onIsEqual(const GrFragmentProcessor& other) const 
     (void) that;
     return true;
 }
-bool GrGrSLTypesAreSupported::usesExplicitReturn() const {
-    return false;
-}
 GrGrSLTypesAreSupported::GrGrSLTypesAreSupported(const GrGrSLTypesAreSupported& src)
 : INHERITED(kGrGrSLTypesAreSupported_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

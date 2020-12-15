@@ -28,7 +28,6 @@ public:
     }
 
     const char* name() const override { return "SampleMatrixVariableEffect"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         SkASSERT(false);

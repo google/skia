@@ -38,9 +38,6 @@ bool GrHelloWorld::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrHelloWorld::usesExplicitReturn() const {
-    return false;
-}
 GrHelloWorld::GrHelloWorld(const GrHelloWorld& src)
 : INHERITED(kGrHelloWorld_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

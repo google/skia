@@ -44,9 +44,6 @@ bool GrRecursion::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrRecursion::usesExplicitReturn() const {
-    return false;
-}
 GrRecursion::GrRecursion(const GrRecursion& src)
 : INHERITED(kGrRecursion_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

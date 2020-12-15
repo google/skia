@@ -89,7 +89,6 @@ bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (colorsAreOpaque != that.colorsAreOpaque) return false;
     return true;
 }
-bool GrTiledGradientEffect::usesExplicitReturn() const { return true; }
 GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
         : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags())
         , mirror(src.mirror)
