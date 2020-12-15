@@ -15,6 +15,7 @@
 #include "include/private/SkTo.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
+#include "tools/SkSharingProc.h"
 
 #include <limits.h>
 
@@ -65,7 +66,18 @@ struct MultiPictureDocument final : public SkDocument {
     }
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);
-        fPages.push_back(fPictureRecorder.finishRecordingAsPicture());
+        sk_sp<SkPicture> lastPage = fPictureRecorder.finishRecordingAsPicture();
+        fPages.push_back(lastPage);
+
+        // Collect images before GPU-backed textures expire
+        // TODO, this needs to be turned off for PDFs, is the following condition sufficient to do that?
+        if (fProcs.fImageCtx) {
+            SkSerialProcs endPageProc;
+            endPageProc.fImageCtx = fProcs.fImageCtx; // same context
+            endPageProc.fImageProc = SkSharingSerialContext::collectNonTextureImages; // different function
+            auto ns = SkNullWStream();
+            lastPage->serialize(&ns, &endPageProc);
+        }
     }
     void onClose(SkWStream* wStream) override {
         SkASSERT(wStream);

@@ -12,6 +12,16 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSerialProcs.h"
 
+sk_sp<SkData> SkSharingSerialContext::collectNonTextureImages(SkImage* img, void* ctx) {
+    SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
+    uint32_t originalId = img->uniqueID();
+    context->fNonTexMap[originalId] = img->makeNonTextureImage(); // lazy
+    // return something or SkWriteBuffer.cpp will attempt PNG encode which in this case
+    // is slow and pointless because we send it to a null stream
+    const char a = 'a';
+    return SkData::MakeWithCopy(&a, 1);
+}
+
 sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t id = img->uniqueID(); // get this process's id for the image. these are not hashes.
@@ -19,7 +29,12 @@ sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     auto iter = context->fImageMap.find(id);
     if (iter == context->fImageMap.end()) {
         // When not present, add its id to the map and return its usual serialized form.
-        context->fImageMap[id] = context->fImageMap.size();
+        context->fImageMap[id] = context->fImageMap.size(); // Next in-file id
+        // encode the image or it's non-texture replacement if one was collected
+        auto iter2 = context->fNonTexMap.find(id);
+        if (iter2 != context->fNonTexMap.end()) {
+            img = iter2->second.get();
+        }
         return img->encodeToData();
     }
     uint32_t fid = context->fImageMap[id];
