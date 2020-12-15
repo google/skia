@@ -33,6 +33,57 @@
       "message": "I think I still don\u0027t fundamentally understand why there needs to be a new type.  Can\u0027t we structure SkArenaAlloc to have all the APIs and behaviors available?",
       "revId": "b95374d74d2930652729e235fc6c5788633ac821",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb53db59_2a8eff3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T21:20:43Z",
+      "side": 1,
+      "message": "I\u0027ll patch in and try merging everything back into SkArenaAlloc.\nProbably easiest to find the answers to my questions myself.",
+      "revId": "b95374d74d2930652729e235fc6c5788633ac821",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99411a00_c687cca3",
+        "filename": "tests/ArenaAllocTest.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T21:20:43Z",
+      "side": 1,
+      "message": "This may trip someone up?  Maybe just\n\n   this-\u003ex \u003d that.x;\n   this-\u003ey \u003d that.y;\n\nI\u0027m not really sure it\u0027s defined behavior to placement new onto this without first destructing it, and that would feel even weirder, destructing an object in the middle of one of its own methods.",
+      "revId": "b95374d74d2930652729e235fc6c5788633ac821",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03c0d26a_a42d8fe9",
+        "filename": "tests/ArenaAllocTest.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T21:20:43Z",
+      "side": 1,
+      "message": "I don\u0027t think I follow this.  This is a copy, no Foos are created or destroyed?",
+      "revId": "b95374d74d2930652729e235fc6c5788633ac821",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
