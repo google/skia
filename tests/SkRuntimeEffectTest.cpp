@@ -58,6 +58,9 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
 
     test("half4 missing(); half4 main() { return missing(); }", "undefined function");
 
+    // No use of 'discard' is permitted
+    test("half4 main() { discard; }", "discard");
+
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
     test("", "main");
 
