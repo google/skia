@@ -148,6 +148,8 @@ bool Window_mac::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
             break;
+        case kUnknown_BackendType:
+            SkUNREACHABLE;
     }
     this->onBackendCreated();
 
