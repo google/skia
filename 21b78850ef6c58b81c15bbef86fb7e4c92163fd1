@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b9b5528_4e18b155",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "still looking",
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e03a31b_7ecf7f47",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "Fix ?",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 63
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f35bdd6_61847941",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "Aren\u0027t we just passing these as \"SkIRect\" nowadays? And then the following \u0027makeOffset\u0027 could just be an \u0027offset\u0027.",
+      "range": {
+        "startLine": 463,
+        "startChar": 44,
+        "endLine": 463,
+        "endChar": 68
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1414988_a669769c",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "dup",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 70
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d6b0550_957a6caf",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "xtra spaces",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 75
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7568bd6_669f48d6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-15T15:32:12Z",
+      "side": 1,
+      "message": "Move the \u0027:\u0027 down \u0026 line up with the \u0027?\u0027 ?",
+      "range": {
+        "startLine": 1826,
+        "startChar": 27,
+        "endLine": 1826,
+        "endChar": 44
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
