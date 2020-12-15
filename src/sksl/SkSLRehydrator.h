@@ -144,8 +144,6 @@ public:
         // uint16 varId, uint8 refKind
         kVariableReference_Command,
         kVoid_Command,
-        // Expression test, Statement body
-        kWhile_Command,
     };
 
     // src must remain in memory as long as the objects created from it do
