@@ -14,9 +14,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float _0_cross;
-    {
-        _0_cross = _in.a.x * _in.b.y - _in.a.y * _in.b.x;
-    }
+    _0_cross = _in.a.x * _in.b.y - _in.a.y * _in.b.x;
+
     _out->sk_FragColor.x = _0_cross;
 
     return *_out;

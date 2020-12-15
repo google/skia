@@ -14,9 +14,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_src_over;
-    {
-        _0_blend_src_over = _in.src + (1.0 - _in.src.w) * _in.dst;
-    }
+    _0_blend_src_over = _in.src + (1.0 - _in.src.w) * _in.dst;
+
     _out->sk_FragColor = _0_blend_src_over;
 
     return *_out;
