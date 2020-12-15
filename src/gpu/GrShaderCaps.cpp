@@ -189,8 +189,5 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,
                                             fMaxTessellationSegments);
     }
-#else
-    // Tessellation shaders are still very experimental. Always disable them outside of test builds.
-    fMaxTessellationSegments = 0;
 #endif
 }
