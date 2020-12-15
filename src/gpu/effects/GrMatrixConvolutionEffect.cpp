@@ -179,18 +179,15 @@ void GrGLMatrixConvolutionEffect::emitKernelBlock(EmitArgs& args, SkIPoint loc) 
     fragBuilder->codeAppend("half2 sourceOffset;");
     if (mce.kernelIsSampled()) {
         const char* kernelBias = uniformHandler->getUniformCStr(fKernelBiasUni);
-        SkString kernelCoord = SkStringPrintf("float2(float(i) + 0.5, 0.5)");
-        SkString kernelSample = this->invokeChild(1, args, kernelCoord.c_str());
+        SkString kernelSample = this->invokeChild(1, args, "float2(float(i) + 0.5, 0.5)");
         fragBuilder->codeAppendf("k = %s.w + %s;", kernelSample.c_str(), kernelBias);
         fragBuilder->codeAppendf("sourceOffset.y = floor(i / %d);", kernelWidth);
         fragBuilder->codeAppendf("sourceOffset.x = i - sourceOffset.y * %d;", kernelWidth);
     } else {
         fragBuilder->codeAppendf("sourceOffset = half2(%d, %d);", loc.x(), loc.y());
         int offset = loc.y() * kernelWidth + loc.x();
-        static constexpr const char kVecSuffix[][4] = { ".x", ".y", ".z", ".w" };
         const char* kernel = uniformHandler->getUniformCStr(fKernelUni);
-        fragBuilder->codeAppendf("k = %s[%d]%s;", kernel, offset / 4,
-                                 kVecSuffix[offset & 0x3]);
+        fragBuilder->codeAppendf("k = %s[%d][%d];", kernel, offset / 4, offset & 0x3);
     }
 
     auto sample = this->invokeChild(0, args, "coord + sourceOffset");
@@ -242,18 +239,19 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         }
     }
 
+    fragBuilder->codeAppendf("half4 color;");
     if (mce.convolveAlpha()) {
-        fragBuilder->codeAppendf("%s = sum * %s + %s;", args.fOutputColor, gain, bias);
-        fragBuilder->codeAppendf("%s.a = saturate(%s.a);", args.fOutputColor, args.fOutputColor);
-        fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
-                                 args.fOutputColor, args.fOutputColor, args.fOutputColor);
+        fragBuilder->codeAppendf("color = sum * %s + %s;", gain, bias);
+        fragBuilder->codeAppendf("color.a = saturate(color.a);");
+        fragBuilder->codeAppendf("color.rgb = clamp(color.rgb, 0.0, color.a);");
     } else {
         auto sample = this->invokeChild(0, args);
         fragBuilder->codeAppendf("half4 c = %s;", sample.c_str());
-        fragBuilder->codeAppendf("%s.a = c.a;", args.fOutputColor);
-        fragBuilder->codeAppendf("%s.rgb = saturate(sum.rgb * %s + %s);", args.fOutputColor, gain, bias);
-        fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);
+        fragBuilder->codeAppendf("color.a = c.a;");
+        fragBuilder->codeAppendf("color.rgb = saturate(sum.rgb * %s + %s);", gain, bias);
+        fragBuilder->codeAppendf("color.rgb *= color.a;");
     }
+    fragBuilder->codeAppendf("return color;");
 }
 
 void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,

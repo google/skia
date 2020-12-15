@@ -30,19 +30,18 @@ public:
         fragBuilder->forceHighPrecision();
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-                R"SkSL(%s = floor(%s * 255.0 + 0.5) / 255.0;
+                R"SkSL(half4 color = floor(%s * 255.0 + 0.5) / 255.0;
 @switch (%d) {
     case 0:
-        %s.xyz = floor((%s.xyz * %s.w) * 255.0 + 0.5) / 255.0;
+        color.xyz = floor((color.xyz * color.w) * 255.0 + 0.5) / 255.0;
         break;
     case 1:
-        %s.xyz = %s.w <= 0.0 ? half3(0.0) : floor((%s.xyz / %s.w) * 255.0 + 0.5) / 255.0;
+        color.xyz = color.w <= 0.0 ? half3(0.0) : floor((color.xyz / color.w) * 255.0 + 0.5) / 255.0;
         break;
 }
+return color;
 )SkSL",
-                args.fOutputColor, _sample0.c_str(), (int)_outer.pmConversion, args.fOutputColor,
-                args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
-                args.fOutputColor, args.fOutputColor);
+                _sample0.c_str(), (int)_outer.pmConversion);
     }
 
 private:
@@ -62,7 +61,7 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& other) const
     if (pmConversion != that.pmConversion) return false;
     return true;
 }
-bool GrConfigConversionEffect::usesExplicitReturn() const { return false; }
+bool GrConfigConversionEffect::usesExplicitReturn() const { return true; }
 GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffect& src)
         : INHERITED(kGrConfigConversionEffect_ClassID, src.optimizationFlags())
         , pmConversion(src.pmConversion) {

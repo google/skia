@@ -140,22 +140,24 @@ layout(key) in PMConversion pmConversion;
     fragBuilder->forceHighPrecision();
 }
 
-void main() {
+half4 main() {
     // Aggressively round to the nearest exact (N / 255) floating point value. This lets us find a
     // round-trip preserving pair on some GPUs that do odd byte to float conversion.
-    sk_OutColor = floor(sample(inputFP) * 255 + 0.5) / 255;
+    half4 color = floor(sample(inputFP) * 255 + 0.5) / 255;
 
     @switch (pmConversion) {
         case PMConversion::kToPremul:
-            sk_OutColor.rgb = floor(sk_OutColor.rgb * sk_OutColor.a * 255 + 0.5) / 255;
+            color.rgb = floor(color.rgb * color.a * 255 + 0.5) / 255;
             break;
 
         case PMConversion::kToUnpremul:
-            sk_OutColor.rgb = sk_OutColor.a <= 0.0
-                                      ? half3(0)
-                                      : floor(sk_OutColor.rgb / sk_OutColor.a * 255 + 0.5) / 255;
+            color.rgb = color.a <= 0.0
+                            ? half3(0)
+                            : floor(color.rgb / color.a * 255 + 0.5) / 255;
             break;
     }
+
+    return color;
 }
 
 @test(data) {
