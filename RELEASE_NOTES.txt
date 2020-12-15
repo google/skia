@@ -7,6 +7,11 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * SkAnimatedImage: Always respect exif orientation
+    Replace SkPixmapPriv::ShouldSwapWidthHeight with
+    SkEncodedOriginSwapsWidthHeight.
+    https://review.skia.org/344762
+
   * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
     https://review.skia.org/342077
 
