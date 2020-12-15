@@ -188,8 +188,6 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     } // else the function keeps its two arguments
 
     fp->emitCode(args);
-    SkASSERT(args.fFp.usesExplicitReturn());
-    SkASSERT(SkStrContains(this->code().c_str(), "return"));
 
     SkString funcName = this->getMangledFunctionName(args.fFp.name());
     this->emitFunction(kHalf4_GrSLType, funcName.c_str(), {params, paramCount},

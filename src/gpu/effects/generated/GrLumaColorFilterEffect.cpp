@@ -48,7 +48,6 @@ bool GrLumaColorFilterEffect::onIsEqual(const GrFragmentProcessor& other) const 
     (void)that;
     return true;
 }
-bool GrLumaColorFilterEffect::usesExplicitReturn() const { return true; }
 GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src)
         : INHERITED(kGrLumaColorFilterEffect_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);

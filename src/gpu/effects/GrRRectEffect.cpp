@@ -51,7 +51,6 @@ public:
     ~CircularRRectEffect() override {}
 
     const char* name() const override { return "CircularRRect"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -409,8 +408,6 @@ public:
     ~EllipticalRRectEffect() override {}
 
     const char* name() const override { return "EllipticalRRect"; }
-
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 

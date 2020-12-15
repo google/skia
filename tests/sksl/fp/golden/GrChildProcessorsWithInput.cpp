@@ -53,9 +53,6 @@ bool GrChildProcessorsWithInput::onIsEqual(const GrFragmentProcessor& other) con
     (void) that;
     return true;
 }
-bool GrChildProcessorsWithInput::usesExplicitReturn() const {
-    return true;
-}
 GrChildProcessorsWithInput::GrChildProcessorsWithInput(const GrChildProcessorsWithInput& src)
 : INHERITED(kGrChildProcessorsWithInput_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

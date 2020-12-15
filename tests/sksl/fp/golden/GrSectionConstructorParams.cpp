@@ -41,9 +41,6 @@ bool GrSectionConstructorParams::onIsEqual(const GrFragmentProcessor& other) con
     if (w != that.w) return false;
     return true;
 }
-bool GrSectionConstructorParams::usesExplicitReturn() const {
-    return true;
-}
 GrSectionConstructorParams::GrSectionConstructorParams(const GrSectionConstructorParams& src)
 : INHERITED(kGrSectionConstructorParams_ClassID, src.optimizationFlags())
 , w(src.w) {
