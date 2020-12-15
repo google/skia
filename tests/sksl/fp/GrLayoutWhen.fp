@@ -1,3 +1,5 @@
 layout(when=someExpression(someOtherExpression())) uniform half sometimes;
 
-void main() {}
+half4 main() {
+    return half4(1);
+}

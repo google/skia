@@ -1,10 +1,10 @@
 in fragmentProcessor child;
 bool hasCap = sk_Caps.externalTextureSupport;
 
-void main() {
+half4 main() {
     if (hasCap) {
-        sk_OutColor = sample(child);
+        return sample(child);
     } else {
-        sk_OutColor = half4(1);
+        return half4(1);
     }
 }

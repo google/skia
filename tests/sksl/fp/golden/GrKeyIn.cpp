@@ -22,9 +22,9 @@ public:
         auto color = _outer.color;
         (void) color;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(%f, %f, %f, %f);
+R"SkSL(return half4(%f, %f, %f, %f);
 )SkSL"
-, args.fOutputColor, _outer.color.left(), _outer.color.top(), _outer.color.right(), _outer.color.bottom());
+, _outer.color.left(), _outer.color.top(), _outer.color.right(), _outer.color.bottom());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -48,7 +48,7 @@ bool GrKeyIn::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrKeyIn::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrKeyIn::GrKeyIn(const GrKeyIn& src)
 : INHERITED(kGrKeyIn_ClassID, src.optimizationFlags())

@@ -8,8 +8,6 @@ _tests = get_path_info("../tests", "abspath")
 
 sksl_fp_error_tests = [
   "$_tests/sksl/errors/GrBadIn.fp",
-  "$_tests/sksl/errors/GrBothExplicitReturnAndSkOutColor.fp",
-  "$_tests/sksl/errors/GrCannotReturnWithSkOutColor.fp",
   "$_tests/sksl/errors/GrMainParameterWrongType.fp",
   "$_tests/sksl/errors/GrMainTooManyParameters.fp",
   "$_tests/sksl/errors/GrNoFragmentProcessorConstruction.fp",

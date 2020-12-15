@@ -27,12 +27,12 @@ if (opaque) {)SkSL"
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(
-    %s = %s;
+    return %s;
 } else {
-    %s = half4(0.5);
+    return half4(0.5);
 }
 )SkSL"
-, args.fOutputColor, _sample0.c_str(), args.fOutputColor);
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -50,7 +50,7 @@ bool GrChildProcessorFieldAccess::onIsEqual(const GrFragmentProcessor& other) co
     return true;
 }
 bool GrChildProcessorFieldAccess::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrChildProcessorFieldAccess::GrChildProcessorFieldAccess(const GrChildProcessorFieldAccess& src)
 : INHERITED(kGrChildProcessorFieldAccess_ClassID, src.optimizationFlags()) {

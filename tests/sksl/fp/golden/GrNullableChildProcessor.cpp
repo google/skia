@@ -25,12 +25,12 @@ R"SkSL(if (%s) {)SkSL"
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(
-    %s = %s;
+    return %s;
 } else {
-    %s = half4(0.5);
+    return half4(0.5);
 }
 )SkSL"
-, args.fOutputColor, _sample0.c_str(), args.fOutputColor);
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -47,7 +47,7 @@ bool GrNullableChildProcessor::onIsEqual(const GrFragmentProcessor& other) const
     return true;
 }
 bool GrNullableChildProcessor::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrNullableChildProcessor::GrNullableChildProcessor(const GrNullableChildProcessor& src)
 : INHERITED(kGrNullableChildProcessor_ClassID, src.optimizationFlags()) {
