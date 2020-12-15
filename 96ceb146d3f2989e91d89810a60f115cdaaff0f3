@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2217052c_2eafa5a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T17:41:33Z",
+      "side": 1,
+      "message": "Realize this is just a cherry-pick, so def not asking for anything, but it might be nicer if methods that are passed bare ptrs and then use sk_ref_sp were instead passed sk_sps (didn\u0027t look upstack to see if that\u0027s trivial or not).",
+      "revId": "96ceb146d3f2989e91d89810a60f115cdaaff0f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
