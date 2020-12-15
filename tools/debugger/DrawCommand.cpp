@@ -1183,7 +1183,9 @@ void DrawAnnotationCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlData
     MakeJsonRect(writer, fRect);
     writer.appendString("key", fKey.c_str());
     if (fValue) {
-        // TODO: dump out the "value"
+        writer.appendString("value", std::string(
+            static_cast<const char*>(fValue->data()), fValue->size()
+            ).c_str());
     }
 
     SkString desc;
