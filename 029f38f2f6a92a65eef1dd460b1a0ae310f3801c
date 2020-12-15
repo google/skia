@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "106ca714_c96ad80e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-15T20:17:13Z",
+      "side": 1,
+      "message": "woot!\n\nnit: topDevice() is easier to say than getTopDevice(), but I\u0027m happy either way.",
+      "revId": "029f38f2f6a92a65eef1dd460b1a0ae310f3801c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
