@@ -30,7 +30,7 @@ static SkImageInfo adjust_info(SkCodec* codec) {
     if (kUnpremul_SkAlphaType == info.alphaType()) {
         info = info.makeAlphaType(kPremul_SkAlphaType);
     }
-    if (SkPixmapPriv::ShouldSwapWidthHeight(codec->getOrigin())) {
+    if (SkEncodedOriginSwapsWidthHeight(codec->getOrigin())) {
         info = SkPixmapPriv::SwapWidthHeight(info);
     }
     return info;
@@ -88,7 +88,7 @@ bool SkCodecImageGenerator::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
 
 SkISize SkCodecImageGenerator::getScaledDimensions(float desiredScale) const {
     SkISize size = fCodec->getScaledDimensions(desiredScale);
-    if (SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+    if (SkEncodedOriginSwapsWidthHeight(fCodec->getOrigin())) {
         std::swap(size.fWidth, size.fHeight);
     }
     return size;

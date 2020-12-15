@@ -43,7 +43,7 @@ SkISize SkAnimCodecPlayer::dimensions() const {
         auto image = fImages.front();
         return image ? image->dimensions() : SkISize::MakeEmpty();
     }
-    if (SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+    if (SkEncodedOriginSwapsWidthHeight(fCodec->getOrigin())) {
         return { fImageInfo.height(), fImageInfo.width() };
     }
     return { fImageInfo.width(), fImageInfo.height() };
