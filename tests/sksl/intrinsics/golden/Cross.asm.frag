@@ -8,7 +8,6 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %a "a"
 OpName %b "b"
 OpName %main "main"
-OpName %_0_cross "_0_cross"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -16,14 +15,13 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %a RelaxedPrecision
 OpDecorate %b RelaxedPrecision
+OpDecorate %17 RelaxedPrecision
 OpDecorate %19 RelaxedPrecision
 OpDecorate %21 RelaxedPrecision
-OpDecorate %23 RelaxedPrecision
+OpDecorate %22 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -37,27 +35,23 @@ OpDecorate %30 RelaxedPrecision
 %b = OpVariable %_ptr_Input_v2float Input
 %void = OpTypeVoid
 %15 = OpTypeFunction %void
-%_ptr_Function_float = OpTypePointer Function %float
 %_ptr_Output_float = OpTypePointer Output %float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
 %main = OpFunction %void None %15
 %16 = OpLabel
-%_0_cross = OpVariable %_ptr_Function_float Function
-%19 = OpLoad %v2float %a
-%20 = OpCompositeExtract %float %19 0
-%21 = OpLoad %v2float %b
-%22 = OpCompositeExtract %float %21 1
-%23 = OpFMul %float %20 %22
-%24 = OpLoad %v2float %a
-%25 = OpCompositeExtract %float %24 1
-%26 = OpLoad %v2float %b
-%27 = OpCompositeExtract %float %26 0
-%28 = OpFMul %float %25 %27
-%29 = OpFSub %float %23 %28
-OpStore %_0_cross %29
-%30 = OpLoad %float %_0_cross
-%31 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-OpStore %31 %30
+%17 = OpLoad %v2float %a
+%18 = OpCompositeExtract %float %17 0
+%19 = OpLoad %v2float %b
+%20 = OpCompositeExtract %float %19 1
+%21 = OpFMul %float %18 %20
+%22 = OpLoad %v2float %a
+%23 = OpCompositeExtract %float %22 1
+%24 = OpLoad %v2float %b
+%25 = OpCompositeExtract %float %24 0
+%26 = OpFMul %float %23 %25
+%27 = OpFSub %float %21 %26
+%28 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+OpStore %28 %27
 OpReturn
 OpFunctionEnd

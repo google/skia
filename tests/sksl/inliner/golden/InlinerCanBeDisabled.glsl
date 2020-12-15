@@ -4,22 +4,13 @@ vec4 blend_src_in(vec4 src, vec4 dst) {
     return src * dst.w;
 }
 vec4 blend_dst_in(vec4 src, vec4 dst) {
-    vec4 _0_blend_src_in;
-    _0_blend_src_in = dst * src.w;
-
-    return _0_blend_src_in;
+    return dst * src.w;
 
 }
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
-    float _11_blend_color_luminance;
-    _11_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
+    float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
 
-    float lum = _11_blend_color_luminance;
-
-    float _12_blend_color_luminance;
-    _12_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor);
-
-    vec3 result = (lum - _12_blend_color_luminance) + hueSatColor;
+    vec3 result = (lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
 
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
@@ -32,10 +23,7 @@ vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     return minMidMax.x < minMidMax.z ? vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : vec3(0.0);
 }
 vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
-    float _13_blend_color_saturation;
-    _13_blend_color_saturation = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
-
-    float sat = _13_blend_color_saturation;
+    float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
 
     if (hueLumColor.x <= hueLumColor.y) {
         if (hueLumColor.y <= hueLumColor.z) {
