@@ -10,6 +10,10 @@ Milestone 89
     a vector pointing towards the light, and light radius is blur radius at elevation 1.
     https://review.skia.org/321792
 
+  * Support GL_LUMINANCE8_ALPHA8 textures. These can be used with GrBackendTexture APIs
+    on GrDirectContext and as planes of YUVA images via GrYUVABackendTextures.
+    https://review.skia.org/344761
+
   * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
     https://review.skia.org/342077
 
