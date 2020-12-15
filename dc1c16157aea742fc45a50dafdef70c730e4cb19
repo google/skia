@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b437a80_a879167c",
+        "filename": "src/gpu/tessellate/GrStrokeIterator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T13:03:52Z",
+      "side": 1,
+      "message": "Does this mean we\u0027re inverting the matrix every time we have a square cap and an empty line segment?",
+      "range": {
+        "startLine": 231,
+        "startChar": 23,
+        "endLine": 233,
+        "endChar": 25
+      },
+      "revId": "dc1c16157aea742fc45a50dafdef70c730e4cb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2b9a88a_faaf6dea",
+        "filename": "src/gpu/tessellate/GrStrokeOp.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T13:03:52Z",
+      "side": 1,
+      "message": "SHould we be more extreme here? It feels like we could make a not unreasonable skew matrix that is 4x higher on one dimension than the other. And in this case, we\u0027d clamp and end up with a stroke that starts to get much larger than one device-space pixel? Perhaps it\u0027s better to check min/max ratio early and if it\u0027s really bad, we pre-transform the path into device space on the CPU, so that we know this code path only has to handle nice matrices?",
+      "range": {
+        "startLine": 83,
+        "startChar": 57,
+        "endLine": 83,
+        "endChar": 78
+      },
+      "revId": "dc1c16157aea742fc45a50dafdef70c730e4cb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
