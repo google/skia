@@ -402,19 +402,6 @@ private:
     SkDEBUGCODE(int fSaveCount;)
 };
 
-// Helper macro to run code on the top layer's SkBaseDevice if it's not null. What would be
-// "this->getTopDevice()->code;" is "TOP_DEVICE(code);", while handling whether or not the top
-// device is actually null.
-// TODO: This can go away once we disallow SkCanvas::init(nullptr) calls, so that it can be
-// assumed that the base device is always non-null.
-#define TOP_DEVICE( code )                                                \
-    do {                                                                  \
-        SkBaseDevice* _device = this->getTopDevice();                     \
-        if (_device) {                                                    \
-            _device->code;                                                \
-        }                                                                 \
-    } while(0)
-
 ////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
@@ -694,7 +681,9 @@ void SkCanvas::restoreToCount(int count) {
 void SkCanvas::internalSave() {
     fMCRec = new (fMCStack.push_back()) MCRec(*fMCRec);
 
-    TOP_DEVICE(save());
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->save();
+    }
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SkIRect* intersection,
@@ -1153,14 +1142,18 @@ void SkCanvas::internalRestore() {
         return;
     }
 
-    TOP_DEVICE(restore(fMCRec->fMatrix));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->restore(fMCRec->fMatrix);
+    }
 
     if (backImage) {
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kDstOver);
-        TOP_DEVICE(drawSpecial(backImage->fImage.get(),
-                               SkMatrix::Translate(backImage->fLoc.x(), backImage->fLoc.y()), \
-                               paint));
+        if (SkBaseDevice* device = this->getTopDevice()) {
+            device->drawSpecial(backImage->fImage.get(),
+                                SkMatrix::Translate(backImage->fLoc.x(), backImage->fLoc.y()),
+                                paint);
+        }
     }
 
     // Draw the layer's device contents into the now-current older device. We can't call public
@@ -1332,7 +1325,9 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         // so we still have to compute this.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        TOP_DEVICE(setGlobalCTM(fMCRec->fMatrix));
+        if (SkBaseDevice* device = this->getTopDevice()) {
+            device->setGlobalCTM(fMCRec->fMatrix);
+        }
 
         this->didTranslate(dx,dy);
     }
@@ -1347,7 +1342,9 @@ void SkCanvas::scale(SkScalar sx, SkScalar sy) {
         // but pre-scaling by a non-finite does change it, so we have to recompute.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        TOP_DEVICE(setGlobalCTM(fMCRec->fMatrix));
+        if (SkBaseDevice* device = this->getTopDevice()) {
+            device->setGlobalCTM(fMCRec->fMatrix);
+        }
 
         this->didScale(sx, sy);
     }
@@ -1385,7 +1382,9 @@ void SkCanvas::internalConcat44(const SkM44& m) {
 
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-    TOP_DEVICE(setGlobalCTM(fMCRec->fMatrix));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->setGlobalCTM(fMCRec->fMatrix);
+    }
 }
 
 void SkCanvas::concat(const SkM44& m) {
@@ -1398,7 +1397,9 @@ void SkCanvas::internalSetMatrix(const SkM44& m) {
     fMCRec->fMatrix = m;
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(m);
 
-    TOP_DEVICE(setGlobalCTM(fMCRec->fMatrix));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->setGlobalCTM(fMCRec->fMatrix);
+    }
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
@@ -1444,7 +1445,9 @@ void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeSty
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(clipRect(rect, op, isAA));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->clipRect(rect, op, isAA);
+    }
 }
 
 void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
@@ -1456,14 +1459,18 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     }
 
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+    }
 }
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     this->checkForDeferredSave();
 
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(replaceClip(rect));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->replaceClip(rect);
+    }
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
@@ -1480,7 +1487,9 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(clipRRect(rrect, op, isAA));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->clipRRect(rrect, op, isAA);
+    }
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
@@ -1512,7 +1521,9 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(clipPath(path, op, isAA));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->clipPath(path, op, isAA);
+    }
 }
 
 void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
@@ -1534,7 +1545,9 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
 
 void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(clipShader(sh, op));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->clipShader(sh, op);
+    }
 }
 
 void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
@@ -1544,7 +1557,9 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     AutoUpdateQRBounds aqr(this);
-    TOP_DEVICE(clipRegion(rgn, op));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->clipRegion(rgn, op);
+    }
 }
 
 void SkCanvas::validateClip() const {
@@ -2044,7 +2059,9 @@ void SkCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     // We don't test quickReject because the shadow outsets the path's bounds.
     // TODO(michaelludwig): Is it worth calling SkDrawShadowMetrics::GetLocalBounds here?
     this->predrawNotify();
-    TOP_DEVICE(drawShadow(path, rec));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawShadow(path, rec);
+    }
 }
 
 void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
@@ -2086,7 +2103,9 @@ void SkCanvas::internalDrawPaint(const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, nullptr, CheckForOverwrite::kYes);
-    TOP_DEVICE(drawPaint(layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawPaint(layer.paint());
+    }
 }
 
 void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
@@ -2112,7 +2131,9 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
     }
 
     AutoLayerForImageFilter layer(this, strokePaint, &bounds);
-    TOP_DEVICE(drawPoints(mode, count, pts, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawPoints(mode, count, pts, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
@@ -2122,7 +2143,9 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, &r, CheckForOverwrite::kYes);
-    TOP_DEVICE(drawRect(r, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawRect(r, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
@@ -2132,7 +2155,9 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, &bounds);
-    TOP_DEVICE(drawRegion(region, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawRegion(region, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawBehind(const SkPaint& paint) {
@@ -2172,7 +2197,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint);
-    TOP_DEVICE(drawPaint(layer.paint()));
+    dev->drawPaint(layer.paint());
 
     dev->restore(fMCRec->fMatrix);
 }
@@ -2184,7 +2209,9 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, &oval);
-    TOP_DEVICE(drawOval(oval, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawOval(oval, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
@@ -2196,7 +2223,9 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
     }
 
     AutoLayerForImageFilter layer(this, paint, &oval);
-    TOP_DEVICE(drawArc(oval, startAngle, sweepAngle, useCenter, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawArc(oval, startAngle, sweepAngle, useCenter, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -2218,7 +2247,9 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, &bounds);
-    TOP_DEVICE(drawRRect(rrect, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawRRect(rrect, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
@@ -2228,7 +2259,9 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const Sk
     }
 
     AutoLayerForImageFilter layer(this, paint, &bounds);
-    TOP_DEVICE(drawDRRect(outer, inner, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawDRRect(outer, inner, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
@@ -2246,7 +2279,9 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 
     AutoLayerForImageFilter layer(this, paint, &pathBounds);
-    TOP_DEVICE(drawPath(path, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawPath(path, layer.paint());
+    }
 }
 
 bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint& paint) {
@@ -2326,7 +2361,9 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &bounds);
-    TOP_DEVICE(drawImageRect(image, nullptr, bounds, layer.paint(), kStrict_SrcRectConstraint));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawImageRect(image, nullptr, bounds, layer.paint(), kStrict_SrcRectConstraint);
+    }
 }
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
@@ -2340,7 +2377,9 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     AutoLayerForImageFilter layer(this, realPaint, &dst, CheckForOverwrite::kYes,
                                   image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                     : kNotOpaque_ShaderOverrideOpacity);
-    TOP_DEVICE(drawImageRect(image, src, dst, layer.paint(), constraint));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawImageRect(image, src, dst, layer.paint(), constraint);
+    }
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
@@ -2379,7 +2418,9 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &dst);
-    TOP_DEVICE(drawImageNine(image, center, dst, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawImageNine(image, center, dst, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
@@ -2391,7 +2432,9 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &dst);
-    TOP_DEVICE(drawImageLattice(image, lattice, dst, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawImageLattice(image, lattice, dst, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
@@ -2454,7 +2497,9 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
     }
 
     AutoLayerForImageFilter layer(this, simplePaint, &bounds);
-    TOP_DEVICE(drawVertices(vertices, bmode, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawVertices(vertices, bmode, layer.paint());
+    }
 }
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
@@ -2486,7 +2531,9 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     }
 
     AutoLayerForImageFilter layer(this, simplePaint, &bounds);
-    TOP_DEVICE(drawPatch(cubics, colors, texCoords, bmode, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawPatch(cubics, colors, texCoords, bmode, layer.paint());
+    }
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
@@ -2533,14 +2580,18 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
     }
 
     AutoLayerForImageFilter layer(this, realPaint);
-    TOP_DEVICE(drawAtlas(atlas, xform, tex, colors, count, bmode, layer.paint()));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawAtlas(atlas, xform, tex, colors, count, bmode, layer.paint());
+    }
 }
 
 void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
     SkASSERT(key);
 
     this->predrawNotify();
-    TOP_DEVICE(drawAnnotation(rect, key, value));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawAnnotation(rect, key, value);
+    }
 }
 
 void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], QuadAAFlags edgeAA,
@@ -2554,7 +2605,9 @@ void SkCanvas::onDrawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], QuadAAFl
     }
 
     this->predrawNotify();
-    TOP_DEVICE(drawEdgeAAQuad(r, clip, edgeAA, color, mode));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawEdgeAAQuad(r, clip, edgeAA, color, mode);
+    }
 }
 
 void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
@@ -2594,8 +2647,10 @@ void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
     }
 
     AutoLayerForImageFilter layer(this, realPaint, setBoundsValid ? &setBounds : nullptr);
-    TOP_DEVICE(drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices, \
-                                  layer.paint(), constraint));
+    if (SkBaseDevice* device = this->getTopDevice()) {
+        device->drawEdgeAAImageSet(imageSet, count, dstClips, preViewMatrices,
+                                   layer.paint(), constraint);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
