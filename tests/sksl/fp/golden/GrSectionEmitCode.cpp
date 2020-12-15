@@ -41,9 +41,6 @@ bool GrSectionEmitCode::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrSectionEmitCode::usesExplicitReturn() const {
-    return true;
-}
 GrSectionEmitCode::GrSectionEmitCode(const GrSectionEmitCode& src)
 : INHERITED(kGrSectionEmitCode_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

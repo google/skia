@@ -47,9 +47,6 @@ bool GrInUniformCType::onIsEqual(const GrFragmentProcessor& other) const {
     if (color != that.color) return false;
     return true;
 }
-bool GrInUniformCType::usesExplicitReturn() const {
-    return true;
-}
 GrInUniformCType::GrInUniformCType(const GrInUniformCType& src)
 : INHERITED(kGrInUniformCType_ClassID, src.optimizationFlags())
 , color(src.color) {

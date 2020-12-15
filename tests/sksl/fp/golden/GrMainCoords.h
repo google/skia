@@ -20,7 +20,6 @@ public:
     GrMainCoords(const GrMainCoords& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MainCoords"; }
-    bool usesExplicitReturn() const override;
 private:
     GrMainCoords()
     : INHERITED(kGrMainCoords_ClassID, kNone_OptimizationFlags) {

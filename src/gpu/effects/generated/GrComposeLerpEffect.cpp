@@ -56,7 +56,6 @@ bool GrComposeLerpEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (weight != that.weight) return false;
     return true;
 }
-bool GrComposeLerpEffect::usesExplicitReturn() const { return true; }
 GrComposeLerpEffect::GrComposeLerpEffect(const GrComposeLerpEffect& src)
         : INHERITED(kGrComposeLerpEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     this->cloneAndRegisterAllChildProcessors(src);

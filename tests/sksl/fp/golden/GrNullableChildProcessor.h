@@ -20,7 +20,6 @@ public:
     GrNullableChildProcessor(const GrNullableChildProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "NullableChildProcessor"; }
-    bool usesExplicitReturn() const override;
 private:
     GrNullableChildProcessor(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrNullableChildProcessor_ClassID, kNone_OptimizationFlags) {

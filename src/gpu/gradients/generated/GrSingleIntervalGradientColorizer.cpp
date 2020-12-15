@@ -76,7 +76,6 @@ bool GrSingleIntervalGradientColorizer::onIsEqual(const GrFragmentProcessor& oth
     if (end != that.end) return false;
     return true;
 }
-bool GrSingleIntervalGradientColorizer::usesExplicitReturn() const { return true; }
 GrSingleIntervalGradientColorizer::GrSingleIntervalGradientColorizer(
         const GrSingleIntervalGradientColorizer& src)
         : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, src.optimizationFlags())

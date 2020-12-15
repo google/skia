@@ -42,9 +42,6 @@ bool GrUniformArrays::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrUniformArrays::usesExplicitReturn() const {
-    return true;
-}
 GrUniformArrays::GrUniformArrays(const GrUniformArrays& src)
 : INHERITED(kGrUniformArrays_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);
