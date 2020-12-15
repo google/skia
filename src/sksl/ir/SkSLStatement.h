@@ -33,10 +33,9 @@ public:
         kSwitch,
         kSwitchCase,
         kVarDeclaration,
-        kWhile,
 
         kFirst = kBlock,
-        kLast = kWhile
+        kLast = kVarDeclaration,
     };
 
     Statement(int offset, Kind kind)

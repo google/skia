@@ -5,7 +5,7 @@ bool shouldLoop(vec4 v) {
 }
 void main() {
     sk_FragColor = vec4(0.0);
-    while (shouldLoop(sk_FragColor)) {
+    for (; shouldLoop(sk_FragColor); ) {
         sk_FragColor += vec4(0.125);
     }
 }
