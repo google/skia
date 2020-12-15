@@ -2345,9 +2345,6 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             info.fInternalFormatForTexImageOrStorage =
                     texImageSupportsSizedInternalFormat ? GR_GL_RGB8 : GR_GL_RGB;
         }
-        if (formatWorkarounds.fDisableRGB8ForMali400) {
-            info.fFlags = 0;
-        }
 
         info.fColorTypeInfoCount = 1;
         info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -3990,9 +3987,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     formatWorkarounds->fDisableBGRATextureStorageForIntelWindowsES =
             kIntel_GrGLDriver == ctxInfo.driver() && GR_IS_GR_GL_ES(ctxInfo.standard());
 #endif
-
-    // Mali-400 fails ReadPixels tests, mostly with non-0xFF alpha values when read as GL_RGBA8.
-    formatWorkarounds->fDisableRGB8ForMali400 = kMali4xx_GrGLRenderer == ctxInfo.renderer();
 
     // On the Intel Iris 6100, interacting with LUM16F seems to confuse the driver. After
     // writing to/reading from a LUM16F texture reads from/writes to other formats behave
