@@ -332,7 +332,9 @@ class Dashing4GM : public skiagm::GM {
         for (int width = 0; width <= 2; ++width) {
             for (const Intervals& data : {Intervals{1, 1},
                                           Intervals{4, 2},
-                                          Intervals{0, 4}}) { // test for zero length on interval
+                                          Intervals{0, 4}}) { // test for zero length on interval.
+                                                              // zero length intervals should draw
+                                                              // a line of squares or circles
                 for (bool aa : {false, true}) {
                     for (auto cap : {SkPaint::kRound_Cap, SkPaint::kSquare_Cap}) {
                         int w = width * width * width;

@@ -29,8 +29,8 @@
 //
 class GrStrokeIterator {
 public:
-    GrStrokeIterator(const SkPath& path, const SkStrokeRec& stroke)
-            : fCapType(stroke.getCap()), fStrokeRadius(stroke.getWidth() * .5) {
+    GrStrokeIterator(const SkPath& path, const SkStrokeRec* stroke, const SkMatrix* viewMatrix)
+            : fViewMatrix(viewMatrix), fStroke(stroke) {
         SkPathPriv::Iterate it(path);
         fIter = it.begin();
         fEnd = it.end();
@@ -174,7 +174,7 @@ private:
         if (fQueueCount) {
             SkASSERT(this->backVerb() == Verb::kLine || this->backVerb() == Verb::kQuad ||
                      this->backVerb() == Verb::kConic || this->backVerb() == Verb::kCubic);
-            switch (fCapType) {
+            switch (fStroke->getCap()) {
                 case SkPaint::kButt_Cap:
                     // There are no caps, but inject a "move" so the first stroke doesn't get joined
                     // with the end of the contour when it's processed.
@@ -207,7 +207,7 @@ private:
             //
             //   (https://www.w3.org/TR/SVG11/painting.html#StrokeProperties)
             //
-            switch (fCapType) {
+            switch (fStroke->getCap()) {
                 case SkPaint::kButt_Cap:
                     // Zero-length contour with butt caps. There are no caps and no first stroke to
                     // generate.
@@ -220,9 +220,39 @@ private:
                     fFirstPtsInContour = fLastDegenerateStrokePt;
                     fFirstWInContour = nullptr;
                     break;
-                case SkPaint::kSquare_Cap:
-                    fEndingCapPts = {*fLastDegenerateStrokePt - SkPoint{fStrokeRadius, 0},
-                                     *fLastDegenerateStrokePt + SkPoint{fStrokeRadius, 0}};
+                case SkPaint::kSquare_Cap: {
+                    SkPoint outset;
+                    if (!fStroke->isHairlineStyle()) {
+                        // Implement degenerate square caps as a stroke-width square in path space.
+                        outset = {fStroke->getWidth() * .5f, 0};
+                    } else {
+                        // If the stroke is hairline, draw a 1x1 device-space square instead. This
+                        // is equivalent to using:
+                        //
+                        //   outset = inverse(fViewMatrix).mapVector(.5, 0)
+                        //
+                        // And since the matrix cannot have perspective, we only need to invert the
+                        // upper 2x2 of the viewMatrix to achieve this.
+                        SkASSERT(!fViewMatrix->hasPerspective());
+                        float a=fViewMatrix->getScaleX(), b=fViewMatrix->getSkewX(),
+                              c=fViewMatrix->getSkewY(),  d=fViewMatrix->getScaleY();
+                        float det = a*d - b*c;
+                        if (det > 0) {
+                            // outset = inverse(|a b|) * |.5|
+                            //                  |c d|    | 0|
+                            //
+                            //     == 1/det * | d -b| * |.5|
+                            //                |-c  a|   | 0|
+                            //
+                            //     == | d| * .5/det
+                            //        |-c|
+                            outset = SkVector{d, -c} * (.5f / det);
+                        } else {
+                            outset = {1, 0};
+                        }
+                    }
+                    fEndingCapPts = {*fLastDegenerateStrokePt - outset,
+                                     *fLastDegenerateStrokePt + outset};
                     // Add the square first as the "prev" join.
                     this->enqueue(Verb::kLine, fEndingCapPts.data(), nullptr);
                     this->enqueue(Verb::kMoveWithinContour, fEndingCapPts.data(), nullptr);
@@ -232,6 +262,7 @@ private:
                     fFirstPtsInContour = fEndingCapPts.data();
                     fFirstWInContour = nullptr;
                     break;
+                }
             }
         } else {
             // This contour had no lines, beziers, or "close" verbs. There are no caps and no first
@@ -274,9 +305,15 @@ private:
             default:
                 SkUNREACHABLE;
         }
-        lastTangent.normalize();
+        if (!fStroke->isHairlineStyle()) {
+            // Extend the cap by 1/2 stroke width.
+            lastTangent *= (.5f * fStroke->getWidth()) / lastTangent.length();
+        } else {
+            // Extend the cap by what will be 1/2 pixel after transformation.
+            lastTangent *= .5f / fViewMatrix->mapVector(lastTangent.fX, lastTangent.fY).length();
+        }
         SkPoint lastPoint = lastPts[SkPathPriv::PtsInIter((unsigned)lastVerb) - 1];
-        fEndingCapPts = {lastPoint, lastPoint + lastTangent * fStrokeRadius};
+        fEndingCapPts = {lastPoint, lastPoint + lastTangent};
 
         // Find the endpoints of the cap at the beginning of the contour.
         SkVector firstTangent = fFirstPtsInContour[1] - fFirstPtsInContour[0];
@@ -290,14 +327,20 @@ private:
                 SkASSERT(!firstTangent.isZero());
             }
         }
-        firstTangent.normalize();
-        fBeginningCapPts = {fFirstPtsInContour[0] - firstTangent * fStrokeRadius,
-                            fFirstPtsInContour[0]};
+        if (!fStroke->isHairlineStyle()) {
+            // Set the the cap back by 1/2 stroke width.
+            firstTangent *= (-.5f * fStroke->getWidth()) / firstTangent.length();
+        } else {
+            // Set the cap back by what will be 1/2 pixel after transformation.
+            firstTangent *=
+                    -.5f / fViewMatrix->mapVector(firstTangent.fX, firstTangent.fY).length();
+        }
+        fBeginningCapPts = {fFirstPtsInContour[0] + firstTangent, fFirstPtsInContour[0]};
     }
 
     // Info and iterators from the original path.
-    const SkPaint::Cap fCapType;
-    const float fStrokeRadius;
+    const SkMatrix* const fViewMatrix;  // For hairlines.
+    const SkStrokeRec* const fStroke;
     SkPathPriv::RangeIter fIter;
     SkPathPriv::RangeIter fEnd;
 

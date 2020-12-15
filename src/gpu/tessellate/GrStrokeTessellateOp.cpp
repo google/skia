@@ -19,11 +19,8 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         const GrXferProcessor::DstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers,
                                         GrLoadOp colorLoadOp) {
-    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
-    auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fViewMatrix, fColor);
-    this->prePreparePrograms(arena, strokeTessellateShader, writeView, std::move(*clip),
+    this->prePreparePrograms(GrStrokeTessellateShader::Mode::kTessellation,
+                             context->priv().recordTimeAllocator(), writeView, std::move(*clip),
                              dstProxyView, renderPassXferBarriers, colorLoadOp,
                              *context->priv().caps());
     if (fStencilProgram) {
@@ -36,14 +33,11 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fFillProgram && !fStencilProgram) {
-        SkArenaAlloc* arena = flushState->allocator();
-        auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kTessellation, false/*hasConics*/, fStroke,
-                fViewMatrix, fColor);
-        this->prePreparePrograms(flushState->allocator(), strokeTessellateShader,
-                                 flushState->writeView(), flushState->detachAppliedClip(),
-                                 flushState->dstProxyView(), flushState->renderPassBarriers(),
-                                 flushState->colorLoadOp(), flushState->caps());
+        this->prePreparePrograms(GrStrokeTessellateShader::Mode::kTessellation,
+                                 flushState->allocator(), flushState->writeView(),
+                                 flushState->detachAppliedClip(), flushState->dstProxyView(),
+                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
+                                 flushState->caps());
     }
     SkASSERT(fFillProgram || fStencilProgram);
 
@@ -64,7 +58,7 @@ void GrStrokeTessellateOp::prepareBuffers() {
     // has the potential to introduce an extra segment.
     fMaxTessellationSegments = fTarget->caps().shaderCaps()->maxTessellationSegments() - 2;
 
-    fTolerances.set(fViewMatrix.getMaxScale(), fStroke.getWidth());
+    fTolerances = this->preTransformTolerances();
 
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate
@@ -465,12 +459,6 @@ void GrStrokeTessellateOp::close() {
     SkDEBUGCODE(fHasCurrentPoint = false;)
 }
 
-static SkVector normalize(const SkVector& v) {
-    SkVector norm = v;
-    norm.normalize();
-    return norm;
-}
-
 void GrStrokeTessellateOp::cap() {
     SkASSERT(fHasCurrentPoint);
 
@@ -478,8 +466,32 @@ void GrStrokeTessellateOp::cap() {
         // We don't have any control points to orient the caps. In this case, square and round caps
         // are specified to be drawn as an axis-aligned square or circle respectively. Assign
         // default control points that achieve this.
-        fCurrContourFirstControlPoint = fCurrContourStartPoint - SkPoint{1,0};
-        fLastControlPoint = fCurrContourStartPoint + SkPoint{1,0};
+        SkVector outset;
+        if (!fStroke.isHairlineStyle()) {
+            outset = {1, 0};
+        } else {
+            // If the stroke is hairline, orient the square on the post-transform x-axis instead.
+            // We don't need to worry about the vector length since it will be normalized later.
+            // Since the matrix cannot have perspective, the below is equivalent to:
+            //
+            //    outset = inverse(|a b|) * |1| * arbitrary_scale
+            //                     |c d|    |0|
+            //
+            //    == 1/det * | d -b| * |1| * arbitrary_scale
+            //               |-c  a|   |0|
+            //
+            //    == 1/det * | d| * arbitrary_scale
+            //               |-c|
+            //
+            //    == | d|
+            //       |-c|
+            //
+            SkASSERT(!fViewMatrix.hasPerspective());
+            float c=fViewMatrix.getSkewY(), d=fViewMatrix.getScaleY();
+            outset = {d, -c};
+        }
+        fCurrContourFirstControlPoint = fCurrContourStartPoint - outset;
+        fLastControlPoint = fCurrContourStartPoint + outset;
         fCurrentPoint = fCurrContourStartPoint;
         fHasLastControlPoint = true;
     }
@@ -497,14 +509,28 @@ void GrStrokeTessellateOp::cap() {
             this->joinTo(roundCapJoinType, fCurrContourFirstControlPoint);
             break;
         }
-
         case SkPaint::kSquare_Cap: {
             // A square cap is the same as appending lineTos.
-            float rad = fStroke.getWidth() * .5f;
-            this->lineTo(fCurrentPoint + normalize(fCurrentPoint - fLastControlPoint) * rad);
+            SkVector lastTangent = fCurrentPoint - fLastControlPoint;
+            if (!fStroke.isHairlineStyle()) {
+                // Extend the cap by 1/2 stroke width.
+                lastTangent *= (.5f * fStroke.getWidth()) / lastTangent.length();
+            } else {
+                // Extend the cap by what will be 1/2 pixel after transformation.
+                lastTangent *= .5f / fViewMatrix.mapVector(lastTangent.fX, lastTangent.fY).length();
+            }
+            this->lineTo(fCurrentPoint + lastTangent);
             this->moveTo(fCurrContourStartPoint, fCurrContourFirstControlPoint);
-            this->lineTo(fCurrContourStartPoint +
-                         normalize(fCurrContourStartPoint - fCurrContourFirstControlPoint) * rad);
+            SkVector firstTangent = fCurrContourFirstControlPoint - fCurrContourStartPoint;
+            if (!fStroke.isHairlineStyle()) {
+                // Set the the cap back by 1/2 stroke width.
+                firstTangent *= (-.5f * fStroke.getWidth()) / firstTangent.length();
+            } else {
+                // Set the cap back by what will be 1/2 pixel after transformation.
+                firstTangent *=
+                        -.5f / fViewMatrix.mapVector(firstTangent.fX, firstTangent.fY).length();
+            }
+            this->lineTo(fCurrContourStartPoint + firstTangent);
             break;
         }
     }

@@ -10,7 +10,6 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
 GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMatrix,
                        const SkStrokeRec& stroke, const SkPath& path, GrPaint&& paint)
@@ -23,9 +22,6 @@ GrStrokeOp::GrStrokeOp(uint32_t classID, GrAAType aaType, const SkMatrix& viewMa
         , fPathList(path)
         , fTotalCombinedVerbCnt(path.countVerbs())
         , fTotalConicWeightCnt(SkPathPriv::ConicWeightCnt(path)) {
-    // We don't support hairline strokes. For now, the client can transform the path into device
-    // space and then use a stroke width of 1.
-    SkASSERT(fStroke.getWidth() > 0);
     SkRect devBounds = path.getBounds();
     float inflationRadius = fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
@@ -97,8 +93,7 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-void GrStrokeOp::prePreparePrograms(SkArenaAlloc* arena,
-                                    GrStrokeTessellateShader* strokeTessellateShader,
+void GrStrokeOp::prePreparePrograms(GrStrokeTessellateShader::Mode shaderMode, SkArenaAlloc* arena,
                                     const GrSurfaceProxyView& writeView, GrAppliedClip&& clip,
                                     const GrXferProcessor::DstProxyView& dstProxyView,
                                     GrXferBarrierFlags renderPassXferBarriers,
@@ -139,6 +134,8 @@ void GrStrokeOp::prePreparePrograms(SkArenaAlloc* arena,
         }
     }
 
+    auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
+            shaderMode, fTotalConicWeightCnt, fStroke, fViewMatrix, fColor);
     auto fillPipeline = arena->make<GrPipeline>(fillArgs, std::move(fProcessors), std::move(clip));
     auto fillStencil = &GrUserStencilSettings::kUnused;
     auto fillXferFlags = renderPassXferBarriers;

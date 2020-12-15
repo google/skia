@@ -125,36 +125,18 @@ void GrTessellationPathRenderer::initAtlasFlags(GrRecordingContext* rContext) {
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     const GrStyledShape& shape = *args.fShape;
-    if (shape.inverseFilled() || shape.style().hasPathEffect() ||
-        args.fViewMatrix->hasPerspective()) {
+    if (shape.style().hasPathEffect() ||
+        args.fViewMatrix->hasPerspective() ||
+        shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
+        shape.inverseFilled()) {
         return CanDrawPath::kNo;
     }
-
     if (GrAAType::kCoverage == args.fAAType) {
         SkASSERT(1 == args.fProxy->numSamples());
         if (!args.fProxy->canUseMixedSamples(*args.fCaps)) {
             return CanDrawPath::kNo;
         }
     }
-
-    SkPath path;
-    shape.asPath(&path);
-
-    if (!shape.style().isSimpleFill()) {
-        // These are only temporary restrictions while we bootstrap tessellated stroking. Every one
-        // of them will eventually go away.
-        if (shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
-            return CanDrawPath::kNo;
-        }
-        if (shape.style().isSimpleHairline()) {
-            // For the time being we translate hairline paths to device space. We can't do this if
-            // it's possible the paint might use local coordinates.
-            if (args.fPaint->usesVaryingCoords()) {
-                return CanDrawPath::kNo;
-            }
-        }
-    }
-
     return CanDrawPath::kYes;
 }
 
@@ -263,41 +245,23 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkASSERT(worstCaseResolveLevel <= kMaxResolveLevel);
     }
 
-    if (args.fShape->style().isSimpleHairline()) {
-        // Since we will be transforming the path, just double check that we are still in a position
-        // where the paint will not use local coordinates.
-        SkASSERT(!args.fPaint.usesVaryingCoords());
-        // Pre-transform the path into device space and use a stroke width of 1.
-        SkPath devPath;
-        path.transform(*args.fViewMatrix, &devPath);
-        SkStrokeRec devStroke = args.fShape->style().strokeRec();
-        devStroke.setStrokeStyle(1);
-        auto op = make_stroke_op(args.fContext, args.fAAType, SkMatrix::I(), devStroke, devPath,
-                                 std::move(args.fPaint), shaderCaps);
-        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-        return true;
-    }
-
+    GrOp::Owner op;
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
-        SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = make_stroke_op(args.fContext, args.fAAType, *args.fViewMatrix, stroke, path,
-                                 std::move(args.fPaint), shaderCaps);
-        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-        return true;
+        SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
+        op = make_stroke_op(args.fContext, args.fAAType, *args.fViewMatrix, stroke, path,
+                            std::move(args.fPaint), shaderCaps);
+    } else {
+        auto drawPathFlags = OpFlags::kNone;
+        if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
+            // The path is too large for hardware tessellation; a curve in this bounding box could
+            // potentially require more segments than are supported by the hardware. Fall back on
+            // indirect draws.
+            drawPathFlags |= OpFlags::kDisableHWTessellation;
+        }
+        op = GrOp::Make<GrPathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                            std::move(args.fPaint), args.fAAType, drawPathFlags);
     }
-
-    auto drawPathFlags = OpFlags::kNone;
-    if ((1 << worstCaseResolveLevel) > shaderCaps.maxTessellationSegments()) {
-        // The path is too large for hardware tessellation; a curve in this bounding box could
-        // potentially require more segments than are supported by the hardware. Fall back on
-        // indirect draws.
-        drawPathFlags |= OpFlags::kDisableHWTessellation;
-    }
-
-    auto op = GrOp::Make<GrPathTessellateOp>(
-            args.fContext, *args.fViewMatrix, path, std::move(args.fPaint),
-            args.fAAType, drawPathFlags);
     surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }

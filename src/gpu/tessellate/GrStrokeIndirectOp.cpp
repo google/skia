@@ -22,17 +22,14 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
     auto* arena = context->priv().recordTimeAllocator();
-    this->prePrepareResolveLevels(context->priv().recordTimeAllocator());
+    this->prePrepareResolveLevels(arena);
     SkASSERT(fResolveLevels);
     if (!fTotalInstanceCount) {
         return;
     }
-    auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-            GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke, fViewMatrix,
-            fColor);
-    this->prePreparePrograms(context->priv().recordTimeAllocator(), strokeTessellateShader,
-                             writeView, std::move(*clip), dstProxyView, renderPassXferBarriers,
-                             colorLoadOp, *context->priv().caps());
+    this->prePreparePrograms(GrStrokeTessellateShader::Mode::kIndirect, arena, writeView,
+                             std::move(*clip), dstProxyView, renderPassXferBarriers, colorLoadOp,
+                             *context->priv().caps());
     if (fFillProgram) {
         context->priv().recordProgramInfo(fFillProgram);
     }
@@ -441,7 +438,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
     fChopTs = alloc->makeArrayDefault<float>(chopTAllocCount);
     float* nextChopTs = fChopTs;
 
-    GrStrokeTessellateShader::Tolerances tolerances(fViewMatrix.getMaxScale(), fStroke.getWidth());
+    auto tolerances = this->preTransformTolerances();
     fResolveLevelForCircles =
             sk_float_nextlog2(tolerances.fNumRadialSegmentsPerRadian * SK_ScalarPI);
     ResolveLevelCounter counter(fStroke, tolerances, fResolveLevelCounts);
@@ -449,7 +446,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
     SkPoint lastControlPoint = {0,0};
     for (const SkPath& path : fPathList) {
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
-        GrStrokeIterator iter(path, fStroke);
+        GrStrokeIterator iter(path, &fStroke, &fViewMatrix);
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
             Verb verb = iter.verb();
@@ -586,13 +583,10 @@ void GrStrokeIndirectOp::onPrepare(GrOpFlushState* flushState) {
         if (!fTotalInstanceCount) {
             return;
         }
-        auto* strokeTessellateShader = arena->make<GrStrokeTessellateShader>(
-                GrStrokeTessellateShader::Mode::kIndirect, fTotalConicWeightCnt, fStroke,
-                fViewMatrix, fColor);
-        this->prePreparePrograms(arena, strokeTessellateShader, flushState->writeView(),
-                                 flushState->detachAppliedClip(), flushState->dstProxyView(),
-                                 flushState->renderPassBarriers(), flushState->colorLoadOp(),
-                                 flushState->caps());
+        this->prePreparePrograms(GrStrokeTessellateShader::Mode::kIndirect, arena,
+                                 flushState->writeView(), flushState->detachAppliedClip(),
+                                 flushState->dstProxyView(), flushState->renderPassBarriers(),
+                                 flushState->colorLoadOp(), flushState->caps());
     }
     SkASSERT(fResolveLevels);
 
@@ -684,7 +678,7 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
 
     // Now write out each instance to its resolveLevel's designated location in the instance buffer.
     for (const SkPath& path : fPathList) {
-        GrStrokeIterator iter(path, fStroke);
+        GrStrokeIterator iter(path, &fStroke, &fViewMatrix);
         bool hasLastControlPoint = false;
         while (iter.next()) {
             using Verb = GrStrokeIterator::Verb;
