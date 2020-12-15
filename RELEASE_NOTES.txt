@@ -7,7 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 90
 ------------
 
-  * 
+  * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
+    https://review.skia.org/344763
+
 
 Milestone 89
 ------------
