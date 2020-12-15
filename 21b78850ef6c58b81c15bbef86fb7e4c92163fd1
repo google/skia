@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "675ecd09_b053e927",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "some initial comments",
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e03a31b_7ecf7f47",
@@ -128,6 +145,138 @@
         "startChar": 27,
         "endLine": 1826,
         "endChar": 44
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbbf710f_551afd63",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "More for documentation purposes, is it worth putting an SkASSERT(alphaType \u003d\u003d kUnpremul_SkAlphaType) here? This makes it clear everything happening after is meant to handle that special case.",
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c120f2a0_24cca32a",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "ditto comment above about assert for unpremul (and the rest of factories below)",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 2
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2e29928_8c50e007",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "Again just want to confirm what the coverage rules here are. I\u0027m pretty sure theres times we need a dst texture to do a src blend with AA coverage (and maybe requires lcd).",
+      "range": {
+        "startLine": 298,
+        "startChar": 14,
+        "endLine": 298,
+        "endChar": 43
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9569d49_d86305db",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "Nit: Since this isn\u0027t a direct param passed in, does it make it clearer to say something like the \"GrImageInfo\u0027s GrColorInfo color type\" or \"the color type of the GrColorInfo on the GrImageInfo.\"",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "632c859a_83361e49",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "alignment",
+      "range": {
+        "startLine": 156,
+        "startChar": 26,
+        "endLine": 158,
+        "endChar": 36
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1809de52_87b825cb",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T15:57:15Z",
+      "side": 1,
+      "message": "If this op has no blending, are we supporting coverage AA? I would have thought this class draws everything non-aa",
+      "range": {
+        "startLine": 205,
+        "startChar": 43,
+        "endLine": 205,
+        "endChar": 54
       },
       "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
