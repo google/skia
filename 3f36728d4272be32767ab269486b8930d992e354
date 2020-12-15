@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "505c1622_f028acb7",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-12-15T19:32:32Z",
+      "side": 1,
+      "message": "So, we will always keep a copy of each iterator in the cache and clone it by request?\nChrome does it differently: it leases out the cached iterator and creates another one if the leased iterator is not returned (which probably never happens).\nNot that I have any preference, and your version is simpler (assuming cloning is fast enough).",
+      "range": {
+        "startLine": 201,
+        "startChar": 27,
+        "endLine": 201,
+        "endChar": 41
+      },
+      "revId": "3f36728d4272be32767ab269486b8930d992e354",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
