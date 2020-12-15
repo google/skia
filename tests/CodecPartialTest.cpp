@@ -169,34 +169,6 @@ DEF_TEST(Codec_partialWuffs, r) {
     }
 }
 
-DEF_TEST(Codec_frameCountUpdatesInIncrementalDecode, r) {
-    sk_sp<SkData> file = GetResourceAsData("images/colorTables.gif");
-    size_t fileSize = file->size();
-    REPORTER_ASSERT(r, fileSize == 2829);
-    std::unique_ptr<SkCodec> fullCodec(SkCodec::MakeFromData(file));
-    REPORTER_ASSERT(r, fullCodec->getFrameCount() == 2);
-    const SkImageInfo info = standardize_info(fullCodec.get());
-
-    static const size_t n = 1000;
-    HaltingStream* stream = new HaltingStream(file, n);
-    // Note that we cheat and hold on to a pointer to stream, though it is owned by
-    // partialCodec.
-    auto partialCodec = SkCodec::MakeFromStream(std::unique_ptr<SkStream>(stream));
-    REPORTER_ASSERT(r, partialCodec->getFrameCount() == 1);
-
-    SkBitmap bitmap;
-    bitmap.allocPixels(info);
-    REPORTER_ASSERT(r, SkCodec::kSuccess ==
-            partialCodec->startIncrementalDecode(
-                info, bitmap.getPixels(), bitmap.rowBytes()));
-    REPORTER_ASSERT(r, SkCodec::kIncompleteInput ==
-            partialCodec->incrementalDecode());
-
-    REPORTER_ASSERT(r, partialCodec->getFrameCount() == 1);
-    stream->addNewData(fileSize - n);
-    REPORTER_ASSERT(r, partialCodec->getFrameCount() == 2);
-}
-
 // Verify that when decoding an animated gif byte by byte we report the correct
 // fRequiredFrame as soon as getFrameInfo reports the frame.
 DEF_TEST(Codec_requiredFrame, r) {
