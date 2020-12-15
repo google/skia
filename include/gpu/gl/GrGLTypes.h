@@ -62,6 +62,7 @@ enum class GrGLFormat {
     kR8,
     kALPHA8,
     kLUMINANCE8,
+    kLUMINANCE8_ALPHA8,
     kBGRA8,
     kRGB565,
     kRGBA16F,
