@@ -20,9 +20,9 @@ public:
         const GrSectionCpp& _outer = args.fFp.cast<GrSectionCpp>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(%s = half4(1.0);
+R"SkSL(return half4(1.0);
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -39,7 +39,7 @@ bool GrSectionCpp::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrSectionCpp::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrSectionCpp::GrSectionCpp(const GrSectionCpp& src)
 : INHERITED(kGrSectionCpp_ClassID, src.optimizationFlags()) {

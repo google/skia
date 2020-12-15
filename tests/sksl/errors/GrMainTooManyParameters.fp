@@ -1,3 +1,3 @@
-void main(float2 coords, float2 extra) {
-    sk_OutColor = half4(0);
+half4 main(float2 coords, float2 extra) {
+    return half4(0);
 }

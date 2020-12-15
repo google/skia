@@ -25,10 +25,10 @@ R"SkSL(half4 _0_flip;
 {
     _0_flip = %s.wzyx;
 }
-%s = _0_flip;
+return _0_flip;
 
 )SkSL"
-, args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+, args.fUniformHandler->getUniformCStr(colorVar));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -46,7 +46,7 @@ bool GrInlinedFunction::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrInlinedFunction::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrInlinedFunction::GrInlinedFunction(const GrInlinedFunction& src)
 : INHERITED(kGrInlinedFunction_ClassID, src.optimizationFlags()) {

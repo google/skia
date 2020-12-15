@@ -24,9 +24,9 @@ public:
         matrixVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "matrix");
         SkString _sample0 = this->invokeChildWithMatrix(0, args);
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s;
+R"SkSL(return %s;
 )SkSL"
-, args.fOutputColor, _sample0.c_str());
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -49,7 +49,7 @@ bool GrChildProcessorSampleMatrixSingleInUniform::onIsEqual(const GrFragmentProc
     return true;
 }
 bool GrChildProcessorSampleMatrixSingleInUniform::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrChildProcessorSampleMatrixSingleInUniform::GrChildProcessorSampleMatrixSingleInUniform(const GrChildProcessorSampleMatrixSingleInUniform& src)
 : INHERITED(kGrChildProcessorSampleMatrixSingleInUniform_ClassID, src.optimizationFlags())

@@ -37,9 +37,9 @@ public:
 , func3_name.c_str());
         fragBuilder->emitFunction(kHalf4_GrSLType, func2_name.c_str(), {func2_args, 0}, func2_impl.c_str());
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s();
+R"SkSL(return %s();
 )SkSL"
-, args.fOutputColor, func1_name.c_str());
+, func1_name.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -56,7 +56,7 @@ bool GrNestedCall::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrNestedCall::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrNestedCall::GrNestedCall(const GrNestedCall& src)
 : INHERITED(kGrNestedCall_ClassID, src.optimizationFlags()) {

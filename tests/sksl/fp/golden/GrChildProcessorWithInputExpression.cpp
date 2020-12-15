@@ -23,9 +23,9 @@ public:
         SkString _input0 = SkStringPrintf("%s * half4(0.5)", args.fUniformHandler->getUniformCStr(colorVar));
         SkString _sample0 = this->invokeChild(0, _input0.c_str(), args);
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s;
+R"SkSL(return %s;
 )SkSL"
-, args.fOutputColor, _sample0.c_str());
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -43,7 +43,7 @@ bool GrChildProcessorWithInputExpression::onIsEqual(const GrFragmentProcessor& o
     return true;
 }
 bool GrChildProcessorWithInputExpression::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrChildProcessorWithInputExpression::GrChildProcessorWithInputExpression(const GrChildProcessorWithInputExpression& src)
 : INHERITED(kGrChildProcessorWithInputExpression_ClassID, src.optimizationFlags()) {

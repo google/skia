@@ -1,4 +1,4 @@
 in uniform half4 color;
-void main() {
-    sk_OutColor = color;
+half4 main() {
+    return color;
 }

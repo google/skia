@@ -28,12 +28,12 @@ public:
         }
         fragBuilder->codeAppendf(
 R"SkSL(if (%s) {
-    %s = %s;
+    return %s;
 } else {
-    %s = half4(1.0);
+    return half4(1.0);
 }
 )SkSL"
-, (_outer.test ? "true" : "false"), args.fOutputColor, colorVar.isValid() ? args.fUniformHandler->getUniformCStr(colorVar) : "half4(0)", args.fOutputColor);
+, (_outer.test ? "true" : "false"), colorVar.isValid() ? args.fUniformHandler->getUniformCStr(colorVar) : "half4(0)");
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -65,7 +65,7 @@ bool GrConditionalInUniform::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrConditionalInUniform::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrConditionalInUniform::GrConditionalInUniform(const GrConditionalInUniform& src)
 : INHERITED(kGrConditionalInUniform_ClassID, src.optimizationFlags())

@@ -27,12 +27,12 @@ if (hasCap) {)SkSL"
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
 R"SkSL(
-    %s = %s;
+    return %s;
 } else {
-    %s = half4(1.0);
+    return half4(1.0);
 }
 )SkSL"
-, args.fOutputColor, _sample0.c_str(), args.fOutputColor);
+, _sample0.c_str());
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -50,7 +50,7 @@ bool GrChildProcessorAndGlobal::onIsEqual(const GrFragmentProcessor& other) cons
     return true;
 }
 bool GrChildProcessorAndGlobal::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrChildProcessorAndGlobal::GrChildProcessorAndGlobal(const GrChildProcessorAndGlobal& src)
 : INHERITED(kGrChildProcessorAndGlobal_ClassID, src.optimizationFlags()) {

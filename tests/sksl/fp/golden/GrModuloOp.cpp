@@ -20,9 +20,9 @@ public:
         const GrModuloOp& _outer = args.fFp.cast<GrModuloOp>();
         (void) _outer;
         fragBuilder->codeAppendf(
-R"SkSL(%s.x = half(1 %% int(sqrt(2.0)));
+R"SkSL(return half4(half(1 %% int(sqrt(2.0))));
 )SkSL"
-, args.fOutputColor);
+);
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
@@ -39,7 +39,7 @@ bool GrModuloOp::onIsEqual(const GrFragmentProcessor& other) const {
     return true;
 }
 bool GrModuloOp::usesExplicitReturn() const {
-    return false;
+    return true;
 }
 GrModuloOp::GrModuloOp(const GrModuloOp& src)
 : INHERITED(kGrModuloOp_ClassID, src.optimizationFlags()) {
