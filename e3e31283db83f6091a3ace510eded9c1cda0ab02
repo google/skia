@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1c1b414_7fe7643b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-15T20:31:05Z",
+      "side": 1,
+      "message": "This seems clearer than the \"ignore translation\" hackery.",
+      "revId": "e3e31283db83f6091a3ace510eded9c1cda0ab02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
