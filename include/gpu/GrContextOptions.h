@@ -241,6 +241,11 @@ struct SK_API GrContextOptions {
      */
     bool fSuppressMipmapSupport = false;
 
+    /**
+     * If true, the caps will never support tessellation shaders.
+     */
+    bool fSuppressTessellationShaders = true;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.
@@ -261,11 +266,6 @@ struct SK_API GrContextOptions {
      * If true, the caps will never support geometry shaders.
      */
     bool fSuppressGeometryShaders = false;
-
-    /**
-     * If true, the caps will never support tessellation shaders.
-     */
-    bool fSuppressTessellationShaders = false;
 
     /**
      * If greater than zero and less than the actual hardware limit, overrides the maximum number of
