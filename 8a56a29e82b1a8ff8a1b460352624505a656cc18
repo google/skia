@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4ba22c9_219cbe89",
+        "filename": "tests/BackendAllocationTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T20:29:10Z",
+      "side": 1,
+      "message": "This is pretty subtle. At first I had the \"if (skColorType...\" around the updateBET and checkBET calls. Then, however, if the if isn\u0027t taken the delete on line 366 is an infinite loop because we never call the finish proc. I noticed this after trying to add LUM_ALPHA support (with GrColorType but no equiv SkColorType). Hence, a follow up to this change that uses ManagedBackendTexture throughout these tests.",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 364,
+        "endChar": 5
+      },
+      "revId": "8a56a29e82b1a8ff8a1b460352624505a656cc18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
