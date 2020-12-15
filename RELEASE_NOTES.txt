@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Deprecate (and ignore) SkAndroidCodec::ExifOrientation
+    https://review.skia.org/344763
+
   * SkAnimatedImage: Always respect exif orientation
     Replace SkPixmapPriv::ShouldSwapWidthHeight with
     SkEncodedOriginSwapsWidthHeight.
