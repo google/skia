@@ -6,7 +6,8 @@ vec4 main() {
     _2_0_mul = color.x * color.y;
 
     float _8_add;
-    float _9_c = _2_0_mul + color.z;
+    float _9_c;
+    _9_c = _2_0_mul + color.z;
     _8_add = _9_c;
 
     _1_fma = _8_add;
@@ -20,7 +21,8 @@ vec4 main() {
     _4_0_mul = color.y * color.z;
 
     float _10_add;
-    float _11_c = _4_0_mul + color.w;
+    float _11_c;
+    _11_c = _4_0_mul + color.w;
     _10_add = _11_c;
 
     _3_fma = _10_add;
@@ -34,7 +36,8 @@ vec4 main() {
     _6_0_mul = color.z * color.w;
 
     float _12_add;
-    float _13_c = _6_0_mul + color.x;
+    float _13_c;
+    _13_c = _6_0_mul + color.x;
     _12_add = _13_c;
 
     _5_fma = _12_add;

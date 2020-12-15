@@ -7,14 +7,18 @@ in vec4 src;
 in vec4 dst;
 void main() {
     vec4 _0_blend_saturation;
-    float _1_alpha = dst.w * src.w;
-    vec3 _2_sda = src.xyz * dst.w;
-    vec3 _3_dsa = dst.xyz * src.w;
+    float _1_alpha;
+    vec3 _2_sda;
+    vec3 _3_dsa;
+    _1_alpha = dst.w * src.w;
+    _2_sda = src.xyz * dst.w;
+    _3_dsa = dst.xyz * src.w;
     vec3 _4_blend_set_color_saturation;
     float _5_13_blend_color_saturation;
+    float _6_sat;
     _5_13_blend_color_saturation = max(max(_2_sda.x, _2_sda.y), _2_sda.z) - min(min(_2_sda.x, _2_sda.y), _2_sda.z);
 
-    float _6_sat = _5_13_blend_color_saturation;
+    _6_sat = _5_13_blend_color_saturation;
 
     if (_3_dsa.x <= _3_dsa.y) {
         if (_3_dsa.y <= _3_dsa.z) {
@@ -34,17 +38,21 @@ void main() {
 
     vec3 _7_blend_set_color_luminance;
     float _8_11_blend_color_luminance;
+    float _9_lum;
+    float _10_12_blend_color_luminance;
+    vec3 _11_result;
+    float _12_minComp;
+    float _13_maxComp;
     _8_11_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
 
-    float _9_lum = _8_11_blend_color_luminance;
+    _9_lum = _8_11_blend_color_luminance;
 
-    float _10_12_blend_color_luminance;
     _10_12_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _4_blend_set_color_saturation);
 
-    vec3 _11_result = (_9_lum - _10_12_blend_color_luminance) + _4_blend_set_color_saturation;
+    _11_result = (_9_lum - _10_12_blend_color_luminance) + _4_blend_set_color_saturation;
 
-    float _12_minComp = min(min(_11_result.x, _11_result.y), _11_result.z);
-    float _13_maxComp = max(max(_11_result.x, _11_result.y), _11_result.z);
+    _12_minComp = min(min(_11_result.x, _11_result.y), _11_result.z);
+    _13_maxComp = max(max(_11_result.x, _11_result.y), _11_result.z);
     if (_12_minComp < 0.0 && _9_lum != _12_minComp) {
         _11_result = _9_lum + ((_11_result - _9_lum) * _9_lum) / (_9_lum - _12_minComp);
     }

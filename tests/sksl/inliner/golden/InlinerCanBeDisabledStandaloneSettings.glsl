@@ -56,7 +56,8 @@ void main() {
     _2_0_mul = color.x * color.y;
 
     float _7_add;
-    float _8_c = _2_0_mul + color.z;
+    float _8_c;
+    _8_c = _2_0_mul + color.z;
     _7_add = _8_c;
 
     _1_fma = _7_add;

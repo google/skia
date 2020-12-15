@@ -18,11 +18,11 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
-OpDecorate %19 RelaxedPrecision
-OpDecorate %21 RelaxedPrecision
-OpDecorate %23 RelaxedPrecision
+OpDecorate %20 RelaxedPrecision
+OpDecorate %22 RelaxedPrecision
 OpDecorate %24 RelaxedPrecision
-OpDecorate %26 RelaxedPrecision
+OpDecorate %25 RelaxedPrecision
+OpDecorate %27 RelaxedPrecision
 OpDecorate %28 RelaxedPrecision
 OpDecorate %30 RelaxedPrecision
 OpDecorate %33 RelaxedPrecision
@@ -53,14 +53,14 @@ OpDecorate %45 RelaxedPrecision
 %_0_blend_lighten = OpVariable %_ptr_Function_v4float Function
 %_1_2_blend_src_over = OpVariable %_ptr_Function_v4float Function
 %_2_result = OpVariable %_ptr_Function_v4float Function
-%19 = OpLoad %v4float %src
-%21 = OpLoad %v4float %src
-%22 = OpCompositeExtract %float %21 3
-%23 = OpFSub %float %float_1 %22
-%24 = OpLoad %v4float %dst
-%25 = OpVectorTimesScalar %v4float %24 %23
-%26 = OpFAdd %v4float %19 %25
-OpStore %_1_2_blend_src_over %26
+%20 = OpLoad %v4float %src
+%22 = OpLoad %v4float %src
+%23 = OpCompositeExtract %float %22 3
+%24 = OpFSub %float %float_1 %23
+%25 = OpLoad %v4float %dst
+%26 = OpVectorTimesScalar %v4float %25 %24
+%27 = OpFAdd %v4float %20 %26
+OpStore %_1_2_blend_src_over %27
 %28 = OpLoad %v4float %_1_2_blend_src_over
 OpStore %_2_result %28
 %30 = OpLoad %v4float %_2_result

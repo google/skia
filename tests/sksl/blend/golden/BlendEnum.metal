@@ -213,9 +213,10 @@ float4 blend(int mode, float4 src, float4 dst) {
         case 16:
             float4 _30_blend_darken;
             float4 _31_1_blend_src_over;
+            float4 _32_result;
             _31_1_blend_src_over = src + (1.0 - src.w) * dst;
 
-            float4 _32_result = _31_1_blend_src_over;
+            _32_result = _31_1_blend_src_over;
 
             _32_result.xyz = min(_32_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
             _30_blend_darken = _32_result;
@@ -225,9 +226,10 @@ float4 blend(int mode, float4 src, float4 dst) {
         case 17:
             float4 _33_blend_lighten;
             float4 _34_2_blend_src_over;
+            float4 _35_result;
             _34_2_blend_src_over = src + (1.0 - src.w) * dst;
 
-            float4 _35_result = _34_2_blend_src_over;
+            _35_result = _34_2_blend_src_over;
 
             _35_result.xyz = max(_35_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
             _33_blend_lighten = _35_result;
@@ -278,36 +280,48 @@ float4 blend(int mode, float4 src, float4 dst) {
 
         case 25:
             float4 _43_blend_hue;
-            float _44_alpha = dst.w * src.w;
-            float3 _45_sda = src.xyz * dst.w;
-            float3 _46_dsa = dst.xyz * src.w;
+            float _44_alpha;
+            float3 _45_sda;
+            float3 _46_dsa;
+            _44_alpha = dst.w * src.w;
+            _45_sda = src.xyz * dst.w;
+            _46_dsa = dst.xyz * src.w;
             _43_blend_hue = float4((((_blend_set_color_luminance(_blend_set_color_saturation(_45_sda, _46_dsa), _44_alpha, _46_dsa) + dst.xyz) - _46_dsa) + src.xyz) - _45_sda, (src.w + dst.w) - _44_alpha);
 
             return _43_blend_hue;
 
         case 26:
             float4 _47_blend_saturation;
-            float _48_alpha = dst.w * src.w;
-            float3 _49_sda = src.xyz * dst.w;
-            float3 _50_dsa = dst.xyz * src.w;
+            float _48_alpha;
+            float3 _49_sda;
+            float3 _50_dsa;
+            _48_alpha = dst.w * src.w;
+            _49_sda = src.xyz * dst.w;
+            _50_dsa = dst.xyz * src.w;
             _47_blend_saturation = float4((((_blend_set_color_luminance(_blend_set_color_saturation(_50_dsa, _49_sda), _48_alpha, _50_dsa) + dst.xyz) - _50_dsa) + src.xyz) - _49_sda, (src.w + dst.w) - _48_alpha);
 
             return _47_blend_saturation;
 
         case 27:
             float4 _51_blend_color;
-            float _52_alpha = dst.w * src.w;
-            float3 _53_sda = src.xyz * dst.w;
-            float3 _54_dsa = dst.xyz * src.w;
+            float _52_alpha;
+            float3 _53_sda;
+            float3 _54_dsa;
+            _52_alpha = dst.w * src.w;
+            _53_sda = src.xyz * dst.w;
+            _54_dsa = dst.xyz * src.w;
             _51_blend_color = float4((((_blend_set_color_luminance(_53_sda, _52_alpha, _54_dsa) + dst.xyz) - _54_dsa) + src.xyz) - _53_sda, (src.w + dst.w) - _52_alpha);
 
             return _51_blend_color;
 
         case 28:
             float4 _55_blend_luminosity;
-            float _56_alpha = dst.w * src.w;
-            float3 _57_sda = src.xyz * dst.w;
-            float3 _58_dsa = dst.xyz * src.w;
+            float _56_alpha;
+            float3 _57_sda;
+            float3 _58_dsa;
+            _56_alpha = dst.w * src.w;
+            _57_sda = src.xyz * dst.w;
+            _58_dsa = dst.xyz * src.w;
             _55_blend_luminosity = float4((((_blend_set_color_luminance(_58_dsa, _56_alpha, _57_sda) + dst.xyz) - _58_dsa) + src.xyz) - _57_sda, (src.w + dst.w) - _56_alpha);
 
             return _55_blend_luminosity;
