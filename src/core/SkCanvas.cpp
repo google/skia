@@ -1913,32 +1913,18 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& dst, const SkPa
                         kFast_SrcRectConstraint);
 }
 
-namespace {
-class LatticePaint : SkNoncopyable {
-public:
-    LatticePaint(const SkPaint* origPaint) : fPaint(origPaint) {
-        if (!origPaint) {
-            return;
+static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
+    SkPaint cleaned;
+    if (paint) {
+        cleaned = *paint;
+        if (paint->getFilterQuality() > kLow_SkFilterQuality) {
+            cleaned.setFilterQuality(kLow_SkFilterQuality);
         }
-        if (origPaint->getFilterQuality() > kLow_SkFilterQuality) {
-            fPaint.writable()->setFilterQuality(kLow_SkFilterQuality);
-        }
-        if (origPaint->getMaskFilter()) {
-            fPaint.writable()->setMaskFilter(nullptr);
-        }
-        if (origPaint->isAntiAlias()) {
-            fPaint.writable()->setAntiAlias(false);
-        }
+        cleaned.setMaskFilter(nullptr);
+        cleaned.setAntiAlias(false);
     }
-
-    const SkPaint* get() const {
-        return fPaint;
-    }
-
-private:
-    SkTCopyOnFirstWrite<SkPaint> fPaint;
-};
-} // namespace
+    return cleaned;
+}
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
@@ -1948,8 +1934,8 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
         return;
     }
     if (SkLatticeIter::Valid(image->width(), image->height(), center)) {
-        LatticePaint latticePaint(paint);
-        this->onDrawImageNine(image, center, dst, latticePaint.get());
+        SkPaint latticePaint = clean_paint_for_lattice(paint);
+        this->onDrawImageNine(image, center, dst, &latticePaint);
     } else {
         this->drawImageRect(image, dst, paint);
     }
@@ -1971,8 +1957,8 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 
     if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
-        LatticePaint latticePaint(paint);
-        this->onDrawImageLattice(image, latticePlusBounds, dst, latticePaint.get());
+        SkPaint latticePaint = clean_paint_for_lattice(paint);
+        this->onDrawImageLattice(image, latticePlusBounds, dst, &latticePaint);
     } else {
         this->drawImageRect(image, dst, paint);
     }
@@ -2279,19 +2265,18 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
 }
 
 // Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/7804).
-static SkPaint init_image_paint(const SkPaint* paint) {
+static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
+    SkPaint cleaned;
     if (paint) {
-        SkPaint cleaned = *paint;
+        cleaned = *paint;
         cleaned.setStyle(SkPaint::kFill_Style);
         cleaned.setPathEffect(nullptr);
-        return cleaned;
-    } else {
-        return SkPaint{};
     }
+    return cleaned;
 }
 
 void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    SkPaint realPaint = init_image_paint(paint);
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     SkRect bounds = SkRect::MakeXYWH(x, y, image->width(), image->height());
     if (this->internalQuickReject(bounds, realPaint)) {
@@ -2331,7 +2316,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                const SkPaint* paint, SrcRectConstraint constraint) {
-    SkPaint realPaint = init_image_paint(paint);
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     if (this->internalQuickReject(dst, realPaint)) {
         return;
@@ -2372,7 +2357,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
-    SkPaint realPaint = init_image_paint(paint);
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     if (this->internalQuickReject(dst, realPaint)) {
         return;
@@ -2384,7 +2369,7 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
-    SkPaint realPaint = init_image_paint(paint);
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     if (this->internalQuickReject(dst, realPaint)) {
         return;
@@ -2439,14 +2424,18 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
+// drawVertices fills triangles and ignores mask filter and path effect,
+// so canonicalize the paint before checking quick reject.
+static SkPaint clean_paint_for_drawVertices(SkPaint paint) {
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setMaskFilter(nullptr);
+    paint.setPathEffect(nullptr);
+    return paint;
+}
+
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
                                     const SkPaint& paint) {
-    // drawVertices fills triangles and ignores mask filter and path effect, so canonicalize the
-    // paint before checking quick reject.
-    SkPaint simplePaint = paint;
-    simplePaint.setStyle(SkPaint::kFill_Style);
-    simplePaint.setMaskFilter(nullptr);
-    simplePaint.setPathEffect(nullptr);
+    SkPaint simplePaint = clean_paint_for_drawVertices(paint);
 
     const SkRect& bounds = vertices->bounds();
     if (this->internalQuickReject(bounds, simplePaint)) {
@@ -2472,10 +2461,7 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode bmode,
                            const SkPaint& paint) {
     // drawPatch has the same behavior restrictions as drawVertices
-    SkPaint simplePaint = paint;
-    simplePaint.setStyle(SkPaint::kFill_Style);
-    simplePaint.setMaskFilter(nullptr);
-    simplePaint.setPathEffect(nullptr);
+    SkPaint simplePaint = clean_paint_for_drawVertices(paint);
 
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
@@ -2523,10 +2509,8 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                            const SkColor colors[], int count, SkBlendMode bmode,
                            const SkRect* cull, const SkPaint* paint) {
-    SkPaint realPaint = init_image_paint(paint);
-
-    // also clear mask filters, since drawAtlas is a combination of drawVertices and drawImage...
-    realPaint.setMaskFilter(nullptr);
+    // drawAtlas is a combination of drawVertices and drawImage...
+    SkPaint realPaint = clean_paint_for_drawVertices(clean_paint_for_drawImage(paint));
 
     if (cull && this->internalQuickReject(*cull, realPaint)) {
         return;
@@ -2565,7 +2549,7 @@ void SkCanvas::onDrawEdgeAAImageSet(const ImageSetEntry imageSet[], int count,
         return;
     }
 
-    SkPaint realPaint = init_image_paint(paint);
+    SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     // We could calculate the set's dstRect union to always check quickReject(), but we can't reject
     // individual entries and Chromium's occlusion culling already makes it likely that at least one
