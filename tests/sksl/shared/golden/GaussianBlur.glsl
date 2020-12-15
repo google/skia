@@ -12,7 +12,6 @@ layout (binding = 0) uniform uniformBuffer {
 };
 layout (location = 0) in vec2 vLocalCoord_Stage0;
 vec4 MatrixEffect_Stage1_c0_c0(vec4 _input, vec2 _coords) {
-    vec4 _0_TextureEffect_Stage1_c0_c0_c0;
     vec2 _1_coords = (umatrix_Stage1_c0_c0 * vec3(_coords, 1.0)).xy;
     vec2 _2_inCoord;
     vec2 _3_subsetCoord;
@@ -29,14 +28,12 @@ vec4 MatrixEffect_Stage1_c0_c0(vec4 _input, vec2 _coords) {
     if (_6_snappedX < usubset_Stage1_c0_c0_c0.x || _6_snappedX > usubset_Stage1_c0_c0_c0.z) {
         _5_textureColor = uborder_Stage1_c0_c0_c0;
     }
-    _0_TextureEffect_Stage1_c0_c0_c0 = _5_textureColor;
 
-    return _0_TextureEffect_Stage1_c0_c0_c0;
+    return _5_textureColor;
 
 }
 void main() {
     vec4 output_Stage1;
-    vec4 _7_GaussianConvolution_Stage1_c0;
     vec4 _8_output;
     vec2 _9_coord;
     vec2 _10_coordSampled;
@@ -118,9 +115,8 @@ void main() {
     _10_coordSampled = _9_coord;
     _8_output += MatrixEffect_Stage1_c0_c0(vec4(1.0), _10_coordSampled) * uKernel_Stage1_c0[6].x;
     _9_coord += uIncrement_Stage1_c0;
-    _7_GaussianConvolution_Stage1_c0 = _8_output;
 
-    output_Stage1 = _7_GaussianConvolution_Stage1_c0;
+    output_Stage1 = _8_output;
 
     {
         sk_FragColor = output_Stage1;

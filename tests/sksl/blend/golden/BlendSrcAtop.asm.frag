@@ -8,7 +8,6 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %main "main"
-OpName %_0_blend_src_atop "_0_blend_src_atop"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -16,13 +15,12 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
+OpDecorate %16 RelaxedPrecision
 OpDecorate %18 RelaxedPrecision
-OpDecorate %20 RelaxedPrecision
+OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
-OpDecorate %25 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
 OpDecorate %26 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -35,23 +33,19 @@ OpDecorate %29 RelaxedPrecision
 %dst = OpVariable %_ptr_Input_v4float Input
 %void = OpTypeVoid
 %14 = OpTypeFunction %void
-%_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_1 = OpConstant %float 1
 %main = OpFunction %void None %14
 %15 = OpLabel
-%_0_blend_src_atop = OpVariable %_ptr_Function_v4float Function
-%18 = OpLoad %v4float %dst
-%19 = OpCompositeExtract %float %18 3
-%20 = OpLoad %v4float %src
-%21 = OpVectorTimesScalar %v4float %20 %19
-%23 = OpLoad %v4float %src
-%24 = OpCompositeExtract %float %23 3
-%25 = OpFSub %float %float_1 %24
-%26 = OpLoad %v4float %dst
-%27 = OpVectorTimesScalar %v4float %26 %25
-%28 = OpFAdd %v4float %21 %27
-OpStore %_0_blend_src_atop %28
-%29 = OpLoad %v4float %_0_blend_src_atop
-OpStore %sk_FragColor %29
+%16 = OpLoad %v4float %dst
+%17 = OpCompositeExtract %float %16 3
+%18 = OpLoad %v4float %src
+%19 = OpVectorTimesScalar %v4float %18 %17
+%21 = OpLoad %v4float %src
+%22 = OpCompositeExtract %float %21 3
+%23 = OpFSub %float %float_1 %22
+%24 = OpLoad %v4float %dst
+%25 = OpVectorTimesScalar %v4float %24 %23
+%26 = OpFAdd %v4float %19 %25
+OpStore %sk_FragColor %26
 OpReturn
 OpFunctionEnd

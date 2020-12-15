@@ -58,7 +58,7 @@ namespace {
 
 static constexpr int kInlinedStatementLimit = 2500;
 
-static bool contains_returns_above_limit(const FunctionDefinition& funcDef, int limit) {
+static int count_returns_up_to_limit(const FunctionDefinition& funcDef, int limit) {
     class CountReturnsWithLimit : public ProgramVisitor {
     public:
         CountReturnsWithLimit(const FunctionDefinition& funcDef, int limit) : fLimit(limit) {
@@ -69,7 +69,7 @@ static bool contains_returns_above_limit(const FunctionDefinition& funcDef, int 
             switch (stmt.kind()) {
                 case Statement::Kind::kReturn:
                     ++fNumReturns;
-                    return (fNumReturns > fLimit) || INHERITED::visitStatement(stmt);
+                    return (fNumReturns >= fLimit) || INHERITED::visitStatement(stmt);
 
                 default:
                     return INHERITED::visitStatement(stmt);
@@ -81,7 +81,7 @@ static bool contains_returns_above_limit(const FunctionDefinition& funcDef, int 
         using INHERITED = ProgramVisitor;
     };
 
-    return CountReturnsWithLimit{funcDef, limit}.fNumReturns > limit;
+    return CountReturnsWithLimit{funcDef, limit}.fNumReturns;
 }
 
 static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDef) {
@@ -156,11 +156,6 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
     };
 
     return CountReturnsInBreakableConstructs{funcDef}.fNumReturns;
-}
-
-static bool has_early_return(const FunctionDefinition& funcDef) {
-    int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
-    return contains_returns_above_limit(funcDef, returnsAtEndOfControlFlow);
 }
 
 static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
@@ -248,6 +243,16 @@ std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
 }
 
 }  // namespace
+
+Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition& funcDef) {
+    int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
+    int numReturns = count_returns_up_to_limit(funcDef, returnsAtEndOfControlFlow + 1);
+
+    return (numReturns > returnsAtEndOfControlFlow)
+                   ? ReturnComplexity::kEarlyReturns
+                   : (numReturns > 1) ? ReturnComplexity::kReturnsAtEndOfControlFlow
+                                      : ReturnComplexity::kSingleReturn;
+}
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
     // No changes necessary if this statement isn't actually a block.
@@ -419,14 +424,14 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
 std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                     VariableRewriteMap* varMap,
                                                     SymbolTable* symbolTableForStatement,
-                                                    const Expression* resultExpr,
-                                                    bool haveEarlyReturns,
+                                                    std::unique_ptr<Expression>* resultExpr,
+                                                    ReturnComplexity returnComplexity,
                                                     const Statement& statement,
                                                     bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(offset, varMap, symbolTableForStatement, resultExpr,
-                                         haveEarlyReturns, *s, isBuiltinCode);
+                                         returnComplexity, *s, isBuiltinCode);
         }
         return nullptr;
     };
@@ -495,33 +500,50 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return statement.clone();
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
-            if (r.expression()) {
-                SkASSERT(resultExpr);
-                auto assignment =
-                        std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
-                                offset,
-                                clone_with_ref_kind(*resultExpr,
-                                                    VariableReference::RefKind::kWrite),
-                                Token::Kind::TK_EQ,
-                                expr(r.expression()),
-                                &resultExpr->type()));
-                if (haveEarlyReturns) {
-                    StatementArray block;
-                    block.reserve_back(2);
-                    block.push_back(std::move(assignment));
-                    block.push_back(std::make_unique<BreakStatement>(offset));
-                    return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
-                                                   /*isScope=*/true);
-                } else {
-                    return std::move(assignment);
-                }
-            } else {
-                if (haveEarlyReturns) {
+            if (!r.expression()) {
+                if (returnComplexity >= ReturnComplexity::kEarlyReturns) {
+                    // This function doesn't return a value, but has early returns, so we've wrapped
+                    // it in a do-while block. Use a break to leave the inlined function early.
                     return std::make_unique<BreakStatement>(offset);
                 } else {
+                    // This function doesn't exit early or return a value. A return statement at the
+                    // end is a no-op and can be treated as such.
                     return std::make_unique<Nop>();
                 }
             }
+
+            // For a function that only contains a single return, we don't need to store the result
+            // in a variable at all. Just move the return value right into the result expression.
+            SkASSERT(resultExpr);
+            SkASSERT(*resultExpr);
+            if (returnComplexity == ReturnComplexity::kSingleReturn) {
+                *resultExpr = expr(r.expression());
+                return std::make_unique<Nop>();
+            }
+
+            // For more complex functions, assign their result into a variable.
+            auto assignment =
+                    std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+                            offset,
+                            clone_with_ref_kind(**resultExpr, VariableReference::RefKind::kWrite),
+                            Token::Kind::TK_EQ,
+                            expr(r.expression()),
+                            &resultExpr->get()->type()));
+
+            // Early returns are wrapped in a do-while block; we need to synthesize a break
+            // statement to "leave" the function.
+            if (returnComplexity >= ReturnComplexity::kEarlyReturns) {
+                StatementArray block;
+                block.reserve_back(2);
+                block.push_back(std::move(assignment));
+                block.push_back(std::make_unique<BreakStatement>(offset));
+                return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
+                                               /*isScope=*/true);
+            }
+            // Functions without early returns aren't wrapped by a do-while block and don't
+            // need to worry about breaking out of the control flow.
+            return std::move(assignment);
+
         }
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
@@ -647,7 +669,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     ExpressionArray& arguments = call->arguments();
     const int offset = call->fOffset;
     const FunctionDefinition& function = *call->function().definition();
-    const bool hasEarlyReturn = has_early_return(function);
+    const ReturnComplexity returnComplexity = GetReturnComplexity(function);
+    bool hasEarlyReturn = (returnComplexity >= ReturnComplexity::kEarlyReturns);
 
     InlinedCall inlinedCall;
     inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
@@ -754,7 +777,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // Inline the function.
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
-                                                                resultExpr.get(), hasEarlyReturn,
+                                                                &resultExpr, returnComplexity,
                                                                 *stmt, caller->isBuiltin()));
     }
     if (hasEarlyReturn) {
@@ -787,8 +810,6 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     if (resultExpr != nullptr) {
         // Return our result variable as our replacement expression.
-        SkASSERT(resultExpr->as<VariableReference>().refKind() ==
-                 VariableReference::RefKind::kRead);
         inlinedCall.fReplacementExpr = std::move(resultExpr);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
@@ -819,14 +840,16 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    if (!fCaps || !fCaps->canUseDoLoops()) {
-        // We don't have do-while loops. We use do-while loops to simulate early returns, so we
-        // can't inline functions that have an early return.
-        bool hasEarlyReturn = has_early_return(*functionDef);
+    ReturnComplexity complexity = GetReturnComplexity(*functionDef);
+    bool hasEarlyReturn = (complexity >= ReturnComplexity::kEarlyReturns);
 
+    if (!fCaps || !fCaps->canUseDoLoops()) {
         // If we didn't detect an early return, there shouldn't be any returns in breakable
         // constructs either.
         SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(*functionDef) == 0);
+
+        // We don't have do-while loops. We use do-while loops to simulate early returns, so we
+        // can't inline functions that have an early return.
         return !hasEarlyReturn;
     }
     // We have do-while loops, but we don't have any mechanism to simulate early returns within a
@@ -834,7 +857,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
 
     // If we detected returns in breakable constructs, we should also detect an early return.
-    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(*functionDef));
+    SkASSERT(!hasReturnInBreakableConstruct || hasEarlyReturn);
     return !hasReturnInBreakableConstruct;
 }
 

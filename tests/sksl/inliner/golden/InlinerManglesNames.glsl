@@ -1,61 +1,29 @@
 
 uniform vec4 color;
 vec4 main() {
-    float _1_fma;
-    float _2_0_mul;
-    _2_0_mul = color.x * color.y;
+    float _9_a = color.x * color.y;
+    float _10_c;
+    _10_c = _9_a + color.z;
 
-    float _8_add;
-    float _9_c;
-    _9_c = _2_0_mul + color.z;
-    _8_add = _9_c;
-
-    _1_fma = _8_add;
+    float a = _10_c;
 
 
-
-    float a = _1_fma;
-
-    float _3_fma;
-    float _4_0_mul;
-    _4_0_mul = color.y * color.z;
-
-    float _10_add;
-    float _11_c;
-    _11_c = _4_0_mul + color.w;
-    _10_add = _11_c;
-
-    _3_fma = _10_add;
-
-
-
-    float b = _3_fma;
-
-    float _5_fma;
-    float _6_0_mul;
-    _6_0_mul = color.z * color.w;
-
-    float _12_add;
+    float _12_a = color.y * color.z;
     float _13_c;
-    _13_c = _6_0_mul + color.x;
-    _12_add = _13_c;
+    _13_c = _12_a + color.w;
 
-    _5_fma = _12_add;
-
+    float b = _13_c;
 
 
-    float c = _5_fma;
+    float _15_a = color.z * color.w;
+    float _16_c;
+    _16_c = _15_a + color.x;
 
-    float _7_mul;
-    _7_mul = c * c;
+    float c = _16_c;
 
-    float _14_mul;
-    _14_mul = b * c;
 
-    float _15_mul;
-    _15_mul = a * _14_mul;
-
-    return vec4(a, b, _7_mul, _15_mul);
+    float _19_b = b * c;
+    return vec4(a, b, c * c, a * _19_b);
 
 
 
