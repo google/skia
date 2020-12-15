@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17795bbc_5a68e76b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T15:17:22Z",
+      "side": 1,
+      "message": "I noticed that we handle lattice paints slightly differently, then went a little further to make everything feel similar.",
+      "revId": "80c341e005d877fc14d1c8d6ca13e0cf6bb6c97e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
