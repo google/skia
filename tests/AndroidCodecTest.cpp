@@ -232,7 +232,7 @@ DEF_TEST(AndroidCodec_orientation, r) {
         }
 
         // SkAndroidCodec does not adjust for the origin by default. Dimensions may be reversed.
-        if (SkPixmapPriv::ShouldSwapWidthHeight(androidCodec->codec()->getOrigin())) {
+        if (SkEncodedOriginSwapsWidthHeight(androidCodec->codec()->getOrigin())) {
             auto swappedDims = SkPixmapPriv::SwapWidthHeight(androidCodec->getInfo()).dimensions();
             REPORTER_ASSERT(r, expectedDims == swappedDims);
         } else {

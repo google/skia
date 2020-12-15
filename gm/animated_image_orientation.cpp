@@ -57,9 +57,7 @@ class AnimatedImageGM : public skiagm::GM {
                          * 1.25f    // will be scaled up
                          + 2;       // padding
 
-            auto origin = codec->getOrigin();
-            bool respectOrigin = origin != kDefault_SkEncodedOrigin;
-            fSize = { fTranslate * kMaxFrames * (respectOrigin ? 2 : 1)
+            fSize = { fTranslate * kMaxFrames
                                  * 2    // crop and no-crop
                                  * 2,   // post-process and no post-process
                       fTranslate * 4    // 4 scales
@@ -100,67 +98,55 @@ public:
             };
             for (float scale : { 1.25f, 1.0f, .75f, .5f }) {
                 canvas->save();
-                for (auto behavior : { SkAndroidCodec::ExifOrientationBehavior::kIgnore,
-                                       SkAndroidCodec::ExifOrientationBehavior::kRespect }) {
-                    // Only use kRespect if the origin is not the default.
-                    bool needRespect = true;
-                    for (bool doCrop : { false, true }) {
-                        for (bool doPostProcess : { false, true }) {
-                            auto codec = SkCodec::MakeFromData(fData);
-                            const auto origin = codec->getOrigin();
-                            if (origin == kDefault_SkEncodedOrigin) {
-                                needRespect = false;
+                for (bool doCrop : { false, true }) {
+                    for (bool doPostProcess : { false, true }) {
+                        auto codec = SkCodec::MakeFromData(fData);
+                        const auto origin = codec->getOrigin();
+                        auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+                        auto info = androidCodec->getInfo();
+                        const auto unscaledSize = SkEncodedOriginSwapsWidthHeight(origin)
+                                ? SkISize{ info.height(), info.width() } :  info.dimensions();
+
+                        SkISize scaledSize = { SkScalarFloorToInt(unscaledSize.width()  * scale) ,
+                                               SkScalarFloorToInt(unscaledSize.height() * scale) };
+                        info = info.makeDimensions(scaledSize);
+
+                        auto cropRect = SkIRect::MakeSize(scaledSize);
+                        if (doCrop) {
+                            auto matrix = SkMatrix::MakeRectToRect(SkRect::Make(unscaledSize),
+                                    SkRect::Make(scaledSize), SkMatrix::kFill_ScaleToFit);
+                            matrix.preConcat(SkEncodedOriginToMatrix(origin,
+                                    unscaledSize.width(), unscaledSize.height()));
+                            SkRect cropRectFloat = SkRect::Make(fCropRect);
+                            matrix.mapRect(&cropRectFloat);
+                            cropRectFloat.roundOut(&cropRect);
+                        }
+
+                        sk_sp<SkPicture> postProcessor = doPostProcess
+                                ? post_processor(SkRect::Make(cropRect.size())) : nullptr;
+                        auto animatedImage = SkAnimatedImage::Make(std::move(androidCodec),
+                                info, cropRect, std::move(postProcessor));
+                        animatedImage->setRepetitionCount(0);
+
+                        for (int frame = 0; frame < kMaxFrames; frame++) {
+                            {
+                                SkAutoCanvasRestore acr(canvas, doCrop);
+                                if (doCrop) {
+                                    canvas->translate(cropRect.left(), cropRect.top());
+                                }
+                                drawProc(animatedImage);
                             }
-                            auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec),
-                                                                              behavior);
-                            auto info = androidCodec->getInfo();
-                            const SkISize unscaledSize = info.dimensions();
 
-                            SkISize scaledSize = { SkScalarFloorToInt(info.width()  * scale) ,
-                                                   SkScalarFloorToInt(info.height() * scale) };
-                            info = info.makeDimensions(scaledSize);
-
-                            auto cropRect = SkIRect::MakeSize(scaledSize);
-                            if (doCrop) {
-                                auto matrix = SkMatrix::MakeRectToRect(SkRect::Make(unscaledSize),
-                                        SkRect::Make(scaledSize), SkMatrix::kFill_ScaleToFit);
-                                if (behavior == SkAndroidCodec::ExifOrientationBehavior::kRespect
-                                        && needRespect) {
-                                    matrix.preConcat(SkEncodedOriginToMatrix(origin,
-                                            unscaledSize.width(), unscaledSize.height()));
-                                }
-                                SkRect cropRectFloat = SkRect::Make(fCropRect);
-                                matrix.mapRect(&cropRectFloat);
-                                cropRectFloat.roundOut(&cropRect);
+                            canvas->translate(fTranslate, 0);
+                            const auto duration = animatedImage->currentFrameDuration();
+                            if (duration == SkAnimatedImage::kFinished) {
+                                break;
                             }
-
-                            sk_sp<SkPicture> postProcessor = doPostProcess
-                                    ? post_processor(SkRect::Make(cropRect.size())) : nullptr;
-                            auto animatedImage = SkAnimatedImage::Make(std::move(androidCodec),
-                                    info, cropRect, std::move(postProcessor));
-                            animatedImage->setRepetitionCount(0);
-
-                            for (int frame = 0; frame < kMaxFrames; frame++) {
-                                {
-                                    SkAutoCanvasRestore acr(canvas, doCrop);
-                                    if (doCrop) {
-                                        canvas->translate(cropRect.left(), cropRect.top());
-                                    }
-                                    drawProc(animatedImage);
-                                }
-
-                                canvas->translate(fTranslate, 0);
-                                const auto duration = animatedImage->currentFrameDuration();
-                                if (duration == SkAnimatedImage::kFinished) {
-                                    break;
-                                }
-                                for (int i = 0; i < fStep; i++) {
-                                    animatedImage->decodeNextFrame();
-                                }
+                            for (int i = 0; i < fStep; i++) {
+                                animatedImage->decodeNextFrame();
                             }
                         }
                     }
-                    if (!needRespect) break;
                 }
                 canvas->restore();
                 canvas->translate(0, fTranslate);

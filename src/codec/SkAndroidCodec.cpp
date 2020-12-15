@@ -60,7 +60,7 @@ static inline SkImageInfo adjust_info(SkCodec* codec,
         SkAndroidCodec::ExifOrientationBehavior orientationBehavior) {
     auto info = codec->getInfo();
     if (orientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kIgnore
-            || !SkPixmapPriv::ShouldSwapWidthHeight(codec->getOrigin())) {
+            || !SkEncodedOriginSwapsWidthHeight(codec->getOrigin())) {
         return info;
     }
     return SkPixmapPriv::SwapWidthHeight(info);
@@ -302,7 +302,7 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
 
     auto dims = this->onGetSampledDimensions(sampleSize);
     if (fOrientationBehavior == SkAndroidCodec::ExifOrientationBehavior::kIgnore
-            || !SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+            || !SkEncodedOriginSwapsWidthHeight(fCodec->getOrigin())) {
         return dims;
     }
 
@@ -365,7 +365,7 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& requestInfo,
 
     SkImageInfo adjustedInfo = fInfo;
     if (ExifOrientationBehavior::kRespect == fOrientationBehavior
-            && SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())) {
+            && SkEncodedOriginSwapsWidthHeight(fCodec->getOrigin())) {
         adjustedInfo = SkPixmapPriv::SwapWidthHeight(adjustedInfo);
     }
 

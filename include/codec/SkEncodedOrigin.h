@@ -43,5 +43,12 @@ static inline SkMatrix SkEncodedOriginToMatrix(SkEncodedOrigin origin, int w, in
     SK_ABORT("Unexpected origin");
 }
 
+/**
+ * Return true if the encoded origin includes a 90 degree rotation, in which case the width
+ * and height of the source data are swapped relative to a correctly oriented destination.
+ */
+static inline bool SkEncodedOriginSwapsWidthHeight(SkEncodedOrigin origin) {
+    return origin >= kLeftTop_SkEncodedOrigin;
+}
 
 #endif // SkEncodedOrigin_DEFINED

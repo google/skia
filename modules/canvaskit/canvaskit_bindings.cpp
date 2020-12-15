@@ -753,10 +753,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                   size_t length)->sk_sp<SkAnimatedImage> {
         uint8_t* imgData = reinterpret_cast<uint8_t*>(iptr);
         auto bytes = SkData::MakeFromMalloc(imgData, length);
-        auto stream = SkMemoryStream::Make(std::move(bytes));
-        auto codec = SkCodec::MakeFromStream(std::move(stream), nullptr, nullptr);
-        auto aCodec = SkAndroidCodec::MakeFromCodec(std::move(codec),
-                                                    SkAndroidCodec::ExifOrientationBehavior::kRespect);
+        auto aCodec = SkAndroidCodec::MakeFromData(std::move(bytes));
         if (nullptr == aCodec) {
             return nullptr;
         }
