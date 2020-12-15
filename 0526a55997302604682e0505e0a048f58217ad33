@@ -33,6 +33,24 @@
       "message": "What happens (and how often) if we do nothing at all -- and just let the nopixelsdevice fall into drawdevice? I do find the paint trick a little ... tricky",
       "revId": "0526a55997302604682e0505e0a048f58217ad33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9b89e46_c9606b3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-15T16:39:29Z",
+      "side": 1,
+      "message": "We crash, since the subclasses assume that the src SkDevice was created by their onCreateDevice function. For gpu and bitmap devices, this means they can \"safely\" cast to their own class. For PDF devices, they check if there are pixels and cast to either bitmap device or to a pdf device.\n\nI suppose what we could do is just fall through, and add a virtual cast\u003c\u003e function to SkDevice. SkNoPixelsDevice then can return nullptr for everything and the callers just check for a non-null successful cast.\n\nIt is tricky from the saveLayer point of view, but it does make drawDevice() look more like the other draw functions, since they all check paint.nothingToDraw().\n\nThis was just an alternative (once I fix the nullptr crash...); but it\u0027s totally cool if we just leave it as-is and rely on isNoPixelsDevice().",
+      "parentUuid": "b6320934_d7a5f1a5",
+      "revId": "0526a55997302604682e0505e0a048f58217ad33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
