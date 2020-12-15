@@ -567,11 +567,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     // border of extra pixels is used as the edge pixels for clamp mode but the dest bounds
     // corresponds only to the pixels inside the border (the normally rescaled pixels inside this
     // border).
-#ifdef SK_IGNORE_GPU_CLAMP_BLUR_FIX
-    int pad = 0;
-#else
     int pad = mode == SkTileMode::kClamp ? 1 : 0;
-#endif
     auto rescaledSDC = GrSurfaceDrawContext::Make(
             srcCtx->recordingContext(),
             colorInfo.colorType(),
