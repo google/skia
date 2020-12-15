@@ -36,7 +36,7 @@ private:
     GrGpu* gpu() override { return fGpu; }
 
     bool onBindPipeline(const GrProgramInfo&, const SkRect& drawBounds) override;
-    void onSetScissorRect(const SkIRect&) override;
+    void onSetScissorRect(SkIRect scissor) override;
     bool onBindTextures(const GrPrimitiveProcessor&, const GrSurfaceProxy* const primProcTextures[],
                         const GrPipeline&) override;
     void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,

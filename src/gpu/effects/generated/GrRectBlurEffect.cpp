@@ -123,7 +123,8 @@ half4 inputColor = %s;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
         {
             if (invVMVar.isValid()) {
@@ -133,6 +134,7 @@ private:
         }
         auto rect = _outer.rect;
         (void)rect;
+        rect.offset(viewportOffset.fX, viewportOffset.fY);
         UniformHandle& rectF = rectFVar;
         (void)rectF;
         UniformHandle& rectH = rectHVar;

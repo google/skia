@@ -85,7 +85,7 @@ private:
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc) override {}
+                                 const GrPrimitiveProcessor& primProc, SkIPoint viewportOffset) override {}
                 };
                 return new GLSLGP();
             }
@@ -155,7 +155,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }

@@ -247,7 +247,8 @@ private:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
         float numSegmentsInJoin;
         switch (shader.fStroke.getJoin()) {
@@ -1055,7 +1056,8 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
 
         // Set up the tessellation control uniforms.

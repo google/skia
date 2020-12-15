@@ -38,7 +38,8 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const GrFillPathShader& shader = primProc.cast<GrFillPathShader>();
         pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
 

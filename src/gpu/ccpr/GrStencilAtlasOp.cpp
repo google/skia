@@ -58,7 +58,7 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = %s = half4(1);", args.fOutputColor, args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 };
 
 GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrShaderCaps&) const {
@@ -182,8 +182,8 @@ void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline&
                               &primProc, GrPrimitiveType::kTriangleStrip, 0,
                               flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
-    flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
-    flushState->setScissorRect(drawBounds);
+    flushState->bindPipeline2(programInfo, SkRect::Make(drawBounds));
+    flushState->setScissorRect2(drawBounds);
     flushState->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);
     flushState->drawInstanced(fEndStencilResolveInstance - fBaseStencilResolveInstance,
                               fBaseStencilResolveInstance, 4, 0);

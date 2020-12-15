@@ -71,12 +71,14 @@ half4 inputColor = %s;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrAARectEffect& _outer = _proc.cast<GrAARectEffect>();
         auto edgeType = _outer.edgeType;
         (void)edgeType;
         auto rect = _outer.rect;
         (void)rect;
+        rect.offset(viewportOffset.fX, viewportOffset.fY);
         UniformHandle& rectUniform = rectUniformVar;
         (void)rectUniform;
 

@@ -36,7 +36,8 @@ half luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, 0.072200000
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrLumaColorFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLLumaColorFilterEffect();

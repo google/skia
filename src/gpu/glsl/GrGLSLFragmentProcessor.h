@@ -130,7 +130,7 @@ public:
 
     // This does not recurse to any attached child processors. Recursing the entire processor tree
     // is the responsibility of the caller.
-    void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
+    void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor, SkIPoint viewportOffset);
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
@@ -244,7 +244,7 @@ protected:
     uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
     parameter is guaranteed to be of the same type that created this GrGLSLFragmentProcessor and
     to have an identical processor key as the one that created this GrGLSLFragmentProcessor.  */
-    virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
+    virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&, SkIPoint viewportOffset) {}
 
 private:
     // one per child; either not present or empty string if not yet emitted

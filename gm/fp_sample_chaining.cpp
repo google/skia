@@ -70,7 +70,8 @@ public:
                 args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
             }
             void onSetData(const GrGLSLProgramDataManager& pdman,
-                           const GrFragmentProcessor& proc) override {
+                           const GrFragmentProcessor& proc,
+                           SkIPoint viewportOffset) override {
                 pdman.setSkMatrix(fMatrixVar, SkMatrix::Scale(1, 0.5f));
             }
             UniformHandle fMatrixVar;

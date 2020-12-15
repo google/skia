@@ -46,7 +46,8 @@ half factor = 1.0 - inputAlpha;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrBlurredEdgeFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLBlurredEdgeFragmentProcessor();

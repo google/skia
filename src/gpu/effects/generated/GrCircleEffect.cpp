@@ -64,12 +64,15 @@ half4 inputColor = %s;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrCircleEffect& _outer = _proc.cast<GrCircleEffect>();
         auto edgeType = _outer.edgeType;
         (void)edgeType;
         auto center = _outer.center;
         (void)center;
+        center.fX += viewportOffset.fX;
+        center.fY += viewportOffset.fY;
         auto radius = _outer.radius;
         (void)radius;
         UniformHandle& circle = circleVar;

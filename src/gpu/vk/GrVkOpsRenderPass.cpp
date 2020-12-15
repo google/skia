@@ -521,6 +521,8 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
         GrVkPipeline::SetDynamicScissorRectState(fGpu, currentCB, fRenderTarget, fOrigin,
                                                  fCurrentPipelineBounds);
     }
+    //$$
+    // maybe have a new virtual akin but parallel
     GrVkPipeline::SetDynamicViewportState(fGpu, currentCB, fRenderTarget);
     GrVkPipeline::SetDynamicBlendConstantState(fGpu, currentCB,
                                                programInfo.pipeline().writeSwizzle(),
@@ -529,7 +531,7 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     return true;
 }
 
-void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+void GrVkOpsRenderPass::onSetScissorRect(SkIRect scissor) {
     SkIRect combinedScissorRect;
     if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
         combinedScissorRect = SkIRect::MakeEmpty();

@@ -52,7 +52,8 @@ half4 dst = %s;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrArithmeticProcessor& _outer = _proc.cast<GrArithmeticProcessor>();
         { pdman.set4fv(kVar, 1, (_outer.k).ptr()); }
     }

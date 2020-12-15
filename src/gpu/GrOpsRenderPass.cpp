@@ -42,7 +42,9 @@ void GrOpsRenderPass::clear(const GrScissorState& scissor, std::array<float, 4> 
     SkASSERT(!this->gpu()->caps()->performColorClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->gpu()->caps()->performPartialClearsAsDraws());
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
-    this->onClear(scissor, color);
+    GrScissorState tmp = scissor;
+    tmp.fRect.offset(fViewportOffset);
+    this->onClear(tmp, color);
 }
 
 void GrOpsRenderPass::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask) {
@@ -58,7 +60,7 @@ void GrOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler
     this->onExecuteDrawable(std::move(drawable));
 }
 
-void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
+void GrOpsRenderPass::bindPipeline1(const GrProgramInfo& programInfo, const SkRect& drawBounds) {
 #ifdef SK_DEBUG
     // Both the 'programInfo' and this renderPass have an origin. Since they come from the same
     // place (i.e., the target renderTargetProxy) they had best agree.
@@ -128,14 +130,18 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
     fXferBarrierType = programInfo.pipeline().xferBarrierType(*this->gpu()->caps());
 }
 
-void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
+void GrOpsRenderPass::setScissorRect1(SkIRect scissor) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
         return;
     }
     SkASSERT(DynamicStateStatus::kDisabled != fScissorStatus);
-    this->onSetScissorRect(scissor);
+    this->onSetScissorRect(scissor.makeOffset(fViewportOffset));
     SkDEBUGCODE(fScissorStatus = DynamicStateStatus::kConfigured);
+}
+
+void GrOpsRenderPass::setViewport8(SkIRect viewport) {
+    this->onSetViewport8(viewport.makeOffset(fViewportOffset));
 }
 
 void GrOpsRenderPass::bindTextures(const GrPrimitiveProcessor& primProc,

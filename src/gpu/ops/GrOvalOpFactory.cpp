@@ -217,7 +217,8 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& primProc) override {
+                     const GrPrimitiveProcessor& primProc,
+                     SkIPoint viewportOffset) override {
             this->setTransform(pdman, fLocalMatrixUniform,
                                primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
                                &fLocalMatrix);
@@ -476,7 +477,8 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& primProc) override {
+                     const GrPrimitiveProcessor& primProc,
+                     SkIPoint viewportOffset) override {
             this->setTransform(pdman, fLocalMatrixUniform,
                                primProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix,
                                &fLocalMatrix);
@@ -666,7 +668,8 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& primProc) override {
+                     const GrPrimitiveProcessor& primProc,
+                     SkIPoint viewportOffset) override {
             const EllipseGeometryProcessor& egp = primProc.cast<EllipseGeometryProcessor>();
             this->setTransform(pdman, fLocalMatrixUniform, egp.fLocalMatrix, &fLocalMatrix);
         }
@@ -859,7 +862,8 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
             this->setTransform(pdman, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
@@ -1395,7 +1399,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -1717,7 +1721,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -2008,7 +2012,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -2274,7 +2278,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -2735,7 +2739,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -3055,7 +3059,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }

@@ -203,7 +203,7 @@ bool GrD3DOpsRenderPass::onBindPipeline(const GrProgramInfo& info, const SkRect&
     return true;
 }
 
-void GrD3DOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
+void GrD3DOpsRenderPass::onSetScissorRect(SkIRect scissor) {
     SkIRect combinedScissorRect;
     if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
         combinedScissorRect = SkIRect::MakeEmpty();

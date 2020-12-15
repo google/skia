@@ -46,7 +46,8 @@ private:
     class GLSLGP : public GrGLSLGeometryProcessor {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& pp) override {
+                     const GrPrimitiveProcessor& pp,
+                     SkIPoint viewportOffset) override {
             const auto& gp = pp.cast<GP>();
             this->setTransform(pdman, fLocalMatrixUni, gp.fLocalMatrix);
         }
@@ -212,7 +213,7 @@ void TestRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds
         this->createProgramInfo(flushState);
     }
 
-    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }

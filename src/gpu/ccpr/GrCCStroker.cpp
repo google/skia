@@ -89,7 +89,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -179,7 +179,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -731,7 +731,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
                               GrPrimitiveType::kTriangleStrip, 0, flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
 
-    flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
+    flushState->bindPipeline2(programInfo, SkRect::Make(drawBounds));
     flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
 
     // Linear strokes draw a quad. Cubic strokes emit a strip with normals at "numSegments"
@@ -745,7 +745,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
     int endIdx = batch.fNonScissorEndInstances->fStrokes[numSegmentsLog2];
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        flushState->setScissorRect(drawBounds);
+        flushState->setScissorRect2(drawBounds);
         flushState->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
     }
 
@@ -757,7 +757,7 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
         endIdx = subBatch.fEndInstances->fStrokes[numSegmentsLog2];
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            flushState->setScissorRect(subBatch.fScissor);
+            flushState->setScissorRect2(subBatch.fScissor);
             flushState->drawInstanced(instanceCount, baseInstance + startIdx, numStripVertices, 0);
             startIdx = endIdx;
         }
@@ -779,7 +779,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
     if (int instanceCount = endIdx - startIdx) {
-        flushState->setScissorRect(drawBounds);
+        flushState->setScissorRect2(drawBounds);
         processor.drawInstances(flushState->opsRenderPass(), instanceCount,
                                 baseInstance + startIdx);
     }
@@ -792,7 +792,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
         endIdx = subBatch.fEndInstances->*InstanceType;
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
-            flushState->setScissorRect(subBatch.fScissor);
+            flushState->setScissorRect2(subBatch.fScissor);
             processor.drawInstances(flushState->opsRenderPass(), instanceCount,
                                     baseInstance + startIdx);
             startIdx = endIdx;

@@ -43,7 +43,8 @@ half L = pmL / (c.w + 9.9999997473787516e-05);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrRGBToHSLFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLRGBToHSLFilterEffect();

@@ -18,7 +18,7 @@ public:
             : fShader(std::move(shader)), fNumSides(numSides) {}
 
 private:
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) final {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 

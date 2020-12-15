@@ -40,7 +40,8 @@ half3 rgb = (q - 0.5) * C + hsl.z;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrHSLToRGBFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLHSLToRGBFilterEffect();

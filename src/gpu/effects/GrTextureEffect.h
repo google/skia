@@ -104,7 +104,7 @@ public:
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs&) override;
-        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&, SkIPoint viewportOffset) override;
 
         void setSamplerHandle(GrGLSLShaderBuilder::SamplerHandle handle) {
             fSamplerHandle = handle;

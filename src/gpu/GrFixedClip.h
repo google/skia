@@ -34,7 +34,7 @@ public:
         return fScissorState.set(irect);
     }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& irect) {
-        return fScissorState.intersect(irect);
+        return fScissorState.intersect1(irect);
     }
 
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }

@@ -120,10 +120,12 @@ public:
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& fp) override {
+                   const GrFragmentProcessor& fp,
+                   SkIPoint viewportOffset) override {
         const GrCCClipProcessor& proc = fp.cast<GrCCClipProcessor>();
         if (proc.fMustCheckBounds) {
-            const SkRect pathIBounds = SkRect::Make(proc.fClipPath->pathDevIBounds());
+            SkRect pathIBounds = SkRect::Make(proc.fClipPath->pathDevIBounds());
+            pathIBounds.offset(viewportOffset.fX, viewportOffset.fY);
             pdman.set4f(fPathIBoundsUniform, pathIBounds.left(), pathIBounds.top(),
                         pathIBounds.right(), pathIBounds.bottom());
         }

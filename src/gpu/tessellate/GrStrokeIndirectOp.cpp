@@ -843,14 +843,14 @@ void GrStrokeIndirectOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     SkASSERT(chainBounds == this->bounds());
 
     if (fStencilProgram) {
-        flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fStencilProgram, this->bounds());
         flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());
         flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
         flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
                                  fDrawIndirectCount);
     }
     if (fFillProgram) {
-        flushState->bindPipelineAndScissorClip(*fFillProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fFillProgram, this->bounds());
         flushState->bindTextures(fFillProgram->primProc(), nullptr, fFillProgram->pipeline());
         flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
         flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,

@@ -582,7 +582,8 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& proc) override {
+                         const GrPrimitiveProcessor& proc,
+                         SkIPoint viewportOffset) override {
                 const auto& gp = proc.cast<QuadPerEdgeAAGeometryProcessor>();
                 fTextureColorSpaceXformHelper.setData(pdman, gp.fTextureColorSpaceXform.get());
             }
