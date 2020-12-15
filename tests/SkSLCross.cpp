@@ -45,6 +45,7 @@ public:
 
 private:
     const char* name() const override { return "VisualizeCrossProductSignFP"; }
+    bool usesExplicitReturn() const override { return true; }
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new VisualizeCrossProductSignFP(fA, fB));
     }
@@ -63,7 +64,7 @@ private:
                     float crossProduct = cross(%s, %s);
                     float2 visualization = clamp(float2(-sign(crossProduct), sign(crossProduct)),
                                                  float2(0), float2(1));
-                    %s = half4(half2(visualization), 0, 1);)", a, b, args.fOutputColor);
+                    return half2(visualization).xy01;)", a, b);
         }
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& processor) override {

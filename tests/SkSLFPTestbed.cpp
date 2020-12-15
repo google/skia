@@ -43,8 +43,8 @@ DEF_TEST(SkSLFPTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main(float2 coord) {
-                 sk_OutColor = half4(0);
+             half4 main(float2 coord) {
+                 return half4(0);
              }
          )__SkSL__");
 }

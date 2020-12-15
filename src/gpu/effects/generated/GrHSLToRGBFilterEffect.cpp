@@ -26,16 +26,17 @@ public:
         (void)_outer;
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-                R"SkSL(half4 inputColor = %s;
-half3 hsl = inputColor.xyz;
+                R"SkSL(half4 color = %s;
+half3 hsl = color.xyz;
 half C = (1.0 - abs(2.0 * hsl.z - 1.0)) * hsl.y;
 half3 p = hsl.xxx + half3(0.0, 0.66666668653488159, 0.3333333432674408);
 half3 q = clamp(abs(fract(p) * 6.0 - 3.0) - 1.0, 0.0, 1.0);
 half3 rgb = (q - 0.5) * C + hsl.z;
-%s = clamp(half4(rgb, inputColor.w), 0.0, 1.0);
-%s.xyz *= %s.w;
+color = clamp(half4(rgb, color.w), 0.0, 1.0);
+color.xyz *= color.w;
+return color;
 )SkSL",
-                _sample0.c_str(), args.fOutputColor, args.fOutputColor, args.fOutputColor);
+                _sample0.c_str());
     }
 
 private:
@@ -52,7 +53,7 @@ bool GrHSLToRGBFilterEffect::onIsEqual(const GrFragmentProcessor& other) const {
     (void)that;
     return true;
 }
-bool GrHSLToRGBFilterEffect::usesExplicitReturn() const { return false; }
+bool GrHSLToRGBFilterEffect::usesExplicitReturn() const { return true; }
 GrHSLToRGBFilterEffect::GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src)
         : INHERITED(kGrHSLToRGBFilterEffect_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);

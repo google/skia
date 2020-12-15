@@ -121,9 +121,9 @@ public:
     }
 
 private:
-    const char* name() const override {
-        return "VisualizeCoverageCountFP";
-    }
+    const char* name() const override { return "VisualizeCoverageCountFP"; }
+    bool usesExplicitReturn() const override { return true; }
+
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new VisualizeCoverageCountFP(*this));
     }
@@ -144,8 +144,7 @@ private:
             static constexpr int kInputFPIndex = 0;
             SkString inputColor = this->invokeChild(kInputFPIndex, args);
             f->codeAppendf("half count = %s.a;", inputColor.c_str());
-            f->codeAppendf("%s = half4(clamp(-count, 0, 1), clamp(+count, 0, 1), 0, abs(count));",
-                           args.fOutputColor);
+            f->codeAppendf("return half4(saturate(-count), saturate(+count), 0, abs(count));");
         }
     };
 
