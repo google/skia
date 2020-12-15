@@ -9,7 +9,7 @@ void main() {
     bool orXY = x ? true : y;
     bool combo = (x ? y : false) ? true : (x ? true : y);
     bool prec = i + j == 3 ? y : false;
-    while (((andXY ? orXY : false) ? combo : false) ? prec : false) {
+    for (; ((andXY ? orXY : false) ? combo : false) ? prec : false; ) {
         sk_FragColor = vec4(0.0);
         break;
     }
