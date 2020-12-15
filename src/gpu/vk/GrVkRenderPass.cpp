@@ -17,12 +17,14 @@ typedef GrVkRenderPass::AttachmentsDescriptor::AttachmentDesc AttachmentDesc;
 
 void setup_vk_attachment_description(VkAttachmentDescription* attachment,
                                      const AttachmentDesc& desc,
-                                     VkImageLayout layout) {
+                                     VkImageLayout startLayout,
+                                     VkImageLayout endLayout) {
     attachment->flags = 0;
     attachment->format = desc.fFormat;
     SkAssertResult(GrSampleCountToVkSampleCount(desc.fSamples, &attachment->samples));
-    switch (layout) {
+    switch (startLayout) {
         case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
         case VK_IMAGE_LAYOUT_GENERAL:
             attachment->loadOp = desc.fLoadStoreOps.fLoadOp;
             attachment->storeOp = desc.fLoadStoreOps.fStoreOp;
@@ -39,8 +41,8 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
             SK_ABORT("Unexpected attachment layout");
     }
 
-    attachment->initialLayout = layout;
-    attachment->finalLayout = layout;
+    attachment->initialLayout = startLayout;
+    attachment->finalLayout = endLayout == VK_IMAGE_LAYOUT_UNDEFINED ? startLayout : endLayout;
 }
 
 GrVkRenderPass* GrVkRenderPass::CreateSimple(GrVkGpu* gpu,
@@ -127,6 +129,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
     // that are used by the subpass.
     VkAttachmentReference colorRef;
     VkAttachmentReference resolveRef;
+    VkAttachmentReference resolveLoadInputRef;
     VkAttachmentReference stencilRef;
     uint32_t currentAttachment = 0;
 
@@ -157,7 +160,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
         setup_vk_attachment_description(&attachments[currentAttachment],
                                         attachmentsDescriptor->fColor,
-                                        layout);
+                                        layout, layout);
         // setup subpass use of attachment
         colorRef.attachment = currentAttachment++;
         colorRef.layout = layout;
@@ -207,8 +210,13 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
     if (attachmentFlags & kResolve_AttachmentFlag) {
         attachmentsDescriptor->fResolve.fLoadStoreOps = resolveOp;
 
+        VkImageLayout layout = loadFromResolve == LoadFromResolve::kLoad
+                                       ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                                       : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
         setup_vk_attachment_description(&attachments[currentAttachment],
                                         attachmentsDescriptor->fResolve,
+                                        layout,
                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
         // setup main subpass use of attachment
@@ -219,12 +227,15 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
         // Setup the load subpass and set subpass dependendcies
         if (loadFromResolve == LoadFromResolve::kLoad) {
+            resolveLoadInputRef.attachment = resolveRef.attachment;
+            resolveLoadInputRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
             // The load subpass will always be the first
             VkSubpassDescription& subpassDescLoad = subpassDescs[0];
             subpassDescLoad.flags = 0;
             subpassDescLoad.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
             subpassDescLoad.inputAttachmentCount = 1;
-            subpassDescLoad.pInputAttachments = &resolveRef;
+            subpassDescLoad.pInputAttachments = &resolveLoadInputRef;
             subpassDescLoad.colorAttachmentCount = 1;
             subpassDescLoad.pColorAttachments = &colorRef;
             subpassDescLoad.pResolveAttachments = nullptr;
@@ -250,6 +261,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
         attachmentsDescriptor->fStencil.fLoadStoreOps = stencilOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
                                         attachmentsDescriptor->fStencil,
+                                        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
         // setup subpass use of attachment
         stencilRef.attachment = currentAttachment++;
