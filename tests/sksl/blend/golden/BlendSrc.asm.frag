@@ -8,7 +8,6 @@ OpName %sk_Clockwise "sk_Clockwise"
 OpName %src "src"
 OpName %dst "dst"
 OpName %main "main"
-OpName %_0_blend_src "_0_blend_src"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -16,8 +15,7 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %src RelaxedPrecision
 OpDecorate %dst RelaxedPrecision
-OpDecorate %18 RelaxedPrecision
-OpDecorate %19 RelaxedPrecision
+OpDecorate %16 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -30,13 +28,9 @@ OpDecorate %19 RelaxedPrecision
 %dst = OpVariable %_ptr_Input_v4float Input
 %void = OpTypeVoid
 %14 = OpTypeFunction %void
-%_ptr_Function_v4float = OpTypePointer Function %v4float
 %main = OpFunction %void None %14
 %15 = OpLabel
-%_0_blend_src = OpVariable %_ptr_Function_v4float Function
-%18 = OpLoad %v4float %src
-OpStore %_0_blend_src %18
-%19 = OpLoad %v4float %_0_blend_src
-OpStore %sk_FragColor %19
+%16 = OpLoad %v4float %src
+OpStore %sk_FragColor %16
 OpReturn
 OpFunctionEnd
