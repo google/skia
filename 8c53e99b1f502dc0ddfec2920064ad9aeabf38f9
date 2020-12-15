@@ -184,6 +184,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb7f2b6f_0fb4e16c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-15T21:02:16Z",
+      "side": 1,
+      "message": "Ditto.",
+      "parentUuid": "0332bc93_1554bba0",
+      "range": {
+        "startLine": 187,
+        "startChar": 48,
+        "endLine": 188,
+        "endChar": 18
+      },
+      "revId": "8c53e99b1f502dc0ddfec2920064ad9aeabf38f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ded5fa6_228b7812",
