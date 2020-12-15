@@ -22,6 +22,30 @@
       },
       "revId": "af0cecac7e06dc355571414a900b018042dfa61a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "353ea94d_7ce52747",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T18:05:29Z",
+      "side": 1,
+      "message": "We want to cherry-pick this back to M88 and this is the name Chrome uses (and is in its workaround json). The name is also more wrong than that. We\u0027re doing this on every draw/clear, not just when changing FBO bindings.",
+      "parentUuid": "e0f8684f_ee6063eb",
+      "range": {
+        "startLine": 2208,
+        "startChar": 79,
+        "endLine": 2208,
+        "endChar": 80
+      },
+      "revId": "af0cecac7e06dc355571414a900b018042dfa61a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
