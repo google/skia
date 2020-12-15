@@ -30,7 +30,7 @@ protected:
                GrPaint&&);
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
-    void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
+    void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;

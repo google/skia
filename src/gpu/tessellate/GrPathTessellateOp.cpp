@@ -29,6 +29,14 @@ constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveL
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
 
+void GrPathTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
+    if (fPipelineForFills) {
+        fPipelineForFills->visitProxies(fn);
+    } else {
+        fProcessors.visitProxies(fn);
+    }
+}
+
 GrPathTessellateOp::FixedFunctionFlags GrPathTessellateOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
     if (GrAAType::kNone != fAAType) {
@@ -384,8 +392,9 @@ void GrPathTessellateOp::prePreparePipelineForFills(const PrePrepareArgs& args) 
     }
 
     fPipelineForFills = GrSimpleMeshDrawOpHelper::CreatePipeline(
-            args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(*args.fClip),
-            *args.fDstProxyView, std::move(fProcessors), pipelineFlags);
+            args.fCaps, args.fArena, args.fWriteView.swizzle(),
+            (args.fClip) ? std::move(*args.fClip) : GrAppliedClip::Disabled(), *args.fDstProxyView,
+            std::move(fProcessors), pipelineFlags);
 }
 
 void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
