@@ -22,6 +22,30 @@
       },
       "revId": "1c50643b3cef2e742f2ba2d99179fa92554c289d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95ac3bb1_76866ce3",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2609,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-15T14:29:05Z",
+      "side": 0,
+      "message": "Do we need to keep the first bool one?",
+      "parentUuid": "da4d9358_82482c09",
+      "range": {
+        "startLine": 2606,
+        "startChar": 4,
+        "endLine": 2609,
+        "endChar": 5
+      },
+      "revId": "1c50643b3cef2e742f2ba2d99179fa92554c289d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
