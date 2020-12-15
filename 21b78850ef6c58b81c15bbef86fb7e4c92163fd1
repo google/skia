@@ -305,6 +305,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8160c6d1_735d2693",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T17:49:55Z",
+      "side": 1,
+      "message": "oh duh, I always forget about kUnknown",
+      "parentUuid": "678b889a_325f531a",
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c120f2a0_24cca32a",
@@ -318,6 +336,30 @@
       "writtenOn": "2020-12-15T15:57:15Z",
       "side": 1,
       "message": "ditto comment above about assert for unpremul (and the rest of factories below)",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 2
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23e1665c_2a2dc3e6",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T17:49:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c120f2a0_24cca32a",
       "range": {
         "startLine": 143,
         "startChar": 0,
@@ -365,6 +407,30 @@
       "side": 1,
       "message": "There is no way to draw with coverage.",
       "parentUuid": "b2e29928_8c50e007",
+      "range": {
+        "startLine": 298,
+        "startChar": 14,
+        "endLine": 298,
+        "endChar": 43
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6df393e2_f433f035",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T17:49:55Z",
+      "side": 1,
+      "message": "Ack. This was kind of in response to the other helper above, but given that only has coverage for the draw this is good.",
+      "parentUuid": "1a98e620_8a250c31",
       "range": {
         "startLine": 298,
         "startChar": 14,
@@ -788,6 +854,30 @@
       "side": 1,
       "message": "It\u0027s a shared helper also used by GrSurfaceDrawContext. It could move back there and we could just assert in this class\u0027s addDrawOp() impl that the geometry is not hairline and that there is not coverage AA and so don\u0027t need to modify the bounds. WDYT?",
       "parentUuid": "1809de52_87b825cb",
+      "range": {
+        "startLine": 205,
+        "startChar": 43,
+        "endLine": 205,
+        "endChar": 54
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8cdcd0e_01f592d4",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-15T17:49:55Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "1ac16352_33adf7cc",
       "range": {
         "startLine": 205,
         "startChar": 43,
