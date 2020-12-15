@@ -733,7 +733,8 @@ DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
     expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
 
     // returns are not allowed inside loops
-    expect_failure(r, "float main(float x) { while (x > 1) { return x; } return 0; }");
+    expect_failure(r, "float main(float x)"
+                      "{ while (x > 1) { if (x > 2) { return x; } } return 0; }");
 }
 
 DEF_TEST(SkSLInterpreterEarlyReturn, r) {
