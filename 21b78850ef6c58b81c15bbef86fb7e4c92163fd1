@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c021d280_5a1847e3",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e03a31b_7ecf7f47",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 63
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f35bdd6_61847941",
@@ -71,6 +95,30 @@
       "writtenOn": "2020-12-15T15:32:12Z",
       "side": 1,
       "message": "Aren\u0027t we just passing these as \"SkIRect\" nowadays? And then the following \u0027makeOffset\u0027 could just be an \u0027offset\u0027.",
+      "range": {
+        "startLine": 463,
+        "startChar": 44,
+        "endLine": 463,
+        "endChar": 68
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5240ad3a_60b92c84",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "I don\u0027t follow. We need two rects and offset would modify the one rect in place.",
+      "parentUuid": "8f35bdd6_61847941",
       "range": {
         "startLine": 463,
         "startChar": 44,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "467b0baa_00489eba",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1414988_a669769c",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 70
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d6b0550_957a6caf",
@@ -117,6 +189,30 @@
       "writtenOn": "2020-12-15T15:32:12Z",
       "side": 1,
       "message": "xtra spaces",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 75
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b35decbf_9f59b5b5",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d6b0550_957a6caf",
       "range": {
         "startLine": 65,
         "startChar": 0,
@@ -150,6 +246,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a6ece3f_b155a5d6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Oops. didn\u0027t mean to modify this at all. But rewrote with an if. This is hard to read.",
+      "parentUuid": "a7568bd6_669f48d6",
+      "range": {
+        "startLine": 1826,
+        "startChar": 27,
+        "endLine": 1826,
+        "endChar": 44
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fbbf710f_551afd63",
@@ -163,6 +283,24 @@
       "writtenOn": "2020-12-15T15:57:15Z",
       "side": 1,
       "message": "More for documentation purposes, is it worth putting an SkASSERT(alphaType \u003d\u003d kUnpremul_SkAlphaType) here? This makes it clear everything happening after is meant to handle that special case.",
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "678b889a_325f531a",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "kUnknown alpha type is also legal, just like how kUnknown color type is legal. (These were already legal at the GrSurfaceContext level).",
+      "parentUuid": "fbbf710f_551afd63",
       "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -203,6 +341,30 @@
       "writtenOn": "2020-12-15T15:57:15Z",
       "side": 1,
       "message": "Again just want to confirm what the coverage rules here are. I\u0027m pretty sure theres times we need a dst texture to do a src blend with AA coverage (and maybe requires lcd).",
+      "range": {
+        "startLine": 298,
+        "startChar": 14,
+        "endLine": 298,
+        "endChar": 43
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a98e620_8a250c31",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "There is no way to draw with coverage.",
+      "parentUuid": "b2e29928_8c50e007",
       "range": {
         "startLine": 298,
         "startChar": 14,
@@ -259,6 +421,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bf0438f_98909fb1",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "I think \"GrImageInfo\u0027s\" is clearest. The fact that GrImageInfo stores a GrColorInfo is an implementation detail. It could just as well store the color info\u0027s components and dynamically make a color info if asked for it.",
+      "parentUuid": "c9569d49_d86305db",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b97dce15_6d14acde",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f544086_f9d03579",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 26
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1beb718_1106199c",
@@ -272,6 +482,30 @@
       "writtenOn": "2020-12-15T16:01:08Z",
       "side": 1,
       "message": "rm?",
+      "range": {
+        "startLine": 68,
+        "startChar": 24,
+        "endLine": 68,
+        "endChar": 28
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87a6edc5_16f6525e",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1beb718_1106199c",
       "range": {
         "startLine": 68,
         "startChar": 24,
@@ -305,6 +539,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d56fa82_6d1aa77a",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e062f553_3cd17a24",
+      "range": {
+        "startLine": 69,
+        "startChar": 12,
+        "endLine": 69,
+        "endChar": 24
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e57d6651_034148c9",
@@ -318,6 +576,30 @@
       "writtenOn": "2020-12-15T16:01:08Z",
       "side": 1,
       "message": "xtra space ?",
+      "range": {
+        "startLine": 97,
+        "startChar": 43,
+        "endLine": 97,
+        "endChar": 44
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "291310fa_97983cfd",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e57d6651_034148c9",
       "range": {
         "startLine": 97,
         "startChar": 43,
@@ -374,6 +656,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a3485f5_9b540487",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "632c859a_83361e49",
+      "range": {
+        "startLine": 156,
+        "startChar": 26,
+        "endLine": 158,
+        "endChar": 36
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a5289e5_d1d46442",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2056032b_a5416d09",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 68
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e51cfc0_3dfcc9e3",
@@ -397,6 +727,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "898f66dc_0c98990f",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e51cfc0_3dfcc9e3",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 22
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1809de52_87b825cb",
@@ -410,6 +764,30 @@
       "writtenOn": "2020-12-15T15:57:15Z",
       "side": 1,
       "message": "If this op has no blending, are we supporting coverage AA? I would have thought this class draws everything non-aa",
+      "range": {
+        "startLine": 205,
+        "startChar": 43,
+        "endLine": 205,
+        "endChar": 54
+      },
+      "revId": "21b78850ef6c58b81c15bbef86fb7e4c92163fd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ac16352_33adf7cc",
+        "filename": "src/gpu/GrSurfaceFillContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-15T16:47:41Z",
+      "side": 1,
+      "message": "It\u0027s a shared helper also used by GrSurfaceDrawContext. It could move back there and we could just assert in this class\u0027s addDrawOp() impl that the geometry is not hairline and that there is not coverage AA and so don\u0027t need to modify the bounds. WDYT?",
+      "parentUuid": "1809de52_87b825cb",
       "range": {
         "startLine": 205,
         "startChar": 43,
