@@ -7,6 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 89
 ------------
 
+  * Support GL_LUMINANCE8_ALPHA8 textures. These can be used with GrBackendTexture APIs
+    on GrDirectContext and as planes of YUVA images via GrYUVABackendTextures.
+    https://review.skia.org/344761
+
   * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
     https://review.skia.org/342077
 
