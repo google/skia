@@ -29,6 +29,25 @@
 #include <utility>
 #include <vector>
 
+DEF_TEST(AnimatedImage_simple, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* file = "images/stoplight_h.webp";
+    auto data = GetResourceAsData(file);
+    if (!data) {
+        ERRORF(r, "Could not get %s", file);
+        return;
+    }
+
+    // An animated image with a non-default exif orientation is no longer
+    // "simple"; verify that the assert has been removed.
+    auto androidCodec = SkAndroidCodec::MakeFromData(std::move(data));
+    auto animatedImage = SkAnimatedImage::Make(std::move(androidCodec));
+    REPORTER_ASSERT(r, animatedImage);
+}
+
 DEF_TEST(AnimatedImage_invalidCrop, r) {
     if (GetResourcePath().isEmpty()) {
         return;
