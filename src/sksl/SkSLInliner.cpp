@@ -536,13 +536,60 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                      SymbolTable::WrapIfBuiltin(ss.symbols()));
         }
         case Statement::Kind::kVarDeclaration: {
+            // We've declared variables already, via inlineVarDecls. But we do need to convert the
+            // initial values into assignment statements.
             const VarDeclaration& decl = statement.as<VarDeclaration>();
-            std::unique_ptr<Expression> initialValue = expr(decl.value());
+            if (decl.value()) {
+                auto varMapIter = varMap->find(&decl.var());
+                if (varMapIter == varMap->end()) {
+                    //SkDEBUGFAILF("inlined variable '%s' not found in VariableRewriteMap",
+                    //             decl.var().description().c_str());
+                    return std::make_unique<Nop>();
+                }
+
+                std::unique_ptr<Expression>& varRef = varMapIter->second;
+                return std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+                        offset,
+                        clone_with_ref_kind(*varRef, VariableReference::RefKind::kWrite),
+                        Token::Kind::TK_EQ,
+                        expr(decl.value()),
+                        &varRef->type()));
+            }
+            // No initial value? Nothing to do.
+            return std::make_unique<Nop>();
+        }
+        case Statement::Kind::kWhile: {
+            const WhileStatement& w = statement.as<WhileStatement>();
+            return std::make_unique<WhileStatement>(offset, expr(w.test()), stmt(w.statement()));
+        }
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
+}
+
+void Inliner::inlineVarDecls(Block* inlinedBlock,
+                             int offset,
+                             VariableRewriteMap* varMap,
+                             SymbolTable* symbolTableForStatement,
+                             std::unique_ptr<Expression>* resultExpr,
+                             bool haveEarlyReturns,
+                             const Statement& statement,
+                             bool isBuiltinCode) {
+    switch (statement.kind()) {
+        case Statement::Kind::kBlock: {
+            const Block& block = statement.as<Block>();
+            for (const std::unique_ptr<Statement>& child : block.children()) {
+                this->inlineVarDecls(inlinedBlock, offset, varMap, symbolTableForStatement,
+                                     resultExpr, haveEarlyReturns, *child, isBuiltinCode);
+            }
+            break;
+        }
+        case Statement::Kind::kVarDeclaration: {
+            const VarDeclaration& decl = statement.as<VarDeclaration>();
             int arraySize = decl.arraySize();
             const Variable& old = decl.var();
-            // We assign unique names to inlined variables--scopes hide most of the problems in this
-            // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
-            // names are important.
+            // We assign unique names to inlined variables to avoid a variety of problems.
             auto name = std::make_unique<String>(
                     this->uniqueNameForInlineVar(String(old.name()), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
@@ -555,18 +602,15 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                typePtr,
                                                isBuiltinCode,
                                                old.storage(),
-                                               initialValue.get()));
+                                               /*initialValue=*/nullptr));
             (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
-            return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
-                                                    std::move(initialValue));
-        }
-        case Statement::Kind::kWhile: {
-            const WhileStatement& w = statement.as<WhileStatement>();
-            return std::make_unique<WhileStatement>(offset, expr(w.test()), stmt(w.statement()));
+            inlinedBlock->children().push_back(std::make_unique<VarDeclaration>(clone, baseTypePtr,
+                                                                                arraySize,
+                                                                                /*value=*/nullptr));
+            break;
         }
         default:
-            SkASSERT(false);
-            return nullptr;
+            break;
     }
 }
 
@@ -689,6 +733,15 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     auto inlineBlock = std::make_unique<Block>(offset, StatementArray{},
                                                /*symbols=*/nullptr, /*isScope=*/hasEarlyReturn);
     inlineBlock->children().reserve_back(body.children().size());
+
+    // Declare the inlined function's variables at the top of the block so that they don't get
+    // created in an inner scope.
+    for (const std::unique_ptr<Statement>& stmt : body.children()) {
+        this->inlineVarDecls(inlineBlock.get(), offset, &varMap, symbolTableForCall, &resultExpr,
+                             hasEarlyReturn, *stmt, caller->isBuiltin());
+    }
+
+    // Inline the function.
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
                                                                 resultExpr.get(), hasEarlyReturn,
