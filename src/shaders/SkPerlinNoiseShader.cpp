@@ -744,7 +744,6 @@ public:
     }
 
     const char* name() const override { return "PerlinNoise"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrPerlinNoise2Effect(*this));
@@ -1113,7 +1112,6 @@ public:
     }
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrImprovedPerlinNoiseEffect(*this));

@@ -20,7 +20,6 @@ public:
     GrChildProcessorSampleMatrixSingleUniformExpr(const GrChildProcessorSampleMatrixSingleUniformExpr& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorSampleMatrixSingleUniformExpr"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessorSampleMatrixSingleUniformExpr(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorSampleMatrixSingleUniformExpr_ClassID, kNone_OptimizationFlags) {

@@ -38,9 +38,6 @@ bool GrModuloOp::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrModuloOp::usesExplicitReturn() const {
-    return true;
-}
 GrModuloOp::GrModuloOp(const GrModuloOp& src)
 : INHERITED(kGrModuloOp_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

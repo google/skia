@@ -656,7 +656,6 @@ public:
     }
 
     const char* name() const override { return "DiffuseLighting"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrDiffuseLightingEffect(*this));
@@ -705,7 +704,6 @@ public:
     }
 
     const char* name() const override { return "SpecularLighting"; }
-    bool usesExplicitReturn() const override { return true; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new GrSpecularLightingEffect(*this));

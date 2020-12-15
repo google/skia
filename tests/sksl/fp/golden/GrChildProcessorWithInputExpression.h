@@ -20,7 +20,6 @@ public:
     GrChildProcessorWithInputExpression(const GrChildProcessorWithInputExpression& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ChildProcessorWithInputExpression"; }
-    bool usesExplicitReturn() const override;
 private:
     GrChildProcessorWithInputExpression(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorWithInputExpression_ClassID, kNone_OptimizationFlags) {

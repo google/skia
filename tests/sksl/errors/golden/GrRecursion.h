@@ -20,7 +20,6 @@ public:
     GrRecursion(const GrRecursion& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Recursion"; }
-    bool usesExplicitReturn() const override;
 private:
     GrRecursion()
     : INHERITED(kGrRecursion_ClassID, kNone_OptimizationFlags) {

@@ -38,9 +38,6 @@ bool GrSectionDumpInfo::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrSectionDumpInfo::usesExplicitReturn() const {
-    return true;
-}
 GrSectionDumpInfo::GrSectionDumpInfo(const GrSectionDumpInfo& src)
 : INHERITED(kGrSectionDumpInfo_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

@@ -20,7 +20,6 @@ public:
     GrLayoutWhen(const GrLayoutWhen& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LayoutWhen"; }
-    bool usesExplicitReturn() const override;
 private:
     GrLayoutWhen()
     : INHERITED(kGrLayoutWhen_ClassID, kNone_OptimizationFlags) {

@@ -98,7 +98,6 @@ public:
     }
 
     const char* name() const override { return "test"; }
-    bool usesExplicitReturn() const override { return true; }
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         static std::atomic<int32_t> nextKey{0};

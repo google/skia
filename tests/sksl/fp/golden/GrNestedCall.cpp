@@ -55,9 +55,6 @@ bool GrNestedCall::onIsEqual(const GrFragmentProcessor& other) const {
     (void) that;
     return true;
 }
-bool GrNestedCall::usesExplicitReturn() const {
-    return true;
-}
 GrNestedCall::GrNestedCall(const GrNestedCall& src)
 : INHERITED(kGrNestedCall_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

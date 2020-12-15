@@ -49,9 +49,6 @@ bool GrChildProcessorFieldAccess::onIsEqual(const GrFragmentProcessor& other) co
     (void) that;
     return true;
 }
-bool GrChildProcessorFieldAccess::usesExplicitReturn() const {
-    return true;
-}
 GrChildProcessorFieldAccess::GrChildProcessorFieldAccess(const GrChildProcessorFieldAccess& src)
 : INHERITED(kGrChildProcessorFieldAccess_ClassID, src.optimizationFlags()) {
         this->cloneAndRegisterAllChildProcessors(src);

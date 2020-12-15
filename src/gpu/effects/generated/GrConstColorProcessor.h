@@ -27,7 +27,6 @@ public:
     GrConstColorProcessor(const GrConstColorProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConstColorProcessor"; }
-    bool usesExplicitReturn() const override;
     SkPMColor4f color;
 
 private:
