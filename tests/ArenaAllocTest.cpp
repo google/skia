@@ -200,7 +200,6 @@ DEF_TEST(SkFibBlockSizes, r) {
         }
         REPORTER_ASSERT(r, lastSize == 3524578u * 1024);
     }
-
     {
         SkFibBlockSizes<std::numeric_limits<uint32_t>::max() / 2> fibs{1024, 0};
         uint32_t lastSize = 1;
