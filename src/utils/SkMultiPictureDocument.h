@@ -19,7 +19,8 @@ class SkStreamSeekable;
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
  */
-SK_SPI sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
+SK_SPI sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr,
+  void (*onEndPage)(sk_sp<SkPicture>) = nullptr);
 
 struct SkDocumentPage {
     sk_sp<SkPicture> fPicture;
