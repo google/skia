@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Add kDirectionalLight_ShadowFlag support. If enabled, light position represents
+    a vector pointing towards the light, and light radius is blur radius at elevation 1.
+    https://review.skia.org/321792
 
   * Removed previously deprecated SkImage::MakeFromYUVATexturesCopyToExternal.
     https://review.skia.org/342077

@@ -63,12 +63,22 @@ inline void GetSpotParams(SkScalar occluderZ, SkScalar lightX, SkScalar lightY, 
     *translate = SkVector::Make(-zRatio * lightX, -zRatio * lightY);
 }
 
+inline void GetDirectionalParams(SkScalar occluderZ, SkScalar lightX, SkScalar lightY,
+                                 SkScalar lightZ, SkScalar lightRadius,
+                                 SkScalar* blurRadius, SkScalar* scale, SkVector* translate) {
+    *blurRadius = lightRadius*occluderZ;
+    *scale = 1;
+    // assumption here is that light direction is normalized
+    *translate = SkVector::Make(-occluderZ * lightX, -occluderZ * lightY);
+}
+
 // Create the transformation to apply to a path to get its base shadow outline, given the light
 // parameters and the path's 3D transformation (given by ctm and zPlaneParams).
 // Also computes the blur radius to apply the transformed outline.
 bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
                             const SkMatrix& ctm, const SkPoint3& zPlaneParams,
-                            const SkRect& pathBounds, SkMatrix* shadowTransform, SkScalar* radius);
+                            const SkRect& pathBounds, bool directional,
+                            SkMatrix* shadowTransform, SkScalar* radius);
 
 // get bounds prior to the ctm being applied
 void GetLocalBounds(const SkPath&, const SkDrawShadowRec&, const SkMatrix& ctm, SkRect* bounds);

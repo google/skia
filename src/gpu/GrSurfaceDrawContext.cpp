@@ -1183,13 +1183,6 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
-    SkPoint3 result;
-    m.mapXY(pt.fX, pt.fY, (SkPoint*)&result.fX);
-    result.fZ = pt.fZ;
-    return result;
-}
-
 bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
                                           const SkMatrix& viewMatrix,
                                           const SkPath& path,
@@ -1235,8 +1228,14 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // transform light
-    SkPoint3 devLightPos = map(viewMatrix, rec.fLightPos);
+    SkPoint3 devLightPos = rec.fLightPos;
+    bool directional = SkToBool(rec.fFlags & kDirectionalLight_ShadowFlag);
+    if (directional) {
+        ((SkPoint*)&devLightPos.fX)->normalize();
+    } else {
+        // transform light
+        viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
+    }
 
     // 1/scale
     SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
@@ -1286,9 +1285,16 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
         SkScalar devSpaceSpotBlur;
         SkScalar spotScale;
         SkVector spotOffset;
-        SkDrawShadowMetrics::GetSpotParams(occluderHeight, devLightPos.fX, devLightPos.fY,
-                                           devLightPos.fZ, rec.fLightRadius,
-                                           &devSpaceSpotBlur, &spotScale, &spotOffset);
+        if (directional) {
+            SkDrawShadowMetrics::GetDirectionalParams(occluderHeight, devLightPos.fX,
+                                                      devLightPos.fY, devLightPos.fZ,
+                                                      rec.fLightRadius, &devSpaceSpotBlur,
+                                                      &spotScale, &spotOffset);
+        } else {
+            SkDrawShadowMetrics::GetSpotParams(occluderHeight, devLightPos.fX, devLightPos.fY,
+                                               devLightPos.fZ, rec.fLightRadius,
+                                               &devSpaceSpotBlur, &spotScale, &spotOffset);
+        }
         // handle scale of radius due to CTM
         const SkScalar srcSpaceSpotBlur = devSpaceSpotBlur * devToSrcScale;
 

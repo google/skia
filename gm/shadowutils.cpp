@@ -260,3 +260,76 @@ DEF_SIMPLE_GM(shadow_utils_gaussian_colorfilter, canvas, 512, 256) {
     canvas->drawRect(r, redPaint);
     canvas->drawRect(r, paint);
 }
+
+DEF_SIMPLE_GM(shadow_utils_directional, canvas, 256, 384) {
+    static constexpr SkScalar kLightR = 1.f;
+    static constexpr SkScalar kHeight = 12.f;
+
+    SkPath rrect(SkPath::RRect(SkRect::MakeLTRB(-25, -25, 25, 25), 10, 10));
+    SkPoint3 lightPos = { -45, -45, 500 };
+
+    SkColor ambientColor = SkColorSetARGB(0.02f * 255, 0, 0, 0);
+    SkColor spotColor = SkColorSetARGB(0.35f * 255, 0, 0, 0);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorWHITE);
+    paint.setStyle(SkPaint::kFill_Style);
+
+    // translation
+    canvas->save();
+    canvas->translate(35, 35);
+    for (int i = 0; i < 3; ++i) {
+        SkShadowUtils::DrawShadow(canvas, rrect, SkPoint3{ 0, 0, kHeight }, lightPos,
+                                  kLightR, ambientColor, spotColor,
+                                  kDirectionalLight_ShadowFlag);
+        canvas->drawPath(rrect, paint);
+        canvas->translate(80, 0);
+    }
+    canvas->restore();
+
+    // rotation
+    for (int i = 0; i < 3; ++i) {
+        canvas->save();
+        canvas->translate(35 + 80*i, 105);
+        canvas->rotate(20.f*(i + 1));
+        SkShadowUtils::DrawShadow(canvas, rrect, SkPoint3{ 0, 0, kHeight }, lightPos,
+                                  kLightR, ambientColor, spotColor,
+                                  kDirectionalLight_ShadowFlag);
+
+        canvas->drawPath(rrect, paint);
+        canvas->restore();
+    }
+
+    // scale
+    for (int i = 0; i < 3; ++i) {
+        canvas->save();
+        SkScalar scaleFactor = sk_float_pow(2.0, -i);
+        canvas->translate(35 + 80*i, 185);
+        canvas->scale(scaleFactor, scaleFactor);
+        SkShadowUtils::DrawShadow(canvas, rrect, SkPoint3{ 0, 0, kHeight }, lightPos,
+                                  kLightR, ambientColor, spotColor,
+                                  kDirectionalLight_ShadowFlag);
+
+        canvas->drawPath(rrect, paint);
+        canvas->restore();
+    }
+
+    // perspective
+    for (int i = 0; i < 3; ++i) {
+        canvas->save();
+        SkMatrix mat;
+        mat.reset();
+        mat[SkMatrix::kMPersp1] = 0.005f;
+        mat[SkMatrix::kMPersp2] = 1.005f;
+        canvas->translate(35 + 80*i, 265);
+        canvas->concat(mat);
+        SkShadowUtils::DrawShadow(canvas, rrect, SkPoint3{ 0, 0, kHeight }, lightPos,
+                                  kLightR, ambientColor, spotColor,
+                                  kDirectionalLight_ShadowFlag);
+
+        canvas->drawPath(rrect, paint);
+        canvas->restore();
+    }
+
+}
