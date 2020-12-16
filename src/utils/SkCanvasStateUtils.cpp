@@ -178,7 +178,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     // Historically, the canvas state could report multiple top-level layers because SkCanvas
     // supported unclipped layers. With that feature removed, there is only ever 0 to 1 "layers",
     // and all required information is contained by the canvas' top-most device.
-    SkBaseDevice* device = canvas->topDevice();
+    SkBaseDevice* device = canvas->getTopDevice();
     if (!device) {
         return nullptr;
     }
