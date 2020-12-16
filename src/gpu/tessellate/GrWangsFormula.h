@@ -116,6 +116,57 @@ SK_ALWAYS_INLINE static int worst_case_cubic_log2(float intolerance, float devWi
     return nextlog16(4*kk * (devWidth * devWidth + devHeight * devHeight));
 }
 
+// Returns Wang's fomrula specialized for a conic curve. This is not actually due to Wang,
+// but is an analogue. Input points should be in projected space.
+//
+// Formula and proof from:
+//   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
+//   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
+// See Thm 3, Corollary 1.
+SK_ALWAYS_INLINE static float conic(float intolerance, const SkPoint pts[], float w,
+                                    const GrVectorXform& vectorXform = GrVectorXform()) {
+    using grvx::float2;
+    using grvx::float4;
+
+    float2 p0 = float2::Load(pts), p1 = float2::Load(pts + 1), p2 = float2::Load(pts + 2);
+
+    // Compute center of bounding box in projected space
+    float2 C;
+    {
+        float2 min = p0, max = p0;
+        min = skvx::min(skvx::min(min, p1), p2);
+        max = skvx::max(skvx::max(max, p1), p2);
+        C = 0.5f * (min + max);
+    }
+
+    // Translate by -C
+    p0 -= C;
+    p1 -= C;
+    p2 -= C;
+
+    // Compute max length
+    float max_len;
+    {
+        float4 sqd_lens = float4({grvx::dot(p0, p0), grvx::dot(p1, p1), grvx::dot(p2, p2), 0});
+        max_len = sqrtf(skvx::max(sqd_lens));
+    }
+
+    // Compute forward differences
+    const float2 dp = grvx::fast_madd<2>(-2 * w, p1, p0) + p2;
+    const float dw = std::abs(1 - 2 * w + 1);
+
+    // Compute delta = parametric step size of linearization
+    const float eps = 1.f / intolerance;
+    const float r_minus_eps = std::max(0.f, max_len - eps);
+    const float min_w = std::min(w, 1.f);
+    const float numer = 4 * min_w * eps;
+    const float denom = sqrtf(grvx::dot(dp, dp)) + r_minus_eps * dw;
+    const float delta = sqrtf(numer / denom);
+
+    constexpr float tmin = 0, tmax = 1;
+    return (tmax - tmin) / delta;
+}
+
 }  // namespace GrWangsFormula
 
 #endif

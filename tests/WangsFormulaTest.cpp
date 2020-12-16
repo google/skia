@@ -446,3 +446,19 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
                 maxExponent);
     }
 }
+
+// Ensure the vectorized conic version equals the reference implementation
+DEF_TEST(WangsFormula_conic_matches_reference, r) {
+    constexpr static float kTessellationTolerance = 1 / 128.f;
+
+    SkRandom rand;
+    for (int i = -10; i <= 10; ++i) {
+        const float w = std::ldexp(1 + rand.nextF(), i);
+        for_random_beziers(3, &rand, [&r, w](const SkPoint pts[]) {
+            const SkPoint projPts[3] = {pts[0], pts[1] * (1.f / w), pts[2]};
+            const float ref_nsegs = wangs_formula_conic_reference_impl(kIntolerance, projPts, w);
+            const float nsegs = GrWangsFormula::conic(kIntolerance, projPts, w);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(ref_nsegs, nsegs, kTessellationTolerance));
+        });
+    }
+}
