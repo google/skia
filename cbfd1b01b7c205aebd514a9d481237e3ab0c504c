@@ -16,6 +16,24 @@
       "message": "How do dehydrated effects work?  Do we have to maintain any binary compatibility?",
       "revId": "cbfd1b01b7c205aebd514a9d481237e3ab0c504c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1026e525_71b5c841",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-16T15:58:22Z",
+      "side": 0,
+      "message": "No, those are entirely internal (today). As the C++ API matures, that could change - people that choosing to elide the parser are still going to want a way to serialize effects.",
+      "parentUuid": "8ee5eaa4_4bc592fc",
+      "revId": "cbfd1b01b7c205aebd514a9d481237e3ab0c504c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
