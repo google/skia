@@ -52,6 +52,9 @@ public:
 
     bool onIsValid(GrRecordingContext*) const override;
 
+    GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                         GrSurfaceOrigin* origin) const final;
+
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. CachingHint refers to whether the generator's output should be
     // cached in CPU memory. We will always cache the generated texture on success.
