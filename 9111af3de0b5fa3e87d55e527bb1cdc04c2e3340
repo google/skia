@@ -34,6 +34,23 @@
       "parentUuid": "ef64ee7b_3c4f56f2",
       "revId": "9111af3de0b5fa3e87d55e527bb1cdc04c2e3340",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "608fe7b6_253e86e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-16T21:26:51Z",
+      "side": 1,
+      "message": "I think UTEXT_INITIALIZER should be allowed, but if we\u0027re stuck with arbitrary decisions I suppose this change isn\u0027t too bad. It is sad to be forced to make yet more unneeded allocations. Especially since UText has a bunch of unused fields for future changes and ICU supports it as a public interface type, so it isn\u0027t like \"compatibility\" is really a reason for not exposing it.",
+      "revId": "9111af3de0b5fa3e87d55e527bb1cdc04c2e3340",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
