@@ -395,6 +395,9 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferCachedCpuMemory = false;
     }
 
+    fAlwaysUseDiscardableMSAAAttachment = true;
+    fMSAAResolvesAutomatically = fAlwaysUseDiscardableMSAAAttachment;
+
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
