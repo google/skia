@@ -326,8 +326,7 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
 
     constexpr int kSampleCnt = 1;
     auto [newCT, format] =
-            GrSurfaceDrawContext::GetFallbackColorTypeAndFormat(
-            dContext, origCT, kSampleCnt);
+            GrSurfaceFillContext::GetFallbackColorTypeAndFormat(dContext, origCT, kSampleCnt);
 
     if (newCT == GrColorType::kUnknown) {
         return {GrSurfaceProxyView(nullptr), nullptr};

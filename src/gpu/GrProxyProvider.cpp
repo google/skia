@@ -246,7 +246,7 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
     if (proxy->asRenderTargetProxy()) {
         GrBackendFormat expectedFormat;
         std::tie(ct, expectedFormat) =
-                GrSurfaceDrawContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
+                GrSurfaceFillContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
         SkASSERT(expectedFormat == proxy->backendFormat());
     }
     GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);

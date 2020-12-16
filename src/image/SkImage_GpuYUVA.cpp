@@ -205,18 +205,21 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
-            this->dimensions(), 1, GrMipmapped::kNo, GrProtected::kNo);
-    if (!surfaceDrawContext) {
+    GrImageInfo info(GrColorType::kRGBA_8888,
+                     kPremul_SkAlphaType,
+                     this->refColorSpace(),
+                     this->dimensions());
+    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
+                                                         info,
+                                                         SkBackingFit::kExact,
+                                                         /*sample count*/ 1,
+                                                         GrMipmapped::kNo,
+                                                         GrProtected::kNo);
+    if (!surfaceFillContext) {
         return;
     }
 
-    const SkRect rect = SkRect::MakeIWH(this->width(), this->height());
     const GrCaps& caps = *context->priv().caps();
-
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto fp = GrYUVtoRGBEffect::Make(fViews,
                                      fYUVAIndices,
@@ -230,11 +233,10 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
                                                        this->alphaType());
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
     }
-    paint.setColorFragmentProcessor(std::move(fp));
 
-    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+    surfaceFillContext->fillWithFP(std::move(fp));
 
-    fRGBView = surfaceDrawContext->readSurfaceView();
+    fRGBView = surfaceFillContext->readSurfaceView();
     SkASSERT(fRGBView.swizzle() == GrSwizzle());
     for (auto& v : fViews) {
         v.reset();

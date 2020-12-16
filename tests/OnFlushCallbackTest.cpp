@@ -471,7 +471,7 @@ static GrSurfaceProxyView make_upstream_image(GrRecordingContext* rContext,
             rContext, GrColorType::kRGBA_8888, nullptr,
             SkBackingFit::kApprox, {3 * kDrawnTileSize, kDrawnTileSize});
 
-    rtc->clear({ 1, 0, 0, 1 });
+    rtc->clear(SkPMColor4f{1, 0, 0, 1});
 
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);

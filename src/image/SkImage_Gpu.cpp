@@ -88,10 +88,11 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         return nullptr;
     }
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::MakeWithFallback(
-            direct, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
-            this->dimensions());
-    if (!surfaceDrawContext) {
+    auto info = this->imageInfo().makeColorType(targetCT).makeColorSpace(targetCS);
+    auto surfaceFillContext = GrSurfaceFillContext::MakeWithFallback(direct,
+                                                                     std::move(info),
+                                                                     SkBackingFit::kExact);
+    if (!surfaceFillContext) {
         return nullptr;
     }
 
@@ -101,20 +102,12 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                  targetCS.get(), this->alphaType());
     SkASSERT(colorFP);
 
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.setColorFragmentProcessor(std::move(colorFP));
+    surfaceFillContext->fillWithFP(std::move(colorFP));
+    SkASSERT(surfaceFillContext->asTextureProxy());
 
-    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                 SkRect::MakeIWH(this->width(), this->height()));
-    if (!surfaceDrawContext->asTextureProxy()) {
-        return nullptr;
-    }
-
-    targetCT = GrColorTypeToSkColorType(surfaceDrawContext->colorInfo().colorType());
-    // MDB: this call is okay bc we know 'surfaceDrawContext' was exact
+    targetCT = GrColorTypeToSkColorType(surfaceFillContext->colorInfo().colorType());
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID,
-                                   surfaceDrawContext->readSurfaceView(), targetCT,
+                                   surfaceFillContext->readSurfaceView(), targetCT,
                                    this->alphaType(), std::move(targetCS));
 }
 
