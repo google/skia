@@ -15,7 +15,7 @@ OpDecorate %sk_Clockwise RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %34 RelaxedPrecision
 OpDecorate %45 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -77,54 +77,60 @@ OpBranch %40
 OpLoopMerge %44 %43 None
 OpBranch %41
 %41 = OpLabel
+OpBranch %42
+%42 = OpLabel
 %45 = OpLoad %v4float %sk_FragColor
 %47 = OpCompositeConstruct %v4float %float_0_25 %float_0_25 %float_0_25 %float_0_25
 %48 = OpFAdd %v4float %45 %47
 OpStore %sk_FragColor %48
-OpBranch %42
-%42 = OpLabel
-%49 = OpLoad %v4float %sk_FragColor
-%50 = OpCompositeExtract %float %49 0
-%51 = OpFOrdLessThan %bool %50 %float_0_75
-OpBranchConditional %51 %43 %44
+%50 = OpLoad %v4float %sk_FragColor
+%51 = OpCompositeExtract %float %50 0
+%52 = OpFOrdLessThan %bool %51 %float_0_75
+%49 = OpLogicalNot %bool %52
+OpSelectionMerge %54 None
+OpBranchConditional %49 %53 %54
+%53 = OpLabel
+OpBranch %44
+%54 = OpLabel
+OpBranch %43
 %43 = OpLabel
 OpBranch %40
 %44 = OpLabel
 OpStore %i_0 %int_0
-OpBranch %53
-%53 = OpLabel
-OpLoopMerge %57 %56 None
-OpBranch %54
-%54 = OpLabel
-%58 = OpLoad %int %i_0
-%59 = OpSLessThan %bool %58 %int_10
-OpBranchConditional %59 %55 %57
-%55 = OpLabel
-%60 = OpLoad %int %i_0
-%62 = OpSMod %int %60 %int_2
-%63 = OpIEqual %bool %62 %int_1
-OpSelectionMerge %66 None
-OpBranchConditional %63 %64 %65
-%64 = OpLabel
-OpBranch %57
-%65 = OpLabel
-%67 = OpLoad %int %i_0
-%69 = OpSGreaterThan %bool %67 %int_100
-OpSelectionMerge %72 None
-OpBranchConditional %69 %70 %71
-%70 = OpLabel
-OpReturn
-%71 = OpLabel
-OpBranch %56
-%72 = OpLabel
-OpBranch %66
-%66 = OpLabel
 OpBranch %56
 %56 = OpLabel
-%73 = OpLoad %int %i_0
-%74 = OpIAdd %int %73 %int_1
-OpStore %i_0 %74
-OpBranch %53
+OpLoopMerge %60 %59 None
+OpBranch %57
 %57 = OpLabel
+%61 = OpLoad %int %i_0
+%62 = OpSLessThan %bool %61 %int_10
+OpBranchConditional %62 %58 %60
+%58 = OpLabel
+%63 = OpLoad %int %i_0
+%65 = OpSMod %int %63 %int_2
+%66 = OpIEqual %bool %65 %int_1
+OpSelectionMerge %69 None
+OpBranchConditional %66 %67 %68
+%67 = OpLabel
+OpBranch %60
+%68 = OpLabel
+%70 = OpLoad %int %i_0
+%72 = OpSGreaterThan %bool %70 %int_100
+OpSelectionMerge %75 None
+OpBranchConditional %72 %73 %74
+%73 = OpLabel
+OpReturn
+%74 = OpLabel
+OpBranch %59
+%75 = OpLabel
+OpBranch %69
+%69 = OpLabel
+OpBranch %59
+%59 = OpLabel
+%76 = OpLoad %int %i_0
+%77 = OpIAdd %int %76 %int_1
+OpStore %i_0 %77
+OpBranch %56
+%60 = OpLabel
 OpReturn
 OpFunctionEnd

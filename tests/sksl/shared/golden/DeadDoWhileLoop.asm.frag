@@ -30,10 +30,16 @@ OpBranch %13
 OpLoopMerge %17 %16 None
 OpBranch %14
 %14 = OpLabel
-OpStore %sk_FragColor %18
 OpBranch %15
 %15 = OpLabel
-OpBranchConditional %false %16 %17
+OpStore %sk_FragColor %18
+%20 = OpLogicalNot %bool %false
+OpSelectionMerge %23 None
+OpBranchConditional %20 %22 %23
+%22 = OpLabel
+OpBranch %17
+%23 = OpLabel
+OpBranch %16
 %16 = OpLabel
 OpBranch %13
 %17 = OpLabel

@@ -575,7 +575,23 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (!test) {
         return nullptr;
     }
-    return std::make_unique<DoStatement>(d.fOffset, std::move(statement), std::move(test));
+
+    // do { CODE; } while (COND)  -->  for (;;) { CODE; if (!COND) { break; }}
+    test = std::make_unique<PrefixExpression>(Token::Kind::TK_LOGICALNOT, std::move(test));
+    int offset = test->fOffset;
+
+    StatementArray loopBody;
+    loopBody.reserve_back(2);
+    loopBody.push_back(std::move(statement));
+    loopBody.push_back(std::make_unique<IfStatement>(offset, /*isStatic=*/false, std::move(test),
+                                                     std::make_unique<BreakStatement>(offset),
+                                                     /*ifFalse=*/nullptr));
+
+    return std::make_unique<ForStatement>(
+            d.fOffset, /*initializer=*/nullptr, /*test=*/nullptr,
+            /*next=*/nullptr,
+            std::make_unique<Block>(/*offset=*/-1, std::move(loopBody)),
+            fSymbolTable);
 }
 
 std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
