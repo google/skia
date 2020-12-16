@@ -177,3 +177,39 @@ DEF_TEST(ArenaAlloc, r) {
         REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
     }
 }
+
+DEF_TEST(SkFibBlockSizes, r) {
+    {
+        SkFibBlockSizes<std::numeric_limits<uint32_t>::max()> fibs{1, 1};
+        uint32_t lastSize = 1;
+        for (int i = 0; i < 64; i++) {
+            uint32_t size = fibs.nextBlockSize();
+            REPORTER_ASSERT(r, lastSize <= size);
+            lastSize = size;
+        }
+        REPORTER_ASSERT(r, lastSize == 2971215073u);
+    }
+    {
+        SkFibBlockSizes<std::numeric_limits<uint32_t>::max()> fibs{0, 1024};
+        uint32_t lastSize = 1;
+        for (int i = 0; i < 64; i++) {
+            uint32_t size = fibs.nextBlockSize();
+            REPORTER_ASSERT(r, lastSize <= size);
+            lastSize = size;
+            REPORTER_ASSERT(r, lastSize <= std::numeric_limits<uint32_t>::max());
+        }
+        REPORTER_ASSERT(r, lastSize == 3524578u * 1024);
+    }
+
+    {
+        SkFibBlockSizes<std::numeric_limits<uint32_t>::max() / 2> fibs{1024, 0};
+        uint32_t lastSize = 1;
+        for (int i = 0; i < 64; i++) {
+            uint32_t size = fibs.nextBlockSize();
+            REPORTER_ASSERT(r, lastSize <= size);
+            lastSize = size;
+            REPORTER_ASSERT(r, lastSize <= std::numeric_limits<uint32_t>::max() / 2);
+        }
+        REPORTER_ASSERT(r, lastSize == 1346269u * 1024);
+    }
+}
