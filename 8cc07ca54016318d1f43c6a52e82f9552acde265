@@ -22,6 +22,30 @@
       },
       "revId": "8cc07ca54016318d1f43c6a52e82f9552acde265",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a998e20a_b7bc630f",
+        "filename": "src/gpu/GrProgramInfo.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T14:41:08Z",
+      "side": 1,
+      "message": "It was because nowhere actually cared if it was just textureable. So this was to save callers all repeating the same pattern of checking each property. I\u0027ve actually gone and taken it a step further and merged the function below as well and now just store an explicit data member.",
+      "parentUuid": "8d9e1c33_ce7ec524",
+      "range": {
+        "startLine": 79,
+        "startChar": 9,
+        "endLine": 79,
+        "endChar": 32
+      },
+      "revId": "8cc07ca54016318d1f43c6a52e82f9552acde265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
