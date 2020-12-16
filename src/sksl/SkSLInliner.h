@@ -42,7 +42,7 @@ public:
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                 SymbolTable* symbols,
+                 std::shared_ptr<SymbolTable> symbols,
                  ProgramUsage* usage);
 
 private:
@@ -51,7 +51,7 @@ private:
     String uniqueNameForInlineVar(String baseName, SymbolTable* symbolTable);
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                            SymbolTable* symbols, ProgramUsage* usage,
+                            std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
                             InlineCandidateList* candidateList);
 
     std::unique_ptr<Expression> inlineExpression(int offset,
@@ -81,7 +81,9 @@ private:
         std::unique_ptr<Block> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
-    InlinedCall inlineCall(FunctionCall*, SymbolTable*, const FunctionDeclaration* caller);
+    InlinedCall inlineCall(FunctionCall*,
+                           std::shared_ptr<SymbolTable>,
+                           const FunctionDeclaration* caller);
 
     /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);

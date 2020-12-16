@@ -585,7 +585,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 }
 
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
-                                         SymbolTable* symbolTableForCall,
+                                         std::shared_ptr<SymbolTable> symbolTable,
                                          const FunctionDeclaration* caller) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
@@ -636,13 +636,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         }
 
         // Provide our new variable with a unique name, and add it to our symbol table.
-        String uniqueName = this->uniqueNameForInlineVar(baseName, symbolTableForCall);
-        const String* namePtr = symbolTableForCall->takeOwnershipOfString(
-                std::make_unique<String>(std::move(uniqueName)));
+        const String* namePtr = symbolTable->takeOwnershipOfString(std::make_unique<String>(
+                this->uniqueNameForInlineVar(baseName, symbolTable.get())));
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
-        const Variable* variableSymbol = symbolTableForCall->add(std::make_unique<Variable>(
+        const Variable* variableSymbol = symbolTable->add(std::make_unique<Variable>(
                                                  /*offset=*/-1, fModifiers->addToPool(Modifiers()),
                                                  nameFrag, type, caller->isBuiltin(),
                                                  Variable::Storage::kLocal, initialValue->get()));
@@ -704,7 +703,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                /*symbols=*/nullptr, /*isScope=*/hasEarlyReturn);
     inlineBlock->children().reserve_back(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
+        inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTable.get(),
                                                                 resultExpr.get(), hasEarlyReturn,
                                                                 *stmt, caller->isBuiltin()));
     }
@@ -791,7 +790,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
 struct InlineCandidate {
-    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    std::shared_ptr<SymbolTable> fSymbols;        // the SymbolTable of the candidate
     std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
     std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
     std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
@@ -809,7 +808,7 @@ public:
 
     // A stack of the symbol tables; since most nodes don't have one, expected to be shallower than
     // the enclosing-statement stack.
-    std::vector<SymbolTable*> fSymbolTableStack;
+    std::vector<std::shared_ptr<SymbolTable>> fSymbolTableStack;
     // A stack of "enclosing" statements--these would be suitable for the inliner to use for adding
     // new instructions. Not all statements are suitable (e.g. a for-loop's initializer). The
     // inliner might replace a statement with a block containing the statement.
@@ -818,7 +817,7 @@ public:
     FunctionDefinition* fEnclosingFunction = nullptr;
 
     void visit(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-               SymbolTable* symbols,
+               std::shared_ptr<SymbolTable> symbols,
                InlineCandidateList* candidateList) {
         fCandidateList = candidateList;
         fSymbolTableStack.push_back(symbols);
@@ -869,7 +868,7 @@ public:
             case Statement::Kind::kBlock: {
                 Block& block = (*stmt)->as<Block>();
                 if (block.symbolTable()) {
-                    fSymbolTableStack.push_back(block.symbolTable().get());
+                    fSymbolTableStack.push_back(block.symbolTable());
                 }
 
                 for (std::unique_ptr<Statement>& stmt : block.children()) {
@@ -900,7 +899,7 @@ public:
             case Statement::Kind::kFor: {
                 ForStatement& forStmt = (*stmt)->as<ForStatement>();
                 if (forStmt.symbols()) {
-                    fSymbolTableStack.push_back(forStmt.symbols().get());
+                    fSymbolTableStack.push_back(forStmt.symbols());
                 }
 
                 // The initializer and loop body are candidates for inlining.
@@ -939,7 +938,7 @@ public:
             case Statement::Kind::kSwitch: {
                 SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
                 if (switchStmt.symbols()) {
-                    fSymbolTableStack.push_back(switchStmt.symbols().get());
+                    fSymbolTableStack.push_back(switchStmt.symbols());
                 }
 
                 this->visitExpression(&switchStmt.value());
@@ -1112,7 +1111,7 @@ int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCa
 }
 
 void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                                 SymbolTable* symbols, ProgramUsage* usage,
+                                 std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
                                  InlineCandidateList* candidateList) {
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
     // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
@@ -1176,7 +1175,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
 }
 
 bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                      SymbolTable* symbols,
+                      std::shared_ptr<SymbolTable> symbols,
                       ProgramUsage* usage) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (fSettings->fInlineThreshold <= 0) {
