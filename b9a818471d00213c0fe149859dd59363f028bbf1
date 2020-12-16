@@ -22,6 +22,30 @@
       },
       "revId": "b9a818471d00213c0fe149859dd59363f028bbf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bd6bea1_28d4e509",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-12-16T20:46:10Z",
+      "side": 0,
+      "message": "It\u0027s not slow. Mainly an experiment to see how pre-calculating sizes works out. I\u0027m hoping to save some size.",
+      "parentUuid": "5866f7c2_f225a024",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 5
+      },
+      "revId": "b9a818471d00213c0fe149859dd59363f028bbf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
