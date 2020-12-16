@@ -89,8 +89,6 @@ public:
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageNine(const SkImage*, const SkIRect& center, const SkRect& dst,
-                         const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
                             const SkPaint*) override;
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
