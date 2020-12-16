@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d68e67de_d4890b73",
+        "filename": "src/gpu/GrSurfaceFillContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T13:33:41Z",
+      "side": 1,
+      "message": "This actually isn\u0027t strictly needed because either GrSurfaceDrawContext::Make or GrProxyProvider::createProxy will check it. The real problem was just the assert. I could take it or leave it.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "d7cee2f58ffb6cbcd1dfa6ca37670740508f5a95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
