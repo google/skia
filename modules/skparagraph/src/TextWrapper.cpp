@@ -234,8 +234,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
     SkScalar softLineMaxIntrinsicWidth = 0;
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
-    auto end = span.end() - 1;
     auto start = span.begin();
+    auto end = span.end() - 1;
+    auto trimmedEnd = end;
+    while (trimmedEnd >= start && trimmedEnd->isWhitespaces()) {
+        --trimmedEnd;
+    }
     InternalLineMetrics maxRunMetrics;
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
@@ -246,7 +250,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         needEllipsis = hasEllipsis && !endlessLine && lastLine;
 
         moveForward(needEllipsis);
-        needEllipsis &= fEndLine.endCluster() < end - 1; // Only if we have some text to ellipsize
+
+        // Only if we have some non-empty text to ellipsize
+        needEllipsis &= fEndLine.endCluster() < trimmedEnd;
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
