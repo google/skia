@@ -91,17 +91,16 @@ protected:
         SkScalar y = SkIntToScalar(100);
 
         SkPaint paint;
-        for (int filter = 0; filter < 2; filter++) {
-            paint.setFilterQuality(filter == 0 ? kLow_SkFilterQuality : kNone_SkFilterQuality);
-            canvas->translate(0, filter * SkIntToScalar(400));
+        for (auto fm : {SkFilterMode::kLinear, SkFilterMode::kNearest}) {
             for (int iy = 0; iy < 2; ++iy) {
                 for (int ix = 0; ix < 2; ++ix) {
                     int i = ix * 2 + iy;
                     SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
                                                 size[i].width(), size[i].height());
-                    canvas->drawImageNine(fImage.get(), fCenter, r, &paint);
+                    canvas->drawImageNine(fImage.get(), fCenter, r, fm);
                 }
             }
+            canvas->translate(0, 400);
         }
     }
 
