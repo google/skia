@@ -16,6 +16,29 @@
       "message": "Note to reviewer: These don\u0027t have Paint, because I was under the impression that filter quality was the only aspect of paint that these APIs used. Is that correct?",
       "revId": "e1705b6a99eaf1c3c4a6ac0967eec1bf61009e9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a1847e2_1068e437",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-16T21:17:54Z",
+      "side": 1,
+      "message": "Filter?",
+      "range": {
+        "startLine": 1122,
+        "startChar": 42,
+        "endLine": 1122,
+        "endChar": 49
+      },
+      "revId": "e1705b6a99eaf1c3c4a6ac0967eec1bf61009e9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
