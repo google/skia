@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70eed97b_de2d5826",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:14:11Z",
+      "side": 1,
+      "message": "maybe end here with a period and drop everything highlighted?  There\u0027s no code that this comment explains anymore now that we have SkFibonacci47.",
+      "range": {
+        "startLine": 29,
+        "startChar": 79,
+        "endLine": 35,
+        "endChar": 73
+      },
+      "revId": "ff3b69747b2aca719f5a1038938eb2d8b876bac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
