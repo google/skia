@@ -1887,6 +1887,24 @@ static SkPaint clean_paint_for_lattice(const SkPaint* paint) {
 }
 
 void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                             SkFilterMode filter, const SkPaint* paint) {
+    SkPaint latticePaint = clean_paint_for_lattice(paint);
+    // use filterquality until we can update our virtuals to take SkFilterMode
+    latticePaint.setFilterQuality(filter == SkFilterMode::kNearest ? kNone_SkFilterQuality
+                                                                   : kLow_SkFilterQuality);
+    this->drawImageNine(image, center, dst, &latticePaint);
+}
+
+void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                                SkFilterMode filter, const SkPaint* paint) {
+    SkPaint latticePaint = clean_paint_for_lattice(paint);
+    // use filterquality until we can update our virtuals to take SkFilterMode
+    latticePaint.setFilterQuality(filter == SkFilterMode::kNearest ? kNone_SkFilterQuality
+                                                                   : kLow_SkFilterQuality);
+    this->drawImageLattice(image, lattice, dst, &latticePaint);
+}
+
+void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                              const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
