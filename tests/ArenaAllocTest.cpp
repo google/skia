@@ -176,6 +176,265 @@ DEF_TEST(ArenaAlloc, r) {
         void* ptr = arena.makeBytesAlignedTo(4081, 8);
         REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
     }
+
+    /////////////////////////////////////////////////////////////////////
+    // SkArena
+    {
+        created = 0;
+        destroyed = 0;
+
+        SkArena arena{0};
+        int* p = arena.makePOD<int>(3);
+        REPORTER_ASSERT(r, *p == 3);
+        int* q = arena.makePOD<int>(7);
+        REPORTER_ASSERT(r, *q == 7);
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->x == 3);
+        REPORTER_ASSERT(r, foo->y == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        arena.makePODArray<int>(10);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].x == -2);
+        REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        SkSTArena<64> arena;
+        int* p = arena.makePOD<int>(3);
+        REPORTER_ASSERT(r, *p == 3);
+        int* q = arena.makePOD<int>(7);
+        REPORTER_ASSERT(r, *q == 7);
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->x == 3);
+        REPORTER_ASSERT(r, foo->y == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        arena.makePODArray<int>(10);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].x == -2);
+        REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        std::unique_ptr<char[]> block{new char[1024]};
+        SkArena arena{block.get(), 1024, 0};
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->x == 3);
+        REPORTER_ASSERT(r, foo->y == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].x == -2);
+        REPORTER_ASSERT(r, fooArray[4].y == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        SkArena arena;
+
+        struct Node {
+            Node(std::unique_ptr<Node, SkArena::Destroyer> next)
+                : fNext{std::move(next)} { created++; }
+            ~Node() { destroyed++; }
+            std::unique_ptr<Node, SkArena::Destroyer> fNext;
+        };
+
+        std::unique_ptr<Node, SkArena::Destroyer> current = nullptr;
+        for (int i = 0; i < 128; i++) {
+            current = arena.makeUnique<Node>(std::move(current));
+        }
+        REPORTER_ASSERT(r, created == 128);
+        REPORTER_ASSERT(r, destroyed == 0);
+    }
+    REPORTER_ASSERT(r, created == 128);
+    REPORTER_ASSERT(r, destroyed == 128);
+
+    {
+        struct I {
+            I(int v) : i{v} {}
+            ~I() {}
+            int i;
+        };
+        SkSTArena<64> arena;
+        auto a = arena.makeUniqueArray<I>(8, [](size_t i) { return i; });
+        for (size_t i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, a[i].i == (int)i);
+        }
+    }
+
+    {
+        SkArena arena(4096);
+        arena.alignedBytes(4081, 8);
+    }
+}
+
+DEF_TEST(SkArena, r) {
+    static int created = 0;
+    static int destroyed = 0;
+    struct Foo {
+        Foo() : fI{-2}, fX{-3} { created++; }
+        Foo(int i, float x) : fI{i}, fX{x} { created++; }
+        ~Foo() { destroyed++; }
+        int fI;
+        float fX;
+    };
+
+    struct alignas(8) OddAlignment {
+        char buf[10];
+    };
+
+    {
+        created = 0;
+        destroyed = 0;
+
+        SkArena arena{0};
+        int* p = arena.makePOD<int>(3);
+        REPORTER_ASSERT(r, *p == 3);
+        int* q = arena.makePOD<int>(7);
+        REPORTER_ASSERT(r, *q == 7);
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->fI == 3);
+        REPORTER_ASSERT(r, foo->fX == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        arena.makePODArray<int>(10);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].fI == -2);
+        REPORTER_ASSERT(r, fooArray[4].fX == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        SkSTArena<64> arena;
+        int* p = arena.makePOD<int>(3);
+        REPORTER_ASSERT(r, *p == 3);
+        int* q = arena.makePOD<int>(7);
+        REPORTER_ASSERT(r, *q == 7);
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->fI == 3);
+        REPORTER_ASSERT(r, foo->fX == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        arena.makePODArray<int>(10);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].fI == -2);
+        REPORTER_ASSERT(r, fooArray[4].fX == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        std::unique_ptr<char[]> block{new char[1024]};
+        SkArena arena{block.get(), 1024, 0};
+
+        REPORTER_ASSERT(r, *arena.makePOD<int>(3) == 3);
+        auto foo = arena.makeUnique<Foo>(3, 4.0f);
+        REPORTER_ASSERT(r, foo->fI == 3);
+        REPORTER_ASSERT(r, foo->fX == 4.0f);
+        REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
+
+        auto fooArray = arena.makeUniqueArray<Foo>(10);
+        REPORTER_ASSERT(r, fooArray[3].fI == -2);
+        REPORTER_ASSERT(r, fooArray[4].fX == -3.0f);
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 0);
+        arena.makePOD<OddAlignment>();
+    }
+    REPORTER_ASSERT(r, created == 11);
+    REPORTER_ASSERT(r, destroyed == 11);
+
+    {
+        created = 0;
+        destroyed = 0;
+        SkArena arena;
+
+        struct Node {
+            Node(std::unique_ptr<Node, SkArena::Destroyer> next)
+                    : fNext{std::move(next)} { created++; }
+            ~Node() { destroyed++; }
+            std::unique_ptr<Node, SkArena::Destroyer> fNext;
+        };
+
+        std::unique_ptr<Node, SkArena::Destroyer> current = nullptr;
+        for (int i = 0; i < 128; i++) {
+            current = arena.makeUnique<Node>(std::move(current));
+        }
+        REPORTER_ASSERT(r, created == 128);
+        REPORTER_ASSERT(r, destroyed == 0);
+    }
+    REPORTER_ASSERT(r, created == 128);
+    REPORTER_ASSERT(r, destroyed == 128);
+
+    {
+        struct I {
+            I(int v) : i{v} {}
+            ~I() {}
+            int i;
+        };
+        SkSTArena<64> arena;
+        auto a = arena.makeUniqueArray<I>(8, [](size_t i) { return i; });
+        for (size_t i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, a[i].i == (int)i);
+        }
+    }
+
+    {
+        SkArena arena(4096);
+        char* ptr = arena.alignedBytes(4081, 8);
+        REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
+    }
 }
 
 DEF_TEST(SkFibBlockSizes, r) {
@@ -200,7 +459,6 @@ DEF_TEST(SkFibBlockSizes, r) {
         }
         REPORTER_ASSERT(r, lastSize == 3524578u * 1024);
     }
-
     {
         SkFibBlockSizes<std::numeric_limits<uint32_t>::max() / 2> fibs{1024, 0};
         uint32_t lastSize = 1;

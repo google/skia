@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkSpan.h"
 
 #include <array>
 #include <cassert>
@@ -49,7 +50,7 @@ public:
     uint32_t nextBlockSize() {
         uint32_t result = SkFibonacci47[fIndex] * fBlockUnitSize;
 
-        if (SkTo<size_t>(fIndex + 1) < SkFibonacci47.size() &&
+        if (SkTo<size_t>(fIndex + 1) < SkTo<uint32_t>(SkFibonacci47.size()) &&
             SkFibonacci47[fIndex + 1] < kMaxSize / fBlockUnitSize)
         {
             fIndex += 1;
@@ -315,6 +316,182 @@ class SkSTArenaAllocWithReset
 public:
     explicit SkSTArenaAllocWithReset(size_t firstHeapAllocation = InlineStorageSize)
             : SkArenaAllocWithReset{this->data(), this->size(), firstHeapAllocation} {}
+};
+
+// SkArena provides fast allocation where the user takes care of calling the destructors of the
+// returned pointers, and SkArena takes care of deleting the storage. The unique_ptrs returned,
+// are to assist in assuring the object's destructor is called.
+// A note on zero length arrays: according to the standard a pointer must be returned, and it
+// can't be a nullptr. SkArena allocates one item, but does not initialize it.
+class SkArena {
+public:
+    struct Destroyer {
+        template <typename T>
+        void operator()(T* ptr) { ptr->~T(); }
+    };
+
+    struct ArrayDestroyer {
+        int n;
+        template <typename T>
+        void operator()(T* ptr) {
+            for (int i = 0; i < n; i++) { ptr[i].~T(); }
+        }
+    };
+
+    template< class T >
+    inline static constexpr bool HasNoDestructor = std::is_trivially_destructible<T>::value;
+
+    SkArena(char* block, int blockSize, int firstHeapAllocation);
+    explicit SkArena(int firstHeapAllocation = 0);
+    ~SkArena();
+
+    template <typename T, typename... Args> T* makePOD(Args&&... args) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use make.");
+        return this->innerMake<T>(std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    std::unique_ptr<T, Destroyer> makeUnique(Args&&... args) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePOD.");
+        return std::unique_ptr<T, Destroyer>{this->innerMake<T>(std::forward<Args>(args)...)};
+    }
+
+    template<typename T> T* makePODArray(int n) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use makeUniqueArray.");
+        return this->template innerMakeArray<T>(n);
+    }
+
+    template<typename T, typename Src, typename Map>
+    SkSpan<T> makePODArray(const Src& src, Map map) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use makeUniqueArray.");
+        int size = SkTo<int>(src.size());
+        T* result = this->template innerMakeArray<T>(size);
+        for (int i = 0; i < size; i++) {
+            new (&result[i]) T(map(src[i]));
+        }
+        return {result, src.size()};
+    }
+
+    template<typename T>
+    std::unique_ptr<T[], ArrayDestroyer> makeUniqueArray(int n) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePODArray.");
+        T* array = this->template innerMakeArray<T>(n);
+        for (int i = 0; i < n; i++) {
+            new (&array[i]) T{};
+        }
+        return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
+    }
+
+    template<typename T, typename I>
+    std::unique_ptr<T[], ArrayDestroyer> makeUniqueArray(int n, I initializer) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePODArray.");
+        T* array = this->template innerMakeArray<T>(n);
+        for (int i = 0; i < n; i++) {
+            new (&array[i]) T(initializer(i));
+        }
+        return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
+    }
+
+    static constexpr int MinimumSizeWithOverhead(int requestedSize) {
+        SkASSERT_RELEASE(requestedSize < kMaxByteSize);
+        constexpr int kMallocRounding = kMaxAlignment - alignof(max_align_t);
+        constexpr int k4K  = (1 << 12);
+        constexpr int k32K = (1 << 15);
+
+        auto alignUp = [](int size, int alignment) {return (size + (alignment - 1)) & -alignment;};
+
+        // The minimumSize is the amount to allocate to assure a pointer with kMaxAlignment
+        // alignment and at least size requiredSize + sizeof(Block);
+        int minimumSize =
+                alignUp(requestedSize + kMallocRounding + sizeof(Block), alignof(max_align_t));
+
+        // If minimumSize is > 32k then round to a 4K boundary. The > 32K heuristic is from the
+        // JEMalloc behavior.
+        if (minimumSize >= k32K) {
+            minimumSize = alignUp(minimumSize, k4K);
+        }
+
+        return minimumSize;
+    }
+
+    char* alignedBytes(int size, int alignment);
+
+private:
+    // 16 seems to be a good number for alignment. If a use case for larger alignments is found,
+    // we can turn this into a template parameter.
+    static constexpr int kMaxAlignment = 16;
+    // The largest size that can be allocated. Includes maximum padding and fudge for the Block.
+    // This should never overflow with the calculations done on the code.
+    static constexpr int kMaxByteSize = std::numeric_limits<int>::max() - 2*kMaxAlignment - 32;
+
+    // The Block starts at the location pointed to by fEndByte.
+    // Beware. Order is important here. The destructor for fPrevious must be called first because
+    // the Block is embedded in fBlockStart. Destructors are run in reverse order.
+    struct Block {
+        Block(char* previous, char* startOfBlock);
+        char* const fBlockStart;
+        Block* const fPrevious;
+    };
+
+    // Note: fCapacity is the number of bytes remaining, but the are subtracted from fEndByte to
+    // generate the location of the object.
+    char* allocateBytes(int size, int alignment) {
+        fCapacity = fCapacity & -alignment;
+        if (fCapacity < size) {
+            this->needMoreBytes(size, alignment);
+        }
+        char* const ptr = fEndByte - fCapacity;
+        SkASSERT(((intptr_t)ptr & (alignment - 1)) == 0);
+        SkASSERT(fCapacity >= size);
+        fCapacity -= size;
+        return ptr;
+    }
+
+    template <typename T, typename... Args> T* innerMake(Args&&... args) {
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        static_assert(sizeof(T) < kMaxByteSize, "Size is too big for arena");
+        constexpr int size = SkTo<int>(sizeof(T));
+        constexpr int alignment = SkTo<int>(alignof(T));
+
+        return new (this->allocateBytes(size, alignment)) T {std::forward<Args>(args)...};
+    }
+
+    template <typename T> T* innerMakeArray(int n) {
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        constexpr int kMaxN = kMaxByteSize / sizeof(T);
+        SkASSERT_RELEASE(0 <= n && n < kMaxN);
+        // Allocate at least one item.
+        return (T*)this->alignedBytes(sizeof(T) * (n ? n : 1), alignof(T));
+    }
+
+    void setupBytesAndCapacity(char* bytes, int size);
+
+    // Adjust fEndByte and fCapacity to satisfy the size and alignment request.
+    void needMoreBytes(int size, int alignment);
+
+    // This points to the highest kMaxAlignment address in the allocated block. The address of
+    // the current end of allocated data is given by fEndByte - fCapacity. While the negative side
+    // of this pointer are the bytes to be allocated. The positive side points to the Block for
+    // this memory. So, it virtually has type std::unique_ptr<Block, Destroyer>.
+    char* fEndByte{nullptr};
+
+    // The number of bytes remaining in this block.
+    int fCapacity{0};
+
+    SkFibBlockSizes<kMaxByteSize> fFibProgression;
+};
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SkArena).
+// Note: Inheriting from the storage first means the storage will outlive the
+// SkArenaAlloc, letting ~SkArenaAlloc read it as it calls destructors.
+// (This is mostly only relevant for strict tools like MSAN.)
+template <size_t InlineStorageSize>
+class SkSTArena : private std::array<char, SkArena::MinimumSizeWithOverhead(InlineStorageSize)>
+        , public SkArena {
+public:
+    explicit SkSTArena(int firstHeapAllocation = MinimumSizeWithOverhead(InlineStorageSize))
+            : SkArena{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
 };
 
 #endif  // SkArenaAlloc_DEFINED

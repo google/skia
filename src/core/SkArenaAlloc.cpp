@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMath.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include <algorithm>
 #include <new>
@@ -151,6 +153,68 @@ SkArenaAllocWithReset::SkArenaAllocWithReset(char* block,
 void SkArenaAllocWithReset::reset() {
     this->~SkArenaAllocWithReset();
     new (this) SkArenaAllocWithReset{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
+}
+
+SkArena::SkArena(char* bytes, int size, int firstHeapAllocation)
+        : fFibProgression(size, firstHeapAllocation) {
+    SkASSERT_RELEASE(0 <= size && size < kMaxByteSize);
+    SkASSERT_RELEASE(0 <= firstHeapAllocation && firstHeapAllocation < kMaxByteSize);
+
+    // If this is not a usable block, just start allocating.
+    if (bytes == nullptr || size <= MinimumSizeWithOverhead(0)) {
+        fEndByte = nullptr;
+        fCapacity = 0;
+    } else {
+        this->setupBytesAndCapacity(bytes, size);
+        // Set up a block footer that is the end of the change, and does not release any memory.
+        new (fEndByte) Block{nullptr, nullptr};
+    }
+}
+
+SkArena::SkArena(int firstHeapAllocation) : SkArena(nullptr, 0, firstHeapAllocation) {}
+
+SkArena::~SkArena() {
+    Block* cursor = reinterpret_cast<Block*>(fEndByte);
+    while (cursor != nullptr) {
+        char* toDelete = cursor->fBlockStart;
+        cursor = cursor->fPrevious;
+        delete [] toDelete;
+    }
+}
+
+SkArena::Block::Block(char* previous, char* startOfBlock)
+        : fBlockStart{startOfBlock}
+        , fPrevious{reinterpret_cast<Block*>(previous)} {}
+
+char* SkArena::alignedBytes(int unsafeSize, int unsafeAlignment) {
+    SkASSERT_RELEASE(0 < unsafeSize && unsafeSize < kMaxByteSize);
+    SkASSERT_RELEASE(0 < unsafeAlignment && unsafeAlignment <= kMaxAlignment);
+    SkASSERT_RELEASE(SkIsPow2(unsafeAlignment));
+    const int size        = SkTo<int>(unsafeSize),
+              alignment   = SkTo<int>(unsafeAlignment);
+
+    return this->allocateBytes(size, alignment);
+}
+
+void SkArena::setupBytesAndCapacity(char* bytes, int size) {
+    intptr_t endByte = reinterpret_cast<intptr_t>(bytes + size - sizeof(Block)) & -kMaxAlignment;
+    fEndByte = reinterpret_cast<char*>(endByte);
+    fCapacity = fEndByte - bytes;
+}
+
+void SkArena::needMoreBytes(int requestedSize, int alignment) {
+    int nextBlockSize = fFibProgression.nextBlockSize();
+    const int size = MinimumSizeWithOverhead(std::max(requestedSize, nextBlockSize));
+    char* const bytes = new char[size];
+    char* const previousBlock = fEndByte;
+    this->setupBytesAndCapacity(bytes, size);
+
+    // Make a block to delete these bytes, and points to the previous block.
+    new (fEndByte) Block {previousBlock, bytes};
+
+    // Make fCapacity the alignment for the requested object.
+    fCapacity = fCapacity & -alignment;
+    SkASSERT(fCapacity >= requestedSize);
 }
 
 // SkFibonacci47 is the first 47 Fibonacci numbers. Fib(47) is the largest value less than 2 ^ 32.
