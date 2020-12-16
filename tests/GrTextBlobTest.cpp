@@ -198,3 +198,125 @@ DEF_TEST(GrBagOfBytesBasic, r) {
         }
     }
 }
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (GrSubRunAllocator).
+// Note: Inheriting from the storage first means the storage will outlive the
+// GrSubRunAllocator, letting ~GrSubRunAllocator read it as it calls destructors.
+// (This is mostly only relevant for strict tools like MSAN.)
+
+template <size_t inlineSize>
+class GrSTSubRunAllocator : private GrBagOfBytes::Storage<inlineSize>, public GrSubRunAllocator {
+public:
+    explicit GrSTSubRunAllocator(int firstHeapAllocation =
+                                    GrBagOfBytes::PlatformMinimumSizeWithOverhead(inlineSize, 1))
+            : GrSubRunAllocator{this->data(), SkTo<int>(this->size()), firstHeapAllocation} {}
+};
+
+DEF_TEST(GrSubRunAllocator, r) {
+    static int created = 0;
+    static int destroyed = 0;
+    struct Foo {
+        Foo() : fI{-2}, fX{-3} { created++; }
+        Foo(int i, float x) : fI{i}, fX{x} { created++; }
+        ~Foo() { destroyed++; }
+        int fI;
+        float fX;
+    };
+
+    struct alignas(8) OddAlignment {
+        char buf[10];
+    };
+
+    auto exercise = [&](GrSubRunAllocator* alloc) {
+        created = 0;
+        destroyed = 0;
+        {
+            int* p = alloc->makePOD<int>(3);
+            REPORTER_ASSERT(r, *p == 3);
+            int* q = alloc->makePOD<int>(7);
+            REPORTER_ASSERT(r, *q == 7);
+
+            REPORTER_ASSERT(r, *alloc->makePOD<int>(3) == 3);
+            auto foo = alloc->makeUnique<Foo>(3, 4.0f);
+            REPORTER_ASSERT(r, foo->fI == 3);
+            REPORTER_ASSERT(r, foo->fX == 4.0f);
+            REPORTER_ASSERT(r, created == 1);
+            REPORTER_ASSERT(r, destroyed == 0);
+
+            alloc->makePODArray<int>(10);
+
+            auto fooArray = alloc->makeUniqueArray<Foo>(10);
+            REPORTER_ASSERT(r, fooArray[3].fI == -2);
+            REPORTER_ASSERT(r, fooArray[4].fX == -3.0f);
+            REPORTER_ASSERT(r, created == 11);
+            REPORTER_ASSERT(r, destroyed == 0);
+            alloc->makePOD<OddAlignment>();
+        }
+
+        REPORTER_ASSERT(r, created == 11);
+        REPORTER_ASSERT(r, destroyed == 11);
+    };
+
+    // Exercise default arena
+    {
+        GrSubRunAllocator arena{0};
+        exercise(&arena);
+    }
+
+    // Exercise on stack arena
+    {
+        GrSTSubRunAllocator<64> arena;
+        exercise(&arena);
+    }
+
+    // Exercise arena with a heap allocated starting block
+    {
+        std::unique_ptr<char[]> block{new char[1024]};
+        GrSubRunAllocator arena{block.get(), 1024, 0};
+        exercise(&arena);
+    }
+
+    // Exercise the singly-link list of unique_ptrs use case
+    {
+        created = 0;
+        destroyed = 0;
+        GrSubRunAllocator arena;
+
+        struct Node {
+            Node(std::unique_ptr<Node, GrSubRunAllocator::Destroyer> next)
+                    : fNext{std::move(next)} { created++; }
+            ~Node() { destroyed++; }
+            std::unique_ptr<Node, GrSubRunAllocator::Destroyer> fNext;
+        };
+
+        std::unique_ptr<Node, GrSubRunAllocator::Destroyer> current = nullptr;
+        for (int i = 0; i < 128; i++) {
+            current = arena.makeUnique<Node>(std::move(current));
+        }
+        REPORTER_ASSERT(r, created == 128);
+        REPORTER_ASSERT(r, destroyed == 0);
+    }
+    REPORTER_ASSERT(r, created == 128);
+    REPORTER_ASSERT(r, destroyed == 128);
+
+    // Exercise the array ctor w/ a mapping function
+    {
+        struct I {
+            I(int v) : i{v} {}
+            ~I() {}
+            int i;
+        };
+        GrSTSubRunAllocator<64> arena;
+        auto a = arena.makeUniqueArray<I>(8, [](size_t i) { return i; });
+        for (size_t i = 0; i < 8; i++) {
+            REPORTER_ASSERT(r, a[i].i == (int)i);
+        }
+    }
+
+    {
+        GrSubRunAllocator arena(4096);
+        char* ptr = arena.alignedBytes(4081, 8);
+        REPORTER_ASSERT(r, ((intptr_t)ptr & 7) == 0);
+    }
+}
