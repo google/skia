@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87079993_578a8553",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "I didn\u0027t think to try that.",
+      "parentUuid": "570a2b2d_b4fa8cd1",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf2b05dd_09cc8eb2",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-12-16T19:22:21Z",
       "side": 1,
       "message": "Does PDF even use MultiPictureDocument? I thought they used SkDocument directly.",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6517d507_6b64c3d5",
+        "filename": "src/utils/SkMultiPictureDocument.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf2b05dd_09cc8eb2",
       "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -60,6 +96,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03ce293d_60a02eee",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "I\u0027m not sure if the current behavior was intentional, but I\u0027ve tried making SkWriteBuffer allow empty data from procs. Lets see if it broke anything.",
+      "parentUuid": "1ef77e9e_90125367",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b1730b13_7e00cdb5",
         "filename": "src/utils/SkSharingProc.cpp",
         "patchSetId": 13
@@ -71,6 +131,30 @@
       "writtenOn": "2020-12-16T19:22:21Z",
       "side": 1,
       "message": "this assumes that you used a SkSharingSerialContext and you have no way to enforce that is the case.",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 85
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ba606b4_d7b41adf",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "yes I think all procs face that problem. they should have been classes maybe but here we are. There\u0027s no documented explanation in SkSerialProc.h why they are not classes.",
+      "parentUuid": "b1730b13_7e00cdb5",
       "range": {
         "startLine": 26,
         "startChar": 4,
@@ -105,6 +189,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80131837_63e69f8d",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ffe73b9_22de0c08",
+      "range": {
+        "startLine": 50,
+        "startChar": 60,
+        "endLine": 50,
+        "endChar": 68
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "584c5c8c_0fd7e208",
@@ -128,6 +236,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62ea525b_34eca74a",
+        "filename": "src/utils/SkSharingProc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "584c5c8c_0fd7e208",
+      "range": {
+        "startLine": 21,
+        "startChar": 51,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5850e84e_481d2de9",
@@ -141,6 +273,24 @@
       "writtenOn": "2020-12-16T19:22:21Z",
       "side": 1,
       "message": "why is this file still needed here if you moved it into src/utils?",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1e2339a_61d2a627",
+        "filename": "tools/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T21:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5850e84e_481d2de9",
       "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
