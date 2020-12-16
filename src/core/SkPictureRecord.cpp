@@ -564,19 +564,6 @@ void SkPictureRecord::onDrawImageRect(const SkImage* image, const SkRect* src, c
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center, const SkRect& dst,
-                                      const SkPaint* paint) {
-    // id + paint_index + image_index + center + dst
-    size_t size = 3 * kUInt32Size + sizeof(SkIRect) + sizeof(SkRect);
-
-    size_t initialOffset = this->addDraw(DRAW_IMAGE_NINE, &size);
-    this->addPaintPtr(paint);
-    this->addImage(img);
-    this->addIRect(center);
-    this->addRect(dst);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                          const SkRect& dst, const SkPaint* paint) {
     size_t latticeSize = SkCanvasPriv::WriteLattice(nullptr, lattice);
