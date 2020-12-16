@@ -20,6 +20,7 @@
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
@@ -55,7 +56,6 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
-struct SkSamplingOptions;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -1668,36 +1668,18 @@ public:
         @param image   SkImage containing pixels, dimensions, and format
         @param center  SkIRect edge of image corners and sides
         @param dst     destination SkRect of image to draw to
+        @param filter  what technique to use when sampling the image
         @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                        and so on; or nullptr
     */
     void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                       SkFilterMode filter, const SkPaint* paint = nullptr);
+
+    // DEPRECATED -- pass filtermode explicitly
+    void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr);
 
-    /** Draws SkImage image stretched proportionally to fit into SkRect dst.
-        SkIRect center divides the image into nine sections: four sides, four corners, and
-        the center. Corners are not scaled, or scaled down proportionately if their sides
-        are larger than dst; center and four sides are scaled to fit remaining space, if any.
-
-        Additionally transform draw using clip, SkMatrix, and optional SkPaint paint.
-
-        If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
-        SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
-        Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
-
-        If generated mask extends beyond image bounds, replicate image edge colors, just
-        as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set
-        replicates the image edge color when it samples outside of its bounds.
-
-        @param image   SkImage containing pixels, dimensions, and format
-        @param center  SkIRect edge of image corners and sides
-        @param dst     destination SkRect of image to draw to
-        @param paint   SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
-                       and so on; or nullptr
-    */
+    // DEPRECATED -- pass filtermode explicitly
     void drawImageNine(const sk_sp<SkImage>& image, const SkIRect& center, const SkRect& dst,
                        const SkPaint* paint = nullptr) {
         this->drawImageNine(image.get(), center, dst, paint);
@@ -1860,9 +1842,14 @@ public:
         @param image    SkImage containing pixels, dimensions, and format
         @param lattice  division of bitmap into fixed and variable rectangles
         @param dst      destination SkRect of image to draw to
+        @param filter   what technique to use when sampling the image
         @param paint    SkPaint containing SkBlendMode, SkColorFilter, SkImageFilter,
                         and so on; or nullptr
     */
+    void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
+                          SkFilterMode filter, const SkPaint* paint = nullptr);
+
+    // DEPRECATED -- pass filtermode explicitly
     void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr);
 
