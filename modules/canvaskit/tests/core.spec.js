@@ -200,7 +200,7 @@ describe('Core canvas behavior', () => {
         canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         const font = new CanvasKit.Font(null, 14);
-        canvas.drawText('The following heart should be rotated 90 due to exif.',
+        canvas.drawText('The following heart should be rotated 90 CCW due to exif.',
             5, 25, paint, font);
 
         // TODO(kjlubick) it would be nice to also to test MakeAnimatedImageFromEncoded but
@@ -376,15 +376,15 @@ describe('Core canvas behavior', () => {
             const skImage4 = CanvasKit.MakeImageFromCanvasImageSource(image2);
 
             // Draw decoded images
-            const sourceRect = CanvasKit.XYWHRect(0,0, 150, 150);
-            canvas.drawImageRect(skImage1, sourceRect, CanvasKit.XYWHRect(0,row * 100, 90, 90), null, false);
-            canvas.drawImageRect(skImage2, sourceRect, CanvasKit.XYWHRect(100,row * 100, 90, 90), null, false);
-            canvas.drawImageRect(skImage3, sourceRect, CanvasKit.XYWHRect(200,row * 100, 90, 90), null, false);
-            canvas.drawImageRect(skImage4, sourceRect, CanvasKit.XYWHRect(300,row * 100, 90, 90), null, false);
+            const sourceRect = CanvasKit.XYWHRect(0, 0, 150, 150);
+            canvas.drawImageRect(skImage1, sourceRect, CanvasKit.XYWHRect(0, row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage2, sourceRect, CanvasKit.XYWHRect(100, row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage3, sourceRect, CanvasKit.XYWHRect(200, row * 100, 90, 90), null, false);
+            canvas.drawImageRect(skImage4, sourceRect, CanvasKit.XYWHRect(300, row * 100, 90, 90), null, false);
 
             row++;
         }
-        //Label images with the method used to decode them
+        // Label images with the method used to decode them
         const paint = new CanvasKit.Paint();
         const textFont = new CanvasKit.Font(null, 7);
         canvas.drawText('WASM Decoding', 0, 90, paint, textFont);
@@ -723,6 +723,61 @@ describe('Core canvas behavior', () => {
         frame.delete();
         img.delete();
     }, '/assets/flightAnim.gif');
+
+    gm('drawImageVariants', (canvas, fetchedByteBuffers) => {
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        canvas.clear(CanvasKit.WHITE);
+        canvas.scale(2, 2);
+        const paint = new CanvasKit.Paint();
+        const clipTo = (x, y) => {
+            canvas.save();
+            canvas.clipRect(CanvasKit.XYWHRect(x, y, 128, 128), CanvasKit.ClipOp.Intersect);
+        };
+
+        clipTo(0, 0);
+        canvas.drawImage(img, 0, 0, paint);
+        canvas.restore();
+
+        clipTo(128, 0);
+        canvas.drawImageCubic(img, 128, 0, 1/3, 1/3, null);
+        canvas.restore();
+
+        clipTo(0, 128);
+        canvas.drawImageOptions(img, 0, 128, CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None, null);
+        canvas.restore();
+
+        const mipImg = img.makeCopyWithDefaultMipmaps();
+        clipTo(128, 128);
+        canvas.drawImageOptions(mipImg, 128, 128,
+                                CanvasKit.FilterMode.Nearest, CanvasKit.MipmapMode.Nearest, null);
+        canvas.restore();
+
+        paint.delete();
+        mipImg.delete();
+        img.delete();
+    }, '/assets/mandrill_512.png');
+
+    gm('drawImageRectVariants', (canvas, fetchedByteBuffers) => {
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.Paint();
+        const src = CanvasKit.XYWHRect(100, 100, 128, 128);
+        canvas.drawImageRect(img, src, CanvasKit.XYWHRect(0, 0, 256, 256), paint);
+        canvas.drawImageRectCubic(img, src, CanvasKit.XYWHRect(256, 0, 256, 256), 1/3, 1/3);
+        canvas.drawImageRectOptions(img, src, CanvasKit.XYWHRect(0, 256, 256, 256),
+                                    CanvasKit.FilterMode.Linear, CanvasKit.MipmapMode.None);
+        const mipImg = img.makeCopyWithDefaultMipmaps();
+        canvas.drawImageRectOptions(mipImg, src, CanvasKit.XYWHRect(256, 256, 256, 256),
+                                CanvasKit.FilterMode.Nearest, CanvasKit.MipmapMode.Nearest);
+
+        paint.delete();
+        mipImg.delete();
+        img.delete();
+    }, '/assets/mandrill_512.png');
 
     gm('drawImage_skp', (canvas, fetchedByteBuffers) => {
         const pic = CanvasKit.MakePicture(fetchedByteBuffers[0]);
