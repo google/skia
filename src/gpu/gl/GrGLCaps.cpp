@@ -3910,6 +3910,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverDisableMSAACCPR = true;
     }
 
+    // IntelIris640 drops non-aa draws of strokes. Disable all of Intel for now since Intel also has
+    // all of MSAA disabled anyway.
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        fDisableTessellationPathRenderer = true;
+    }
+
     // http://skbug.com/9739
     bool isNVIDIAPascal =
             kNVIDIA_GrGLDriver == ctxInfo.driver() &&

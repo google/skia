@@ -313,7 +313,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 
     // Check if the path is too large for an atlas. Since we use "minDimension" for height in the
     // atlas, limiting to kMaxAtlasPathHeight^2 pixels guarantees height <= kMaxAtlasPathHeight.
-    if (maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
+    if ((uint64_t)maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
         maxDimenstion > fMaxAtlasPathWidth) {
         return false;
     }
