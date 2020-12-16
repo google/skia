@@ -138,6 +138,7 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
     if ('third_party/' in affected_file.LocalPath() or
         'tests/sksl/' in affected_file.LocalPath()):
       continue
+    # rmistry
     contents = input_api.ReadFile(affected_file, 'rb')
     if not re.search(copyright_pattern, contents):
       results.append(output_api.PresubmitError(
@@ -190,6 +191,27 @@ def _CheckGNFormatted(input_api, output_api):
       results.append(output_api.PresubmitError(
           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
   return results
+
+
+# rmistry
+def _CheckGitConflictMarkers(input_api, output_api):
+  pattern = input_api.re.compile('^(?:<<<<<<<|>>>>>>>) |^=======$')
+  results = []
+  for f in input_api.AffectedFiles():
+    for line_num, line in f.ChangedContents():
+      print f.LocalPath()
+      print f.LocalPath().endswith('.txt')
+      if f.LocalPath().endswith('.txt'):
+        # First-level headers in markdown look a lot like version control
+        # conflict markers. http://daringfireball.net/projects/markdown/basics
+        continue
+      if pattern.match(line):
+        results.append(
+            output_api.PresubmitError(
+                'Git conflict markers found in %s:%d %s' % (
+                    f.LocalPath(), line_num, line)))
+  return results
+
 
 def _CheckIncludesFormatted(input_api, output_api):
   """Make sure #includes in files we're changing have been formatted."""
@@ -280,6 +302,9 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckDEPSValid(input_api, output_api))
   results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckGNFormatted(input_api, output_api))
+  print 'CHECKING CONFLICT MARKERS'
+  results.extend(_CheckGitConflictMarkers(input_api, output_api))
+  print 'DONE CHECKING CONFLICT MARKERS'
   return results
 
 

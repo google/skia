@@ -11,7 +11,11 @@ more  whitespace
 all the things!!!
 Yet another line.
 
+<<<<<<< HEAD
+testing
+=======
 test
+>>>>>>> 75a85179504e59df7b3abbc09113f24f2233001b
 BIOS update 20180917
 Gerrit 10k!!!
 Retry Mac bots.
