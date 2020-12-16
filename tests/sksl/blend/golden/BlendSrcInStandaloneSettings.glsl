@@ -3,6 +3,9 @@ out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
 void main() {
-    sk_FragColor = src * dst.w;
+    vec4 _0_blend_src_in;
+    _0_blend_src_in = src * dst.w;
+
+    sk_FragColor = _0_blend_src_in;
 
 }
