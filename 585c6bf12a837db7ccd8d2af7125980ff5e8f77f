@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bc5dd900_dda0961d",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T20:27:25Z",
+      "side": 1,
+      "message": "So if they give us an MSAA buffer then we don\u0027t do this because the dst won\u0027t be a texture (i.e. we don\u0027t have a resolve texture). Though thinking about this more, requiring a texture is a little limiting. If the clients wraps a resolve as a GrBackendRenderTarget and requests N samples, we only create a GrRenderTarget but that should still be able to go down this path. So we really need to be able to query from GrRenderTargetProxy if it will have a resolve specifically.\n\nI don\u0027t see why it would be wrong for MakeRenderTarget to go through this path? Don\u0027t we explicitly want that to be the case? Already when you call MakeRenderTarget today the MSAA buffer that is created and purely internal in vulkan and the client never has any access to it. So I don\u0027t see in issue to discard thing.",
+      "parentUuid": "fd531d71_1da7cd87",
+      "range": {
+        "startLine": 220,
+        "startChar": 18,
+        "endLine": 220,
+        "endChar": 52
+      },
+      "revId": "585c6bf12a837db7ccd8d2af7125980ff5e8f77f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "703eea9a_e00b008a",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 2
