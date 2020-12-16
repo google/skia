@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb673652_0276927b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T21:43:59Z",
+      "side": 1,
+      "message": "Looks like we\u0027d better keep getDevice() as an alias until removing it from Android?\n\nsrc/android/SkAndroidFrameworkUtils.cpp:20:36: error: no member named \u0027getDevice\u0027 in \u0027SkCanvas\u0027; did you mean \u0027topDevice\u0027?\n    SkBaseDevice* device \u003d canvas-\u003egetDevice();\n                                   ^~~~~~~~~\n                                   topDevice",
+      "revId": "632a23afa487241db2dbef27fe631052899373af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
