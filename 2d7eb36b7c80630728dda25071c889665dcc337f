@@ -16,6 +16,40 @@
       "message": "Turns out when I expanded these GMs to test different subsamplings and generated the new input images, the method I used didn\u0027t actually store the images with the intended tags!",
       "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49e6b464_9dbd1f53",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-16T22:16:14Z",
+      "side": 1,
+      "message": "Is this comment intended to go here ?",
+      "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f02086c0_da6fc477",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-16T22:16:14Z",
+      "side": 1,
+      "message": "Am I missing something? Why is this here?",
+      "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
