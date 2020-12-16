@@ -36,7 +36,7 @@ class Variable;
  */
 class Inliner {
 public:
-    Inliner(const Context* context, const ShaderCapsClass* caps) : fContext(context), fCaps(caps) {}
+    Inliner(const Context* context) : fContext(context) {}
 
     void reset(ModifiersPool* modifiers, const Program::Settings*);
 
@@ -106,7 +106,6 @@ private:
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
     const Program::Settings* fSettings = nullptr;
-    const ShaderCapsClass* fCaps = nullptr;
     int fInlineVarCounter = 0;
     int fInlinedStatementCounter = 0;
 };

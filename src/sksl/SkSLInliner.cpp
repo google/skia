@@ -809,19 +809,8 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    if (!fCaps || !fCaps->canUseDoLoops()) {
-        // TODO(skia:11097): canUseDoLoops is no longer necessary here
-        // We don't have do-while loops. We use do-while loops to simulate early returns, so we
-        // can't inline functions that have an early return.
-        bool hasEarlyReturn = has_early_return(*functionDef);
-
-        // If we didn't detect an early return, there shouldn't be any returns in breakable
-        // constructs either.
-        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(*functionDef) == 0);
-        return !hasEarlyReturn;
-    }
-    // We have do-while loops, but we don't have any mechanism to simulate early returns within a
-    // breakable construct (switch/for/do/while), so we can't inline if there's a return inside one.
+    // We don't have any mechanism to simulate early returns within a breakable construct
+    // (switch/for/do/while), so we can't inline if there's a return inside one.
     bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
 
     // If we detected returns in breakable constructs, we should also detect an early return.

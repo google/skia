@@ -73,8 +73,6 @@ private:
             fCaps = ShaderCapsFactory::Standalone();
             fCaps->fBuiltinFMASupport = true;
             fCaps->fBuiltinDeterminantSupport = true;
-            // Don't inline if it would require a do loop, some devices don't support them.
-            fCaps->fCanUseDoLoops = false;
 
             fCompiler = new SkSL::Compiler(fCaps.get());
 

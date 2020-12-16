@@ -179,14 +179,6 @@ public:
         return fBuiltinDeterminantSupport;
     }
 
-    bool fCanUseDoLoops = false;
-    bool canUseDoLoops() const {
-        // we define this to false in standalone so we don't use do loops while inlining in FP files
-        // (which would then, being baked in, end up being used even in contexts where do loops are
-        // not allowed)
-        return fCanUseDoLoops;
-    }
-
     const char* fShaderDerivativeExtensionString = nullptr;
     const char* shaderDerivativeExtensionString() const {
         return fShaderDerivativeExtensionString;
@@ -292,7 +284,6 @@ public:
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
         result->fBuiltinDeterminantSupport = true;
-        result->fCanUseDoLoops = true;
         return result;
     }
 
