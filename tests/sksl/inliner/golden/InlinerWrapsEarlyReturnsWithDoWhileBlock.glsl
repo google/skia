@@ -3,7 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 color;
 void main() {
     vec4 _0_returny;
-    do {
+    for (int _1_loop = 0;_1_loop < 1; _1_loop++) {
         if (color.x > color.y) {
             _0_returny = color.xxxx;
             break;
@@ -16,7 +16,7 @@ void main() {
             _0_returny = color.zzzz;
             break;
         }
-    } while (false);
+    }
     sk_FragColor = _0_returny;
 
 }
