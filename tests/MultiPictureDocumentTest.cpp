@@ -17,8 +17,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "src/utils/SkMultiPictureDocument.h"
+#include "src/utils/SkSharingProc.h"
 #include "tests/Test.h"
-#include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
 
 // Covers rects, ovals, paths, images, text
