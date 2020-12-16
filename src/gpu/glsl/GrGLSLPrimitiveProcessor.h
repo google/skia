@@ -120,7 +120,7 @@ public:
      * The range will iterate over the transforms in the same order as the TransformHandler passed
      * to emitCode.
      */
-    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) = 0;
+    virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) = 0;
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

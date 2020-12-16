@@ -1351,6 +1351,10 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
 }
 
+void GrD3DGpu::setViewport(SkIRect) {
+
+}
+
 GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
     GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     return fCurrentFenceValue;

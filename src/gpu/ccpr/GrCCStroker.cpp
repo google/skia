@@ -89,7 +89,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -179,7 +179,7 @@ private:
     };
 
     class Impl : public GrGLSLGeometryProcessor {
-        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+        void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 

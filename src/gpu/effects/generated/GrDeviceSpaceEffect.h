@@ -42,6 +42,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override;
 #endif
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     using INHERITED = GrFragmentProcessor;
 };
