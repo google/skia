@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2020-12-16
+
 ### Added
  - `getImageInfo()` and `getColorSpace()` to the `Image` type.
  - `CanvasKit.deleteContext()` for deleting WebGL contexts when done with them, resizing, etc.
