@@ -39,6 +39,30 @@
       },
       "revId": "e1705b6a99eaf1c3c4a6ac0967eec1bf61009e9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5821502b_231c893e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-16T21:19:44Z",
+      "side": 1,
+      "message": "I went with Options to align with the name we have for the shaders.",
+      "parentUuid": "9a1847e2_1068e437",
+      "range": {
+        "startLine": 1122,
+        "startChar": 42,
+        "endLine": 1122,
+        "endChar": 49
+      },
+      "revId": "e1705b6a99eaf1c3c4a6ac0967eec1bf61009e9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
