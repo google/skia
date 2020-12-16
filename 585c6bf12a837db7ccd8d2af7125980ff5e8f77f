@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46f91f8f_2ed9c088",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T20:51:00Z",
+      "side": 1,
+      "message": "Spoke about this off the issue. Makes sense.",
+      "parentUuid": "bc5dd900_dda0961d",
+      "range": {
+        "startLine": 220,
+        "startChar": 18,
+        "endLine": 220,
+        "endChar": 52
+      },
+      "revId": "585c6bf12a837db7ccd8d2af7125980ff5e8f77f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "703eea9a_e00b008a",
