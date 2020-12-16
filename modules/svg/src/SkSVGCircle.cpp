@@ -74,3 +74,10 @@ SkPath SkSVGCircle::onAsPath(const SkSVGRenderContext& ctx) const {
 
     return path;
 }
+
+SkRect SkSVGCircle::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+    SkPoint pos;
+    SkScalar r;
+    std::tie(pos, r) = this->resolve(ctx.lengthContext());
+    return SkRect::MakeXYWH(pos.fX - r, pos.fY - r, 2 * r, 2 * r);
+}
