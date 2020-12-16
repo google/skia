@@ -22,6 +22,30 @@
       },
       "revId": "ff9202deec43e55de4419c9c36855740a3f3d1d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4ee25b4_179ed00e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-16T20:13:51Z",
+      "side": 1,
+      "message": "afaik -- we explicitly don\u0027t blend across the borders. (we use kStrict mode for each sub rect)",
+      "parentUuid": "c2aabf40_d21d4a6d",
+      "range": {
+        "startLine": 10,
+        "startChar": 38,
+        "endLine": 11,
+        "endChar": 22
+      },
+      "revId": "ff9202deec43e55de4419c9c36855740a3f3d1d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
