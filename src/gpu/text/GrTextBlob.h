@@ -37,6 +37,180 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
+// GrBagOfBytes parcels out bytes with a given size and alignment.
+class GrBagOfBytes {
+public:
+    GrBagOfBytes(char* block, int blockSize, int firstHeapAllocation);
+    explicit GrBagOfBytes(int firstHeapAllocation = 0);
+    ~GrBagOfBytes();
+
+    // Given a requestedSize round up to the smallest size that accounts for all the per block
+    // overhead and alignment.
+    static constexpr int MinimumSizeWithOverhead(int requestedSize) {
+        SkASSERT_RELEASE(requestedSize < kMaxByteSize);
+        constexpr int kMallocRounding = kMaxAlignment - alignof(max_align_t);
+        constexpr int k4K  = (1 << 12);
+        constexpr int k32K = (1 << 15);
+
+        auto alignUp = [](int size, int alignment) {return (size + (alignment - 1)) & -alignment;};
+
+        // The minimumSize is the amount to allocate to assure a pointer with kMaxAlignment
+        // alignment and at least size requiredSize + sizeof(Block);
+        int minimumSize =
+                alignUp(requestedSize + kMallocRounding + sizeof(Block), alignof(max_align_t));
+
+        // If minimumSize is > 32k then round to a 4K boundary. The > 32K heuristic is from the
+        // JEMalloc behavior.
+        if (minimumSize >= k32K) {
+            minimumSize = alignUp(minimumSize, k4K);
+        }
+
+        return minimumSize;
+    }
+
+    // Returns the number of bytes suitable for holding n Ts.
+    template <typename T> char* allocateBytesFor(int n = 1) {
+        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
+        static_assert(sizeof(T) < kMaxByteSize, "Size is too big for arena");
+        constexpr int kMaxN = kMaxByteSize / sizeof(T);
+        SkASSERT_RELEASE(0 <= n && n < kMaxN);
+
+        return this->allocateBytes(sizeof(T) * (n ? n : 1), alignof(T));
+    }
+
+    char* alignedBytes(int unsafeSize, int unsafeAlignment);
+
+private:
+    // 16 seems to be a good number for alignment. If a use case for larger alignments is found,
+    // we can turn this into a template parameter.
+    static constexpr int kMaxAlignment = 16;
+    // The largest size that can be allocated. Includes maximum padding and fudge for the Block.
+    // This should never overflow with the calculations done on the code.
+    static constexpr int kMaxByteSize = std::numeric_limits<int>::max() - 2*kMaxAlignment - 32;
+
+    // The Block starts at the location pointed to by fEndByte.
+    // Beware. Order is important here. The destructor for fPrevious must be called first because
+    // the Block is embedded in fBlockStart. Destructors are run in reverse order.
+    struct Block {
+        Block(char* previous, char* startOfBlock);
+        // The start of the originally allocated bytes. This is the thing that must be deleted.
+        char* const fBlockStart;
+        Block* const fPrevious;
+    };
+
+    // Note: fCapacity is the number of bytes remaining, but the are subtracted from fEndByte to
+    // generate the location of the object.
+    char* allocateBytes(int size, int alignment) {
+        fCapacity = fCapacity & -alignment;
+        if (fCapacity < size) {
+            this->needMoreBytes(size, alignment);
+        }
+        char* const ptr = fEndByte - fCapacity;
+        SkASSERT(((intptr_t)ptr & (alignment - 1)) == 0);
+        SkASSERT(fCapacity >= size);
+        fCapacity -= size;
+        return ptr;
+    }
+
+    // Adjust fEndByte and fCapacity give a new block starting at bytes with size.
+    void setupBytesAndCapacity(char* bytes, int size);
+
+    // Adjust fEndByte and fCapacity to satisfy the size and alignment request.
+    void needMoreBytes(int size, int alignment);
+
+    // This points to the highest kMaxAlignment address in the allocated block. The address of
+    // the current end of allocated data is given by fEndByte - fCapacity. While the negative side
+    // of this pointer are the bytes to be allocated. The positive side points to the Block for
+    // this memory. So, it virtually has type std::unique_ptr<Block, Destroyer>.
+    char* fEndByte{nullptr};
+
+    // The number of bytes remaining in this block.
+    int fCapacity{0};
+
+    SkFibBlockSizes<kMaxByteSize> fFibProgression;
+};
+
+// GrSubrunAllocator provides fast allocation where the user takes care of calling the destructors
+// of the returned pointers, and GrSubrunAllocator takes care of deleting the storage. The
+// unique_ptrs returned, are to assist in assuring the object's destructor is called.
+// A note on zero length arrays: according to the standard a pointer must be returned, and it
+// can't be a nullptr. SkArena allocates one item, but does not initialize it.
+class GrSubrunAllocator {
+public:
+    struct Destroyer {
+        template <typename T>
+        void operator()(T* ptr) { ptr->~T(); }
+    };
+
+    struct ArrayDestroyer {
+        int n;
+        template <typename T>
+        void operator()(T* ptr) {
+            for (int i = 0; i < n; i++) { ptr[i].~T(); }
+        }
+    };
+
+    template<class T>
+    inline static constexpr bool HasNoDestructor = std::is_trivially_destructible<T>::value;
+
+    GrSubrunAllocator(char* block, int blockSize, int firstHeapAllocation);
+    explicit GrSubrunAllocator(int firstHeapAllocation = 0);
+
+    template <typename T, typename... Args> T* makePOD(Args&&... args) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use make.");
+        char* bytes = fAlloc.template allocateBytesFor<T>();
+        return new (bytes) T(std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    std::unique_ptr<T, Destroyer> makeUnique(Args&&... args) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePOD.");
+        char* bytes = fAlloc.template allocateBytesFor<T>();
+        return std::unique_ptr<T, Destroyer>{new (bytes) T(std::forward<Args>(args)...)};
+    }
+
+    template<typename T> T* makePODArray(int n) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use makeUniqueArray.");
+        return reinterpret_cast<T*>(fAlloc.template allocateBytesFor<T>(n));
+    }
+
+    template<typename T, typename Src, typename Map>
+    SkSpan<T> makePODArray(const Src& src, Map map) {
+        static_assert(HasNoDestructor<T>, "This is not POD. Use makeUniqueArray.");
+        int size = SkTo<int>(src.size());
+        T* result = this->template makePODArray<T>(size);
+        for (int i = 0; i < size; i++) {
+            new (&result[i]) T(map(src[i]));
+        }
+        return {result, src.size()};
+    }
+
+    template<typename T>
+    std::unique_ptr<T[], ArrayDestroyer> makeUniqueArray(int n) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePODArray.");
+        T* array = reinterpret_cast<T*>(fAlloc.template allocateBytesFor<T>(n));
+        for (int i = 0; i < n; i++) {
+            new (&array[i]) T{};
+        }
+        return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
+    }
+
+    template<typename T, typename I>
+    std::unique_ptr<T[], ArrayDestroyer> makeUniqueArray(int n, I initializer) {
+        static_assert(!HasNoDestructor<T>, "This is POD. Use makePODArray.");
+        T* array = reinterpret_cast<T*>(fAlloc.template allocateBytesFor<T>(n));
+        for (int i = 0; i < n; i++) {
+            new (&array[i]) T(initializer(i));
+        }
+        return std::unique_ptr<T[], ArrayDestroyer>{array, ArrayDestroyer{n}};
+    }
+
+    char* alignedBytes(int size, int alignment);
+
+private:
+    GrBagOfBytes fAlloc;
+};
+
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 // GrAtlasSubRun is the API that GrAtlasTextOp uses to generate vertex data for drawing.
 //     There are three different ways GrAtlasSubRun is specialized.
@@ -103,7 +277,7 @@ public:
     // * Don't use this API. It is only to support testing.
     virtual GrAtlasSubRun* testingOnly_atlasSubRun() = 0;
 
-    GrSubRun* fNext{nullptr};
+    std::unique_ptr<GrSubRun, GrSubrunAllocator::Destroyer> fNext;
 };
 
 struct GrSubRunList {
@@ -115,7 +289,7 @@ struct GrSubRunList {
         using reference = value_type&;
         using iterator_category = std::input_iterator_tag;
         constexpr Iterator(GrSubRun* subRun) : fPtr{subRun} { }
-        constexpr Iterator& operator++() { fPtr = fPtr->fNext; return *this; }
+        constexpr Iterator& operator++() { fPtr = fPtr->fNext.get(); return *this; }
         constexpr Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
         constexpr bool operator==(const Iterator& rhs) const { return fPtr == rhs.fPtr; }
         constexpr bool operator!=(const Iterator& rhs) const { return fPtr != rhs.fPtr; }
@@ -125,18 +299,18 @@ struct GrSubRunList {
         GrSubRun* fPtr;
     };
 
-    void append(GrSubRun* subRun) {
-        GrSubRun** newTail = &subRun->fNext;
-        *fTail = subRun;
+    void append(std::unique_ptr<GrSubRun, GrSubrunAllocator::Destroyer> subRun) {
+        std::unique_ptr<GrSubRun, GrSubrunAllocator::Destroyer>* newTail = &subRun->fNext;
+        *fTail = std::move(subRun);
         fTail = newTail;
     }
     bool isEmpty() const { return fHead == nullptr; }
-    Iterator begin() { return Iterator{fHead}; }
+    Iterator begin() { return Iterator{ fHead.get()}; }
     Iterator end() { return Iterator{nullptr}; }
     GrSubRun& front() const {return *fHead; }
 
-    GrSubRun* fHead{nullptr};
-    GrSubRun** fTail{&fHead};
+    std::unique_ptr<GrSubRun, GrSubrunAllocator::Destroyer> fHead{nullptr};
+    std::unique_ptr<GrSubRun, GrSubrunAllocator::Destroyer>* fTail{&fHead};
 };
 
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
@@ -220,7 +394,7 @@ public:
     }
 
 private:
-    GrTextBlob(size_t allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);
+    GrTextBlob(int allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);
 
     // Methods to satisfy SkGlyphRunPainterInterface
     void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
@@ -236,8 +410,15 @@ private:
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
 
+    // The allocator must come first because it needs to be destroyed last. Other fields of this
+    // structure my have pointers into it.
+    GrSubrunAllocator fAlloc;
+
+    // Onwner and list of the subruns.
+    GrSubRunList fSubRunList;
+
     // Overall size of this struct plus vertices and glyphs at the end.
-    const size_t fSize;
+    const int fSize;
 
     // The initial view matrix combined with the initial origin. Used to determine if a cached
     // subRun can be used in this draw situation.
@@ -254,7 +435,5 @@ private:
     SkScalar fMinMaxScale{SK_ScalarMax};
 
     bool fSomeGlyphsExcluded{false};
-    GrSubRunList fSubRunList;
-    SkArenaAlloc fAlloc;
 };
 #endif  // GrTextBlob_DEFINED
