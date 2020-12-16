@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9a3aa86_f4b766c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-16T19:52:55Z",
+      "side": 1,
+      "message": "Initial vectorized version -- happy to make any changes.",
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
