@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6887f649_7dc3e3d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T19:25:19Z",
+      "side": 1,
+      "message": "Please see PS1 to PS4 for fixes. The 4 changes are:\n\n1) GrSurfaceFillContext::Make that takes a GrBackendFormat now also takes SkBudgeted and that is now properly propagated from GrSurfaceProxy::Copy.\n\n2) Unnecessary GrImageInfo var is removed before call to Make in GrSurfaceProxy::Copy.\n\n3) Assert in GrSurfaceFillContext::Make is updated to not check abandonded state, fixes preabandon debug bot.\n\n4) Correct local matrix is used for yuv-\u003ergba in image lazy\n\n4 was caught by a canvas kit image test. We are supposed to have a set of orientation gms that exercise this. It turns out when I expanded the test I used imagemagick to generate images. It\u0027s orient flag doesn\u0027t seem to work and so all the images are actually stored with an Undefined tag and are actually top-left. I\u0027m working on that in another change.\n",
+      "revId": "8a2fbc984f9773706809df01630e9ed6de2eca60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
