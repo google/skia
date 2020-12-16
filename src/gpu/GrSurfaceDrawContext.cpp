@@ -73,7 +73,6 @@
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
-#define RETURN_NULL_IF_ABANDONED   if (fContext->abandoned()) { return nullptr; }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -202,43 +201,6 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
                                       surfaceProps);
 }
 
-static inline GrColorType color_type_fallback(GrColorType ct) {
-    switch (ct) {
-        // kRGBA_8888 is our default fallback for many color types that may not have renderable
-        // backend formats.
-        case GrColorType::kAlpha_8:
-        case GrColorType::kBGR_565:
-        case GrColorType::kABGR_4444:
-        case GrColorType::kBGRA_8888:
-        case GrColorType::kRGBA_1010102:
-        case GrColorType::kBGRA_1010102:
-        case GrColorType::kRGBA_F16:
-        case GrColorType::kRGBA_F16_Clamped:
-            return GrColorType::kRGBA_8888;
-        case GrColorType::kAlpha_F16:
-            return GrColorType::kRGBA_F16;
-        case GrColorType::kGray_8:
-            return GrColorType::kRGB_888x;
-        default:
-            return GrColorType::kUnknown;
-    }
-}
-
-std::tuple<GrColorType, GrBackendFormat> GrSurfaceDrawContext::GetFallbackColorTypeAndFormat(
-        GrImageContext* context, GrColorType colorType, int sampleCnt) {
-    auto caps = context->priv().caps();
-    do {
-        auto format = caps->getDefaultBackendFormat(colorType, GrRenderable::kYes);
-        // We continue to the fallback color type if there no default renderable format or we
-        // requested msaa and the format doesn't support msaa.
-        if (format.isValid() && caps->isFormatRenderable(format, sampleCnt)) {
-            return {colorType, format};
-        }
-        colorType = color_type_fallback(colorType);
-    } while (colorType != GrColorType::kUnknown);
-    return {GrColorType::kUnknown, {}};
-}
-
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
         GrRecordingContext* context,
         GrColorType colorType,
@@ -326,27 +288,15 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
                                            sk_sp<SkColorSpace> colorSpace,
                                            const SkSurfaceProps* surfaceProps,
                                            bool flushTimeOpsTask)
-        : GrSurfaceContext(context,
-                           std::move(readView),
-                           {colorType, kPremul_SkAlphaType, std::move(colorSpace)})
-        , fWriteView(std::move(writeView))
+        : GrSurfaceFillContext(context,
+                               std::move(readView),
+                               std::move(writeView),
+                               {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
+                               flushTimeOpsTask)
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-        , fFlushTimeOpsTask(flushTimeOpsTask)
         , fGlyphPainter(*this) {
-    fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
-    SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
-    SkASSERT(this->origin() == fWriteView.origin());
-
     SkDEBUGCODE(this->validate();)
 }
-
-#ifdef SK_DEBUG
-void GrSurfaceDrawContext::onValidate() const {
-    if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask.get());
-    }
-}
-#endif
 
 GrSurfaceDrawContext::~GrSurfaceDrawContext() {
     ASSERT_SINGLE_OWNER
@@ -369,27 +319,6 @@ GrMipmapped GrSurfaceDrawContext::mipmapped() const {
         return proxy->mipmapped();
     }
     return GrMipmapped::kNo;
-}
-
-GrOpsTask* GrSurfaceDrawContext::getOpsTask() {
-    ASSERT_SINGLE_OWNER
-    SkDEBUGCODE(this->validate();)
-
-    if (!fOpsTask || fOpsTask->isClosed()) {
-        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(this->writeSurfaceView(),
-                                                                         fFlushTimeOpsTask);
-        if (fOpsTask && fNumStencilSamples > 0) {
-            // Store the stencil values in memory upon completion of fOpsTask.
-            fOpsTask->setMustPreserveStencil();
-            // Reload the stencil buffer content at the beginning of newOpsTask.
-            // FIXME: Could the topo sort insert a task between these two that modifies the stencil
-            // values?
-            newOpsTask->setInitialStencilContent(GrOpsTask::StencilContent::kPreserved);
-        }
-        fOpsTask = std::move(newOpsTask);
-    }
-    SkASSERT(!fOpsTask->isClosed());
-    return fOpsTask.get();
 }
 
 static SkColor compute_canonical_color(const SkPaint& paint, bool lcd) {
@@ -513,99 +442,6 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
 
     for (GrSubRun* subRun : blob->subRunList()) {
         subRun->draw(clip, viewMatrix, glyphRunList, this);
-    }
-}
-
-void GrSurfaceDrawContext::discard() {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "discard", fContext);
-
-    AutoCheckFlush acf(this->drawingManager());
-
-    this->getOpsTask()->discard();
-}
-
-static void clear_to_grpaint(const SkPMColor4f& color, GrPaint* paint) {
-    paint->setColor4f(color);
-    if (color.isOpaque()) {
-        // Can just rely on the src-over blend mode to do the right thing
-        paint->setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-    } else {
-        // A clear overwrites the prior color, so even if it's transparent, it behaves as if it
-        // were src blended
-        paint->setPorterDuffXPFactory(SkBlendMode::kSrc);
-    }
-}
-
-// NOTE: We currently pass the premul color unmodified to the gpu, since we assume the GrRTC has a
-// premul alpha type. If we ever support different alpha type render targets, this function should
-// transform the color as appropriate.
-void GrSurfaceDrawContext::internalClear(const SkIRect* scissor,
-                                         const SkPMColor4f& color,
-                                         bool upgradePartialToFull) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "clear", fContext);
-
-    // There are three ways clears are handled: load ops, native clears, and draws. Load ops are
-    // only for fullscreen clears; native clears can be fullscreen or with scissors if the backend
-    // supports then. Drawing an axis-aligned rect is the fallback path.
-    GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
-    if (scissor && !scissorState.set(*scissor)) {
-        // The clear is offscreen, so skip it (normally this would be handled by addDrawOp,
-        // except clear ops are not draw ops).
-        return;
-    }
-
-    // If we have a scissor but it's okay to clear beyond it for performance reasons, then disable
-    // the test. We only do this when the clear would be handled by a load op or natively.
-    if (scissorState.enabled() && !this->caps()->performColorClearsAsDraws()) {
-        if (upgradePartialToFull && (this->caps()->preferFullscreenClears() ||
-                                     this->caps()->shouldInitializeTextures())) {
-            // TODO: wrt the shouldInitializeTextures path, it would be more performant to
-            // only clear the entire target if we knew it had not been cleared before. As
-            // is this could end up doing a lot of redundant clears.
-            scissorState.setDisabled();
-        } else {
-            // Unlike with stencil clears, we also allow clears up to the logical dimensions of the
-            // render target to overflow into any approx-fit padding of the backing store dimensions
-            scissorState.relaxTest(this->dimensions());
-        }
-    }
-
-    if (!scissorState.enabled()) {
-        // This is a fullscreen clear, so could be handled as a load op. Regardless, we can also
-        // discard all prior ops in the current task since the color buffer will be overwritten.
-        GrOpsTask* opsTask = this->getOpsTask();
-        if (opsTask->resetForFullscreenClear(this->canDiscardPreviousOpsOnFullClear()) &&
-            !this->caps()->performColorClearsAsDraws()) {
-            SkPMColor4f clearColor = this->writeSurfaceView().swizzle().applyTo(color);
-            // The op list was emptied and native clears are allowed, so just use the load op
-            opsTask->setColorLoadOp(GrLoadOp::kClear, clearColor.array());
-            return;
-        } else {
-            // Will use an op for the clear, reset the load op to discard since the op will
-            // blow away the color buffer contents
-            opsTask->setColorLoadOp(GrLoadOp::kDiscard);
-        }
-    }
-
-    // At this point we are either a partial clear or a fullscreen clear that couldn't be applied
-    // as a load op.
-    bool clearAsDraw = this->caps()->performColorClearsAsDraws() ||
-                       (scissorState.enabled() && this->caps()->performPartialClearsAsDraws());
-    if (clearAsDraw) {
-        GrPaint paint;
-        clear_to_grpaint(color, &paint);
-        this->addDrawOp(nullptr,
-                        GrFillRectOp::MakeNonAARect(fContext, std::move(paint), SkMatrix::I(),
-                                                    SkRect::Make(scissorState.rect())));
-    } else {
-        SkPMColor4f clearColor = this->writeSurfaceView().swizzle().applyTo(color);
-        this->addOp(GrClearOp::MakeColor(fContext, scissorState, clearColor.array()));
     }
 }
 
@@ -759,7 +595,7 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
             // Since the cropped quad became a rectangle which covered the bounds of the rrect,
             // we can draw the rrect directly and ignore the edge flags
             GrPaint paint;
-            clear_to_grpaint(*constColor, &paint);
+            ClearToGrPaint(constColor->array(), &paint);
             this->drawRRect(nullptr, std::move(paint), result.fAA, SkMatrix::I(), result.fRRect,
                             GrStyle::SimpleFill());
             return QuadOptimization::kSubmitted;
@@ -926,8 +762,8 @@ void GrSurfaceDrawContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
     int numRequiredSamples = this->numSamples();
     if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
         SkASSERT(this->asRenderTargetProxy()->canUseMixedSamples(*this->caps()));
-        numRequiredSamples = this->caps()->internalMultisampleCount(
-                this->asSurfaceProxy()->backendFormat());
+        numRequiredSamples =
+                this->caps()->internalMultisampleCount(this->asSurfaceProxy()->backendFormat());
     }
     SkASSERT(numRequiredSamples > 0);
 
@@ -1984,12 +1820,6 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrSurfaceDrawContext::addOp(GrOp::Owner op) {
-    GrDrawingManager* drawingMgr = this->drawingManager();
-    this->getOpsTask()->addOp(drawingMgr,
-            std::move(op), GrTextureResolveManager(drawingMgr), *this->caps());
-}
-
 void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
                                      GrOp::Owner op,
                                      const std::function<WillAddOpFn>& willAddFn) {
@@ -2017,9 +1847,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
-        GrAAType aaType = usesHWAA ? GrAAType::kMSAA :
-                                (op->hasAABloat() ? GrAAType::kCoverage :
-                                                    GrAAType::kNone);
+        GrAAType aaType;
+        if (usesHWAA) {
+            aaType = GrAAType::kMSAA;
+        } else {
+            aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
+        }
         skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
@@ -2123,33 +1956,5 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
     dstProxyView->setDstSampleType(fDstSampleType);
-    return true;
-}
-
-bool GrSurfaceDrawContext::blitTexture(GrSurfaceProxyView view,
-                                       const SkIRect& srcRect,
-                                       const SkIPoint& dstPoint) {
-    SkASSERT(view.asTextureProxy());
-    SkIRect clippedSrcRect;
-    SkIPoint clippedDstPoint;
-    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->dimensions(), view.proxy()->dimensions(),
-                                  srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
-        return false;
-    }
-
-    GrPaint paint;
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-    auto fp = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
-    if (!fp) {
-        return false;
-    }
-    paint.setColorFragmentProcessor(std::move(fp));
-
-    this->fillRectToRect(
-            nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-            SkRect::MakeXYWH(clippedDstPoint.fX, clippedDstPoint.fY, clippedSrcRect.width(),
-                             clippedSrcRect.height()),
-            SkRect::Make(clippedSrcRect));
     return true;
 }
