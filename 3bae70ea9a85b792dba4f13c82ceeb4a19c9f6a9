@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "397acda5_94c1eb24",
+        "filename": "modules/svg/tests/Text.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-16T23:05:36Z",
+      "side": 1,
+      "message": "gross, but effective :)",
+      "revId": "3bae70ea9a85b792dba4f13c82ceeb4a19c9f6a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
