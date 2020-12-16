@@ -248,6 +248,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "282d0b53_7cf409e8",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T20:11:40Z",
+      "side": 1,
+      "message": "Vulkan does have copy commands like glBlitFramebuffer, but they must be called outside of a render pass. This means that we would have to actually allocate the msaa buffer memory and also load that memory at the start of the render pass. I imagine this is true for GL as well and why they added the render to texture extensions instead of just telling people to use blit.\n\nOnce inside a render pass we are must more limited on how we can load data and currently must use a draw.",
+      "parentUuid": "e394d9cc_aa53e0c9",
+      "range": {
+        "startLine": 234,
+        "startChar": 34,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bf680c1d_fd1fcadd",
@@ -261,6 +285,30 @@
       "writtenOn": "2020-12-16T17:51:48Z",
       "side": 1,
       "message": "Idk what our style is, but I kind of like omitting argument names in cases like this where they just echo the type name.",
+      "range": {
+        "startLine": 130,
+        "startChar": 37,
+        "endLine": 130,
+        "endChar": 53
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04da679a_a3b66413",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T20:11:40Z",
+      "side": 1,
+      "message": "It did it this way since it is easier when copy and pasting updates to arguments to be able to paste something that works in declarations and definitions :)\n\nAnyways removed the names in the headers.",
+      "parentUuid": "bf680c1d_fd1fcadd",
       "range": {
         "startLine": 130,
         "startChar": 37,

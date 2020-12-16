@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ba7beb2_06b99070",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T20:11:40Z",
+      "side": 1,
+      "message": "Thanks for the reviews, there\u0027s a lot to process here. And Chris I mostly just wanted you to start reading some of our vulkan backend code so you can\u0027t get more familiar with it.",
+      "revId": "08ed247c9a19cd07255b7ccbc4505ab0277ff9cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
