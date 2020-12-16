@@ -35,6 +35,7 @@ static sk_sp<GrDirectContext> make_mock_context() {
 
     GrContextOptions ctxOptions;
     ctxOptions.fGpuPathRenderers = GpuPathRenderers::kTessellation;
+    ctxOptions.fSuppressTessellationShaders = false;
 
     return GrDirectContext::MakeMock(&mockOptions, ctxOptions);
 }
