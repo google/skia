@@ -90,7 +90,7 @@ private:
 constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
 class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) final {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) final {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrPipelineDynamicStateTestProcessor& mp =
@@ -167,10 +167,10 @@ private:
                                   flushState->renderPassBarriers(),
                                   flushState->colorLoadOp());
 
-        flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
+        flushState->bindPipeline2(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
         for (int i = 0; i < 4; ++i) {
             if (fScissorTest == GrScissorTest::kEnabled) {
-                flushState->setScissorRect(kDynamicScissors[i]);
+                flushState->setScissorRect2(kDynamicScissors[i]);
             }
             flushState->drawMesh(meshes[i]);
         }

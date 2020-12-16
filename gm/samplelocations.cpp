@@ -193,7 +193,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 };
 
 GrGLSLPrimitiveProcessor* SampleLocationsTestProcessor::createGLSLInstance(
@@ -294,7 +294,7 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, SkRect::MakeIWH(200, 200));
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, SkRect::MakeIWH(200, 200));
         flushState->bindBuffers(nullptr, nullptr, nullptr);
         flushState->drawInstanced(200*200, 0, 4, 0);
     }

@@ -94,7 +94,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
                               flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
 
-    flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
+    flushState->bindPipelineAndScissorClip3(programInfo, this->bounds());
     flushState->bindTextures(programInfo.primProc(), nullptr, programInfo.pipeline());
 
     GrStencilSettings stencil;

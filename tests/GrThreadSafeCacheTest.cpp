@@ -582,7 +582,7 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        flushState->bindPipeline(*fProgramInfo, SkRect::MakeIWH(fWH, fWH));
+        flushState->bindPipeline2(*fProgramInfo, SkRect::MakeIWH(fWH, fWH));
         flushState->bindBuffers(nullptr, nullptr, fVertexData->refGpuBuffer());
         flushState->draw(4, 0);
     }

@@ -155,7 +155,7 @@ public:
         fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc, SkIPoint viewportOffset) override {
         const GrDistanceFieldA8TextGeoProc& dfa8gp = proc.cast<GrDistanceFieldA8TextGeoProc>();
 
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -439,8 +439,12 @@ public:
         fragBuilder->codeAppendf("%s = half4(val);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc) override {
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
+                 SkIPoint viewportOffset) override {
         const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
+
+        SkMatrix tmp = dfpgp.matrix();
+        tmp.preTranslate(viewportOffset.fX, viewportOffset.fY);
 
         // We always set the matrix uniform; it's either used to transform from local to device
         // for the output position, or from device to local for the local coord variable.
@@ -746,7 +750,8 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& processor) override {
+                 const GrPrimitiveProcessor& processor,
+                 SkIPoint viewportOffset) override {
         SkASSERT(fDistanceAdjustUni.isValid());
 
         const GrDistanceFieldLCDTextGeoProc& dflcd = processor.cast<GrDistanceFieldLCDTextGeoProc>();
