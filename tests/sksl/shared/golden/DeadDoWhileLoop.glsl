@@ -1,7 +1,10 @@
 
 out vec4 sk_FragColor;
 void main() {
-    do {
-        sk_FragColor = vec4(1.0);
-    } while (false);
+    for (; ; ) {
+        {
+            sk_FragColor = vec4(1.0);
+        }
+        if (!false) break;
+    }
 }

@@ -1,3 +1,8 @@
+### Compilation failed:
+
+error: SPIR-V validation error: A block must end with a branch instruction.
+  %15 = OpLabel
+
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -30,12 +35,19 @@ OpBranch %13
 OpLoopMerge %17 %16 None
 OpBranch %14
 %14 = OpLabel
-OpStore %sk_FragColor %18
-OpBranch %15
 %15 = OpLabel
-OpBranchConditional %false %16 %17
+OpStore %sk_FragColor %18
+%20 = OpLogicalNot %bool %false
+OpSelectionMerge %23 None
+OpBranchConditional %20 %22 %23
+%22 = OpLabel
+OpBranch %17
+%23 = OpLabel
+OpBranch %16
 %16 = OpLabel
 OpBranch %13
 %17 = OpLabel
 OpReturn
 OpFunctionEnd
+
+1 error
