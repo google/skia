@@ -66,6 +66,14 @@ GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
 }
 #endif
 
+GrBackendTexture SkImageGenerator::getBackendTexture() const {
+    return this->onGetBackendTexture();
+}
+
+GrBackendTexture SkImageGenerator::onGetBackendTexture() const {
+    return {};
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkBitmap.h"

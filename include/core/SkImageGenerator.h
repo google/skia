@@ -15,6 +15,7 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/gpu/GrBackendSurface.h"
 
 class GrRecordingContext;
 class GrSurfaceProxyView;
@@ -150,6 +151,8 @@ public:
 
 #endif
 
+    GrBackendTexture getBackendTexture() const;
+
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
@@ -184,6 +187,7 @@ protected:
     virtual GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                                  const SkIPoint&, GrMipmapped, GrImageTexGenPolicy);
 #endif
+    virtual GrBackendTexture onGetBackendTexture() const;
 
 private:
     const SkImageInfo fInfo;

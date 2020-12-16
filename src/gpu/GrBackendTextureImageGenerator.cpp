@@ -224,3 +224,7 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         return {std::move(copy), fSurfaceOrigin, readSwizzle};
     }
 }
+
+GrBackendTexture GrBackendTextureImageGenerator::onGetBackendTexture() const {
+    return fBackendTexture;
+}
