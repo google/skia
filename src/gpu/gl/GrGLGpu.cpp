@@ -2203,8 +2203,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
         fHWBoundRenderTargetUniqueID = rtID;
         this->flushViewport(target->width(), target->height());
     }
-    if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0 &&
-        fBoundDrawFramebuffer == 0) {
+    if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0) {
         // The driver forgets the correct scissor state when using FBO 0.
         if (!fHWScissorSettings.fRect.isInvalid()) {
             const GrNativeRect& r = fHWScissorSettings.fRect;
