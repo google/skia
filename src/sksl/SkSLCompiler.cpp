@@ -1629,7 +1629,7 @@ bool Compiler::scanCFG(FunctionDefinition& f, ProgramUsage* usage) {
     // check for unreachable code
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         const BasicBlock& block = cfg.fBlocks[i];
-        if (i != cfg.fStart && !block.fIsReachable && block.fNodes.size()) {
+        if (!block.fIsReachable && !block.fAllowUnreachable && block.fNodes.size()) {
             int offset;
             const BasicBlock::Node& node = block.fNodes[0];
             if (node.isStatement()) {
