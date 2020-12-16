@@ -191,6 +191,15 @@ def _CheckGNFormatted(input_api, output_api):
           '`%s` failed, try\n\t%s' % (' '.join(cmd), fix)))
   return results
 
+
+# rmistry
+def _CheckGitConflictMarkers(input_api, output_api):
+  for f in input_api.AffectedFiles(include_deletes=False):
+    print f
+  # return []
+  return [output_api.PresubmitError('Git conflict markers found in %s' % 'here')]
+
+
 def _CheckIncludesFormatted(input_api, output_api):
   """Make sure #includes in files we're changing have been formatted."""
   files = [str(f) for f in input_api.AffectedFiles() if f.Action() != 'D']
@@ -280,6 +289,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckDEPSValid(input_api, output_api))
   results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckGNFormatted(input_api, output_api))
+  results.extend(_CheckGitConflictMarkers(input_api, output_api))
   return results
 
 
