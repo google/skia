@@ -16,7 +16,24 @@
 #include "include/core/SkSerialProcs.h"
 
 struct SkSharingSerialContext {
+    // --- Data and serialization function for first pass --- //
+
+    // A map from uniqueID of images referenced by comands to non-texture images
+    // collected at the end of each frame.
+    std::unordered_map<uint32_t, sk_sp<SkImage>> fNonTexMap;
+
+    // one or more first serialization passes can be made with this proc fn to collect
+    // non-texture images in the passed SkSharingSerialContext.
+    // The context object is then meant to be
+    // reused in a final serialization pass in which collected non-texture images
+    // are use in place of their originals (which are expected to be no longer valid)
+    static sk_sp<SkData> collectNonTextureImages(SkImage* img, void* ctx);
+
+
+    // --- Data and serialization function for second pass --- //
+
     // A map from the ids from SkImage::uniqueID() to ids used within the file
+    // The keys are ids of original images, not of non-texture copies
     std::unordered_map<uint32_t, uint32_t> fImageMap;
 
     // A serial proc that shares images between subpictures
