@@ -106,7 +106,7 @@ private:
 };
 
 class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const ClockwiseTestProcessor& proc = args.fGP.cast<ClockwiseTestProcessor>();
@@ -220,7 +220,7 @@ private:
             fProgramInfo = this->createProgramInfo(flushState);
         }
 
-        flushState->bindPipeline(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
+        flushState->bindPipeline2(*fProgramInfo, SkRect::MakeXYWH(0, fY, 100, 100));
         flushState->bindBuffers(nullptr, nullptr, std::move(fVertexBuffer));
         flushState->draw(4, 0);
     }

@@ -22,7 +22,7 @@ public:
     void emitCode(EmitArgs&) override;
 
 protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&, SkIPoint viewportOffset) override;
 
 private:
     SkImage::CubicResampler fKernel;
@@ -105,7 +105,8 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
 #include "src/shaders/SkImageShader.h"
 
 void GrBicubicEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
-                                      const GrFragmentProcessor& fp) {
+                                      const GrFragmentProcessor& fp,
+                                      SkIPoint viewportOffset) {
     auto& bicubicEffect = fp.cast<GrBicubicEffect>();
 
     if (fKernel.B != bicubicEffect.fKernel.B || fKernel.C != bicubicEffect.fKernel.C) {

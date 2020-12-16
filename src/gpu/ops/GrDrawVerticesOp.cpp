@@ -317,7 +317,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const VerticesGP& vgp = gp.cast<VerticesGP>();
 
             this->setTransform(pdman, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
@@ -738,7 +739,7 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
         return;
     }
 
-    flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+    flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }

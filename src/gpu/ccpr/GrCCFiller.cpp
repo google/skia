@@ -545,7 +545,7 @@ void GrCCFiller::drawPrimitives(
         SkASSERT(instanceCount > 0);
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
-        renderPass->setScissorRect(SkIRect::MakeXYWH(0, 0, drawBounds.width(),
+        renderPass->setScissorRect1(SkIRect::MakeXYWH(0, 0, drawBounds.width(),
                                                      drawBounds.height()));
         proc.drawInstances(renderPass, instanceCount, baseInstance);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
@@ -563,7 +563,7 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
-        renderPass->setScissorRect(scissorSubBatch.fScissor);
+        renderPass->setScissorRect1(scissorSubBatch.fScissor);
         proc.drawInstances(renderPass, instanceCount, baseScissorInstance + startIndex);
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }

@@ -660,7 +660,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
@@ -867,7 +867,7 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override;
 
 private:
     UniformHandle fParamUniform;
@@ -941,7 +941,8 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                    const GrPrimitiveProcessor& processor) {
+                                    const GrPrimitiveProcessor& processor,
+                                    SkIPoint viewportOffset) {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, dce.color().vec());
@@ -1078,7 +1079,7 @@ public:
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override;
 
 private:
     SkPMColor4f   fColor;
@@ -1168,7 +1169,8 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                  const GrPrimitiveProcessor& processor) {
+                                  const GrPrimitiveProcessor& processor,
+                                  SkIPoint viewportOffset) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, de.color().vec());

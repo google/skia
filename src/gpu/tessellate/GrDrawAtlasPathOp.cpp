@@ -98,7 +98,8 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrPrimitiveProcessor& primProc) override {
+                 const GrPrimitiveProcessor& primProc,
+                 SkIPoint viewportOffset) override {
         const SkISize& dimensions = primProc.cast<DrawAtlasPathShader>().fAtlasDimensions;
         pdman.set2f(fAtlasAdjustUniform, 1.f / dimensions.width(), 1.f / dimensions.height());
     }
@@ -183,7 +184,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
                               &shader, GrPrimitiveType::kTriangleStrip, 0,
                               state->renderPassBarriers(), state->colorLoadOp());
 
-    state->bindPipelineAndScissorClip(programInfo, this->bounds());
+    state->bindPipelineAndScissorClip3(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);
     state->bindBuffers(nullptr, std::move(fInstanceBuffer), nullptr);
     state->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);

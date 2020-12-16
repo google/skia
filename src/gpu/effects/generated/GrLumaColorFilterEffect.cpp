@@ -36,7 +36,8 @@ return half4(0.0, 0.0, 0.0, luma);
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {}
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {}
 };
 GrGLSLFragmentProcessor* GrLumaColorFilterEffect::onCreateGLSLInstance() const {
     return new GrGLSLLumaColorFilterEffect();
