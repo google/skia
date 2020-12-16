@@ -299,6 +299,11 @@ bool ParagraphImpl::computeCodeUnitProperties() {
 
 // Clusters in the order of the input text
 void ParagraphImpl::buildClusterTable() {
+    int cluster_count = 1;
+    for (auto& run : fRuns) {
+        cluster_count += run.isPlaceholder() ? 1 : run.size();
+    }
+    fClusters.reserve_back(cluster_count);
 
     // Walk through all the run in the direction of input text
     for (auto& run : fRuns) {
@@ -314,7 +319,6 @@ void ParagraphImpl::buildClusterTable() {
             fCodeUnitProperties[run.textRange().start] |= CodeUnitFlags::kSoftLineBreakBefore;
             fCodeUnitProperties[run.textRange().end] |= CodeUnitFlags::kSoftLineBreakBefore;
         } else {
-            fClusters.reserve_back(fClusters.size() + run.size());
             // Walk through the glyph in the direction of input text
             run.iterateThroughClustersInTextOrder([runIndex, this](size_t glyphStart,
                                                                    size_t glyphEnd,
