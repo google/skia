@@ -577,6 +577,56 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     }
 }
 
+struct InlineVariable {
+    std::unique_ptr<Statement> fVarDecl;
+    std::unique_ptr<Expression> fVarReference;
+};
+
+Inliner::InlineVariable Inliner::makeInlineVariable(const String& baseName,
+                                                    const Type* type,
+                                                    SymbolTable* symbolTable,
+                                                    Modifiers modifiers,
+                                                    bool isBuiltinCode,
+                                                    std::unique_ptr<Expression>* initialValue) {
+    // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
+    // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
+    // somewhere during compilation.
+    if (type == fContext->fFloatLiteral_Type.get()) {
+        SkDEBUGFAIL("found a $floatLiteral type while inlining");
+        type = fContext->fFloat_Type.get();
+    } else if (type == fContext->fIntLiteral_Type.get()) {
+        SkDEBUGFAIL("found an $intLiteral type while inlining");
+        type = fContext->fInt_Type.get();
+    }
+
+    // Provide our new variable with a unique name, and add it to our symbol table.
+    const String* namePtr = symbolTable->takeOwnershipOfString(
+            std::make_unique<String>(this->uniqueNameForInlineVar(baseName, symbolTable)));
+    StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
+
+    // Create our new variable and add it to the symbol table.
+    InlineVariable result;
+    result.fVarSymbol =
+            symbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
+                                                        fModifiers->addToPool(Modifiers()),
+                                                        nameFrag,
+                                                        type,
+                                                        isBuiltinCode,
+                                                        Variable::Storage::kLocal,
+                                                        initialValue->get()));
+
+    // Prepare the variable declaration (taking extra care with `out` params to not clobber any
+    // initial value).
+    if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
+        result.fVarDecl = std::make_unique<VarDeclaration>(result.fVarSymbol, type, /*arraySize=*/0,
+                                                           (*initialValue)->clone());
+    } else {
+        result.fVarDecl = std::make_unique<VarDeclaration>(result.fVarSymbol, type, /*arraySize=*/0,
+                                                           std::move(*initialValue));
+    }
+    return result;
+}
+
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                          std::shared_ptr<SymbolTable> symbolTable,
                                          const FunctionDeclaration* caller) {
@@ -614,55 +664,16 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     inlinedBody.children().push_back(std::make_unique<InlineMarker>(&call->function()));
 
-    auto makeInlineVar =
-            [&](const String& baseName, const Type* type, Modifiers modifiers,
-                std::unique_ptr<Expression>* initialValue) -> std::unique_ptr<Expression> {
-        // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
-        // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
-        // somewhere during compilation.
-        if (type == fContext->fFloatLiteral_Type.get()) {
-            SkDEBUGFAIL("found a $floatLiteral type while inlining");
-            type = fContext->fFloat_Type.get();
-        } else if (type == fContext->fIntLiteral_Type.get()) {
-            SkDEBUGFAIL("found an $intLiteral type while inlining");
-            type = fContext->fInt_Type.get();
-        }
-
-        // Provide our new variable with a unique name, and add it to our symbol table.
-        const String* namePtr = symbolTable->takeOwnershipOfString(std::make_unique<String>(
-                this->uniqueNameForInlineVar(baseName, symbolTable.get())));
-        StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
-
-        // Add our new variable to the symbol table.
-        const Variable* variableSymbol = symbolTable->add(std::make_unique<Variable>(
-                                                 /*offset=*/-1, fModifiers->addToPool(Modifiers()),
-                                                 nameFrag, type, caller->isBuiltin(),
-                                                 Variable::Storage::kLocal, initialValue->get()));
-
-        // Prepare the variable declaration (taking extra care with `out` params to not clobber any
-        // initial value).
-        std::unique_ptr<Statement> variable;
-        if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
-            variable = std::make_unique<VarDeclaration>(variableSymbol, type, /*arraySize=*/0,
-                                                        (*initialValue)->clone());
-        } else {
-            variable = std::make_unique<VarDeclaration>(variableSymbol, type, /*arraySize=*/0,
-                                                        std::move(*initialValue));
-        }
-
-        // Add the new variable-declaration statement to our block of extra statements.
-        inlinedBody.children().push_back(std::move(variable));
-
-        return std::make_unique<VariableReference>(offset, variableSymbol);
-    };
-
     // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
     if (function.declaration().returnType() != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        resultExpr = makeInlineVar(String(function.declaration().name()),
-                                   &function.declaration().returnType(),
-                                   Modifiers{}, &noInitialValue);
+        InlineVariable var = this->makeInlineVariable(function.declaration().name(),
+                                                      &function.declaration().returnType(),
+                                                      symbolTable.get(), Modifiers{},
+                                                      caller->isBuiltin(), &noInitialValue);
+        inlinedBody.children().push_back(std::move(var.fVarDecl));
+        resultExpr = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
    }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -682,13 +693,14 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 continue;
             }
         }
-
         if (isOutParam) {
             argsToCopyBack.push_back(i);
         }
-
-        varMap[param] = makeInlineVar(String(param->name()), &arguments[i]->type(),
-                                      param->modifiers(), &arguments[i]);
+        InlineVariable var = this->makeInlineVariable(param->name(), &arguments[i]->type(),
+                                                      symbolTable.get(), param->modifiers(),
+                                                      caller->isBuiltin(), &arguments[i]);
+        inlinedBody.children().push_back(std::move(var.fVarDecl));
+        varMap[param] = std::make_unique<VariableReference>(/*offset=*/-1, var.fVarSymbol);
     }
 
     const Block& body = function.body()->as<Block>();
@@ -701,14 +713,40 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                                 *stmt, caller->isBuiltin()));
     }
     if (hasEarlyReturn) {
-        // Since we output to backends that don't have a goto statement (which would normally be
-        // used to perform an early return), we fake it by wrapping the function in a
-        // do { } while (false); and then use break statements to jump to the end in order to
-        // emulate a goto.
-        inlinedBody.children().push_back(std::make_unique<DoStatement>(
+        // int _1_loop = 0;
+        auto forSymbolTable = std::make_shared<SymbolTable>(symbolTable, caller->isBuiltin());
+        const Type* intType = fContext->fInt_Type.get();
+        std::unique_ptr<Expression> initialValue = std::make_unique<IntLiteral>(/*offset=*/-1,
+                                                                                /*value=*/0,
+                                                                                intType);
+        InlineVariable loopVar = this->makeInlineVariable("loop", intType, forSymbolTable.get(),
+                                                          Modifiers{}, caller->isBuiltin(),
+                                                          &initialValue);
+
+        // _1_loop < 1;
+        std::unique_ptr<Expression> test = std::make_unique<BinaryExpression>(
                 /*offset=*/-1,
-                std::move(inlineBlock),
-                std::make_unique<BoolLiteral>(*fContext, offset, /*value=*/false)));
+                std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol),
+                Token::Kind::TK_LT,
+                std::make_unique<IntLiteral>(/*offset=*/-1, /*value=*/1, intType),
+                fContext->fBool_Type.get());
+
+        // _1_loop++
+        std::unique_ptr<Expression> increment = std::make_unique<PostfixExpression>(
+                std::make_unique<VariableReference>(/*offset=*/-1, loopVar.fVarSymbol,
+                                                    VariableReference::RefKind::kReadWrite),
+                Token::Kind::TK_PLUSPLUS);
+
+        // Since we output to backends that don't have a goto statement (which would normally be
+        // used to perform an early return), we fake it by wrapping the function in a single-
+        // iteration for loop, and use a break statement to jump to the end of the loop prematurely.
+        inlinedBody.children().push_back(std::make_unique<ForStatement>(/*offset=*/-1,
+                                                                        std::move(loopVar.fVarDecl),
+                                                                        std::move(test),
+                                                                        std::move(increment),
+                                                                        std::move(inlineBlock),
+                                                                        std::move(forSymbolTable)));
+        printf("%s\n", inlinedBody.children().back()->description().c_str());
     } else {
         // No early returns, so we can just dump the code in. We still need to keep the block so we
         // don't get name conflicts with locals.
