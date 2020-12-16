@@ -1,0 +1,857 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4006b32c_e292d25e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Ok i know I have a zillion notes here, but this basially lgtm.\n\nThe one thing I really want to clear up before we land is whether ternary ?: always evaluates its arguments.  That throws me coming from C/C++.",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "984efacc_d825a56b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Does it make sense to rename count and size() to slots and slots()?  That\u0027s the term we\u0027re going with to describe skvm::Vals per Value, right?\n\n(I find it helps readability to hew closely to as small a set of vocab terms as possible in a big whump of code like this.)",
+      "range": {
+        "startLine": 67,
+        "startChar": 26,
+        "endLine": 67,
+        "endChar": 31
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb361169_53960915",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Might try having this mutating operator[] return something more fluid that can receive skvm::Val, skvm::F32, skvm::I32?\nThere\u0027s a lot of `value[i] \u003d (some complicated expression).id` below that could simplify, in the same sort\nof way we support Value(F32) and Value(I32) constructors.",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b69ff072_5f08f401",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Similarly, I think by how we\u0027re using it below, maybe s/Location/Slot/g through the file?",
+      "range": {
+        "startLine": 164,
+        "startChar": 10,
+        "endLine": 164,
+        "endChar": 18
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16122ce0_dfbda473",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Might even consider fSlots?",
+      "range": {
+        "startLine": 245,
+        "startChar": 27,
+        "endLine": 245,
+        "endChar": 37
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50d2b859_a59c3b33",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Can any of these members be const?  It might help the ones that will mutate as we go along stand out.",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d5d5d2d_d649b8f9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "I think if you nest this type inside SkVMGenerator, it comes in as a friend implicitly?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4e7a3ab_50162b75",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Is this an SkSL style thing?  Would have expected base_number_kind().  (Ditto on down.)",
+      "range": {
+        "startLine": 280,
+        "startChar": 24,
+        "endLine": 280,
+        "endChar": 38
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc2f9d61_ffa0b8d0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "This might be clearer if we specifically mention fVariables and/or fVariableMap.\nGoing in it\u0027s a little unclear whether we\u0027re modifying fVariables, fVariableMap, or both,\nespecially after just having updated only fVariables with the uniforms.",
+      "range": {
+        "startLine": 386,
+        "startChar": 49,
+        "endLine": 386,
+        "endChar": 69
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de2d812c_ec17fce0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Have I got this right?\n\n  // For most variables, fVariableMap stores an index into fVariables, but\n  // for fragment processors (child shaders), fVariableMap stores the index to pass to fSampleChild().",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6db0cef0_b5bd3798",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Maybe a brief note about what these are and why they need no mapping?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1130a1fb_995dc2ab",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Is there a particular reason we have to insert all the uniforms up front, and not insert them here like we\u0027d do for the else path?\nDo we rely on the uniforms being at the front or something?  I\u0027d think if the uniforms have different SlotCount()s, we\u0027d have to use fVariableMap to look them up anyway right?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d70f0a2_3875a2c0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "This feels like something we can assert?  If this goes wrong, it\u0027s just you or I sizing an array wrong, right?  Not a user providing a bad program?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1566ca01_ee8413c6",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Same here?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf3fe37b_9dcb0824",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "I think we\u0027ve already asserted this is non-null.  Maybe let\u0027s store it in SkVMGenerator as a const\u0026?",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 5
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f9f18a6_d756a7c9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Let\u0027s make writeStore() return rhs, so we can write things like\n\n    return this-\u003ewriteStore(left, this-\u003ewriteExpression(right));\n\n?  I think a few areas below would tighten up nicely if we did, and make the cases where we don\u0027t want to return rhs (e.g. x++) stand out.",
+      "range": {
+        "startLine": 513,
+        "startChar": 7,
+        "endLine": 518,
+        "endChar": 19
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a74f6b7b_4840f713",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Let\u0027s assert(!isAssignment) for these two cases?  It looks a bit like we forgot about it.",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4d26580_9e1cf377",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Might read simpler skipping names for Values?\n\n    skvm::I32 lVal \u003d i32(this-\u003ewriteExpression(left));\n    AutoMask shortCircuit(this, lVal);\n    skvm::I32 rVal \u003d i32(this-\u003ewriteExpression(right));\n    return lVal \u0026 rVal;",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51a8ae30_9a71b875",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "It almost seems like we\u0027re forced to give these shift ops special treatment here because they\u0027re not really binary expressions.  I wonder if it makes more sense for now to represent these shift-by-constants as unary expressions, reserving binary shift expressions for where we\u0027ve really got two variables?  Those two-variable shifts would fall into the no-special-treatment path below right?",
+      "range": {
+        "startLine": 549,
+        "startChar": 7,
+        "endLine": 550,
+        "endChar": 35
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1411c39_8c2147e2",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Can we explain how they\u0027re simpler?\n\n   ... always evaluate both sides of the expression, and don\u0027t require any compile-time constants.",
+      "range": {
+        "startLine": 574,
+        "startChar": 28,
+        "endLine": 574,
+        "endChar": 39
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aced5a47_8bfd3f9c",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Maybe clearer to split this like,\n\n    if (op \u003d\u003d Token::Kind::TK_STAR\n        \u0026\u0026 lVecOrMtx \u0026\u0026 rVecOrMtx \u0026\u0026 !(lType.isVector() \u0026\u0026 rType.isVector())) {",
+      "range": {
+        "startLine": 579,
+        "startChar": 8,
+        "endLine": 580,
+        "endChar": 50
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8b06a9a_b1341cfa",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "I think it might be easier to follow the flow if binary returned result instead of modifying it?",
+      "range": {
+        "startLine": 609,
+        "startChar": 4,
+        "endLine": 609,
+        "endChar": 24
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e431a13c_45fb26d7",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "I have been curious about the use of unsigned myself.  It\u0027s not hard to flesh out if we need more thorough unsigned support.  What do we need for our minimum spec?",
+      "range": {
+        "startLine": 611,
+        "startChar": 78,
+        "endLine": 613,
+        "endChar": 49
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeb50791_db9329d0",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "try left/right or l/r instead of l_id/r_id?",
+      "range": {
+        "startLine": 616,
+        "startChar": 22,
+        "endLine": 617,
+        "endChar": 26
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7b7b0d1_3e4d0c21",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Are we actually expecting these to make their way through to here?  Feels again more like something I\u0027d want to check at a language level, and have these unsupported_?() assert rather than error.",
+      "range": {
+        "startLine": 623,
+        "startChar": 4,
+        "endLine": 631,
+        "endChar": 6
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf166801_77a9fa43",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Do we need to support integer division / modulus for our spec?  It\u0027s not something any CPU vector instruction set offers.",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eff3bb58_6788dffb",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Is the idea LOGICALXOR is for bools, BITWISE_XOR for ints?\n\nMaybe just fall one through to the other?",
+      "range": {
+        "startLine": 692,
+        "startChar": 29,
+        "endLine": 692,
+        "endChar": 39
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85cea506_f9c0ee81",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "These are of course trivial to support for floats if you want.",
+      "range": {
+        "startLine": 692,
+        "startChar": 0,
+        "endLine": 709,
+        "endChar": 0
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3093c422_1cb1c3f9",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "This one\u0027s our bug if we get here and haven\u0027t handled some newly added operator?  Feels like an assert?\n\nIs there a list of operators still TODO that we can explicitly call out instead of lumping them all under default?\nOr is this mostly to cover any non-binary operators in the TK_FOO enum?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "712dc3c8_093b5210",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Might try inverting the logic with early-return for multi argument?\n\n   if (c.arguments().size() \u003e 1)  {\n        // Multi-argument constructors just aggregate their arguments, with no conversion:\n        // NOTE: This (SkSL rule) is actually more restrictive than GLSL.\n        Value result;\n        for (const auto \u0026arg : c.arguments()) {\n            Value tmp \u003d this-\u003ewriteExpression(*arg);\n            result.fVals.push_back_n(tmp.size(), tmp.fVals.begin());\n        }\n        return result;\n   }\n   ...",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dca67646_11f5b2c4",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Do we not know the size result will be from c?",
+      "range": {
+        "startLine": 799,
+        "startChar": 13,
+        "endLine": 799,
+        "endChar": 21
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "def77449_caadede1",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "See how you like grouping * tighter than ±, like you\u0027ve done in 2x2?",
+      "range": {
+        "startLine": 867,
+        "startChar": 28,
+        "endLine": 867,
+        "endChar": 44
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6edb4bd3_585bc5b1",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Maybe note which intrinsic(s) this corresponds to?",
+      "range": {
+        "startLine": 945,
+        "startChar": 28,
+        "endLine": 945,
+        "endChar": 29
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a343e3ff_2025dae2",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Let\u0027s move all the args and kMaxArgs stuff down below kSample?\nWe don\u0027t use the args array until that general case where we explain the max is three, etc.",
+      "range": {
+        "startLine": 947,
+        "startChar": 0,
+        "endLine": 949,
+        "endChar": 0
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c3bfc64_c901d62d",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1004,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "This is just to handle scalars right?  Might be clearer as\n\n    args[0].size() \u003d\u003d 1 ? 0 : i\n\nAs is it kind of reads like we can add {1,2,3} to {1,2} and get {2,4,5}.\n(I do see all the size() asserts, of course, but once you get here it still reads weird.)",
+      "range": {
+        "startLine": 1004,
+        "startChar": 46,
+        "endLine": 1004,
+        "endChar": 77
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "323b15d3_5ab3a1ae",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "maybe tight y*skvm::floor(...) here?",
+      "range": {
+        "startLine": 1065,
+        "startChar": 68,
+        "endLine": 1065,
+        "endChar": 73
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1dcd119_7a5b51cf",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "If we usually return this-\u003ewriteStore(...), then...",
+      "range": {
+        "startLine": 1180,
+        "startChar": 11,
+        "endLine": 1181,
+        "endChar": 23
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bc27977_35d68eaf",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "... I think it\u0027d make places like this where we don\u0027t evaluate to the written value stand out as more unusual.",
+      "range": {
+        "startLine": 1223,
+        "startChar": 12,
+        "endLine": 1224,
+        "endChar": 23
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9526983a_3523179a",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "What are the rules of short circuiting ?: in SkSL?  We don\u0027t need to mask when evaluating ifTrue and ifFalse?",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf8cbb3e_24e5d22b",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "_are_ there other side effects?",
+      "range": {
+        "startLine": 1332,
+        "startChar": 29,
+        "endLine": 1332,
+        "endChar": 47
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9cd73b6_9ae67586",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T20:00:29Z",
+      "side": 1,
+      "message": "Is an uninitialized variable something we really want to allow in the language?\nLet\u0027s require an explicit value for everything, or default to 0?",
+      "range": {
+        "startLine": 1349,
+        "startChar": 3,
+        "endLine": 1349,
+        "endChar": 23
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
