@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3befcc01_81edfa5d",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-16T18:16:01Z",
+      "side": 1,
+      "message": "We need to pretend that we don\u0027t know the details of UText, i.e. treat it as an \"incomplete type\" (see the errors in https://googleplex-android-review.git.corp.google.com/c/platform/external/skia/+/13161147/1#message-9558875f3df1af96b0c28f8df7874a914a8c61f6). So if we needed it, this would be a pointer to UText, and we\u0027d need to call the method that closes it (I think \"utext_close\"?) in the destructor.\n\nThat said, you don\u0027t actually need this. You pass it to utext_openUTF8, but you can just pass nullptr, like you do in other call sites.",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 15
+      },
+      "revId": "bce72edb2dac13c1d562ee65c43407c64691adc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0dcafb2b_8bc19db6",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-16T18:16:01Z",
+      "side": 1,
+      "message": "This isn\u0027t defined by the NDK, so we need to remove all references to it (either completely, or using #ifdef if we still want it for non-NDK builds).",
+      "range": {
+        "startLine": 144,
+        "startChar": 16,
+        "endLine": 144,
+        "endChar": 33
+      },
+      "revId": "bce72edb2dac13c1d562ee65c43407c64691adc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3944faf_2fb5c51d",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-16T18:16:01Z",
+      "side": 1,
+      "message": "Based on the documentation I found [1], utext_openUTF8 can accept a nullptr for that first parameter (like you do elsewhere in this file). That\u0027s what you want here, too, because we need it to let it allocate and construct the UText.\n\n[1]: https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/utext_8h.html#a6e3bbaca4b8512ea4ccffb53b6bbc615",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 80
+      },
+      "revId": "bce72edb2dac13c1d562ee65c43407c64691adc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
