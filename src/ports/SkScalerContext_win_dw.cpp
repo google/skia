@@ -382,10 +382,6 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
 SkScalerContext_DW::~SkScalerContext_DW() {
 }
 
-unsigned SkScalerContext_DW::generateGlyphCount() {
-    return fGlyphCount;
-}
-
 bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;

@@ -328,7 +328,6 @@ private:
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
 
-    const int fNumberOfGlyphs;
     const SkAutoDescriptor fDescriptor;
     const SkDiscardableHandleId fDiscardableHandleId;
 
@@ -364,8 +363,7 @@ RemoteStrike::RemoteStrike(
         const SkDescriptor& descriptor,
         std::unique_ptr<SkScalerContext> context,
         uint32_t discardableHandleId)
-        : fNumberOfGlyphs(context->getGlyphCount())
-        , fDescriptor{descriptor}
+        : fDescriptor{descriptor}
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.

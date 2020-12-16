@@ -535,7 +535,6 @@ public:
     }
 
 protected:
-    unsigned generateGlyphCount() override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
@@ -1095,10 +1094,6 @@ FT_Error SkScalerContext_FreeType::setupSize() {
     }
     FT_Set_Transform(fFace, &fMatrix22, nullptr);
     return 0;
-}
-
-unsigned SkScalerContext_FreeType::generateGlyphCount() {
-    return fFace->num_glyphs;
 }
 
 bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {

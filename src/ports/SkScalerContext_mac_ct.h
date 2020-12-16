@@ -44,7 +44,6 @@ public:
     SkScalerContext_Mac(sk_sp<SkTypeface_Mac>, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
-    unsigned generateGlyphCount(void) override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
@@ -106,7 +105,6 @@ private:
     CGAffineTransform fInvTransform;
 
     SkUniqueCFRef<CGFontRef> fCGFont;
-    uint16_t fGlyphCount;
     const bool fDoSubPosition;
 
     friend class Offscreen;

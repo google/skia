@@ -183,8 +183,6 @@ protected:
         return static_cast<TestSVGTypeface*>(this->getTypeface());
     }
 
-    unsigned generateGlyphCount() override { return this->getTestSVGTypeface()->countGlyphs(); }
-
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestSVGTypeface()->getAdvance(glyph);
 

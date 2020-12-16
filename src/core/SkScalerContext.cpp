@@ -1163,9 +1163,6 @@ SkScalerContext* SkScalerContext::MakeEmptyContext(
                 : SkScalerContext(std::move(typeface), effects, desc) {}
 
     protected:
-        unsigned generateGlyphCount() override {
-            return 0;
-        }
         bool generateAdvance(SkGlyph* glyph) override {
             glyph->zeroMetrics();
             return true;
