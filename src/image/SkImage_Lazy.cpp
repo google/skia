@@ -193,6 +193,10 @@ bool SkImage_Lazy::onIsValid(GrRecordingContext* context) const {
     return generator->isValid(context);
 }
 
+GrBackendTexture SkImage_Lazy::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                   GrSurfaceOrigin* origin) const {
+    return fSharedGenerator->fGenerator->getBackendTexture();
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
