@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b780123_8d0106f7",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 1343,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 0,
+      "message": "if we are no longer using this to compile this in then we need to drop this variable from all our gn and gni files.",
+      "range": {
+        "startLine": 1343,
+        "startChar": 6,
+        "endLine": 1343,
+        "endChar": 35
+      },
+      "revId": "1d2b075ce060e5851532b29fa8327658d5223837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

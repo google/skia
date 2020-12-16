@@ -1,0 +1,148 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "570a2b2d_b4fa8cd1",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "why doesn\u0027t this library get the source transitively from utils.gni?",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf2b05dd_09cc8eb2",
+        "filename": "src/utils/SkMultiPictureDocument.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "Does PDF even use MultiPictureDocument? I thought they used SkDocument directly.",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ef77e9e_90125367",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "We also own SkWriteBuffer so we can just accommodate this use case instead of hacking around it.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1730b13_7e00cdb5",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "this assumes that you used a SkSharingSerialContext and you have no way to enforce that is the case.",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 85
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ffe73b9_22de0c08",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "\u003e \"proceeed\" is a possible misspelling of \"proceed\".\n\nPlease fix.",
+      "parentUuid": "2fe1ed4d_e0de043c",
+      "range": {
+        "startLine": 50,
+        "startChar": 60,
+        "endLine": 50,
+        "endChar": 68
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "584c5c8c_0fd7e208",
+        "filename": "src/utils/SkSharingProc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "commands",
+      "range": {
+        "startLine": 21,
+        "startChar": 51,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5850e84e_481d2de9",
+        "filename": "tools/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T19:22:21Z",
+      "side": 1,
+      "message": "why is this file still needed here if you moved it into src/utils?",
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
