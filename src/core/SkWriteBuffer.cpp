@@ -161,8 +161,7 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     sk_sp<SkData> data;
     if (fProcs.fImageProc) {
         data = fProcs.fImageProc(const_cast<SkImage*>(image), fProcs.fImageCtx);
-    }
-    if (!data) {
+    } else {
         data = image->encodeToData();
     }
     this->writeDataAsByteArray(data.get());
