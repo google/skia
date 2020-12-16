@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ee5eaa4_4bc592fc",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-16T15:42:38Z",
+      "side": 0,
+      "message": "How do dehydrated effects work?  Do we have to maintain any binary compatibility?",
+      "revId": "cbfd1b01b7c205aebd514a9d481237e3ab0c504c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
