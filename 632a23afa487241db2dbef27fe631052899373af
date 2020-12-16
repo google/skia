@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e4ce02c_8335e769",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T20:10:52Z",
+      "side": 0,
+      "message": "This put the label in the wrong place. I must have messed it up between generating and finalizing the CL last time.",
+      "range": {
+        "startLine": 125,
+        "startChar": 27,
+        "endLine": 125,
+        "endChar": 31
+      },
+      "revId": "632a23afa487241db2dbef27fe631052899373af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

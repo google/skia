@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a3a0a2f_a992ace1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T20:10:52Z",
+      "side": 1,
+      "message": "Turns out when I expanded these GMs to test different subsamplings and generated the new input images, the method I used didn\u0027t actually store the images with the intended tags!",
+      "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
