@@ -122,6 +122,7 @@ void SkBidiIterator::ReorderVisual(const Level runLevels[], int levelsCount,
 class SkBreakIterator_icu : public SkBreakIterator {
     ICUBreakIterator fBreakIterator;
     Position fLastResult;
+    UText fText;
  public:
     explicit SkBreakIterator_icu(ICUBreakIterator iter)
         : fBreakIterator(std::move(iter)), fLastResult(0) {}
@@ -140,9 +141,8 @@ class SkBreakIterator_icu : public SkBreakIterator {
 
     bool setText(const char utftext8[], int utf8Units) override {
         UErrorCode status = U_ZERO_ERROR;
-
-        UText sUtf8UText = UTEXT_INITIALIZER;
-        ICUUText text(utext_openUTF8(&sUtf8UText, &utftext8[0], utf8Units, &status));
+        fText = UTEXT_INITIALIZER;
+        ICUUText text(utext_openUTF8(&fText, &utftext8[0], utf8Units, &status));
 
         if (U_FAILURE(status)) {
             SkDEBUGF("Break error: %s", u_errorName(status));
@@ -281,8 +281,7 @@ class SkUnicode_icu : public SkUnicode {
         }
         SkASSERT(iterator);
 
-        UText sUtf16UText = UTEXT_INITIALIZER;
-        ICUUText utf16UText(utext_openUChars(&sUtf16UText, (UChar*)utf16, utf16Units, &status));
+        ICUUText utf16UText(utext_openUChars(nullptr, (UChar*)utf16, utf16Units, &status));
         if (U_FAILURE(status)) {
             SkDEBUGF("Break error: %s", u_errorName(status));
             return false;
@@ -308,8 +307,7 @@ class SkUnicode_icu : public SkUnicode {
         (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> setBreak) {
 
         UErrorCode status = U_ZERO_ERROR;
-        UText sUtf8UText = UTEXT_INITIALIZER;
-        ICUUText text(utext_openUTF8(&sUtf8UText, &utf8[0], utf8Units, &status));
+        ICUUText text(utext_openUTF8(nullptr, &utf8[0], utf8Units, &status));
 
         if (U_FAILURE(status)) {
             SkDEBUGF("Break error: %s", u_errorName(status));
