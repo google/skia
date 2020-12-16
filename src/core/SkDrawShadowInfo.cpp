@@ -8,6 +8,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkShadowFlags.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/utils/SkPolyUtils.h"
 
@@ -149,11 +150,19 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
         ambientBlur = SkDrawShadowMetrics::AmbientBlurRadius(occluderZ);
 
         // get spot params (in device space)
-        SkPoint devLightPos = SkPoint::Make(rec.fLightPos.fX, rec.fLightPos.fY);
-        ctm.mapPoints(&devLightPos, 1);
-        SkDrawShadowMetrics::GetSpotParams(occluderZ, devLightPos.fX, devLightPos.fY,
-                                           rec.fLightPos.fZ, rec.fLightRadius,
-                                           &spotBlur, &spotScale, &spotOffset);
+        if (SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag)) {
+            SkPoint3 lightDir = rec.fLightPos;
+            lightDir.normalize();
+            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, lightDir.fX, lightDir.fY,
+                                                      lightDir.fZ, rec.fLightRadius,
+                                                      &spotBlur, &spotScale, &spotOffset);
+        } else {
+            SkPoint devLightPos = SkPoint::Make(rec.fLightPos.fX, rec.fLightPos.fY);
+            ctm.mapPoints(&devLightPos, 1);
+            SkDrawShadowMetrics::GetSpotParams(occluderZ, devLightPos.fX, devLightPos.fY,
+                                               rec.fLightPos.fZ, rec.fLightRadius,
+                                               &spotBlur, &spotScale, &spotOffset);
+        }
     } else {
         SkScalar devToSrcScale = SkScalarInvert(ctm.getMinScale());
 
@@ -162,9 +171,22 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
         ambientBlur = devSpaceAmbientBlur*devToSrcScale;
 
         // get spot params (in local space)
-        SkDrawShadowMetrics::GetSpotParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,
-                                           rec.fLightPos.fZ, rec.fLightRadius,
-                                           &spotBlur, &spotScale, &spotOffset);
+        if (SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag)) {
+            SkPoint3 lightDir = rec.fLightPos;
+            lightDir.normalize();
+            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, lightDir.fX, lightDir.fY,
+                                                      lightDir.fZ, rec.fLightRadius,
+                                                      &spotBlur, &spotScale, &spotOffset);
+            // light dir is in device space, so need to map spot offset back into local space
+            SkMatrix inverse;
+            if (ctm.invert(&inverse)) {
+                inverse.mapVectors(&spotOffset, 1);
+            }
+        } else {
+            SkDrawShadowMetrics::GetSpotParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,
+                                               rec.fLightPos.fZ, rec.fLightRadius,
+                                               &spotBlur, &spotScale, &spotOffset);
+        }
 
         // convert spot blur to local space
         spotBlur *= devToSrcScale;
