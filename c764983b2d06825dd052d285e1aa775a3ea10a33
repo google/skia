@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6370a9d_8b013209",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-16T21:34:40Z",
+      "side": 1,
+      "message": "Just realized this is not marked as open for some reason...",
+      "revId": "c764983b2d06825dd052d285e1aa775a3ea10a33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
