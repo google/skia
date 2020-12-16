@@ -1339,10 +1339,6 @@ component("skia") {
     deps += [ "//third_party/spirv-tools:spvtools_val" ]
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
-
-  if (skia_include_multiframe_procs) {
-    sources += [ "tools/SkSharingProc.cpp" ]
-  }
 }
 
 # DebugCanvas used in experimental/wasm-skp-debugger
@@ -1351,7 +1347,7 @@ if (target_cpu == "wasm") {
     public_configs = [ ":skia_public" ]
 
     sources = [
-      "tools/SkSharingProc.cpp",
+      "src/utils/SkSharingProc.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
       "tools/debugger/DebugLayerManager.cpp",
@@ -1777,8 +1773,6 @@ if (skia_enable_tools) {
       "tools/Resources.h",
       "tools/SkMetaData.cpp",
       "tools/SkMetaData.h",
-      "tools/SkSharingProc.cpp",
-      "tools/SkSharingProc.h",
       "tools/Stats.h",
       "tools/ToolUtils.cpp",
       "tools/ToolUtils.h",

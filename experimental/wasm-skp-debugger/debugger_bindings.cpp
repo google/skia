@@ -18,7 +18,7 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocument.h"
-#include "tools/SkSharingProc.h"
+#include "src/utils/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/debugger/DebugLayerManager.h"
