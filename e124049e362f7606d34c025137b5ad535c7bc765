@@ -82,6 +82,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee3a7a16_9606204b",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T18:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f674a42d_2a19ad45",
+      "range": {
+        "startLine": 1732,
+        "startChar": 4,
+        "endLine": 1732,
+        "endChar": 51
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d255dea3_b3847ba2",
@@ -129,6 +153,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d43eb2f6_a23cd8e5",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T18:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8652e3e7_c7fa4c76",
+      "range": {
+        "startLine": 1957,
+        "startChar": 4,
+        "endLine": 1957,
+        "endChar": 91
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "68698df4_82b46216",
@@ -166,6 +214,30 @@
       "side": 1,
       "message": "Look at \"Add support for manually loading vk resolve in msaa with extra subpass\" in the CL chain",
       "parentUuid": "68698df4_82b46216",
+      "range": {
+        "startLine": 234,
+        "startChar": 34,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e394d9cc_aa53e0c9",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T18:28:46Z",
+      "side": 1,
+      "message": "Ah ok.\n\nI know we\u0027ve talked about this before, but in GL I would use glBlitFramebuffer to do this. Is there nothing similar in Vulkan?",
+      "parentUuid": "95c1e18f_8bb121f0",
       "range": {
         "startLine": 234,
         "startChar": 34,
