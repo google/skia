@@ -100,8 +100,6 @@ bool Window_ios::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = MakeRasterForIOS(info, fRequestedDisplayParams);
             break;
-        case kUnknown_BackendType:
-            SkUNREACHABLE;
     }
     this->onBackendCreated();
 

@@ -35,7 +35,7 @@ private:
 
     HINSTANCE fHInstance;
     HWND      fHWnd;
-    BackendType fBackend = kUnknown_BackendType;
+    BackendType fBackend;
 
     using INHERITED = Window;
 };
