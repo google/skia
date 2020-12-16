@@ -16,6 +16,23 @@
       "message": "PTAL",
       "revId": "1b98b95b4cddee96f750a2b7a9c9dd015c455f77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50e169fa_3cc6962b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2020-12-16T16:02:54Z",
+      "side": 1,
+      "message": "LGTM but I\u0027m not an OWNER",
+      "revId": "1b98b95b4cddee96f750a2b7a9c9dd015c455f77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
