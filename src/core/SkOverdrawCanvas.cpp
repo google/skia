@@ -162,11 +162,6 @@ void SkOverdrawCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     fList[0]->onDrawRect(dst, fPaint);
 }
 
-void SkOverdrawCanvas::onDrawImageNine(const SkImage*, const SkIRect&, const SkRect& dst,
-                                       const SkPaint*) {
-    fList[0]->onDrawRect(dst, fPaint);
-}
-
 void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                           const SkRect& dst, const SkPaint*) {
     SkIRect bounds;

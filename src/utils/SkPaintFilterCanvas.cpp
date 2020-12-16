@@ -132,14 +132,6 @@ void SkPaintFilterCanvas::onDrawImageRect(const SkImage* image, const SkRect* sr
     }
 }
 
-void SkPaintFilterCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
-                                          const SkRect& dst, const SkPaint* paint) {
-    AutoPaintFilter apf(this, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawImageNine(image, center, dst, &apf.paint());
-    }
-}
-
 void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                              const SkRect& dst, const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
