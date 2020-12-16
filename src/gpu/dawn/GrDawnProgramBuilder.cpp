@@ -289,9 +289,11 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
     std::vector<wgpu::BindGroupLayoutEntry> uniformLayoutEntries;
     if (0 != uniformBufferSize) {
-        uniformLayoutEntries.push_back({ GrSPIRVUniformHandler::kUniformBinding,
-                                         wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-                                         wgpu::BindingType::UniformBuffer });
+        wgpu::BindGroupLayoutEntry entry;
+        entry.binding = GrSPIRVUniformHandler::kUniformBinding;
+        entry.visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
+        entry.type = wgpu::BindingType::UniformBuffer;
+        uniformLayoutEntries.push_back(std::move(entry));
     }
     wgpu::BindGroupLayoutDescriptor uniformBindGroupLayoutDesc;
     uniformBindGroupLayoutDesc.entryCount = uniformLayoutEntries.size();
@@ -303,10 +305,20 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     int textureCount = builder.fUniformHandler.fSamplers.count();
     if (textureCount > 0) {
         for (int i = 0; i < textureCount; ++i)  {
-            textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                             wgpu::BindingType::Sampler });
-            textureLayoutEntries.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                             wgpu::BindingType::SampledTexture });
+            {
+                wgpu::BindGroupLayoutEntry entry;
+                entry.binding = binding++;
+                entry.visibility = wgpu::ShaderStage::Fragment;
+                entry.type = wgpu::BindingType::Sampler;
+                textureLayoutEntries.push_back(std::move(entry));
+            }
+            {
+                wgpu::BindGroupLayoutEntry entry;
+                entry.binding = binding++;
+                entry.visibility = wgpu::ShaderStage::Fragment;
+                entry.type = wgpu::BindingType::SampledTexture;
+                textureLayoutEntries.push_back(std::move(entry));
+            }
         }
         wgpu::BindGroupLayoutDescriptor textureBindGroupLayoutDesc;
         textureBindGroupLayoutDesc.entryCount = textureLayoutEntries.size();
