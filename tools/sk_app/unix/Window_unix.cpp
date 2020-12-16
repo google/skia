@@ -418,8 +418,6 @@ bool Window_unix::attach(BackendType attachType) {
             fWindowContext =
                     window_context_factory::MakeRasterForXlib(winInfo, fRequestedDisplayParams);
             break;
-        case kUnknown_BackendType:
-            SkUNREACHABLE;
     }
     this->onBackendCreated();
 

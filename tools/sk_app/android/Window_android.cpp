@@ -66,8 +66,6 @@ void Window_android::initDisplay(ANativeWindow* window) {
                     window_context_factory::MakeVulkanForAndroid(window, fRequestedDisplayParams);
             break;
 #endif
-        case kUnknown_BackendType:
-            SkUNREACHABLE;
     }
     this->onBackendCreated();
 }

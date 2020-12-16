@@ -383,8 +383,6 @@ bool Window_win::attach(BackendType attachType) {
                 window_context_factory::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
-        case kUnknown_BackendType:
-            SkUNREACHABLE;
     }
     this->onBackendCreated();
 
@@ -405,9 +403,7 @@ void Window_win::setRequestedDisplayParams(const DisplayParams& params, bool all
         fWindowContext = nullptr;
         this->closeWindow();
         this->init(fHInstance);
-        if (fBackend != kUnknown_BackendType) {
-            this->attach(fBackend);
-        }
+        this->attach(fBackend);
     }
 
     INHERITED::setRequestedDisplayParams(params, allowReattach);
