@@ -2238,6 +2238,12 @@ static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
     return cleaned;
 }
 
+static SkPaint clean_paint_for_drawImageNine(const SkPaint* paint) {
+    SkPaint cleaned = clean_paint_for_drawImage(paint);
+    cleaned.setFilterQuality(kLow_SkFilterQuality);
+    return cleaned;
+}
+
 void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     SkPaint realPaint = clean_paint_for_drawImage(paint);
 
@@ -2321,7 +2327,7 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
 
 void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
                                const SkPaint* paint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
+    SkPaint realPaint = clean_paint_for_drawImageNine(paint);
 
     if (this->internalQuickReject(dst, realPaint)) {
         return;
@@ -2333,7 +2339,7 @@ void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, cons
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                   const SkPaint* paint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
+    SkPaint realPaint = clean_paint_for_drawImageNine(paint);
 
     if (this->internalQuickReject(dst, realPaint)) {
         return;
