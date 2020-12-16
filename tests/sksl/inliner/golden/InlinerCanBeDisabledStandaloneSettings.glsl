@@ -52,11 +52,11 @@ vec4 blend_hue(vec4 src, vec4 dst) {
 uniform vec4 color;
 void main() {
     float _1_fma;
-    float _2_0_mul;
-    _2_0_mul = color.x * color.y;
+    float _2_mul;
+    _2_mul = color.x * color.y;
 
     float _7_add;
-    float _8_c = _2_0_mul + color.z;
+    float _8_c = _2_mul + color.z;
     _7_add = _8_c;
 
     _1_fma = _7_add;
@@ -73,10 +73,10 @@ void main() {
     sk_FragColor *= _4_blend_src_in;
 
     vec4 _5_blend_dst_in;
-    vec4 _6_0_blend_src_in;
-    _6_0_blend_src_in = color.zzww * color.y;
+    vec4 _6_blend_src_in;
+    _6_blend_src_in = color.zzww * color.y;
 
-    _5_blend_dst_in = _6_0_blend_src_in;
+    _5_blend_dst_in = _6_blend_src_in;
 
 
     sk_FragColor *= _5_blend_dst_in;

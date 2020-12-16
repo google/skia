@@ -9,7 +9,7 @@ OpName %src "src"
 OpName %dst "dst"
 OpName %main "main"
 OpName %_0_blend_darken "_0_blend_darken"
-OpName %_1_1_blend_src_over "_1_1_blend_src_over"
+OpName %_1_blend_src_over "_1_blend_src_over"
 OpName %_2_result "_2_result"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -51,7 +51,7 @@ OpDecorate %45 RelaxedPrecision
 %main = OpFunction %void None %14
 %15 = OpLabel
 %_0_blend_darken = OpVariable %_ptr_Function_v4float Function
-%_1_1_blend_src_over = OpVariable %_ptr_Function_v4float Function
+%_1_blend_src_over = OpVariable %_ptr_Function_v4float Function
 %_2_result = OpVariable %_ptr_Function_v4float Function
 %19 = OpLoad %v4float %src
 %21 = OpLoad %v4float %src
@@ -60,8 +60,8 @@ OpDecorate %45 RelaxedPrecision
 %24 = OpLoad %v4float %dst
 %25 = OpVectorTimesScalar %v4float %24 %23
 %26 = OpFAdd %v4float %19 %25
-OpStore %_1_1_blend_src_over %26
-%28 = OpLoad %v4float %_1_1_blend_src_over
+OpStore %_1_blend_src_over %26
+%28 = OpLoad %v4float %_1_blend_src_over
 OpStore %_2_result %28
 %30 = OpLoad %v4float %_2_result
 %31 = OpVectorShuffle %v3float %30 %30 0 1 2

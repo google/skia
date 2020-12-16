@@ -14,12 +14,12 @@ OpName %_1_alpha "_1_alpha"
 OpName %_2_sda "_2_sda"
 OpName %_3_dsa "_3_dsa"
 OpName %_4_blend_set_color_saturation "_4_blend_set_color_saturation"
-OpName %_5_13_blend_color_saturation "_5_13_blend_color_saturation"
+OpName %_5_blend_color_saturation "_5_blend_color_saturation"
 OpName %_6_sat "_6_sat"
 OpName %_7_blend_set_color_luminance "_7_blend_set_color_luminance"
-OpName %_8_11_blend_color_luminance "_8_11_blend_color_luminance"
+OpName %_8_blend_color_luminance "_8_blend_color_luminance"
 OpName %_9_lum "_9_lum"
-OpName %_10_12_blend_color_luminance "_10_12_blend_color_luminance"
+OpName %_10_blend_color_luminance "_10_blend_color_luminance"
 OpName %_11_result "_11_result"
 OpName %_12_minComp "_12_minComp"
 OpName %_13_maxComp "_13_maxComp"
@@ -203,7 +203,7 @@ OpFunctionEnd
 %_2_sda = OpVariable %_ptr_Function_v3float Function
 %_3_dsa = OpVariable %_ptr_Function_v3float Function
 %_4_blend_set_color_saturation = OpVariable %_ptr_Function_v3float Function
-%_5_13_blend_color_saturation = OpVariable %_ptr_Function_float Function
+%_5_blend_color_saturation = OpVariable %_ptr_Function_float Function
 %_6_sat = OpVariable %_ptr_Function_float Function
 %109 = OpVariable %_ptr_Function_v3float Function
 %111 = OpVariable %_ptr_Function_float Function
@@ -218,9 +218,9 @@ OpFunctionEnd
 %167 = OpVariable %_ptr_Function_v3float Function
 %169 = OpVariable %_ptr_Function_float Function
 %_7_blend_set_color_luminance = OpVariable %_ptr_Function_v3float Function
-%_8_11_blend_color_luminance = OpVariable %_ptr_Function_float Function
+%_8_blend_color_luminance = OpVariable %_ptr_Function_float Function
 %_9_lum = OpVariable %_ptr_Function_float Function
-%_10_12_blend_color_luminance = OpVariable %_ptr_Function_float Function
+%_10_blend_color_luminance = OpVariable %_ptr_Function_float Function
 %_11_result = OpVariable %_ptr_Function_v3float Function
 %_12_minComp = OpVariable %_ptr_Function_float Function
 %_13_maxComp = OpVariable %_ptr_Function_float Function
@@ -260,8 +260,8 @@ OpStore %_3_dsa %70
 %88 = OpCompositeExtract %float %87 2
 %81 = OpExtInst %float %1 FMin %82 %88
 %89 = OpFSub %float %73 %81
-OpStore %_5_13_blend_color_saturation %89
-%91 = OpLoad %float %_5_13_blend_color_saturation
+OpStore %_5_blend_color_saturation %89
+%91 = OpLoad %float %_5_blend_color_saturation
 OpStore %_6_sat %91
 %92 = OpLoad %v3float %_2_sda
 %93 = OpCompositeExtract %float %92 0
@@ -371,14 +371,14 @@ OpBranch %99
 %99 = OpLabel
 %179 = OpLoad %v3float %_3_dsa
 %174 = OpDot %float %175 %179
-OpStore %_8_11_blend_color_luminance %174
-%181 = OpLoad %float %_8_11_blend_color_luminance
+OpStore %_8_blend_color_luminance %174
+%181 = OpLoad %float %_8_blend_color_luminance
 OpStore %_9_lum %181
 %185 = OpLoad %v3float %_4_blend_set_color_saturation
 %183 = OpDot %float %184 %185
-OpStore %_10_12_blend_color_luminance %183
+OpStore %_10_blend_color_luminance %183
 %187 = OpLoad %float %_9_lum
-%188 = OpLoad %float %_10_12_blend_color_luminance
+%188 = OpLoad %float %_10_blend_color_luminance
 %189 = OpFSub %float %187 %188
 %190 = OpLoad %v3float %_4_blend_set_color_saturation
 %191 = OpCompositeConstruct %v3float %189 %189 %189
