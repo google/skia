@@ -201,6 +201,9 @@ function reportSurface(surface, testname, done) {
 
     const reportingCanvas = document.getElementById('report');
     reportingCanvas.getContext('2d').putImageData(imageData, 0, 0);
+    if (!done) {
+        return;
+    }
     reportCanvas(reportingCanvas, testname).then(() => {
         // TODO(kjlubick): should we call surface.delete() here?
         done();

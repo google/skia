@@ -1040,6 +1040,33 @@ export interface Canvas extends EmbindObject<Canvas> {
     drawImage(img: Image, left: number, top: number, paint?: Paint): void;
 
     /**
+     * Draws the given image with its top-left corner at (left, top) using the current clip,
+     * the current matrix. It will use the cubic sampling options B and C if necessary.
+     * @param img
+     * @param left
+     * @param top
+     * @param B - See CubicResampler in SkSamplingOptions.h for more information
+     * @param C - See CubicResampler in SkSamplingOptions.h for more information
+     * @param paint
+     */
+    drawImageCubic(img: Image, left: number, top: number, B: number, C: number,
+                   paint: Paint | null): void;
+
+    /**
+     * Draws the given image with its top-left corner at (left, top) using the current clip,
+     * the current matrix. It will use the provided sampling options if necessary.
+     * @param img
+     * @param left
+     * @param top
+     * @param fm - The filter mode.
+     * @param mm - The mipmap mode. Note: for settings other than None, the image must have mipmaps
+     *             calculated with makeCopyWithDefaultMipmaps;
+     * @param paint
+     */
+    drawImageOptions(img: Image, left: number, top: number, fm: FilterMode,
+                     mm: MipmapMode, paint: Paint | null): void;
+
+    /**
      * Draws the current frame of the given animated image with its top-left corner at
      * (left, top) using the current clip, the current matrix, and optionally-provided paint.
      * @param aImg
@@ -1071,6 +1098,33 @@ export interface Canvas extends EmbindObject<Canvas> {
      */
     drawImageRect(img: Image, src: InputRect, dest: InputRect, paint: Paint,
                   fastSample?: boolean): void;
+
+    /**
+     * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
+     * It will use the cubic sampling options B and C if necessary.
+     * @param img
+     * @param src
+     * @param dest
+     * @param B - See CubicResampler in SkSamplingOptions.h for more information
+     * @param C - See CubicResampler in SkSamplingOptions.h for more information
+     * @param paint
+     */
+    drawImageRectCubic(img: Image, src: InputRect, dest: InputRect,
+                       B: number, C: number, paint?: Paint): void;
+
+    /**
+     * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
+     * It will use the provided sampling options if necessary.
+     * @param img
+     * @param src
+     * @param dest
+     * @param fm - The filter mode.
+     * @param mm - The mipmap mode. Note: for settings other than None, the image must have mipmaps
+     *             calculated with makeCopyWithDefaultMipmaps;
+     * @param paint
+     */
+    drawImageRectOptions(img: Image, src: InputRect, dest: InputRect, fm: FilterMode,
+                         mm: MipmapMode, paint?: Paint): void;
 
     /**
      * Draws line segment from (x0, y0) to (x1, y1) using the current clip, current matrix,
@@ -1597,11 +1651,11 @@ export interface Image extends EmbindObject<Image> {
      * Returns this image as a shader with the specified tiling. It will use cubic sampling.
      * @param tx - tile mode in the x direction.
      * @param ty - tile mode in the y direction.
-     * @param b - See CubicResampler in SkSamplingOptions.h for more information
-     * @param c - See CubicResampler in SkSamplingOptions.h for more information
+     * @param B - See CubicResampler in SkSamplingOptions.h for more information
+     * @param C - See CubicResampler in SkSamplingOptions.h for more information
      * @param localMatrix
      */
-    makeShaderCubic(tx: TileMode, ty: TileMode, b: number, c: number,
+    makeShaderCubic(tx: TileMode, ty: TileMode, B: number, C: number,
                     localMatrix?: InputMatrix): Shader;
 
     /**

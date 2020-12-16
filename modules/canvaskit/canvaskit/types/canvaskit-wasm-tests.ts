@@ -112,11 +112,17 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawImage(img, 0, -43, paint);
     canvas.drawImageAtCurrentFrame(aImg, 0, -43);
     canvas.drawImageAtCurrentFrame(aImg, 0, -43, paint);
+    canvas.drawImageCubic(img, 0, -43, 1 / 3, 1 / 4, null);
+    canvas.drawImageOptions(img, 0, -43, CK.FilterMode.Nearest, CK.MipmapMode.Nearest, paint);
     canvas.drawImageNine(img, someRect, someRect, paint);
     canvas.drawImageNine(img, CK.XYWHiRect(10, 20, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint);
     canvas.drawImageRect(img, CK.XYWHRect(90, 90, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint, true);
+    canvas.drawImageRectCubic(img, someRect, someRect, 1 / 5, 1 / 6);
+    canvas.drawImageRectCubic(img, someRect, someRect, 1 / 5, 1 / 6, paint);
+    canvas.drawImageRectOptions(img, someRect, someRect, CK.FilterMode.Linear, CK.MipmapMode.None);
+    canvas.drawImageRectOptions(img, someRect, someRect, CK.FilterMode.Linear, CK.MipmapMode.None, paint);
     canvas.drawLine(1, 2, 3, 4, paint);
     canvas.drawOval(someRect, paint);
     canvas.drawPaint(paint);

@@ -1113,6 +1113,18 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawImageRect(img, sPtr, dPtr, paint, !!fastSample);
   };
 
+  CanvasKit.Canvas.prototype.drawImageRectCubic = function(img, src, dest, B, C, paint) {
+    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
+    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
+    this._drawImageRectCubic(img, sPtr, dPtr, B, C, paint || null);
+  };
+
+  CanvasKit.Canvas.prototype.drawImageRectOptions = function(img, src, dest, filter, mipmap, paint) {
+    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
+    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
+    this._drawImageRectOptions(img, sPtr, dPtr, filter, mipmap, paint || null);
+  };
+
   CanvasKit.Canvas.prototype.drawOval = function(oval, paint) {
     var oPtr = copyRectToWasm(oval);
     this._drawOval(oPtr, paint);
