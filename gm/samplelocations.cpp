@@ -193,7 +193,7 @@ class SampleLocationsTestProcessor::Impl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 };
 
 GrGLSLPrimitiveProcessor* SampleLocationsTestProcessor::createGLSLInstance(

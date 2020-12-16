@@ -623,6 +623,7 @@ void GrStrokeTessellateOp::allocPatchChunkAtLeast(int minPatchAllocCount) {
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkASSERT(chainBounds == this->bounds());
+
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, this->bounds());
         flushState->bindTextures(fStencilProgram->primProc(), nullptr, fStencilProgram->pipeline());

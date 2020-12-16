@@ -49,7 +49,7 @@ public:
      * empty or the draw no longer intersects the clip. In either case the draw can be skipped.
      */
     bool addScissor(const SkIRect& irect, SkRect* clippedDrawBounds) {
-        return fScissorState.intersect(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
+        return fScissorState.intersect1(irect) && clippedDrawBounds->intersect(SkRect::Make(irect));
     }
 
     void setScissor(const SkIRect& irect) {
