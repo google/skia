@@ -251,6 +251,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
         foregroundView = foreground->view(context);
     }
 
+    GrPaint paint;
     std::unique_ptr<GrFragmentProcessor> fp;
     const auto& caps = *ctx.getContext()->priv().caps();
     GrSamplerState sampler(GrSamplerState::WrapMode::kClampToBorder,
@@ -283,22 +284,26 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
         fp = GrBlendFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
     }
 
-    GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(context, info, SkBackingFit::kApprox);
-    if (!surfaceFillContext) {
+    paint.setColorFragmentProcessor(std::move(fp));
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
+            context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox, bounds.size());
+    if (!surfaceDrawContext) {
         return nullptr;
     }
 
-    surfaceFillContext->fillRectToRectWithFP(bounds,
-                                             SkIRect::MakeSize(bounds.size()),
-                                             std::move(fp));
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, matrix,
+                                 SkRect::Make(bounds));
 
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               surfaceFillContext->readSurfaceView(),
-                                               surfaceFillContext->colorInfo().colorType(),
-                                               surfaceFillContext->colorInfo().refColorSpace());
+                                               surfaceDrawContext->readSurfaceView(),
+                                               surfaceDrawContext->colorInfo().colorType(),
+                                               surfaceDrawContext->colorInfo().refColorSpace());
 }
 
 #endif
