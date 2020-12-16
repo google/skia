@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3b273e2_b76471b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T01:01:57Z",
+      "side": 1,
+      "message": "I\u0027m probably forgetting something from an earlier discussion, but why do we not transform the vector for a directional light? Is it assumed to already be in local space?",
+      "revId": "f4ae31c33e8fadfd5804498ad1bbfc828ccb8970",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
