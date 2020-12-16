@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkSpan.h"
 
 #include <array>
 #include <cassert>
@@ -49,7 +50,7 @@ public:
     uint32_t nextBlockSize() {
         uint32_t result = SkFibonacci47[fIndex] * fBlockUnitSize;
 
-        if (SkTo<size_t>(fIndex + 1) < SkFibonacci47.size() &&
+        if (SkTo<size_t>(fIndex + 1) < SkTo<uint32_t>(SkFibonacci47.size()) &&
             SkFibonacci47[fIndex + 1] < kMaxSize / fBlockUnitSize)
         {
             fIndex += 1;
@@ -321,5 +322,4 @@ public:
     explicit SkSTArenaAllocWithReset(size_t firstHeapAllocation = InlineStorageSize)
             : SkArenaAllocWithReset{this->data(), this->size(), firstHeapAllocation} {}
 };
-
 #endif  // SkArenaAlloc_DEFINED
