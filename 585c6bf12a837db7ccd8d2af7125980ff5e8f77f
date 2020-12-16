@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd531d71_1da7cd87",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T20:15:16Z",
+      "side": 1,
+      "message": "I guess this is related to an earlier change in the series, but I don\u0027t get how this can be \"always\". When the client gives us a MSAA buffer, we don\u0027t want to discard it, right? Also, what if they pass a sample count to say MakeRenderTarget, don\u0027t we want that to work the same as it does now?",
+      "range": {
+        "startLine": 220,
+        "startChar": 18,
+        "endLine": 220,
+        "endChar": 52
+      },
+      "revId": "585c6bf12a837db7ccd8d2af7125980ff5e8f77f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "703eea9a_e00b008a",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1628,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-16T20:15:16Z",
+      "side": 1,
+      "message": "TODO?",
+      "range": {
+        "startLine": 1628,
+        "startChar": 7,
+        "endLine": 1628,
+        "endChar": 11
+      },
+      "revId": "585c6bf12a837db7ccd8d2af7125980ff5e8f77f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
