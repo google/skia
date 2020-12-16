@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9243101_5855b095",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-16T16:21:41Z",
+      "side": 1,
+      "message": "Wanted to review the follow-up first, but yeah - I like where this all landed.",
+      "revId": "c9489fe99f22daf48a5eaac5ef02be879d0f683b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
