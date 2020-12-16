@@ -185,34 +185,42 @@ bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor) {
 }
 
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+                             const GrOpsRenderPass::LoadAndStoreInfo& resolveInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                              std::array<float, 4> clearColor,
+                             bool withResolve,
                              bool withStencil) {
     VkAttachmentLoadOp loadOp;
     VkAttachmentStoreOp storeOp;
-    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
-                          &loadOp, &storeOp);
+    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp, &loadOp, &storeOp);
     GrVkRenderPass::LoadStoreOps vkColorOps(loadOp, storeOp);
 
-    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
-                          &loadOp, &storeOp);
+    get_vk_load_store_ops(resolveInfo.fLoadOp, resolveInfo.fStoreOp, &loadOp, &storeOp);
+    GrVkRenderPass::LoadStoreOps vkResolveOps(loadOp, storeOp);
+
+    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp, &loadOp, &storeOp);
     GrVkRenderPass::LoadStoreOps vkStencilOps(loadOp, storeOp);
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle(withStencil, fSelfDependencyFlags);
+            vkRT->compatibleRenderPassHandle(withResolve, withStencil, fSelfDependencyFlags,
+                                             fLoadFromResolve);
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,
+                                                                     vkResolveOps,
                                                                      vkStencilOps);
     } else {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
+                                                                     vkResolveOps,
                                                                      vkStencilOps,
                                                                      nullptr,
+                                                                     withResolve,
                                                                      withStencil,
-                                                                     fSelfDependencyFlags);
+                                                                     fSelfDependencyFlags,
+                                                                     fLoadFromResolve);
     }
     if (!fCurrentRenderPass) {
         return false;
@@ -225,8 +233,9 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             fCurrentRenderPass = nullptr;
             return false;
         }
-        fCurrentSecondaryCommandBuffer->begin(
-                fGpu, vkRT->getFramebuffer(withStencil, fSelfDependencyFlags), fCurrentRenderPass);
+        const GrVkFramebuffer* framebuffer = vkRT->getFramebuffer(
+                withResolve, withStencil, fSelfDependencyFlags, fLoadFromResolve);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, framebuffer, fCurrentRenderPass);
     }
 
     VkClearValue vkClearColor;
@@ -344,7 +353,9 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
         return this->initWrapped();
     }
 
-    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor, SkToBool(stencil));
+    GrOpsRenderPass::LoadAndStoreInfo resolveInfo{GrLoadOp::kLoad, GrStoreOp::kStore, {}};
+    return this->init(colorInfo, resolveInfo, stencilInfo, colorInfo.fClearColor,
+                      false/*withResolve*/, SkToBool(stencil));
 }
 
 void GrVkOpsRenderPass::reset() {
@@ -482,27 +493,39 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                             VK_ATTACHMENT_STORE_OP_STORE);
+    GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                                              VK_ATTACHMENT_STORE_OP_STORE);
+    if (fLoadFromResolve == LoadFromResolve::kLoad) {
+        vkColorOps = {VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE};
+        vkResolveOps = {VK_ATTACHMENT_LOAD_OP_LOAD, VK_ATTACHMENT_STORE_OP_STORE};
+    }
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                               VK_ATTACHMENT_STORE_OP_STORE);
 
     bool withStencil = fCurrentRenderPass->hasStencilAttachment();
+    bool withResolve = fCurrentRenderPass->hasResolveAttachment();
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle(withStencil, fSelfDependencyFlags);
+            vkRT->compatibleRenderPassHandle(withResolve, withStencil, fSelfDependencyFlags,
+                                             fLoadFromResolve);
     SkASSERT(fCurrentRenderPass);
     fCurrentRenderPass->unref();
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,
+                                                                     vkResolveOps,
                                                                      vkStencilOps);
     } else {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
+                                                                     vkResolveOps,
                                                                      vkStencilOps,
                                                                      nullptr,
+                                                                     withResolve,
                                                                      withStencil,
-                                                                     fSelfDependencyFlags);
+                                                                     fSelfDependencyFlags,
+                                                                     fLoadFromResolve);
     }
     if (!fCurrentRenderPass) {
         return;
@@ -516,8 +539,9 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
             fCurrentRenderPass = nullptr;
             return;
         }
-        fCurrentSecondaryCommandBuffer->begin(
-                fGpu, vkRT->getFramebuffer(withStencil, fSelfDependencyFlags), fCurrentRenderPass);
+        const GrVkFramebuffer* framebuffer = vkRT->getFramebuffer(
+                withResolve, withStencil, fSelfDependencyFlags, fLoadFromResolve);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, framebuffer, fCurrentRenderPass);
     }
 
     VkClearValue vkClearColor;

@@ -54,6 +54,7 @@ public:
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
+    using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
 
     // Finds or creates a simple render pass that matches the target, increments the refcount,
     // and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle. If this is
@@ -61,11 +62,14 @@ public:
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                    CompatibleRPHandle* compatibleHandle,
+                                                   bool withResolve,
                                                    bool withStencil,
-                                                   SelfDependencyFlags selfDepFlags);
+                                                   SelfDependencyFlags selfDepFlags,
+                                                   LoadFromResolve);
     const GrVkRenderPass* findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor*,
                                                    GrVkRenderPass::AttachmentFlags,
                                                    SelfDependencyFlags selfDepFlags,
+                                                   LoadFromResolve,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
@@ -79,15 +83,19 @@ public:
     // TODO: sk_sp?
     const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
+                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle,
+                                         bool withResolve,
                                          bool withStencil,
-                                         SelfDependencyFlags selfDepFlags);
+                                         SelfDependencyFlags selfDepFlags,
+                                         LoadFromResolve);
 
     // The CompatibleRPHandle must be a valid handle previously set by a call to findRenderPass or
     // findCompatibleRenderPass.
     const GrVkRenderPass* findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
+                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkCommandPool* findOrCreateCommandPool();
@@ -240,7 +248,8 @@ private:
 
         bool isCompatible(const GrVkRenderPass::AttachmentsDescriptor&,
                           GrVkRenderPass::AttachmentFlags,
-                          SelfDependencyFlags selfDepFlags) const;
+                          SelfDependencyFlags selfDepFlags,
+                          LoadFromResolve) const;
 
         const GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store
@@ -251,6 +260,7 @@ private:
 
         GrVkRenderPass* getRenderPass(GrVkGpu* gpu,
                                       const GrVkRenderPass::LoadStoreOps& colorOps,
+                                      const GrVkRenderPass::LoadStoreOps& resolveOps,
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 
         void releaseResources();

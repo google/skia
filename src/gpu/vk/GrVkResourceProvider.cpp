@@ -108,25 +108,29 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programI
 const GrVkRenderPass*
 GrVkResourceProvider::findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                CompatibleRPHandle* compatibleHandle,
+                                               bool withResolve,
                                                bool withStencil,
-                                               SelfDependencyFlags selfDepFlags) {
+                                               SelfDependencyFlags selfDepFlags,
+                                               LoadFromResolve loadFromResolve) {
     // Get attachment information from render target. This includes which attachments the render
     // target has (color, stencil) and the attachments format and sample count.
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderPass::AttachmentsDescriptor attachmentsDesc;
-    target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withStencil);
+    target.getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withResolve, withStencil);
 
     return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, selfDepFlags,
-                                          compatibleHandle);
+                                          loadFromResolve, compatibleHandle);
 }
 
 const GrVkRenderPass*
 GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor* desc,
                                                GrVkRenderPass::AttachmentFlags attachmentFlags,
                                                SelfDependencyFlags selfDepFlags,
+                                               LoadFromResolve loadFromResolve,
                                                CompatibleRPHandle* compatibleHandle) {
     for (int i = 0; i < fRenderPassArray.count(); ++i) {
-        if (fRenderPassArray[i].isCompatible(*desc, attachmentFlags, selfDepFlags)) {
+        if (fRenderPassArray[i].isCompatible(*desc, attachmentFlags, selfDepFlags,
+                                             loadFromResolve)) {
             const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
             renderPass->ref();
             if (compatibleHandle) {
@@ -137,7 +141,7 @@ GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescri
     }
 
     GrVkRenderPass* renderPass = GrVkRenderPass::CreateSimple(fGpu, desc, attachmentFlags,
-                                                              selfDepFlags);
+                                                              selfDepFlags, loadFromResolve);
     if (!renderPass) {
         return nullptr;
     }
@@ -173,29 +177,35 @@ const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
         GrVkRenderTarget* target,
         const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& resolveOps,
         const GrVkRenderPass::LoadStoreOps& stencilOps,
         CompatibleRPHandle* compatibleHandle,
+        bool withResolve,
         bool withStencil,
-        SelfDependencyFlags selfDepFlags) {
+        SelfDependencyFlags selfDepFlags,
+        LoadFromResolve loadFromResolve) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target->compatibleRenderPassHandle(withStencil, selfDepFlags);
+    *pRPHandle = target->compatibleRenderPassHandle(withResolve, withStencil, selfDepFlags,
+                                                    loadFromResolve);
     if (!pRPHandle->isValid()) {
         return nullptr;
     }
 
-    return this->findRenderPass(*pRPHandle, colorOps, stencilOps);
+    return this->findRenderPass(*pRPHandle, colorOps, resolveOps, stencilOps);
 }
 
 const GrVkRenderPass*
 GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                      const GrVkRenderPass::LoadStoreOps& colorOps,
+                                     const GrVkRenderPass::LoadStoreOps& resolveOps,
                                      const GrVkRenderPass::LoadStoreOps& stencilOps) {
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     CompatibleRenderPassSet& compatibleSet = fRenderPassArray[compatibleHandle.toIndex()];
     const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu,
                                                                    colorOps,
+                                                                   resolveOps,
                                                                    stencilOps);
     if (!renderPass) {
         return nullptr;
@@ -528,26 +538,29 @@ GrVkResourceProvider::CompatibleRenderPassSet::CompatibleRenderPassSet(GrVkRende
 bool GrVkResourceProvider::CompatibleRenderPassSet::isCompatible(
         const GrVkRenderPass::AttachmentsDescriptor& attachmentsDescriptor,
         GrVkRenderPass::AttachmentFlags attachmentFlags,
-        SelfDependencyFlags selfDepFlags) const {
+        SelfDependencyFlags selfDepFlags,
+        LoadFromResolve loadFromResolve) const {
     // The first GrVkRenderpass should always exists since we create the basic load store
     // render pass on create
     SkASSERT(fRenderPasses[0]);
-    return fRenderPasses[0]->isCompatible(attachmentsDescriptor, attachmentFlags,selfDepFlags);
+    return fRenderPasses[0]->isCompatible(attachmentsDescriptor, attachmentFlags, selfDepFlags,
+                                          loadFromResolve);
 }
 
 GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
         GrVkGpu* gpu,
         const GrVkRenderPass::LoadStoreOps& colorOps,
+        const GrVkRenderPass::LoadStoreOps& resolveOps,
         const GrVkRenderPass::LoadStoreOps& stencilOps) {
     for (int i = 0; i < fRenderPasses.count(); ++i) {
         int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
-        if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, stencilOps)) {
+        if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, resolveOps, stencilOps)) {
             fLastReturnedIndex = idx;
             return fRenderPasses[idx];
         }
     }
     GrVkRenderPass* renderPass = GrVkRenderPass::Create(gpu, *this->getCompatibleRenderPass(),
-                                                        colorOps, stencilOps);
+                                                        colorOps, resolveOps, stencilOps);
     if (!renderPass) {
         return nullptr;
     }

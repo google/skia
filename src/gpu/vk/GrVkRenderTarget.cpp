@@ -25,14 +25,24 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-static int renderpass_features_to_index(bool hasStencil,
-                                        GrVkRenderPass::SelfDependencyFlags selfDepFlags) {
-    int index = hasStencil ? 1 : 0;
-    if (selfDepFlags & GrVkRenderPass::SelfDependencyFlags::kForInputAttachment) {
+static int renderpass_features_to_index(bool hasResolve, bool hasStencil,
+                                        GrVkRenderPass::SelfDependencyFlags selfDepFlags,
+                                        GrVkRenderPass::LoadFromResolve loadFromReslove) {
+    int index = 0;
+    if (hasResolve) {
+        index += 1;
+    }
+    if (hasStencil) {
         index += 2;
     }
-    if (selfDepFlags & GrVkRenderPass::SelfDependencyFlags::kForNonCoherentAdvBlend) {
+    if (selfDepFlags & GrVkRenderPass::SelfDependencyFlags::kForInputAttachment) {
         index += 4;
+    }
+    if (selfDepFlags & GrVkRenderPass::SelfDependencyFlags::kForNonCoherentAdvBlend) {
+        index += 8;
+    }
+    if (loadFromReslove == GrVkRenderPass::LoadFromResolve::kLoad) {
+        index += 16;
     }
     return index;
 }
@@ -144,7 +154,8 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
     // We use the cached renderpass with no stencil and no extra dependencies to hold the external
     // render pass.
-    int exteralRPIndex = renderpass_features_to_index(false, SelfDependencyFlags::kNone);
+    int exteralRPIndex = renderpass_features_to_index(false, false, SelfDependencyFlags::kNone,
+                                                      LoadFromResolve::kNo);
     fCachedRenderPasses[exteralRPIndex] = renderPass;
 }
 
@@ -256,22 +267,27 @@ const GrVkRenderPass* GrVkRenderTarget::externalRenderPass() const {
     SkASSERT(this->wrapsSecondaryCommandBuffer());
     // We use the cached render pass with no attachments or self dependencies to hold the
     // external render pass.
-    int exteralRPIndex = renderpass_features_to_index(false, SelfDependencyFlags::kNone);
+    int exteralRPIndex = renderpass_features_to_index(false, false, SelfDependencyFlags::kNone,
+                                                      LoadFromResolve::kNo);
     return fCachedRenderPasses[exteralRPIndex];
 }
 
 GrVkResourceProvider::CompatibleRPHandle GrVkRenderTarget::compatibleRenderPassHandle(
-        bool withStencil, SelfDependencyFlags selfDepFlags) {
+        bool withResolve,
+        bool withStencil,
+        SelfDependencyFlags selfDepFlags,
+        LoadFromResolve loadFromResolve) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
 
-    int cacheIndex = renderpass_features_to_index(withStencil, selfDepFlags);
+    int cacheIndex =
+            renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
 
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle;
     pRPHandle = &fCompatibleRPHandles[cacheIndex];
 
     if (!pRPHandle->isValid()) {
-        this->createSimpleRenderPass(withStencil, selfDepFlags);
+        this->createSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
     }
 
 #ifdef SK_DEBUG
@@ -285,71 +301,95 @@ GrVkResourceProvider::CompatibleRPHandle GrVkRenderTarget::compatibleRenderPassH
     return *pRPHandle;
 }
 
-const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withStencil,
-                                                            SelfDependencyFlags selfDepFlags) {
-    int cacheIndex = renderpass_features_to_index(withStencil, selfDepFlags);
+const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withResolve,
+                                                            bool withStencil,
+                                                            SelfDependencyFlags selfDepFlags,
+                                                            LoadFromResolve loadFromResolve) {
+    int cacheIndex = renderpass_features_to_index(withResolve, withStencil, selfDepFlags,
+                                                  loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
     if (const GrVkRenderPass* rp = fCachedRenderPasses[cacheIndex]) {
         return rp;
     }
 
-    return this->createSimpleRenderPass(withStencil, selfDepFlags);
+    return this->createSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
 }
 
-const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withStencil,
-                                                               SelfDependencyFlags selfDepFlags) {
+const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withResolve,
+                                                               bool withStencil,
+                                                               SelfDependencyFlags selfDepFlags,
+                                                               LoadFromResolve loadFromResolve) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
 
     GrVkResourceProvider& rp = this->getVkGpu()->resourceProvider();
-    int cacheIndex = renderpass_features_to_index(withStencil, selfDepFlags);
+    int cacheIndex = renderpass_features_to_index(withResolve, withStencil, selfDepFlags,
+                                                  loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
     SkASSERT(!fCachedRenderPasses[cacheIndex]);
     fCachedRenderPasses[cacheIndex] = rp.findCompatibleRenderPass(
-            *this, &fCompatibleRPHandles[cacheIndex], withStencil, selfDepFlags);
+            *this, &fCompatibleRPHandles[cacheIndex], withResolve, withStencil, selfDepFlags,
+            loadFromResolve);
     return fCachedRenderPasses[cacheIndex];
 }
 
-const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withStencil,
-                                                        SelfDependencyFlags selfDepFlags) {
-    int cacheIndex = renderpass_features_to_index(withStencil, selfDepFlags);
+const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withResolve,
+                                                        bool withStencil,
+                                                        SelfDependencyFlags selfDepFlags,
+                                                        LoadFromResolve loadFromResolve) {
+    int cacheIndex =
+            renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
     if (auto fb = fCachedFramebuffers[cacheIndex]) {
         return fb;
     }
 
-    return this->createFramebuffer(withStencil, selfDepFlags);
+    return this->createFramebuffer(withResolve, withStencil, selfDepFlags, loadFromResolve);
 }
 
-const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withStencil,
-                                                           SelfDependencyFlags selfDepFlags) {
+const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withResolve,
+                                                           bool withStencil,
+                                                           SelfDependencyFlags selfDepFlags,
+                                                           LoadFromResolve loadFromResolve) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     GrVkGpu* gpu = this->getVkGpu();
 
-    const GrVkRenderPass* renderPass = this->getSimpleRenderPass(withStencil, selfDepFlags);
+    const GrVkRenderPass* renderPass =
+            this->getSimpleRenderPass(withResolve, withStencil, selfDepFlags, loadFromResolve);
     if (!renderPass) {
         return nullptr;
     }
 
-    int cacheIndex = renderpass_features_to_index(withStencil, selfDepFlags);
+    int cacheIndex =
+            renderpass_features_to_index(withResolve, withStencil, selfDepFlags, loadFromResolve);
     SkASSERT(cacheIndex < GrVkRenderTarget::kNumCachedRenderPasses);
+
+    const GrVkImageView* resolveView = withResolve ? this->resolveAttachmentView() : nullptr;
 
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = withStencil ? this->stencilAttachmentView() : nullptr;
     fCachedFramebuffers[cacheIndex] =
             GrVkFramebuffer::Create(gpu, this->width(), this->height(), renderPass,
-                                    fColorAttachmentView.get(), stencilView);
+                                    fColorAttachmentView.get(), resolveView, stencilView);
 
     return fCachedFramebuffers[cacheIndex];
 }
 
 void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                                 GrVkRenderPass::AttachmentFlags* attachmentFlags,
+                                                bool withResolve,
                                                 bool withStencil) const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     desc->fColor.fFormat = this->imageFormat();
     desc->fColor.fSamples = this->numSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
+
+    if (withResolve) {
+        desc->fResolve.fFormat = desc->fColor.fFormat;
+        desc->fResolve.fSamples = 1;
+        *attachmentFlags |= GrVkRenderPass::kResolve_AttachmentFlag;
+        ++attachmentCount;
+    }
 
     if (withStencil) {
         const GrAttachment* stencil = this->getStencilAttachment();
@@ -400,9 +440,9 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
     desc->fAttachmentCount = attachmentCount;
 }
 
-const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu) {
+const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu, bool forResolve) {
     SkASSERT(this->supportsInputAttachmentUsage());
-    SkASSERT(this->numSamples() <= 1);
+    SkASSERT(this->numSamples() <= 1 || forResolve);
     if (fCachedInputDescriptorSet) {
         return fCachedInputDescriptorSet;
     }
@@ -415,8 +455,10 @@ const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu) {
     VkDescriptorImageInfo imageInfo;
     memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
     imageInfo.sampler = VK_NULL_HANDLE;
-    imageInfo.imageView = this->colorAttachmentView()->imageView();
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    imageInfo.imageView = forResolve ? this->resolveAttachmentView()->imageView()
+                                     : this->colorAttachmentView()->imageView();
+    imageInfo.imageLayout = forResolve ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                                       : VK_IMAGE_LAYOUT_GENERAL;
 
     VkWriteDescriptorSet writeInfo;
     memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
@@ -450,15 +492,18 @@ GrVkRenderTarget::~GrVkRenderTarget() {
 }
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer,
-                                    bool withStencil,
-                                    SelfDependencyFlags selfDepFlags) {
+                                    const GrVkRenderPass& renderPass) {
     commandBuffer.addGrSurface(sk_ref_sp<const GrSurface>(this));
-    commandBuffer.addResource(this->getFramebuffer(withStencil, selfDepFlags));
+    commandBuffer.addResource(this->getFramebuffer(renderPass));
     commandBuffer.addResource(this->colorAttachmentView());
     commandBuffer.addResource(fMSAAAttachment ? fMSAAAttachment->resource() : this->resource());
     if (this->stencilImageResource()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());
+    }
+    if (renderPass.hasResolveAttachment()) {
+        commandBuffer.addResource(this->resource());
+        commandBuffer.addResource(this->resolveAttachmentView());
     }
 }
 

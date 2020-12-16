@@ -31,8 +31,6 @@ public:
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
-
     bool set(GrRenderTarget*,
              GrAttachment*,
              GrSurfaceOrigin,
@@ -50,9 +48,11 @@ public:
 #endif
 
 private:
-    bool init(const GrOpsRenderPass::LoadAndStoreInfo&,
+    bool init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+              const GrOpsRenderPass::LoadAndStoreInfo& resolveInfo,
               const GrOpsRenderPass::StencilLoadAndStoreInfo&,
               std::array<float, 4> clearColor,
+              bool withResolve,
               bool withStencil);
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
@@ -98,6 +98,9 @@ private:
 
     void setAttachmentLayouts();
 
+    using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
+    using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
+
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
     SkIRect                                     fCurrentPipelineBounds;
@@ -105,6 +108,8 @@ private:
     bool                                        fCurrentCBIsEmpty = true;
     SkIRect                                     fBounds;
     SelfDependencyFlags                         fSelfDependencyFlags = SelfDependencyFlags::kNone;
+    LoadFromResolve                             fLoadFromResolve = LoadFromResolve::kNo;
+
     GrVkGpu*                                    fGpu;
 
 #ifdef SK_DEBUG

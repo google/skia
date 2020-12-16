@@ -15,6 +15,7 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
                                          int width, int height,
                                          const GrVkRenderPass* renderPass,
                                          const GrVkImageView* colorAttachment,
+                                         const GrVkImageView* resolveAttachment,
                                          const GrVkImageView* stencilAttachment) {
     // At the very least we need a renderPass and a colorAttachment
     SkASSERT(renderPass);
@@ -23,6 +24,9 @@ GrVkFramebuffer* GrVkFramebuffer::Create(GrVkGpu* gpu,
     VkImageView attachments[3];
     attachments[0] = colorAttachment->imageView();
     int numAttachments = 1;
+    if (resolveAttachment) {
+        attachments[numAttachments++] = resolveAttachment->imageView();
+    }
     if (stencilAttachment) {
         attachments[numAttachments++] = stencilAttachment->imageView();
     }

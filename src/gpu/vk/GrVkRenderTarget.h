@@ -38,8 +38,18 @@ public:
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
+    using LoadFromResolve = GrVkRenderPass::LoadFromResolve;
 
-    const GrVkFramebuffer* getFramebuffer(bool withStencil, SelfDependencyFlags);
+    const GrVkFramebuffer* getFramebuffer(bool withResolve,
+                                          bool withStencil,
+                                          SelfDependencyFlags selfDepFlags,
+                                          LoadFromResolve);
+    const GrVkFramebuffer* getFramebuffer(const GrVkRenderPass& renderPass) {
+        return this->getFramebuffer(renderPass.hasResolveAttachment(),
+                                    renderPass.hasStencilAttachment(),
+                                    renderPass.selfDependencyFlags(),
+                                    renderPass.loadFromResolve());
+    }
 
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView.get(); }
 
@@ -58,9 +68,15 @@ public:
     // msaa attachment. Otherwise it will be this object.
     GrVkImage* colorAttachmentImage();
 
-    const GrVkRenderPass* getSimpleRenderPass(bool withStencil, SelfDependencyFlags);
-    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(bool withStencil,
-                                                                        SelfDependencyFlags);
+    const GrVkRenderPass* getSimpleRenderPass(bool withResolve,
+                                              bool withStencil,
+                                              SelfDependencyFlags selfDepFlags,
+                                              LoadFromResolve);
+    GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(
+            bool withResolve,
+            bool withStencil,
+            SelfDependencyFlags selfDepFlags,
+            LoadFromResolve);
     const GrVkRenderPass* externalRenderPass() const;
 
     bool wrapsSecondaryCommandBuffer() const { return fSecondaryCommandBuffer != VK_NULL_HANDLE; }
@@ -78,6 +94,7 @@ public:
 
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                   GrVkRenderPass::AttachmentFlags* flags,
+                                  bool withResolve,
                                   bool withStencil) const;
 
     // Reconstruct the render target attachment information from the programInfo. This includes
@@ -92,9 +109,9 @@ public:
     // set on the the RT and simply reuse that descriptor set for this render target only. This call
     // will not ref the GrVkDescriptorSet so the caller must manually ref it if it wants to keep it
     // alive.
-    const GrVkDescriptorSet* inputDescSet(GrVkGpu*);
+    const GrVkDescriptorSet* inputDescSet(GrVkGpu*, bool forResolve);
 
-    void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil, SelfDependencyFlags);
+    void addResources(GrVkCommandBuffer& commandBuffer, const GrVkRenderPass& renderPass);
 
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
         fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
@@ -169,8 +186,14 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    const GrVkRenderPass* createSimpleRenderPass(bool withStencil, SelfDependencyFlags);
-    const GrVkFramebuffer* createFramebuffer(bool withStencil, SelfDependencyFlags);
+    const GrVkRenderPass* createSimpleRenderPass(bool withResolve,
+                                                 bool withStencil,
+                                                 SelfDependencyFlags selfDepFlags,
+                                                 LoadFromResolve);
+    const GrVkFramebuffer* createFramebuffer(bool withResolve,
+                                             bool withStencil,
+                                             SelfDependencyFlags selfDepFlags,
+                                             LoadFromResolve);
 
     bool completeStencilAttachment() override;
 
@@ -187,10 +210,10 @@ private:
     sk_sp<GrVkAttachment>      fMSAAAttachment;
     sk_sp<const GrVkImageView> fResolveAttachmentView;
 
-    // We can have a renderpass with and without stencil, input attachment dependency, and advanced
-    // blend dependency. All three being completely orthogonal. Thus we have a total of 8 types of
-    // render passes.
-    static constexpr int kNumCachedRenderPasses = 8;
+    // We can have a renderpass with and without resolve attachment, stencil attachment,
+    // input attachment dependency, advanced blend dependency, and loading from resolve. All 5 of
+    // these being completely orthogonal. Thus we have a total of 32 types of render passes.
+    static constexpr int kNumCachedRenderPasses = 32;
 
     const GrVkFramebuffer*                   fCachedFramebuffers[kNumCachedRenderPasses];
     const GrVkRenderPass*                    fCachedRenderPasses[kNumCachedRenderPasses];
