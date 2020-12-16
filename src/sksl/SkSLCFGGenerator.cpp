@@ -602,13 +602,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopExits.push(loopExit);
             if (f.test()) {
                 this->addExpression(cfg, &f.test(), /*constantPropagate=*/true);
-                // this isn't quite right; we should have an exit from here to the loop exit, and
-                // remove the exit from the loop body to the loop exit. Structuring it like this
-                // forces the optimizer to believe that the loop body is always executed at least
-                // once. While not strictly correct, this avoids incorrect "variable not assigned"
-                // errors on variables which are assigned within the loop. The correct solution to
-                // this is to analyze the loop to see whether or not at least one iteration is
-                // guaranteed to happen, but for the time being we take the easy way out.
+                BlockId test = cfg.fCurrent;
+                cfg.addExit(test, loopExit);
             }
             cfg.newBlock();
             this->addStatement(cfg, &f.statement());
@@ -618,7 +613,6 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                 this->addExpression(cfg, &f.next(), /*constantPropagate=*/true);
             }
             cfg.addExit(cfg.fCurrent, loopStart);
-            cfg.addExit(cfg.fCurrent, loopExit);
             fLoopContinues.pop();
             fLoopExits.pop();
             cfg.fCurrent = loopExit;
