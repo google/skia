@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3e080e0_fe66615a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T17:51:48Z",
+      "side": 1,
+      "message": "I don\u0027t feel terribly qualified to review this, but I was able read through and come up with a few style nags.",
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d481d6c_e121eac8",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T17:51:48Z",
+      "side": 1,
+      "message": "If this is supposed to always be \"kNo\" here, it might be more clear to either name it with a \"No\" in the name and/or mark it constexpr, or else do something like:\n\n  using LoadFromResolve \u003d ...;\n  getSimpleRenderPass(..., LoadFromResolve::kNo);\n  isCompatible(..., LoadFromResolve::kNo);\n  GenKey(..., LoadFromResolve::kNo);",
+      "range": {
+        "startLine": 1732,
+        "startChar": 4,
+        "endLine": 1732,
+        "endChar": 51
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d255dea3_b3847ba2",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T17:51:48Z",
+      "side": 1,
+      "message": "I think I\u0027d like to see this constexpr as well",
+      "range": {
+        "startLine": 1957,
+        "startChar": 4,
+        "endLine": 1957,
+        "endChar": 91
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68698df4_82b46216",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T17:51:48Z",
+      "side": 1,
+      "message": "For my own curiosity, I\u0027d like to know where this draw actually happens. Where\u0027s the shader that actually does the texture fetch?",
+      "range": {
+        "startLine": 234,
+        "startChar": 34,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf680c1d_fd1fcadd",
+        "filename": "src/gpu/vk/GrVkRenderPass.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-16T17:51:48Z",
+      "side": 1,
+      "message": "Idk what our style is, but I kind of like omitting argument names in cases like this where they just echo the type name.",
+      "range": {
+        "startLine": 130,
+        "startChar": 37,
+        "endLine": 130,
+        "endChar": 53
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
