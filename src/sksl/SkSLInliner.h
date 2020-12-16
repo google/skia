@@ -54,7 +54,7 @@ private:
         kEarlyReturns,
     };
 
-    String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
+    String uniqueNameForInlineVar(String baseName, SymbolTable* symbolTable);
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                             SymbolTable* symbols, ProgramUsage* usage,
