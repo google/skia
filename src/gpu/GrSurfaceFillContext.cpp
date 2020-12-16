@@ -77,10 +77,14 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::Make(GrRecordingCont
                                                                  GrSwizzle readSwizzle,
                                                                  GrSwizzle writeSwizzle,
                                                                  GrSurfaceOrigin origin) {
-    SkASSERT(context && !context->abandoned());
+    SkASSERT(context);
     SkASSERT(!dimensions.isEmpty());
     SkASSERT(sampleCount >= 1);
     SkASSERT(format.isValid() && format.backend() == context->backend());
+
+    if (context->abandoned()) {
+        return nullptr;
+    }
     if (alphaType == kPremul_SkAlphaType || alphaType == kOpaque_SkAlphaType) {
         return GrSurfaceDrawContext::Make(context,
                                           std::move(colorSpace),
