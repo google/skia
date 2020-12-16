@@ -18,11 +18,13 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/text/GrTextBlob.h"
+
+#include <tuple>
 
 class GrBackendSemaphore;
 class GrClip;
@@ -56,7 +58,7 @@ class SkVertices;
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrSurfaceDrawContext : public GrSurfaceFillContext {
+class GrSurfaceDrawContext : public GrSurfaceContext {
 public:
     static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                       GrColorType,
@@ -96,6 +98,10 @@ public:
                                                       GrSurfaceOrigin,
                                                       SkBudgeted,
                                                       const SkSurfaceProps*);
+
+    static std::tuple<GrColorType, GrBackendFormat> GetFallbackColorTypeAndFormat(GrImageContext*,
+                                                                                  GrColorType,
+                                                                                  int sampleCnt);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per
@@ -146,6 +152,25 @@ public:
                          bool flushTimeOpsTask = false);
 
     ~GrSurfaceDrawContext() override;
+
+    /**
+     * Provides a perfomance hint that the render target's contents are allowed
+     * to become undefined.
+     */
+    void discard();
+
+    /**
+     * Clear the rect of the render target to the given color.
+     * @param rect  the rect to clear to
+     * @param color the color to clear to.
+     */
+    void clear(const SkIRect& rect, const SkPMColor4f& color) {
+        this->internalClear(&rect, color);
+    }
+    // Clears the entire render target to the color.
+    void clear(const SkPMColor4f& color) {
+        this->internalClear(nullptr, color);
+    }
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -534,10 +559,19 @@ public:
                           const SkGlyphRunList& glyphRunList);
 
     /**
+     * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
+     * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
+     * respectively.
+     */
+    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint);
+
+    /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
      * command stream.
      */
     void drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>, const SkRect& bounds);
+
+    GrOpsTask* getOpsTask();
 
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
@@ -559,6 +593,12 @@ public:
         return opsTask->fLastClipStackGenID != clipStackGenID ||
                !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
                opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
+    }
+
+    // Clear at minimum the pixels within 'scissor', but is allowed to clear the full render target
+    // if that is the more performant option.
+    void clearAtLeast(const SkIRect& scissor, const SkPMColor4f& color) {
+        this->internalClear(&scissor, color, /* upgrade to full */ true);
     }
 
     void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
@@ -612,6 +652,8 @@ public:
      */
     GrSurfaceProxy::UniqueID uniqueID() const { return this->asSurfaceProxy()->uniqueID(); }
 
+    void addOp(GrOp::Owner);
+
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
@@ -639,6 +681,10 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipmapped mipmapped() const;
 
+    // TODO: See if it makes sense for this to return a const& instead and require the callers to
+    // make a copy (which refs the proxy) if needed.
+    GrSurfaceProxyView writeSurfaceView() { return fWriteView; }
+
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
@@ -647,6 +693,7 @@ public:
 
 #if GR_TEST_UTILS
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
+    GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
 
 private:
@@ -654,9 +701,13 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
-    GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
+    SkDEBUGCODE(void onValidate() const override;)
+
+    GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const;
     void setNeedsStencil(bool useMixedSamplesIfNotMSAA);
 
+    void internalClear(const SkIRect* scissor, const SkPMColor4f&,
+                       bool upgradePartialToFull = false);
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
 
     // Only consumes the GrPaint if successful.
@@ -721,7 +772,14 @@ private:
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
+    GrSurfaceProxyView fWriteView;
+
+    // In MDB-mode the GrOpsTask can be closed by some other surfaceDrawContext that has picked
+    // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
+    sk_sp<GrOpsTask> fOpsTask;
+
     SkSurfaceProps fSurfaceProps;
+    bool fFlushTimeOpsTask;
 
     int fNumStencilSamples = 0;
 
@@ -731,7 +789,7 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    using INHERITED = GrSurfaceFillContext;
+    using INHERITED = GrSurfaceContext;
 };
 
 #endif

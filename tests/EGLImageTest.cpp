@@ -184,11 +184,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap as a RT
     {
-        auto temp = GrSurfaceFillContext::MakeFromBackendTexture(context0,
-                                                                 colorInfo,
+        auto temp = GrSurfaceDrawContext::MakeFromBackendTexture(context0,
+                                                                 colorInfo.colorType(),
+                                                                 /*color space*/ nullptr,
                                                                  backendTex,
                                                                  1,
                                                                  origin,
+                                                                 /*surface props*/ nullptr,
                                                                  /*release helper*/ nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");

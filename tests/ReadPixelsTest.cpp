@@ -962,11 +962,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
                 if (src.colorType() == kRGB_888x_SkColorType) {
                     return Surface();
                 }
-                auto surfContext = GrSurfaceContext::Make(direct,
-                                                          src.info(),
-                                                          SkBackingFit::kExact,
-                                                          origin,
-                                                          renderable);
+                std::unique_ptr<GrSurfaceContext> surfContext;
+                // Renderable + unpremul/unknown is not allowed (yet!), skbug.com/11019
+                if (renderable == GrRenderable::kNo        ||
+                    src.alphaType() == kPremul_SkAlphaType ||
+                    src.alphaType() == kOpaque_SkAlphaType) {
+                    surfContext = GrSurfaceContext::Make(direct, src.info(), SkBackingFit::kExact,
+                                                         origin, renderable);
+                }
                 if (surfContext) {
                     surfContext->writePixels(direct,
                                              src.info(),

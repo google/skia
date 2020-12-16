@@ -429,7 +429,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         auto mipmapRTC = GrSurfaceDrawContext::Make(
             dContext.get(), colorType, nullptr, mipmapProxy, kTopLeft_GrSurfaceOrigin, nullptr);
 
-        mipmapRTC->clear(SkPMColor4f{.1f, .2f, .3f, .4f});
+        mipmapRTC->clear({.1f,.2f,.3f,.4f});
         REPORTER_ASSERT(reporter, drawingManager->getLastRenderTask(mipmapProxy.get()));
         // mipmapProxy's last render task should now just be the opsTask containing the clear.
         REPORTER_ASSERT(reporter,
@@ -475,7 +475,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         REPORTER_ASSERT(reporter, rtc2Task->dependsOn(initialMipmapRegenTask));
 
         // Render something to dirty the mips.
-        mipmapRTC->clear(SkPMColor4f{.1f, .2f, .3f, .4f});
+        mipmapRTC->clear({.1f,.2f,.3f,.4f});
         auto mipmapRTCTask = sk_ref_sp(mipmapRTC->testingOnly_PeekLastOpsTask());
         REPORTER_ASSERT(reporter, mipmapRTCTask);
 

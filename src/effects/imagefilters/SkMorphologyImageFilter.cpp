@@ -361,7 +361,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_rect(GrSurfaceDrawContext* surfaceDrawContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -370,17 +370,17 @@ static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
                                   MorphType morphType,
                                   const float range[2],
                                   MorphDirection direction) {
-    auto fp = GrMorphologyEffect::Make(/*inputFP=*/nullptr,
-                                       std::move(view),
-                                       srcAlphaType,
-                                       direction,
-                                       radius,
-                                       morphType,
-                                       range);
-    surfaceFillContext->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
+    GrPaint paint;
+    paint.setColorFragmentProcessor(GrMorphologyEffect::Make(/*inputFP=*/nullptr, std::move(view),
+                                                             srcAlphaType, direction, radius,
+                                                             morphType, range));
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    surfaceDrawContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
+                                       SkMatrix::I(), SkRect::Make(dstRect),
+                                       SkRect::Make(srcRect));
 }
 
-static void apply_morphology_rect_no_bounds(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_rect_no_bounds(GrSurfaceDrawContext* surfaceDrawContext,
                                             GrSurfaceProxyView view,
                                             SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
@@ -388,12 +388,16 @@ static void apply_morphology_rect_no_bounds(GrSurfaceFillContext* surfaceFillCon
                                             int radius,
                                             MorphType morphType,
                                             MorphDirection direction) {
-    auto fp = GrMorphologyEffect::Make(
-            /*inputFP=*/nullptr, std::move(view), srcAlphaType, direction, radius, morphType);
-    surfaceFillContext->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
+    GrPaint paint;
+    paint.setColorFragmentProcessor(GrMorphologyEffect::Make(
+            /*inputFP=*/nullptr, std::move(view), srcAlphaType, direction, radius, morphType));
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    surfaceDrawContext->fillRectToRect(/*clip=*/nullptr, std::move(paint), GrAA::kNo,
+                                       SkMatrix::I(), SkRect::Make(dstRect),
+                                       SkRect::Make(srcRect));
 }
 
-static void apply_morphology_pass(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_pass(GrSurfaceDrawContext* surfaceDrawContext,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -426,15 +430,15 @@ static void apply_morphology_pass(GrSurfaceFillContext* surfaceFillContext,
     }
     if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(surfaceFillContext, std::move(view), srcAlphaType, srcRect,
+        apply_morphology_rect(surfaceDrawContext, std::move(view), srcAlphaType, srcRect,
                               dstRect, radius, morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(surfaceFillContext, view, srcAlphaType, lowerSrcRect,
+        apply_morphology_rect(surfaceDrawContext, view, srcAlphaType, lowerSrcRect,
                               lowerDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect(surfaceFillContext, view, srcAlphaType, upperSrcRect,
+        apply_morphology_rect(surfaceDrawContext, view, srcAlphaType, upperSrcRect,
                               upperDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect_no_bounds(surfaceFillContext, std::move(view), srcAlphaType,
+        apply_morphology_rect_no_bounds(surfaceDrawContext, std::move(view), srcAlphaType,
                                         middleSrcRect, middleDstRect, radius, morphType, direction);
     }
 }
@@ -457,47 +461,37 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         proxy->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
-        if (!dstFillContext) {
+        auto dstRTContext = GrSurfaceDrawContext::Make(
+                context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
+                GrMipmapped::kNo, proxy->isProtected(), kBottomLeft_GrSurfaceOrigin);
+        if (!dstRTContext) {
             return nullptr;
         }
 
-        apply_morphology_pass(dstFillContext.get(), std::move(srcView), srcAlphaType,
+        apply_morphology_pass(dstRTContext.get(), std::move(srcView), srcAlphaType,
                               srcRect, dstRect, radius.fWidth, morphType, MorphDirection::kX);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
         SkPMColor4f clearColor = MorphType::kErode == morphType
                 ? SK_PMColor4fWHITE : SK_PMColor4fTRANSPARENT;
-        dstFillContext->clear(clearRect, clearColor);
+        dstRTContext->clear(clearRect, clearColor);
 
-        srcView = dstFillContext->readSurfaceView();
-        srcAlphaType = dstFillContext->colorInfo().alphaType();
+        srcView = dstRTContext->readSurfaceView();
+        srcAlphaType = dstRTContext->colorInfo().alphaType();
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         srcView.proxy()->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
-        if (!dstFillContext) {
+        auto dstRTContext = GrSurfaceDrawContext::Make(
+                context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
+                GrMipmapped::kNo, srcView.proxy()->isProtected(), kBottomLeft_GrSurfaceOrigin);
+        if (!dstRTContext) {
             return nullptr;
         }
 
-        apply_morphology_pass(dstFillContext.get(), std::move(srcView), srcAlphaType,
+        apply_morphology_pass(dstRTContext.get(), std::move(srcView), srcAlphaType,
                               srcRect, dstRect, radius.fHeight, morphType, MorphDirection::kY);
 
-        srcView = dstFillContext->readSurfaceView();
+        srcView = dstRTContext->readSurfaceView();
     }
 
     return SkSpecialImage::MakeDeferredFromGpu(context,

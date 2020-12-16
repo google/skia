@@ -645,7 +645,7 @@ bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats
     GrPaint paint;
     paint.setColor4f({0.0f, 0.0f, 1.0f, 1.0f});
 
-    rtc->clear(SkPMColor4f{1.0f, 1.0f, 1.0f, 1.0f});
+    rtc->clear({1.0f, 1.0f, 1.0f, 1.0f});
     rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                   { 10, 10, wh-10.0f, wh-10.0f }, &GrStyle::SimpleFill());
 

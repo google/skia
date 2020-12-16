@@ -305,24 +305,17 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     }
 
     // TODO: investigate preallocating mip maps here
-    GrImageInfo info(SkColorTypeToGrColorType(this->colorType()),
-                     kPremul_SkAlphaType,
-                     /*color space*/ nullptr,
-                     this->dimensions());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(ctx,
-                                                         info,
-                                                         SkBackingFit::kExact,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         GrProtected::kNo,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         budgeted);
-    if (!surfaceFillContext) {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
+            ctx, ct, nullptr, SkBackingFit::kExact, this->dimensions(), 1, GrMipmapped::kNo,
+            GrProtected::kNo, kTopLeft_GrSurfaceOrigin, budgeted);
+    if (!surfaceDrawContext) {
         return {};
     }
 
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkAssertResult(yuvaPixmaps.toYUVAIndices(yuvaIndices));
+    GrPaint paint;
     std::unique_ptr<GrFragmentProcessor> yuvToRgbProcessor =
             GrYUVtoRGBEffect::Make(yuvViews,
                                    yuvaIndices,
@@ -347,13 +340,18 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
             GrColorSpaceXformEffect::Make(std::move(yuvToRgbProcessor),
                                           srcColorSpace, kOpaque_SkAlphaType,
                                           dstColorSpace, kOpaque_SkAlphaType);
+    paint.setColorFragmentProcessor(std::move(colorConversionProcessor));
+
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    const SkRect r = SkRect::Make(this->dimensions());
+
     SkMatrix m = SkEncodedOriginToMatrix(yuvaPixmaps.yuvaInfo().origin(),
                                          this->width(),
                                          this->height());
-    surfaceFillContext->fillWithFP(m, std::move(colorConversionProcessor));
+    surfaceDrawContext->drawRect(nullptr, std::move(paint), GrAA::kNo, m, r);
 
-    SkASSERT(surfaceFillContext->asTextureProxy());
-    return surfaceFillContext->readSurfaceView();
+    SkASSERT(surfaceDrawContext->asTextureProxy());
+    return surfaceDrawContext->readSurfaceView();
 }
 
 sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
