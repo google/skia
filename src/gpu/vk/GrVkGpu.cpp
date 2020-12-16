@@ -2634,6 +2634,10 @@ void GrVkGpu::waitSemaphore(GrSemaphore* semaphore) {
     }
 }
 
+void GrVkGpu::setViewport(SkIRect viewport) {
+
+}
+
 std::unique_ptr<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     SkASSERT(texture);
     GrVkTexture* vkTexture = static_cast<GrVkTexture*>(texture);

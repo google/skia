@@ -620,7 +620,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     SkIPoint viewportOffset) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             this->setTransform(pdman, fLocalMatrixUniform, qe.fLocalMatrix, &fLocalMatrix);
         }
@@ -855,7 +856,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         for (int i = 0; i < fDraws.count(); ++i) {
             for (int j = 0; j < fDraws[i].fMeshCount; ++j) {

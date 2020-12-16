@@ -201,5 +201,5 @@ void GrCCCoverageProcessor::bindPipeline(GrOpFlushState* flushState, const GrPip
     GrProgramInfo programInfo(flushState->writeView(), &pipeline, stencil, this,
                               this->primType(), 0, flushState->renderPassBarriers(),
                               flushState->colorLoadOp());
-    flushState->bindPipeline(programInfo, drawBounds);
+    flushState->bindPipeline2(programInfo, drawBounds);
 }

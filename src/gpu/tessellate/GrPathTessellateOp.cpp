@@ -819,7 +819,7 @@ void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
 void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
     if (fStencilTrianglesProgram && fTriangleVertexCount > 0) {
         SkASSERT(fTriangleBuffer);
-        flushState->bindPipelineAndScissorClip(*fStencilTrianglesProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fStencilTrianglesProgram, this->bounds());
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
     }
@@ -827,7 +827,7 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
     if (fCubicVertexCount > 0) {
         SkASSERT(fStencilCubicsProgram);
         SkASSERT(fCubicBuffer);
-        flushState->bindPipelineAndScissorClip(*fStencilCubicsProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fStencilCubicsProgram, this->bounds());
         if (fIndirectDrawBuffer) {
             SkASSERT(fIndirectIndexBuffer);
             flushState->bindBuffers(fIndirectIndexBuffer, fCubicBuffer, nullptr);
@@ -850,7 +850,7 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
 
         // We have a triangulation of the path's inner polygon. This is the fast path. Fill those
         // triangles directly to the screen.
-        flushState->bindPipelineAndScissorClip(*fFillTrianglesProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fFillTrianglesProgram, this->bounds());
         flushState->bindTextures(fFillTrianglesProgram->primProc(), nullptr, *fPipelineForFills);
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
@@ -862,7 +862,7 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
             // At this point, every pixel is filled in except the ones touched by curves.
             // fFillPathProgram will issue a final cover pass over the curves by drawing their
             // convex hulls. This will fill in any remaining samples and reset the stencil buffer.
-            flushState->bindPipelineAndScissorClip(*fFillPathProgram, this->bounds());
+            flushState->bindPipelineAndScissorClip3(*fFillPathProgram, this->bounds());
             flushState->bindTextures(fFillPathProgram->primProc(), nullptr, *fPipelineForFills);
 
             // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with
@@ -874,7 +874,7 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
         }
     } else if (fFillPathProgram) {
         // There are no triangles to fill. Just draw a bounding box.
-        flushState->bindPipelineAndScissorClip(*fFillPathProgram, this->bounds());
+        flushState->bindPipelineAndScissorClip3(*fFillPathProgram, this->bounds());
         flushState->bindTextures(fFillPathProgram->primProc(), nullptr, *fPipelineForFills);
         flushState->bindBuffers(nullptr, nullptr, nullptr);
         flushState->draw(4, 0);

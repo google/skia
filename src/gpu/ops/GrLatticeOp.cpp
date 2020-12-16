@@ -49,7 +49,8 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrPrimitiveProcessor& proc) override {
+                         const GrPrimitiveProcessor& proc,
+                         SkIPoint viewportOffset) override {
                 const auto& latticeGP = proc.cast<LatticeGP>();
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());
             }
@@ -302,7 +303,7 @@ private:
             return;
         }
 
-        flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
+        flushState->bindPipelineAndScissorClip3(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->primProc(), *fView.proxy(),
                                  fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);

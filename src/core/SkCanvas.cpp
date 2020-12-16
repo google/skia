@@ -1834,11 +1834,13 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawPath(path, paint);
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    //return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     this->onDrawImage(image, x, y, paint);
@@ -1853,6 +1855,15 @@ static bool fillable(const SkRect& r) {
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                              const SkPaint* paint, SrcRectConstraint constraint) {
+    if (dst.width() > 335) { // 350 yep 325 nope
+        return;
+    }
+
+    SkDebugf("----- %.2f %.2f %.2f %.2f - ", src.fLeft, src.fTop, src.fRight, src.fBottom);
+    SkDebugf("%.2f %.2f %.2f %.2f  ---------- %fx%f\n", dst.fLeft, dst.fTop, dst.fRight, dst.fBottom,
+            dst.width(), dst.height());
+
+    //return;
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
     if (!fillable(dst) || !fillable(src)) {
@@ -2342,6 +2353,8 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               const SkPaint& paint) {
+    return;
+
     const SkRect bounds = blob->bounds().makeOffset(x, y);
     if (this->internalQuickReject(bounds, paint)) {
         return;

@@ -739,7 +739,7 @@ class FillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("%s = half4(coverage);", args.fOutputCoverage);
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 };
 
 
@@ -840,7 +840,7 @@ class FillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
         f->codeAppendf("}");
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&) override {}
+    void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&, SkIPoint viewportOffset) override {}
 };
 
 GrGLSLPrimitiveProcessor* FillRRectOp::Processor::createGLSLInstance(
@@ -875,7 +875,7 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
         this->createProgramInfo(flushState);
     }
 
-    flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
+    flushState->bindPipelineAndScissorClip3(*fProgramInfo, this->bounds());
     flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));

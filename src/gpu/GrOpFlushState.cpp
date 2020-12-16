@@ -60,7 +60,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->renderPassBarriers(),
                                   this->colorLoadOp());
 
-        this->bindPipelineAndScissorClip(programInfo, chainBounds);
+        this->bindPipelineAndScissorClip3(programInfo, chainBounds);
         this->bindTextures(programInfo.primProc(), fCurrDraw->fPrimProcProxies,
                            programInfo.pipeline());
         for (int i = 0; i < fCurrDraw->fMeshCnt; ++i) {

@@ -121,7 +121,8 @@ return half4(color.xyz, 1.0) * inColor.w;
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
-                   const GrFragmentProcessor& _proc) override {
+                   const GrFragmentProcessor& _proc,
+                   SkIPoint viewportOffset) override {
         const GrHighContrastFilterEffect& _outer = _proc.cast<GrHighContrastFilterEffect>();
         { pdman.set1f(contrastModVar, (_outer.contrastMod)); }
     }
