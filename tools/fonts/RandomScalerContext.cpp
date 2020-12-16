@@ -23,7 +23,6 @@ public:
                         bool fFakeIt);
 
 protected:
-    unsigned generateGlyphCount() override;
     bool     generateAdvance(SkGlyph*) override;
     void     generateMetrics(SkGlyph*) override;
     void     generateImage(const SkGlyph&) override;
@@ -47,8 +46,6 @@ RandomScalerContext::RandomScalerContext(sk_sp<SkRandomTypeface>       face,
         , fFakeIt(fakeIt) {
     fProxy->forceGenerateImageFromPath();
 }
-
-unsigned RandomScalerContext::generateGlyphCount() { return fProxy->getGlyphCount(); }
 
 bool RandomScalerContext::generateAdvance(SkGlyph* glyph) { return fProxy->generateAdvance(glyph); }
 

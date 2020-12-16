@@ -563,7 +563,6 @@ public:
     bool isValid() const;
 
 protected:
-    unsigned generateGlyphCount() override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
@@ -594,7 +593,6 @@ private:
     HFONT        fSavefont;
     HFONT        fFont;
     SCRIPT_CACHE fSC;
-    int          fGlyphCount;
 
     /** The total matrix which also removes EM scale. */
     SkMatrix     fHiResMatrix;
@@ -639,7 +637,6 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
         , fSavefont(0)
         , fFont(0)
         , fSC(0)
-        , fGlyphCount(-1)
 {
     LogFontTypeface* typeface = static_cast<LogFontTypeface*>(this->getTypeface());
 
@@ -798,14 +795,6 @@ SkScalerContext_GDI::~SkScalerContext_GDI() {
 
 bool SkScalerContext_GDI::isValid() const {
     return fDDC && fFont;
-}
-
-unsigned SkScalerContext_GDI::generateGlyphCount() {
-    if (fGlyphCount < 0) {
-        fGlyphCount = calculateGlyphCount(
-                          fDDC, static_cast<const LogFontTypeface*>(this->getTypeface())->fLogFont);
-    }
-    return fGlyphCount;
 }
 
 bool SkScalerContext_GDI::generateAdvance(SkGlyph* glyph) {

@@ -28,7 +28,6 @@ public:
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
 
 protected:
-    unsigned generateGlyphCount() override;
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;

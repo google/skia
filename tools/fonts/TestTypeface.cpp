@@ -160,8 +160,6 @@ protected:
         return static_cast<TestTypeface*>(this->getTypeface());
     }
 
-    unsigned generateGlyphCount() override { return this->getTestTypeface()->onCountGlyphs(); }
-
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestTypeface()->getAdvance(glyph);
 

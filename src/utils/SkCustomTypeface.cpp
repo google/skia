@@ -201,10 +201,6 @@ public:
     }
 
 protected:
-    unsigned generateGlyphCount() override {
-        return this->userTF()->glyphCount();
-    }
-
     bool generateAdvance(SkGlyph* glyph) override {
         const SkUserTypeface* tf = this->userTF();
         auto advance = fMatrix.mapXY(tf->fAdvances[glyph->getGlyphID()], 0);

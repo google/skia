@@ -284,7 +284,6 @@ public:
     // DEPRECATED
     bool isVertical() const { return false; }
 
-    unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     SkGlyph     makeGlyph(SkPackedGlyphID);
     void        getImage(const SkGlyph&);
     bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
@@ -395,9 +394,6 @@ protected:
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkFontMetrics*) = 0;
-
-    /** Returns the number of glyphs in the font. */
-    virtual unsigned generateGlyphCount() = 0;
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
