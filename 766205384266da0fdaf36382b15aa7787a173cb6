@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf858e4b_12e03e60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-16T19:14:40Z",
+      "side": 1,
+      "message": "I love the amount of code that we can remove with this change.\n\nFor the GLSL and Metal code generators, I\u0027d really like it if `writeForStatement` detected a for loop without an initializer or next-expression and emitted `while (test)` instead of `for (;test;)`. I think that dramatically reduces the chance that we find some crazy driver quirk, and also will help readers identify their code post-SkSLification. ",
+      "revId": "766205384266da0fdaf36382b15aa7787a173cb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "347255bc_24c0c479",
