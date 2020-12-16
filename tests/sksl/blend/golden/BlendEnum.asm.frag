@@ -45,7 +45,7 @@ OpName %_17_blend_src_over "_17_blend_src_over"
 OpName %_18_blend_dst_over "_18_blend_dst_over"
 OpName %_19_blend_src_in "_19_blend_src_in"
 OpName %_20_blend_dst_in "_20_blend_dst_in"
-OpName %_21_0_blend_src_in "_21_0_blend_src_in"
+OpName %_21_blend_src_in "_21_blend_src_in"
 OpName %_22_blend_src_out "_22_blend_src_out"
 OpName %_23_blend_dst_out "_23_blend_dst_out"
 OpName %_24_blend_src_atop "_24_blend_src_atop"
@@ -55,10 +55,10 @@ OpName %_27_blend_plus "_27_blend_plus"
 OpName %_28_blend_modulate "_28_blend_modulate"
 OpName %_29_blend_screen "_29_blend_screen"
 OpName %_30_blend_darken "_30_blend_darken"
-OpName %_31_1_blend_src_over "_31_1_blend_src_over"
+OpName %_31_blend_src_over "_31_blend_src_over"
 OpName %_32_result "_32_result"
 OpName %_33_blend_lighten "_33_blend_lighten"
-OpName %_34_2_blend_src_over "_34_2_blend_src_over"
+OpName %_34_blend_src_over "_34_blend_src_over"
 OpName %_35_result "_35_result"
 OpName %_36_blend_color_dodge "_36_blend_color_dodge"
 OpName %_37_blend_color_burn "_37_blend_color_burn"
@@ -1530,7 +1530,7 @@ OpFunctionEnd
 %_18_blend_dst_over = OpVariable %_ptr_Function_v4float Function
 %_19_blend_src_in = OpVariable %_ptr_Function_v4float Function
 %_20_blend_dst_in = OpVariable %_ptr_Function_v4float Function
-%_21_0_blend_src_in = OpVariable %_ptr_Function_v4float Function
+%_21_blend_src_in = OpVariable %_ptr_Function_v4float Function
 %_22_blend_src_out = OpVariable %_ptr_Function_v4float Function
 %_23_blend_dst_out = OpVariable %_ptr_Function_v4float Function
 %_24_blend_src_atop = OpVariable %_ptr_Function_v4float Function
@@ -1542,10 +1542,10 @@ OpFunctionEnd
 %834 = OpVariable %_ptr_Function_v4float Function
 %836 = OpVariable %_ptr_Function_v4float Function
 %_30_blend_darken = OpVariable %_ptr_Function_v4float Function
-%_31_1_blend_src_over = OpVariable %_ptr_Function_v4float Function
+%_31_blend_src_over = OpVariable %_ptr_Function_v4float Function
 %_32_result = OpVariable %_ptr_Function_v4float Function
 %_33_blend_lighten = OpVariable %_ptr_Function_v4float Function
-%_34_2_blend_src_over = OpVariable %_ptr_Function_v4float Function
+%_34_blend_src_over = OpVariable %_ptr_Function_v4float Function
 %_35_result = OpVariable %_ptr_Function_v4float Function
 %_36_blend_color_dodge = OpVariable %_ptr_Function_v4float Function
 %895 = OpVariable %_ptr_Function_v2float Function
@@ -1657,8 +1657,8 @@ OpReturnValue %752
 %756 = OpLoad %v4float %688
 %757 = OpCompositeExtract %float %756 3
 %758 = OpVectorTimesScalar %v4float %755 %757
-OpStore %_21_0_blend_src_in %758
-%759 = OpLoad %v4float %_21_0_blend_src_in
+OpStore %_21_blend_src_in %758
+%759 = OpLoad %v4float %_21_blend_src_in
 OpStore %_20_blend_dst_in %759
 %760 = OpLoad %v4float %_20_blend_dst_in
 OpReturnValue %760
@@ -1765,8 +1765,8 @@ OpReturnValue %837
 %844 = OpLoad %v4float %689
 %845 = OpVectorTimesScalar %v4float %844 %843
 %846 = OpFAdd %v4float %840 %845
-OpStore %_31_1_blend_src_over %846
-%848 = OpLoad %v4float %_31_1_blend_src_over
+OpStore %_31_blend_src_over %846
+%848 = OpLoad %v4float %_31_blend_src_over
 OpStore %_32_result %848
 %850 = OpLoad %v4float %_32_result
 %851 = OpVectorShuffle %v3float %850 %850 0 1 2
@@ -1795,8 +1795,8 @@ OpReturnValue %864
 %871 = OpLoad %v4float %689
 %872 = OpVectorTimesScalar %v4float %871 %870
 %873 = OpFAdd %v4float %867 %872
-OpStore %_34_2_blend_src_over %873
-%875 = OpLoad %v4float %_34_2_blend_src_over
+OpStore %_34_blend_src_over %873
+%875 = OpLoad %v4float %_34_blend_src_over
 OpStore %_35_result %875
 %877 = OpLoad %v4float %_35_result
 %878 = OpVectorShuffle %v3float %877 %877 0 1 2

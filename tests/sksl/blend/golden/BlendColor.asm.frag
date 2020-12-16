@@ -13,9 +13,9 @@ OpName %_1_alpha "_1_alpha"
 OpName %_2_sda "_2_sda"
 OpName %_3_dsa "_3_dsa"
 OpName %_4_blend_set_color_luminance "_4_blend_set_color_luminance"
-OpName %_5_11_blend_color_luminance "_5_11_blend_color_luminance"
+OpName %_5_blend_color_luminance "_5_blend_color_luminance"
 OpName %_6_lum "_6_lum"
-OpName %_7_12_blend_color_luminance "_7_12_blend_color_luminance"
+OpName %_7_blend_color_luminance "_7_blend_color_luminance"
 OpName %_8_result "_8_result"
 OpName %_9_minComp "_9_minComp"
 OpName %_10_maxComp "_10_maxComp"
@@ -117,9 +117,9 @@ OpDecorate %158 RelaxedPrecision
 %_2_sda = OpVariable %_ptr_Function_v3float Function
 %_3_dsa = OpVariable %_ptr_Function_v3float Function
 %_4_blend_set_color_luminance = OpVariable %_ptr_Function_v3float Function
-%_5_11_blend_color_luminance = OpVariable %_ptr_Function_float Function
+%_5_blend_color_luminance = OpVariable %_ptr_Function_float Function
 %_6_lum = OpVariable %_ptr_Function_float Function
-%_7_12_blend_color_luminance = OpVariable %_ptr_Function_float Function
+%_7_blend_color_luminance = OpVariable %_ptr_Function_float Function
 %_8_result = OpVariable %_ptr_Function_v3float Function
 %_9_minComp = OpVariable %_ptr_Function_float Function
 %_10_maxComp = OpVariable %_ptr_Function_float Function
@@ -144,14 +144,14 @@ OpStore %_2_sda %32
 OpStore %_3_dsa %38
 %46 = OpLoad %v3float %_3_dsa
 %41 = OpDot %float %42 %46
-OpStore %_5_11_blend_color_luminance %41
-%48 = OpLoad %float %_5_11_blend_color_luminance
+OpStore %_5_blend_color_luminance %41
+%48 = OpLoad %float %_5_blend_color_luminance
 OpStore %_6_lum %48
 %52 = OpLoad %v3float %_2_sda
 %50 = OpDot %float %51 %52
-OpStore %_7_12_blend_color_luminance %50
+OpStore %_7_blend_color_luminance %50
 %54 = OpLoad %float %_6_lum
-%55 = OpLoad %float %_7_12_blend_color_luminance
+%55 = OpLoad %float %_7_blend_color_luminance
 %56 = OpFSub %float %54 %55
 %57 = OpLoad %v3float %_2_sda
 %58 = OpCompositeConstruct %v3float %56 %56 %56

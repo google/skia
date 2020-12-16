@@ -144,10 +144,10 @@ vec4 blend(int mode, vec4 src, vec4 dst) {
 
         case 6:
             vec4 _20_blend_dst_in;
-            vec4 _21_0_blend_src_in;
-            _21_0_blend_src_in = dst * src.w;
+            vec4 _21_blend_src_in;
+            _21_blend_src_in = dst * src.w;
 
-            _20_blend_dst_in = _21_0_blend_src_in;
+            _20_blend_dst_in = _21_blend_src_in;
 
 
             return _20_blend_dst_in;
@@ -204,10 +204,10 @@ vec4 blend(int mode, vec4 src, vec4 dst) {
             return blend_overlay(src, dst);
         case 16:
             vec4 _30_blend_darken;
-            vec4 _31_1_blend_src_over;
-            _31_1_blend_src_over = src + (1.0 - src.w) * dst;
+            vec4 _31_blend_src_over;
+            _31_blend_src_over = src + (1.0 - src.w) * dst;
 
-            vec4 _32_result = _31_1_blend_src_over;
+            vec4 _32_result = _31_blend_src_over;
 
             _32_result.xyz = min(_32_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
             _30_blend_darken = _32_result;
@@ -216,10 +216,10 @@ vec4 blend(int mode, vec4 src, vec4 dst) {
 
         case 17:
             vec4 _33_blend_lighten;
-            vec4 _34_2_blend_src_over;
-            _34_2_blend_src_over = src + (1.0 - src.w) * dst;
+            vec4 _34_blend_src_over;
+            _34_blend_src_over = src + (1.0 - src.w) * dst;
 
-            vec4 _35_result = _34_2_blend_src_over;
+            vec4 _35_result = _34_blend_src_over;
 
             _35_result.xyz = max(_35_result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);
             _33_blend_lighten = _35_result;
