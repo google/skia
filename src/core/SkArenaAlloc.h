@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 
 #include <array>
 #include <cassert>
@@ -22,6 +23,45 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+// We found allocating strictly doubling amounts of memory from the heap left too
+// much unused slop, particularly on Android.  Instead we'll follow a Fibonacci-like
+// progression.
+
+// SkFibonacci47 is the first 47 Fibonacci numbers. Fib(47) is the largest value less than 2 ^ 32.
+extern std::array<const uint32_t, 47> SkFibonacci47;
+template<uint32_t kMaxSize>
+class SkFibBlockSizes {
+public:
+    // staticBlockSize, and firstAllocationSize are parameters describing the initial memory
+    // layout. staticBlockSize describes the size of the inlined memory, and firstAllocationSize
+    // describes the size of the first block to be allocated if the static block is exhausted. By
+    // convention, firstAllocationSize is the first choice for the block unit size followed by
+    // staticBlockSize followed by the default of 1024 bytes.
+    SkFibBlockSizes(uint32_t staticBlockSize, uint32_t firstAllocationSize) : fIndex{0} {
+        fBlockUnitSize = firstAllocationSize > 0 ? firstAllocationSize :
+                         staticBlockSize     > 0 ? staticBlockSize     : 1024;
+
+        SkASSERT_RELEASE(0 < fBlockUnitSize);
+        SkASSERT_RELEASE(fBlockUnitSize < std::min(kMaxSize, (1u << 26) - 1));
+    }
+
+    uint32_t nextBlockSize() {
+        uint32_t result = SkFibonacci47[fIndex] * fBlockUnitSize;
+
+        if (SkTo<size_t>(fIndex + 1) < SkFibonacci47.size() &&
+            SkFibonacci47[fIndex + 1] < kMaxSize / fBlockUnitSize)
+        {
+            fIndex += 1;
+        }
+
+        return result;
+    }
+
+private:
+    uint32_t fIndex : 6;
+    uint32_t fBlockUnitSize : 26;
+};
 
 // SkArenaAlloc allocates object and destroys the allocated objects when destroyed. It's designed
 // to minimize the number of underlying block allocations. SkArenaAlloc allocates first out of an
@@ -238,21 +278,7 @@ private:
     char*          fCursor;
     char*          fEnd;
 
-    // We found allocating strictly doubling amounts of memory from the heap left too
-    // much unused slop, particularly on Android.  Instead we'll follow a Fibonacci-like
-    // progression that's simple to implement and grows with roughly a 1.6 exponent:
-    //
-    // To start,
-    //    fNextHeapAlloc = fYetNextHeapAlloc = 1*fFirstHeapAllocationSize;
-    //
-    // And then when we do allocate, follow a Fibonacci f(n+2) = f(n+1) + f(n) rule:
-    //    void* block = malloc(fNextHeapAlloc);
-    //    std::swap(fNextHeapAlloc, fYetNextHeapAlloc)
-    //    fYetNextHeapAlloc += fNextHeapAlloc;
-    //
-    // That makes the nth allocation fib(n) * fFirstHeapAllocationSize bytes.
-    uint32_t fNextHeapAlloc,     // How many bytes minimum will we allocate next from the heap?
-    fYetNextHeapAlloc;           // And then how many the next allocation after that?
+    SkFibBlockSizes<std::numeric_limits<uint32_t>::max()> fFibonacciProgression;
 };
 
 class SkArenaAllocWithReset : public SkArenaAlloc {
