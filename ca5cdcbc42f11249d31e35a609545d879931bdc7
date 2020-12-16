@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94c57ae9_c3b62b28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T14:05:40Z",
+      "side": 1,
+      "message": "I don\u0027t think we want SkImageGenerator returning a GrBackendTexture. The class is a factory class and not an object that is logically backed by a texture",
+      "revId": "ca5cdcbc42f11249d31e35a609545d879931bdc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
