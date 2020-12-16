@@ -1831,7 +1831,7 @@ bool Compiler::optimize(LoadedModule& module) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(module.fElements, module.fSymbols.get(), usage.get());
+        madeChanges |= fInliner.analyze(module.fElements, module.fSymbols, usage.get());
 
         if (!madeChanges) {
             break;
@@ -1857,7 +1857,7 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program.ownedElements(), program.fSymbols.get(), usage);
+        madeChanges |= fInliner.analyze(program.ownedElements(), program.fSymbols, usage);
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
