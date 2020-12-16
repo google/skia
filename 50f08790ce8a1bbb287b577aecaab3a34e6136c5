@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8f3a2bd_3ad75d38",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-16T16:21:45Z",
+      "side": 1,
+      "message": "I don\u0027t think there is a change I can make in skia alone that would fix the failing build in chromium.\n\nI probably should have not put SkSharingProc in tools, but in src/util, but moving it now seems not possible without breaking android.\n\nI\u0027ll have to make a chrome change to include that source along with PDF stuff\n",
+      "revId": "50f08790ce8a1bbb287b577aecaab3a34e6136c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
