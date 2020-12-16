@@ -386,36 +386,31 @@ static void etc_encodeBaseColors(etc1_byte* pBaseColors,
         const etc1_byte* pColors, etc_compressed* pCompressed) {
     int r1, g1, b1, r2, g2, b2; // 8 bit base colors for sub-blocks
     bool differential;
-    {
-        int r51 = convert8To5(pColors[0]);
-        int g51 = convert8To5(pColors[1]);
-        int b51 = convert8To5(pColors[2]);
-        int r52 = convert8To5(pColors[3]);
-        int g52 = convert8To5(pColors[4]);
-        int b52 = convert8To5(pColors[5]);
 
-        r1 = convert5To8(r51);
-        g1 = convert5To8(g51);
-        b1 = convert5To8(b51);
+    int r51 = convert8To5(pColors[0]);
+    int g51 = convert8To5(pColors[1]);
+    int b51 = convert8To5(pColors[2]);
+    int r52 = convert8To5(pColors[3]);
+    int g52 = convert8To5(pColors[4]);
+    int b52 = convert8To5(pColors[5]);
 
-        int dr = r52 - r51;
-        int dg = g52 - g51;
-        int db = b52 - b51;
+    r1 = convert5To8(r51);
+    g1 = convert5To8(g51);
+    b1 = convert5To8(b51);
 
-        differential = inRange4bitSigned(dr) && inRange4bitSigned(dg)
-                && inRange4bitSigned(db);
-        if (differential) {
-            r2 = convert5To8(r51 + dr);
-            g2 = convert5To8(g51 + dg);
-            b2 = convert5To8(b51 + db);
-            pCompressed->high |= (r51 << 27) | ((7 & dr) << 24) | (g51 << 19)
-                    | ((7 & dg) << 16) | (b51 << 11) | ((7 & db) << 8) | 2;
-        } else {
-            r2 = g2 = b2 = 0; // to shut the compiler up
-        }
-    }
+    int dr = r52 - r51;
+    int dg = g52 - g51;
+    int db = b52 - b51;
 
-    if (!differential) {
+    differential = inRange4bitSigned(dr) && inRange4bitSigned(dg)
+            && inRange4bitSigned(db);
+    if (differential) {
+        r2 = convert5To8(r51 + dr);
+        g2 = convert5To8(g51 + dg);
+        b2 = convert5To8(b51 + db);
+        pCompressed->high |= (r51 << 27) | ((7 & dr) << 24) | (g51 << 19)
+                | ((7 & dg) << 16) | (b51 << 11) | ((7 & db) << 8) | 2;
+    } else {
         int r41 = convert8To4(pColors[0]);
         int g41 = convert8To4(pColors[1]);
         int b41 = convert8To4(pColors[2]);
