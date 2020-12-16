@@ -17,8 +17,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_overlay;
-    float4 _1_result;
-    _1_result = float4(_blend_overlay_component(_in.src.xw, _in.dst.xw), _blend_overlay_component(_in.src.yw, _in.dst.yw), _blend_overlay_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
+    float4 _1_result = float4(_blend_overlay_component(_in.src.xw, _in.dst.xw), _blend_overlay_component(_in.src.yw, _in.dst.yw), _blend_overlay_component(_in.src.zw, _in.dst.zw), _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
     _1_result.xyz = _1_result.xyz + _in.dst.xyz * (1.0 - _in.src.w) + _in.src.xyz * (1.0 - _in.dst.w);
     _0_blend_overlay = _1_result;
 

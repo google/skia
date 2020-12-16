@@ -8,8 +8,7 @@ in vec4 dst;
 void main() {
     vec4 _0_blend_hard_light;
     vec4 _1_blend_overlay;
-    vec4 _2_result;
-    _2_result = vec4(_blend_overlay_component(dst.xw, src.xw), _blend_overlay_component(dst.yw, src.yw), _blend_overlay_component(dst.zw, src.zw), dst.w + (1.0 - dst.w) * src.w);
+    vec4 _2_result = vec4(_blend_overlay_component(dst.xw, src.xw), _blend_overlay_component(dst.yw, src.yw), _blend_overlay_component(dst.zw, src.zw), dst.w + (1.0 - dst.w) * src.w);
     _2_result.xyz += src.xyz * (1.0 - dst.w) + dst.xyz * (1.0 - src.w);
     _1_blend_overlay = _2_result;
 

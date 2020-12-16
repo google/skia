@@ -65,11 +65,6 @@ private:
                                                bool haveEarlyReturns,
                                                const Statement& statement,
                                                bool isBuiltinCode);
-    void inlineVarDecls(const Block& body,
-                        Block* inlineBlock,
-                        VariableRewriteMap* varMap,
-                        SymbolTable* symbolTable,
-                        bool isBuiltinCode);
 
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);
