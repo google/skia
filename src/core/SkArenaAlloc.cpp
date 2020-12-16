@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMath.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include <algorithm>
 #include <new>
