@@ -128,6 +128,29 @@
       "parentUuid": "32644936_8a86a334",
       "revId": "ff3b69747b2aca719f5a1038938eb2d8b876bac0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffedeb9b_bcde7600",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-16T21:13:29Z",
+      "side": 1,
+      "message": "I understand that you\u0027re using this number to represent the first allocation size and that you want multiples of that size. However, the name here makes it a bit difficult to discover that. This is almost easier to reason about if just named \u0027fMultiplier\u0027, since this is just generating multiples of fibs. Since this is tied to block sizes, maybe \u0027fBlockUnitSize\u0027?\n\nIn other words this isn\u0027t just the size of the first allocation, it\u0027s also the size of the second allocation and subsequent allocations will be in multiples of this size. Well, it\u0027s not even really the size of an allocation, it\u0027s just a number being returned which might be useful in picking an allocation size.\n\nIn PS2 it seems even more strange of a name, since it isn\u0027t the same as \u0027firstAllocationSize\u0027.",
+      "range": {
+        "startLine": 59,
+        "startChar": 13,
+        "endLine": 59,
+        "endChar": 31
+      },
+      "revId": "ff3b69747b2aca719f5a1038938eb2d8b876bac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
