@@ -8,11 +8,10 @@ void main() {
     if (_1_c.x > 0.0) _0_branchy = _1_c.xxxx; else if (_1_c.y > 0.0) _0_branchy = _1_c.yyyy; else if (_1_c.z > 0.0) _0_branchy = _1_c.zzzz; else _0_branchy = _1_c.wwww;
 
     vec4 _2_branchyAndBlocky;
-    vec4 _3_d;
     {
         {
             if (color.x > 0.0) {
-                _3_d = color * 0.5;
+                vec4 _3_d = color * 0.5;
                 _2_branchyAndBlocky = _3_d.xxxx;
             } else {
                 {

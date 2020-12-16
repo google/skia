@@ -14,18 +14,15 @@ layout (location = 0) in vec2 vLocalCoord_Stage0;
 vec4 MatrixEffect_Stage1_c0_c0(vec4 _input, vec2 _coords) {
     vec4 _0_TextureEffect_Stage1_c0_c0_c0;
     vec2 _1_coords = (umatrix_Stage1_c0_c0 * vec3(_coords, 1.0)).xy;
-    vec2 _2_inCoord;
-    vec2 _3_subsetCoord;
-    vec2 _4_clampedCoord;
-    vec4 _5_textureColor;
-    float _6_snappedX;
-    _2_inCoord = _1_coords;
+    vec2 _2_inCoord = _1_coords;
     _2_inCoord *= unorm_Stage1_c0_c0_c0.xy;
+    vec2 _3_subsetCoord;
     _3_subsetCoord.x = _2_inCoord.x;
     _3_subsetCoord.y = _2_inCoord.y;
+    vec2 _4_clampedCoord;
     _4_clampedCoord = _3_subsetCoord;
-    _5_textureColor = texture(uTextureSampler_0_Stage1, _4_clampedCoord * unorm_Stage1_c0_c0_c0.zw);
-    _6_snappedX = floor(_2_inCoord.x + 0.0010000000474974513) + 0.5;
+    vec4 _5_textureColor = texture(uTextureSampler_0_Stage1, _4_clampedCoord * unorm_Stage1_c0_c0_c0.zw);
+    float _6_snappedX = floor(_2_inCoord.x + 0.0010000000474974513) + 0.5;
     if (_6_snappedX < usubset_Stage1_c0_c0_c0.x || _6_snappedX > usubset_Stage1_c0_c0_c0.z) {
         _5_textureColor = uborder_Stage1_c0_c0_c0;
     }
@@ -38,11 +35,9 @@ void main() {
     vec4 output_Stage1;
     vec4 _7_GaussianConvolution_Stage1_c0;
     vec4 _8_output;
-    vec2 _9_coord;
-    vec2 _10_coordSampled;
     _8_output = vec4(0.0, 0.0, 0.0, 0.0);
-    _9_coord = vLocalCoord_Stage0 - 12.0 * uIncrement_Stage1_c0;
-    _10_coordSampled = vec2(0.0, 0.0);
+    vec2 _9_coord = vLocalCoord_Stage0 - 12.0 * uIncrement_Stage1_c0;
+    vec2 _10_coordSampled = vec2(0.0, 0.0);
     _10_coordSampled = _9_coord;
     _8_output += MatrixEffect_Stage1_c0_c0(vec4(1.0), _10_coordSampled) * uKernel_Stage1_c0[0].x;
     _9_coord += uIncrement_Stage1_c0;

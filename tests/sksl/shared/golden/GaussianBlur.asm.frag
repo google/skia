@@ -60,11 +60,11 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %uTextureSampler_0_Stage1 RelaxedPrecision
 OpDecorate %uTextureSampler_0_Stage1 Binding 0
 OpDecorate %vLocalCoord_Stage0 Location 0
-OpDecorate %69 RelaxedPrecision
+OpDecorate %68 RelaxedPrecision
 OpDecorate %101 RelaxedPrecision
 OpDecorate %102 RelaxedPrecision
 OpDecorate %103 RelaxedPrecision
-OpDecorate %118 RelaxedPrecision
+OpDecorate %117 RelaxedPrecision
 OpDecorate %123 RelaxedPrecision
 OpDecorate %132 RelaxedPrecision
 OpDecorate %135 RelaxedPrecision
@@ -196,9 +196,9 @@ OpDecorate %526 RelaxedPrecision
 %int_3 = OpConstant %int 3
 %_ptr_Uniform_mat3v3float = OpTypePointer Uniform %mat3v3float
 %float_1 = OpConstant %float 1
-%_ptr_Function_float = OpTypePointer Function %float
 %int_6 = OpConstant %int 6
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%_ptr_Function_float = OpTypePointer Function %float
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
 %float_0_00100000005 = OpConstant %float 0.00100000005
@@ -209,7 +209,7 @@ OpDecorate %526 RelaxedPrecision
 %void = OpTypeVoid
 %105 = OpTypeFunction %void
 %float_0 = OpConstant %float 0
-%112 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%110 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
 %float_12 = OpConstant %float 12
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
 %121 = OpConstantComposite %v2float %float_0 %float_0
@@ -260,32 +260,32 @@ OpDecorate %526 RelaxedPrecision
 %43 = OpMatrixTimesVector %v3float %37 %42
 %44 = OpVectorShuffle %v2float %43 %43 0 1
 OpStore %_1_coords %44
-%51 = OpLoad %v2float %_1_coords
-OpStore %_2_inCoord %51
-%52 = OpLoad %v2float %_2_inCoord
-%54 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
-%56 = OpLoad %v4float %54
-%57 = OpVectorShuffle %v2float %56 %56 0 1
-%58 = OpFMul %v2float %52 %57
-OpStore %_2_inCoord %58
-%59 = OpLoad %v2float %_2_inCoord
-%60 = OpCompositeExtract %float %59 0
-%61 = OpAccessChain %_ptr_Function_float %_3_subsetCoord %int_0
-OpStore %61 %60
-%63 = OpLoad %v2float %_2_inCoord
-%64 = OpCompositeExtract %float %63 1
-%65 = OpAccessChain %_ptr_Function_float %_3_subsetCoord %int_1
-OpStore %65 %64
-%67 = OpLoad %v2float %_3_subsetCoord
-OpStore %_4_clampedCoord %67
-%69 = OpLoad %22 %uTextureSampler_0_Stage1
-%70 = OpLoad %v2float %_4_clampedCoord
-%71 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
-%72 = OpLoad %v4float %71
-%73 = OpVectorShuffle %v2float %72 %72 2 3
-%74 = OpFMul %v2float %70 %73
-%68 = OpImageSampleImplicitLod %v4float %69 %74
-OpStore %_5_textureColor %68
+%46 = OpLoad %v2float %_1_coords
+OpStore %_2_inCoord %46
+%47 = OpLoad %v2float %_2_inCoord
+%49 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
+%51 = OpLoad %v4float %49
+%52 = OpVectorShuffle %v2float %51 %51 0 1
+%53 = OpFMul %v2float %47 %52
+OpStore %_2_inCoord %53
+%55 = OpLoad %v2float %_2_inCoord
+%56 = OpCompositeExtract %float %55 0
+%57 = OpAccessChain %_ptr_Function_float %_3_subsetCoord %int_0
+OpStore %57 %56
+%60 = OpLoad %v2float %_2_inCoord
+%61 = OpCompositeExtract %float %60 1
+%62 = OpAccessChain %_ptr_Function_float %_3_subsetCoord %int_1
+OpStore %62 %61
+%65 = OpLoad %v2float %_3_subsetCoord
+OpStore %_4_clampedCoord %65
+%68 = OpLoad %22 %uTextureSampler_0_Stage1
+%69 = OpLoad %v2float %_4_clampedCoord
+%70 = OpAccessChain %_ptr_Uniform_v4float %4 %int_6
+%71 = OpLoad %v4float %70
+%72 = OpVectorShuffle %v2float %71 %71 2 3
+%73 = OpFMul %v2float %69 %72
+%67 = OpImageSampleImplicitLod %v4float %68 %73
+OpStore %_5_textureColor %67
 %76 = OpLoad %v2float %_2_inCoord
 %77 = OpCompositeExtract %float %76 0
 %79 = OpFAdd %float %77 %float_0_00100000005
@@ -378,13 +378,13 @@ OpFunctionEnd
 %497 = OpVariable %_ptr_Function_v2float Function
 %511 = OpVariable %_ptr_Function_v4float Function
 %513 = OpVariable %_ptr_Function_v2float Function
-OpStore %_8_output %112
-%114 = OpLoad %v2float %vLocalCoord_Stage0
-%116 = OpAccessChain %_ptr_Uniform_v2float %4 %int_1
-%118 = OpLoad %v2float %116
-%119 = OpVectorTimesScalar %v2float %118 %float_12
-%120 = OpFSub %v2float %114 %119
-OpStore %_9_coord %120
+OpStore %_8_output %110
+%113 = OpLoad %v2float %vLocalCoord_Stage0
+%115 = OpAccessChain %_ptr_Uniform_v2float %4 %int_1
+%117 = OpLoad %v2float %115
+%118 = OpVectorTimesScalar %v2float %117 %float_12
+%119 = OpFSub %v2float %113 %118
+OpStore %_9_coord %119
 OpStore %_10_coordSampled %121
 %122 = OpLoad %v2float %_9_coord
 OpStore %_10_coordSampled %122

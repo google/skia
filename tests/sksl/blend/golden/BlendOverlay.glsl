@@ -7,8 +7,7 @@ in vec4 src;
 in vec4 dst;
 void main() {
     vec4 _0_blend_overlay;
-    vec4 _1_result;
-    _1_result = vec4(_blend_overlay_component(src.xw, dst.xw), _blend_overlay_component(src.yw, dst.yw), _blend_overlay_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
+    vec4 _1_result = vec4(_blend_overlay_component(src.xw, dst.xw), _blend_overlay_component(src.yw, dst.yw), _blend_overlay_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     _1_result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
     _0_blend_overlay = _1_result;
 

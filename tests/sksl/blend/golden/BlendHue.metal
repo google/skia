@@ -17,18 +17,14 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_hue;
-    float _1_alpha;
-    float3 _2_sda;
-    float3 _3_dsa;
-    _1_alpha = _in.dst.w * _in.src.w;
-    _2_sda = _in.src.xyz * _in.dst.w;
-    _3_dsa = _in.dst.xyz * _in.src.w;
+    float _1_alpha = _in.dst.w * _in.src.w;
+    float3 _2_sda = _in.src.xyz * _in.dst.w;
+    float3 _3_dsa = _in.dst.xyz * _in.src.w;
     float3 _4_blend_set_color_saturation;
     float _5_13_blend_color_saturation;
-    float _6_sat;
     _5_13_blend_color_saturation = max(max(_3_dsa.x, _3_dsa.y), _3_dsa.z) - min(min(_3_dsa.x, _3_dsa.y), _3_dsa.z);
 
-    _6_sat = _5_13_blend_color_saturation;
+    float _6_sat = _5_13_blend_color_saturation;
 
     if (_2_sda.x <= _2_sda.y) {
         if (_2_sda.y <= _2_sda.z) {
@@ -48,21 +44,17 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
 
     float3 _7_blend_set_color_luminance;
     float _8_11_blend_color_luminance;
-    float _9_lum;
-    float _10_12_blend_color_luminance;
-    float3 _11_result;
-    float _12_minComp;
-    float _13_maxComp;
     _8_11_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
 
-    _9_lum = _8_11_blend_color_luminance;
+    float _9_lum = _8_11_blend_color_luminance;
 
+    float _10_12_blend_color_luminance;
     _10_12_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _4_blend_set_color_saturation);
 
-    _11_result = (_9_lum - _10_12_blend_color_luminance) + _4_blend_set_color_saturation;
+    float3 _11_result = (_9_lum - _10_12_blend_color_luminance) + _4_blend_set_color_saturation;
 
-    _12_minComp = min(min(_11_result.x, _11_result.y), _11_result.z);
-    _13_maxComp = max(max(_11_result.x, _11_result.y), _11_result.z);
+    float _12_minComp = min(min(_11_result.x, _11_result.y), _11_result.z);
+    float _13_maxComp = max(max(_11_result.x, _11_result.y), _11_result.z);
     if (_12_minComp < 0.0 && _9_lum != _12_minComp) {
         _11_result = _9_lum + ((_11_result - _9_lum) * _9_lum) / (_9_lum - _12_minComp);
     }

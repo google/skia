@@ -536,27 +536,29 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                      SymbolTable::WrapIfBuiltin(ss.symbols()));
         }
         case Statement::Kind::kVarDeclaration: {
-            // We've declared variables already via inlineVarDecls. So we don't want to emit a
-            // VarDeclaration; instead, we need to convert the vardecl's initial value into an
-            // assignment statement.
             const VarDeclaration& decl = statement.as<VarDeclaration>();
-            if (decl.value()) {
-                auto varMapIter = varMap->find(&decl.var());
-                if (varMapIter == varMap->end()) {
-                    SkDEBUGFAILF("inlined variable '%s' not found in VariableRewriteMap",
-                                 decl.var().description().c_str());
-                    return std::make_unique<Nop>();
-                }
-                std::unique_ptr<Expression>& varRef = varMapIter->second;
-                return std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
-                        offset,
-                        clone_with_ref_kind(*varRef, VariableReference::RefKind::kWrite),
-                        Token::Kind::TK_EQ,
-                        expr(decl.value()),
-                        &varRef->type()));
-            }
-            // No initial value? Nothing to do.
-            return std::make_unique<Nop>();
+            std::unique_ptr<Expression> initialValue = expr(decl.value());
+            int arraySize = decl.arraySize();
+            const Variable& old = decl.var();
+            // We assign unique names to inlined variables--scopes hide most of the problems in this
+            // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
+            // names are important.
+            auto name = std::make_unique<String>(
+                    this->uniqueNameForInlineVar(String(old.name()), symbolTableForStatement));
+            const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
+            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), *symbolTableForStatement);
+            const Type* typePtr = copy_if_needed(&old.type(), *symbolTableForStatement);
+            const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
+                    std::make_unique<Variable>(offset,
+                                               &old.modifiers(),
+                                               namePtr->c_str(),
+                                               typePtr,
+                                               isBuiltinCode,
+                                               old.storage(),
+                                               initialValue.get()));
+            (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
+            return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
+                                                    std::move(initialValue));
         }
         case Statement::Kind::kWhile: {
             const WhileStatement& w = statement.as<WhileStatement>();
@@ -566,65 +568,6 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             SkASSERT(false);
             return nullptr;
     }
-}
-
-void Inliner::inlineVarDecls(const Block& body,
-                             Block* inlineBlock,
-                             VariableRewriteMap* varMap,
-                             SymbolTable* symbolTable,
-                             bool isBuiltinCode) {
-    // We assign unique names to inlined variables to avoid a variety of problems.
-    class InlineVarDeclsPass : public ProgramVisitor {
-    public:
-        InlineVarDeclsPass(Inliner* inliner,
-                           Block* inlineBlock,
-                           VariableRewriteMap* varMap,
-                           SymbolTable* symbolTable,
-                           bool isBuiltinCode)
-                : fInliner(inliner)
-                , fInlineBlock(inlineBlock)
-                , fVarMap(varMap)
-                , fSymbolTable(symbolTable)
-                , fIsBuiltinCode(isBuiltinCode) {}
-
-        bool visitStatement(const Statement& stmt) override {
-            if (stmt.is<VarDeclaration>()) {
-                fInlineBlock->children().push_back(this->inlineVarDecl(stmt.as<VarDeclaration>()));
-            }
-            return INHERITED::visitStatement(stmt);
-        }
-
-        std::unique_ptr<Statement> inlineVarDecl(const VarDeclaration& decl) {
-            int arraySize = decl.arraySize();
-            const Variable& old = decl.var();
-            int offset = decl.fOffset;
-            auto name = std::make_unique<String>(
-                    fInliner->uniqueNameForInlineVar(old.name(), fSymbolTable));
-            const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
-            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), *fSymbolTable);
-            const Type* typePtr = copy_if_needed(&old.type(), *fSymbolTable);
-            const Variable* clone = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(offset,
-                                               &old.modifiers(),
-                                               namePtr->c_str(),
-                                               typePtr,
-                                               fIsBuiltinCode,
-                                               old.storage(),
-                                               /*initialValue=*/nullptr));
-            (*fVarMap)[&old] = std::make_unique<VariableReference>(offset, clone);
-            return std::make_unique<VarDeclaration>(clone, baseTypePtr, arraySize,
-                                                    /*value=*/nullptr);
-        }
-
-        Inliner* fInliner;
-        Block* fInlineBlock;
-        VariableRewriteMap* fVarMap;
-        SymbolTable* fSymbolTable;
-        bool fIsBuiltinCode;
-
-        using INHERITED = ProgramVisitor;
-    };
-    InlineVarDeclsPass{this, inlineBlock, varMap, symbolTable, isBuiltinCode}.visitStatement(body);
 }
 
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
@@ -714,7 +657,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         resultExpr = makeInlineVar(String(function.declaration().name()),
                                    &function.declaration().returnType(),
                                    Modifiers{}, &noInitialValue);
-    }
+   }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.
@@ -746,12 +689,6 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     auto inlineBlock = std::make_unique<Block>(offset, StatementArray{},
                                                /*symbols=*/nullptr, /*isScope=*/hasEarlyReturn);
     inlineBlock->children().reserve_back(body.children().size());
-
-    // Declare the inlined function's variables at the very top of the block so that they don't get
-    // created in an inner scope.
-    this->inlineVarDecls(body, inlineBlock.get(), &varMap, symbolTableForCall, caller->isBuiltin());
-
-    // Inline the function.
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
                                                                 resultExpr.get(), hasEarlyReturn,
