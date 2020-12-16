@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f674a42d_2a19ad45",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T18:23:07Z",
+      "side": 1,
+      "message": "No it is set in the follow on CL. Just wanted to start setting up the structure here.",
+      "parentUuid": "3d481d6c_e121eac8",
+      "range": {
+        "startLine": 1732,
+        "startChar": 4,
+        "endLine": 1732,
+        "endChar": 51
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d255dea3_b3847ba2",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 3
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8652e3e7_c7fa4c76",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T18:23:07Z",
+      "side": 1,
+      "message": "Same as above",
+      "parentUuid": "d255dea3_b3847ba2",
+      "range": {
+        "startLine": 1957,
+        "startChar": 4,
+        "endLine": 1957,
+        "endChar": 91
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "68698df4_82b46216",
         "filename": "src/gpu/vk/GrVkRenderPass.cpp",
         "patchSetId": 3
@@ -77,6 +125,30 @@
       "writtenOn": "2020-12-16T17:51:48Z",
       "side": 1,
       "message": "For my own curiosity, I\u0027d like to know where this draw actually happens. Where\u0027s the shader that actually does the texture fetch?",
+      "range": {
+        "startLine": 234,
+        "startChar": 34,
+        "endLine": 234,
+        "endChar": 49
+      },
+      "revId": "e124049e362f7606d34c025137b5ad535c7bc765",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95c1e18f_8bb121f0",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-16T18:23:07Z",
+      "side": 1,
+      "message": "Look at \"Add support for manually loading vk resolve in msaa with extra subpass\" in the CL chain",
+      "parentUuid": "68698df4_82b46216",
       "range": {
         "startLine": 234,
         "startChar": 34,
