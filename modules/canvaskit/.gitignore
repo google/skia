@@ -1,3 +1,5 @@
 package-lock.json
 fonts/*.cpp
 coverage/*
+# Don't check in this copy. It's just for publishing to npm.
+canvaskit/CHANGELOG.md

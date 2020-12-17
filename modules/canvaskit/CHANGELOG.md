@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2020-12-17
+
 ### Added
  - `Canvas.drawImageCubic`, `Canvas.drawImageOptions`, `Canvas.drawImageRectCubic`,
    `Canvas.drawImageRectOptions` to replace functionality that previously required FilterQuality.
+ - A copy of this changelog is published in NPM releases for easier discovery.
 
 ### Breaking
  - `Canvas.drawImageNine` now takes a required FilterMode (the Paint still is optional).
