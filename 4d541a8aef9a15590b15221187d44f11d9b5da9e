@@ -1,6 +1,52 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd02b87e_7fdcb47a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2684,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T20:33:58Z",
+      "side": 1,
+      "message": "I didn\u0027t realize Enums didn\u0027t actually know their own SkSL::Type. Weird.",
+      "range": {
+        "startLine": 2684,
+        "startChar": 58,
+        "endLine": 2684,
+        "endChar": 66
+      },
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8cb9cb5_d77bf89c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2708,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T20:33:58Z",
+      "side": 1,
+      "message": "What actually went wrong in this case?\nThe reported error is \"type \u0027Foo\u0027 doesn\u0027t contain \u0027bar\u0027\" but that seems wrong. It\u0027s more like \"type \u0027Foo\u0027 is not a known enum\"? I\u0027m not sure how this happens.",
+      "range": {
+        "startLine": 2708,
+        "startChar": 15,
+        "endLine": 2708,
+        "endChar": 96
+      },
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11ed045a_b30812b1",
@@ -50,6 +96,29 @@
       "side": 1,
       "message": "Actually, wait, I take it back!\noperator[] on a built-in SymbolTable seems to do the right thing and won\u0027t write. I think this should be OK. See `writableSymbolTable` in SymbolTable::lookup.",
       "parentUuid": "f88c49d4_03d1c61a",
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c9ae35c_89c5bca8",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2724,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T20:33:58Z",
+      "side": 1,
+      "message": "How about\n\n    type \u0027Blend\u0027 does not contain enumerator \u0027invert\u0027\n\n?",
+      "range": {
+        "startLine": 2724,
+        "startChar": 22,
+        "endLine": 2724,
+        "endChar": 95
+      },
       "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
