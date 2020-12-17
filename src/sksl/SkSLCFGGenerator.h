@@ -130,6 +130,7 @@ struct BasicBlock {
 
     std::vector<Node> fNodes;
     bool fIsReachable = false;
+    bool fAllowUnreachable = false;
     using ExitArray = SkSTArray<4, BlockId>;
     ExitArray fExits;
     // variable definitions upon entering this basic block (null expression = undefined)

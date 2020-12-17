@@ -593,6 +593,11 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             if (f.next()) {
                 this->addExpression(cfg, &f.next(), /*constantPropagate=*/true);
             }
+            // The increment expression of a for loop is allowed to be unreachable, because GLSL
+            // ES2 requires us to provide an increment expression for our for-loops whether or not
+            // it can be reached. Reporting it as "unreachable" isn't helpful if the alternative
+            // is an invalid program.
+            cfg.currentBlock().fAllowUnreachable = true;
             cfg.addExit(cfg.fCurrent, loopStart);
             cfg.addExit(cfg.fCurrent, loopExit);
             fLoopContinues.pop();
@@ -644,6 +649,8 @@ CFG CFGGenerator::getCFG(FunctionDefinition& f) {
     CFG result;
     result.fStart = result.newBlock();
     result.fCurrent = result.fStart;
+    // The starting block is "reached" implicitly, even if nothing points to it.
+    result.currentBlock().fAllowUnreachable = true;
     this->addStatement(result, &f.body());
     result.newBlock();
     result.fExit = result.fCurrent;

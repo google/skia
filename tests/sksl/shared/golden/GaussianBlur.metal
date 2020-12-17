@@ -25,7 +25,6 @@ struct Globals {
 
 
 float4 MatrixEffect_Stage1_c0_c0(thread Globals* _globals, float4 _input, float2 _coords) {
-    float4 _0_TextureEffect_Stage1_c0_c0_c0;
     float2 _1_coords = (_globals->_anonInterface0->umatrix_Stage1_c0_c0 * float3(_coords, 1.0)).xy;
     float2 _2_inCoord = _1_coords;
     _2_inCoord *= _globals->_anonInterface0->unorm_Stage1_c0_c0_c0.xy;
@@ -39,9 +38,7 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals* _globals, float4 _input, float2
     if (_6_snappedX < _globals->_anonInterface0->usubset_Stage1_c0_c0_c0.x || _6_snappedX > _globals->_anonInterface0->usubset_Stage1_c0_c0_c0.z) {
         _5_textureColor = _globals->_anonInterface0->uborder_Stage1_c0_c0_c0;
     }
-    _0_TextureEffect_Stage1_c0_c0_c0 = _5_textureColor;
-
-    return _0_TextureEffect_Stage1_c0_c0_c0;
+    return _5_textureColor;
 
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTextureSampler_0_Stage1[[texture(0)]], sampler uTextureSampler_0_Stage1Smplr[[sampler(0)]], constant uniformBuffer& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
@@ -51,7 +48,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 output_Stage1;
-    float4 _7_GaussianConvolution_Stage1_c0;
     float4 _8_output;
     _8_output = float4(0.0, 0.0, 0.0, 0.0);
     float2 _9_coord = _in.vLocalCoord_Stage0 - 12.0 * _globals->_anonInterface0->uIncrement_Stage1_c0;
@@ -131,9 +127,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     _10_coordSampled = _9_coord;
     _8_output += MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals->_anonInterface0->uKernel_Stage1_c0[6].x;
     _9_coord += _globals->_anonInterface0->uIncrement_Stage1_c0;
-    _7_GaussianConvolution_Stage1_c0 = _8_output;
-
-    output_Stage1 = _7_GaussianConvolution_Stage1_c0;
+    output_Stage1 = _8_output;
 
     {
         _out->sk_FragColor = output_Stage1;
