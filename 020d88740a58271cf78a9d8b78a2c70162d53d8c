@@ -229,6 +229,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "714d69de_83cb2b74",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T19:27:22Z",
+      "side": 1,
+      "message": "Oh, yeah... I missed that.  I too find the inconsistency strange.  I guess we\u0027ll figure this out if we ever set up a bot.",
+      "parentUuid": "f0023323_a6f6b6db",
+      "range": {
+        "startLine": 1854,
+        "startChar": 17,
+        "endLine": 1854,
+        "endChar": 28
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7b3e39b8_22775594",
         "filename": "src/xps/SkXPSDevice.cpp",
         "patchSetId": 1
