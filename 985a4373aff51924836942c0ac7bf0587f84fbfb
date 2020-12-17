@@ -39,6 +39,30 @@
       },
       "revId": "985a4373aff51924836942c0ac7bf0587f84fbfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb04ba9c_6ab7da7a",
+        "filename": "samplecode/SampleMaterialShadows.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-17T21:24:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bb3ac39_4a308901",
+      "range": {
+        "startLine": 3,
+        "startChar": 25,
+        "endLine": 3,
+        "endChar": 29
+      },
+      "revId": "985a4373aff51924836942c0ac7bf0587f84fbfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
