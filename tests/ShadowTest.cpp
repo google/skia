@@ -123,7 +123,7 @@ DEF_TEST(ShadowUtils, reporter) {
 }
 
 void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm) {
-    const SkDrawShadowRec rec = {
+    SkDrawShadowRec rec = {
         SkPoint3::Make(0, 0, 4),
         SkPoint3::Make(100, 0, 600),
         800.f,
@@ -131,7 +131,7 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
         0x40000000,
         0
     };
-    // TODO: implement bounds calculation for directional lights
+    // point light
     SkRect bounds;
     SkDrawShadowMetrics::GetLocalBounds(path, rec, ctm, &bounds);
     ctm.mapRect(&bounds);
@@ -145,6 +145,25 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
     SkPoint3 devLightPos = SkPoint3::Make(mapXY.fX, mapXY.fY, rec.fLightPos.fZ);
     verts = SkShadowTessellator::MakeSpot(path, ctm, rec.fZPlaneParams, devLightPos,
                                           rec.fLightRadius, false, false);
+    if (verts) {
+        REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
+    }
+
+    // directional light
+    rec.fFlags |= SkShadowFlags::kDirectionalLight_ShadowFlag;
+    rec.fLightRadius = 2.0f;
+    SkDrawShadowMetrics::GetLocalBounds(path, rec, ctm, &bounds);
+    ctm.mapRect(&bounds);
+
+    verts = SkShadowTessellator::MakeAmbient(path, ctm, rec.fZPlaneParams, true);
+    if (verts) {
+        REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
+    }
+
+    devLightPos = rec.fLightPos;
+    devLightPos.normalize();
+    verts = SkShadowTessellator::MakeSpot(path, ctm, rec.fZPlaneParams, devLightPos,
+                                          rec.fLightRadius, false, true);
     if (verts) {
         REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
     }
