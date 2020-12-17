@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5d3ef75_42976e3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T21:43:05Z",
+      "side": 1,
+      "message": "Removed the ByteCode output - it should be irrelevant soon. (I can split this out, if you\u0027d like).\n\nExample input \u0026 output: https://screenshot.googleplex.com/4nAuznFtZdXkBLX.png\n\nI had to invent inputs for things (and inject an artificial store to avoid the whole program getting optimized away). Not sure if I should change some of the inputs (use more args?) to make the resulting code make more sense?\n\nIn any case, planning to use this to add a suite of unit tests (like we have for all of our other backends), with golden files checked in.",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
