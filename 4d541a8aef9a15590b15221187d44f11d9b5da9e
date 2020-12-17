@@ -47,6 +47,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fbc02dc_b9ebc14d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2708,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T21:51:08Z",
+      "side": 1,
+      "message": "Yeah, you can get here with struct Foo {}; ... Foo::x; (Or actually, any type name, followed by \u0027::\u0027). In any case, \u0027::\u0027 should only be allowed on Enums, so I\u0027ll update this.",
+      "parentUuid": "a8cb9cb5_d77bf89c",
+      "range": {
+        "startLine": 2708,
+        "startChar": 15,
+        "endLine": 2708,
+        "endChar": 96
+      },
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11ed045a_b30812b1",
@@ -113,6 +137,30 @@
       "writtenOn": "2020-12-17T20:33:58Z",
       "side": 1,
       "message": "How about\n\n    type \u0027Blend\u0027 does not contain enumerator \u0027invert\u0027\n\n?",
+      "range": {
+        "startLine": 2724,
+        "startChar": 22,
+        "endLine": 2724,
+        "endChar": 95
+      },
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1b4db47_dccdcd19",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2724,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T21:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c9ae35c_89c5bca8",
       "range": {
         "startLine": 2724,
         "startChar": 22,
