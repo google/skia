@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9940ac40_8656b38a",
+        "filename": "modules/svg/include/SkSVGText.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:16:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "264afe53_19cb94f5",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "53088059_88cdac07",
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "Technically the whole attribute array is optional, so an empty array may be valid... though a failure to parse will leave the default/empty so probably ok.  Done.",
       "parentUuid": "53088059_88cdac07",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42971ad8_5ad9e3ce",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:16:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "eb0397ff_28ca1b18",
       "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -158,6 +194,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4e1856d_564ca883",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:16:37Z",
+      "side": 1,
+      "message": "SGTM",
+      "parentUuid": "cb634ff3_6550d77e",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a11e3b19_33059b58",
@@ -189,6 +243,24 @@
       "side": 1,
       "message": "Good idea. The template bit doesn\u0027t seem to work within functions, but we\u0027re only dealing with floats.  Done.",
       "parentUuid": "a11e3b19_33059b58",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd85e22b_c1fde032",
+        "filename": "modules/svg/tests/Text.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:16:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3d9061bc_6c66db60",
       "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
