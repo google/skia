@@ -16,6 +16,109 @@
       "message": "Adding Stuart",
       "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59ad9917_1a226786",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T16:28:54Z",
+      "side": 1,
+      "message": "We usually namespace these a little to not stomp toes, e.g. SK_WINUWP.",
+      "range": {
+        "startLine": 102,
+        "startChar": 15,
+        "endLine": 102,
+        "endChar": 21
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91bfdbac_7174ccc9",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T16:28:54Z",
+      "side": 1,
+      "message": "Since we\u0027re only using this config in one place, let\u0027s just defines +\u003d [ \"SK_WINUWP\" ] instead?",
+      "range": {
+        "startLine": 1194,
+        "startChar": 4,
+        "endLine": 1194,
+        "endChar": 31
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "006965f3_2405246f",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T16:28:54Z",
+      "side": 1,
+      "message": "Can we coalesce all the skia_enable_winuwp stuff in one place?\n\nif (skia_enable_winuwp) {\n   defines +\u003d ...\n   sources -\u003d ...\n} else {\n   libs +\u003d ...\n}",
+      "range": {
+        "startLine": 1303,
+        "startChar": 2,
+        "endLine": 1309,
+        "endChar": 0
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b3e39b8_22775594",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T16:28:54Z",
+      "side": 1,
+      "message": "Let\u0027s leave a note explaining why not E_NOTIMPL?",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc8f3fb6_07cd1829",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T16:28:54Z",
+      "side": 1,
+      "message": "???",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
