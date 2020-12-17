@@ -94,26 +94,25 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
     return CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
 }
 
-static int count_returns_in_breakable_constructs(const FunctionDefinition& funcDef) {
-    class CountReturnsInBreakableConstructs : public ProgramVisitor {
+static int count_returns_in_continuable_constructs(const FunctionDefinition& funcDef) {
+    class CountReturnsInContinuableConstructs : public ProgramVisitor {
     public:
-        CountReturnsInBreakableConstructs(const FunctionDefinition& funcDef) {
+        CountReturnsInContinuableConstructs(const FunctionDefinition& funcDef) {
             this->visitProgramElement(funcDef);
         }
 
         bool visitStatement(const Statement& stmt) override {
             switch (stmt.kind()) {
-                case Statement::Kind::kSwitch:
                 case Statement::Kind::kDo:
                 case Statement::Kind::kFor: {
-                    ++fInsideBreakableConstruct;
+                    ++fInsideContinuableConstruct;
                     bool result = INHERITED::visitStatement(stmt);
-                    --fInsideBreakableConstruct;
+                    --fInsideContinuableConstruct;
                     return result;
                 }
 
                 case Statement::Kind::kReturn:
-                    fNumReturns += (fInsideBreakableConstruct > 0) ? 1 : 0;
+                    fNumReturns += (fInsideContinuableConstruct > 0) ? 1 : 0;
                     [[fallthrough]];
 
                 default:
@@ -122,11 +121,11 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
         }
 
         int fNumReturns = 0;
-        int fInsideBreakableConstruct = 0;
+        int fInsideContinuableConstruct = 0;
         using INHERITED = ProgramVisitor;
     };
 
-    return CountReturnsInBreakableConstructs{funcDef}.fNumReturns;
+    return CountReturnsInContinuableConstructs{funcDef}.fNumReturns;
 }
 
 static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
@@ -834,10 +833,11 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
         return false;
     }
 
-    // We don't have any mechanism to simulate early returns within a breakable construct
-    // (switch/for/do/while), so we can't inline if there's a return inside one.
-    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
-    return !hasReturnInBreakableConstruct;
+    // We don't have any mechanism to simulate early returns within a construct that supports
+    // continues (for/do/while), so we can't inline if there's a return inside one.
+    bool hasReturnInContinuableConstruct =
+            (count_returns_in_continuable_constructs(*functionDef) > 0);
+    return !hasReturnInContinuableConstruct;
 }
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
