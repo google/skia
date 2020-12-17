@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "264afe53_19cb94f5",
+        "filename": "modules/svg/include/SkSVGText.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T16:11:52Z",
+      "side": 1,
+      "message": "The top-level SkSVGNode::appendChild() is actually public (and what we use to construct the DOM).  I reflexively made it private for SkSVGTextContainer but I don\u0027t think there\u0027s a strong reason to do so.  It seems useful to construct text node hierarchies programamtically.",
+      "parentUuid": "995bc47a_1f0a7353",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "53088059_88cdac07",
         "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "writtenOn": "2020-12-17T15:09:29Z",
       "side": 1,
       "message": "I think this should be:\n\n  return !lengths-\u003eempty() \u0026\u0026 this-\u003eparseEOSToken();",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb0397ff_28ca1b18",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T16:11:52Z",
+      "side": 1,
+      "message": "Technically the whole attribute array is optional, so an empty array may be valid... though a failure to parse will leave the default/empty so probably ok.  Done.",
+      "parentUuid": "53088059_88cdac07",
       "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -65,6 +101,24 @@
       "writtenOn": "2020-12-17T15:09:29Z",
       "side": 1,
       "message": "Newbish question: why not use a NaN value? Is that just for the has() equality test?",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bac3ad38_d9b36832",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T16:11:52Z",
+      "side": 1,
+      "message": "Right, being able to perform equality comparisons seems like good ergonomics.  I\u0027m just a bit nervous about hijacking inf, but I don\u0027t think it can occur normally.",
+      "parentUuid": "8f914d6f_6d0f8bb9",
       "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -88,6 +142,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cb634ff3_6550d77e",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T16:11:52Z",
+      "side": 1,
+      "message": "Ack, I have a follow up CL (implementing relative position adjustments) shuffling some things around and renaming these.  Let\u0027s tackle renames there if you don\u0027t mind?\n\nAdded comment.",
+      "parentUuid": "d3f68629_b46d0151",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a11e3b19_33059b58",
         "filename": "modules/svg/tests/Text.cpp",
         "patchSetId": 6
@@ -99,6 +171,24 @@
       "writtenOn": "2020-12-17T15:09:29Z",
       "side": 1,
       "message": "nit: Doesn\u0027t some modern C++XY allow something like \n  \n  template \u003ctypename T\u003e\n  const auto L \u003d [](T x) { return SkSVGLength(x); };",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d9061bc_6c66db60",
+        "filename": "modules/svg/tests/Text.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T16:11:52Z",
+      "side": 1,
+      "message": "Good idea. The template bit doesn\u0027t seem to work within functions, but we\u0027re only dealing with floats.  Done.",
+      "parentUuid": "a11e3b19_33059b58",
       "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
