@@ -409,7 +409,8 @@ void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
             bounds = &storage;
         }
     }
-    LOOP_TILER(drawBitmap(bitmap, matrix, dstOrNull, paint), bounds)
+    SkSamplingOptions sampling(paint.getFilterQuality());   // TODO, pass this in directly
+    LOOP_TILER(drawBitmap(bitmap, matrix, dstOrNull, sampling, paint), bounds)
 }
 
 static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
@@ -529,7 +530,9 @@ void SkBitmapDevice::drawImageRect(const SkImage* image,
 
     // construct a shader, so we can call drawRect with the dst
     auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp,
-                                        SkTileMode::kClamp, &matrix, kNever_SkCopyPixelsMode);
+                                        SkTileMode::kClamp,
+                                        SkSamplingOptions(paint.getFilterQuality()), &matrix,
+                                        kNever_SkCopyPixelsMode);
     if (!s) {
         return;
     }
@@ -579,8 +582,9 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
         draw.fRC = &fRCStack.rc();
 
         SkPaint deviceAsShader = paint;
-        deviceAsShader.setShader(src->fBitmap.makeShader(SkSamplingOptions()));
-        draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, deviceAsShader);
+        SkSamplingOptions sampling;    // nearest-neighbor, since we in sprite mode
+        deviceAsShader.setShader(src->fBitmap.makeShader(sampling));
+        draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, sampling, deviceAsShader);
     } else {
         this->INHERITED::drawDevice(device, paint);
     }
@@ -600,7 +604,8 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
         draw.fDst = fBitmap.pixmap();
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
-        draw.drawBitmap(resultBM, SkMatrix::I(), nullptr, paint);
+        draw.drawBitmap(resultBM, SkMatrix::I(), nullptr,
+                        SkSamplingOptions(paint.getFilterQuality()), paint);
     }
 }
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {

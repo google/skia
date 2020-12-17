@@ -37,11 +37,19 @@
 
 #include <utility>
 
-static SkPaint make_paint_with_image(
-    const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
+static bool allows_sprite(const SkSamplingOptions& sampling) {
+    // Legacy behavior is to ignore sampling if there is no matrix, but new behavior
+    // should respect cubic, and not draw as sprite. Need to rebaseline test images
+    // to respect this...
+    // return !sampling.useCubic
+    return true;
+}
+static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& bitmap,
+                                     const SkSamplingOptions& sampling,
+                                     SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
     paint.setShader(SkMakeBitmapShaderForPaint(origPaint, bitmap, SkTileMode::kClamp,
-                                               SkTileMode::kClamp, matrix,
+                                               SkTileMode::kClamp, sampling, matrix,
                                                kNever_SkCopyPixelsMode));
     return paint;
 }
@@ -965,7 +973,8 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
 }
 
-void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
+void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& sampling,
+                              const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
     // nothing to draw
@@ -974,7 +983,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
     }
 
     SkMatrix ctm = fMatrixProvider->localToDevice();
-    if (SkTreatAsSprite(ctm, bitmap.dimensions(), paint)) {
+    if (allows_sprite(sampling) && SkTreatAsSprite(ctm, bitmap.dimensions(), paint)) {
         int ix = SkScalarRoundToInt(ctm.getTranslateX());
         int iy = SkScalarRoundToInt(ctm.getTranslateY());
 
@@ -1040,8 +1049,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
             SkPaint tmpPaint;
             tmpPaint.setAntiAlias(paint.isAntiAlias());
             tmpPaint.setDither(paint.isDither());
-            tmpPaint.setFilterQuality(paint.getFilterQuality());
-            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap);
+            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap, sampling);
             SkRect rr;
             rr.setIWH(bitmap.width(), bitmap.height());
             c.drawRect(rr, paintWithShader);
@@ -1069,7 +1077,8 @@ static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y, const SkPi
 }
 
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
-                        const SkRect* dstBounds, const SkPaint& origPaint) const {
+                        const SkRect* dstBounds, const SkSamplingOptions& sampling,
+                        const SkPaint& origPaint) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1092,6 +1101,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     }
 
     if (bitmap.colorType() != kAlpha_8_SkColorType
+        && allows_sprite(sampling)
         && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
@@ -1123,9 +1133,9 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     draw.fMatrixProvider = &matrixProvider;
 
     if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {
-        draw.drawBitmapAsMask(bitmap, *paint);
+        draw.drawBitmapAsMask(bitmap, sampling, *paint);
     } else {
-        SkPaint paintWithShader = make_paint_with_image(*paint, bitmap);
+        SkPaint paintWithShader = make_paint_with_image(*paint, bitmap, sampling);
         const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
         if (dstBounds) {
             this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
@@ -1178,7 +1188,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 
     // create shader with offset
     matrix.setTranslate(r.fLeft, r.fTop);
-    SkPaint paintWithShader = make_paint_with_image(paint, bitmap, &matrix);
+    SkPaint paintWithShader = make_paint_with_image(paint, bitmap, SkSamplingOptions(), &matrix);
     SkDraw draw(*this);
     SkOverrideDeviceMatrixProvider matrixProvider(*fMatrixProvider, SkMatrix::I());
     draw.fMatrixProvider = &matrixProvider;
