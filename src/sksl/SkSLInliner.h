@@ -36,7 +36,7 @@ class Variable;
  */
 class Inliner {
 public:
-    Inliner(const Context* context, const ShaderCapsClass* caps) : fContext(context), fCaps(caps) {}
+    Inliner(const Context* context) : fContext(context) {}
 
     void reset(ModifiersPool* modifiers, const Program::Settings*);
 
@@ -47,6 +47,12 @@ public:
 
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
+
+    enum class ReturnComplexity {
+        kSingleTopLevelReturn,
+        kScopedReturns,
+        kEarlyReturns,
+    };
 
     String uniqueNameForInlineVar(String baseName, SymbolTable* symbolTable);
 
@@ -61,10 +67,13 @@ private:
     std::unique_ptr<Statement> inlineStatement(int offset,
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
-                                               const Expression* resultExpr,
-                                               bool haveEarlyReturns,
+                                               std::unique_ptr<Expression>* resultExpr,
+                                               ReturnComplexity returnComplexity,
                                                const Statement& statement,
                                                bool isBuiltinCode);
+
+    /** Determines if a given function has multiple and/or early returns. */
+    static ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
 
     using InlinabilityCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache);
@@ -85,6 +94,18 @@ private:
                            std::shared_ptr<SymbolTable>,
                            const FunctionDeclaration* caller);
 
+    /** Creates a scratch variable for the inliner to use. */
+    struct InlineVariable {
+        const Variable*             fVarSymbol;
+        std::unique_ptr<Statement>  fVarDecl;
+    };
+    InlineVariable makeInlineVariable(const String& baseName,
+                                      const Type* type,
+                                      SymbolTable* symbolTable,
+                                      Modifiers modifiers,
+                                      bool isBuiltinCode,
+                                      std::unique_ptr<Expression>* initialValue);
+
     /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
 
@@ -94,7 +115,6 @@ private:
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
     const Program::Settings* fSettings = nullptr;
-    const ShaderCapsClass* fCaps = nullptr;
     int fInlineVarCounter = 0;
     int fInlinedStatementCounter = 0;
 };

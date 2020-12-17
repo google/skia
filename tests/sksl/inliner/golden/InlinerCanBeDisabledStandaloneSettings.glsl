@@ -1,15 +1,9 @@
 
 out vec4 sk_FragColor;
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
-    float _11_blend_color_luminance;
-    _11_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
+    float lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), lumColor);
 
-    float lum = _11_blend_color_luminance;
-
-    float _12_blend_color_luminance;
-    _12_blend_color_luminance = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor);
-
-    vec3 result = (lum - _12_blend_color_luminance) + hueSatColor;
+    vec3 result = (lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), hueSatColor)) + hueSatColor;
 
     float minComp = min(min(result.x, result.y), result.z);
     float maxComp = max(max(result.x, result.y), result.z);
@@ -22,10 +16,7 @@ vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
     return minMidMax.x < minMidMax.z ? vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : vec3(0.0);
 }
 vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
-    float _13_blend_color_saturation;
-    _13_blend_color_saturation = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
-
-    float sat = _13_blend_color_saturation;
+    float sat = max(max(satColor.x, satColor.y), satColor.z) - min(min(satColor.x, satColor.y), satColor.z);
 
     if (hueLumColor.x <= hueLumColor.y) {
         if (hueLumColor.y <= hueLumColor.z) {
@@ -51,35 +42,16 @@ vec4 blend_hue(vec4 src, vec4 dst) {
 }
 uniform vec4 color;
 void main() {
-    float _1_fma;
-    float _2_mul;
-    _2_mul = color.x * color.y;
+    float _7_a = color.x * color.y;
+    float _8_c = _7_a + color.z;
+    sk_FragColor = vec4(_8_c);
 
-    float _7_add;
-    float _8_c = _2_mul + color.z;
-    _7_add = _8_c;
-
-    _1_fma = _7_add;
-
-
-
-    sk_FragColor = vec4(_1_fma);
 
     sk_FragColor *= 1.25;
 
-    vec4 _4_blend_src_in;
-    _4_blend_src_in = color.xxyy * color.w;
+    sk_FragColor *= color.xxyy * color.w;
 
-    sk_FragColor *= _4_blend_src_in;
-
-    vec4 _5_blend_dst_in;
-    vec4 _6_blend_src_in;
-    _6_blend_src_in = color.zzww * color.y;
-
-    _5_blend_dst_in = _6_blend_src_in;
-
-
-    sk_FragColor *= _5_blend_dst_in;
+    sk_FragColor *= color.zzww * color.y;
 
     sk_FragColor *= blend_hue(color, color.wwww);
     sk_FragColor *= blend_hue(color, color.wzyx);
