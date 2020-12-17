@@ -22,6 +22,30 @@
       },
       "revId": "64be10715645827f96f67fcb22c7019f3f957a9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8ee06c5_5e64f86f",
+        "filename": "go.mod",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-17T19:29:45Z",
+      "side": 1,
+      "message": "Darn cockroaches! they just keep coming back!",
+      "parentUuid": "acc1a25d_b910a365",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 18,
+        "endChar": 23
+      },
+      "revId": "64be10715645827f96f67fcb22c7019f3f957a9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
