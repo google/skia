@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a606c650_6bbba34f",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1eac86ad_0e891b35",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 13
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ded0d1d_a790dac0",
@@ -71,6 +95,30 @@
       "writtenOn": "2020-12-17T07:51:25Z",
       "side": 1,
       "message": "Any reason not to do\n\n  float2 min \u003d skvx::min(skvx::min(p0, p1), p2);",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 137,
+        "endChar": 48
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e99fa36b_721d48ff",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ded0d1d_a790dac0",
       "range": {
         "startLine": 137,
         "startChar": 8,
@@ -106,6 +154,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c4f7c0a1_f8f3302e",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "Will do once I implement the benchmark",
+      "parentUuid": "d4354c2e_c3982bd9",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 14
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b1737a06_74576045",
         "filename": "src/gpu/tessellate/GrWangsFormula.h",
         "patchSetId": 1
@@ -117,6 +189,30 @@
       "writtenOn": "2020-12-17T07:51:25Z",
       "side": 1,
       "message": "I think I prefer fabsf since it has less magic and type inference",
+      "range": {
+        "startLine": 156,
+        "startChar": 21,
+        "endLine": 156,
+        "endChar": 29
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c715ae5_69c52567",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1737a06_74576045",
       "range": {
         "startLine": 156,
         "startChar": 21,
@@ -140,6 +236,30 @@
       "writtenOn": "2020-12-17T07:51:25Z",
       "side": 1,
       "message": "I would like to not have this divide. Can we just have a function argument called \"tolerance\" for this one?",
+      "range": {
+        "startLine": 159,
+        "startChar": 5,
+        "endLine": 159,
+        "endChar": 40
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd1a3495_5b7df610",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e80e762_51c4519d",
       "range": {
         "startLine": 159,
         "startChar": 5,
@@ -186,6 +306,30 @@
       "writtenOn": "2020-12-17T07:51:25Z",
       "side": 1,
       "message": "This collapses to:\n\n  return sqrtf(denom / numer);\n\nBut let\u0027s swap denom and numer as well",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a255305_00e7a835",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T16:00:48Z",
+      "side": 1,
+      "message": "I tried this out locally but the \u0027vectorized matches reference impl\u0027 test was failing with tiny differences unless I also did the following:\n\n- Convert reference impl to also return sqrtf(denom / numer)\n- Remove use of grvx::fast_madd to compute the forward difference in the GrWangsFormula version\n\nWith both of those modifications the test passes again. WDYT? Here\u0027s some of the test failure messages to give you an idea of magnitude of difference:\n\n\t../../tests/WangsFormulaTest.cpp:463\t376988.156250 !\u003d 376988.125000 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, kTessellationTolerance)\n\t../../tests/WangsFormulaTest.cpp:463\t189629.453125 !\u003d 189629.437500 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, kTessellationTolerance)\n\t../../tests/WangsFormulaTest.cpp:463\t555373.312500 !\u003d 555373.250000 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, kTessellationTolerance)\n\t../../tests/WangsFormulaTest.cpp:463\t234587.390625 !\u003d 234587.406250 [WangsFormula_conic_matches_reference]: SkScalarNearlyEqual(ref_nsegs, nsegs, kTessellationTolerance)",
+      "parentUuid": "86e06990_8bb2417e",
       "range": {
         "startLine": 164,
         "startChar": 4,
