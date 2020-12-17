@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17ea66c4_75b38cb1",
+        "filename": "modules/svg/tests/Text.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-17T19:21:13Z",
+      "side": 1,
+      "message": "this is breaking the android roller because of duplicate symbols.",
+      "revId": "febb1b87a5e73bdbe2cb598783082d3644d0e969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
