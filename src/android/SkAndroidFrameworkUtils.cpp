@@ -17,8 +17,7 @@
 
 #if SK_SUPPORT_GPU
 bool SkAndroidFrameworkUtils::clipWithStencil(SkCanvas* canvas) {
-    SkBaseDevice* device = canvas->getDevice();
-    return device && device->android_utils_clipWithStencil();
+    return canvas->baseDevice()->android_utils_clipWithStencil();
 }
 #endif
 

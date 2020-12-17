@@ -2569,8 +2569,6 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SkIRect* intersection,
                         const SkImageFilter* imageFilter = nullptr);
 
-    SkBaseDevice* getTopDevice() const;
-
 private:
     static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                      SkBaseDevice* dst, const SkIPoint& dstOrigin,
@@ -2587,7 +2585,16 @@ private:
     void predrawNotify(bool willOverwritesEntireSurface = false);
     void predrawNotify(const SkRect* rect, const SkPaint* paint, ShaderOverrideOpacity);
 
-    SkBaseDevice* getDevice() const;
+    // The bottom-most device in the stack, only changed by init(). Image properties and the final
+    // canvas pixels are determined by this device.
+    SkBaseDevice* baseDevice() const {
+        SkASSERT(fBaseDevice);
+        return fBaseDevice.get();
+    }
+
+    // The top-most device in the stack, will change within saveLayer()'s. All drawing and clipping
+    // operations should route to this device.
+    SkBaseDevice* topDevice() const;
 
     class MCRec;
 
