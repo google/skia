@@ -1701,7 +1701,8 @@ GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetConte
 #include "src/gpu/GrSurfaceDrawContext.h"
 
 GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
-    GrSurfaceDrawContext* sdc = this->getTopDevice()->accessRenderTargetContext();
+    SkDevice* device = this->getTopDevice();
+    GrSurfaceDrawContext* sdc = device->accessRenderTargetContext();
     if (!sdc) {
         return {};
     }
