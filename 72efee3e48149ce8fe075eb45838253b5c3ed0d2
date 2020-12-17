@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9bd8d3c_69fec86e",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:16:47Z",
+      "side": 1,
+      "message": "I suppose it\u0027s ok to put these here, though generally I try to always put system includes after local includes (to ensure nothing more specific is relying on something more general).",
+      "revId": "72efee3e48149ce8fe075eb45838253b5c3ed0d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
