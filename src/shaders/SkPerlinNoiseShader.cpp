@@ -1245,7 +1245,7 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     };
     SkString lerpFuncName = fragBuilder->getMangledFunctionName("lerp");
     fragBuilder->emitFunction(kHalf_GrSLType, lerpFuncName.c_str(),
-                              {lerpArgs, SK_ARRAY_COUNT(lerpArgs)}, "return a + w * (b - a);");
+                              {lerpArgs, SK_ARRAY_COUNT(lerpArgs)}, "return mix(a, b, w);");
 
     // noise function
     const GrShaderVar noiseArgs[] = {
