@@ -36,7 +36,6 @@ var CanvasKit = {
   ImageData: function() {},
 
   GetWebGLContext: function() {},
-  MakeBlurMaskFilter: function() {},
   MakeCanvas: function() {},
   MakeCanvasSurface: function() {},
   MakeGrContext: function() {},
@@ -816,6 +815,11 @@ var CanvasKit = {
   FillType: {
     Winding: {},
     EvenOdd: {},
+  },
+
+  FilterMode: {
+    Linear: {},
+    Nearest: {},
   },
 
   FilterQuality: {

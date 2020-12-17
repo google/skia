@@ -114,8 +114,8 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawImageAtCurrentFrame(aImg, 0, -43, paint);
     canvas.drawImageCubic(img, 0, -43, 1 / 3, 1 / 4, null);
     canvas.drawImageOptions(img, 0, -43, CK.FilterMode.Nearest, CK.MipmapMode.Nearest, paint);
-    canvas.drawImageNine(img, someRect, someRect, paint);
-    canvas.drawImageNine(img, CK.XYWHiRect(10, 20, 40, 40), someRect, paint);
+    canvas.drawImageNine(img, someRect, someRect, CK.FilterMode.Nearest);
+    canvas.drawImageNine(img, CK.XYWHiRect(10, 20, 40, 40), someRect, CK.FilterMode.Linear, paint);
     canvas.drawImageRect(img, someRect, someRect, paint);
     canvas.drawImageRect(img, CK.XYWHRect(90, 90, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint, true);

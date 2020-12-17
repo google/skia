@@ -914,11 +914,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
         .function("_drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                          uintptr_t /* int* */ centerPtr, uintptr_t /* float* */ dstPtr,
-                                                         const SkPaint* paint)->void {
+                                                         SkFilterMode filter, const SkPaint* paint)->void {
             const SkIRect* center = reinterpret_cast<const SkIRect*>(centerPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
 
-            self.drawImageNine(image, *center, *dst, paint);
+            self.drawImageNine(image.get(), *center, *dst, filter, paint);
         }), allow_raw_pointers())
         .function("_drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                          uintptr_t /* float* */ srcPtr, uintptr_t /* float* */ dstPtr,
