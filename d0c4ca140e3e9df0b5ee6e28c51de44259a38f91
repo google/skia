@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5882054_ee36c6d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-17T15:33:30Z",
+      "side": 1,
+      "message": "Derek,\n\nThis is now passing on the Android Canary. I know we want this to be possible for apps that bundle Skia; I just want to confirm we want this for external/skia. (It at least serves as a test that we don\u0027t break it.)",
+      "revId": "d0c4ca140e3e9df0b5ee6e28c51de44259a38f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
