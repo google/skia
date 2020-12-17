@@ -40,7 +40,6 @@ float4 MatrixEffect_Stage1_c0_c0(thread Globals* _globals, float4 _input, float2
         _5_textureColor = _globals->_anonInterface0->uborder_Stage1_c0_c0_c0;
     }
     _0_TextureEffect_Stage1_c0_c0_c0 = _5_textureColor;
-
     return _0_TextureEffect_Stage1_c0_c0_c0;
 
 }
@@ -132,7 +131,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> uTexture
     _8_output += MatrixEffect_Stage1_c0_c0(_globals, float4(1.0), _10_coordSampled) * _globals->_anonInterface0->uKernel_Stage1_c0[6].x;
     _9_coord += _globals->_anonInterface0->uIncrement_Stage1_c0;
     _7_GaussianConvolution_Stage1_c0 = _8_output;
-
     output_Stage1 = _7_GaussianConvolution_Stage1_c0;
 
     {

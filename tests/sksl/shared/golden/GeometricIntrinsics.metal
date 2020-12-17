@@ -16,7 +16,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _1_x = (_1_x * 2.0);
     _1_x = sign(_1_x);
     _0_scalar = _1_x;
-
     float x = _0_scalar;
 
     float2 _2_vector;
@@ -26,7 +25,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _3_x = float2(dot(_3_x, float2(3.0, 4.0)));
     _3_x = normalize(_3_x);
     _2_vector = _3_x;
-
     float2 y = _2_vector;
 
     _out->sk_FragColor = float4(x, y, 1.0);
