@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ba4582c_dd575716",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T19:21:49Z",
+      "side": 1,
+      "message": "Note to self: This pattern is incorrect. We need to convert:\n\n  do { CODE; } while (COND);\n\nto:\n\n  for (bool _first \u003d true; _first || COND; _first \u003d false) { CODE; }\n\nso we properly handle loops with continue statements.",
+      "revId": "a6ffa25c7c6e2560da34f5422c5ce1c6219ca1d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
