@@ -16,6 +16,155 @@
       "message": "Removed the ByteCode output - it should be irrelevant soon. (I can split this out, if you\u0027d like).\n\nExample input \u0026 output: https://screenshot.googleplex.com/4nAuznFtZdXkBLX.png\n\nI had to invent inputs for things (and inject an artificial store to avoid the whole program getting optimized away). Not sure if I should change some of the inputs (use more args?) to make the resulting code make more sense?\n\nIn any case, planning to use this to add a suite of unit tests (like we have for all of our other backends), with golden files checked in.",
       "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a258b264_274c52fb",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "Right, this one\u0027s on me... no good reason we should need this here right?",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ec103e2_e90c7fb9",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "oooh boy that name is a real ten-blinker.\n\ni wonder if this would be clearer with something like\n\n   static std::unique_ptr\u003cSkWStream\u003e as_SkWStream(SkSL::OutputStream\u0026 s) {\n       struct Adapter : public SkWStream {\n            ...\n       };\n       return std::make_unique\u003cAdapter\u003e(s);\n   }",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 53,
+        "endChar": 21
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42295108_18310ee0",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "maybe new_uni()?  on quick glance you might thing these were all returning the same one?",
+      "range": {
+        "startLine": 405,
+        "startChar": 25,
+        "endLine": 405,
+        "endChar": 28
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e5fbf6d_1c4d60b4",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "If you can find a way to swing it, the x values are typically varying (index() being the key),\n\n    static skvm::Coord device_coord(skvm::Builder* p, skvm::Uniforms* uniforms) {\n        skvm::I32 dx \u003d p-\u003euniform32(uniforms-\u003ebase, offsetof(BlitterUniforms, right))\n                     - p-\u003eindex(),\n                  dy \u003d p-\u003euniform32(uniforms-\u003ebase, offsetof(BlitterUniforms, y));\n        return {\n            to_F32(dx) + 0.5f,\n            to_F32(dy) + 0.5f,\n        };\n    }\n\nYou\u0027re gonna see some unexpected code hoisting in shaders if nothing appears to be varying.",
+      "range": {
+        "startLine": 407,
+        "startChar": 41,
+        "endLine": 407,
+        "endChar": 46
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf91bbb6_1b662fc3",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "Hmm.  It\u0027s gonna be confusing to see us dedup sampling two different textures against each other, or even deduping four sample points from a single texture into one.\n\nKind of want to return distinct colors for each distinct {child, coord.x, coord.y} call to sampleChild?",
+      "range": {
+        "startLine": 411,
+        "startChar": 70,
+        "endLine": 411,
+        "endChar": 76
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67721982_b41d3a31",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "yeah, this is a good way to not optimize away the whole program.\n\nmaybe varying\u003cfloat\u003e() for clarity?",
+      "range": {
+        "startLine": 422,
+        "startChar": 43,
+        "endLine": 422,
+        "endChar": 49
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9662496_cee6e89a",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:11:37Z",
+      "side": 1,
+      "message": "for an approximate idea of how it\u0027d execute, there\u0027s also\n\n    builder.done().dump(\u0026stream)\n\nThat\u0027ll assign registers to values, and in the process count up how many registers we\u0027d need to never spill.  The JITs of course do spill to the stack if they don\u0027t have that many registers, but the interpreter will run just like this trace.  The \"instruction\" count is also kind of notional... really should be called \"ops\" I guess.  Mostly it\u0027s 1:1, but some of the ops you\u0027d see in this dump expand to more than one hardware instruction in the JITs, and splats() sometimes end up as zero instructions.",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
