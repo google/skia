@@ -185,9 +185,9 @@ struct Layer {
     sk_sp<SkBaseDevice>            fDevice;
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     // original CTM; used by imagefilter in saveLayer
-    SkMatrix                       fStashedMatrix;
+    SkM44                          fStashedMatrix;
 
-    Layer(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkMatrix& stashed)
+    Layer(sk_sp<SkBaseDevice> device, const SkPaint* paint, const SkM44& stashed)
             : fDevice(std::move(device))
             , fPaint(paint ? std::make_unique<SkPaint>(*paint) : nullptr)
             , fStashedMatrix(stashed) {
@@ -252,7 +252,7 @@ public:
     }
 
     void newLayer(sk_sp<SkBaseDevice> layerDevice, const SkPaint* restorePaint,
-                  const SkMatrix& stashedMatrix) {
+                  const SkM44& stashedMatrix) {
         SkASSERT(!fBackImage);
         fLayer = std::make_unique<Layer>(std::move(layerDevice), restorePaint, stashedMatrix);
         fDevice = fLayer->fDevice.get();
@@ -971,7 +971,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
 
     SkImageFilter* imageFilter = paint.get() ? paint->getImageFilter() : nullptr;
-    SkMatrix stashedMatrix = fMCRec->fMatrix.asM33();
+    SkM44 stashedMatrix = fMCRec->fMatrix;
 
     /*
      *  Many ImageFilters (so far) do not (on their own) correctly handle matrices (CTM) that
@@ -993,7 +993,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
      */
     if (imageFilter) {
         SkMatrix modifiedCTM;
-        sk_sp<SkImageFilter> modifiedFilter = as_IFB(imageFilter)->applyCTM(stashedMatrix,
+        sk_sp<SkImageFilter> modifiedFilter = as_IFB(imageFilter)->applyCTM(stashedMatrix.asM33(),
                                                                             &modifiedCTM);
         if (as_IFB(modifiedFilter)->uniqueID() != as_IFB(imageFilter)->uniqueID()) {
             // The original filter couldn't support the CTM entirely
