@@ -15,7 +15,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_src;
     _0_blend_src = _in.src;
-
     _out->sk_FragColor = _0_blend_src;
 
     return *_out;

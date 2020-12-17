@@ -27,7 +27,6 @@ vec4 MatrixEffect_Stage1_c0_c0(vec4 _input, vec2 _coords) {
         _5_textureColor = uborder_Stage1_c0_c0_c0;
     }
     _0_TextureEffect_Stage1_c0_c0_c0 = _5_textureColor;
-
     return _0_TextureEffect_Stage1_c0_c0_c0;
 
 }
@@ -114,7 +113,6 @@ void main() {
     _8_output += MatrixEffect_Stage1_c0_c0(vec4(1.0), _10_coordSampled) * uKernel_Stage1_c0[6].x;
     _9_coord += uIncrement_Stage1_c0;
     _7_GaussianConvolution_Stage1_c0 = _8_output;
-
     output_Stage1 = _7_GaussianConvolution_Stage1_c0;
 
     {
