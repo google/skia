@@ -7,14 +7,15 @@
 
 #define SK_OPTS_NS skslc_standalone
 #include "src/opts/SkChecksum_opts.h"
+#include "src/opts/SkVM_opts.h"
 
-#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
@@ -34,6 +35,7 @@ void SkDebugf(const char format[], ...) {
 
 namespace SkOpts {
     decltype(hash_fn) hash_fn = skslc_standalone::hash_fn;
+    decltype(interpret_skvm) interpret_skvm = skslc_standalone::interpret_skvm;
 }
 
 enum class ResultCode {
@@ -43,6 +45,27 @@ enum class ResultCode {
     kOutputError = 3,
     kConfigurationError = 4,
 };
+
+static std::unique_ptr<SkWStream> as_SkWStream(SkSL::OutputStream& s) {
+    struct Adapter : public SkWStream {
+    public:
+        Adapter(SkSL::OutputStream& out) : fOut(out), fBytesWritten(0) {}
+
+        bool write(const void* buffer, size_t size) override {
+            fOut.write(buffer, size);
+            fBytesWritten += size;
+            return true;
+        }
+        void flush() override {}
+        size_t bytesWritten() const override { return fBytesWritten; }
+
+    private:
+        SkSL::OutputStream& fOut;
+        size_t fBytesWritten;
+    };
+
+    return std::make_unique<Adapter>(s);
+}
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
 // filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
@@ -361,18 +384,17 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
-    } else if (outputPath.endsWith(".bc")) {
+    } else if (outputPath.endsWith(".skvm")) {
         return compileProgram(
                 SkSL::Compiler::kNone_Flags,
-                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
-                    // Compile program to ByteCode assembly in a string-stream.
-                    auto byteCode = compiler.toByteCode(program);
-                    if (!byteCode) {
+                [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
+                    skvm::Builder builder;
+                    if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder)) {
                         return false;
                     }
 
-                    // Write the disassembly of the ByteCode to our output stream.
-                    byteCode->disassemble(&out);
+                    std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
+                    builder.done().dump(redirect.get());
                     return true;
                 });
     } else if (outputPath.endsWith(".dehydrated.sksl")) {
