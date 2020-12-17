@@ -33,6 +33,24 @@
       "message": "Also I think trying to mix cross context images with promise images is going to be very fragile and most likely not often work",
       "revId": "ca5cdcbc42f11249d31e35a609545d879931bdc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ad52540_c45e60d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11734
+      },
+      "writtenOn": "2020-12-17T01:14:12Z",
+      "side": 1,
+      "message": "Do you mean that skia not support cross context image in SkDDL? I know that SkDDL is mainly use by chromium SkiaRenderer and OOP-R, and in chromium don\u0027t use cross context image. And i test this patch in android, it works well.",
+      "parentUuid": "c859aa81_a330a8ca",
+      "revId": "ca5cdcbc42f11249d31e35a609545d879931bdc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
