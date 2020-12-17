@@ -1900,7 +1900,7 @@ if (skia_enable_tools) {
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
-      "modules/svg",
+      "modules/svg:tests",
       "//third_party/libpng",
       "//third_party/libwebp",
       "//third_party/zlib",

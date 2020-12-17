@@ -75,6 +75,7 @@ skia_svg_sources = [
   "$_src/SkSVGShape.cpp",
   "$_src/SkSVGStop.cpp",
   "$_src/SkSVGText.cpp",
+  "$_src/SkSVGTextPriv.h",
   "$_src/SkSVGTransformableNode.cpp",
   "$_src/SkSVGUse.cpp",
   "$_src/SkSVGValue.cpp",
