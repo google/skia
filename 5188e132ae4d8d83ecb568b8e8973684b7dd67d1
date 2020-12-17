@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35f45a5e_6d0083c2",
+        "filename": "src/sksl/SkSLDefines.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-17T18:49:06Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "c057db04_ce4911f1",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 24
+      },
+      "revId": "5188e132ae4d8d83ecb568b8e8973684b7dd67d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34f2e442_aaa4c741",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-17T18:01:47Z",
       "side": 1,
       "message": "Why is SkASSERT implemented but SkASSERTF dropped? Seems like it should be one or the other.",
+      "range": {
+        "startLine": 17,
+        "startChar": 29,
+        "endLine": 17,
+        "endChar": 30
+      },
+      "revId": "5188e132ae4d8d83ecb568b8e8973684b7dd67d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce27b1ca_fe4708af",
+        "filename": "src/sksl/lex/LexUtil.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-12-17T18:49:06Z",
+      "side": 1,
+      "message": "This must have snuck in by mistake at some point; the definition isn\u0027t even necessary in the first place.",
+      "parentUuid": "34f2e442_aaa4c741",
       "range": {
         "startLine": 17,
         "startChar": 29,
