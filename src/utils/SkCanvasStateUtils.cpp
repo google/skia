@@ -176,12 +176,10 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), canvas->getDeviceClipBounds());
 
     // Historically, the canvas state could report multiple top-level layers because SkCanvas
-    // supported unclipped layers. With that feature removed, there is only ever 0 to 1 "layers",
-    // and all required information is contained by the canvas' top-most device.
-    SkBaseDevice* device = canvas->getTopDevice();
-    if (!device) {
-        return nullptr;
-    }
+    // supported unclipped layers. With that feature removed, all required information is contained
+    // by the canvas' top-most device.
+    SkBaseDevice* device = canvas->topDevice();
+    SkASSERT(device);
 
     SkSWriter32<sizeof(SkCanvasLayerState)> layerWriter;
     // we currently only work for bitmap backed devices
