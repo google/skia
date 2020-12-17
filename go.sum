@@ -1544,6 +1544,8 @@ go.skia.org/infra v0.0.0-20201208190233-5ff1df349fce h1:33k5qh7TbSOoR7v66BL0mXem
 go.skia.org/infra v0.0.0-20201208190233-5ff1df349fce/go.mod h1:Y9eqtwoOyMrt8v6BhHkKeowb5NtwW0QS7acq62C5hYA=
 go.skia.org/infra v0.0.0-20201211124251-12d4265d9508 h1:e4OP3bMRuV6rzu+/glC/qjuij9IZHofdn3ybaan0aS0=
 go.skia.org/infra v0.0.0-20201211124251-12d4265d9508/go.mod h1:7t8Lju542R6/LHj4Swn4cGWHPYylIAQPGeS5V0fpFPU=
+go.skia.org/infra v0.0.0-20201217154708-25854a97e536 h1:jOJz5EMh0nf54wV8CQpTyuPx7N2kz3cGkYim8prurPc=
+go.skia.org/infra v0.0.0-20201217154708-25854a97e536/go.mod h1:5q1SY6pVIsvuPD68rYiVzgjguBKFy1DlJN5UzFem3uk=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79/go.mod h1:5YFcFnRptTN+41758c2bMPiqpGg4zBfYji1IQz8wNFk=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
