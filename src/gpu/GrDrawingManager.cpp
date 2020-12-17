@@ -629,44 +629,31 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
 
 #ifdef SK_DEBUG
 void GrDrawingManager::validate() const {
-    if (fReduceOpsTaskSplitting) {
-        SkASSERT(!fActiveOpsTask);
-    } else {
-        if (fActiveOpsTask) {
-            SkASSERT(!fDAG.empty());
-            SkASSERT(!fActiveOpsTask->isClosed());
-            SkASSERT(fActiveOpsTask == fDAG.back().get());
-        }
+    if (fActiveOpsTask) {
+        SkASSERT(!fDAG.empty());
+        SkASSERT(!fActiveOpsTask->isClosed());
+        SkASSERT(fActiveOpsTask == fDAG.back().get());
+    }
 
-        for (int i = 0; i < fDAG.count(); ++i) {
-            if (fActiveOpsTask != fDAG[i].get()) {
-                // The resolveTask associated with the activeTask remains open for as long as the
-                // activeTask does.
-                bool isActiveResolveTask =
-                    fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG[i].get();
-                SkASSERT(isActiveResolveTask || fDAG[i]->isClosed());
-            }
+    for (int i = 0; i < fDAG.count(); ++i) {
+        if (fActiveOpsTask != fDAG[i].get()) {
+            // The resolveTask associated with the activeTask remains open for as long as the
+            // activeTask does.
+            bool isActiveResolveTask =
+                fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG[i].get();
+            SkASSERT(isActiveResolveTask || fDAG[i]->isClosed());
         }
+    }
 
-        if (!fDAG.empty() && !fDAG.back()->isClosed()) {
-            SkASSERT(fActiveOpsTask == fDAG.back().get());
-        }
+    if (!fDAG.empty() && !fDAG.back()->isClosed()) {
+        SkASSERT(fActiveOpsTask == fDAG.back().get());
     }
 }
 #endif
 
-void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) {
-    if (target && fReduceOpsTaskSplitting) {
-        // In this case we need to close all the renderTasks that rely on the current contents of
-        // 'target'. That is bc we're going to update the content of the proxy so they need to be
-        // split in case they use both the old and new content. (This is a bit of an overkill: they
-        // really only need to be split if they ever reference proxy's contents again but that is
-        // hard to predict/handle).
-        if (GrRenderTask* lastRenderTask = this->getLastRenderTask(target)) {
-            lastRenderTask->closeThoseWhoDependOnMe(*fContext->priv().caps());
-        }
-    } else if (fActiveOpsTask) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
+void GrDrawingManager::closeActiveOpsTask() {
+    if (fActiveOpsTask) {
+        // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
         // end of the single opsTask but referred to a far earlier RT need to appear in their
         // own opsTask.
@@ -680,22 +667,19 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    GrSurfaceProxy* proxy = surfaceView.proxy();
-    this->closeRenderTasksForNewRenderTask(proxy);
+    this->closeActiveOpsTask();
 
     sk_sp<GrOpsTask> opsTask(new GrOpsTask(this, fContext->priv().arenas(),
                                            std::move(surfaceView),
                                            fContext->priv().auditTrail()));
-    SkASSERT(this->getLastRenderTask(proxy) == opsTask.get());
+    SkASSERT(this->getLastRenderTask(opsTask->target(0).proxy()) == opsTask.get());
 
     if (flushTimeOpsTask) {
         fOnFlushRenderTasks.push_back(opsTask);
     } else {
         this->appendTask(opsTask);
 
-        if (!fReduceOpsTaskSplitting) {
-            fActiveOpsTask = opsTask.get();
-        }
+        fActiveOpsTask = opsTask.get();
     }
 
     SkDEBUGCODE(this->validate());
@@ -727,65 +711,36 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
     sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
                                                                     std::move(semaphores),
                                                                     numSemaphores);
-    if (fReduceOpsTaskSplitting) {
-        GrRenderTask* lastTask = this->getLastRenderTask(proxy.get());
-        if (lastTask && !lastTask->isClosed()) {
-            // We directly make the currently open renderTask depend on waitTask instead of using
-            // the proxy version of addDependency. The waitTask will never need to trigger any
-            // resolves or mip map generation which is the main advantage of going through the proxy
-            // version. Additionally we would've had to temporarily set the wait task as the
-            // lastRenderTask on the proxy, add the dependency, and then reset the lastRenderTask to
-            // lastTask. Additionally we add all dependencies of lastTask to waitTask so that the
-            // waitTask doesn't get reordered before them and unnecessarily block those tasks.
-            // Note: Any previous Ops already in lastTask will get blocked by the wait semaphore
-            // even though they don't need to be for correctness.
 
-            // Make sure we add the dependencies of lastTask to waitTask first or else we'll get a
-            // circular self dependency of waitTask on waitTask.
-            waitTask->addDependenciesFromOtherTask(lastTask);
-            lastTask->addDependency(waitTask.get());
-        } else {
-            // If there is a last task we set the waitTask to depend on it so that it doesn't get
-            // reordered in front of the lastTask causing the lastTask to be blocked by the
-            // semaphore. Again we directly just go through adding the dependency to the task and
-            // not the proxy since we don't need to worry about resolving anything.
-            if (lastTask) {
-                waitTask->addDependency(lastTask);
-            }
-            this->setLastRenderTask(proxy.get(), waitTask.get());
-        }
-        this->appendTask(waitTask);
+    if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
+        SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
+        this->insertTaskBeforeLast(waitTask);
+        // In this case we keep the current renderTask open but just insert the new waitTask
+        // before it in the list. The waitTask will never need to trigger any resolves or mip
+        // map generation which is the main advantage of going through the proxy version.
+        // Additionally we would've had to temporarily set the wait task as the lastRenderTask
+        // on the proxy, add the dependency, and then reset the lastRenderTask to
+        // fActiveOpsTask. Additionally we make the waitTask depend on all of fActiveOpsTask
+        // dependencies so that we don't unnecessarily reorder the waitTask before them.
+        // Note: Any previous Ops already in fActiveOpsTask will get blocked by the wait
+        // semaphore even though they don't need to be for correctness.
+
+        // Make sure we add the dependencies of fActiveOpsTask to waitTask first or else we'll
+        // get a circular self dependency of waitTask on waitTask.
+        waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
+        fActiveOpsTask->addDependency(waitTask.get());
     } else {
-        if (fActiveOpsTask && (fActiveOpsTask->target(0).proxy() == proxy.get())) {
-            SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
-            this->insertTaskBeforeLast(waitTask);
-            // In this case we keep the current renderTask open but just insert the new waitTask
-            // before it in the list. The waitTask will never need to trigger any resolves or mip
-            // map generation which is the main advantage of going through the proxy version.
-            // Additionally we would've had to temporarily set the wait task as the lastRenderTask
-            // on the proxy, add the dependency, and then reset the lastRenderTask to
-            // fActiveOpsTask. Additionally we make the waitTask depend on all of fActiveOpsTask
-            // dependencies so that we don't unnecessarily reorder the waitTask before them.
-            // Note: Any previous Ops already in fActiveOpsTask will get blocked by the wait
-            // semaphore even though they don't need to be for correctness.
-
-            // Make sure we add the dependencies of fActiveOpsTask to waitTask first or else we'll
-            // get a circular self dependency of waitTask on waitTask.
-            waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
-            fActiveOpsTask->addDependency(waitTask.get());
-        } else {
-            // In this case we just close the previous RenderTask and start and append the waitTask
-            // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
-            // there is a lastTask on the proxy we make waitTask depend on that task. This
-            // dependency isn't strictly needed but it does keep the DAG from reordering the
-            // waitTask earlier and blocking more tasks.
-            if (GrRenderTask* lastTask = this->getLastRenderTask(proxy.get())) {
-                waitTask->addDependency(lastTask);
-            }
-            this->setLastRenderTask(proxy.get(), waitTask.get());
-            this->closeRenderTasksForNewRenderTask(proxy.get());
-            this->appendTask(waitTask);
+        // In this case we just close the previous RenderTask and start and append the waitTask
+        // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
+        // there is a lastTask on the proxy we make waitTask depend on that task. This
+        // dependency isn't strictly needed but it does keep the DAG from reordering the
+        // waitTask earlier and blocking more tasks.
+        if (GrRenderTask* lastTask = this->getLastRenderTask(proxy.get())) {
+            waitTask->addDependency(lastTask);
         }
+        this->setLastRenderTask(proxy.get(), waitTask.get());
+        this->closeActiveOpsTask();
+        this->appendTask(waitTask);
     }
     waitTask->makeClosed(caps);
 
@@ -800,8 +755,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                                  size_t dstOffset) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
-    // This copies from srcProxy to dstBuffer so it doesn't have a real target.
-    this->closeRenderTasksForNewRenderTask(nullptr);
+    this->closeActiveOpsTask();
 
     GrRenderTask* task = this->appendTask(sk_make_sp<GrTransferFromRenderTask>(
             srcProxy, srcRect, surfaceColorType, dstColorType,
@@ -828,7 +782,7 @@ bool GrDrawingManager::newCopyRenderTask(GrSurfaceProxyView srcView,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    this->closeRenderTasksForNewRenderTask(dstView.proxy());
+    this->closeActiveOpsTask();
     const GrCaps& caps = *fContext->priv().caps();
 
     GrSurfaceProxy* srcProxy = srcView.proxy();
