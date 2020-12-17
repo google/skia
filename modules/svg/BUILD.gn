@@ -24,23 +24,43 @@ if (skia_enable_svg) {
     ]
   }
 
-  if (skia_enable_tools && defined(is_skia_standalone)) {
-    source_set("tool") {
-      check_includes = false
+  if (skia_enable_tools) {
+    if (defined(is_skia_standalone)) {
+      source_set("tool") {
+        check_includes = false
+        testonly = true
+
+        configs += [ "../..:skia_private" ]
+        sources = [ "utils/SvgTool.cpp" ]
+
+        deps = [
+          "../..:flags",
+          "../..:skia",
+        ]
+
+        public_deps = [ ":svg" ]
+      }
+    }
+
+    source_set("tests") {
       testonly = true
 
-      configs += [ "../..:skia_private" ]
-      sources = [ "utils/SvgTool.cpp" ]
+      configs += [
+        "../..:skia_private",
+        "../..:tests_config",
+      ]
+      sources = [ "tests/Text.cpp" ]
 
       deps = [
-        "../..:flags",
+        ":svg",
+        "../..:gpu_tool_utils",
         "../..:skia",
       ]
-
-      public_deps = [ ":svg" ]
     }
   }
 } else {
   group("svg") {
+  }
+  group("tests") {
   }
 }
