@@ -56,7 +56,7 @@ config("default") {
     if (is_win) {
       cflags += [ "/WX" ]
     } else {
-      cflags += [ "-Werror" ]
+      cflags += [ "-Wno-error" ]
     }
   }
 

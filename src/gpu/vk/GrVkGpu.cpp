@@ -753,7 +753,11 @@ static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
 
     // Get a staging buffer slice to hold our mip data.
     // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
-    size_t alignment = SkAlign4(bytesPerBlock);
+    size_t alignment = bytesPerBlock;
+    SkDebugf("f: %d, 3: %d, alignment: %d\n", vkFormat, VK_FORMAT_R8G8B8_UNORM, alignment);
+    switch (alignment & 0b11) {
+        alignment <<= 1;
+    }
     *slice = stagingBufferManager->allocateStagingBufferSlice(combinedBufferSize, alignment);
     if (!slice->fBuffer) {
         return 0;
@@ -1542,6 +1546,7 @@ bool copy_src_data(char* mapPtr, VkFormat vkFormat, const SkTArray<size_t>& indi
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
 
+        SkDebugf("%d rectmemcpy %p + %p %d\n", level, mapPtr, individualMipOffsets[level], trimRB);
         SkRectMemcpy(mapPtr + individualMipOffsets[level], trimRB,
                      srcData[level].addr(), srcData[level].rowBytes(),
                      trimRB, srcData[level].height());
@@ -1695,6 +1700,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         bool result;
         if (data->type() == BackendTextureData::Type::kPixmaps) {
+            SkDebugf("Copying src data to %p\n");
             result = copy_src_data((char*)slice.fOffsetMapPtr, info.fFormat, individualMipOffsets,
                                    data->pixmaps(), info.fLevelCount);
         } else if (data->type() == BackendTextureData::Type::kCompressed) {

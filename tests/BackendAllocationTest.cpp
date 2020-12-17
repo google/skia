@@ -604,6 +604,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
     static_assert(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
 
     for (auto combo : combinations) {
+        if (combo.fColorType != kRGB_888x_SkColorType) continue;
         SkColorType colorType = combo.fColorType;
 
         if (GrBackendApi::kMetal == context->backend()) {
@@ -631,6 +632,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     }
                 }
 
+                auto label = SkStringPrintf("ct: %d, r: %d, mm: %d", colorType, (int)renderable, (int)mipmapped);
                 {
                     auto uninitCreateMtd = [colorType](GrDirectContext* dContext,
                                                        GrMipmapped mipmapped,
@@ -653,8 +655,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         return mbet;
                     };
 
-                    test_wrapping(context, reporter, uninitCreateMtd,
-                                  SkColorTypeToGrColorType(colorType), mipmapped, renderable);
+                    SkDebugf("wrapping %s\n", label.c_str());
+//                    test_wrapping(context, reporter, uninitCreateMtd,
+//                                  SkColorTypeToGrColorType(colorType), mipmapped, renderable);
                 }
 
                 {
@@ -681,9 +684,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
                         return mbet;
                     };
-                    test_color_init(context, reporter, createWithColorMtd,
-                                    SkColorTypeToGrColorType(colorType), combo.fColor, mipmapped,
-                                    renderable);
+                    SkDebugf("color init %s\n", label.c_str());
+//                    test_color_init(context, reporter, createWithColorMtd,
+//                                    SkColorTypeToGrColorType(colorType), combo.fColor, mipmapped,
+//                                    renderable);
                 }
 
                 for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
@@ -693,6 +697,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                    GrSurfaceOrigin origin,
                                                    GrRenderable renderable) {
                         SkASSERT(srcData && numLevels);
+                        SkDebugf("<MakeWithData/>\n");
                         auto mbet = ManagedBackendTexture::MakeWithData(dContext,
                                                                         srcData,
                                                                         numLevels,
@@ -700,6 +705,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                                                                         renderable,
                                                                         GrProtected::kNo);
                         check_vk_layout(mbet->texture(), VkLayout::kReadOnlyOptimal);
+                        SkDebugf("</MakeWithData>\n");
 #ifdef SK_DEBUG
                         {
                             auto format = dContext->defaultBackendFormat(srcData[0].colorType(),
@@ -709,6 +715,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 #endif
                         return mbet;
                     };
+                    SkDebugf("pimxap init %s origin: %d\n", label.c_str(), (int)origin);
 
                     test_pixmap_init(context,
                                      reporter,

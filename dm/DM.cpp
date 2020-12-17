@@ -1495,6 +1495,8 @@ int main(int argc, char** argv) {
 #endif
     CommandLineFlags::Parse(argc, argv);
 
+    FLAGS_match.reset();
+    FLAGS_match.append("ColorTypeBackendAllocationTest");
     initializeEventTracingForTools();
 
 #if !defined(SK_BUILD_FOR_GOOGLE3) && defined(SK_BUILD_FOR_IOS)
