@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9468fa7c_1fc242fc",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "I think fVals can be private now?",
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcd1cd35_60544bf6",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "maybe even take these as const\u0026, so the non-null checks and dereferences happen in the same neighborhood?",
+      "range": {
+        "startLine": 317,
+        "startChar": 29,
+        "endLine": 318,
+        "endChar": 64
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b304409_0a5a2576",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "this part of the comment is probably moot/confusing now.  😬",
+      "range": {
+        "startLine": 548,
+        "startChar": 73,
+        "endLine": 549,
+        "endChar": 30
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49ac87d3_37ed4ec3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "My bad, I think I lead you astray... now that we\u0027re using the closed-over left from the outer scope, probably better to use some other names than left/right here.",
+      "range": {
+        "startLine": 588,
+        "startChar": 22,
+        "endLine": 589,
+        "endChar": 27
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2082003b_98eff50f",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "Is this different from TK_PERCENT?  mod()\u0027s always been supported, and then later % was added?",
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab9a3ddc_b72c2b2e",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "Ah, if we are tracking that already in the language I\u0027m cool with both this and how you wrote it earlier.  Would also not mind pushing this rule up into the language so decl.value() is never null.",
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

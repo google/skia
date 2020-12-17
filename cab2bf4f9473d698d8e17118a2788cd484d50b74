@@ -463,6 +463,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecf206e9_61a8a951",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "Yeah, this is a lot easier to follow.  Thanks!",
+      "parentUuid": "98a505f9_102e7171",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d70f0a2_3875a2c0",
@@ -529,6 +547,24 @@
       "side": 1,
       "message": "Yeah, I was trying to be generous, but this kind of thing can/should be handled at a higher level via inspection of the function declaration anyway. (It also removes one of the last uses of fErrors, which is good - I\u0027m definitely in favor of \"the generator shouldn\u0027t be able to fail if the program got past the front-end\", so we shouldn\u0027t actually need a reporting mechanism at all.",
       "parentUuid": "1566ca01_ee8413c6",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2843736f_5e9382e7",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "Yes, I like that \"the generator shouldn\u0027t be able to fail if the program got past the front-end\" principle very much.",
+      "parentUuid": "f25b432e_a3419511",
       "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -744,6 +780,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a455906e_b5111921",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "Gotcha, good to know.\n\nThis is starting to remind me of the other day when I accidentally used float-add to add two ints instead of int-add and everything mysteriously worked... :)",
+      "parentUuid": "46f7ee55_09523bb6",
+      "range": {
+        "startLine": 549,
+        "startChar": 7,
+        "endLine": 550,
+        "endChar": 35
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1411c39_8c2147e2",
@@ -875,6 +935,30 @@
       "side": 1,
       "message": "Started to do this, then got taken aback by the need to have result in outer scope for the writeStore at the end, but then realized I can put that in binary(). I think this is cleaner now.",
       "parentUuid": "b8b06a9a_b1341cfa",
+      "range": {
+        "startLine": 609,
+        "startChar": 4,
+        "endLine": 609,
+        "endChar": 24
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6bbe30d_31ac2038",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "yeah I like this.",
+      "parentUuid": "104ac095_439b5785",
       "range": {
         "startLine": 609,
         "startChar": 4,
@@ -1061,6 +1145,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4c7987_2108a0d6",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "how interesting.  i wonder why they provide integer types at all.",
+      "parentUuid": "bd681ac9_6373e4c2",
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eff3bb58_6788dffb",
@@ -1098,6 +1200,30 @@
       "side": 1,
       "message": "Yup, the equivalence here is a side-effect of bools being masks. (On other backends, these actually emit \u0027^^\u0027 and \u0027^\u0027) - yes, GLSL has \u0027^^\u0027.",
       "parentUuid": "eff3bb58_6788dffb",
+      "range": {
+        "startLine": 692,
+        "startChar": 29,
+        "endLine": 692,
+        "endChar": 39
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0333ff5_2e5028f6",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "^^!\n\nThat\u0027s kind of a little very much confusing.  I just spent a puzzled minute thinking about short circuiting.",
+      "parentUuid": "9307237f_1d148740",
       "range": {
         "startLine": 692,
         "startChar": 29,
@@ -1450,6 +1576,30 @@
       "side": 1,
       "message": "Yup, just for scalars, and I didn\u0027t love the min -- that\u0027s a nicer way to write what\u0027s happening. (Incidentally, I\u0027ve got a bug open musing about removing the need for this entirely, by injecting splatting constructors in the IR when we detect this case). (https://bugs.chromium.org/p/skia/issues/detail?id\u003d11032)",
       "parentUuid": "0c3bfc64_c901d62d",
+      "range": {
+        "startLine": 1004,
+        "startChar": 46,
+        "endLine": 1004,
+        "endChar": 77
+      },
+      "revId": "cab2bf4f9473d698d8e17118a2788cd484d50b74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f729160_2240b561",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 1004,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T17:51:13Z",
+      "side": 1,
+      "message": "yeah, it does seem a little too \"policy\" to have to know how to splat scalars to matrices or vectors back here.",
+      "parentUuid": "cac7f011_9f87dca2",
       "range": {
         "startLine": 1004,
         "startChar": 46,
