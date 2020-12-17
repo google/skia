@@ -631,6 +631,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                     }
                 }
 
+                auto label = SkStringPrintf("ct: %d, r: %d, mm: %d", colorType, (int)renderable, (int)mipmapped);
                 {
                     auto uninitCreateMtd = [colorType](GrDirectContext* dContext,
                                                        GrMipmapped mipmapped,
@@ -653,6 +654,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
                         return mbet;
                     };
 
+                    SkDebugf("wrapping %s\n", label.c_str());
                     test_wrapping(context, reporter, uninitCreateMtd,
                                   SkColorTypeToGrColorType(colorType), mipmapped, renderable);
                 }
@@ -681,6 +683,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
                         return mbet;
                     };
+                    SkDebugf("color init %s\n", label.c_str());
                     test_color_init(context, reporter, createWithColorMtd,
                                     SkColorTypeToGrColorType(colorType), combo.fColor, mipmapped,
                                     renderable);
@@ -709,6 +712,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 #endif
                         return mbet;
                     };
+                    SkDebugf("pimxap init %s origin: %d\n", label.c_str(), (int)origin);
 
                     test_pixmap_init(context,
                                      reporter,
