@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2efb74aa_f8bfab42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-17T21:39:11Z",
+      "side": 1,
+      "message": "Moved the text internal declarations to a separate header to avoid duplicate symbols due to .cpp include.",
+      "revId": "24430ca46643cfbe1be9a3d9af0090065e8b3ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
