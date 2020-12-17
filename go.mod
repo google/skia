@@ -15,6 +15,7 @@ require (
 	github.com/bazelbuild/remote-apis v0.0.0-20201113154229-1e9ccef3705c // indirect
 	github.com/bazelbuild/remote-apis-sdks v0.0.0-20201120151053-8f976b9bf4fc // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
+	github.com/cockroachdb/cockroach-go v2.0.1+incompatible // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/addlicense v0.0.0-20190510175307-22550fa7c1b0 // indirect
@@ -37,7 +38,7 @@ require (
 	github.com/vektra/mockery v1.1.2 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20201211124251-12d4265d9508
+	go.skia.org/infra v0.0.0-20201217154708-25854a97e536
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
