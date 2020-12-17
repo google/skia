@@ -42,8 +42,6 @@ class SkWStream;
 
 namespace skvm {
 
-    bool fma_supported();
-
     class Assembler {
     public:
         explicit Assembler(void* buf);

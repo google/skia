@@ -11,26 +11,6 @@
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
 #include "tests/Test.h"
-#include "tools/Resources.h"
-#include "tools/SkVMBuilders.h"
-
-using Fmt = SrcoverBuilder_F32::Fmt;
-const char* fmt_name(Fmt fmt) {
-    switch (fmt) {
-        case Fmt::A8:        return "A8";
-        case Fmt::G8:        return "G8";
-        case Fmt::RGBA_8888: return "RGBA_8888";
-    }
-    return "";
-}
-
-static void dump(skvm::Builder& builder, SkWStream* o) {
-    skvm::Program program = builder.done();
-    builder.dump(o);
-    o->writeText("\n");
-    program.dump(o);
-    o->writeText("\n");
-}
 
 template <typename Fn>
 static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
@@ -39,166 +19,6 @@ static void test_jit_and_interpreter(skvm::Program&& program, Fn&& test) {
         program.dropJIT();
     }
     test((const skvm::Program&) program);
-}
-
-
-DEF_TEST(SkVM, r) {
-    SkDynamicMemoryWStream buf;
-
-    // Write all combinations of SrcoverBuilder_F32
-    for (int s = 0; s < 3; s++)
-    for (int d = 0; d < 3; d++) {
-        auto srcFmt = (Fmt)s,
-             dstFmt = (Fmt)d;
-        SrcoverBuilder_F32 builder{srcFmt, dstFmt};
-
-        buf.writeText(fmt_name(srcFmt));
-        buf.writeText(" over ");
-        buf.writeText(fmt_name(dstFmt));
-        buf.writeText("\n");
-        dump(builder, &buf);
-    }
-
-    // Write the I32 Srcovers also.
-    {
-        SrcoverBuilder_I32_Naive builder;
-        buf.writeText("I32 (Naive) 8888 over 8888\n");
-        dump(builder, &buf);
-    }
-
-    {
-        // Demonstrate the value of program reordering.
-        skvm::Builder b;
-        skvm::Arg sp = b.varying<int>(),
-                  dp = b.varying<int>();
-
-        skvm::I32 byte = b.splat(0xff);
-
-        skvm::I32 src = b.load32(sp),
-                  sr  = b.extract(src,  0, byte),
-                  sg  = b.extract(src,  8, byte),
-                  sb  = b.extract(src, 16, byte),
-                  sa  = b.extract(src, 24, byte);
-
-        skvm::I32 dst = b.load32(dp),
-                  dr  = b.extract(dst,  0, byte),
-                  dg  = b.extract(dst,  8, byte),
-                  db  = b.extract(dst, 16, byte),
-                  da  = b.extract(dst, 24, byte);
-
-        skvm::I32 R = b.add(sr, dr),
-                  G = b.add(sg, dg),
-                  B = b.add(sb, db),
-                  A = b.add(sa, da);
-
-        skvm::I32 rg = b.pack(R, G, 8),
-                  ba = b.pack(B, A, 8),
-                  rgba = b.pack(rg, ba, 16);
-
-        b.store32(dp, rgba);
-
-        dump(b, &buf);
-    }
-
-    // Our checked in dump expectations assume we have FMA support.
-    if (skvm::fma_supported()) {
-        sk_sp<SkData> actual = buf.detachAsData();
-        bool writeActualAsNewExpectation = false;
-        {
-            sk_sp<SkData> expected = GetResourceAsData("SkVMTest.expected");
-            if (!expected) {
-                ERRORF(r, "Couldn't load SkVMTest.expected.");
-                writeActualAsNewExpectation = true;
-
-            } else if (!expected->equals(actual.get())) {
-                ERRORF(r, "SkVMTest expected\n%.*s\nbut got\n%.*s\n",
-                       (int)expected->size(), expected->data(),
-                         (int)actual->size(),   actual->data());
-                writeActualAsNewExpectation = true;
-            }
-        }
-        if (writeActualAsNewExpectation) {
-            SkFILEWStream out(GetResourcePath("SkVMTest.expected").c_str());
-            if (out.isValid()) {
-                out.write(actual->data(), actual->size());
-            }
-        }
-    }
-
-    auto test_8888 = [&](skvm::Program&& program) {
-        uint32_t src[9];
-        uint32_t dst[SK_ARRAY_COUNT(src)];
-
-        test_jit_and_interpreter(std::move(program), [&](const skvm::Program& program) {
-            for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
-                src[i] = 0xbb007733;
-                dst[i] = 0xffaaccee;
-            }
-
-            SkPMColor expected = SkPMSrcOver(src[0], dst[0]);  // 0xff2dad73
-
-            program.eval((int)SK_ARRAY_COUNT(src), src, dst);
-
-            // dst is probably 0xff2dad72.
-            for (auto got : dst) {
-                auto want = expected;
-                for (int i = 0; i < 4; i++) {
-                    uint8_t d = got  & 0xff,
-                            w = want & 0xff;
-                    if (abs(d-w) >= 2) {
-                        SkDebugf("d %02x, w %02x\n", d,w);
-                    }
-                    REPORTER_ASSERT(r, abs(d-w) < 2);
-                    got  >>= 8;
-                    want >>= 8;
-                }
-            }
-        });
-    };
-
-    test_8888(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::RGBA_8888}.done("srcover_f32"));
-    test_8888(SrcoverBuilder_I32_Naive{}.done("srcover_i32_naive"));
-
-    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
-                             [&](const skvm::Program& program) {
-        uint32_t src[9];
-        uint8_t  dst[SK_ARRAY_COUNT(src)];
-
-        for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
-            src[i] = 0xbb007733;
-            dst[i] = 0x42;
-        }
-
-        SkPMColor over = SkPMSrcOver(SkPackARGB32(0xbb, 0x33, 0x77, 0x00),
-                                     0xff424242);
-
-        uint8_t want = SkComputeLuminance(SkGetPackedR32(over),
-                                          SkGetPackedG32(over),
-                                          SkGetPackedB32(over));
-        program.eval((int)SK_ARRAY_COUNT(src), src, dst);
-
-        for (auto got : dst) {
-            REPORTER_ASSERT(r, abs(got-want) < 3);
-        }
-    });
-
-    test_jit_and_interpreter(SrcoverBuilder_F32{Fmt::A8, Fmt::A8}.done(),
-                             [&](const skvm::Program& program) {
-        uint8_t src[256],
-                dst[256];
-        for (int i = 0; i < 256; i++) {
-            src[i] = 255 - i;
-            dst[i] = i;
-        }
-
-        program.eval(256, src, dst);
-
-        for (int i = 0; i < 256; i++) {
-            uint8_t want = SkGetPackedA32(SkPMSrcOver(SkPackARGB32(src[i], 0,0,0),
-                                                      SkPackARGB32(     i, 0,0,0)));
-            REPORTER_ASSERT(r, abs(dst[i]-want) < 2);
-        }
-    });
 }
 
 DEF_TEST(SkVM_eliminate_dead_code, r) {
@@ -864,13 +684,6 @@ DEF_TEST(SkVM_NewOps, r) {
         x = b.gather8(uniforms,0, x);
 
         b.store16(buf, x);
-    }
-
-    if ((false)) {
-        SkDynamicMemoryWStream buf;
-        dump(b, &buf);
-        sk_sp<SkData> blob = buf.detachAsData();
-        SkDebugf("%.*s\n", blob->size(), blob->data());
     }
 
     test_jit_and_interpreter(b.done(), [&](const skvm::Program& program) {
