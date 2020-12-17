@@ -39,7 +39,5 @@ void main() {
     _2_y = 42.0;
 
 
-
-
     sk_FragColor.x = 0.0;
 }
