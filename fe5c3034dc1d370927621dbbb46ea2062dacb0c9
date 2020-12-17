@@ -118,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3811aa79_4e466a9b",
+        "filename": "src/utils/SkSharingProc.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-12-17T14:27:12Z",
+      "side": 1,
+      "message": "That was unnecessary it turned out, returning SkData.MakeEmpty is the correct way for a proc to signal that nothing should be written.",
+      "parentUuid": "03ce293d_60a02eee",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 39
+      },
+      "revId": "fe5c3034dc1d370927621dbbb46ea2062dacb0c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1730b13_7e00cdb5",
