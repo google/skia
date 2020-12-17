@@ -22,6 +22,30 @@
       },
       "revId": "aeff2464b023be1e40476b6d1245b46f54d1018e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dddc479_156184d9",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T19:39:18Z",
+      "side": 1,
+      "message": "Whoops! Got the rest but missed this one.",
+      "parentUuid": "668e86e7_79e158e1",
+      "range": {
+        "startLine": 565,
+        "startChar": 67,
+        "endLine": 565,
+        "endChar": 75
+      },
+      "revId": "aeff2464b023be1e40476b6d1245b46f54d1018e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
