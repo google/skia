@@ -152,6 +152,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "604aa2a8_2ebd9603",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:27:27Z",
+      "side": 1,
+      "message": "I should mention if we do it this way we\u0027ll see how the program would behave as if writing to 4 float planes.  We can change that up of course if you like,\n\n    const SkColorType ct \u003d kRGBA_F32_SkColorType;  // or whatever\n\n    skvm::PixelFormat fmt;\n    SkColorType_to_PixelFormat(ct, \u0026fmt);\n    store(fmt, builder.arg(SkColorTypeBytesPerPixel(ct)), result));",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d9662496_cee6e89a",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
