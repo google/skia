@@ -34,6 +34,24 @@
       "parentUuid": "11ed045a_b30812b1",
       "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b15d3975_8da834ff",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2714,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T20:22:45Z",
+      "side": 1,
+      "message": "Actually, wait, I take it back!\noperator[] on a built-in SymbolTable seems to do the right thing and won\u0027t write. I think this should be OK. See `writableSymbolTable` in SymbolTable::lookup.",
+      "parentUuid": "f88c49d4_03d1c61a",
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
