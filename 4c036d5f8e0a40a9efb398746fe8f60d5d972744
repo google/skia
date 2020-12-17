@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006848690",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/345338?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7c044e11_ed620f63",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-17T16:32:08Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 152,
+        "startChar": 111,
+        "endLine": 152,
+        "endChar": 116
+      },
+      "revId": "4c036d5f8e0a40a9efb398746fe8f60d5d972744",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
