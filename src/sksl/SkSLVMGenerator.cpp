@@ -42,8 +42,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-#if !defined(SKSL_STANDALONE)
-
 namespace SkSL {
 
 namespace {
@@ -865,7 +863,7 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
 Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto found = fIntrinsics.find(c.function().name());
     if (found == fIntrinsics.end()) {
-        SkDEBUGFAILF("Missing intrinsic: '%s'", SkString(c.function().name()).c_str());
+        SkDEBUGFAILF("Missing intrinsic: '%s'", String(c.function().name()).c_str());
         return {};
     }
 
@@ -1348,6 +1346,73 @@ skvm::Color ProgramToSkVM(const Program& program,
                                     : skvm::Color{};
 }
 
-}  // namespace SkSL
+/*
+ * Testing utility function that emits program's "main" with a minimal harness. Used to create
+ * representative skvm op sequences for SkSL tests.
+ */
+bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder) {
+    const SkSL::FunctionDefinition* main = nullptr;
+    size_t uniformSlots = 0;
+    int childSlots = 0;
+    for (const SkSL::ProgramElement* e : program.elements()) {
+        if (e->is<SkSL::FunctionDefinition>() &&
+            e->as<SkSL::FunctionDefinition>().declaration().name() == "main") {
+            main = &e->as<SkSL::FunctionDefinition>();
+        }
+        if (e->is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
+            const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+            if (var.type() == *program.fContext->fFragmentProcessor_Type) {
+                childSlots++;
+            } else if (is_uniform(var)) {
+                uniformSlots += slot_count(var.type());
+            }
+        }
+    }
+    if (!main) { return false; }
 
-#endif
+    skvm::Uniforms uniforms(0);
+    uniforms.base = builder->uniform();
+
+    auto new_uni = [&]() { return builder->uniformF(uniforms.pushF(0.0f)); };
+
+    // Assume identity CTM
+    skvm::Coord device = {pun_to_F32(builder->index()), new_uni()};
+    skvm::Coord local  = device;
+
+    struct Child {
+        skvm::Uniform addr;
+        skvm::I32     rowBytesAsPixels;
+    };
+
+    std::vector<Child> children;
+    for (int i = 0; i < childSlots; ++i) {
+        children.push_back({uniforms.pushPtr(nullptr), builder->uniform32(uniforms.push(0))});
+    }
+
+    auto sampleChild = [&](int i, skvm::Coord coord) {
+        skvm::PixelFormat pixelFormat;
+        SkColorType_to_PixelFormat(kRGBA_F32_SkColorType, &pixelFormat);
+        skvm::I32 index = trunc(coord.x) +
+                          trunc(coord.y) * children[i].rowBytesAsPixels;
+        return gather(pixelFormat, children[i].addr, index);
+    };
+
+    std::vector<skvm::Val> uniformVals;
+    for (size_t i = 0; i < uniformSlots; ++i) {
+        uniformVals.push_back(new_uni().id);
+    }
+
+    skvm::Color result =
+            SkSL::ProgramToSkVM(program, *main, builder, uniformVals, device, local, sampleChild);
+
+    storeF(builder->varying<float>(), result.r);
+    storeF(builder->varying<float>(), result.g);
+    storeF(builder->varying<float>(), result.b);
+    storeF(builder->varying<float>(), result.a);
+
+    return true;
+
+}
+
+}  // namespace SkSL
