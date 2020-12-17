@@ -386,6 +386,30 @@
       },
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08341966_938e2e9d",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T20:48:42Z",
+      "side": 1,
+      "message": "Makes sense, done. I went with scaling the error threshold by 2^log2(nsegs) -- LMK if that doesn\u0027t make sense.",
+      "parentUuid": "7e4b3d8a_d3272de1",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
