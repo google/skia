@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "45ca5f17_1b114924",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T19:32:14Z",
+      "side": 1,
+      "message": "Couple other bots too e.g. https://logs.chromium.org/logs/skia/508adbbe6fa32211/+/steps/ninja/0/stdout",
+      "revId": "febb1b87a5e73bdbe2cb598783082d3644d0e969",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17ea66c4_75b38cb1",
