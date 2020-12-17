@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bceb251_9c16c3ce",
+        "filename": "src/utils/SkMultiPictureDocument.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-17T14:46:30Z",
+      "side": 1,
+      "message": "should this be a const ptr to the picture?",
+      "range": {
+        "startLine": 25,
+        "startChar": 27,
+        "endLine": 25,
+        "endChar": 36
+      },
+      "revId": "3cce11b52fd3b0874c49e9344c4cbe0e0d881221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b94d95f8_aa736b78",
+        "filename": "tools/SkSharingProc.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-17T14:46:30Z",
+      "side": 1,
+      "message": "if you already have the id in the map you should not do it again.",
+      "revId": "3cce11b52fd3b0874c49e9344c4cbe0e0d881221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45d1acfc_31cf8440",
+        "filename": "tools/SkSharingProc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-17T14:46:30Z",
+      "side": 1,
+      "message": "can you expand on what first/second pass means?  If I look at this file in isolation the comments are a little vague.",
+      "revId": "3cce11b52fd3b0874c49e9344c4cbe0e0d881221",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
