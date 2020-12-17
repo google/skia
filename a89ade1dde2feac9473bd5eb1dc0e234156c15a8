@@ -106,6 +106,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a097a7b8_29c71183",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T22:43:04Z",
+      "side": 1,
+      "message": "I think just `pun_to_F32(builder.index())` should do the trick if you want to keep it slim.",
+      "parentUuid": "6e5fbf6d_1c4d60b4",
+      "range": {
+        "startLine": 407,
+        "startChar": 41,
+        "endLine": 407,
+        "endChar": 46
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cf91bbb6_1b662fc3",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
