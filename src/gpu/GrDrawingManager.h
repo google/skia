@@ -119,10 +119,16 @@ public:
     void createDDLTask(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest,
                        SkIPoint offset);
 
+    enum class ReorderingStrategy {
+        kNone,
+        kCallTime,      /* "Old way" */
+        kFlushTime      /* "New way" under development */
+    };
+
 private:
     GrDrawingManager(GrRecordingContext*,
                      const GrPathRendererChain::Options&,
-                     bool reduceOpsTaskSplitting);
+                     ReorderingStrategy reorderingStrategy);
 
     bool wasAbandoned() const;
 
@@ -138,6 +144,7 @@ private:
     void removeRenderTasks(int startIndex, int stopIndex);
 
     void sortTasks();
+    void reorderTasks();
 
     void closeAllTasks();
 
@@ -182,7 +189,7 @@ private:
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
-    const bool                        fReduceOpsTaskSplitting;
+    const ReorderingStrategy          fReorderingStrategy;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 
