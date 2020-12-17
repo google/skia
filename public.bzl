@@ -597,8 +597,6 @@ DM_SRCS_ALL = struct(
         "tools/SkMetaData.cpp",
         "tools/SkMetaData.h",
         "tools/SkSharingProc.cpp",
-        "tools/SkVMBuilders.cpp",
-        "tools/SkVMBuilders.h",
         "tools/ToolUtils.cpp",
         "tools/ToolUtils.h",
         "tools/UrlDataManager.cpp",

@@ -666,7 +666,7 @@ namespace skvm {
 
     I32 Builder::splat(int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
 
-    bool fma_supported() {
+    static bool fma_supported() {
         static const bool supported =
      #if defined(SK_CPU_X86)
          SkCpu::Supports(SkCpu::HSW);
