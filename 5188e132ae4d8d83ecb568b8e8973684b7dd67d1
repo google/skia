@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c057db04_ce4911f1",
+        "filename": "src/sksl/SkSLDefines.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T18:00:35Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be necessary anymore",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 24
+      },
+      "revId": "5188e132ae4d8d83ecb568b8e8973684b7dd67d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
