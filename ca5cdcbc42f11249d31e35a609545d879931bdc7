@@ -51,6 +51,24 @@
       "parentUuid": "c859aa81_a330a8ca",
       "revId": "ca5cdcbc42f11249d31e35a609545d879931bdc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68a6ede0_6251d5e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-17T13:54:31Z",
+      "side": 1,
+      "message": "Well to main issue here is I don\u0027t think we want to expose the GrBackendTexture on SkImageGenerator.\n\nAlso it is a weird combination to be wanting to use cross context image with ddls. Maybe we can take a step back here and you can describe what you\u0027re attempting to do on a high level. Then we can figure out what is the right Skia api\u0027s to use",
+      "parentUuid": "8ad52540_c45e60d0",
+      "revId": "ca5cdcbc42f11249d31e35a609545d879931bdc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
