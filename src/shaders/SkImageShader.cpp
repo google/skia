@@ -501,16 +501,17 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #include "src/core/SkImagePriv.h"
 
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode tmx, SkTileMode tmy,
-                                   const SkMatrix* localMatrix, SkCopyPixelsMode cpm) {
-    const SkSamplingOptions* inherit_from_paint = nullptr;
+                                   const SkSamplingOptions* sampling, const SkMatrix* localMatrix,
+                                   SkCopyPixelsMode cpm) {
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(src, cpm),
-                               tmx, tmy, inherit_from_paint, localMatrix);
+                               tmx, tmy, sampling, localMatrix);
 }
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
                                            SkTileMode tmx, SkTileMode tmy,
+                                           const SkSamplingOptions& sampling,
                                            const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
-    auto s = SkMakeBitmapShader(src, tmx, tmy, localMatrix, mode);
+    auto s = SkMakeBitmapShader(src, tmx, tmy, &sampling, localMatrix, mode);
     if (!s) {
         return nullptr;
     }
