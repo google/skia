@@ -362,6 +362,30 @@
       },
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e4b3d8a_d3272de1",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T17:25:54Z",
+      "side": 1,
+      "message": "That sounds totally reasonable and expected at these magnitudes. Doing the math differently will result in LSB differences. I would try instead of fixed tolerance, do something like:\n\n  tolerance \u003d ldexpf(SK_ScalarNearlyZero, std::max(i,j));\n\nOr\n\n  tolerance \u003d ldexpf(SK_ScalarNearlyZero, (i + j) / 2);",
+      "parentUuid": "1a255305_00e7a835",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
