@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4d9541a_a85671eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-17T21:05:35Z",
+      "side": 1,
+      "message": "Just a simple sample so I can verify that the look of the directional shadows matches Material\u0027s reference.",
+      "revId": "985a4373aff51924836942c0ac7bf0587f84fbfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
