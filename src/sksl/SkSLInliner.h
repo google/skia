@@ -36,7 +36,7 @@ class Variable;
  */
 class Inliner {
 public:
-    Inliner(const Context* context, const ShaderCapsClass* caps) : fContext(context), fCaps(caps) {}
+    Inliner(const Context* context) : fContext(context) {}
 
     void reset(ModifiersPool* modifiers, const Program::Settings*);
 
@@ -85,6 +85,18 @@ private:
                            std::shared_ptr<SymbolTable>,
                            const FunctionDeclaration* caller);
 
+    /** Creates a scratch variable for the inliner to use. */
+    struct InlineVariable {
+        const Variable*             fVarSymbol;
+        std::unique_ptr<Statement>  fVarDecl;
+    };
+    InlineVariable makeInlineVariable(const String& baseName,
+                                      const Type* type,
+                                      SymbolTable* symbolTable,
+                                      Modifiers modifiers,
+                                      bool isBuiltinCode,
+                                      std::unique_ptr<Expression>* initialValue);
+
     /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
     void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
 
@@ -94,7 +106,6 @@ private:
     const Context* fContext = nullptr;
     ModifiersPool* fModifiers = nullptr;
     const Program::Settings* fSettings = nullptr;
-    const ShaderCapsClass* fCaps = nullptr;
     int fInlineVarCounter = 0;
     int fInlinedStatementCounter = 0;
 };
