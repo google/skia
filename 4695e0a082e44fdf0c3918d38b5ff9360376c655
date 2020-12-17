@@ -16,6 +16,161 @@
       "message": "Initial vectorized version -- happy to make any changes.",
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f8cc930_dc5a3224",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "First set of thoughts.\n\nAlso, can you add a benchmark for this method to bench/TessellateBench.cpp? You can copy GrWangsFormula::cubic_log2. It would be nice to be able to try a few different options in this method and see which is fastest. It would also be good to have one for GrWangsFormula::cubic and/or quadratic so we can compare with the conic version.",
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1eac86ad_0e891b35",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "Might as well match the style above and do:\n\n    float2 p0 \u003d bit_pun\u003cfloat2\u003e(pts[0]);\n    float2 p1 \u003d bit_pun\u003cfloat2\u003e(pts[1]);\n    float2 p2 \u003d bit_pun\u003cfloat2\u003e(pts[2]);",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 13
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ded0d1d_a790dac0",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "Any reason not to do\n\n  float2 min \u003d skvx::min(skvx::min(p0, p1), p2);",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 137,
+        "endChar": 48
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4354c2e_c3982bd9",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "I don\u0027t think this will be very fast. It\u0027s probably better to type:\n\n  max_len \u003d std::max(std::max(grvx::dot(p0, p0), grvx::dot(p1, p1)), grvx::dot(p2, p2));\n\nBut the only way to know for sure is to benchmark it.",
+      "range": {
+        "startLine": 150,
+        "startChar": 8,
+        "endLine": 150,
+        "endChar": 14
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1737a06_74576045",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "I think I prefer fabsf since it has less magic and type inference",
+      "range": {
+        "startLine": 156,
+        "startChar": 21,
+        "endLine": 156,
+        "endChar": 29
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e80e762_51c4519d",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "I would like to not have this divide. Can we just have a function argument called \"tolerance\" for this one?",
+      "range": {
+        "startLine": 159,
+        "startChar": 5,
+        "endLine": 159,
+        "endChar": 40
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86e06990_8bb2417e",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-17T07:51:25Z",
+      "side": 1,
+      "message": "This collapses to:\n\n  return sqrtf(denom / numer);\n\nBut let\u0027s swap denom and numer as well",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
