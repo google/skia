@@ -144,7 +144,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         // what is being used by the image. Next we update the canvas to use
         // this as its backend, so we can't modify the image's pixels anymore.
         SkASSERT(this->getCachedCanvas());
-        this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+        this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
 }
 
