@@ -395,6 +395,9 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fPreferCachedCpuMemory = false;
     }
 
+    fPreferDiscardableMSAAAttachment = true;
+    // How to handle resolving....
+
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
@@ -1754,7 +1757,6 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt,
 
     bool needsResolve = programInfo.targetSupportsVkResolveLoad() &&
                         this->preferDiscardableMSAAAttachment();
-
 
     bool forceLoadFromResolve =
             overrideFlags & GrCaps::ProgramDescOverrideFlags::kVulkanHasResolveLoadSubpass;
