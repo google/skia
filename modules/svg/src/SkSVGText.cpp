@@ -7,7 +7,7 @@
 
 #include "modules/svg/include/SkSVGText.h"
 
-#include <limits>
+#include <vector>
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -81,8 +81,8 @@ static SkFont ResolveFont(const SkSVGRenderContext& ctx) {
     return font;
 }
 
-static float ComputeAlignmentFactor(const SkSVGPresentationContext& pctx) {
-    switch (pctx.fInherited.fTextAnchor->type()) {
+static float ComputeAlignmentFactor(const SkSVGRenderContext& ctx) {
+    switch (ctx.presentationContext().fInherited.fTextAnchor->type()) {
     case SkSVGTextAnchor::Type::kStart : return  0.0f;
     case SkSVGTextAnchor::Type::kMiddle: return -0.5f;
     case SkSVGTextAnchor::Type::kEnd   : return -1.0f;
@@ -92,27 +92,6 @@ static float ComputeAlignmentFactor(const SkSVGPresentationContext& pctx) {
     }
     SkUNREACHABLE;
 }
-
-// Helper for encoding optional positional attributes.
-class PosAttrs {
-public:
-    // TODO: dx, dy, rotate
-    enum Attr : size_t {
-        kX = 0,
-        kY = 1,
-    };
-
-    float  operator[](Attr a) const { return fStorage[a]; }
-    float& operator[](Attr a)       { return fStorage[a]; }
-
-    bool has(Attr a) const { return fStorage[a] != kNone; }
-    bool hasAny()    const { return this->has(kX) || this->has(kY); }
-
-private:
-    static constexpr auto kNone = std::numeric_limits<float>::infinity();
-
-    float fStorage[2] = { kNone, kNone };
-};
 
 } // namespace
 
@@ -129,95 +108,13 @@ private:
 // [1] https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction
 class SkSVGTextContext final : SkShaper::RunHandler {
 public:
-
-    // Helper for cascading position attribute resolution (x, y, dx, dy, rotate) [1]:
-    //   - each text position element can specify an arbitrary-length attribute array
-    //   - for each character, we look up a given attribute first in its local attribute array,
-    //     then in the ancestor chain (cascading/fallback) - and return the first value encountered.
-    //   - the lookup is based on character index relative to the text content subtree
-    //     (i.e. the index crosses chunk boundaries)
-    //
-    // [1] https://www.w3.org/TR/SVG11/text.html#TSpanElementXAttribute
-    class ScopedPosResolver {
-    public:
-        ScopedPosResolver(const SkSVGTextContainer& txt, const SkSVGLengthContext& lctx,
-                          SkSVGTextContext* tctx, size_t charIndexOffset)
-            : fTextContext(tctx)
-            , fParent(tctx->fPosResolver)
-            , fCharIndexOffset(charIndexOffset)
-            , fX(ResolveLengths(lctx, txt.getX(), SkSVGLengthContext::LengthType::kHorizontal))
-            , fY(ResolveLengths(lctx, txt.getY(), SkSVGLengthContext::LengthType::kVertical))
-        {
-            fTextContext->fPosResolver = this;
-        }
-
-        ScopedPosResolver(const SkSVGTextContainer& txt, const SkSVGLengthContext& lctx,
-                          SkSVGTextContext* tctx)
-            : ScopedPosResolver(txt, lctx, tctx, tctx->fCurrentCharIndex) {}
-
-        ~ScopedPosResolver() {
-            fTextContext->fPosResolver = fParent;
-        }
-
-        PosAttrs resolve(size_t charIndex) const {
-            PosAttrs attrs;
-
-            if (charIndex < fLastPosIndex) {
-                SkASSERT(charIndex >= fCharIndexOffset);
-                const auto localCharIndex = charIndex - fCharIndexOffset;
-
-                const auto hasAllLocal = localCharIndex < fX.size() &&
-                                         localCharIndex < fY.size();
-                if (!hasAllLocal && fParent) {
-                    attrs = fParent->resolve(charIndex);
-                }
-
-                if (localCharIndex < fX.size()) {
-                    attrs[PosAttrs::kX] = fX[localCharIndex];
-                }
-                if (localCharIndex < fY.size()) {
-                    attrs[PosAttrs::kY] = fY[localCharIndex];
-                }
-
-                if (!attrs.hasAny()) {
-                    // Once we stop producing explicit position data, there is no reason to
-                    // continue trying for higher indices.  We can suppress future lookups.
-                    fLastPosIndex = charIndex;
-                }
-            }
-
-            return attrs;
-        }
-
-    private:
-        static std::vector<float> ResolveLengths(const SkSVGLengthContext& lctx,
-                                                 const std::vector<SkSVGLength>& lengths,
-                                                 SkSVGLengthContext::LengthType lt) {
-            std::vector<float> resolved;
-            resolved.reserve(lengths.size());
-
-            for (const auto& l : lengths) {
-                resolved.push_back(lctx.resolve(l, lt));
-            }
-
-            return resolved;
-        }
-
-        SkSVGTextContext*        fTextContext;
-        const ScopedPosResolver* fParent;          // parent resolver (fallback)
-        const size_t             fCharIndexOffset; // start index for the current resolver
-        const std::vector<float> fX,
-                                 fY;
-
-        // cache for the last known index with explicit positioning
-        mutable size_t           fLastPosIndex = std::numeric_limits<size_t>::max();
-
-    };
-
-    SkSVGTextContext(const SkSVGPresentationContext& pctx, sk_sp<SkFontMgr> fmgr)
-        : fShaper(SkShaper::Make(std::move(fmgr)))
-        , fChunkPos{ 0, 0 }
-        , fChunkAlignmentFactor(ComputeAlignmentFactor(pctx))
+    SkSVGTextContext(const SkSVGTextContainer& tcontainer, const SkSVGRenderContext& ctx)
+        : fShaper(SkShaper::Make(ctx.fontMgr()))
+        , fChunkPos{ ctx.lengthContext().resolve(tcontainer.getX(),
+                                                 SkSVGLengthContext::LengthType::kHorizontal),
+                     ctx.lengthContext().resolve(tcontainer.getY(),
+                                                 SkSVGLengthContext::LengthType::kVertical)}
+        , fChunkAlignmentFactor(ComputeAlignmentFactor(ctx))
     {}
 
     // Queues codepoints for rendering.
@@ -254,22 +151,8 @@ public:
             return ch;
         };
 
-        // Stash paints for access from SkShaper callbacks.
-        fCurrentFill   = ctx.fillPaint();
-        fCurrentStroke = ctx.strokePaint();
-
-        const auto font = ResolveFont(ctx);
-
         SkSTArray<128, char, true> filtered;
         filtered.reserve_back(SkToInt(txt.size()));
-
-        auto shapePending = [&filtered, &font, this]() {
-            // TODO: directionality hints?
-            const auto LTR  = true;
-            // Initiate shaping: this will generate a series of runs via callbacks.
-            fShaper->shape(filtered.data(), filtered.size(), font, LTR, SK_ScalarMax, this);
-            filtered.reset();
-        };
 
         const char* ch_ptr = txt.c_str();
         const char* ch_end = ch_ptr + txt.size();
@@ -285,33 +168,23 @@ public:
                 continue;
             }
 
-            SkASSERT(fPosResolver);
-            const auto pos = fPosResolver->resolve(fCurrentCharIndex++);
-
-            // Absolute position adjustments define a new chunk.
-            // (https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction)
-            if (pos.has(PosAttrs::kX) || pos.has(PosAttrs::kY)) {
-                shapePending();
-                this->flushChunk(ctx);
-
-                // New chunk position.
-                if (pos.has(PosAttrs::kX)) {
-                    fChunkPos.fX = pos[PosAttrs::kX];
-                }
-                if (pos.has(PosAttrs::kY)) {
-                    fChunkPos.fY = pos[PosAttrs::kY];
-                }
-            }
-
             char utf8_buf[SkUTF::kMaxBytesInUTF8Sequence];
             filtered.push_back_n(SkToInt(SkUTF::ToUTF8(ch, utf8_buf)), utf8_buf);
 
             fPrevCharSpace = (ch == ' ');
         }
 
-        // Note: at this point we have shaped and buffered the current fragment  The active
-        // text chunk continues until an explicit or implicit flush.
-        shapePending();
+        // TODO: absolute positioned chars => chunk breaks
+
+        // Stash paints for access from SkShaper callbacks.
+        fCurrentFill   = ctx.fillPaint();
+        fCurrentStroke = ctx.strokePaint();
+
+        // TODO: directionality hints?
+        const auto LTR = true;
+
+        // Initiate shaping: this will generate a series of runs via callbacks.
+        fShaper->shape(filtered.data(), filtered.size(), ResolveFont(ctx), LTR, SK_ScalarMax, this);
     }
 
     // Perform actual rendering for queued codepoints.
@@ -339,7 +212,7 @@ public:
 
         fChunkPos += fChunkAdvance;
         fChunkAdvance = {0,0};
-        fChunkAlignmentFactor = ComputeAlignmentFactor(ctx.presentationContext());
+        fChunkAlignmentFactor = ComputeAlignmentFactor(ctx);
 
         fRuns.clear();
     }
@@ -388,14 +261,10 @@ private:
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
     const std::unique_ptr<SkShaper> fShaper;
     std::vector<RunRec>             fRuns;
-    const ScopedPosResolver*        fPosResolver = nullptr;
 
     SkPoint                         fChunkPos;             // current text chunk position
     SkVector                        fChunkAdvance = {0,0}; // cumulative advance
     float                           fChunkAlignmentFactor; // current chunk alignment
-
-    // tracks the global text subtree char index (cross chunks).  Used for position resolution.
-    size_t                          fCurrentCharIndex = 0;
 
     // cached for access from SkShaper callbacks.
     const SkPaint*                  fCurrentFill;
@@ -434,8 +303,6 @@ void SkSVGTextContainer::appendChild(sk_sp<SkSVGNode> child) {
 
 void SkSVGTextContainer::onRenderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
                                       SkSVGXmlSpace) const {
-    const SkSVGTextContext::ScopedPosResolver resolver(*this, ctx.lengthContext(), tctx);
-
     for (const auto& frag : fChildren) {
         // Containers always override xml:space with the local value.
         frag->renderText(ctx, tctx, this->getXmlSpace());
@@ -455,14 +322,14 @@ bool SkSVGAttributeParser::parse(SkSVGXmlSpace* xs) {
 
 bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||
-           this->setX(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("x", name, value)) ||
-           this->setY(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("y", name, value)) ||
+           this->setX(SkSVGAttributeParser::parse<SkSVGLength>("x", name, value)) ||
+           this->setY(SkSVGAttributeParser::parse<SkSVGLength>("y", name, value)) ||
            this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 
 void SkSVGTextContainer::onRender(const SkSVGRenderContext& ctx) const {
     // Root text nodes establish a new text layout context.
-    SkSVGTextContext tctx(ctx.presentationContext(), ctx.fontMgr());
+    SkSVGTextContext tctx(*this, ctx);
 
     this->onRenderText(ctx, &tctx, this->getXmlSpace());
 
