@@ -266,8 +266,6 @@ protected:
 
     virtual void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkPaint&, SkCanvas::SrcRectConstraint) = 0;
-    virtual void drawImageNine(const SkImage*, const SkIRect& center,
-                               const SkRect& dst, const SkPaint&);
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
 
