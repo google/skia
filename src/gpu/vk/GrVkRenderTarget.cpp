@@ -422,6 +422,13 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
     *flags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
+    if (programInfo.targetSupportsVkResolveLoad() && vkCaps.preferDiscardableMSAAAttachment()) {
+        desc->fResolve.fFormat = desc->fColor.fFormat;
+        desc->fResolve.fSamples = 1;
+        *flags |= GrVkRenderPass::kResolve_AttachmentFlag;
+        ++attachmentCount;
+    }
+
     SkASSERT(!programInfo.isStencilEnabled() || programInfo.numStencilSamples());
     if (programInfo.numStencilSamples()) {
         VkFormat stencilFormat = vkCaps.preferredStencilFormat();

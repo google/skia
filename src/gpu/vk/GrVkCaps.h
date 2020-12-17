@@ -25,10 +25,14 @@ public:
      * Creates a GrVkCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
      */
-    GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, const VkPhysicalDeviceFeatures2& features,
-             uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-             const GrVkExtensions& extensions, GrProtected isProtected = GrProtected::kNo);
+    GrVkCaps(const GrContextOptions& contextOptions,
+             const GrVkInterface* vkInterface,
+             VkPhysicalDevice device,
+             const VkPhysicalDeviceFeatures2& features,
+             uint32_t instanceVersion,
+             uint32_t physicalDeviceVersion,
+             const GrVkExtensions& extensions,
+             GrProtected isProtected = GrProtected::kNo);
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 
@@ -37,7 +41,8 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }
 
-    bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
+    bool isFormatAsColorTypeRenderable(GrColorType ct,
+                                       const GrBackendFormat& format,
                                        int sampleCount = 1) const override;
     bool isFormatRenderable(const GrBackendFormat& format, int sampleCount) const override;
     bool isFormatRenderable(VkFormat, int sampleCount) const;
@@ -73,9 +78,7 @@ public:
     // Sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
-    bool mustSleepOnTearDown() const {
-        return fMustSleepOnTearDown;
-    }
+    bool mustSleepOnTearDown() const { return fMustSleepOnTearDown; }
 
     // Returns true if we should always make dedicated allocations for VkImages.
     bool shouldAlwaysUseDedicatedImageMemory() const {
@@ -83,30 +86,26 @@ public:
     }
 
     // Always use a transfer buffer instead of vkCmdUpdateBuffer to upload data to a VkBuffer.
-    bool avoidUpdateBuffers() const {
-        return fAvoidUpdateBuffers;
-    }
+    bool avoidUpdateBuffers() const { return fAvoidUpdateBuffers; }
 
     /**
      * Returns both a supported and most preferred stencil format to use in draws.
      */
-    VkFormat preferredStencilFormat() const {
-        return fPreferredStencilFormat;
-    }
+    VkFormat preferredStencilFormat() const { return fPreferredStencilFormat; }
 
     // Returns total number of bits used by stencil + depth + padding
     static int GetStencilFormatTotalBitCount(VkFormat format) {
         switch (format) {
-        case VK_FORMAT_S8_UINT:
-            return 8;
-        case VK_FORMAT_D24_UNORM_S8_UINT:
-            return 32;
-        case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            // can optionally have 24 unused bits at the end so we assume the total bits is 64.
-            return 64;
-        default:
-            SkASSERT(false);
-            return 0;
+            case VK_FORMAT_S8_UINT:
+                return 8;
+            case VK_FORMAT_D24_UNORM_S8_UINT:
+                return 32;
+            case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                // can optionally have 24 unused bits at the end so we assume the total bits is 64.
+                return 64;
+            default:
+                SkASSERT(false);
+                return 0;
         }
     }
 
@@ -168,15 +167,28 @@ public:
      * the surface is not a render target, otherwise it is the number of samples in the render
      * target.
      */
-    bool canCopyImage(VkFormat dstFormat, int dstSampleCnt, bool dstHasYcbcr,
-                      VkFormat srcFormat, int srcSamplecnt, bool srcHasYcbcr) const;
+    bool canCopyImage(VkFormat dstFormat,
+                      int dstSampleCnt,
+                      bool dstHasYcbcr,
+                      VkFormat srcFormat,
+                      int srcSamplecnt,
+                      bool srcHasYcbcr) const;
 
-    bool canCopyAsBlit(VkFormat dstConfig, int dstSampleCnt, bool dstIsLinear, bool dstHasYcbcr,
-                       VkFormat srcConfig, int srcSampleCnt, bool srcIsLinear,
+    bool canCopyAsBlit(VkFormat dstConfig,
+                       int dstSampleCnt,
+                       bool dstIsLinear,
+                       bool dstHasYcbcr,
+                       VkFormat srcConfig,
+                       int srcSampleCnt,
+                       bool srcIsLinear,
                        bool srcHasYcbcr) const;
 
-    bool canCopyAsResolve(VkFormat dstConfig, int dstSampleCnt, bool dstHasYcbcr,
-                          VkFormat srcConfig, int srcSamplecnt, bool srcHasYcbcr) const;
+    bool canCopyAsResolve(VkFormat dstConfig,
+                          int dstSampleCnt,
+                          bool dstHasYcbcr,
+                          VkFormat srcConfig,
+                          int srcSamplecnt,
+                          bool srcHasYcbcr) const;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
@@ -199,6 +211,14 @@ public:
     GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const override;
 
     GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const override;
+
+    // If true then when doing MSAA draws, we will prefer to discard the msaa attachment on load
+    // and stores. The use of this feature for specific draws depends on the render target having a
+    // resolve attachment, and if we need to load previous data the resolve attachment must be
+    // usable as an input attachment. Otherwise we will just write out and store the msaa attachment
+    // like normal.
+    // This flag is similar to enabling gl render to texture for msaa rendering.
+    bool preferDiscardableMSAAAttachment() const { return fPreferDiscardableMSAAAttachment; }
 
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
@@ -339,6 +359,8 @@ private:
     uint32_t fMaxInputAttachmentDescriptors = 0;
 
     bool fPreferCachedCpuMemory = true;
+
+    bool fPreferDiscardableMSAAAttachment = false;
 
     using INHERITED = GrCaps;
 };
