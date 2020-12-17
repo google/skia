@@ -35,17 +35,17 @@ private:
 // Base class for nestable text containers (<text>, <tspan>, etc).
 class SkSVGTextContainer : public SkSVGTextFragment {
 public:
-    // TODO: these should be arrays
-    SVG_ATTR(X, SkSVGLength, SkSVGLength(0))
-    SVG_ATTR(Y, SkSVGLength, SkSVGLength(0))
+    SVG_ATTR(X, std::vector<SkSVGLength>, {})
+    SVG_ATTR(Y, std::vector<SkSVGLength>, {})
 
     SVG_ATTR(XmlSpace, SkSVGXmlSpace, SkSVGXmlSpace::kDefault)
+
+    void appendChild(sk_sp<SkSVGNode>) final;
 
 protected:
     explicit SkSVGTextContainer(SkSVGTag t) : INHERITED(t) {}
 
 private:
-    void appendChild(sk_sp<SkSVGNode>) final;
     void onRender(const SkSVGRenderContext&) const final;
     void onRenderText(const SkSVGRenderContext&, SkSVGTextContext*, SkSVGXmlSpace) const final;
 
