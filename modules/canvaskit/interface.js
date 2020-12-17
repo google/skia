@@ -1101,10 +1101,10 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawDRRect(oPtr, iPtr, paint);
   };
 
-  CanvasKit.Canvas.prototype.drawImageNine = function(img, center, dest, paint) {
+  CanvasKit.Canvas.prototype.drawImageNine = function(img, center, dest, filter, paint) {
     var cPtr = copyIRectToWasm(center);
     var dPtr = copyRectToWasm(dest);
-    this._drawImageNine(img, cPtr, dPtr, paint);
+    this._drawImageNine(img, cPtr, dPtr, filter, paint || null);
   };
 
   CanvasKit.Canvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample) {

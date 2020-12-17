@@ -639,7 +639,7 @@ describe('Canvas Behavior', () => {
         const paint = new CanvasKit.Paint();
 
         canvas.drawImageNine(img, CanvasKit.LTRBiRect(40, 40, 400, 300),
-            CanvasKit.LTRBRect(5, 5, 300, 650), paint);
+            CanvasKit.LTRBRect(5, 5, 300, 650), CanvasKit.FilterMode.Nearest, paint);
         paint.delete();
         img.delete();
     }, '/assets/mandrill_512.png');
