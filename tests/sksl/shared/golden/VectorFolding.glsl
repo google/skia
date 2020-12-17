@@ -59,7 +59,6 @@ void main() {
     sk_FragColor *= vec4(2.0);
     sk_FragColor /= vec4(2.0);
 
-
     ivec4 _0_result;
     _0_result.x = 2;
     _0_result = ivec4(6, 7, 9, 11);
@@ -107,6 +106,5 @@ void main() {
     _0_result *= ivec4(2);
     _0_result /= ivec4(2);
     sk_FragColor = vec4(_0_result);
-
 
 }
