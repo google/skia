@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e24c4113_1ecc1e21",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:20:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9468fa7c_1fc242fc",
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fcd1cd35_60544bf6",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-12-17T17:51:13Z",
       "side": 1,
       "message": "maybe even take these as const\u0026, so the non-null checks and dereferences happen in the same neighborhood?",
+      "range": {
+        "startLine": 317,
+        "startChar": 29,
+        "endLine": 318,
+        "endChar": 64
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa3d5756_10faaae5",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:20:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcd1cd35_60544bf6",
       "range": {
         "startLine": 317,
         "startChar": 29,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eafb219_22668fb3",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:20:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b304409_0a5a2576",
+      "range": {
+        "startLine": 548,
+        "startChar": 73,
+        "endLine": 549,
+        "endChar": 30
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49ac87d3_37ed4ec3",
@@ -87,6 +153,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e7126f1_58bae140",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:20:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49ac87d3_37ed4ec3",
+      "range": {
+        "startLine": 588,
+        "startChar": 22,
+        "endLine": 589,
+        "endChar": 27
+      },
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2082003b_98eff50f",
@@ -100,6 +190,24 @@
       "writtenOn": "2020-12-17T17:51:13Z",
       "side": 1,
       "message": "Is this different from TK_PERCENT?  mod()\u0027s always been supported, and then later % was added?",
+      "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94452135_ba853837",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:20:29Z",
+      "side": 1,
+      "message": "Yeah, mod(float,float) always existed as an intrinsic. \u0027%\u0027 is only supported for integer remainder, and didn\u0027t become a feature until integers were required to be actual integers (ES3, basically).",
+      "parentUuid": "2082003b_98eff50f",
       "revId": "76a7c13502d9c8feeb75a8eb2c9961a033127982",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
