@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68fcb717_59ddd03d",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-17T18:27:10Z",
+      "side": 1,
+      "message": "As mentioned in the chat, we can now do early returns inside switch (but still not loops). Can fix that (with tests) in a future CL, of course.",
+      "range": {
+        "startLine": 809,
+        "startChar": 8,
+        "endLine": 809,
+        "endChar": 14
+      },
+      "revId": "c0f098a28020bda11df760ec17d4e91cb7adb77d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
