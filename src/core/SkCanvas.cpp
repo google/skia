@@ -1885,6 +1885,23 @@ void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const 
     this->drawImageNine(image, center, dst, &latticePaint);
 }
 
+void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
+                             const SkPaint* paint) {
+    RETURN_ON_NULL(image);
+
+    const int xdivs[] = {center.fLeft, center.fRight};
+    const int ydivs[] = {center.fTop, center.fBottom};
+
+    Lattice lat;
+    lat.fXDivs = xdivs;
+    lat.fYDivs = ydivs;
+    lat.fRectTypes = nullptr;
+    lat.fXCount = lat.fYCount = 2;
+    lat.fBounds = nullptr;
+    lat.fColors = nullptr;
+    this->drawImageLattice(image, lat, dst, paint);
+}
+
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                 SkFilterMode filter, const SkPaint* paint) {
     SkPaint latticePaint = clean_paint_for_lattice(paint);
@@ -1892,21 +1909,6 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     latticePaint.setFilterQuality(filter == SkFilterMode::kNearest ? kNone_SkFilterQuality
                                                                    : kLow_SkFilterQuality);
     this->drawImageLattice(image, lattice, dst, &latticePaint);
-}
-
-void SkCanvas::drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                             const SkPaint* paint) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_NULL(image);
-    if (dst.isEmpty()) {
-        return;
-    }
-    if (SkLatticeIter::Valid(image->width(), image->height(), center)) {
-        SkPaint latticePaint = clean_paint_for_lattice(paint);
-        this->onDrawImageNine(image, center, dst, &latticePaint);
-    } else {
-        this->drawImageRect(image, dst, paint);
-    }
 }
 
 void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
@@ -2322,18 +2324,6 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
         p.setShader(image->makeShader(SkTileMode::kDecal, SkTileMode::kDecal, sampling, &mx));
         this->drawRect(dst, p);
     }
-}
-
-void SkCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                               const SkPaint* paint) {
-    SkPaint realPaint = clean_paint_for_drawImage(paint);
-
-    if (this->internalQuickReject(dst, realPaint)) {
-        return;
-    }
-
-    AutoLayerForImageFilter layer(this, realPaint, &dst);
-    this->topDevice()->drawImageNine(image, center, dst, layer.paint());
 }
 
 void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,

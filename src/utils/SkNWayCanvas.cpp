@@ -257,14 +257,6 @@ void SkNWayCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, cons
     }
 }
 
-void SkNWayCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center, const SkRect& dst,
-                                   const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawImageNine(image, center, dst, paint);
-    }
-}
-
 void SkNWayCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                       const SkRect& dst, const SkPaint* paint) {
     Iter iter(fList);

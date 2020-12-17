@@ -440,13 +440,6 @@ void DebugCanvas::onDrawImageRect(const SkImage*    image,
     fnextDrawImageRectLayerId = -1;
 }
 
-void DebugCanvas::onDrawImageNine(const SkImage* image,
-                                  const SkIRect& center,
-                                  const SkRect&  dst,
-                                  const SkPaint* paint) {
-    this->addDrawCommand(new DrawImageNineCommand(image, center, dst, paint));
-}
-
 void DebugCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
     this->addDrawCommand(new DrawOvalCommand(oval, paint));
 }
@@ -618,10 +611,6 @@ std::map<int, std::vector<int>> DebugCanvas::getImageIdToCommandMap(UrlDataManag
             }
             case DrawCommand::OpType::kDrawImageRect_OpType: {
                 imageIndex = static_cast<const DrawImageRectCommand*>(command)->imageId(udm);
-                break;
-            }
-            case DrawCommand::OpType::kDrawImageNine_OpType: {
-                imageIndex = static_cast<const DrawImageNineCommand*>(command)->imageId(udm);
                 break;
             }
             case DrawCommand::OpType::kDrawImageLattice_OpType: {

@@ -179,10 +179,6 @@ protected:
                          const SkRect& dst,
                          const SkPaint*,
                          SrcRectConstraint) override;
-    void onDrawImageNine(const SkImage*,
-                         const SkIRect& center,
-                         const SkRect&  dst,
-                         const SkPaint*) override;
     void onDrawAtlas(const SkImage*,
                      const SkRSXform[],
                      const SkRect[],

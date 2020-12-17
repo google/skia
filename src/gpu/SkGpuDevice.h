@@ -111,8 +111,6 @@ public:
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkPaint&, SkCanvas::SrcRectConstraint) override;
-    void drawImageNine(const SkImage* image, const SkIRect& center,
-                       const SkRect& dst, const SkPaint& paint) override;
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, const SkPaint&) override;
 

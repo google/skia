@@ -807,28 +807,6 @@ static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) 
     return GrSamplerState::Filter::kLinear;
 }
 
-void SkGpuDevice::drawImageNine(const SkImage* image,
-                                const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
-    ASSERT_SINGLE_OWNER
-    uint32_t pinnedUniqueID;
-    auto iter = std::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->recordingContext(),
-                                                              &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->recordingContext(), std::move(view),
-                                   image->imageInfo().colorInfo(), pinnedUniqueID);
-        this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
-    } else {
-        SkBitmap bm;
-        if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
-        } else if (as_IB(image)->getROPixels(nullptr, &bm)) {
-            GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
-        }
-    }
-}
-
 void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                       std::unique_ptr<SkLatticeIter> iter, const SkRect& dst,
                                       const SkPaint& origPaint) {

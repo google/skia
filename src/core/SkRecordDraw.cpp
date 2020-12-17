@@ -122,7 +122,6 @@ template <> void Draw::draw(const DrawImageLattice& r) {
 }
 
 DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
-DRAW(DrawImageNine, drawImageNine(r.image.get(), r.center, r.dst, r.paint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -404,9 +403,6 @@ private:
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawImageRect& op) const {
-        return this->adjustAndMap(op.dst, op.paint);
-    }
-    Bounds bounds(const DrawImageNine& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawPath& op) const {

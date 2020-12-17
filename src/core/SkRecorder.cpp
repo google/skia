@@ -214,11 +214,6 @@ void SkRecorder::onDrawImageRect(const SkImage* image, const SkRect* src, const 
     this->append<SkRecords::DrawImageRect>(this->copy(paint), sk_ref_sp(image), this->copy(src), dst, constraint);
 }
 
-void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
-                                 const SkRect& dst, const SkPaint* paint) {
-    this->append<SkRecords::DrawImageNine>(this->copy(paint), sk_ref_sp(image), center, dst);
-}
-
 void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint) {
     int flagCount = lattice.fRectTypes ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
