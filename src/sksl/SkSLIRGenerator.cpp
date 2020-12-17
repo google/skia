@@ -2719,46 +2719,51 @@ std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name
 
 std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
                                                           StringFragment field) {
-    // Find the Enum element that this type refers to (if any)
     const ProgramElement* enumElement = nullptr;
-    for (const auto& e : *fProgramElements) {
+    // Find the Enum element that this type refers to, start by searching our elements
+    for (const std::unique_ptr<ProgramElement>& e : *fProgramElements) {
         if (e->is<Enum>() && type.name() == e->as<Enum>().typeName()) {
             enumElement = e.get();
             break;
         }
     }
-
-    if (enumElement) {
-        // We found the Enum element. Look for 'field' as a member.
-        std::shared_ptr<SymbolTable> old = fSymbolTable;
-        fSymbolTable = enumElement->as<Enum>().symbols();
-        std::unique_ptr<Expression> result = convertIdentifier(
-                ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier, field));
-        if (result) {
-            const Variable& v = *result->as<VariableReference>().variable();
-            SkASSERT(v.initialValue());
-            result = std::make_unique<IntLiteral>(
-                    offset, v.initialValue()->as<IntLiteral>().value(), &type);
-        } else {
-            fErrors.error(offset,
-                          "type '" + type.name() + "' does not have a member named '" + field +
-                          "'");
-        }
-        fSymbolTable = old;
-        return result;
-    } else {
-        // No Enum element? Check the intrinsics, clone it into the program, try again.
-        if (!fIsBuiltinCode && fIntrinsics) {
-            if (const ProgramElement* found = fIntrinsics->findAndInclude(type.name())) {
-                fProgramElements->push_back(found->clone());
-                return this->convertTypeField(offset, type, field);
+    // ... if that fails, look in our shared elements
+    if (!enumElement) {
+        for (const ProgramElement* e : *fSharedElements) {
+            if (e->is<Enum>() && type.name() == e->as<Enum>().typeName()) {
+                enumElement = e;
+                break;
             }
         }
-        fErrors.error(offset,
-                      "type '" + type.displayName() + "' does not have a member named '" + field +
-                      "'");
+    }
+    // ... and if that fails, check the intrinsics, add it to our shared elements
+    if (!enumElement && !fIsBuiltinCode && fIntrinsics) {
+        if (const ProgramElement* found = fIntrinsics->findAndInclude(type.name())) {
+            fSharedElements->push_back(found);
+            enumElement = found;
+        }
+    }
+    if (!enumElement) {
+        fErrors.error(offset, "type '" + type.displayName() + "' is not a known enum");
         return nullptr;
     }
+
+    // We found the Enum element. Look for 'field' as a member.
+    std::shared_ptr<SymbolTable> old = fSymbolTable;
+    fSymbolTable = enumElement->as<Enum>().symbols();
+    std::unique_ptr<Expression> result =
+            convertIdentifier(ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier, field));
+    if (result) {
+        const Variable& v = *result->as<VariableReference>().variable();
+        SkASSERT(v.initialValue());
+        result = std::make_unique<IntLiteral>(offset, v.initialValue()->as<IntLiteral>().value(),
+                                              &type);
+    } else {
+        fErrors.error(offset,
+                      "type '" + type.name() + "' does not contain enumerator '" + field + "'");
+    }
+    fSymbolTable = old;
+    return result;
 }
 
 std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& index) {
