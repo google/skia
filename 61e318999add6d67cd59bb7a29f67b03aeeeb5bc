@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "531d142e_bcc812f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-17T00:23:14Z",
+      "side": 1,
+      "message": "The simple fixes are in PS1 \u003c-\u003e PS2. Landing with TBR, since it was straightforward.",
+      "revId": "61e318999add6d67cd59bb7a29f67b03aeeeb5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
