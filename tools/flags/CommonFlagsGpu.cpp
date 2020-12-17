@@ -38,8 +38,9 @@ static DEFINE_int(internalSamples, 4,
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
 
-static DEFINE_bool(reduceOpsTaskSplitting, false, "Improve opsTask sorting");
-static DEFINE_bool(dontReduceOpsTaskSplitting, false, "Allow more opsTask splitting");
+static DEFINE_bool(reduceOpsTaskSplitting, false, "Reorder ops tasks");
+static DEFINE_bool(reduceOpsTaskSplittingAtFlush, false, "Reorder ops tasks, new algorithm");
+static DEFINE_bool(dontReduceOpsTaskSplitting, false, "Do not reordered ops tasks");
 
 static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "none")) {
@@ -109,5 +110,8 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
     } else if (FLAGS_dontReduceOpsTaskSplitting) {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
+    } else if (FLAGS_reduceOpsTaskSplittingAtFlush) {
+        SkASSERT(!FLAGS_dontReduceOpsTaskSplitting);
+        ctxOptions->fReduceOpsTaskSplittingOnFlush = GrContextOptions::Enable::kYes;
     }
 }

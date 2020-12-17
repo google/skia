@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
@@ -32,6 +33,7 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrTCluster.h"
 #include "src/gpu/GrTTopoSort.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -47,13 +49,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
-                                   bool reduceOpsTaskSplitting)
+                                   ReorderingStrategy reorderingStrategy)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushing(false)
-        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
+        , fReorderingStrategy(/* DO NOT LAND */ ReorderingStrategy::kFlushTime) { }
 
 GrDrawingManager::~GrDrawingManager() {
     this->closeAllTasks();
@@ -135,6 +137,11 @@ bool GrDrawingManager::flush(
     fActiveOpsTask = nullptr;
 
     this->sortTasks();
+
+    if (ReorderingStrategy::kFlushTime == fReorderingStrategy) {
+        this->reorderTasks();
+    }
+
     if (!fCpuBufferCache) {
         // We cache more buffers when the backend is using client side arrays. Otherwise, we
         // expect each pool will use a CPU buffer as a staging buffer before uploading to a GPU
@@ -415,6 +422,35 @@ void GrDrawingManager::sortTasks() {
 #endif
 }
 
+// Reorder the array to match the llist without reffing & unreffing sk_sp's.
+// Both args must contain the same objects.
+// This is basically a shim because clustering uses LList but the rest of drawmgr uses array.
+template <typename T>
+static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk_sp<T>>* array) {
+    // Release all pointers (no unref).
+    for (auto& entry : *array) {
+        [[maybe_unused]] T* rawTask = entry.release();
+    }
+
+    // Now adopt the bare pointers into new sk_sp's (no ref).
+    int i = 0;
+    for (T* t : llist) {
+        array->at(i++) = sk_sp<T>(t);
+    }
+}
+
+void GrDrawingManager::reorderTasks() {
+    SkASSERT(ReorderingStrategy::kFlushTime == fReorderingStrategy);
+    SkTInternalLList<GrRenderTask> llist;
+    bool clustered = GrTCluster<GrRenderTask, GrRenderTask::ClusterTraits>(fDAG, &llist);
+    if (!clustered) {
+        return;
+    }
+    // TODO: Handle case where proposed order would blow our memory budget.
+    // Such cases are currently pathological, so we could just return here and keep current order.
+    reorder_array_by_llist(llist, &fDAG);
+}
+
 void GrDrawingManager::closeAllTasks() {
     const GrCaps& caps = *fContext->priv().caps();
     for (auto& task : fDAG) {
@@ -629,7 +665,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
 
 #ifdef SK_DEBUG
 void GrDrawingManager::validate() const {
-    if (fReduceOpsTaskSplitting) {
+    if (ReorderingStrategy::kCallTime == fReorderingStrategy) {
         SkASSERT(!fActiveOpsTask);
     } else {
         if (fActiveOpsTask) {
@@ -656,7 +692,7 @@ void GrDrawingManager::validate() const {
 #endif
 
 void GrDrawingManager::closeRenderTasksForNewRenderTask(GrSurfaceProxy* target) {
-    if (target && fReduceOpsTaskSplitting) {
+    if (target && ReorderingStrategy::kCallTime == fReorderingStrategy) {
         // In this case we need to close all the renderTasks that rely on the current contents of
         // 'target'. That is bc we're going to update the content of the proxy so they need to be
         // split in case they use both the old and new content. (This is a bit of an overkill: they
@@ -693,7 +729,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     } else {
         this->appendTask(opsTask);
 
-        if (!fReduceOpsTaskSplitting) {
+        if (ReorderingStrategy::kCallTime != fReorderingStrategy) {
             fActiveOpsTask = opsTask.get();
         }
     }
@@ -727,7 +763,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
     sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
                                                                     std::move(semaphores),
                                                                     numSemaphores);
-    if (fReduceOpsTaskSplitting) {
+    if (ReorderingStrategy::kCallTime == fReorderingStrategy) {
         GrRenderTask* lastTask = this->getLastRenderTask(proxy.get());
         if (lastTask && !lastTask->isClosed()) {
             // We directly make the currently open renderTask depend on waitTask instead of using

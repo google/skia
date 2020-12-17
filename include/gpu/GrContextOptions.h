@@ -180,6 +180,13 @@ struct SK_API GrContextOptions {
     Enable fReduceOpsTaskSplitting = Enable::kDefault;
 
     /**
+     * An experimental approach to Ganesh reordering.
+     * Currently under development and testing.
+     * This option takes precedence over fReduceOpsTaskSplitting if set.
+     */
+    Enable fReduceOpsTaskSplittingOnFlush = Enable::kDefault;
+
+    /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
      * If support for external images is critical, enabling this option will cause Ganesh to limit
      * shaders to the ES2 shading language in that situation.
