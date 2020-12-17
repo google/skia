@@ -456,7 +456,7 @@ sk_sp<SkImage> SkImage_GpuYUVA::MakePromiseYUVATexture(
     if (yuvaBackendTextureInfo.yuvaInfo().origin() != SkEncodedOrigin::kDefault_SkEncodedOrigin) {
         // SkImage_GpuYUVA does not support this yet. This will get removed
         // when the old APIs are gone and we only have to support YUVA configs described by
-        // SkYUVAInfo.
+        // SkYUVAInfo. Fix with skbug.com/10632.
         return nullptr;
     }
 
