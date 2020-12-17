@@ -87,7 +87,7 @@ public:
 Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
         : fContext(std::make_shared<Context>())
         , fCaps(caps)
-        , fInliner(fContext.get(), fCaps)
+        , fInliner(fContext.get())
         , fFlags(flags)
         , fErrorCount(0) {
     SkASSERT(fCaps);
