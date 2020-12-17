@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0579ab0f_07623da4",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-17T12:39:02Z",
+      "side": 1,
+      "message": "I missed this documentation on the first go-around that needs updating.",
+      "range": {
+        "startLine": 1660,
+        "startChar": 7,
+        "endLine": 1660,
+        "endChar": 52
+      },
+      "revId": "85fa75616dfe4666e83fd1f84415855a6fc56726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
