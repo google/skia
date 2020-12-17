@@ -454,7 +454,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
-			args = append(args, "--pr", "tess")
+			args = append(args, "--hwtess", "--pr", "tess")
 		}
 
 		// Test non-nvpr on NVIDIA.
@@ -482,6 +482,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = suffix(filter(configs, "gl", "vk", "mtl"), "ooprddl")
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
+		}
+		if b.extraConfig("ReduceOpsTaskSplitting") {
+			configs = filter(configs, "gl", "vk", "mtl")
+			args = append(args, "--reduceOpsTaskSplitting", "true")
 		}
 	}
 
@@ -549,6 +553,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("skp")
 	} else {
 		removeFromArgs("lottie")
+	}
+
+	if b.extraConfig("TSAN") {
+		// skbug.com/10848
+		removeFromArgs("svg")
 	}
 
 	// TODO: ???
