@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e3a617b_a788da9e",
+        "filename": "tools/DDLPromiseImageHelper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-17T15:47:10Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 75,
+        "startChar": 40,
+        "endLine": 75,
+        "endChar": 41
+      },
+      "revId": "0c034649511781d02594ce5ddcff9032a7ba8581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
