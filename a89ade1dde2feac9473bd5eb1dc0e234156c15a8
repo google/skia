@@ -60,6 +60,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f34d8dc_e029be46",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T23:35:28Z",
+      "side": 1,
+      "message": "I don\u0027t think this code belongs in SkSLMain; this was meant to be a light wrapper around existing SkSL functionality, not contain actual compilation logic. I know we bend that rule a lot, but this reaches pretty deep into SkSL/skvm internals. Can we move it?",
+      "range": {
+        "startLine": 392,
+        "startChar": 20,
+        "endLine": 392,
+        "endChar": 67
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "42295108_18310ee0",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
