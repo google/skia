@@ -1,0 +1,21 @@
+### Compilation failed:
+
+error: 8: unsupported intrinsic 'float2x2 outerProduct(float2 c, float2 r)'
+error: 9: unsupported intrinsic 'float3x3 outerProduct(float3 c, float3 r)'
+error: 10: unsupported intrinsic 'float4x4 outerProduct(float4 c, float4 r)'
+error: 11: unsupported intrinsic 'float2x3 outerProduct(float3 c, float2 r)'
+error: 12: unsupported intrinsic 'float3x2 outerProduct(float2 c, float3 r)'
+error: 13: unsupported intrinsic 'float2x4 outerProduct(float4 c, float2 r)'
+error: 14: unsupported intrinsic 'float4x2 outerProduct(float2 c, float4 r)'
+error: 15: unsupported intrinsic 'float3x4 outerProduct(float4 c, float3 r)'
+error: 16: unsupported intrinsic 'float4x3 outerProduct(float3 c, float4 r)'
+error: 17: unsupported intrinsic 'half2x2 outerProduct(half2 c, half2 r)'
+error: 18: unsupported intrinsic 'half3x3 outerProduct(half3 c, half3 r)'
+error: 19: unsupported intrinsic 'half4x4 outerProduct(half4 c, half4 r)'
+error: 20: unsupported intrinsic 'half2x3 outerProduct(half3 c, half2 r)'
+error: 21: unsupported intrinsic 'half3x2 outerProduct(half2 c, half3 r)'
+error: 22: unsupported intrinsic 'half2x4 outerProduct(half4 c, half2 r)'
+error: 23: unsupported intrinsic 'half4x2 outerProduct(half2 c, half4 r)'
+error: 24: unsupported intrinsic 'half3x4 outerProduct(half4 c, half3 r)'
+error: 25: unsupported intrinsic 'half4x3 outerProduct(half3 c, half4 r)'
+18 errors

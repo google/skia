@@ -253,6 +253,7 @@ sksl_shared_tests = [
   "$_tests/sksl/intrinsics/Normalize.sksl",
   "$_tests/sksl/intrinsics/Not.sksl",
   "$_tests/sksl/intrinsics/NotEqual.sksl",
+  "$_tests/sksl/intrinsics/OuterProduct.sksl",
   "$_tests/sksl/intrinsics/Pack.sksl",
   "$_tests/sksl/intrinsics/Pow.sksl",
   "$_tests/sksl/intrinsics/Radians.sksl",
