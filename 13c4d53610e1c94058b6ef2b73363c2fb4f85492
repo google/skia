@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "375158ab_9e4174c5",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-17T02:27:06Z",
+      "side": 1,
+      "message": "more just a general question,do we have any preferred style on what values you put for the swizzle in the unused bits? Like could we have done \"ra00\" instead?",
+      "range": {
+        "startLine": 487,
+        "startChar": 68,
+        "endLine": 487,
+        "endChar": 70
+      },
+      "revId": "13c4d53610e1c94058b6ef2b73363c2fb4f85492",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
