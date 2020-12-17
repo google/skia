@@ -191,7 +191,7 @@ bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     return false;
 }
 
-GrSurfaceDrawContext* SkGpuDevice::accessRenderTargetContext() {
+GrSurfaceDrawContext* SkGpuDevice::accessRenderTargetContext() const {
     ASSERT_SINGLE_OWNER
     return fRenderTargetContext.get();
 }
@@ -1075,7 +1075,7 @@ sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfa
                                        fRenderTargetContext->origin(), &props);
 }
 
-SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
+SkImageFilterCache* SkGpuDevice::getImageFilterCache() const {
     ASSERT_SINGLE_OWNER
     // We always return a transient cache, so it is freed after each
     // filter traversal.

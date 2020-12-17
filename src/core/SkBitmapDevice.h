@@ -151,7 +151,7 @@ private:
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkImageFilterCache* getImageFilterCache() override;
+    SkImageFilterCache* getImageFilterCache() const override;
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;

@@ -626,7 +626,7 @@ sk_sp<SkSurface> SkBitmapDevice::makeSurface(const SkImageInfo& info, const SkSu
     return SkSurface::MakeRaster(info, &props);
 }
 
-SkImageFilterCache* SkBitmapDevice::getImageFilterCache() {
+SkImageFilterCache* SkBitmapDevice::getImageFilterCache() const {
     SkImageFilterCache* cache = SkImageFilterCache::Get();
     cache->ref();
     return cache;

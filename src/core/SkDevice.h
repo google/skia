@@ -432,7 +432,7 @@ private:
     /**
      * Don't call this!
      */
-    virtual GrSurfaceDrawContext* accessRenderTargetContext() { return nullptr; }
+    virtual GrSurfaceDrawContext* accessRenderTargetContext() const { return nullptr; }
 
     // Configure the device's coordinate spaces, specifying both how its device image maps back to
     // the global space (via 'deviceToGlobal') and the initial CTM of the device (via
@@ -450,7 +450,7 @@ private:
         this->setDeviceCoordinateSystem(SkMatrix::I(), globalCTM, x, y);
     }
 
-    virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
+    virtual SkImageFilterCache* getImageFilterCache() const { return nullptr; }
 
     friend class SkNoPixelsDevice;
     friend class SkBitmapDevice;

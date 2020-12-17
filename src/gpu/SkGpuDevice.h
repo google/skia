@@ -89,7 +89,7 @@ public:
     void replaceRenderTargetContext(std::unique_ptr<GrSurfaceDrawContext>,
                                     SkSurface::ContentChangeMode mode);
 
-    GrSurfaceDrawContext* accessRenderTargetContext() override;
+    GrSurfaceDrawContext* accessRenderTargetContext() const override;
 
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint[],
@@ -197,7 +197,7 @@ private:
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
-    SkImageFilterCache* getImageFilterCache() override;
+    SkImageFilterCache* getImageFilterCache() const override;
 
     bool forceConservativeRasterClip() const override { return true; }
 

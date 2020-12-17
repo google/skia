@@ -114,7 +114,7 @@ protected:
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    SkImageFilterCache* getImageFilterCache() override;
+    SkImageFilterCache* getImageFilterCache() const override;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
