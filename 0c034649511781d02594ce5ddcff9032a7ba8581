@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78ee8ed4_0d3e3b23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-12-17T15:48:12Z",
+      "side": 1,
+      "message": "Oh - and still lgtm",
+      "revId": "0c034649511781d02594ce5ddcff9032a7ba8581",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5e3a617b_a788da9e",
