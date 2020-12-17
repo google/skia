@@ -1656,9 +1656,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
         SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
+        If paint contains SkMaskFilter, generate mask from image bounds.
         Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
 
         If generated mask extends beyond image bounds, replicate image edge colors, just
@@ -1829,9 +1827,7 @@ public:
 
         If SkPaint paint is supplied, apply SkColorFilter, alpha, SkImageFilter, and
         SkBlendMode. If image is kAlpha_8_SkColorType, apply SkShader.
-        If paint contains SkMaskFilter, generate mask from image bounds. If paint
-        SkFilterQuality set to kNone_SkFilterQuality, disable pixel filtering. For all
-        other values of paint SkFilterQuality, use kLow_SkFilterQuality to filter pixels.
+        If paint contains SkMaskFilter, generate mask from image bounds.
         Any SkMaskFilter on paint is ignored as is paint anti-aliasing state.
 
         If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,
