@@ -58,6 +58,7 @@ samples_sources = [
   "$_samplecode/SampleLayerMask.cpp",
   "$_samplecode/SampleLayers.cpp",
   "$_samplecode/SampleManyRects.cpp",
+  "$_samplecode/SampleMaterialShadows.cpp",
   "$_samplecode/SampleMegaStroke.cpp",
   "$_samplecode/SampleMixer.cpp",
   "$_samplecode/SamplePatch.cpp",
