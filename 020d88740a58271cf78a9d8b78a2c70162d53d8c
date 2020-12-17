@@ -53,6 +53,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a083041_16bddd99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:24:38Z",
+      "side": 1,
+      "message": "Also, how are you compiling? Are you just adding \"/ZW /EHsc\"? It looks like we have a bot that does \"/EHsc\", looks like we will need one which also does \"/ZW\" if you want this not to break randomly.",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59ad9917_1a226786",
@@ -176,6 +193,30 @@
       "side": 1,
       "message": "(Probably not important to update tools/, just Skia per se.)",
       "parentUuid": "cfea8f8e_c0838373",
+      "range": {
+        "startLine": 1854,
+        "startChar": 17,
+        "endLine": 1854,
+        "endChar": 28
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0023323_a6f6b6db",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:24:38Z",
+      "side": 1,
+      "message": "Sure, but if not updating the tools there is no reason for the related change here.",
+      "parentUuid": "10ce7378_4be6f1ab",
       "range": {
         "startLine": 1854,
         "startChar": 17,
