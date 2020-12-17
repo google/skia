@@ -65,6 +65,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("log2")]          = ALL_GLSL(Log2);
     fIntrinsicMap[String("sqrt")]          = ALL_GLSL(Sqrt);
     fIntrinsicMap[String("inverse")]       = ALL_GLSL(MatrixInverse);
+    fIntrinsicMap[String("outerProduct")]  = ALL_SPIRV(OuterProduct);
     fIntrinsicMap[String("transpose")]     = ALL_SPIRV(Transpose);
     fIntrinsicMap[String("isinf")]         = ALL_SPIRV(IsInf);
     fIntrinsicMap[String("isnan")]         = ALL_SPIRV(IsNan);
