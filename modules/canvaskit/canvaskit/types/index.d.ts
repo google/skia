@@ -1084,9 +1084,11 @@ export interface Canvas extends EmbindObject<Canvas> {
      * @param img
      * @param center
      * @param dest
+     * @param filter - what technique to use when sampling the image
      * @param paint
      */
-    drawImageNine(img: Image, center: InputIRect, dest: InputRect, paint: Paint): void;
+    drawImageNine(img: Image, center: InputIRect, dest: InputRect, filter: FilterMode,
+                  paint?: Paint): void;
 
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.

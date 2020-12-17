@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `Canvas.drawImageCubic`, `Canvas.drawImageOptions`, `Canvas.drawImageRectCubic`,
    `Canvas.drawImageRectOptions` to replace functionality that previously required FilterQuality.
 
+### Breaking
+ - `Canvas.drawImageNine` now takes a required FilterMode (the Paint still is optional).
+
 ## [0.21.0] - 2020-12-16
 
 ### Added
