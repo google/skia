@@ -66,7 +66,6 @@ TEST_BUILDERS = [
   'Build-Debian10-EMCC-wasm-Release-PathKit',
   "Build-Mac10.15.5-Clang-arm64-Debug-iOS",
   'Build-Mac10.15.7-Clang-x86_64-Debug-CommandBuffer',
-  'Build-Mac-Clang-arm-Debug-iOS',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
