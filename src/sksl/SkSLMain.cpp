@@ -7,14 +7,15 @@
 
 #define SK_OPTS_NS skslc_standalone
 #include "src/opts/SkChecksum_opts.h"
+#include "src/opts/SkVM_opts.h"
 
-#include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
@@ -34,6 +35,11 @@ void SkDebugf(const char format[], ...) {
 
 namespace SkOpts {
     decltype(hash_fn) hash_fn = skslc_standalone::hash_fn;
+    decltype(interpret_skvm) interpret_skvm = skslc_standalone::interpret_skvm;
+}
+
+namespace SkSL {
+    extern size_t ProgramToSkVM_TotalUniformSlots(const Program& program);
 }
 
 enum class ResultCode {
@@ -42,6 +48,23 @@ enum class ResultCode {
     kInputError = 2,
     kOutputError = 3,
     kConfigurationError = 4,
+};
+
+class SkToSkSLWStream : public SkWStream {
+public:
+    SkToSkSLWStream(SkSL::OutputStream& out) : fOut(out), fBytesWritten(0) {}
+
+    bool write(const void* buffer, size_t size) override {
+        fOut.write(buffer, size);
+        fBytesWritten += size;
+        return true;
+    }
+    void flush() override {}
+    size_t bytesWritten() const override { return fBytesWritten; }
+
+private:
+    SkSL::OutputStream& fOut;
+    size_t fBytesWritten;
 };
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
@@ -362,18 +385,47 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
-    } else if (outputPath.endsWith(".bc")) {
+    } else if (outputPath.endsWith(".skvm")) {
         return compileProgram(
                 SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
-                    // Compile program to ByteCode assembly in a string-stream.
-                    auto byteCode = compiler.toByteCode(program);
-                    if (!byteCode) {
-                        return false;
+                    const SkSL::FunctionDefinition* main = nullptr;
+                    for (const SkSL::ProgramElement* e : program.elements()) {
+                        if (e->is<SkSL::FunctionDefinition>() &&
+                            e->as<SkSL::FunctionDefinition>().declaration().name() == "main") {
+                            main = &e->as<SkSL::FunctionDefinition>();
+                            break;
+                        }
+                    }
+                    if (!main) { return false; }
+
+                    skvm::Builder builder;
+                    skvm::Uniforms uniforms(0);
+
+                    auto uni = [&]() { return builder.uniformF(uniforms.pushF(0.0f)); };
+
+                    skvm::Coord local = {uni(), uni()};
+                    skvm::Coord device = {uni(), uni()};
+
+                    skvm::Color paint = {uni(), uni(), uni(), uni()};
+                    auto sampleChild = [&](int, skvm::Coord) { return paint; };
+
+                    size_t slots = ProgramToSkVM_TotalUniformSlots(program);
+                    std::vector<skvm::Val> uniformVals;
+                    for (size_t i = 0; i < slots; ++i) {
+                        uniformVals.push_back(uni().id);
                     }
 
-                    // Write the disassembly of the ByteCode to our output stream.
-                    byteCode->disassemble(&out);
+                    skvm::Color result = SkSL::ProgramToSkVM(program, *main, &builder, uniformVals,
+                                                             device, local, sampleChild);
+
+                    builder.storeF(builder.arg(4), result.r);
+                    builder.storeF(builder.arg(4), result.g);
+                    builder.storeF(builder.arg(4), result.b);
+                    builder.storeF(builder.arg(4), result.a);
+
+                    SkToSkSLWStream redirect(out);
+                    builder.dump(&redirect);
                     return true;
                 });
     } else if (outputPath.endsWith(".dehydrated.sksl")) {

@@ -42,8 +42,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-#if !defined(SKSL_STANDALONE)
-
 namespace SkSL {
 
 namespace {
@@ -865,7 +863,7 @@ Value SkVMGenerator::writeMatrixInverse4x4(const Value& m) {
 Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto found = fIntrinsics.find(c.function().name());
     if (found == fIntrinsics.end()) {
-        SkDEBUGFAILF("Missing intrinsic: '%s'", SkString(c.function().name()).c_str());
+        SkDEBUGFAILF("Missing intrinsic: '%s'", String(c.function().name()).c_str());
         return {};
     }
 
@@ -1348,6 +1346,21 @@ skvm::Color ProgramToSkVM(const Program& program,
                                     : skvm::Color{};
 }
 
-}  // namespace SkSL
+/*
+ * Testing utility function.
+ */
+size_t ProgramToSkVM_TotalUniformSlots(const Program& program) {
+    size_t slots = 0;
+    for (const ProgramElement* e : program.elements()) {
+        if (e->is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
+            const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+            if (is_uniform(var)) {
+                slots += slot_count(var.type());
+            }
+        }
+    }
+    return slots;
+}
 
-#endif
+}  // namespace SkSL

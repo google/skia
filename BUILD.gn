@@ -557,19 +557,32 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
     defines = [
       "SKSL_STANDALONE",
-      "SK_ENABLE_SKSL_INTERPRETER",
       "SK_ENABLE_SPIRV_VALIDATION",
     ]
     sources = [
+      "src/core/SkCpu.cpp",
+      "src/core/SkData.cpp",
+      "src/core/SkHalf.cpp",
       "src/core/SkMalloc.cpp",
       "src/core/SkMath.cpp",
       "src/core/SkSemaphore.cpp",
+      "src/core/SkStream.cpp",
+      "src/core/SkString.cpp",
       "src/core/SkThreadID.cpp",
+      "src/core/SkUtils.cpp",
+      "src/core/SkVM.cpp",
       "src/gpu/GrBlockAllocator.cpp",
       "src/gpu/GrMemoryPool.cpp",
       "src/ports/SkMemory_malloc.cpp",
+      "src/ports/SkOSFile_stdio.cpp",
       "src/sksl/SkSLMain.cpp",
+      "src/utils/SkUTF.cpp",
     ]
+    if (is_win) {
+      sources += [ "src/ports/SkOSFile_win.cpp" ]
+    } else {
+      sources += [ "src/ports/SkOSFile_posix.cpp" ]
+    }
     sources += skia_sksl_sources
     sources += skia_sksl_gpu_sources
     include_dirs = [ "." ]
