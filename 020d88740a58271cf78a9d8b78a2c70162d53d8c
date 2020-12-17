@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ced8168_e750bf5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:09:07Z",
+      "side": 1,
+      "message": "I think we like the #directives (and especially the ones here) to go all the way to the left column instead of the \u0027#\u0027 lining up with the code.",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59ad9917_1a226786",
@@ -37,6 +54,23 @@
         "endLine": 102,
         "endChar": 21
       },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b733eaa2_732c690e",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:09:07Z",
+      "side": 1,
+      "message": "This isn\u0027t the right place to do this at the moment. You\u0027ll want to change the #ifdef at the top of src/ports/SkFontHost_win.cpp to add something like \u0027 \u0026\u0026 !defined(SK_WINUWP)\u0027.\n\nEven if not for the somewhat hacky nature of the #ifdef in the source file, this would be done in the build in the :fontmgr_win_gdi target (making the target empty when skia_enable_winup is true).",
       "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -89,6 +123,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cfea8f8e_c0838373",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:09:07Z",
+      "side": 1,
+      "message": "It looks like tools/CrashHandler.cpp uses StackWalk64, but I don\u0027t see any modifications to that file here?",
+      "range": {
+        "startLine": 1854,
+        "startChar": 17,
+        "endLine": 1854,
+        "endChar": 28
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7b3e39b8_22775594",
         "filename": "src/xps/SkXPSDevice.cpp",
         "patchSetId": 1
@@ -100,6 +157,24 @@
       "writtenOn": "2020-12-17T16:28:54Z",
       "side": 1,
       "message": "Let\u0027s leave a note explaining why not E_NOTIMPL?",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5bd4b3b_4dbaacc4",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-17T19:09:07Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s fine for this to just fail (and it should if it does). Is the issue that CLSID_XpsOMThumbnailGenerator isn\u0027t available at all with UWP headers? If so, it would be better to just inline the clsid here and let the lookup not be found. I\u0027m interested to know what the actual failure was since this doesn\u0027t seems necessary.",
+      "parentUuid": "7b3e39b8_22775594",
       "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
