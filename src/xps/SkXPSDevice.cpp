@@ -159,6 +159,11 @@ template <typename T> static constexpr size_t sk_digits_in() {
 HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
                                         const unsigned int pageNum,
                                         IXpsOMImageResource** image) {
+    // IXpsOMThumbnailGenerator::GenerateThumbnail is only supported on desktop, not in UWP
+    #ifdef WINUWP
+    *image = nullptr;
+    return S_OK;
+    #else
     SkTScopedComPtr<IXpsOMThumbnailGenerator> thumbnailGenerator;
     HRM(CoCreateInstance(
             CLSID_XpsOMThumbnailGenerator,
@@ -190,6 +195,7 @@ HRESULT SkXPSDevice::createXpsThumbnail(IXpsOMPage* page,
         "Could not generate thumbnail.");
 
     return S_OK;
+    #endif //WINUWP
 }
 
 HRESULT SkXPSDevice::createXpsPage(const XPS_SIZE& pageSize,
@@ -318,10 +324,14 @@ bool SkXPSDevice::endSheet() {
 }
 
 static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
+    //The CreateFontPackage API is only supported on desktop, not in UWP
+    #ifdef WINUWP
+    return E_NOTIMPL;
+    #else
     //CreateFontPackage wants unsigned short.
     //Microsoft, Y U NO stdint.h?
     std::vector<unsigned short> keepList;
-    current.glyphsUsed.forEachSetIndex([&keepList](size_t v) {
+    current.glyphsUsed.getSetValues([&keepList](unsigned v) {
             keepList.push_back((unsigned short)v);
     });
 
@@ -410,6 +420,7 @@ static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
         "Could not set new stream for subsetted font.");
 
     return S_OK;
+    #endif //WINUWP
 }
 
 bool SkXPSDevice::endPortfolio() {

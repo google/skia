@@ -98,6 +98,10 @@ config("skia_private") {
   }
 }
 
+config("skia_winuwp") {
+  defines = [ "WINUWP" ]
+}
+
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
 config("skia_library") {
   visibility = [ ":*" ]
@@ -846,7 +850,7 @@ optional("gpu") {
       sources += [ "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp" ]
     } else if (is_ios) {
       sources += [ "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
-    } else if (is_win) {
+    } else if (is_win && !skia_enable_winuwp) {
       sources += [ "src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp" ]
       if (target_cpu != "arm64") {
         libs += [ "OpenGL32.lib" ]
@@ -1178,12 +1182,17 @@ component("skia") {
     ":fontmgr_fuchsia",
     ":fontmgr_mac_ct",
     ":fontmgr_win",
-    ":fontmgr_win_gdi",
     ":gpu",
     ":pdf",
     ":skcms",
     ":xps",
   ]
+
+  if (!skia_enable_winuwp) {
+    public_deps += [ ":fontmgr_win_gdi" ]
+  } else {
+    configs += [ ":skia_winuwp" ]
+  }
 
   deps = [
     ":android_utils",
@@ -1272,18 +1281,30 @@ component("skia") {
       "src/ports/SkOSLibrary_win.cpp",
     ]
     libs += [
-      "FontSub.lib",
       "Ole32.lib",
       "OleAut32.lib",
-      "User32.lib",
-      "Usp10.lib",
     ]
+
+    if (!skia_enable_winuwp) {
+      libs += [
+        "FontSub.lib",
+        "User32.lib",
+        "Usp10.lib",
+      ]
+    }
   } else {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
     ]
     libs += [ "dl" ]
+  }
+
+  if (skia_enable_winuwp) {
+    sources -= [
+      get_path_info("src/utils/win/SkWGL.h", "abspath"),
+      get_path_info("src/utils/win/SkWGL_win.cpp", "abspath"),
+    ]
   }
 
   if (is_android) {
@@ -1687,7 +1708,11 @@ if (skia_enable_tools) {
         ]
       } else if (is_win) {
         sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
-        libs += [ "Gdi32.lib" ]
+
+        if (!skia_enable_winuwp) {
+          libs += [ "Gdi32.lib" ]
+        }
+
         if (target_cpu != "arm64") {
           libs += [ "OpenGL32.lib" ]
         }
@@ -1825,7 +1850,7 @@ if (skia_enable_tools) {
         sources += [ "tools/AutoreleasePool.mm" ]
         frameworks += [ "Foundation.framework" ]
       }
-    } else if (is_win) {
+    } else if (is_win && !skia_enable_winuwp) {
       libs += [ "DbgHelp.lib" ]
     }
 
