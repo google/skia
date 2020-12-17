@@ -1542,6 +1542,7 @@ bool copy_src_data(char* mapPtr, VkFormat vkFormat, const SkTArray<size_t>& indi
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
 
+        SkDebugf("%d rectmemcpy %p + %p %d\n", level, mapPtr, individualMipOffsets[level], trimRB);
         SkRectMemcpy(mapPtr + individualMipOffsets[level], trimRB,
                      srcData[level].addr(), srcData[level].rowBytes(),
                      trimRB, srcData[level].height());
@@ -1695,6 +1696,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         bool result;
         if (data->type() == BackendTextureData::Type::kPixmaps) {
+            SkDebugf("Copying src data to %p\n");
             result = copy_src_data((char*)slice.fOffsetMapPtr, info.fFormat, individualMipOffsets,
                                    data->pixmaps(), info.fLevelCount);
         } else if (data->type() == BackendTextureData::Type::kCompressed) {
