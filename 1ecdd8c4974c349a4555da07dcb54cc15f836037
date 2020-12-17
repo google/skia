@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa42a1ee_ec61827e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "This is great! I\u0027d rather read this code than the spec, which is probably a good sign :-). I had just a few [possibly irritating] nits.",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "995bc47a_1f0a7353",
+        "filename": "modules/svg/include/SkSVGText.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "nit: Do you think a comment saying \u0027public only for ease of testing\u0027 is prudent? Not sure what the Skia norm is for things like that",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53088059_88cdac07",
+        "filename": "modules/svg/src/SkSVGAttributeParser.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "I think this should be:\n\n  return !lengths-\u003eempty() \u0026\u0026 this-\u003eparseEOSToken();",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f914d6f_6d0f8bb9",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "Newbish question: why not use a NaN value? Is that just for the has() equality test?",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3f68629_b46d0151",
+        "filename": "modules/svg/src/SkSVGText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "nit: naming between \u0027filtered\u0027 array and the concept of \u0027pending\u0027 is a bit confusing to me. Some ideas:\n\n- rename \u0027filtered\u0027 array to \u0027pendingChars\u0027?\n- and/or rename shapePending to flushPending?\n\nJust suggestions, I think I understand now the flow of what\u0027s going on here but I had to stare at it for a bit. I also think it might be worth adding a comment at the end of the function saying something like \"note the current chunk may continue, so do not call flushChunk at this point\".",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a11e3b19_33059b58",
+        "filename": "modules/svg/tests/Text.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-12-17T15:09:29Z",
+      "side": 1,
+      "message": "nit: Doesn\u0027t some modern C++XY allow something like \n  \n  template \u003ctypename T\u003e\n  const auto L \u003d [](T x) { return SkSVGLength(x); };",
+      "revId": "1ecdd8c4974c349a4555da07dcb54cc15f836037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
