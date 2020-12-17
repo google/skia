@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9a5db0e_770b3afc",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-17T01:37:00Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s about how we\u0027re setting up the canvas to generate the PNG with the inverse transform indicated by the orientation (and that the orientation tag on the jpeg undoes it). Tried to clarify.",
+      "parentUuid": "49e6b464_9dbd1f53",
+      "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f02086c0_da6fc477",
@@ -48,6 +66,24 @@
       "writtenOn": "2020-12-16T22:16:14Z",
       "side": 1,
       "message": "Am I missing something? Why is this here?",
+      "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cbef3c0_61981cf9",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-17T01:37:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f02086c0_da6fc477",
       "revId": "2d7eb36b7c80630728dda25071c889665dcc337f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
