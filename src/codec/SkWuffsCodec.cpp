@@ -700,7 +700,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         draw.fRC = &rc;
 
         SkMatrix translate = SkMatrix::Translate(dirty_rect.min_incl_x, dirty_rect.min_incl_y);
-        draw.drawBitmap(src, translate, nullptr, paint);
+        draw.drawBitmap(src, translate, nullptr, SkSamplingOptions(), paint);
     }
 
     if (result == SkCodec::kSuccess) {
