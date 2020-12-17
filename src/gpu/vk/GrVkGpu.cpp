@@ -669,6 +669,11 @@ void GrVkGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
     SkASSERT(rt->msaaImage());
     SkASSERT(rt->colorAttachmentView() && rt->resolveAttachmentView());
 
+    if (this->vkCaps().preferDiscardableMSAAAttachment() && rt->supportsInputAttachmentUsage()) {
+        // We would have resolved the RT during the render pass;
+        return;
+    }
+
     this->resolveImage(target, rt, resolveRect,
                        SkIPoint::Make(resolveRect.x(), resolveRect.y()));
 }
