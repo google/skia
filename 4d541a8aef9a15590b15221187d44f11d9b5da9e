@@ -16,6 +16,24 @@
       "message": "This gives me pause - we\u0027re installing a shared symbol table for the duration of convertIdentifier. In the \"correct\" path, there\u0027s no mutation that will happen. But is there some way to craft an identifier that makes this not safe?",
       "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f88c49d4_03d1c61a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2714,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-17T20:20:25Z",
+      "side": 1,
+      "message": "Very good question.\n\nIf you could get `MyEnumType::sqrt` past the parser somehow, could you get it to create an UnresolvedFunction IRNode? That\u0027s bad news.\n\nWrapIfBuiltin would do the right thing, but it\u0027d cause an extra temporary allocation every time you look up an enum field. Not a cheap option.",
+      "parentUuid": "11ed045a_b30812b1",
+      "revId": "4d541a8aef9a15590b15221187d44f11d9b5da9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
