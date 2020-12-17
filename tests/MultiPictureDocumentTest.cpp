@@ -11,11 +11,15 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "src/shaders/SkImageShader.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
@@ -76,6 +80,18 @@ static void draw_advanced(SkCanvas* canvas, int seed, sk_sp<SkImage> image, sk_s
     canvas->restore();
 }
 
+// Covers picture contaning texture backed image used in multiple ways.
+static void draw_texture(SkCanvas* canvas, int seed, sk_sp<SkImage> texImage) {
+    // once in a normal command
+    SkPaint p;
+    canvas->drawImageRect(texImage, SkRect::MakeXYWH(10, 130, 100, 50+seed), p);
+    // once in an image shader
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(SkImageShader::Make(texImage, SkTileMode::kClamp, SkTileMode::kClamp, nullptr));
+    canvas->drawRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(200, 130, 100, 50+seed), 10, 10), paint);
+}
+
 // Test serialization and deserialization of multi picture document
 DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     // Create the stream we will serialize into.
@@ -94,11 +110,16 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     static const int WIDTH = 256;
     static const int HEIGHT = 256;
 
-    // Make an image to be used in a later step.
+    // Make 2 images to be used in a later step.
     auto surface(SkSurface::MakeRasterN32Premul(100, 100));
-    surface->getCanvas()->clear(SK_ColorGREEN);
+    auto imcanvas = surface->getCanvas();
+    imcanvas->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     REPORTER_ASSERT(reporter, image);
+
+    imcanvas->clear(SK_ColorCYAN);
+    auto nonTexImage surface->makeImageSnapshot();
+    REPORTER_ASSERT(reporter, nonTexImage);
 
     // Make a subpicture to be used in a later step
     SkPictureRecorder pr;
@@ -109,12 +130,20 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(WIDTH, HEIGHT);
     std::vector<sk_sp<SkImage>> pages;
 
+    // only used for texture backed images.
+    auto grcontext = GrDirectContext::MakeGl();
+
     for (int i=0; i<NUM_FRAMES; i++) {
         SkCanvas* pictureCanvas = multipic->beginPage(WIDTH, HEIGHT);
+        auto texImage = MakeTextureImage(grcontext.get(), nonTexImage);
+        draw_texture(pictureCanvas, i, texImage);
         draw_advanced(pictureCanvas, i, image, sub);
         multipic->endPage();
+        delete texImage;
+
         // Also record the same commands to separate SkRecords for later comparison
         auto surf = SkSurface::MakeRaster(info);
+        draw_texture(surf->getCanvas(), i, nonTexImage);
         draw_advanced(surf->getCanvas(), i, image, sub);
         pages.push_back(surf->makeImageSnapshot());
     }
