@@ -45,7 +45,6 @@ public:
 @if (%s) {
     half4 _0_unpremul;
     _0_unpremul = half4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
-
     color = _0_unpremul;
 
 }

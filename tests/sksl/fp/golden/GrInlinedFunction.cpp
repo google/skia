@@ -23,7 +23,6 @@ public:
         fragBuilder->codeAppendf(
 R"SkSL(half4 _0_flip;
 _0_flip = %s.wzyx;
-
 return _0_flip;
 
 )SkSL"

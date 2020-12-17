@@ -5,7 +5,6 @@ void main() {
     while (sk_FragColor.x < 0.5) {
         vec4 _0_adjust;
         _0_adjust = sk_FragColor + vec4(0.125);
-
         sk_FragColor = _0_adjust;
     }
 }

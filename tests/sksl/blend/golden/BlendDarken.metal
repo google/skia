@@ -16,12 +16,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float4 _0_blend_darken;
     float4 _1_blend_src_over;
     _1_blend_src_over = _in.src + (1.0 - _in.src.w) * _in.dst;
-
     float4 _2_result = _1_blend_src_over;
 
     _2_result.xyz = min(_2_result.xyz, (1.0 - _in.dst.w) * _in.src.xyz + _in.dst.xyz);
     _0_blend_darken = _2_result;
-
     _out->sk_FragColor = _0_blend_darken;
 
     return *_out;

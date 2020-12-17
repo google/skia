@@ -14,12 +14,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _out->sk_FragColor.z = 1.0;
     _out->sk_FragColor.w = 1.0;
 
-
     _out->sk_FragColor.x = 1.0;
     _out->sk_FragColor.y = 1.0;
     _out->sk_FragColor.z = 1.0;
     _out->sk_FragColor.w = 1.0;
-
 
     return *_out;
 }

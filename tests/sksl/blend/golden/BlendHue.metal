@@ -23,7 +23,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     float3 _4_blend_set_color_saturation;
     float _5_blend_color_saturation;
     _5_blend_color_saturation = max(max(_3_dsa.x, _3_dsa.y), _3_dsa.z) - min(min(_3_dsa.x, _3_dsa.y), _3_dsa.z);
-
     float _6_sat = _5_blend_color_saturation;
 
     if (_2_sda.x <= _2_sda.y) {
@@ -41,16 +40,13 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     } else {
         _4_blend_set_color_saturation = _blend_set_color_saturation_helper(_2_sda.zyx, _6_sat).zyx;
     }
-
     float3 _7_blend_set_color_luminance;
     float _8_blend_color_luminance;
     _8_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
-
     float _9_lum = _8_blend_color_luminance;
 
     float _10_blend_color_luminance;
     _10_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _4_blend_set_color_saturation);
-
     float3 _11_result = (_9_lum - _10_blend_color_luminance) + _4_blend_set_color_saturation;
 
     float _12_minComp = min(min(_11_result.x, _11_result.y), _11_result.z);
@@ -59,9 +55,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         _11_result = _9_lum + ((_11_result - _9_lum) * _9_lum) / (_9_lum - _12_minComp);
     }
     _7_blend_set_color_luminance = _13_maxComp > _1_alpha && _13_maxComp != _9_lum ? _9_lum + ((_11_result - _9_lum) * (_1_alpha - _9_lum)) / (_13_maxComp - _9_lum) : _11_result;
-
     _0_blend_hue = float4((((_7_blend_set_color_luminance + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
-
 
 
     _out->sk_FragColor = _0_blend_hue;

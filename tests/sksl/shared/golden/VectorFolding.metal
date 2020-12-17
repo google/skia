@@ -67,7 +67,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _out->sk_FragColor *= float4(2.0);
     _out->sk_FragColor /= float4(2.0);
 
-
     int4 _0_result;
     _0_result.x = 2;
     _0_result = int4(6, 7, 9, 11);
@@ -115,7 +114,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _0_result *= int4(2);
     _0_result /= int4(2);
     _out->sk_FragColor = float4(_0_result);
-
 
     return *_out;
 }

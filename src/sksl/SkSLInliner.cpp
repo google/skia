@@ -744,11 +744,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                                         std::move(innerBlock),
                                                                         symbolTable));
     } else {
-        // No early returns, so we can just dump the code into a scopeless block.
-        auto innerBlock = std::make_unique<Block>(offset, StatementArray{},
-                                                  /*symbols=*/nullptr, /*isScope=*/false);
-        inlineStatements = &innerBlock->children();
-        inlinedBody.children().push_back(std::move(innerBlock));
+        // No early returns, so we can just dump the code into our existing scopeless block.
+        inlineStatements = &inlinedBody.children();
     }
 
     inlineStatements->reserve_back(body.children().size() + argsToCopyBack.size());
