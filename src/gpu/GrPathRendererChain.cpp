@@ -32,13 +32,6 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
-        if (GrTessellationPathRenderer::IsSupported(caps)) {
-            auto tess = sk_make_sp<GrTessellationPathRenderer>(context);
-            context->priv().addOnFlushCallbackObject(tess.get());
-            fChain.push_back(std::move(tess));
-        }
-    }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
@@ -75,6 +68,13 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
+        if (GrTessellationPathRenderer::IsSupported(caps)) {
+            auto tess = sk_make_sp<GrTessellationPathRenderer>(context);
+            context->priv().addOnFlushCallbackObject(tess.get());
+            fChain.push_back(std::move(tess));
+        }
     }
 
     // We always include the default path renderer (as well as SW), so we can draw any path

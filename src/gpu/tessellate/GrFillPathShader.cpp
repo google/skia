@@ -98,21 +98,24 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
         }
     }
 
-    // Find the "turn direction" of each corner and net turn direction.
-    float4 dir;
-    float netdir = 0.0;
-    for (int i = 0; i < 4; ++i) {
-        float2 prev = P[i] - P[(i + 3) & 3], next = P[(i + 1) & 3] - P[i];
-        dir[i] = sign(determinant(float2x2(prev, next)));
-        netdir += dir[i];
-    }
-
     // sk_VertexID comes in fan order. Convert to strip order.
     int vertexidx = sk_VertexID;
     vertexidx ^= vertexidx >> 1;
 
+    // Find the "turn direction" of each corner and net turn direction.
+    float vertexdir = 0;
+    float netdir = 0;
+    for (int i = 0; i < 4; ++i) {
+        float2 prev = P[i] - P[(i + 3) & 3], next = P[(i + 1) & 3] - P[i];
+        float dir = sign(determinant(float2x2(prev, next)));
+        if (i == vertexidx) {
+            vertexdir = dir;
+        }
+        netdir += dir;
+    }
+
     // Remove the non-convex vertex, if any.
-    if (dir[vertexidx] != sign(netdir)) {
+    if (vertexdir != sign(netdir)) {
         vertexidx = (vertexidx + 1) & 3;
     }
 

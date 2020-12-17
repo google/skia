@@ -3982,6 +3982,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverDisableMSAACCPR = true;
     }
 
+    if (kIntel_GrGLVendor == ctxInfo.vendor() ||  // IntelIris640 drops draws completely.
+        ctxInfo.renderer() == kMaliT_GrGLRenderer ||  // Some curves appear flat on GalaxyS6.
+        ctxInfo.renderer() == kAdreno3xx_GrGLRenderer ||
+        ctxInfo.renderer() == kAdreno430_GrGLRenderer ||
+        ctxInfo.renderer() == kAdreno4xx_other_GrGLRenderer) {  // We get garbage on Adreno405.
+        fDisableTessellationPathRenderer = true;
+    }
+
     // http://skbug.com/9739
     bool isNVIDIAPascal =
             kNVIDIA_GrGLDriver == ctxInfo.driver() &&
