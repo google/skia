@@ -63,6 +63,7 @@ profile:
 npm:
 	rm -rf ./canvaskit/bin
 	mkdir -p ./canvaskit/bin
+	cp ./CHANGELOG.md ./canvaskit/
 	# These features are turned off to keep code size smaller for the
 	# general use case.
 	./compile.sh release no_skottie no_particles no_rt_shader no_alias_font no_effects_deserialization
