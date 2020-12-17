@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a887609_12e199bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-12-17T21:30:58Z",
+      "side": 1,
+      "message": "PTAL.\n\n(I think the conflict is just in RELEASE_NOTES.txt)",
+      "revId": "2cc6d366a519e73db31be8408a36b6f061b6302e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
