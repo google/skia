@@ -16,6 +16,23 @@
       "message": "Can we upgrade applyCTM() to take M44 (now or later)?",
       "revId": "2a4b2609b66978441ea62999fc324b7cf188033e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a9e37bf_54de3c53",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-17T16:14:14Z",
+      "side": 1,
+      "message": "We can land this now, but the stashed matrix is short lived and on my chopping block as part of drawing image filter results under arbitrary transforms.",
+      "revId": "2a4b2609b66978441ea62999fc324b7cf188033e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
