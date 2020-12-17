@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d3e6aab_d8d6298a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T19:13:17Z",
+      "side": 1,
+      "message": "yeah, it\u0027s not too important, but i usually find them most readable one tab stop to the left of the code they guard, just as if they were any other scoped language construct like an ordinary if statement\n\n    if (foo) {\n        if (bar) {\n            code;\n        }\n    }\n\n    #if foo\n        #if bar\n            code;\n        #endif\n    #endif",
+      "parentUuid": "5ced8168_e750bf5c",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59ad9917_1a226786",
@@ -134,6 +152,30 @@
       "writtenOn": "2020-12-17T19:09:07Z",
       "side": 1,
       "message": "It looks like tools/CrashHandler.cpp uses StackWalk64, but I don\u0027t see any modifications to that file here?",
+      "range": {
+        "startLine": 1854,
+        "startChar": 17,
+        "endLine": 1854,
+        "endChar": 28
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10ce7378_4be6f1ab",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-17T19:13:17Z",
+      "side": 1,
+      "message": "(Probably not important to update tools/, just Skia per se.)",
+      "parentUuid": "cfea8f8e_c0838373",
       "range": {
         "startLine": 1854,
         "startChar": 17,
