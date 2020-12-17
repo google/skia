@@ -112,6 +112,7 @@ private:
     SkIRect                                     fBounds;
     SelfDependencyFlags                         fSelfDependencyFlags = SelfDependencyFlags::kNone;
     LoadFromResolve                             fLoadFromResolve = LoadFromResolve::kNo;
+    bool                                        fOverridePipelinesForResolveLoad = false;
 
     GrVkGpu*                                    fGpu;
 

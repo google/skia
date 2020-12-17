@@ -506,9 +506,12 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 GrVkPipeline* GrVkPipeline::Create(
         GrVkGpu* gpu,
         const GrProgramInfo& programInfo,
-        VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
-        VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
-        VkPipelineCache cache) {
+        VkPipelineShaderStageCreateInfo* shaderStageInfo,
+        int shaderStageCount,
+        VkRenderPass compatibleRenderPass,
+        VkPipelineLayout layout,
+        VkPipelineCache cache,
+        uint32_t subpass) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     SkSTArray<16, VkVertexInputAttributeDescription> attributeDesc;
@@ -568,16 +571,6 @@ GrVkPipeline* GrVkPipeline::Create(
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;
     setup_dynamic_state(&dynamicInfo, dynamicStates);
-
-    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
-    // However, if we need to load a resolve into msaa attachment for discardable msaa then the
-    // main subpass will be 1.
-    uint32_t subpass = 0;
-    if (programInfo.colorLoadOp() == GrLoadOp::kLoad &&
-        programInfo.targetSupportsVkResolveLoad() &&
-        gpu->vkCaps().preferDiscardableMSAAAttachment()) {
-        subpass = 1;
-    }
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo;
     memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
