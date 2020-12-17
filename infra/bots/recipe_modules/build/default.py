@@ -129,13 +129,8 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
       if 'iOS' in extra_tokens:
-        if target_arch == 'arm':
-          # Can only compile for 32-bit up to iOS 10.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
-        else:
-          # Our iOS devices are on an older version.
-          # Can't compile for Metal before 11.0.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+        # Can't compile for Metal before 11.0.
+        env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
       else:
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
