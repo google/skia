@@ -6,6 +6,11 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+
+  * Image filters with perspective, for saveLayer and draws, are now drawn correctly. Performance
+    and quality is highest if user bounds are provided to saveLayer.
+    https://review.skia.org/333123
+
   * Add kDirectionalLight_ShadowFlag support. If enabled, light position represents
     a vector pointing towards the light, and light radius is blur radius at elevation 1.
     https://review.skia.org/321792
