@@ -68,15 +68,19 @@ bool GrRecordingContext::init() {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
-    bool reduceOpsTaskSplitting = false;
+    auto reorderingStrategy = GrDrawingManager::ReorderingStrategy::kNone;
     if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
-        reduceOpsTaskSplitting = true;
+        reorderingStrategy = GrDrawingManager::ReorderingStrategy::kCallTime;
     } else if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
-        reduceOpsTaskSplitting = false;
+        reorderingStrategy = GrDrawingManager::ReorderingStrategy::kNone;
+    } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplittingOnFlush) {
+        reorderingStrategy = GrDrawingManager::ReorderingStrategy::kFlushTime;
+    } else if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplittingOnFlush) {
+        reorderingStrategy = GrDrawingManager::ReorderingStrategy::kNone;
     }
     fDrawingManager.reset(new GrDrawingManager(this,
                                                prcOptions,
-                                               reduceOpsTaskSplitting));
+                                               reorderingStrategy));
     return true;
 }
 
