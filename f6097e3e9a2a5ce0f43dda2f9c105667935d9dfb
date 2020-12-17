@@ -22,6 +22,30 @@
       },
       "revId": "f6097e3e9a2a5ce0f43dda2f9c105667935d9dfb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4022409_39bb419d",
+        "filename": "tests/ShadowTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-12-17T15:19:48Z",
+      "side": 1,
+      "message": "Whoops, yes.",
+      "parentUuid": "b8e64454_b2de5468",
+      "range": {
+        "startLine": 166,
+        "startChar": 67,
+        "endLine": 166,
+        "endChar": 72
+      },
+      "revId": "f6097e3e9a2a5ce0f43dda2f9c105667935d9dfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
