@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2b34975_8d705db2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-18T14:02:16Z",
+      "side": 1,
+      "message": "This fixes a P1 RBS bug in chromium that can cause rendered math equations to drop minus signs(!).",
+      "revId": "7ee0567d48e90df54e575a5465291fc14b8e062f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
