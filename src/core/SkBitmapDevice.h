@@ -91,7 +91,8 @@ protected:
     void drawPath(const SkPath&, const SkPaint&, bool pathIsMutable) override;
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
-                       const SkPaint&, SkCanvas::SrcRectConstraint) override;
+                       const SkSamplingOptions&, const SkPaint&,
+                       SkCanvas::SrcRectConstraint) override;
 
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;

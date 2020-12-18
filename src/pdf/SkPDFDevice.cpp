@@ -630,6 +630,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
 void SkPDFDevice::drawImageRect(const SkImage* image,
                                 const SkRect* src,
                                 const SkRect& dst,
+                                const SkSamplingOptions&,   // ignored
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint) {
     SkASSERT(image);

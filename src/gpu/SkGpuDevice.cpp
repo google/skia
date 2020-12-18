@@ -792,11 +792,12 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
 }
 
 void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
-                                const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
+                                const SkSamplingOptions& sampling, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
     GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
     this->drawImageQuad(image, src, &dst, nullptr, GrAA(paint.isAntiAlias()), aaFlags, nullptr,
-                        paint, constraint);
+                        /*sampling*/paint, constraint);
 }
 
 // When drawing nine-patches or n-patches, cap the filter quality at kLinear.
@@ -839,7 +840,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
 void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                   const SkPaint& paint) {
+                                   SkFilterMode filter, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
