@@ -2245,6 +2245,10 @@ static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
     return cleaned;
 }
 
+static SkSamplingOptions paint_to_sampling(const SkPaint* paint) {
+    return SkSamplingOptions(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+}
+
 void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     SkPaint realPaint = clean_paint_for_drawImage(paint);
 
@@ -2281,8 +2285,8 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &bounds);
-    this->topDevice()->drawImageRect(image, nullptr, bounds, layer.paint(),
-                                        kStrict_SrcRectConstraint);
+    this->topDevice()->drawImageRect(image, nullptr, bounds, paint_to_sampling(&layer.paint()),
+                                     layer.paint(), kStrict_SrcRectConstraint);
 }
 
 void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
@@ -2296,7 +2300,8 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     AutoLayerForImageFilter layer(this, realPaint, &dst, CheckForOverwrite::kYes,
                                   image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                     : kNotOpaque_ShaderOverrideOpacity);
-    this->topDevice()->drawImageRect(image, src, dst, layer.paint(), constraint);
+    this->topDevice()->drawImageRect(image, src, dst, paint_to_sampling(&layer.paint()),
+                                     layer.paint(), constraint);
 }
 
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
@@ -2335,7 +2340,9 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &dst);
-    this->topDevice()->drawImageLattice(image, lattice, dst, layer.paint());
+    this->topDevice()->drawImageLattice(image, lattice, dst,
+                                        paint_to_sampling(&layer.paint()).filter,
+                                        layer.paint());
 }
 
 void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

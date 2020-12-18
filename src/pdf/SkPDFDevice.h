@@ -81,6 +81,7 @@ public:
     void drawImageRect(const SkImage*,
                        const SkRect* src,
                        const SkRect& dst,
+                       const SkSamplingOptions&,
                        const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
