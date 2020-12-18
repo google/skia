@@ -70,6 +70,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "285c7e0d_1a61839f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Thx for the feedback.. everything resolve in the next commit, with one oustanding question",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59ad9917_1a226786",
@@ -83,6 +100,30 @@
       "writtenOn": "2020-12-17T16:28:54Z",
       "side": 1,
       "message": "We usually namespace these a little to not stomp toes, e.g. SK_WINUWP.",
+      "range": {
+        "startLine": 102,
+        "startChar": 15,
+        "endLine": 102,
+        "endChar": 21
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c182738_901b1ace",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59ad9917_1a226786",
       "range": {
         "startLine": 102,
         "startChar": 15,
@@ -112,6 +153,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3a03b250_41a77a31",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "the fontmgr_win_gdi target does a few other things like including gdi32.lib and setting enabled state.  At a minimum enabling SK_WINUWP needs to not link gdi32.lib in addition to excluding the source.  I would have thought that it should also update enabled.  If I make your suggested change i\u0027ll have to conditionalize the libs[\"gdi32.lib\"] statement in fontmgr_win_gdi.  Happy to do that if you think it\u0027s cleaner than what we have here.",
+      "parentUuid": "b733eaa2_732c690e",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "91bfdbac_7174ccc9",
         "filename": "BUILD.gn",
         "patchSetId": 1
@@ -123,6 +182,30 @@
       "writtenOn": "2020-12-17T16:28:54Z",
       "side": 1,
       "message": "Since we\u0027re only using this config in one place, let\u0027s just defines +\u003d [ \"SK_WINUWP\" ] instead?",
+      "range": {
+        "startLine": 1194,
+        "startChar": 4,
+        "endLine": 1194,
+        "endChar": 31
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3af59cd2_c0d2edc6",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91bfdbac_7174ccc9",
       "range": {
         "startLine": 1194,
         "startChar": 4,
@@ -146,6 +229,30 @@
       "writtenOn": "2020-12-17T16:28:54Z",
       "side": 1,
       "message": "Can we coalesce all the skia_enable_winuwp stuff in one place?\n\nif (skia_enable_winuwp) {\n   defines +\u003d ...\n   sources -\u003d ...\n} else {\n   libs +\u003d ...\n}",
+      "range": {
+        "startLine": 1303,
+        "startChar": 2,
+        "endLine": 1309,
+        "endChar": 0
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d38c2f5_cd2de752",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "006965f3_2405246f",
       "range": {
         "startLine": 1303,
         "startChar": 2,
@@ -251,6 +358,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e068d92c_e0c11865",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "714d69de_83cb2b74",
+      "range": {
+        "startLine": 1854,
+        "startChar": 17,
+        "endLine": 1854,
+        "endChar": 28
+      },
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b3e39b8_22775594",
@@ -286,6 +417,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bb2c6bf_5c8f60fd",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5bd4b3b_4dbaacc4",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dc8f3fb6_07cd1829",
@@ -299,6 +448,24 @@
       "writtenOn": "2020-12-17T16:28:54Z",
       "side": 1,
       "message": "???",
+      "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c363961_ad01cd22",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 15779
+      },
+      "writtenOn": "2020-12-18T18:42:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc8f3fb6_07cd1829",
       "revId": "020d88740a58271cf78a9d8b78a2c70162d53d8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
