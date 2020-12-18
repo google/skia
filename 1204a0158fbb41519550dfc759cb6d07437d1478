@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4d37d4c_e2ab9107",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-18T02:50:36Z",
+      "side": 1,
+      "message": "Not sure how to tunnel the filter param in the gpu lattice methods...",
+      "revId": "1204a0158fbb41519550dfc759cb6d07437d1478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
