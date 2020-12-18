@@ -1022,7 +1022,7 @@ class GrStrokeTessellateShader::IndirectImpl : public GrGLSLGeometryProcessor {
                 // for seaming with the previous stroke. (The double sided edge at the end will
                 // actually come from the section of our strip that belongs to the stroke.)
                 if (combinedEdgeID >= 0) {
-                    outset = (turn < 0) ? min(outset, 0) : max(outset, 0);
+                    outset = clamp(outset, (turn < 0) ? -1 : 0, (turn >= 0) ? 1 : 0);
                 }
             }
             combinedEdgeID = max(combinedEdgeID, 0);
