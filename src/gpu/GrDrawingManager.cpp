@@ -257,6 +257,9 @@ bool GrDrawingManager::flush(
     opMemoryPool->isEmpty();
 #endif
 
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
     gpu->executeFlushInfo(proxies, access, info, newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
