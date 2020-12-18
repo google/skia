@@ -12,6 +12,10 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTextureResolveRenderTask.h"
 
+static std::atomic<bool> gGpuRenderDisabled = false;
+bool isGpuRenderDisabled() { return gGpuRenderDisabled; }
+void setGpuRenderDisabled(bool disabled) { gGpuRenderDisabled = disabled; }
+
 uint32_t GrRenderTask::CreateUniqueID() {
     static std::atomic<uint32_t> nextID{1};
     uint32_t id;
