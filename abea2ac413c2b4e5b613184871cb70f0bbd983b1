@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a241f81a_3e135649",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-18T16:11:18Z",
+      "side": 1,
+      "message": "Hmm so looking through the vulkan spec I don\u0027t actually know if the multiple of 4 part is true, I can\u0027t find where I got that from. It is possible it just needs to aligned to a multiple of the texel size.",
+      "range": {
+        "startLine": 755,
+        "startChar": 7,
+        "endLine": 755,
+        "endChar": 94
+      },
+      "revId": "abea2ac413c2b4e5b613184871cb70f0bbd983b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
