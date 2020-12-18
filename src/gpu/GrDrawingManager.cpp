@@ -85,6 +85,9 @@ bool GrDrawingManager::flush(
         const GrBackendSurfaceMutableState* newState) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
     if (fFlushing || this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -301,6 +304,10 @@ bool GrDrawingManager::executeRenderTasks(int startIndex, int stopIndex, GrOpFlu
     }
 #endif
 
+    if (isGpuRenderDisabled()) {
+        return false;
+    }
+
     bool anyRenderTasksExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
@@ -480,6 +487,9 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         SkSurface::BackendSurfaceAccess access,
         const GrFlushInfo& info,
         const GrBackendSurfaceMutableState* newState) {
+    if (isGpuRenderDisabled()) {
+        return GrSemaphoresSubmitted::kNo;
+    }
     if (this->wasAbandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
