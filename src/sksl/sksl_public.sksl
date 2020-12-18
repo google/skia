@@ -107,10 +107,22 @@ inline float3 cross(float3 a, float3 b) {
 $genType  normalize($genType  x);
 $genHType normalize($genHType x);
 
-inline float  faceforward(float  N, float  I, float  Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float2 faceforward(float2 N, float2 I, float2 Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float3 faceforward(float3 N, float3 I, float3 Nref) { return dot(Nref, I) < 0 ? N : -N; }
-inline float4 faceforward(float4 N, float4 I, float4 Nref) { return dot(Nref, I) < 0 ? N : -N; }
+inline float  faceforward(float  N, float  I, float  Nref) {
+    float v = dot(Nref, I) < 0 ? N : -N;
+    return v;
+}
+inline float2 faceforward(float2 N, float2 I, float2 Nref) {
+    float2 v = dot(Nref, I) < 0 ? N : -N;
+    return v;
+}
+inline float3 faceforward(float3 N, float3 I, float3 Nref) {
+    float3 v = dot(Nref, I) < 0 ? N : -N;
+    return v;
+}
+inline float4 faceforward(float4 N, float4 I, float4 Nref) {
+    float4 v = dot(Nref, I) < 0 ? N : -N;
+    return v;
+}
 
 inline float  reflect(float  I, float  N) { return I - 2 * dot(N, I) * N; }
 inline float2 reflect(float2 I, float2 N) { return I - 2 * dot(N, I) * N; }
@@ -119,23 +131,27 @@ inline float4 reflect(float4 I, float4 N) { return I - 2 * dot(N, I) * N; }
 
 inline float refract(float I, float N, float eta) {
     float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    float v = k < 0 ? float(0)
+                    : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    return v;
 }
 inline float2 refract(float2 I, float2 N, float eta) {
     float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float2(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    float2 v = k < 0 ? float2(0)
+                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    return v;
 }
 inline float3 refract(float3 I, float3 N, float eta) {
     float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float3(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    float3 v = k < 0 ? float3(0)
+                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    return v;
 }
 inline float4 refract(float4 I, float4 N, float eta) {
     float k = 1 - eta * eta * (1 - dot(N, I) * dot(N, I));
-    return k < 0 ? float4(0)
-                 : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    float4 v = k < 0 ? float4(0)
+                     : eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+    return v;
 }
 
 // 8.5 : Matrix Functions
