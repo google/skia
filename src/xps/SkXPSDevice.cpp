@@ -2003,6 +2003,7 @@ void SkXPSDevice::drawOval( const SkRect& o, const SkPaint& p) {
 void SkXPSDevice::drawImageRect(const SkImage* image,
                                 const SkRect* src,
                                 const SkRect& dst,
+                                const SkSamplingOptions& sampling,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     // TODO: support gpu images
@@ -2026,8 +2027,7 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
 
     auto bitmapShader = SkMakeBitmapShaderForPaint(paint, bitmap,
                                                    SkTileMode::kClamp, SkTileMode::kClamp,
-                                                   SkSamplingOptions(paint.getFilterQuality()),
-                                                   &matrix, kNever_SkCopyPixelsMode);
+                                                   sampling, &matrix, kNever_SkCopyPixelsMode);
     SkASSERT(bitmapShader);
     if (!bitmapShader) { return; }
     SkPaint paintWithShader(paint);
