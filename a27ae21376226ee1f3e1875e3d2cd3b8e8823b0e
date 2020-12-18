@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77fbfd59_d8f7ea20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-18T01:58:21Z",
+      "side": 1,
+      "message": "After this: https://skia-review.googlesource.com/c/skia/+/344759 change landed we were no longer sync\u0027ing between each upload in the ColorTypeBackendAllocationTest. This means that multiple uploads can grab a slice in a xfer buffer, which means the offset alignment starts to matter. The Intel 405 GPU supports R8G8B8 which has a block size of 3. We we\u0027re rounding that up to 4 but we really need a value that is a multiple of 4 and the block size, so 12 in this case. GrStagingBufferManager was using GrAlignTo, which only works with pow2 values.",
+      "revId": "a27ae21376226ee1f3e1875e3d2cd3b8e8823b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
