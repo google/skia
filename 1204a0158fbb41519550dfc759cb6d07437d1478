@@ -16,6 +16,23 @@
       "message": "Not sure how to tunnel the filter param in the gpu lattice methods...",
       "revId": "1204a0158fbb41519550dfc759cb6d07437d1478",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "171a161c_36f9740d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-18T02:51:47Z",
+      "side": 1,
+      "message": "How to pass through sampling to these?\n\ndrawProducerLattice\ndrawImageQuad\n",
+      "revId": "1204a0158fbb41519550dfc759cb6d07437d1478",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
