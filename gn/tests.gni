@@ -386,6 +386,7 @@ pathops_tests_sources = [
   "$_tests/PathOpsLineParametetersTest.cpp",
   "$_tests/PathOpsOpCircleThreadedTest.cpp",
   "$_tests/PathOpsOpCubicThreadedTest.cpp",
+  "$_tests/PathOpsOpDiffTest.cpp",
   "$_tests/PathOpsOpLoopThreadedTest.cpp",
   "$_tests/PathOpsOpRectThreadedTest.cpp",
   "$_tests/PathOpsOpTest.cpp",
