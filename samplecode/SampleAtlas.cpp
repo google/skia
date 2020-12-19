@@ -183,7 +183,9 @@ protected:
             }
         }
         SkPaint paint;
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
         paint.setFilterQuality(kLow_SkFilterQuality);
+#endif
 
         const SkRect cull = this->getBounds();
         const SkColor* colorsPtr = fUseColors ? colors : nullptr;

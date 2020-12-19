@@ -856,7 +856,9 @@ static void fuzz_paint(Fuzz* fuzz, SkPaint* paint, int depth) {
     paint->setDither(       make_fuzz_t<bool>(fuzz));
     paint->setColor(        make_fuzz_t<SkColor>(fuzz));
     paint->setBlendMode(    make_fuzz_enum_range<SkBlendMode>(fuzz, SkBlendMode::kLastMode));
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
     paint->setFilterQuality(make_fuzz_enum_range<SkFilterQuality>(fuzz, kLast_SkFilterQuality));
+#endif
     paint->setStyle(        make_fuzz_enum_range<SkPaint::Style>(fuzz,
                                                  SkPaint::Style::kStrokeAndFill_Style));
     paint->setShader(       make_fuzz_shader(fuzz, depth - 1));

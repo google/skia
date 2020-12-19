@@ -462,7 +462,9 @@ void SkParticleEffect::update(double now) {
 void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive(false) && fParams->fDrawable) {
         SkPaint paint;
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+#endif
         fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
     }
 
