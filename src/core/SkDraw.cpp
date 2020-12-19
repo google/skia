@@ -41,8 +41,8 @@ static bool allows_sprite(const SkSamplingOptions& sampling) {
     // Legacy behavior is to ignore sampling if there is no matrix, but new behavior
     // should respect cubic, and not draw as sprite. Need to rebaseline test images
     // to respect this...
-    // return !sampling.useCubic
-    return true;
+    return !sampling.useCubic;
+//    return true;
 }
 static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& bitmap,
                                      const SkSamplingOptions& sampling,
