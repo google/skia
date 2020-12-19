@@ -84,8 +84,11 @@ class BitmapRectView : public Sample {
         canvas->drawRect(srcR, paint);
 
         for (int i = 0; i < 2; ++i) {
-            paint.setFilterQuality(1 == i ? kLow_SkFilterQuality : kNone_SkFilterQuality);
-            canvas->drawBitmapRect(fBitmap, srcR, fDstR[i], &paint,
+            SkFilterOptions opt = {
+                1 == i ? SkSamplingMode::kLinear : SkSamplingMode::kNearest,
+                SkMipmapMode::kNone
+            };
+            canvas->drawBitmapRect(fBitmap, srcR, fDstR[i], opt, &paint,
                                    SkCanvas::kStrict_SrcRectConstraint);
             canvas->drawRect(fDstR[i], paint);
         }

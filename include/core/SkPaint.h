@@ -23,6 +23,8 @@ class SkPath;
 class SkPathEffect;
 class SkShader;
 
+#define SK_SUPPORT_LEGACY_SETFILTERQUALITY
+
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -196,6 +198,9 @@ public:
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
 
+#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
+private:
+#endif
     /** Sets SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
         Does not check to see if quality is valid.
@@ -204,6 +209,9 @@ public:
         example: https://fiddle.skia.org/c/@Paint_setFilterQuality
     */
     void setFilterQuality(SkFilterQuality quality);
+#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
+public:
+#endif
 
     /** \enum SkPaint::Style
         Set Style to fill, stroke, or both fill and stroke geometry.

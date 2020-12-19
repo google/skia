@@ -46,8 +46,10 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
     fuzz->next(&b);
     p->setDither(b);
 
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
     fuzz->nextRange(&tmp_u8, 0, (int)kHigh_SkFilterQuality);
     p->setFilterQuality(static_cast<SkFilterQuality>(tmp_u8));
+#endif
 
     fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kLast_Cap);
     p->setStrokeCap(static_cast<SkPaint::Cap>(tmp_u8));

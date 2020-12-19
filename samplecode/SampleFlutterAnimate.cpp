@@ -33,7 +33,9 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         SkFont font(fTypeface, 50);
         SkPaint paint;
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
         paint.setFilterQuality(kMedium_SkFilterQuality);
+#endif
 
         // rough center of each glyph
         static constexpr auto kMidX = 35;

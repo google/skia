@@ -12,6 +12,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
@@ -1499,6 +1500,14 @@ public:
     */
     void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
                        const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       SkFilterOptions, const SkPaint* paint,
+                       SrcRectConstraint constraint = kStrict_SrcRectConstraint);
+
+    void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
+                       SkImage::CubicResampler, const SkPaint* paint,
                        SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
     /** Draws SkIRect isrc of SkImage image, scaled and translated to fill SkRect dst.
