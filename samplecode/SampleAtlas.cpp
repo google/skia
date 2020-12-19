@@ -12,6 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/core/SkPaintPriv.h"
 #include "samplecode/Sample.h"
 
 typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
@@ -183,7 +184,8 @@ protected:
             }
         }
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
+        // TODO: add sampling options to drawAtlas
+        SkPaintPriv::SetFQ(&paint, kLow_SkFilterQuality);
 
         const SkRect cull = this->getBounds();
         const SkColor* colorsPtr = fUseColors ? colors : nullptr;
