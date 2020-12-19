@@ -13,6 +13,7 @@
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
@@ -462,7 +463,7 @@ void SkParticleEffect::update(double now) {
 void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive(false) && fParams->fDrawable) {
         SkPaint paint;
-        paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
+        SkPaintPriv::SetFQ(&paint, SkFilterQuality::kMedium_SkFilterQuality);
         fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
     }
 
