@@ -15,6 +15,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkPaintPriv.h"
 
 static const int kBmpSize = 24;
 static const int kMaxX = 250;
@@ -47,7 +48,7 @@ static void init_paint(Fuzz* fuzz, SkPaint* p) {
     p->setDither(b);
 
     fuzz->nextRange(&tmp_u8, 0, (int)kHigh_SkFilterQuality);
-    p->setFilterQuality(static_cast<SkFilterQuality>(tmp_u8));
+    SkPaintPriv::SetFQ(p, static_cast<SkFilterQuality>(tmp_u8));
 
     fuzz->nextRange(&tmp_u8, 0, (int)SkPaint::kLast_Cap);
     p->setStrokeCap(static_cast<SkPaint::Cap>(tmp_u8));
