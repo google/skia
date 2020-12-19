@@ -252,7 +252,9 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
     packed >>= 2;
     paint->setStyle(safe.checkLE(packed & 0x3, SkPaint::kStrokeAndFill_Style));
     packed >>= 2;
+#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
     paint->setFilterQuality(safe.checkLE(packed & 0x3, kLast_SkFilterQuality));
+#endif
     packed >>= 2;
     return packed;
 }
