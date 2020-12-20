@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e520995_a275e77d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-20T17:15:34Z",
+      "side": 1,
+      "message": "Needs this guard to land first https://chromium-review.googlesource.com/c/chromium/src/+/2597643",
+      "revId": "058496384540992217a785d51225d74c19bb0cfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
