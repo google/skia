@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e64a5cd0_339735df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-20T17:26:03Z",
+      "side": 1,
+      "message": "Doesn\u0027t whether or not we can do this depend on the particular B,C values?  I think it was legal when B\u003d0?",
+      "revId": "81f4d0be4e595f5856a4aa5dcacb6d8415732bc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
