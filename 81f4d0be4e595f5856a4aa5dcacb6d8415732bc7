@@ -34,6 +34,24 @@
       "parentUuid": "e64a5cd0_339735df",
       "revId": "81f4d0be4e595f5856a4aa5dcacb6d8415732bc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aec8a7b4_061b56eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-20T17:55:13Z",
+      "side": 1,
+      "message": "Ah, didn\u0027t consider that. That is a good idea, to still allow the speed of the spriteblit for those cubics. I\u0027ll update the code for that.\n\nI didn\u0027t know we were pushing 0/.5 -- in what contexts?",
+      "parentUuid": "ccbf97b6_fce8a1f4",
+      "revId": "81f4d0be4e595f5856a4aa5dcacb6d8415732bc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
