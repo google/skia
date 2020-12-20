@@ -16,6 +16,24 @@
       "message": "Doesn\u0027t whether or not we can do this depend on the particular B,C values?  I think it was legal when B\u003d0?",
       "revId": "81f4d0be4e595f5856a4aa5dcacb6d8415732bc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccbf97b6_fce8a1f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-20T17:30:29Z",
+      "side": 1,
+      "message": "This is the bit I was remembering from https://entropymine.com/imageworsener/bicubic/,\n\n\"The cubics for which B\u003d0 are known as the cardinal cubics. They are the ones that do not have any inherent blurring. By that, I mean if you apply a cardinal cubic to an image without changing the image size, it will leave the image pixels completely unchanged.\"\n\nIt\u0027s not entirely theoretical, given how we\u0027ve been pushing {B\u003d0 C\u003d0.5} lately.",
+      "parentUuid": "e64a5cd0_339735df",
+      "revId": "81f4d0be4e595f5856a4aa5dcacb6d8415732bc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
