@@ -16,6 +16,23 @@
       "message": "This solves a fuzzer bug where we\u0027d get an invalid SkRRect from SkRRect::MakeOval. The SkRect would be sorted and finite, but the width/height calculations would overflow and we\u0027d try and make a corner radii of infinity.\n\nhalfWidth/halfHeight seem like useful tools in SkRect to help avoid this issue in other places, but if you want to keep it hidden, or just have SkRRect::MakeOval do it manually, that\u0027s easy enough to whip up.",
       "revId": "821e9605dfe7ca567e7f5ae3fd564577ee1c3073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e79b91cf_7db3d9bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-21T20:22:46Z",
+      "side": 1,
+      "message": "nit: can these be added to RectPriv, or in some other way not be made public? Esp. tricky math helpers are a pain if other folks depend on details of them.",
+      "revId": "821e9605dfe7ca567e7f5ae3fd564577ee1c3073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
