@@ -131,6 +131,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc8e9395_f3ab4be1",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T19:01:36Z",
+      "side": 1,
+      "message": "Oh wow, it\u0027s not at all important, but I completely disagree with this approach to code organization.  This code is only called from here and benefits only in a tiny, trivial way from code sharing (slot_count) with the real stuff going on in SkSLVMGenerator.cpp.  I\u0027d prefer copying slot_count() here and keeping all this test-only code in this test-only file unless it actually needs to grow deep roots into the real code.",
+      "parentUuid": "9affef9d_da549c7b",
+      "range": {
+        "startLine": 392,
+        "startChar": 20,
+        "endLine": 392,
+        "endChar": 67
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "42295108_18310ee0",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
@@ -296,6 +320,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ad5b6c2f_334063a8",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T19:01:36Z",
+      "side": 1,
+      "message": "Yeah, let\u0027s use SkImageShader.  I think we can probably get away with a single SkImageShader instance: each call to program() will push an independent set of uniforms, so a single image shader used multiple times will act just like multiple image shaders each used once.",
+      "parentUuid": "b7808634_d80f699f",
+      "range": {
+        "startLine": 411,
+        "startChar": 70,
+        "endLine": 411,
+        "endChar": 76
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "67721982_b41d3a31",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
@@ -372,6 +420,24 @@
       "side": 1,
       "message": "Hmm. I don\u0027t think I understand the semantics of store128?\n\nWith the striped output, the program looks like:\n\n6 registers, 15 instructions:\n0\tr0 \u003d splat 3F800000 (1)\n1\tr1 \u003d uniform32 arg(0) 24\n2\tr2 \u003d splat 3B808081 (0.0039215689)\n3\tr3 \u003d uniform32 arg(0) 8\n4\tr4 \u003d uniform32 arg(0) 0\n5\tr3 \u003d add_f32 r4 r3\n6\tr3 \u003d mul_f32 r3 r2\n7\tr4 \u003d uniform32 arg(0) 4\nloop:\n8\t    store32 arg(3) r0\n9\t    store32 arg(2) r1\n10\t    store32 arg(1) r3\n11\t    r5 \u003d index\n12\t    r5 \u003d add_f32 r5 r4\n13\t    r5 \u003d mul_f32 r5 r2\n14\t    store32 arg(0) r5\n\n\n... changing it to RGBA_F32, it turns into:\n\n6 registers, 13 instructions:\n0\tr0 \u003d splat 3F800000 (1)\n1\tr1 \u003d uniform32 arg(0) 24\n2\tr2 \u003d splat 3B808081 (0.0039215689)\n3\tr3 \u003d uniform32 arg(0) 8\n4\tr4 \u003d uniform32 arg(0) 0\n5\tr3 \u003d add_f32 r4 r3\n6\tr3 \u003d mul_f32 r3 r2\n7\tr4 \u003d uniform32 arg(0) 4\nloop:\n8\t    store128 arg(0) r1 r0 1\n9\t    r5 \u003d index\n10\t    r5 \u003d add_f32 r5 r4\n11\t    r5 \u003d mul_f32 r5 r2\n12\t    store128 arg(0) r5 r3 0\n\nThat\u0027s got *two* 128-bit stores per iteration? (And ops only have three args, so I don\u0027t quite get the breakdown).",
       "parentUuid": "604aa2a8_2ebd9603",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e77d84f3_9ec6a6b1",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T19:01:36Z",
+      "side": 1,
+      "message": "store128 has two halves to accommodate the three-arg op limit, with low or high half indicated by that final 0 or 1 in the debug dump.  We\u0027d need 5 args for store128 as one op, so it\u0027s split across each 64-bit half instead.  For similar but even more constrained reasons (namely, ops only return one value), you\u0027d see _four_ load128 ops when loading RGBA F32.\n\nBut yeah, let\u0027s stick with your original four float planes.  We\u0027re looking to focus on the shader here, so the details of pixel format packing obscures things more than it helps clarify the data flow dependencies.",
+      "parentUuid": "955d02bb_6b0ecb34",
       "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },

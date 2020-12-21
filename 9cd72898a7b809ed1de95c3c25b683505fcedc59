@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e34e1d76_d45b9a29",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T19:01:36Z",
+      "side": 1,
+      "message": "Try adding\n\n   uniforms-\u003ebase \u003d builder-\u003euniform();\n\nThat ought to distinguish between where we load the uniforms from (should stay arg(0)) and where we write to (should be arg(1), (2), (3), and (4)).\n\nI should probably remove the default uniforms::base value from the skvm::Uniforms constructor... this had me confused for a good few minutes.",
+      "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
