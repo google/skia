@@ -72,6 +72,14 @@ public:
     GrSurfaceOrigin origin() const { return fOrigin; }
     GrSwizzle swizzle() const { return fSwizzle; }
 
+    GrSurfaceProxyView makeSwizzle(const GrSwizzle swizzle) const & {
+        return {fProxy, fOrigin, GrSwizzle::Concat(fSwizzle, swizzle)};
+    }
+
+    GrSurfaceProxyView makeSwizzle(const GrSwizzle swizzle) && {
+        return {std::move(fProxy), fOrigin, GrSwizzle::Concat(fSwizzle, swizzle)};
+    }
+
     void reset() {
         *this = {};
     }

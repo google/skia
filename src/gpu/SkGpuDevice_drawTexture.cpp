@@ -350,6 +350,9 @@ static void draw_texture(GrSurfaceDrawContext* rtc,
                          SkCanvas::SrcRectConstraint constraint,
                          GrSurfaceProxyView view,
                          const GrColorInfo& srcColorInfo) {
+    if (GrColorTypeIsAlphaOnly(srcColorInfo.colorType())) {
+        view = std::move(view).makeSwizzle(GrSwizzle("aaaa"));
+    }
     const GrColorInfo& dstInfo(rtc->colorInfo());
     auto textureXform =
         GrColorSpaceXform::Make(srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
@@ -449,7 +452,7 @@ static void draw_texture_producer(GrRecordingContext* context,
 
         draw_texture(
                 rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint, std::move(view),
-                {producer->colorType(), producer->alphaType(), sk_ref_sp(producer->colorSpace())});
+                producer->colorInfo());
         return;
     }
 
@@ -509,7 +512,11 @@ static void draw_texture_producer(GrRecordingContext* context,
     }
     fp = GrColorSpaceXformEffect::Make(std::move(fp), producer->colorSpace(), producer->alphaType(),
                                        rtc->colorInfo().colorSpace(), kPremul_SkAlphaType);
-    fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+    if (GrColorTypeIsAlphaOnly(producer->colorType())) {
+        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+    } else {
+        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+    }
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(context, rtc->colorInfo(), paint, matrixProvider,
@@ -885,6 +892,10 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             view = image->refPinnedView(this->recordingContext(), &uniqueID);
             if (!view) {
                 view = image->refView(this->recordingContext(), GrMipmapped::kNo);
+            }
+            if (image->isAlphaOnly()) {
+                GrSwizzle swizzle = GrSwizzle::Concat(view.swizzle(), GrSwizzle("aaaa"));
+                view = {view.detachProxy(), view.origin(), swizzle};
             }
         }
 

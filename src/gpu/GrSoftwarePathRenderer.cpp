@@ -156,6 +156,8 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
         return;
     }
 
+    view = std::move(view).makeSwizzle(GrSwizzle("aaaa"));
+
     SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
 
     // We use device coords to compute the texture coordinates. We take the device coords and apply
