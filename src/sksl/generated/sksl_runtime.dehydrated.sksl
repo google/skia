@@ -1,4 +1,4 @@
-static uint8_t SKSL_INCLUDE_sksl_pipeline[] = {87,0,
+static uint8_t SKSL_INCLUDE_sksl_runtime[] = {87,0,
 12,115,107,95,70,114,97,103,67,111,111,114,100,
 6,102,108,111,97,116,52,
 2,102,112,
@@ -53,4 +53,4 @@ static uint8_t SKSL_INCLUDE_sksl_pipeline[] = {87,0,
 42,2,0,0,
 52,
 13,};
-static constexpr size_t SKSL_INCLUDE_sksl_pipeline_LENGTH = sizeof(SKSL_INCLUDE_sksl_pipeline);
+static constexpr size_t SKSL_INCLUDE_sksl_runtime_LENGTH = sizeof(SKSL_INCLUDE_sksl_runtime);
