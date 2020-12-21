@@ -1069,10 +1069,6 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fSetupFragPositionLocal = false;
     fSetupFragCoordWorkaround = false;
 
-    // The pipeline-stage code generator can't use functions written this way, so make sure we don't
-    // accidentally end up here.
-    SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
-
     this->writeFunctionDeclaration(f.declaration());
     this->writeLine(" {");
     fIndentation++;

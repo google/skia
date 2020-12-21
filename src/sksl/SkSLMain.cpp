@@ -253,11 +253,10 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         kind = SkSL::Program::kGeometry_Kind;
     } else if (inputPath.endsWith(".fp")) {
         kind = SkSL::Program::kFragmentProcessor_Kind;
-    } else if (inputPath.endsWith(".stage")) {
-        kind = SkSL::Program::kPipelineStage_Kind;
+    } else if (inputPath.endsWith(".rte")) {
+        kind = SkSL::Program::kRuntimeEffect_Kind;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.stage', or "
-               "'.sksl'\n");
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rte', or '.sksl'\n");
         return ResultCode::kInputError;
     }
 

@@ -595,7 +595,7 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         int before = heap_bytes_used();
         GrShaderCaps caps(GrContextOptions{});
         SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::Program::kPipelineStage_Kind);
+        compiler.moduleForProgramKind(SkSL::Program::kRuntimeEffect_Kind);
         int after = heap_bytes_used();
         bench("sksl_compiler_runtimeeffect", after - before);
     }

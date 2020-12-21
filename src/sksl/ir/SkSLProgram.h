@@ -176,7 +176,7 @@ struct Program {
         kVertex_Kind,
         kGeometry_Kind,
         kFragmentProcessor_Kind,
-        kPipelineStage_Kind,
+        kRuntimeEffect_Kind,
         kGeneric_Kind,
     };
 

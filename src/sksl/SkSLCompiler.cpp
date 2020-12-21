@@ -60,8 +60,8 @@
 #include "src/sksl/generated/sksl_geom.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
 #include "src/sksl/generated/sksl_interp.dehydrated.sksl"
-#include "src/sksl/generated/sksl_pipeline.dehydrated.sksl"
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
+#include "src/sksl/generated/sksl_runtime.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
 
 #define MODULE_DATA(name) MakeModuleData(SKSL_INCLUDE_sksl_##name,\
@@ -227,39 +227,39 @@ const ParsedModule& Compiler::loadPublicModule() {
     return fPublicModule;
 }
 
-const ParsedModule& Compiler::loadPipelineModule() {
-    if (!fPipelineModule.fSymbols) {
-        fPipelineModule = this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline),
-                                            this->loadPublicModule());
+const ParsedModule& Compiler::loadRuntimeEffectModule() {
+    if (!fRuntimeEffectModule.fSymbols) {
+        fRuntimeEffectModule = this->parseModule(Program::kRuntimeEffect_Kind, MODULE_DATA(runtime),
+                                                 this->loadPublicModule());
 
-        // Add some aliases to the pipeline module so that it's friendlier, and more like GLSL
-        fPipelineModule.fSymbols->addAlias("shader", fContext->fFragmentProcessor_Type.get());
+        // Add some aliases to the runtime effect module so that it's friendlier, and more like GLSL
+        fRuntimeEffectModule.fSymbols->addAlias("shader", fContext->fFragmentProcessor_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("vec2", fContext->fFloat2_Type.get());
-        fPipelineModule.fSymbols->addAlias("vec3", fContext->fFloat3_Type.get());
-        fPipelineModule.fSymbols->addAlias("vec4", fContext->fFloat4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("vec2", fContext->fFloat2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("vec3", fContext->fFloat3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("vec4", fContext->fFloat4_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("bvec2", fContext->fBool2_Type.get());
-        fPipelineModule.fSymbols->addAlias("bvec3", fContext->fBool3_Type.get());
-        fPipelineModule.fSymbols->addAlias("bvec4", fContext->fBool4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("bvec2", fContext->fBool2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("bvec3", fContext->fBool3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("bvec4", fContext->fBool4_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("mat2", fContext->fFloat2x2_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat3", fContext->fFloat3x3_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat4", fContext->fFloat4x4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat2", fContext->fFloat2x2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat3", fContext->fFloat3x3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat4", fContext->fFloat4x4_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("mat2x2", fContext->fFloat2x2_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat2x3", fContext->fFloat2x3_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat2x4", fContext->fFloat2x4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat2x2", fContext->fFloat2x2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat2x3", fContext->fFloat2x3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat2x4", fContext->fFloat2x4_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("mat3x2", fContext->fFloat3x2_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat3x3", fContext->fFloat3x3_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat3x4", fContext->fFloat3x4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat3x2", fContext->fFloat3x2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat3x3", fContext->fFloat3x3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat3x4", fContext->fFloat3x4_Type.get());
 
-        fPipelineModule.fSymbols->addAlias("mat4x2", fContext->fFloat4x2_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat4x3", fContext->fFloat4x3_Type.get());
-        fPipelineModule.fSymbols->addAlias("mat4x4", fContext->fFloat4x4_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat4x2", fContext->fFloat4x2_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat4x3", fContext->fFloat4x3_Type.get());
+        fRuntimeEffectModule.fSymbols->addAlias("mat4x4", fContext->fFloat4x4_Type.get());
     }
-    return fPipelineModule;
+    return fRuntimeEffectModule;
 }
 
 const ParsedModule& Compiler::loadInterpreterModule() {
@@ -272,12 +272,12 @@ const ParsedModule& Compiler::loadInterpreterModule() {
 
 const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
     switch (kind) {
-        case Program::kVertex_Kind:            return this->loadVertexModule();      break;
-        case Program::kFragment_Kind:          return this->loadFragmentModule();    break;
-        case Program::kGeometry_Kind:          return this->loadGeometryModule();    break;
-        case Program::kFragmentProcessor_Kind: return this->loadFPModule();          break;
-        case Program::kPipelineStage_Kind:     return this->loadPipelineModule();    break;
-        case Program::kGeneric_Kind:           return this->loadInterpreterModule(); break;
+        case Program::kVertex_Kind:            return this->loadVertexModule();        break;
+        case Program::kFragment_Kind:          return this->loadFragmentModule();      break;
+        case Program::kGeometry_Kind:          return this->loadGeometryModule();      break;
+        case Program::kFragmentProcessor_Kind: return this->loadFPModule();            break;
+        case Program::kRuntimeEffect_Kind:     return this->loadRuntimeEffectModule(); break;
+        case Program::kGeneric_Kind:           return this->loadInterpreterModule();   break;
     }
     SkUNREACHABLE;
 }

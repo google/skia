@@ -301,7 +301,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             fErrors.error(decls.fOffset, "'key' is only permitted within fragment processors");
         }
     }
-    if (fKind == Program::kPipelineStage_Kind) {
+    if (fKind == Program::kRuntimeEffect_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
             baseType->nonnullable() != *fContext.fFragmentProcessor_Type) {
             fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
@@ -311,7 +311,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
     if (modifiers.fLayout.fMarker.fLength) {
-        if (fKind != Program::kPipelineStage_Kind) {
+        if (fKind != Program::kRuntimeEffect_Kind) {
             fErrors.error(decls.fOffset, "'marker' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
@@ -322,7 +322,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
-        if (fKind != Program::kPipelineStage_Kind) {
+        if (fKind != Program::kRuntimeEffect_Kind) {
             fErrors.error(decls.fOffset, "'srgb_unpremul' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
@@ -341,7 +341,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         }
     }
     if (modifiers.fFlags & Modifiers::kVarying_Flag) {
-        if (fKind != Program::kPipelineStage_Kind) {
+        if (fKind != Program::kRuntimeEffect_Kind) {
             fErrors.error(decls.fOffset, "'varying' is only permitted in runtime effects");
         }
         if (!baseType->isFloat() &&
@@ -879,7 +879,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return true;
 #else
         GrSLType unusedSLType;
-        return fKind != Program::kPipelineStage_Kind ||
+        return fKind != Program::kRuntimeEffect_Kind ||
                type_to_grsltype(fContext, *t, &unusedSLType);
 #endif
     };
@@ -917,7 +917,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         Modifiers m = pd.fModifiers;
-        if (funcData.fName == "main" && (fKind == Program::kPipelineStage_Kind ||
+        if (funcData.fName == "main" && (fKind == Program::kRuntimeEffect_Kind ||
                                          fKind == Program::kFragmentProcessor_Kind)) {
             if (i == 0) {
                 // We verify that the type is correct later, for now, if there is a parameter to
@@ -940,7 +940,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
     if (funcData.fName == "main") {
         switch (fKind) {
-            case Program::kPipelineStage_Kind: {
+            case Program::kRuntimeEffect_Kind: {
                 // (half4|float4) main()  -or-  (half4|float4) main(float2)
                 if (*returnType != *fContext.fHalf4_Type && *returnType != *fContext.fFloat4_Type) {
                     fErrors.error(f.fOffset, "'main' must return: 'vec4', 'float4', or 'half4'");
@@ -1225,7 +1225,7 @@ void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
 }
 
 void IRGenerator::convertEnum(const ASTNode& e) {
-    if (fKind == Program::kPipelineStage_Kind) {
+    if (fKind == Program::kRuntimeEffect_Kind) {
         fErrors.error(e.fOffset, "enum is not allowed here");
         return;
     }
@@ -2129,7 +2129,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
-    if (fKind == Program::kPipelineStage_Kind && !function.definition() && !function.isBuiltin()) {
+    if (fKind == Program::kRuntimeEffect_Kind && !function.definition() && !function.isBuiltin()) {
         String msg = "call to undefined function '" + function.name() + "'";
         fErrors.error(offset, msg);
         return nullptr;
