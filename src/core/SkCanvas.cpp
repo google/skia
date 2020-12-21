@@ -2205,13 +2205,14 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->topDevice()->drawPath(path, layer.paint());
 }
 
-bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkPaint& paint) {
+bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h,
+                                     const SkSamplingOptions& sampling, const SkPaint& paint) {
     if (!paint.getImageFilter()) {
         return false;
     }
 
     const SkMatrix& ctm = this->getTotalMatrix();
-    if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), paint)) {
+    if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), sampling, paint)) {
         return false;
     }
 
@@ -2257,8 +2258,11 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         return;
     }
 
+    // TODO: this should be passed in directly by the client
+    const SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+
     if (realPaint.getImageFilter() &&
-        this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), realPaint)  &&
+        this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint)  &&
         !image_to_color_filter(&realPaint)) {
         // Evaluate the image filter directly on the input image and then draw the result, instead
         // of first drawing the image to a temporary layer and filtering.

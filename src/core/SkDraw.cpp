@@ -30,6 +30,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkStroke.h"
 #include "src/core/SkTLazy.h"
@@ -37,13 +38,6 @@
 
 #include <utility>
 
-static bool allows_sprite(const SkSamplingOptions& sampling) {
-    // Legacy behavior is to ignore sampling if there is no matrix, but new behavior
-    // should respect cubic, and not draw as sprite. Need to rebaseline test images
-    // to respect this...
-    // return !sampling.useCubic
-    return true;
-}
 static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& bitmap,
                                      const SkSamplingOptions& sampling,
                                      SkMatrix* matrix = nullptr) {
@@ -983,7 +977,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
     }
 
     SkMatrix ctm = fMatrixProvider->localToDevice();
-    if (allows_sprite(sampling) && SkTreatAsSprite(ctm, bitmap.dimensions(), paint)) {
+    if (SkTreatAsSprite(ctm, bitmap.dimensions(), sampling, paint))
+    {
         int ix = SkScalarRoundToInt(ctm.getTranslateX());
         int iy = SkScalarRoundToInt(ctm.getTranslateY());
 
@@ -1101,8 +1096,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     }
 
     if (bitmap.colorType() != kAlpha_8_SkColorType
-        && allows_sprite(sampling)
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
+        && SkTreatAsSprite(matrix, bitmap.dimensions(), sampling, *paint)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
