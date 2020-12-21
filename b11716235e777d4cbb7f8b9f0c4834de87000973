@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8597249b_b2420312",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-21T14:35:42Z",
+      "side": 1,
+      "message": "Done. Not bad, it make me notice a test in canvas that I hadn\u0027t noticed before.",
+      "parentUuid": "d0a5b1d4_7447ff56",
+      "range": {
+        "startLine": 981,
+        "startChar": 8,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "b11716235e777d4cbb7f8b9f0c4834de87000973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0408ae5c_579145ca",
