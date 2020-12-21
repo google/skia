@@ -156,7 +156,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = compiler.getInlineThreshold();
     settings.fAllowNarrowingConversions = true;
-    auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+    auto program = compiler->convertProgram(SkSL::Program::kRuntimeEffect_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
                                             settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those

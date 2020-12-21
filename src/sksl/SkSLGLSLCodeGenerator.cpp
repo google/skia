@@ -1071,7 +1071,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     // The pipeline-stage code generator can't use functions written this way, so make sure we don't
     // accidentally end up here.
-    SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
+    SkASSERT(fProgramKind != Program::kRuntimeEffect_Kind);
 
     this->writeFunctionDeclaration(f.declaration());
     this->writeLine(" {");
