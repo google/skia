@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dbab251_50b2c265",
+        "filename": "gn/skia.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-21T15:33:57Z",
+      "side": 1,
+      "message": "I think for the fontmgr_gdi thing you want to take this line, stick it in the next declare_args block (args in a declare_args block don\u0027t take effect until the close of the block, and skia_enable_winup is in this block) with the rest of the skia_enable_fontmgr_* and add \u0027\u0026\u0026 !skia_enable_winup\u0027 to the end. That will make the \u0027optional(\"fontmgr_win_gdi\")\u0027 empty and we won\u0027t need to do anything further about it. (Can undo the changes making the dependency conditional, which was the point of the \u0027optional\u0027 gn template.)",
+      "revId": "d4c3b0351a45c2ec98003b835801680f7a6b7a9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
