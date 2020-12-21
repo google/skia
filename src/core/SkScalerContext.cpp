@@ -1066,16 +1066,6 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     new (effects) SkScalerContextEffects{paint};
 }
 
-SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
-                                                      SkAutoDescriptor* ad) {
-    SkScalerContextRec rec;
-    memset((void*)&rec, 0, sizeof(rec));
-    rec.fFontID = typefaceID;
-    rec.fTextSize = SkFontPriv::kCanonicalTextSizeForPaths;
-    rec.fPreScaleX = rec.fPost2x2[0][0] = rec.fPost2x2[1][1] = SK_Scalar1;
-    return AutoDescriptorGivenRecAndEffects(rec, SkScalerContextEffects(), ad);
-}
-
 SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
     const SkFont& font, const SkPaint& paint, const SkSurfaceProps& surfaceProps,
     SkScalerContextFlags scalerContextFlags, const SkMatrix& deviceMatrix, SkAutoDescriptor* ad,

@@ -319,9 +319,6 @@ public:
                 SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects);
     }
 
-    static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
-                                                 SkAutoDescriptor* ad);
-
     static SkScalerContext* MakeEmptyContext(
             sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
             const SkDescriptor* desc);
