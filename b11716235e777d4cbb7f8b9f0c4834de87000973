@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "379d0302_a7f07936",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T13:40:35Z",
+      "side": 1,
+      "message": "Nice to see that theory is holding up in practice!",
+      "revId": "b11716235e777d4cbb7f8b9f0c4834de87000973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0a5b1d4_7447ff56",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T13:40:35Z",
+      "side": 1,
+      "message": "Think it makes sense to pass sampling to SkTreatAsSprite()?  Now that we know, there\u0027s probably not a good use case to call SkTreatAsSprite() without also checking NoChangeWithIdentityMatrix(), so let\u0027s merge em?",
+      "range": {
+        "startLine": 981,
+        "startChar": 8,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "b11716235e777d4cbb7f8b9f0c4834de87000973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0408ae5c_579145ca",
+        "filename": "tests/SamplingTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T13:40:35Z",
+      "side": 1,
+      "message": "Think this could be a GM, so we could test more backends (like GPU) and color formats (like F16)?",
+      "range": {
+        "startLine": 27,
+        "startChar": 31,
+        "endLine": 27,
+        "endChar": 50
+      },
+      "revId": "b11716235e777d4cbb7f8b9f0c4834de87000973",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
