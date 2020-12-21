@@ -65,7 +65,13 @@ struct BasicBlock {
 #ifdef SK_DEBUG
         String description() const {
             SkASSERT(fStatement || fExpression);
-            return fStatement ? (*fStatement)->description() : (*fExpression)->description();
+            if (fStatement) {
+                return *fStatement ? (*fStatement)->description() : "(null statement)";
+            } else if (fExpression) {
+                return *fExpression ? (*fExpression)->description() : "(null expression)";
+            } else {
+                return "(nothing)";
+            }
         }
 #endif
 
