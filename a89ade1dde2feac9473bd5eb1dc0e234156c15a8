@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f15d194f_8a696fbc",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Yup, I didn\u0027t like that name either. This reads better.",
+      "parentUuid": "1ec103e2_e90c7fb9",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 53,
+        "endChar": 21
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f34d8dc_e029be46",
@@ -81,6 +105,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9affef9d_da549c7b",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Yup. Given that I already had to create a testing-only function to get the number of uniform slots, I instead moved most of this logic to a testingOnly_ function that lives with the rest of the SkSL/SkVM codem, and just left the dumping and stream-bridging code here.",
+      "parentUuid": "5f34d8dc_e029be46",
+      "range": {
+        "startLine": 392,
+        "startChar": 20,
+        "endLine": 392,
+        "endChar": 67
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42295108_18310ee0",
@@ -94,6 +142,30 @@
       "writtenOn": "2020-12-17T22:11:37Z",
       "side": 1,
       "message": "maybe new_uni()?  on quick glance you might thing these were all returning the same one?",
+      "range": {
+        "startLine": 405,
+        "startChar": 25,
+        "endLine": 405,
+        "endChar": 28
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58bcbd4c_ab3d132e",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42295108_18310ee0",
       "range": {
         "startLine": 405,
         "startChar": 25,
@@ -151,6 +223,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f783204_182f35ac",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Ah, I missed index(). I was trying to figure out the pattern to get a per-lane varying, but I was also rushing at the end of the work week.",
+      "parentUuid": "a097a7b8_29c71183",
+      "range": {
+        "startLine": 407,
+        "startChar": 41,
+        "endLine": 407,
+        "endChar": 46
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf91bbb6_1b662fc3",
@@ -164,6 +260,30 @@
       "writtenOn": "2020-12-17T22:11:37Z",
       "side": 1,
       "message": "Hmm.  It\u0027s gonna be confusing to see us dedup sampling two different textures against each other, or even deduping four sample points from a single texture into one.\n\nKind of want to return distinct colors for each distinct {child, coord.x, coord.y} call to sampleChild?",
+      "range": {
+        "startLine": 411,
+        "startChar": 70,
+        "endLine": 411,
+        "endChar": 76
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7808634_d80f699f",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "I\u0027ve tried to splice in a minimal bitmap sampler. I suppose I could have done it correctly (by actually making a bitmap shader?).",
+      "parentUuid": "cf91bbb6_1b662fc3",
       "range": {
         "startLine": 411,
         "startChar": 70,
@@ -197,6 +317,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e95988a_05b1b9e3",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67721982_b41d3a31",
+      "range": {
+        "startLine": 422,
+        "startChar": 43,
+        "endLine": 422,
+        "endChar": 49
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "604aa2a8_2ebd9603",
@@ -216,6 +360,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "955d02bb_6b0ecb34",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Hmm. I don\u0027t think I understand the semantics of store128?\n\nWith the striped output, the program looks like:\n\n6 registers, 15 instructions:\n0\tr0 \u003d splat 3F800000 (1)\n1\tr1 \u003d uniform32 arg(0) 24\n2\tr2 \u003d splat 3B808081 (0.0039215689)\n3\tr3 \u003d uniform32 arg(0) 8\n4\tr4 \u003d uniform32 arg(0) 0\n5\tr3 \u003d add_f32 r4 r3\n6\tr3 \u003d mul_f32 r3 r2\n7\tr4 \u003d uniform32 arg(0) 4\nloop:\n8\t    store32 arg(3) r0\n9\t    store32 arg(2) r1\n10\t    store32 arg(1) r3\n11\t    r5 \u003d index\n12\t    r5 \u003d add_f32 r5 r4\n13\t    r5 \u003d mul_f32 r5 r2\n14\t    store32 arg(0) r5\n\n\n... changing it to RGBA_F32, it turns into:\n\n6 registers, 13 instructions:\n0\tr0 \u003d splat 3F800000 (1)\n1\tr1 \u003d uniform32 arg(0) 24\n2\tr2 \u003d splat 3B808081 (0.0039215689)\n3\tr3 \u003d uniform32 arg(0) 8\n4\tr4 \u003d uniform32 arg(0) 0\n5\tr3 \u003d add_f32 r4 r3\n6\tr3 \u003d mul_f32 r3 r2\n7\tr4 \u003d uniform32 arg(0) 4\nloop:\n8\t    store128 arg(0) r1 r0 1\n9\t    r5 \u003d index\n10\t    r5 \u003d add_f32 r5 r4\n11\t    r5 \u003d mul_f32 r5 r2\n12\t    store128 arg(0) r5 r3 0\n\nThat\u0027s got *two* 128-bit stores per iteration? (And ops only have three args, so I don\u0027t quite get the breakdown).",
+      "parentUuid": "604aa2a8_2ebd9603",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d9662496_cee6e89a",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
@@ -227,6 +389,24 @@
       "writtenOn": "2020-12-17T22:11:37Z",
       "side": 1,
       "message": "for an approximate idea of how it\u0027d execute, there\u0027s also\n\n    builder.done().dump(\u0026stream)\n\nThat\u0027ll assign registers to values, and in the process count up how many registers we\u0027d need to never spill.  The JITs of course do spill to the stack if they don\u0027t have that many registers, but the interpreter will run just like this trace.  The \"instruction\" count is also kind of notional... really should be called \"ops\" I guess.  Mostly it\u0027s 1:1, but some of the ops you\u0027d see in this dump expand to more than one hardware instruction in the JITs, and splats() sometimes end up as zero instructions.",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a07e59a6_388c35c4",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T15:59:18Z",
+      "side": 1,
+      "message": "Yup, that looks a little better.",
+      "parentUuid": "d9662496_cee6e89a",
       "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
