@@ -2309,3 +2309,33 @@ DEF_TEST(SkVM_badpack, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_features, r) {
+    auto build_program = [](skvm::Builder* b) {
+        skvm::F32 x = b->loadF(b->varying<float>());
+        b->storeF(b->varying<float>(), x*x+x);
+    };
+
+    {   // load-fma-store with FMA available.
+        skvm::Features features;
+        features.fma = true;
+        skvm::Builder b(features);
+        build_program(&b);
+        REPORTER_ASSERT(r, b.optimize().size() == 3);
+    }
+
+    {   // load-mul-add-store without FMA.
+        skvm::Features features;
+        features.fma = false;
+        skvm::Builder b(features);
+        build_program(&b);
+        REPORTER_ASSERT(r, b.optimize().size() == 4);
+    }
+
+    {   // Auto-detected, could be either.
+        skvm::Builder b;
+        build_program(&b);
+        REPORTER_ASSERT(r, b.optimize().size() == 3
+                        || b.optimize().size() == 4);
+    }
+}

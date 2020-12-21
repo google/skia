@@ -116,6 +116,25 @@ bool gSkVMJITViaDylib{false};
 
 namespace skvm {
 
+    static Features detect_features() {
+        static const bool fma =
+        #if defined(SK_CPU_X86)
+            SkCpu::Supports(SkCpu::HSW);
+        #elif defined(SK_CPU_ARM64)
+            true;
+        #else
+            false;
+        #endif
+
+        static const bool fp16 = false;  // TODO
+
+        return { fma, fp16 };
+    }
+
+    Builder::Builder()                  : fFeatures(detect_features()) {}
+    Builder::Builder(Features features) : fFeatures(features         ) {}
+
+
     struct Program::Impl {
         std::vector<InterpreterInstruction> instructions;
         int regs = 0;
@@ -666,18 +685,6 @@ namespace skvm {
 
     I32 Builder::splat(int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
 
-    static bool fma_supported() {
-        static const bool supported =
-     #if defined(SK_CPU_X86)
-         SkCpu::Supports(SkCpu::HSW);
-     #elif defined(SK_CPU_ARM64)
-         true;
-     #else
-         false;
-     #endif
-         return supported;
-    }
-
     // Be careful peepholing float math!  Transformations you might expect to
     // be legal can fail in the face of NaN/Inf, e.g. 0*x is not always 0.
     // Float peepholes must pass this equivalence test for all ~4B floats:
@@ -698,7 +705,7 @@ namespace skvm {
         if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
         if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
 
-        if (fma_supported()) {
+        if (fFeatures.fma) {
             if (fProgram[x.id].op == Op::mul_f32) {
                 return {this, this->push(Op::fma_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
             }
@@ -712,7 +719,7 @@ namespace skvm {
     F32 Builder::sub(F32 x, F32 y) {
         if (float X,Y; this->allImm(x.id,&X, y.id,&Y)) { return splat(X-Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
-        if (fma_supported()) {
+        if (fFeatures.fma) {
             if (fProgram[x.id].op == Op::mul_f32) {
                 return {this, this->push(Op::fms_f32, fProgram[x.id].x, fProgram[x.id].y, y.id)};
             }
