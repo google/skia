@@ -631,8 +631,16 @@ namespace skvm {
         bool can_hoist;
     };
 
+    struct Features {
+        bool fma   = false;
+        bool fp16  = false;
+    };
+
     class Builder {
     public:
+
+        Builder();
+        explicit Builder(Features);
 
         Program done(const char* debug_name = nullptr) const;
 
@@ -928,6 +936,7 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
+        const Features                                fFeatures;
     };
 
     // Optimization passes and data structures normally used by Builder::optimize(),
