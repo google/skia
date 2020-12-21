@@ -22,6 +22,30 @@
       },
       "revId": "555461cce4d1e6a5e8d674a174da30b33fc7a550",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56f8bd4c_fb211a0e",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-21T18:42:53Z",
+      "side": 1,
+      "message": "oops. Fixed.",
+      "parentUuid": "6f4d6914_ed78ab57",
+      "range": {
+        "startLine": 1355,
+        "startChar": 11,
+        "endLine": 1356,
+        "endChar": 19
+      },
+      "revId": "555461cce4d1e6a5e8d674a174da30b33fc7a550",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
