@@ -772,6 +772,24 @@ struct SK_API SkRect {
     */
     SkScalar    height() const { return fBottom - fTop; }
 
+    /** Returns half the span on the x-axis. This does not check if SkRect is sorted.
+
+        @return 1/2 * (fRight minus fLeft)
+    */
+    SkScalar    halfWidth() const {
+        // Don't use SkScalarHalf(width()) as width() may overflow before the half.
+        return SkScalarHalf(fRight) - SkScalarHalf(fLeft);
+    }
+
+    /** Returns half the span on the y-axis. This does not check if SkRect is sorted.
+
+        @return 1/2 * (fBottom minus fTop)
+    */
+    SkScalar    halfHeight() const {
+        // Don't use SkScalarHalf(height()) as height() may overflow before the half.
+        return SkScalarHalf(fBottom) - SkScalarHalf(fTop);
+    }
+
     /** Returns average of left edge and right edge. Result does not change if SkRect
         is sorted. Result may overflow to infinity if SkRect is far from the origin.
 

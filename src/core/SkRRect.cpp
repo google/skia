@@ -659,8 +659,8 @@ bool SkRRect::isValid() const {
             }
 
             for (int i = 0; i < 4; ++i) {
-                if (!SkScalarNearlyEqual(fRadii[i].fX, SkScalarHalf(fRect.width())) ||
-                    !SkScalarNearlyEqual(fRadii[i].fY, SkScalarHalf(fRect.height()))) {
+                if (!SkScalarNearlyEqual(fRadii[i].fX, fRect.halfWidth()) ||
+                    !SkScalarNearlyEqual(fRadii[i].fY, fRect.halfHeight())) {
                     return false;
                 }
             }

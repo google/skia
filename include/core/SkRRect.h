@@ -190,8 +190,8 @@ public:
             return;
         }
 
-        SkScalar xRad = SkScalarHalf(fRect.width());
-        SkScalar yRad = SkScalarHalf(fRect.height());
+        SkScalar xRad = fRect.halfWidth();
+        SkScalar yRad = fRect.halfHeight();
 
         if (xRad == 0.0f || yRad == 0.0f) {
             // All the corners will be square
