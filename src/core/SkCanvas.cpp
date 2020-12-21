@@ -556,10 +556,6 @@ SkISize SkCanvas::getBaseLayerSize() const {
     return this->baseDevice()->imageInfo().dimensions();
 }
 
-SkIRect SkCanvas::internalGetTopLayerBounds() const {
-    return this->topDevice()->getGlobalBounds();
-}
-
 SkBaseDevice* SkCanvas::topDevice() const {
     SkASSERT(fMCRec->fDevice);
     return fMCRec->fDevice;
@@ -1689,6 +1685,10 @@ GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetConte
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+
+SkIRect SkCanvas::topLayerBounds() const {
+    return this->topDevice()->getGlobalBounds();
+}
 
 GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
     GrSurfaceDrawContext* sdc = this->topDevice()->accessRenderTargetContext();
