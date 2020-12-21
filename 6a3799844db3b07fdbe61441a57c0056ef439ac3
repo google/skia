@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4d9207d_e6d79bbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-21T19:44:11Z",
+      "side": 1,
+      "message": "Found this while working on another change. The bicubic GM tests this (several bicubic draws batch together that shouldn\u0027t).",
+      "revId": "6a3799844db3b07fdbe61441a57c0056ef439ac3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
