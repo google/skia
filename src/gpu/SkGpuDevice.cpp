@@ -830,6 +830,9 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     if (!view) {
         return;
     }
+    if (producer->isAlphaOnly()) {
+        view.concatSwizzle(GrSwizzle("aaaa"));
+    }
     auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
                                         dstColorSpace,          kPremul_SkAlphaType);
 
