@@ -106,7 +106,10 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
     bool result;
     if ((*iter)->isExpression()) {
         SkASSERT((*iter)->expression()->get() != e);
+        // Remember the expression that we started on.
         Expression* old = (*iter)->expression()->get();
+        // Back up `iter` until we find the expression that we want to remove. (If we don't find
+        // that expression at all, fail and rescan.)
         do {
             if ((*iter) == fNodes.begin()) {
                 return false;
@@ -114,14 +117,19 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
             --(*iter);
         } while (!(*iter)->isExpression() || (*iter)->expression()->get() != e);
 
+        // `iter` now points to our expression that needs removal. Erase it.
         result = this->tryRemoveExpression(iter);
 
+        // Move `iter` forward again until we find the expression we started on.
         while (!(*iter)->isExpression() || (*iter)->expression()->get() != old) {
             SkASSERT(*iter != fNodes.end());
             ++(*iter);
         }
     } else {
+        // Remember the statement that we started on.
         Statement* old = (*iter)->statement()->get();
+        // Back up `iter` until we find the expression that we want to remove. (If we don't find
+        // that expression at all, fail and rescan.)
         do {
             if ((*iter) == fNodes.begin()) {
                 return false;
@@ -129,8 +137,10 @@ bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterat
             --(*iter);
         } while (!(*iter)->isExpression() || (*iter)->expression()->get() != e);
 
+        // `iter` now points to our expression that needs removal. Erase it.
         result = this->tryRemoveExpression(iter);
 
+        // Move `iter` forward again until we find the statement we started on.
         while (!(*iter)->isStatement() || (*iter)->statement()->get() != old) {
             SkASSERT(*iter != fNodes.end());
             ++(*iter);

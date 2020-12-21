@@ -1180,14 +1180,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
                             std::move(newArgs));
 
-                    // No fUsage change: `half4(foo).xy` and `half2(foo)` have equivalent reference
-                    // counts.
-                    optimizationContext->fUpdated = true;
-                    if (!try_replace_expression(&b, iter, &replacement)) {
-                        optimizationContext->fNeedsRescan = true;
-                        return;
-                    }
+                    // We're replacing an expression with a cloned version; we'll need a rescan.
+                    try_replace_expression(&b, iter, &replacement);
                     SkASSERT((*iter)->isExpression());
+                    optimizationContext->fUpdated = true;
+                    optimizationContext->fNeedsRescan = true;
                     break;
                 }
 
@@ -1305,14 +1302,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             &componentType.toCompound(*fContext, swizzleSize, /*rows=*/1),
                             std::move(newArgs));
 
-                    // Remove references within 'expr', add references within 'optimized'
-                    optimizationContext->fUpdated = true;
-                    optimizationContext->fUsage->replace(expr, replacement.get());
-                    if (!try_replace_expression(&b, iter, &replacement)) {
-                        optimizationContext->fNeedsRescan = true;
-                        return;
-                    }
+                    // We're replacing an expression with a cloned version; we'll need a rescan.
+                    try_replace_expression(&b, iter, &replacement);
                     SkASSERT((*iter)->isExpression());
+                    optimizationContext->fUpdated = true;
+                    optimizationContext->fNeedsRescan = true;
                 }
                 break;
             }
