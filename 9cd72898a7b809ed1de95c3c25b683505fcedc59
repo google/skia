@@ -16,6 +16,23 @@
       "message": "Try adding\n\n   uniforms-\u003ebase \u003d builder-\u003euniform();\n\nThat ought to distinguish between where we load the uniforms from (should stay arg(0)) and where we write to (should be arg(1), (2), (3), and (4)).\n\nI should probably remove the default uniforms::base value from the skvm::Uniforms constructor... this had me confused for a good few minutes.",
       "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae4c86f7_9db3ba04",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-21T19:19:15Z",
+      "side": 1,
+      "message": "It might track reality more closely to leave the top-level shader\u0027s device\u003d\u003dlocal, letting the sample() calls where device !\u003d local stand out more?  I may be confused, but I think that\u0027s the only way you naturally get device !\u003d local, right?",
+      "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
