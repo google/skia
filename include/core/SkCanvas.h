@@ -2442,11 +2442,10 @@ public:
 
     // don't call
     virtual GrSurfaceDrawContext* internal_private_accessTopLayerRenderTargetContext();
-    SkIRect internal_private_getTopLayerBounds() const { return this->internalGetTopLayerBounds(); }
 
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
     // These methods exist to support WebView in Android Framework.
-    SkIRect topLayerBounds() const { return this->internalGetTopLayerBounds(); }
+    SkIRect topLayerBounds() const;
     GrBackendRenderTarget topLayerBackendRenderTarget() const;
 #endif
 
@@ -2675,12 +2674,6 @@ private:
     friend class SkCanvasStateUtils;
 
     void init(sk_sp<SkBaseDevice>);
-
-    /**
-     * Gets the bounds of the top level layer in global canvas coordinates. We don't want this
-     * to be public because it exposes decisions about layer sizes that are internal to the canvas.
-     */
-    SkIRect internalGetTopLayerBounds() const;
 
     // All base onDrawX() functions should call this and skip drawing if it returns true.
     // If 'matrix' is non-null, it maps the paint's fast bounds before checking for quick rejection
