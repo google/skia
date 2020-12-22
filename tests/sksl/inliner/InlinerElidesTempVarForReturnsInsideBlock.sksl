@@ -4,6 +4,10 @@ uniform half4 color;
 
 inline half4 MakeTempVar(half4 c) {
     {
+        half4 d = c * 0.75;
+        c = d;
+    }
+    {
         return c.xxxx;
     }
 }

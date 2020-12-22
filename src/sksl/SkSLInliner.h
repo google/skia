@@ -49,7 +49,7 @@ private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
 
     enum class ReturnComplexity {
-        kSingleTopLevelReturn,
+        kSingleSafeReturn,
         kScopedReturns,
         kEarlyReturns,
     };

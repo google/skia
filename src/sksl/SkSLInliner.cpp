@@ -161,9 +161,8 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
 
 static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->isArray()) {
-        const Type* innerType = copy_if_needed(&src->componentType(), symbolTable);
-        return symbolTable.takeOwnershipOfSymbol(Type::MakeArrayType(src->name(), *innerType,
-                                                                     src->columns()));
+        return symbolTable.takeOwnershipOfSymbol(
+                Type::MakeArrayType(src->name(), src->componentType(), src->columns()));
     }
     return src;
 }
@@ -225,11 +224,24 @@ public:
                 fDeepestReturn = std::max(fDeepestReturn, fScopedBlockDepth);
                 return (fNumReturns >= fLimit) || INHERITED::visitStatement(stmt);
             }
+            case Statement::Kind::kVarDeclaration: {
+                if (fScopedBlockDepth > 1) {
+                    fVariablesInBlocks = true;
+                }
+                return INHERITED::visitStatement(stmt);
+            }
             case Statement::Kind::kBlock: {
                 int depthIncrement = stmt.as<Block>().isScope() ? 1 : 0;
                 fScopedBlockDepth += depthIncrement;
                 bool result = INHERITED::visitStatement(stmt);
                 fScopedBlockDepth -= depthIncrement;
+                if (fNumReturns == 0 && fScopedBlockDepth <= 1) {
+                    // If closing this block puts us back at the top level, and we haven't
+                    // encountered any return statements yet, any vardecls we may have encountered
+                    // up until this point can be ignored. They are out of scope now, and they were
+                    // never used in a return statement.
+                    fVariablesInBlocks = false;
+                }
                 return result;
             }
             default:
@@ -241,6 +253,7 @@ public:
     int fDeepestReturn = 0;
     int fLimit = 0;
     int fScopedBlockDepth = 0;
+    bool fVariablesInBlocks = false;
     using INHERITED = ProgramVisitor;
 };
 
@@ -249,14 +262,16 @@ public:
 Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition& funcDef) {
     int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
     CountReturnsWithLimit counter{funcDef, returnsAtEndOfControlFlow + 1};
-
     if (counter.fNumReturns > returnsAtEndOfControlFlow) {
         return ReturnComplexity::kEarlyReturns;
     }
-    if (counter.fNumReturns > 1 || counter.fDeepestReturn > 1) {
+    if (counter.fNumReturns > 1) {
         return ReturnComplexity::kScopedReturns;
     }
-    return ReturnComplexity::kSingleTopLevelReturn;
+    if (counter.fVariablesInBlocks && counter.fDeepestReturn > 1) {
+        return ReturnComplexity::kScopedReturns;
+    }
+    return ReturnComplexity::kSingleSafeReturn;
 }
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
@@ -532,12 +547,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 }
             }
 
-            // For a function that only contains a single top-level return, we don't need to store
-            // the result in a variable at all. Just move the return value right into the result
-            // expression.
+            // If a function only contains a single return, and it doesn't reference variables from
+            // inside an Block's scope, we don't need to store the result in a variable at all. Just
+            // replace the function-call expression with the function's return expression.
             SkASSERT(resultExpr);
             SkASSERT(*resultExpr);
-            if (returnComplexity <= ReturnComplexity::kSingleTopLevelReturn) {
+            if (returnComplexity <= ReturnComplexity::kSingleSafeReturn) {
                 *resultExpr = expr(r.expression());
                 return std::make_unique<Nop>();
             }
