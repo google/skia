@@ -46,7 +46,6 @@ struct Effect {
   float  spin;
   float4 color;
   float  frame;
-  uint   flags;
   uint   seed;
 };
 
@@ -74,7 +73,6 @@ struct Particle {
   float  spin;
   float4 color;
   float  frame;
-  uint   flags;
   uint   seed;
 };
 
@@ -176,7 +174,7 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
 
 void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
                              float scale, SkVector velocity, float spin, SkColor4f color,
-                             float frame, uint32_t flags, uint32_t seed) {
+                             float frame, uint32_t seed) {
     fCount = 0;
     fLastTime = now;
     fSpawnRemainder = 0.0f;
@@ -199,7 +197,6 @@ void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVecto
     fState.fSpin     = spin;
     fState.fColor    = color;
     fState.fFrame    = frame;
-    fState.fFlags    = flags;
     fState.fRandom   = seed;
 
     // Defer running effectSpawn until the first update (to reuse the code when looping)
@@ -219,7 +216,7 @@ void SkParticleEffect::processEffectSpawnRequests(double now) {
 
         newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading, fState.fScale,
                          fState.fVelocity, fState.fSpin, fState.fColor, fState.fFrame,
-                         fState.fFlags, fState.fRandom);
+                         fState.fRandom);
         fSubEffects.push_back(std::move(newEffect));
     }
     fSpawnRequests.reset();
@@ -258,7 +255,6 @@ void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
                            data[SkParticles::kColorB         ][idx],
                            data[SkParticles::kColorA         ][idx] },
                            data[SkParticles::kSpriteFrame    ][idx],
-             float_to_bits(data[SkParticles::kFlags          ][idx]),
              float_to_bits(data[SkParticles::kRandom         ][idx]));
         fSubEffects.push_back(std::move(newEffect));
     }
@@ -402,7 +398,6 @@ void SkParticleEffect::advanceTime(double now) {
             fParticles.fData[SkParticles::kColorB         ][fCount] = fState.fColor.fB;
             fParticles.fData[SkParticles::kColorA         ][fCount] = fState.fColor.fA;
             fParticles.fData[SkParticles::kSpriteFrame    ][fCount] = fState.fFrame;
-            fParticles.fData[SkParticles::kFlags          ][fCount] = bits_to_float(fState.fFlags);
             fParticles.fData[SkParticles::kRandom         ][fCount] = bits_to_float(fState.fRandom);
             fCount++;
         }

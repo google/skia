@@ -64,7 +64,6 @@ public:
     //   float  spin  = 0;               // Angular velocity, in (radians / second)
     //   float4 color = { 1, 1, 1, 1 };  // RGBA color
     //   float  frame = 0;               // Normalized sprite index for multi-frame drawables
-    //   uint   flags = 0;               // Arbitrary state for use by script
     //   uint   seed  = 0;               // Random seed, used with rand() (see below)
     // };
     //
@@ -81,7 +80,6 @@ public:
     //   float  spin;
     //   float4 color;
     //   float  frame;
-    //   uint   flags;
     //   uint   seed;
     // };
     //
@@ -143,8 +141,7 @@ public:
 
     // Start playing this effect, specifying initial values for the emitter's properties
     void start(double now, bool looping, SkPoint position, SkVector heading, float scale,
-               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags,
-               uint32_t seed);
+               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t seed);
 
     // Start playing this effect, with default values for the emitter's properties
     void start(double now, bool looping) {
@@ -156,7 +153,6 @@ public:
                     0.0f,                        // spin
                     { 1.0f, 1.0f, 1.0f, 1.0f },  // color
                     0.0f,                        // sprite frame
-                    0,                           // flags
                     0);                          // seed
     }
 
@@ -178,7 +174,6 @@ public:
     float     getSpin()     const { return fState.fSpin;     }
     SkColor4f getColor()    const { return fState.fColor;    }
     float     getFrame()    const { return fState.fFrame;    }
-    uint32_t  getFlags()    const { return fState.fFlags;    }
 
     void setRate    (float     r) { fState.fRate     = r; }
     void setBurst   (int       b) { fState.fBurst    = b; }
@@ -189,7 +184,6 @@ public:
     void setSpin    (float     s) { fState.fSpin     = s; }
     void setColor   (SkColor4f c) { fState.fColor    = c; }
     void setFrame   (float     f) { fState.fFrame    = f; }
-    void setFlags   (uint32_t  f) { fState.fFlags    = f; }
 
     const SkSL::ByteCode* effectCode() const { return fParams->fEffectProgram.fByteCode.get(); }
     const SkSL::ByteCode* particleCode() const { return fParams->fParticleProgram.fByteCode.get(); }
@@ -235,7 +229,6 @@ private:
         float     fSpin;
         SkColor4f fColor;
         float     fFrame;
-        uint32_t  fFlags;
         uint32_t  fRandom;
     };
     EffectState fState;
