@@ -182,7 +182,7 @@ private:
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
-    const bool                        fReduceOpsTaskSplitting;
+    bool                              fReduceOpsTaskSplitting;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 

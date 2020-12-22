@@ -49,6 +49,12 @@
 #   endif
 #endif
 
+#ifdef SK_DISABLE_REDUCE_OPLIST_SPLITTING
+static const bool kDefaultReduceOpsTaskSplitting = false;
+#else
+static const bool kDefaultReduceOpsTaskSplitting = false;
+#endif
+
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
@@ -206,6 +212,15 @@ bool GrDirectContext::init() {
     if (!fShaderErrorHandler) {
         fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
+
+    bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
+    if (GrContextOptions::Enable::kNo == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = false;
+    } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
+        reduceOpsTaskSplitting = true;
+    }
+
+    this->setupDrawingManager(reduceOpsTaskSplitting);
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
