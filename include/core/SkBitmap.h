@@ -9,6 +9,7 @@
 #define SkBitmap_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
@@ -1141,6 +1142,13 @@ public:
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
 #endif
+
+    /**
+     *  Returns a new image from the bitmap. If the bitmap is marked immutable, this will
+     *  share the pixel buffer. If not, it will make a copy of the pixels for the image.
+     */
+    sk_sp<SkImage> asImage() const;
+
     /** Asserts if internal values are illegal or inconsistent. Only available if
         SK_DEBUG is defined at compile time.
     */
