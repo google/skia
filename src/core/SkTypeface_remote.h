@@ -89,10 +89,11 @@ protected:
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override {
         SK_ABORT("Should never be called.");
     }
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects& effects,
-                                           const SkDescriptor* desc) const override {
-        return new SkScalerContextProxy(sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects,
-                                        desc, fDiscardableManager);
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(
+        const SkScalerContextEffects& effects, const SkDescriptor* desc) const override
+    {
+        return std::make_unique<SkScalerContextProxy>(
+                sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects, desc, fDiscardableManager);
     }
     void onFilterRec(SkScalerContextRec* rec) const override {
         // The rec filtering is already applied by the server when generating

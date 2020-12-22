@@ -51,8 +51,8 @@ private:
     std::vector<float>  fAdvances;
     SkFontMetrics       fMetrics;
 
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor* desc) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
+                                                           const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
     void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
@@ -232,9 +232,11 @@ private:
     SkMatrix fMatrix;
 };
 
-SkScalerContext* SkUserTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
-                                                       const SkDescriptor*           desc) const {
-    return new SkUserScalerContext(sk_ref_sp(const_cast<SkUserTypeface*>(this)), effects, desc);
+std::unique_ptr<SkScalerContext> SkUserTypeface::onCreateScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
+{
+    return std::make_unique<SkUserScalerContext>(
+            sk_ref_sp(const_cast<SkUserTypeface*>(this)), effects, desc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
