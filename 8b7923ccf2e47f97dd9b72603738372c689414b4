@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9eba60a_c113e7be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:43:18Z",
+      "side": 1,
+      "message": "Ah... I bet we\u0027re not calling SkGraphics::Init()  / SkCpu::CacheRuntimeFeatures()?\n\nDo we run these tests on arm64?  I think they\u0027ll fail there.",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ddfab42_0f7f110e",
