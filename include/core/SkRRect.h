@@ -185,27 +185,7 @@ public:
 
         @param oval  bounds of oval
     */
-    void setOval(const SkRect& oval) {
-        if (!this->initializeRect(oval)) {
-            return;
-        }
-
-        SkScalar xRad = SkScalarHalf(fRect.width());
-        SkScalar yRad = SkScalarHalf(fRect.height());
-
-        if (xRad == 0.0f || yRad == 0.0f) {
-            // All the corners will be square
-            memset(fRadii, 0, sizeof(fRadii));
-            fType = kRect_Type;
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                fRadii[i].set(xRad, yRad);
-            }
-            fType = kOval_Type;
-        }
-
-        SkASSERT(this->isValid());
-    }
+    void setOval(const SkRect& oval);
 
     /** Sets to rounded rectangle with the same radii for all four corners.
         If rect is empty, sets to kEmpty_Type.

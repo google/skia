@@ -148,16 +148,23 @@ static float make_big_value(skiatest::Reporter* reporter) {
     return reporter ? SK_ScalarMax * 0.75f : 0;
 }
 
-DEF_TEST(Rect_center, reporter) {
-    // ensure we can compute center even when the width/height might overflow
+DEF_TEST(Rect_whOverflow, reporter) {
     const SkScalar big = make_big_value(reporter);
     const SkRect r = { -big, -big, big, big };
 
     REPORTER_ASSERT(reporter, r.isFinite());
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.width()));
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
+
+    // ensure we can compute center even when the width/height might overflow
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
+
+
+    // ensure we can compute halfWidth and halfHeight even when width/height might overflow,
+    // i.e. for use computing the radii filling a rectangle.
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(SkRectPriv::HalfWidth(r)));
+    REPORTER_ASSERT(reporter, SkScalarIsFinite(SkRectPriv::HalfHeight(r)));
 }
 
 DEF_TEST(Rect_subtract, reporter) {
