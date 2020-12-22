@@ -561,6 +561,10 @@ SkBaseDevice* SkCanvas::topDevice() const {
     return fMCRec->fDevice;
 }
 
+GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
+    return this->topDevice()->surfaceDrawContext();
+}
+
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
     return pm.addr() && this->baseDevice()->readPixels(pm, x, y);
 }
@@ -1674,10 +1678,6 @@ SkMatrix SkCanvas::getTotalMatrix() const {
 
 SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
-}
-
-GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
-    return this->topDevice()->accessRenderTargetContext();
 }
 
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
