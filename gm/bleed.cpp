@@ -102,7 +102,7 @@ std::tuple<sk_sp<SkImage>, SkIRect> make_ringed_image(int width, int height) {
         scanline[x] = kOuterRingColor;
     }
     bitmap.setImmutable();
-    return {SkImage::MakeFromBitmap(bitmap), {2, 2, width - 2, height - 2}};
+    return {bitmap.asImage(), {2, 2, width - 2, height - 2}};
 }
 
 /**

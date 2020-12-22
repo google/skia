@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
@@ -161,7 +162,7 @@ DEF_GM( return new ImageShaderGM; )
 static sk_sp<SkImage> make_checker_img(int w, int h, SkColor c0, SkColor c1, int size) {
     SkBitmap bm = ToolUtils::create_checkerboard_bitmap(w, h, c0, c1, size);
     bm.setImmutable();
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 DEF_SIMPLE_GM(drawimage_sampling, canvas, 500, 500) {

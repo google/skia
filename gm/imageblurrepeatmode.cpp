@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
@@ -147,7 +148,7 @@ DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
     bmp.eraseArea(SkIRect::MakeWH(100, 10), SK_ColorRED);
     bmp.eraseArea(SkIRect::MakeXYWH(0, 10, 100, 10), SK_ColorBLUE);
 
-    auto img = SkImage::MakeFromBitmap(bmp);
+    auto img = bmp.asImage();
     auto filter = SkImageFilters::Blur(0, 10, SkTileMode::kRepeat, nullptr);
     SkPaint paint;
     paint.setImageFilter(std::move(filter));
