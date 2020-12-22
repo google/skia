@@ -39,10 +39,6 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in bool Flag; layout(when=Flag) uniform float Input;" EMPTY_MAIN, "when");
     test("layout(tracked) uniform float Input;"                 EMPTY_MAIN, "tracked");
 
-    // GLSL types like sampler2D and texture2D are not allowed anywhere:
-    test("uniform sampler2D s;" EMPTY_MAIN, "no type named 'sampler2D'");
-    test("uniform texture2D s;" EMPTY_MAIN, "no type named 'texture2D'");
-
     // Runtime SkSL supports a limited set of uniform types. No bool, or int, for example:
     test("uniform bool b;" EMPTY_MAIN, "uniform");
     test("uniform int i;"  EMPTY_MAIN, "uniform");
@@ -57,9 +53,6 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("layout(marker=local_to_world) uniform float3x3 localToWorld;" EMPTY_MAIN, "float4x4");
 
     test("half4 missing(); half4 main() { return missing(); }", "undefined function");
-
-    // No use of 'discard' is permitted
-    test("half4 main() { discard; }", "discard");
 
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
     test("", "main");

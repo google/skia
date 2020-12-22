@@ -1,0 +1,5 @@
+uniform texture2D s;
+
+half4 main() {
+    return half4(0);
+}
