@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ee1791cd_f38a3ea9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-22T20:12:00Z",
+      "side": 1,
+      "message": "I wasn\u0027t able to implement a working custom tuple_size implementation; I gave it a few attempts but I couldn\u0027t manage to get it compiling successfully. However, I tried implementing Pair in terms of std::pair, this seemed to do the trick. This does mean that key and val are `.first` and `.second` now, but IMO that\u0027s not a huge loss (they were private before this CL anyway so there\u0027s no preexisting code to worry about) and I expect most callers to use structured bindings regardless.",
+      "parentUuid": "b243ed23_72d69bac",
+      "revId": "85cea8d59b2f2c32ce75eb4e894a450adba1ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "acb68b93_84c46770",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
