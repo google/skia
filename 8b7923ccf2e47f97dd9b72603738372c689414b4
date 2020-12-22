@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15b59e72_40e11a9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:52:23Z",
+      "side": 1,
+      "message": "Yeah, looks like only one x86 bot runs this, so I think we\u0027re good for now.",
+      "parentUuid": "1e9f6b8d_d4d8d6f1",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ddfab42_0f7f110e",
