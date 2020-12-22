@@ -47,7 +47,7 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     bitmap.allocPixels(info);
     codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
     bitmap.setImmutable();
-    return SkImage::MakeFromBitmap(bitmap);
+    return bitmap.asImage();
 }
 
 static sk_sp<SkImage> make_codec_image() {
