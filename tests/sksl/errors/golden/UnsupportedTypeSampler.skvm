@@ -1,0 +1,4 @@
+### Compilation failed:
+
+error: 1: no type named 'sampler2D'
+1 error

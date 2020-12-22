@@ -1,0 +1,35 @@
+11 registers, 33 instructions:
+0	r0 = splat 3 (4.2038954e-45)
+1	r1 = uniform32 arg(0) C
+2	r2 = splat 3F800000 (1)
+3	r3 = uniform32 arg(0) 0
+4	r4 = splat 0 (0)
+5	r5 = mul_f32 r4 r3
+6	r6 = splat 2 (2.8025969e-45)
+7	r7 = splat 1 (1.4012985e-45)
+loop:
+8	    r8 = index
+9	    r9 = mul_f32 r4 r8
+10	    r10 = add_f32 r9 r5
+11	    r10 = add_f32 r10 r2
+12	    r10 = div_f32 r2 r10
+13	    r9 = add_f32 r9 r3
+14	    r9 = mul_f32 r9 r10
+15	    r9 = trunc r9
+16	    r9 = mul_i32 r9 r1
+17	    r8 = add_f32 r8 r5
+18	    r10 = mul_f32 r8 r10
+19	    r10 = trunc r10
+20	    r9 = add_i32 r10 r9
+21	    r9 = shl_i32 r9 2
+22	    r10 = add_i32 r9 r0
+23	    r10 = gather32 arg(0) 4 r10
+24	    store32 arg(4) r10
+25	    r10 = add_i32 r9 r6
+26	    r10 = gather32 arg(0) 4 r10
+27	    store32 arg(3) r10
+28	    r10 = add_i32 r9 r7
+29	    r10 = gather32 arg(0) 4 r10
+30	    store32 arg(2) r10
+31	    r9 = gather32 arg(0) 4 r9
+32	    store32 arg(1) r9

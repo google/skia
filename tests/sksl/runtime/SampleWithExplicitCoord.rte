@@ -1,0 +1,4 @@
+uniform shader child;
+half4 main(float2 p) {
+    return sample(child, p.yx);
+}

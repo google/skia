@@ -1,0 +1,6 @@
+uniform shader child;
+half4 main() {
+    return sample(child, float3x3(2, 0, 0,
+                                  0, 1, 0,
+                                  0, 0, 1));
+}

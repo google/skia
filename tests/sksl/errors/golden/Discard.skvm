@@ -1,0 +1,4 @@
+### Compilation failed:
+
+error: 2: discard statement is only permitted in fragment shaders
+1 error
