@@ -14,7 +14,7 @@
       ""
    ],
    "Code": [
-      "float2 circle(inout uint seed) {",
+      "float2 circle(inout float seed) {",
       "  float x;",
       "  float y;",
       "  do {",

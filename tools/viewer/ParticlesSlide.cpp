@@ -281,7 +281,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             if (fAnimated && ImGui::Button("Play")) {
                 sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams));
                 effect->start(fAnimationTime, looped, { 0, 0 }, { 0, -1 }, 1, { 0, 0 }, 0,
-                              { 1, 1, 1, 1 }, 0, fRandom.nextU());
+                              { 1, 1, 1, 1 }, 0, fRandom.nextF());
                 fRunning.push_back({ fLoaded[i].fName, effect, false });
             }
             ImGui::SameLine();

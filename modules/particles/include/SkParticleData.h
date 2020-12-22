@@ -9,7 +9,6 @@
 #define SkParticleData_DEFINED
 
 #include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
 
 /*
  *  Various structs used to communicate particle information among emitters, affectors, etc.
@@ -32,7 +31,6 @@ struct SkParticles {
         kColorB,
         kColorA,
         kSpriteFrame,
-
         kRandom,
 
         kNumChannels,
