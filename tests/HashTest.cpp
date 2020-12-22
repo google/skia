@@ -11,6 +11,8 @@
 #include "include/private/SkTHash.h"
 #include "tests/Test.h"
 
+#include <tuple>
+
 // Tests use of const foreach().  map.count() is of course the better way to do this.
 static int count(const SkTHashMap<int, double>& map) {
     int n = 0;
@@ -43,6 +45,32 @@ DEF_TEST(HashMap, r) {
 
     for (int i = 0; i < N; i++) {
         map.set(i, 2.0*i);
+    }
+
+    // Test walking the map with iterators, using preincrement (++iter).
+    for (SkTHashMap<int, double>::Iter iter = map.begin(); iter != map.end(); ++iter) {
+        REPORTER_ASSERT(r, iter->first * 2 == (*iter).second);
+    }
+
+    // Test walking the map with range-based for.
+    for (auto& entry : map) {
+        REPORTER_ASSERT(r, entry.first * 2 == entry.second);
+    }
+
+    // Ensure that iteration works equally well on a const map, using postincrement (iter++).
+    const auto& cmap = map;
+    for (SkTHashMap<int, double>::Iter iter = cmap.begin(); iter != cmap.end(); iter++) {
+        REPORTER_ASSERT(r, iter->first * 2 == (*iter).second);
+    }
+
+    // Ensure that range-based for works equally well on a const map.
+    for (const auto& entry : cmap) {
+        REPORTER_ASSERT(r, entry.first * 2 == entry.second);
+    }
+
+    // Ensure that structured bindings work.
+    for (const auto& [number, timesTwo] : cmap) {
+        REPORTER_ASSERT(r, number * 2 == timesTwo);
     }
 
     SkTHashMap<int, double> clone = map;
@@ -111,6 +139,32 @@ DEF_TEST(HashSet, r) {
     REPORTER_ASSERT(r, !set.contains(SkString("Goodbye")));
     REPORTER_ASSERT(r, set.find(SkString("Hello")));
     REPORTER_ASSERT(r, *set.find(SkString("Hello")) == SkString("Hello"));
+
+    // Test walking the set with iterators, using preincrement (++iter).
+    for (SkTHashSet<SkString>::Iter iter = set.begin(); iter != set.end(); ++iter) {
+        REPORTER_ASSERT(r, iter->equals("Hello") || (*iter).equals("World"));
+    }
+
+    // Test walking the set with iterators, using postincrement (iter++).
+    for (SkTHashSet<SkString>::Iter iter = set.begin(); iter != set.end(); iter++) {
+        REPORTER_ASSERT(r, iter->equals("Hello") || (*iter).equals("World"));
+    }
+
+    // Test walking the set with range-based for.
+    for (auto& entry : set) {
+        REPORTER_ASSERT(r, entry.equals("Hello") || entry.equals("World"));
+    }
+
+    // Ensure that iteration works equally well on a const set.
+    const auto& cset = set;
+    for (SkTHashSet<SkString>::Iter iter = cset.begin(); iter != cset.end(); iter++) {
+        REPORTER_ASSERT(r, iter->equals("Hello") || (*iter).equals("World"));
+    }
+
+    // Ensure that range-based for works equally well on a const set.
+    for (auto& entry : cset) {
+        REPORTER_ASSERT(r, entry.equals("Hello") || entry.equals("World"));
+    }
 
     SkTHashSet<SkString> clone = set;
     REPORTER_ASSERT(r, clone.count() == 2);
