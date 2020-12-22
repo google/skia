@@ -44,15 +44,16 @@ void GrMemoryPool::reportLeaks() const {
 #ifdef SK_DEBUG
     int i = 0;
     int n = fAllocatedIDs.count();
-    fAllocatedIDs.foreach([&i, n] (int id) {
+    for (int id : fAllocatedIDs) {
         if (++i == 1) {
             SkDebugf("Leaked %d IDs (in no particular order): %d%s", n, id, (n == i) ? "\n" : "");
         } else if (i < 11) {
             SkDebugf(", %d%s", id, (n == i ? "\n" : ""));
         } else if (i == 11) {
             SkDebugf(", ...\n");
+            break;
         }
-    });
+    }
 #endif
 }
 
