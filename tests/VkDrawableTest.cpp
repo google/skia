@@ -13,6 +13,7 @@
 
 #include "include/gpu/vk/GrVkVulkan.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendDrawableInfo.h"

@@ -9,6 +9,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
