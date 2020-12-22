@@ -292,18 +292,15 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
     float expected[16];
 
     // Constructing matrix from scalar produces a diagonal matrix
-    in[0] = 1.0f;
-    expected[0] = 2.0f;
+    in[0] = 2.0f;
+    expected[0] = 4.0f;
     test(r, "float main(float x) { float4x4 m = float4x4(x); return m[1][1] + m[1][2] + m[2][2]; }",
          in, expected);
 
-    // With non-square matrix
-    test(r, "float main(float x) { float3x2 m = float3x2(x); return m[0][0] + m[1][1] + m[2][1]; }",
-         in, expected);
-
     // Constructing from a different-sized matrix fills the remaining space with the identity matrix
+    expected[0] = 3.0f;
     test(r, "float main(float x) {"
-         "float3x2 m = float3x2(x);"
+         "float2x2 m = float2x2(x);"
          "float4x4 m2 = float4x4(m);"
          "return m2[0][0] + m2[3][3]; }",
          in, expected);
@@ -334,8 +331,8 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
     test(r, "float4x4 main(float4x4 m) { return 3.0 + m; }", in, expected);
 
     // M-M, M-S, S-M
-    for (int i = 0; i < 8; ++i) { expected[i] = 8.0f; }
-    test(r, "float4x2 main(float4x2 m1, float4x2 m2) { return m2 - m1; }", in, expected);
+    for (int i = 0; i < 4; ++i) { expected[i] = 4.0f; }
+    test(r, "float2x2 main(float2x2 m1, float2x2 m2) { return m2 - m1; }", in, expected);
     for (int i = 0; i < 16; ++i) { expected[i] = (float)(i - 3); }
     test(r, "float4x4 main(float4x4 m) { return m - 3.0; }", in, expected);
     for (int i = 0; i < 16; ++i) { expected[i] = (float)(3 - i); }
@@ -357,14 +354,14 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
 #endif
 
     // M*V, V*M
-    for (int i = 0; i < 4; ++i) {
-        expected[i] = 12.0f*i + 13.0f*(i+4) + 14.0f*(i+8);
+    for (int i = 0; i < 3; ++i) {
+        expected[i] = 9.0f*i + 10.0f*(i+3) + 11.0f*(i+6);
     }
-    test(r, "float4 main(float3x4 m, float3 v) { return m * v; }", in, expected);
-    for (int i = 0; i < 4; ++i) {
-        expected[i] = 12.0f*(3*i) + 13.0f*(3*i+1) + 14.0f*(3*i+2);
+    test(r, "float3 main(float3x3 m, float3 v) { return m * v; }", in, expected);
+    for (int i = 0; i < 3; ++i) {
+        expected[i] = 9.0f*(3*i) + 10.0f*(3*i+1) + 11.0f*(3*i+2);
     }
-    test(r, "float4 main(float4x3 m, float3 v) { return v * m; }", in, expected);
+    test(r, "float3 main(float3x3 m, float3 v) { return v * m; }", in, expected);
 
     // M*M
     {
