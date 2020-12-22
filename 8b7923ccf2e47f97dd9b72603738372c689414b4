@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60c01ff2_2d1778f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:40:37Z",
+      "side": 1,
+      "message": "Are we using skvm::Features{} somewhere to make this portable?",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ddfab42_0f7f110e",
+        "filename": "tests/sksl/runtime/SampleWithVariableMatrix.rte",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:40:37Z",
+      "side": 1,
+      "message": "You ok with this happening at compile time?  I wouldn\u0027t imagine this does anything different than\n\n    return sample(child, float3x3(1, 0, 0,\n                                  0, 1, 0,\n                                  0, 0, 1));\n\nwhich, maybe surprisingly, is different from\n\n    return sample(child);",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
