@@ -7,6 +7,7 @@
 
 #include "tools/gpu/ManagedBackendTexture.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkImageInfo.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkMipmap.h"
