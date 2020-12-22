@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbb51b8e_e969b515",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T14:59:47Z",
+      "side": 1,
+      "message": "Ack. Yeah, I was also confused by arg(0) showing up in both the input and output instructions.",
+      "parentUuid": "e34e1d76_d45b9a29",
+      "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae4c86f7_9db3ba04",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-12-21T19:19:15Z",
       "side": 1,
       "message": "It might track reality more closely to leave the top-level shader\u0027s device\u003d\u003dlocal, letting the sample() calls where device !\u003d local stand out more?  I may be confused, but I think that\u0027s the only way you naturally get device !\u003d local, right?",
+      "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9756b4b4_46d3e241",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T14:59:47Z",
+      "side": 1,
+      "message": "My understanding is that even in the case of a single shader, as long as there\u0027s a non-identity CTM, they will (must) be different. And they\u0027re computed like I did here. The blitter starts out with device \u003d\u003d local. The shader is passed those two coords, plus the matrix provider. The first thing it does is always computeTotalInverse. Assume the simple/common case of a translation on the canvas, and no local matrix - computeTotalInverse just inverts the localToDevice matrix, producing a deviceToLocal matrix. That matrix is passed to SkShaderBase::ApplyMatrix. Depending on the matrix class, various elements are pushed as uniforms to do the transformation of the previous local (\u003d\u003d device) coord into the new local coord. For translation, it\u0027s exactly what\u0027s here - addition of uniform translation.\n\nThe updated local coord is then (typically)  used in the remainder of the SkShader\u0027s onProgram. In the SkSL case, that\u0027s the value that\u0027s fed to main() (while device is still available via sk_FragCoord).\n\nIn any case, I\u0027ll leave device\u003d\u003dlocal (to simulate an identity CTM). That should cut down on chaff in most tests (no extra offset of coords, when they\u0027re being used). I was adding the translation to make use of sk_FragCoord appear distinct from use of the local coords passed to main(), but that\u0027s a rarely used feature, so a special test of that when I get to it should be fine.",
+      "parentUuid": "ae4c86f7_9db3ba04",
       "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

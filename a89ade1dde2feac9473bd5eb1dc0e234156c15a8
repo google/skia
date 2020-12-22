@@ -344,6 +344,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1f512f3e_bc4e86d2",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T14:59:47Z",
+      "side": 1,
+      "message": "If it\u0027s all the same - I\u0027d like to leave this as-is, at least for now. Pulling in SkImageShader is a can of worms. I\u0027ve outlined a few different options for resolving the combined problems of build-dependencies \u0026 feature-access, but none of the solutions are an obvious win, considering ROI:\n\nhttps://docs.google.com/document/d/1ZvqjkJK0iZd03Th2qN0ofVAyYZwFUZc21xdvBL_1xW0/edit?usp\u003dsharing",
+      "parentUuid": "ad5b6c2f_334063a8",
+      "range": {
+        "startLine": 411,
+        "startChar": 70,
+        "endLine": 411,
+        "endChar": 76
+      },
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "67721982_b41d3a31",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 1
@@ -438,6 +462,24 @@
       "side": 1,
       "message": "store128 has two halves to accommodate the three-arg op limit, with low or high half indicated by that final 0 or 1 in the debug dump.  We\u0027d need 5 args for store128 as one op, so it\u0027s split across each 64-bit half instead.  For similar but even more constrained reasons (namely, ops only return one value), you\u0027d see _four_ load128 ops when loading RGBA F32.\n\nBut yeah, let\u0027s stick with your original four float planes.  We\u0027re looking to focus on the shader here, so the details of pixel format packing obscures things more than it helps clarify the data flow dependencies.",
       "parentUuid": "955d02bb_6b0ecb34",
+      "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85a110ff_e69f6050",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T14:59:47Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e77d84f3_9ec6a6b1",
       "revId": "a89ade1dde2feac9473bd5eb1dc0e234156c15a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
