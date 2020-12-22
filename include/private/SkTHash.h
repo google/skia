@@ -60,6 +60,10 @@ public:
     // How many entries are in the table?
     int count() const { return fCount; }
 
+    // How many slots does the table contain? (Note that unlike an array, hash tables can grow
+    // before reaching 100% capacity.)
+    int capacity() const { return fCapacity; }
+
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
 
@@ -149,7 +153,84 @@ public:
         }
     }
 
+    // A basic iterator-like class which disallows mutation; sufficient for range-based for loops.
+    // Intended for use by SkTHashMap and SkTHashSet via begin() and end().
+    // Adding or removing elements may invalidate all iterators.
+    class Iter {
+    public:
+        using TTable = SkTHashTable<T, K, Traits>;
+
+        Iter(const TTable* table, int slot) : fTable(table), fSlot(slot) {}
+
+        static Iter MakeBegin(const TTable* table) {
+            return Iter{table, table->firstPopulatedSlot()};
+        }
+
+        static Iter MakeEnd(const TTable* table) {
+            return Iter{table, table->capacity()};
+        }
+
+        const T& operator*() const {
+            return *fTable->slot(fSlot);
+        }
+
+        const T* operator->() const {
+            return fTable->slot(fSlot);
+        }
+
+        bool operator==(const Iter& that) const {
+            // Iterators from different tables shouldn't be compared against each other.
+            SkASSERT(fTable == that.fTable);
+            return fSlot == that.fSlot;
+        }
+
+        bool operator!=(const Iter& that) const {
+            return !(*this == that);
+        }
+
+        Iter& operator++() {
+            fSlot = fTable->nextPopulatedSlot(fSlot);
+            return *this;
+        }
+
+        Iter operator++(int) {
+            Iter old = *this;
+            this->operator++();
+            return old;
+        }
+
+    protected:
+        const TTable* fTable;
+        int fSlot;
+    };
+
 private:
+    // Finds the first non-empty slot for an iterator.
+    int firstPopulatedSlot() const {
+        for (int i = 0; i < fCapacity; i++) {
+            if (!fSlots[i].empty()) {
+                return i;
+            }
+        }
+        return fCapacity;
+    }
+
+    // Increments an iterator's slot.
+    int nextPopulatedSlot(int currentSlot) const {
+        for (int i = currentSlot + 1; i < fCapacity; i++) {
+            if (!fSlots[i].empty()) {
+                return i;
+            }
+        }
+        return fCapacity;
+    }
+
+    // Reads from an iterator's slot.
+    const T* slot(int i) const {
+        SkASSERT(!fSlots[i].empty());
+        return &fSlots[i].val;
+    }
+
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
         uint32_t hash = Hash(key);
@@ -309,7 +390,7 @@ public:
         fTable.foreach([&fn](const Pair& p){ fn(p.key, p.val); });
     }
 
-private:
+    // Dereferencing an iterator gives back a key-value pair, suitable for structured binding.
     struct Pair {
         K key;
         V val;
@@ -317,6 +398,17 @@ private:
         static auto Hash(const K& key) { return HashK()(key); }
     };
 
+    using Iter = typename SkTHashTable<Pair, K>::Iter;
+
+    Iter begin() const {
+        return Iter::MakeBegin(&fTable);
+    }
+
+    Iter end() const {
+        return Iter::MakeEnd(&fTable);
+    }
+
+private:
     SkTHashTable<Pair, K> fTable;
 };
 
@@ -363,6 +455,19 @@ private:
         static const T& GetKey(const T& item) { return item; }
         static auto Hash(const T& item) { return HashT()(item); }
     };
+
+public:
+    using Iter = typename SkTHashTable<T, T, Traits>::Iter;
+
+    Iter begin() const {
+        return Iter::MakeBegin(&fTable);
+    }
+
+    Iter end() const {
+        return Iter::MakeEnd(&fTable);
+    }
+
+private:
     SkTHashTable<T, T, Traits> fTable;
 };
 
