@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb4c4276_6aa52358",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T20:31:31Z",
+      "side": 1,
+      "message": "Ah, nice. I even looked for other matrix intrinsics that could use the new type, and missed this one.",
+      "revId": "8f42200e8541894a5c11f5f94f438a215120f81f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
