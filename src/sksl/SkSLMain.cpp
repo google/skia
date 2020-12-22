@@ -388,7 +388,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return compileProgram(
                 SkSL::Compiler::kNone_Flags,
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
-                    skvm::Builder builder;
+                    skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder)) {
                         return false;
                     }
