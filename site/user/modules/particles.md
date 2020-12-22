@@ -430,7 +430,7 @@ const raincloud = {
             ""
          ],
          "Code": [
-            "float2 circle(inout uint seed) {",
+            "float2 circle(inout float seed) {",
             "  float2 xy;",
             "  do {",
             "    xy.x = 2 * rand(seed) - 1;",
