@@ -112,6 +112,8 @@ sksl_error_tests = [
   "$_tests/sksl/errors/InvalidOutParams.sksl",
   "$_tests/sksl/errors/InvalidUnary.sksl",
   "$_tests/sksl/errors/ModifiersInStruct.sksl",
+  "$_tests/sksl/errors/OpaqueTypeAssignment.sksl",
+  "$_tests/sksl/errors/OpaqueTypeConstruction.sksl",
   "$_tests/sksl/errors/OpaqueTypeInArray.sksl",
   "$_tests/sksl/errors/OpaqueTypeInInterfaceBlock.sksl",
   "$_tests/sksl/errors/OpaqueTypeInStruct.sksl",
