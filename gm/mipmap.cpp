@@ -70,7 +70,7 @@ static sk_sp<SkImage> make(sk_sp<SkColorSpace> cs) {
         }
     }
     bm.setImmutable();
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 static void show_mips(SkCanvas* canvas, SkImage* img) {
@@ -119,7 +119,7 @@ static sk_sp<SkImage> make_g8_gradient(sk_sp<SkColorSpace> cs) {
         }
     }
     bm.setImmutable();
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 static void show_mips_only(SkCanvas* canvas, SkImage* img) {

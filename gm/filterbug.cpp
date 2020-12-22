@@ -38,7 +38,7 @@ static sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {
     bm.setAlphaType(SkAlphaType::kOpaque_SkAlphaType);
     bm.setImmutable();
 
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 // GM to reproduce crbug.com/673261.
