@@ -118,6 +118,8 @@ SkSVGTextContext::ScopedPosResolver::ScopedPosResolver(const SkSVGTextContainer&
     , fCharIndexOffset(charIndexOffset)
     , fX(ResolveLengths(lctx, txt.getX(), SkSVGLengthContext::LengthType::kHorizontal))
     , fY(ResolveLengths(lctx, txt.getY(), SkSVGLengthContext::LengthType::kVertical))
+    , fDx(ResolveLengths(lctx, txt.getDx(), SkSVGLengthContext::LengthType::kHorizontal))
+    , fDy(ResolveLengths(lctx, txt.getDy(), SkSVGLengthContext::LengthType::kVertical))
 {
     fTextContext->fPosResolver = this;
 }
@@ -139,7 +141,9 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
         const auto localCharIndex = charIndex - fCharIndexOffset;
 
         const auto hasAllLocal = localCharIndex < fX.size() &&
-                                 localCharIndex < fY.size();
+                                 localCharIndex < fY.size() &&
+                                 localCharIndex < fDx.size() &&
+                                 localCharIndex < fDy.size();
         if (!hasAllLocal && fParent) {
             attrs = fParent->resolve(charIndex);
         }
@@ -150,6 +154,12 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
         if (localCharIndex < fY.size()) {
             attrs[PosAttrs::kY] = fY[localCharIndex];
         }
+        if (localCharIndex < fDx.size()) {
+            attrs[PosAttrs::kDx] = fDx[localCharIndex];
+        }
+        if (localCharIndex < fDy.size()) {
+            attrs[PosAttrs::kDy] = fDy[localCharIndex];
+        }
 
         if (!attrs.hasAny()) {
             // Once we stop producing explicit position data, there is no reason to
@@ -159,6 +169,28 @@ SkSVGTextContext::PosAttrs SkSVGTextContext::ScopedPosResolver::resolve(size_t c
     }
 
     return attrs;
+}
+
+void SkSVGTextContext::ShapeBuffer::append(SkUnichar ch, SkVector pos) {
+    // relative pos adjustments are cumulative
+    if (!fUtf8PosAdjust.empty()) {
+        pos += fUtf8PosAdjust.back();
+    }
+
+    char utf8_buf[SkUTF::kMaxBytesInUTF8Sequence];
+    const auto utf8_len = SkToInt(SkUTF::ToUTF8(ch, utf8_buf));
+    fUtf8         .push_back_n(utf8_len, utf8_buf);
+    fUtf8PosAdjust.push_back_n(utf8_len, pos);
+}
+
+void SkSVGTextContext::shapePendingBuffer(const SkFont& font) {
+    // TODO: directionality hints?
+    const auto LTR  = true;
+
+    // Initiate shaping: this will generate a series of runs via callbacks.
+    fShaper->shape(fShapeBuffer.fUtf8.data(), fShapeBuffer.fUtf8.size(),
+                   font, LTR, SK_ScalarMax, this);
+    fShapeBuffer.reset();
 }
 
 SkSVGTextContext::SkSVGTextContext(const SkSVGPresentationContext& pctx, sk_sp<SkFontMgr> fmgr)
@@ -206,17 +238,7 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
     fCurrentStroke = ctx.strokePaint();
 
     const auto font = ResolveFont(ctx);
-
-    SkSTArray<128, char, true> filtered;
-    filtered.reserve_back(SkToInt(txt.size()));
-
-    auto shapePending = [&filtered, &font, this]() {
-        // TODO: directionality hints?
-        const auto LTR  = true;
-        // Initiate shaping: this will generate a series of runs via callbacks.
-        fShaper->shape(filtered.data(), filtered.size(), font, LTR, SK_ScalarMax, this);
-        filtered.reset();
-    };
+    fShapeBuffer.reserve(txt.size());
 
     const char* ch_ptr = txt.c_str();
     const char* ch_end = ch_ptr + txt.size();
@@ -238,7 +260,7 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
         // Absolute position adjustments define a new chunk.
         // (https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction)
         if (pos.has(PosAttrs::kX) || pos.has(PosAttrs::kY)) {
-            shapePending();
+            this->shapePendingBuffer(font);
             this->flushChunk(ctx);
 
             // New chunk position.
@@ -250,15 +272,18 @@ void SkSVGTextContext::appendFragment(const SkString& txt, const SkSVGRenderCont
             }
         }
 
-        char utf8_buf[SkUTF::kMaxBytesInUTF8Sequence];
-        filtered.push_back_n(SkToInt(SkUTF::ToUTF8(ch, utf8_buf)), utf8_buf);
+        fShapeBuffer.append(ch, {
+            pos.has(PosAttrs::kDx) ? pos[PosAttrs::kDx] : 0,
+            pos.has(PosAttrs::kDy) ? pos[PosAttrs::kDy] : 0,
+        });
 
         fPrevCharSpace = (ch == ' ');
     }
 
-    // Note: at this point we have shaped and buffered the current fragment  The active
-    // text chunk continues until an explicit or implicit flush.
-    shapePending();
+    this->shapePendingBuffer(font);
+
+    // Note: at this point we have shaped and buffered RunRecs for the current fragment.
+    // The active text chunk continues until an explicit or implicit flush.
 }
 
 void SkSVGTextContext::flushChunk(const SkSVGRenderContext& ctx) {
@@ -303,17 +328,28 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
         ri.fAdvance,
     });
 
+    // Ensure sufficient space to temporarily fetch cluster information.
+    fShapeClusterBuffer.resize(std::max(fShapeClusterBuffer.size(), ri.glyphCount));
+
     return {
         fRuns.back().glyphs.get(),
         fRuns.back().glyphPos.get(),
         nullptr,
-        nullptr,
+        fShapeClusterBuffer.data(),
         fChunkAdvance,
     };
 }
 
 void SkSVGTextContext::commitRunBuffer(const RunInfo& ri) {
-    fChunkAdvance += ri.fAdvance;
+    // apply position adjustments
+    for (size_t i = 0; i < ri.glyphCount; ++i) {
+        const auto utf8_index = fShapeClusterBuffer[i];
+        fRuns.back().glyphPos[i] += fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
+    }
+
+    // Position adjustments are cumulative - we only need to advance the current chunk
+    // with the last value.
+    fChunkAdvance += ri.fAdvance + fShapeBuffer.fUtf8PosAdjust.back();
 }
 
 void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
@@ -369,6 +405,8 @@ bool SkSVGTextContainer::parseAndSetAttribute(const char* name, const char* valu
     return INHERITED::parseAndSetAttribute(name, value) ||
            this->setX(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("x", name, value)) ||
            this->setY(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("y", name, value)) ||
+           this->setDx(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("dx", name, value)) ||
+           this->setDy(SkSVGAttributeParser::parse<std::vector<SkSVGLength>>("dy", name, value)) ||
            this->setXmlSpace(SkSVGAttributeParser::parse<SkSVGXmlSpace>("xml:space", name, value));
 }
 

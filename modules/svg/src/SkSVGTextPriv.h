@@ -29,22 +29,26 @@ public:
     // Helper for encoding optional positional attributes.
     class PosAttrs {
     public:
-        // TODO: dx, dy, rotate
+        // TODO: rotate
         enum Attr : size_t {
-            kX = 0,
-            kY = 1,
+            kX  = 0,
+            kY  = 1,
+            kDx = 2,
+            kDy = 3,
         };
 
         float  operator[](Attr a) const { return fStorage[a]; }
         float& operator[](Attr a)       { return fStorage[a]; }
 
         bool has(Attr a) const { return fStorage[a] != kNone; }
-        bool hasAny()    const { return this->has(kX) || this->has(kY); }
+        bool hasAny()    const {
+            return this->has(kX) || this->has(kY) || this->has(kDx) || this->has(kDy);
+        }
 
     private:
         static constexpr auto kNone = std::numeric_limits<float>::infinity();
 
-        float fStorage[2] = { kNone, kNone };
+        float fStorage[4] = { kNone, kNone, kNone, kNone };
     };
 
     // Helper for cascading position attribute resolution (x, y, dx, dy, rotate) [1]:
@@ -71,7 +75,9 @@ public:
         const ScopedPosResolver* fParent;          // parent resolver (fallback)
         const size_t             fCharIndexOffset; // start index for the current resolver
         const std::vector<float> fX,
-                                 fY;
+                                 fY,
+                                 fDx,
+                                 fDy;
 
         // cache for the last known index with explicit positioning
         mutable size_t           fLastPosIndex = std::numeric_limits<size_t>::max();
@@ -87,6 +93,23 @@ public:
     void flushChunk(const SkSVGRenderContext& ctx);
 
 private:
+    struct ShapeBuffer {
+        SkSTArray<128, char    , true> fUtf8;
+        SkSTArray<128, SkVector, true> fUtf8PosAdjust; // per-utf8-char cumulative pos adjustments
+
+        void reserve(size_t size) {
+            fUtf8.reserve_back(SkToInt(size));
+            fUtf8PosAdjust.reserve_back(SkToInt(size));
+        }
+
+        void reset() {
+            fUtf8.reset();
+            fUtf8PosAdjust.reset();
+        }
+
+        void append(SkUnichar, SkVector);
+    };
+
     struct RunRec {
         SkFont                       font;
         std::unique_ptr<SkPaint>     fillPaint,
@@ -96,6 +119,8 @@ private:
         size_t                       glyphCount;
         SkVector                     advance;
     };
+
+    void shapePendingBuffer(const SkFont&);
 
     // SkShaper callbacks
     void beginLine() override {}
@@ -110,6 +135,11 @@ private:
     std::vector<RunRec>             fRuns;
     const ScopedPosResolver*        fPosResolver = nullptr;
 
+    // shaper state
+    ShapeBuffer                     fShapeBuffer;
+    std::vector<uint32_t>           fShapeClusterBuffer;
+
+    // chunk state
     SkPoint                         fChunkPos;             // current text chunk position
     SkVector                        fChunkAdvance = {0,0}; // cumulative advance
     float                           fChunkAlignmentFactor; // current chunk alignment
