@@ -37,7 +37,6 @@ static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
         }
     }
     bmp.notifyPixelsChanged();
-    SkImage::MakeFromBitmap(bmp);
     SkDynamicMemoryWStream stream;
     SkJpegEncoder::Options options;
     options.fDownsample = SkJpegEncoder::Downsample::k420;

@@ -114,6 +114,7 @@ inline void draw_checkerboard(SkCanvas* canvas) {
 }
 
 SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
+sk_sp<SkImage> create_string_image(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
 
 // If the canvas does't make a surface (e.g. recording), make a raster surface
 sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);

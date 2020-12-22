@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
