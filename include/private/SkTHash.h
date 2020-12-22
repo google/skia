@@ -12,6 +12,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTemplates.h"
 #include <new>
+#include <utility>
 
 // Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.
 // They're easier to use, usually perform the same, and have fewer sharp edges.
@@ -59,6 +60,10 @@ public:
 
     // How many entries are in the table?
     int count() const { return fCount; }
+
+    // How many slots does the table contain? (Note that unlike an array, hash tables can grow
+    // before reaching 100% capacity.)
+    int capacity() const { return fCapacity; }
 
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
@@ -149,7 +154,85 @@ public:
         }
     }
 
+    // A basic iterator-like class which disallows mutation; sufficient for range-based for loops.
+    // Intended for use by SkTHashMap and SkTHashSet via begin() and end().
+    // Adding or removing elements may invalidate all iterators.
+    template <typename SlotVal>
+    class Iter {
+    public:
+        using TTable = SkTHashTable<T, K, Traits>;
+
+        Iter(const TTable* table, int slot) : fTable(table), fSlot(slot) {}
+
+        static Iter MakeBegin(const TTable* table) {
+            return Iter{table, table->firstPopulatedSlot()};
+        }
+
+        static Iter MakeEnd(const TTable* table) {
+            return Iter{table, table->capacity()};
+        }
+
+        const SlotVal& operator*() const {
+            return *fTable->slot(fSlot);
+        }
+
+        const SlotVal* operator->() const {
+            return fTable->slot(fSlot);
+        }
+
+        bool operator==(const Iter& that) const {
+            // Iterators from different tables shouldn't be compared against each other.
+            SkASSERT(fTable == that.fTable);
+            return fSlot == that.fSlot;
+        }
+
+        bool operator!=(const Iter& that) const {
+            return !(*this == that);
+        }
+
+        Iter& operator++() {
+            fSlot = fTable->nextPopulatedSlot(fSlot);
+            return *this;
+        }
+
+        Iter operator++(int) {
+            Iter old = *this;
+            this->operator++();
+            return old;
+        }
+
+    protected:
+        const TTable* fTable;
+        int fSlot;
+    };
+
 private:
+    // Finds the first non-empty slot for an iterator.
+    int firstPopulatedSlot() const {
+        for (int i = 0; i < fCapacity; i++) {
+            if (!fSlots[i].empty()) {
+                return i;
+            }
+        }
+        return fCapacity;
+    }
+
+    // Increments an iterator's slot.
+    int nextPopulatedSlot(int currentSlot) const {
+        for (int i = currentSlot + 1; i < fCapacity; i++) {
+            if (!fSlots[i].empty()) {
+                return i;
+            }
+        }
+        return fCapacity;
+    }
+
+    // Reads from an iterator's slot.
+    const T* slot(int i) const {
+        SkASSERT(!fSlots[i].empty());
+        return &fSlots[i].val;
+    }
+
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
         uint32_t hash = Hash(key);
@@ -272,14 +355,14 @@ public:
     // We copy both key and val, and return a pointer to the value copy now in the table.
     V* set(K key, V val) {
         Pair* out = fTable.set({std::move(key), std::move(val)});
-        return &out->val;
+        return &out->second;
     }
 
     // If there is key/value entry in the table with this key, return a pointer to the value.
     // If not, return null.
     V* find(const K& key) const {
         if (Pair* p = fTable.find(key)) {
-            return &p->val;
+            return &p->second;
         }
         return nullptr;
     }
@@ -300,23 +383,33 @@ public:
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
     template <typename Fn>  // f(K, V*) or f(const K&, V*)
     void foreach(Fn&& fn) {
-        fTable.foreach([&fn](Pair* p){ fn(p->key, &p->val); });
+        fTable.foreach([&fn](Pair* p){ fn(p->first, &p->second); });
     }
 
     // Call fn on every key/value pair in the table.  You may not mutate anything.
     template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
     void foreach(Fn&& fn) const {
-        fTable.foreach([&fn](const Pair& p){ fn(p.key, p.val); });
+        fTable.foreach([&fn](const Pair& p){ fn(p.first, p.second); });
     }
 
-private:
-    struct Pair {
-        K key;
-        V val;
-        static const K& GetKey(const Pair& p) { return p.key; }
+    // Dereferencing an iterator gives back a key-value pair, suitable for structured binding.
+    struct Pair : public std::pair<K, V> {
+        using std::pair<K, V>::pair;
+        static const K& GetKey(const Pair& p) { return p.first; }
         static auto Hash(const K& key) { return HashK()(key); }
     };
 
+    using Iter = typename SkTHashTable<Pair, K>::template Iter<std::pair<K, V>>;
+
+    Iter begin() const {
+        return Iter::MakeBegin(&fTable);
+    }
+
+    Iter end() const {
+        return Iter::MakeEnd(&fTable);
+    }
+
+private:
     SkTHashTable<Pair, K> fTable;
 };
 
@@ -363,6 +456,19 @@ private:
         static const T& GetKey(const T& item) { return item; }
         static auto Hash(const T& item) { return HashT()(item); }
     };
+
+public:
+    using Iter = typename SkTHashTable<T, T, Traits>::template Iter<T>;
+
+    Iter begin() const {
+        return Iter::MakeBegin(&fTable);
+    }
+
+    Iter end() const {
+        return Iter::MakeEnd(&fTable);
+    }
+
+private:
     SkTHashTable<T, T, Traits> fTable;
 };
 
