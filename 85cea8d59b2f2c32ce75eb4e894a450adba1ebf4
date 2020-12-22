@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb7a0ff2_bc036455",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:27:53Z",
+      "side": 1,
+      "message": "I think we may need to write our own tuple_size specialization;  I don\u0027t think the C++14 headers necessarily will have the automagic tuple_size we\u0027d like.",
+      "revId": "85cea8d59b2f2c32ce75eb4e894a450adba1ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acb68b93_84c46770",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T17:27:53Z",
+      "side": 1,
+      "message": "Think we need a manual tuple_size",
+      "revId": "85cea8d59b2f2c32ce75eb4e894a450adba1ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
