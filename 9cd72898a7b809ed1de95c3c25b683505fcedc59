@@ -69,6 +69,24 @@
       "parentUuid": "ae4c86f7_9db3ba04",
       "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81ea9ec2_436f3804",
+        "filename": "src/sksl/SkSLVMGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-12-22T15:02:22Z",
+      "side": 1,
+      "message": "Yeah, I was mixed up thinking the \"local\" value passed to SkSL::ProgramToSkVM() was the same as the \"local\" value passed to SkRTShader::onProgram().  That first pre-matrix \"local\" changes when sampling children.",
+      "parentUuid": "9756b4b4_46d3e241",
+      "revId": "9cd72898a7b809ed1de95c3c25b683505fcedc59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
