@@ -274,8 +274,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
     if (!baseType) {
         return {};
     }
-    if (baseType->nonnullable() == *fContext.fFragmentProcessor_Type &&
-        storage != Variable::Storage::kGlobal) {
+    if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         fErrors.error(decls.fOffset,
                       "variables of type '" + baseType->displayName() + "' must be global");
     }
@@ -422,6 +421,11 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
             value = this->convertExpression(*iter);
             if (!value) {
                 return {};
+            }
+            if (type->isOpaque()) {
+                fErrors.error(
+                        value->fOffset,
+                        "opaque type '" + type->name() + "' cannot use initializer expressions");
             }
             if (modifiers.fFlags & Modifiers::kIn_Flag) {
                 fErrors.error(value->fOffset, "'in' variables cannot use initializer expressions");
@@ -883,10 +887,15 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                type_to_grsltype(fContext, *t, &unusedSLType);
 #endif
     };
-    if (returnType->isArray() || !typeIsAllowed(returnType) ||
-        returnType->nonnullable() == *fContext.fFragmentProcessor_Type) {
+    if (returnType->isArray() || !typeIsAllowed(returnType)) {
         fErrors.error(f.fOffset,
                       "functions may not return type '" + returnType->displayName() + "'");
+        return;
+    }
+    if (!fIsBuiltinCode && *returnType != *fContext.fVoid_Type &&
+        returnType->componentType().isOpaque()) {
+        fErrors.error(f.fOffset,
+                      "functions may not return opaque type '" + returnType->displayName() + "'");
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
@@ -908,7 +917,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             int arraySize = (paramIter++)->getInt();
             type = fSymbolTable->addArrayDimension(type, arraySize);
         }
-        // Only the (builtin) declarations of 'sample' are allowed to have FP parameters
+        // Only the (builtin) declarations of 'sample' are allowed to have FP parameters.
+        // (You can pass other opaque types to functions safely; this restriction is
+        // fragment-processor specific.)
         if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
             !typeIsAllowed(type)) {
             fErrors.error(param.fOffset,
@@ -1298,8 +1309,7 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     if (td.fIsNullable) {
         if (*result == *fContext.fFragmentProcessor_Type) {
             if (isArray) {
-                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
-                                            "an array");
+                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
             }
             result = fSymbolTable->takeOwnershipOfSymbol(
                     Type::MakeNullableType(String(result->name()) + "?", *result));
@@ -2004,9 +2014,13 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
         return nullptr;
     }
     if (Compiler::IsAssignment(op)) {
+        if (leftType->componentType().isOpaque()) {
+            fErrors.error(expression.fOffset, "assignments to opaque type '" +
+                                              left->type().displayName() + "' are not permitted");
+        }
         if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
-                                                            ? VariableReference::RefKind::kReadWrite
-                                                            : VariableReference::RefKind::kWrite)) {
+                                             ? VariableReference::RefKind::kReadWrite
+                                             : VariableReference::RefKind::kWrite)) {
             return nullptr;
         }
     }
@@ -2051,9 +2065,10 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
                                     ifFalse->type().displayName() + "'");
         return nullptr;
     }
-    if (trueType->nonnullable() == *fContext.fFragmentProcessor_Type) {
-        fErrors.error(node.fOffset,
-                      "ternary expression of type '" + trueType->displayName() + "' not allowed");
+    if (trueType->componentType().isOpaque()) {
+        fErrors.error(
+                node.fOffset,
+                "ternary expression of opaque type '" + trueType->displayName() + "' not allowed");
         return nullptr;
     }
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
@@ -2359,8 +2374,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(int offset,
                                                             const Type& type,
                                                             ExpressionArray args) {
     // FIXME: add support for structs
-    if (args.size() == 1 && args[0]->type() == type &&
-        type.nonnullable() != *fContext.fFragmentProcessor_Type) {
+    if (args.size() == 1 && args[0]->type() == type && !type.componentType().isOpaque()) {
         // argument is already the right type, just return it
         return std::move(args[0]);
     }
