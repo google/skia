@@ -63,8 +63,12 @@ for input in inputs:
         worklist.write(input + "\n")
         worklist.write(target + ".asm" + extensionForSpirvAsm(ext) + "\n")
         worklist.write(settings + "\n\n")
+    elif lang == "--skvm":
+        worklist.write(input + "\n")
+        worklist.write(target + ".skvm\n")
+        worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --fp --glsl --metal --spirv, got " + lang)
+        sys.exit("### Expected one of: --fp --glsl --metal --spirv --skvm, got " + lang)
 
 # Invoke skslc, passing in the worklist.
 worklist.close()

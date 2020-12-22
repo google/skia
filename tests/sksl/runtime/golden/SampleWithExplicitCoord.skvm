@@ -1,0 +1,24 @@
+7 registers, 22 instructions:
+0	r0 = splat 3 (4.2038954e-45)
+1	r1 = uniform32 arg(0) C
+2	r2 = uniform32 arg(0) 0
+3	r2 = trunc r2
+4	r3 = splat 2 (2.8025969e-45)
+5	r4 = splat 1 (1.4012985e-45)
+loop:
+6	    r5 = index
+7	    r5 = trunc r5
+8	    r5 = mul_i32 r5 r1
+9	    r5 = add_i32 r2 r5
+10	    r5 = shl_i32 r5 2
+11	    r6 = add_i32 r5 r0
+12	    r6 = gather32 arg(0) 4 r6
+13	    store32 arg(4) r6
+14	    r6 = add_i32 r5 r3
+15	    r6 = gather32 arg(0) 4 r6
+16	    store32 arg(3) r6
+17	    r6 = add_i32 r5 r4
+18	    r6 = gather32 arg(0) 4 r6
+19	    store32 arg(2) r6
+20	    r5 = gather32 arg(0) 4 r5
+21	    store32 arg(1) r5
