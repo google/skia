@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b243ed23_72d69bac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-22T17:28:33Z",
+      "side": 1,
+      "message": "Yeah, I have been coming to the same conclusion unfortunately.",
+      "parentUuid": "cb7a0ff2_bc036455",
+      "revId": "85cea8d59b2f2c32ce75eb4e894a450adba1ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "acb68b93_84c46770",
