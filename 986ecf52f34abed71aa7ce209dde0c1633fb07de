@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab8034b9_bca4b766",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T19:41:59Z",
+      "side": 1,
+      "message": "unsigned integers (and bitwise operators) are on the chopping block. This is just clearing the way for some upcoming CLs.",
+      "revId": "986ecf52f34abed71aa7ce209dde0c1633fb07de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
