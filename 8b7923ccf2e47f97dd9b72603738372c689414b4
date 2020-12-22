@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e9f6b8d_d4d8d6f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T17:50:49Z",
+      "side": 1,
+      "message": "Right, skslc doesn\u0027t call those - these tests are part of the build, so unless we\u0027re building on arm64 (with the GN flag that enables the tests), I think we\u0027re ok? I still need to wire up a new flag to test the fma and fp16 features. (We\u0027ve already got a standard comment convention for enabling GPU caps from within the test file).",
+      "parentUuid": "b9eba60a_c113e7be",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ddfab42_0f7f110e",
@@ -48,6 +66,24 @@
       "writtenOn": "2020-12-22T17:40:37Z",
       "side": 1,
       "message": "You ok with this happening at compile time?  I wouldn\u0027t imagine this does anything different than\n\n    return sample(child, float3x3(1, 0, 0,\n                                  0, 1, 0,\n                                  0, 0, 1));\n\nwhich, maybe surprisingly, is different from\n\n    return sample(child);",
+      "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f0225fc_3d449876",
+        "filename": "tests/sksl/runtime/SampleWithVariableMatrix.rte",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T17:50:49Z",
+      "side": 1,
+      "message": "Yeah, this ends up being a strange runtime-effect test when applied to skvm. On the GPU backend, this behaves very differently (mostly due to analysis applied to the fragment processors that leads to varying hoisting in some cases, but also because SkSL\u0027s frontend doesn\u0027t optimizing intrinsics applied to constants yet). With skvm\u0027s auto-magic handling of immediates, this doesn\u0027t really test the same thing.\n\nI was mostly looking for a handful of existing SkRuntimeEffect cases that were similar/related to pull in as tests, but I may remove these once I fill out the test corpus with better examples.",
+      "parentUuid": "7ddfab42_0f7f110e",
       "revId": "8b7923ccf2e47f97dd9b72603738372c689414b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
