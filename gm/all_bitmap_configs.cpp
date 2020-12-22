@@ -31,7 +31,8 @@
 static SkBitmap copy_bitmap(const SkBitmap& src, SkColorType colorType) {
     const SkBitmap* srcPtr = &src;
     SkBitmap tmp(src);
-    if (kRGB_565_SkColorType == colorType) {
+    if (colorType == kRGB_565_SkColorType ||
+        colorType == kRGB_888x_SkColorType) {
         tmp.setAlphaType(kOpaque_SkAlphaType);
         srcPtr = &tmp;
     }
@@ -125,7 +126,7 @@ static void draw(SkCanvas* canvas,
     canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 0.0f, 12.0f, font, p);
 }
 
-DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
+DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 7 * SCALE) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     SkPaint p(SkColors::kBlack);
     p.setAntiAlias(true);
@@ -141,8 +142,12 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy565 = copy_bitmap(bitmap, kRGB_565_SkColorType);
-        p.setColor(SK_ColorRED);
+        p.setColor(SK_ColorRED); // Change text color to red while drawing on top of opaque images.
         draw(canvas, p, font, copy565, kRGB_565_SkColorType, "RGB 565");
+
+        canvas->translate(0.0f, SkIntToScalar(SCALE));
+        SkBitmap copy888x = copy_bitmap(bitmap, kRGB_888x_SkColorType);
+        draw(canvas, p, font, copy888x, kRGB_888x_SkColorType, "RGBA 888x");
         p.setColor(SK_ColorBLACK);
 
         canvas->translate(0.0f, SkIntToScalar(SCALE));
