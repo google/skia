@@ -613,7 +613,14 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     SkASSERT(!origPaint.getMaskFilter());
 
     const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
-    SkASSERT(halfWidth > 0);
+    if (halfWidth <= 0.f) {
+        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
+        // The CTM would need to have a scale near 1/epsilon in order for this to have meaningful
+        // coverage (although that would likely overflow elsewhere and cause the draw to drop due
+        // to non-finite bounds). At any other scale, this line is so thin, it's coverage is
+        // negligible, so discarding the draw is visually equivalent.
+        return;
+    }
 
     SkVector parallel = points[1] - points[0];
 
