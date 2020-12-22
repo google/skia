@@ -198,6 +198,9 @@ public:
 
     virtual bool android_utils_clipWithStencil() { return false; }
 
+    virtual GrRecordingContext* recordingContext() const { return nullptr; }
+    virtual GrSurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
@@ -346,8 +349,6 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    virtual GrRecordingContext* recordingContext() const { return nullptr; }
-
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }
 
@@ -428,10 +429,6 @@ private:
 
     virtual bool forceConservativeRasterClip() const { return false; }
 
-    /**
-     * Don't call this!
-     */
-    virtual GrSurfaceDrawContext* accessRenderTargetContext() { return nullptr; }
 
     // Configure the device's coordinate spaces, specifying both how its device image maps back to
     // the global space (via 'deviceToGlobal') and the initial CTM of the device (via

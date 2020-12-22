@@ -81,15 +81,14 @@ public:
     ~SkGpuDevice() override {}
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
+    GrSurfaceDrawContext* surfaceDrawContext() override;
 
     // set all pixels to 0
     void clearAll();
 
-    void replaceRenderTargetContext(SkSurface::ContentChangeMode mode);
-    void replaceRenderTargetContext(std::unique_ptr<GrSurfaceDrawContext>,
-                                    SkSurface::ContentChangeMode mode);
-
-    GrSurfaceDrawContext* accessRenderTargetContext() override;
+    void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode);
+    void replaceSurfaceDrawContext(std::unique_ptr<GrSurfaceDrawContext>,
+                                   SkSurface::ContentChangeMode mode);
 
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint[],
@@ -176,11 +175,11 @@ protected:
 #endif
 
 private:
-    // We want these unreffed in RenderTargetContext, GrContext order.
+    // We want these unreffed in SurfaceDrawContext, GrContext order.
     sk_sp<GrRecordingContext> fContext;
-    std::unique_ptr<GrSurfaceDrawContext> fRenderTargetContext;
+    std::unique_ptr<GrSurfaceDrawContext> fSurfaceDrawContext;
 
-    GR_CLIP_STACK   fClip;
+    GR_CLIP_STACK fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
@@ -215,15 +214,14 @@ private:
 
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
-    static std::unique_ptr<GrSurfaceDrawContext> MakeRenderTargetContext(GrRecordingContext*,
-                                                                         SkBudgeted,
-                                                                         const SkImageInfo&,
-                                                                         int sampleCount,
-                                                                         GrSurfaceOrigin,
-                                                                         const SkSurfaceProps*,
-                                                                         GrMipmapped);
+    static std::unique_ptr<GrSurfaceDrawContext> MakeSurfaceDrawContext(GrRecordingContext*,
+                                                                        SkBudgeted,
+                                                                        const SkImageInfo&,
+                                                                        int sampleCount,
+                                                                        GrSurfaceOrigin,
+                                                                        const SkSurfaceProps*,
+                                                                        GrMipmapped);
 
-    friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = BASE_DEVICE;
 };
