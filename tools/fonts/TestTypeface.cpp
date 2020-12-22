@@ -192,7 +192,9 @@ private:
     SkMatrix fMatrix;
 };
 
-SkScalerContext* TestTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
-                                                     const SkDescriptor*           desc) const {
-    return new SkTestScalerContext(sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
+std::unique_ptr<SkScalerContext> TestTypeface::onCreateScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
+{
+    return std::make_unique<SkTestScalerContext>(
+            sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
 }

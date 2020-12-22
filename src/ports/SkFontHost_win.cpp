@@ -274,8 +274,8 @@ public:
 protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor*) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
+                                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
@@ -2072,21 +2072,25 @@ sk_sp<SkData> LogFontTypeface::onCopyTableData(SkFontTableTag tag) const {
     return data;
 }
 
-SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
-                                                        const SkDescriptor* desc) const {
+std::unique_ptr<SkScalerContext> LogFontTypeface::onCreateScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
+{
     auto ctx = std::make_unique<SkScalerContext_GDI>(
             sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
-    if (!ctx->isValid()) {
-        ctx.reset();
-        SkStrikeCache::PurgeAll();
-        ctx = std::make_unique<SkScalerContext_GDI>(
-            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
-        if (!ctx->isValid()) {
-            return SkScalerContext::MakeEmptyContext(
-                    sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
-        }
+    if (ctx->isValid()) {
+        return std::move(ctx);
     }
-    return ctx.release();
+
+    ctx.reset();
+    SkStrikeCache::PurgeAll();
+    ctx = std::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+    if (ctx->isValid()) {
+        return std::move(ctx);
+    }
+
+    return SkScalerContext::MakeEmpty(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {

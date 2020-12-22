@@ -260,9 +260,11 @@ private:
     SkMatrix fMatrix;
 };
 
-SkScalerContext* TestSVGTypeface::onCreateScalerContext(const SkScalerContextEffects& e,
-                                                        const SkDescriptor*           desc) const {
-    return new SkTestSVGScalerContext(sk_ref_sp(const_cast<TestSVGTypeface*>(this)), e, desc);
+std::unique_ptr<SkScalerContext> TestSVGTypeface::onCreateScalerContext(
+    const SkScalerContextEffects& e, const SkDescriptor* desc) const
+{
+    return std::make_unique<SkTestSVGScalerContext>(
+            sk_ref_sp(const_cast<TestSVGTypeface*>(this)), e, desc);
 }
 
 sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {

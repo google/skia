@@ -319,7 +319,7 @@ public:
                 SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects);
     }
 
-    static SkScalerContext* MakeEmptyContext(
+    static std::unique_ptr<SkScalerContext> MakeEmpty(
             sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
             const SkDescriptor* desc);
 
