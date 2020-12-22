@@ -537,8 +537,7 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, SkBitSet* processedSet) {
             continue;
         }
         BasicBlock& exit = cfg->fBlocks[exitId];
-        after.foreach([&](const Variable* var, std::unique_ptr<Expression>** e1Ptr) {
-            std::unique_ptr<Expression>* e1 = *e1Ptr;
+        for (const auto& [var, e1] : after) {
             std::unique_ptr<Expression>** exitDef = exit.fBefore.find(var);
             if (!exitDef) {
                 // exit has no definition for it, just copy it and reprocess exit block
@@ -557,7 +556,7 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, SkBitSet* processedSet) {
                     }
                 }
             }
-        });
+        }
     }
 }
 

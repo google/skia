@@ -977,7 +977,9 @@ sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfa
 static std::vector<SkPDFIndirectReference> sort(const SkTHashSet<SkPDFIndirectReference>& src) {
     std::vector<SkPDFIndirectReference> dst;
     dst.reserve(src.count());
-    src.foreach([&dst](SkPDFIndirectReference ref) { dst.push_back(ref); } );
+    for (SkPDFIndirectReference ref : src) {
+        dst.push_back(ref);
+    }
     std::sort(dst.begin(), dst.end(),
             [](SkPDFIndirectReference a, SkPDFIndirectReference b) { return a.fValue < b.fValue; });
     return dst;
