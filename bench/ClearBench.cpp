@@ -17,7 +17,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkGradientShader.h"
-
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 
 static sk_sp<SkShader> make_shader() {
@@ -62,13 +62,13 @@ protected:
         SkPaint interruptPaint;
         interruptPaint.setShader(make_shader());
 
-        GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-        if (rtc) {
+        GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        if (sdc) {
             // Tell the GrSurfaceDrawContext to not reset its draw op list on a fullscreen clear.
             // If we don't do this, fullscreen clear ops would be created and constantly discard the
             // previous iteration's op so execution would only invoke one actual clear on the GPU
             // (not what we want to measure).
-            rtc->testingOnly_SetPreserveOpsOnFullClear();
+            sdc->testingOnly_SetPreserveOpsOnFullClear();
         }
 
         for (int i = 0; i < loops; i++) {

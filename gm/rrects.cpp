@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/GrSharedEnums.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
@@ -79,7 +80,8 @@ protected:
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         GrSurfaceDrawContext* surfaceDrawContext =
-            canvas->internal_private_accessTopLayerRenderTargetContext();
+                SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+
         auto context = canvas->recordingContext();
         if (kEffect_Type == fType && (!surfaceDrawContext || !context)) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
