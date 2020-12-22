@@ -737,15 +737,16 @@ static bool isAxisAligned(const SkScalerContextRec& rec) {
             bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContextEffects& effects,
-                                                            const SkDescriptor* desc) const {
+std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
+{
     auto c = std::make_unique<SkScalerContext_FreeType>(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
-    if (!c->success()) {
-        return SkScalerContext::MakeEmptyContext(
-                sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
+    if (c->success()) {
+        return std::move(c);
     }
-    return c.release();
+    return SkScalerContext::MakeEmpty(
+            sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
 }
 
 std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArguments& args) const {

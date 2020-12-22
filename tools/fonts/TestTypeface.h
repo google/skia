@@ -70,8 +70,8 @@ public:
     SkPath getPath(SkGlyphID glyph);
 
 protected:
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor* desc) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
+                                                           const SkDescriptor* desc) const override;
     void onFilterRec(SkScalerContextRec* rec) const override;
     void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;

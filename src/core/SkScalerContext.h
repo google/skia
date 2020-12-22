@@ -322,7 +322,7 @@ public:
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
                                                  SkAutoDescriptor* ad);
 
-    static SkScalerContext* MakeEmptyContext(
+    static std::unique_ptr<SkScalerContext> MakeEmpty(
             sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
             const SkDescriptor* desc);
 

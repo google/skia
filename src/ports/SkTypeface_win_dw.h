@@ -123,8 +123,8 @@ protected:
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments&) const override;
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
-    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
-                                           const SkDescriptor*) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
+                                                           const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
