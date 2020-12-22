@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12d0c45c_64211ffc",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T14:00:13Z",
+      "side": 1,
+      "message": "I\u0027d state this using standard library style guidance: \"Adding or removing elements may invalidate all iterators.\"",
+      "range": {
+        "startLine": 158,
+        "startChar": 7,
+        "endLine": 158,
+        "endChar": 93
+      },
+      "revId": "07ac369114cf917787ab7d5247f45141e78710d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
