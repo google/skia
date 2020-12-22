@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcb5c7d9_f03d0637",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T13:55:22Z",
+      "side": 0,
+      "message": "I\u0027d like to keep this comment. It documents that we intentionally didn\u0027t update usage. (Every call to try_replace_expression is accompanied by a corresponding update of the usage information, or a comment explaining why it\u0027s not necessary).",
+      "range": {
+        "startLine": 1183,
+        "startChar": 20,
+        "endLine": 1184,
+        "endChar": 30
+      },
+      "revId": "960bd2dbaa6a2130330c5f693e2a07a24aeca392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
