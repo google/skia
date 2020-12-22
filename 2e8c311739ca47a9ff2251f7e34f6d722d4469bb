@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e36d425_0aeec1fb",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-22T16:41:42Z",
+      "side": 1,
+      "message": "I did figure out the logic eventually, but maybe a comment explaining what\u0027s going on here. It\u0027s subtle.",
+      "revId": "2e8c311739ca47a9ff2251f7e34f6d722d4469bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
