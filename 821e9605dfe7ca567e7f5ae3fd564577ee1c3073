@@ -33,6 +33,24 @@
       "message": "nit: can these be added to RectPriv, or in some other way not be made public? Esp. tricky math helpers are a pain if other folks depend on details of them.",
       "revId": "821e9605dfe7ca567e7f5ae3fd564577ee1c3073",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54fc00bf_05160270",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-12-22T13:37:19Z",
+      "side": 1,
+      "message": "Done, moved to SkRectPriv.",
+      "parentUuid": "e79b91cf_7db3d9bd",
+      "revId": "821e9605dfe7ca567e7f5ae3fd564577ee1c3073",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
