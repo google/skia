@@ -242,11 +242,17 @@ public:
                       {fFloat2x2_Type.get(), fFloat2x3_Type.get(), fFloat2x4_Type.get(),
                        fFloat3x2_Type.get(), fFloat3x3_Type.get(), fFloat3x4_Type.get(),
                        fFloat4x2_Type.get(), fFloat4x3_Type.get(), fFloat4x4_Type.get()}))
-            , fMatH_Type(Type::MakeGenericType(
-                      "$matH",
+            , fHMat_Type(Type::MakeGenericType(
+                      "$hmat",
                       {fHalf2x2_Type.get(), fHalf2x3_Type.get(), fHalf2x4_Type.get(),
                        fHalf3x2_Type.get(), fHalf3x3_Type.get(), fHalf3x4_Type.get(),
                        fHalf4x2_Type.get(), fHalf4x3_Type.get(), fHalf4x4_Type.get()}))
+            , fSquareMat_Type(Type::MakeGenericType(
+                      "$squareMat",
+                      {fFloat2x2_Type.get(), fFloat3x3_Type.get(), fFloat4x4_Type.get()}))
+            , fSquareHMat_Type(Type::MakeGenericType(
+                      "$squareHMat",
+                      {fHalf2x2_Type.get(), fHalf3x3_Type.get(), fHalf4x4_Type.get()}))
             , fVec_Type(Type::MakeGenericType("$vec",
                                               {fInvalid_Type.get(), fFloat2_Type.get(),
                                                fFloat3_Type.get(), fFloat4_Type.get()}))
@@ -416,7 +422,9 @@ public:
     const std::unique_ptr<Type> fGenBType_Type;
 
     const std::unique_ptr<Type> fMat_Type;
-    const std::unique_ptr<Type> fMatH_Type;
+    const std::unique_ptr<Type> fHMat_Type;
+    const std::unique_ptr<Type> fSquareMat_Type;
+    const std::unique_ptr<Type> fSquareHMat_Type;
 
     const std::unique_ptr<Type> fVec_Type;
 
