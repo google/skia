@@ -77,12 +77,12 @@ void CFG::dump() const {
 void BasicBlock::dump() const {
     printf("Before: [");
     const char* separator = "";
-    for (const auto& [var, expr] : fBefore) {
+    fBefore.foreach([&](const Variable* var, std::unique_ptr<Expression>* expr) {
         printf("%s%s = %s", separator,
                             var->description().c_str(),
                             expr ? (*expr)->description().c_str() : "<undefined>");
         separator = ", ";
-    }
+    });
     printf("]\nIs Reachable: [%s]\n", fIsReachable ? "yes" : "no");
     for (size_t j = 0; j < fNodes.size(); j++) {
         const BasicBlock::Node& n = fNodes[j];
