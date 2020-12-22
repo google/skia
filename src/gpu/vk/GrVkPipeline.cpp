@@ -569,6 +569,16 @@ GrVkPipeline* GrVkPipeline::Create(
     VkPipelineDynamicStateCreateInfo dynamicInfo;
     setup_dynamic_state(&dynamicInfo, dynamicStates);
 
+    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
+    // However, if we need to load a resolve into msaa attachment for discardable msaa then the
+    // main subpass will be 1.
+    uint32_t subpass = 0;
+    if (programInfo.colorLoadOp() == GrLoadOp::kLoad &&
+        programInfo.targetSupportsVkResolveLoad() &&
+        gpu->vkCaps().preferDiscardableMSAAAttachment()) {
+        subpass = 1;
+    }
+
     VkGraphicsPipelineCreateInfo pipelineCreateInfo;
     memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -587,7 +597,7 @@ GrVkPipeline* GrVkPipeline::Create(
     pipelineCreateInfo.pDynamicState = &dynamicInfo;
     pipelineCreateInfo.layout = layout;
     pipelineCreateInfo.renderPass = compatibleRenderPass;
-    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.subpass = subpass;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
 
@@ -612,8 +622,10 @@ GrVkPipeline* GrVkPipeline::Create(
 
 void GrVkPipeline::freeGPUData() const {
     GR_VK_CALL(fGpu->vkInterface(), DestroyPipeline(fGpu->device(), fPipeline, nullptr));
-    GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), fPipelineLayout,
-               nullptr));
+    if (fPipelineLayout != VK_NULL_HANDLE) {
+        GR_VK_CALL(fGpu->vkInterface(),
+                   DestroyPipelineLayout(fGpu->device(), fPipelineLayout, nullptr));
+    }
 }
 
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
