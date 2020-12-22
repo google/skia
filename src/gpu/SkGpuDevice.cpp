@@ -613,6 +613,13 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     SkASSERT(!origPaint.getMaskFilter());
 
     const SkScalar halfWidth = 0.5f * origPaint.getStrokeWidth();
+    if (SkScalarNearlyZero(halfWidth)) {
+        // Prevents underflow when stroke width is epsilon > 0 (so technically not a hairline).
+        // This should only happen when the paint is AA and we'll use coverage; given that any
+        // such small stroke width will have negligible impact on the dst pixels so drop the draw.
+        SkASSERT(origPaint.isAntiAlias() && fRenderTargetContext->numSamples() == 1);
+        return;
+    }
     SkASSERT(halfWidth > 0);
 
     SkVector parallel = points[1] - points[0];
