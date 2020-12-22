@@ -49,6 +49,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
     fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
     fIntrinsicMap[String("faceforward")]        = SPECIAL(Faceforward);
+    fIntrinsicMap[String("bitCount")]           = SPECIAL(BitCount);
     fIntrinsicMap[String("findLSB")]            = SPECIAL(FindLSB);
     fIntrinsicMap[String("findMSB")]            = SPECIAL(FindMSB);
     fIntrinsicMap[String("length")]             = SPECIAL(Length);
@@ -675,6 +676,12 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write("((");
             this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(") * 0.0174532925)");
+            break;
+        }
+        case kBitCount_SpecialIntrinsic: {
+            this->write("popcount(");
+            this->writeExpression(*arguments[0], kSequence_Precedence);
+            this->write(")");
             break;
         }
         case kFindLSB_SpecialIntrinsic: {

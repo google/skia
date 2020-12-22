@@ -207,6 +207,7 @@ sksl_shared_tests = [
   "$_tests/sksl/intrinsics/Asinh.sksl",
   "$_tests/sksl/intrinsics/Atan.sksl",
   "$_tests/sksl/intrinsics/Atanh.sksl",
+  "$_tests/sksl/intrinsics/BitCount.sksl",
   "$_tests/sksl/intrinsics/Ceil.sksl",
   "$_tests/sksl/intrinsics/Clamp.sksl",
   "$_tests/sksl/intrinsics/Cos.sksl",
