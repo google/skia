@@ -110,16 +110,14 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
         TYPE( UByte), TYPE( UByte2), TYPE( UByte3), TYPE( UByte4),
         TYPE(  Bool), TYPE(  Bool2), TYPE(  Bool3), TYPE(  Bool4),
 
-        TYPE(Float2x2), TYPE(Float2x3), TYPE(Float2x4),
-        TYPE(Float3x2), TYPE(Float3x3), TYPE(Float3x4),
-        TYPE(Float4x2), TYPE(Float4x3), TYPE(Float4x4),
+        TYPE(Float2x2), TYPE(Float3x3), TYPE(Float4x4),
 
         TYPE(Half2x2),  TYPE(Half2x3),  TYPE(Half2x4),
         TYPE(Half3x2),  TYPE(Half3x3),  TYPE(Half3x4),
         TYPE(Half4x2),  TYPE(Half4x3),  TYPE(Half4x4),
 
         TYPE(GenType), TYPE(GenHType), TYPE(GenIType), TYPE(GenUType), TYPE(GenBType),
-        TYPE(Mat), TYPE(HMat), TYPE(SquareMat), TYPE(SquareHMat), TYPE(Vec),
+        TYPE(SquareMat), TYPE(SquareHMat), TYPE(Vec),
         TYPE(GVec), TYPE(GVec2), TYPE(GVec3), TYPE(GVec4),
         TYPE(HVec), TYPE(IVec), TYPE(UVec), TYPE(SVec), TYPE(USVec),
         TYPE(ByteVec), TYPE(UByteVec), TYPE(BVec),
@@ -128,6 +126,12 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
     };
 
     const SkSL::Symbol* privateTypes[] = {
+        TYPE(Float2x3), TYPE(Float2x4),
+        TYPE(Float3x2), TYPE(Float3x4),
+        TYPE(Float4x2), TYPE(Float4x3),
+
+        TYPE(Mat), TYPE(HMat),
+
         TYPE(Sampler1D), TYPE(Sampler2D), TYPE(Sampler3D),
         TYPE(SamplerExternalOES),
         TYPE(SamplerCube),
