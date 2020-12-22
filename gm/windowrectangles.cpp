@@ -24,6 +24,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -196,26 +197,27 @@ static GrStencilClip make_stencil_only_clip(GrSurfaceDrawContext* rtc) {
 DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
                                                     SkString* errorMsg) {
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-    if (!ctx || !rtc) {
+    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+
+    if (!ctx || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
-    if (rtc->maxWindowRectangles() < kNumWindows) {
+    if (sdc->maxWindowRectangles() < kNumWindows) {
         *errorMsg = "Requires at least 8 window rectangles. "
                     "(Are you off FBO 0? Use sRGB to force offscreen rendering.)";
         return DrawResult::kSkip;
     }
 
-    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), rtc->caps(), kNumWindows);
+    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), sdc->caps(), kNumWindows);
 
     GrPaint paint;
-    if (rtc->numSamples() <= 1) {
+    if (sdc->numSamples() <= 1) {
         paint.setColor4f({ 0, 0.25f, 1, 1 });
-        this->visualizeAlphaMask(ctx, rtc, reducedClip, std::move(paint));
+        this->visualizeAlphaMask(ctx, sdc, reducedClip, std::move(paint));
     } else {
         paint.setColor4f({ 1, 0.25f, 0.25f, 1 });
-        this->visualizeStencilMask(ctx, rtc, reducedClip, std::move(paint));
+        this->visualizeStencilMask(ctx, sdc, reducedClip, std::move(paint));
     }
     return DrawResult::kOk;
 }

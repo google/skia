@@ -14,6 +14,7 @@
 #include "include/core/SkPath.h"
 #include "include/gpu/GrDirectContext.h"
 #include "samplecode/Sample.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -191,8 +192,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
     if (fDoStroke) {
         caption.appendf(" (stroke_width=%f)", fStrokeWidth);
-    } else if (GrSurfaceDrawContext* rtc =
-            canvas->internal_private_accessTopLayerRenderTargetContext()) {
+    } else if (GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas)) {
         // Render coverage count.
         auto ctx = canvas->recordingContext();
         SkASSERT(ctx);
@@ -210,7 +210,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         paint.setColorFragmentProcessor(VisualizeCoverageCountFP::Make(
                 GrTextureEffect::Make(ccbuff->readSurfaceView(), ccbuff->colorInfo().alphaType())));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-        rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+        sdc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::MakeIWH(this->width(), this->height()));
     } else {
         caption = "Use GPU backend to visualize geometry.";

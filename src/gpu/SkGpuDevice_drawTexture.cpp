@@ -675,9 +675,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkOverrideDeviceMatrixProvider matrixProvider(this->asMatrixProvider(), localToDevice);
-    draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                          matrixProvider, paint, &texture, src, dst, nullptr, srcToDst, aa,
-                          aaFlags, SkCanvas::kStrict_SrcRectConstraint, sampler, false);
+    draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), this->clip(), matrixProvider,
+                          paint, &texture, src, dst, nullptr, srcToDst, aa, aaFlags,
+                          SkCanvas::kStrict_SrcRectConstraint, sampler, false);
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
@@ -718,7 +718,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // pinned texture proxy because YUV images force-flatten to RGBA in that scenario.
     if (as_IB(image)->isYUVA()) {
         GrYUVAImageTextureMaker maker(fContext.get(), image);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               {wrapMode, fm, mm}, bicubic);
         return;
@@ -739,7 +739,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         }
 
         GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &adjuster, src, dst, dstClip, srcToDst, aa, aaFlags,
                               constraint, {wrapMode, fm, mm}, bicubic);
         return;
@@ -761,16 +761,15 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         int maxTileSize = fContext->priv().caps()->maxTileSize() - 2 * tileFilterPad;
         int tileSize;
         SkIRect clippedSubset;
-        if (should_tile_image_id(fContext.get(), SkISize::Make(fRenderTargetContext->width(),
-                                                               fRenderTargetContext->height()),
-                                 clip, image->unique(), image->dimensions(), ctm, srcToDst, &src,
+        if (should_tile_image_id(fContext.get(), fSurfaceDrawContext->dimensions(), clip,
+                                 image->unique(), image->dimensions(), ctm, srcToDst, &src,
                                  maxTileSize, &tileSize, &clippedSubset)) {
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU.
             SkBitmap bm;
             if (as_IB(image)->getROPixels(nullptr, &bm)) {
                 // This is the funnel for all paths that draw tiled bitmaps/images.
-                draw_tiled_bitmap(fContext.get(), fRenderTargetContext.get(), clip, bm, tileSize,
+                draw_tiled_bitmap(fContext.get(), fSurfaceDrawContext.get(), clip, bm, tileSize,
                                   matrixProvider, srcToDst, src, clippedSubset, paint, aa,
                                   constraint, {wrapMode, fm, mm}, bicubic);
                 return;
@@ -782,7 +781,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // texture creation.
     if (image->isLazyGenerated()) {
         GrImageTextureMaker maker(fContext.get(), image, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               {wrapMode, fm, mm}, bicubic);
         return;
@@ -791,7 +790,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     SkBitmap bm;
     if (as_IB(image)->getROPixels(nullptr, &bm)) {
         GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
-        draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
+        draw_texture_producer(fContext.get(), fSurfaceDrawContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               {wrapMode, fm, mm}, bicubic);
     }
@@ -842,18 +841,18 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         if (n > 0) {
             auto textureXform = GrColorSpaceXform::Make(
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
-                    fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
-            fRenderTargetContext->drawTextureSet(this->clip(),
-                                                 textures.get() + base,
-                                                 n,
-                                                 p,
-                                                 filter,
-                                                 GrSamplerState::MipmapMode::kNone,
-                                                 mode,
-                                                 GrAA::kYes,
-                                                 constraint,
-                                                 this->localToDevice(),
-                                                 std::move(textureXform));
+                    fSurfaceDrawContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
+            fSurfaceDrawContext->drawTextureSet(this->clip(),
+                                                textures.get() + base,
+                                                n,
+                                                p,
+                                                filter,
+                                                GrSamplerState::MipmapMode::kNone,
+                                                mode,
+                                                GrAA::kYes,
+                                                constraint,
+                                                this->localToDevice(),
+                                                std::move(textureXform));
         }
         base = nextBase;
         n = 0;
@@ -914,7 +913,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                 set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex;
         textures[i].fColor = texture_color(paint.getColor4f(), set[i].fAlpha,
                                            SkColorTypeToGrColorType(image->colorType()),
-                                           fRenderTargetContext->colorInfo());
+                                           fSurfaceDrawContext->colorInfo());
         textures[i].fAAFlags = SkToGrQuadAAFlags(set[i].fAAFlags);
 
         if (n > 0 &&
