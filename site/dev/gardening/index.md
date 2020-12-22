@@ -1,16 +1,16 @@
-Tree Sheriffs Documentation
+Skia Gardener Documentation
 ===========================
 
 ### Contents ###
 
-*   [What does a sheriff do?](#what_is_a_sheriff)
+*   [What does a Skia Gardener do?](#what_is_a_skia_gardener)
     +   [Skia tree](#skia_tree)
     +   [AutoRollers](#autorollers)
     +   [Gold and Perf](#gold_and_perf)
-    +   [Documentation](#sheriff_doc)
-*   [View current and upcoming sheriffs](#view_current_upcoming_sheriffs)
-*   [How to swap sheriff shifts](#how_to_swap)
-*   [Tips for sheriffs](#tips)
+    +   [Documentation](#skia_gardener_doc)
+*   [View current and upcoming rotations](#view_current_upcoming_rotations)
+*   [How to swap rotation shifts](#how_to_swap)
+*   [Tips for Skia Gardeners](#tips)
     +   [When to file bugs](#when_to_file_bugs)
     +   [How to close or re-open the tree](#how_close_tree)
     +   [How to revert a CL](#how_to_revert)
@@ -18,13 +18,13 @@ Tree Sheriffs Documentation
     +   [How to rebaseline](#how_to_rebaseline)
 
 
-<a name="what_is_a_sheriff"></a>
-What does a sheriff do?
------------------------
+<a name="what_is_a_skia_gardener"></a>
+What does a Skia Gardener do?
+-----------------------------
 
-A sheriff keeps an eye on the tree, DEPS rolls, Gold tool, the Perf tool, and triages Chrome bugs.
+A Skia Gardener keeps an eye on the tree, DEPS rolls, Gold tool, the Perf tool, and triages Chrome bugs.
 
-Below is a brief summary of what the sheriff does for each task:
+Below is a brief summary of what the gardener does for each task:
 
 <a name="skia_tree"></a>
 ### Skia tree
@@ -35,7 +35,7 @@ Below is a brief summary of what the sheriff does for each task:
 * Keep the builder comments on the [status page](https://status.skia.org) up to date.
 * File or follow up with [BreakingTheBuildbots bugs](https://bugs.chromium.org/p/skia/issues/list?q=label:BreakingTheBuildbots). See the tip on [when to file bugs](#when_to_file_bugs).
 * Read and update the [Ongoing Issues section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.tpualuc3p7z0) in the handoff doc.
-* (Optional) Document significant events that occurred during your sheriff shift in the [Weekly
+* (Optional) Document significant events that occurred during your shift in the [Weekly
   Handoff Notes section](https://docs.google.com/document/d/1y2jUf4vXI0fwhu2TiCLVIfWC1JOxFcHXGw39y7i-y_I/edit#heading=h.y49irwbutzr) in the handoff doc.
 
 <a name="triage"></a>
@@ -72,32 +72,32 @@ string "SkDevice" has appeared in the last 10 commits:
 <a name="gold_and_perf"></a>
 ### Gold and Perf
 * Pay attention for new [Perf](https://perf.skia.org/) and [Gold](https://gold.skia.org/) alerts (by clicking on the bell at the top right of the [status page](https://status.skia.org)).
-* The sheriff's duty here is to make sure that when developers introduce new images or new perf regressions, that they are aware of what happened, and they use these tools to take appropriate action.
+* The gardener's duty here is to make sure that when developers introduce new images or new perf regressions, that they are aware of what happened, and they use these tools to take appropriate action.
 
-<a name="sheriff_doc"></a>
+<a name="skia_gardener_doc"></a>
 ### Documentation
-* Improve/update this documentation page for future sheriffs, especially the [Tips section](#tips).
+* Improve/update this documentation page for future gardeners, especially the [Tips section](#tips).
 
-In general, sheriffs should have a strong bias towards actions that keep the tree green and then open; if a simple revert can fix the problem, the sheriff <b>should revert first and ask questions later</b>.
+In general, gardeners should have a strong bias towards actions that keep the tree green and then open; if a simple revert can fix the problem, the gardener <b>should revert first and ask questions later</b>.
 
 
-<a name="view_current_upcoming_sheriffs"></a>
-View current and upcoming sheriffs
-----------------------------------
+<a name="view_current_upcoming_rotations"></a>
+View current and upcoming rotations
+-----------------------------------
 
-The list of sheriffs is specified in the [tree-status web app](https://tree-status.skia.org/sheriff). The current sheriff is highlighted in green.
-The banner on the top of the [status page](https://status.skia.org) also displays the current sheriff.
+The list of Skia Gardeners is specified [here](https://rotations.corp.google.com/rotation/4699606003744768).
+The gardeners widget on the [status page](https://status.skia.org) also displays the current gardeners.
 
 
 <a name="how_to_swap"></a>
-How to swap sheriff shifts
---------------------------
+How to swap rotation shifts
+---------------------------
 
-If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with. Then send an email to skiabot@google.com to have someone make the database change (or directly ping rmistry@).
+If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with and directly make the swap via the [rotations page](https://rotations.corp.google.com/rotation/4699606003744768).
 
 
 <a name="tips"></a>
-Tips for sheriffs
+Tips for Skia Gardeners
 -----------------
 
 <a name="when_to_file_bugs"></a>
