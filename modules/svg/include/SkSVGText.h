@@ -37,6 +37,8 @@ class SkSVGTextContainer : public SkSVGTextFragment {
 public:
     SVG_ATTR(X, std::vector<SkSVGLength>, {})
     SVG_ATTR(Y, std::vector<SkSVGLength>, {})
+    SVG_ATTR(Dx, std::vector<SkSVGLength>, {})
+    SVG_ATTR(Dy, std::vector<SkSVGLength>, {})
 
     SVG_ATTR(XmlSpace, SkSVGXmlSpace, SkSVGXmlSpace::kDefault)
 
