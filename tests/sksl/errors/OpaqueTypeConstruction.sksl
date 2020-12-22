@@ -1,0 +1,5 @@
+sampler a;
+void func(sampler s) {}
+void main() {
+    func(sampler(a));
+}
