@@ -1,0 +1,5 @@
+void main() {
+    int i = int(sqrt(1));
+    (i)*half4(i=3).x1.x;
+    sk_FragColor.x = half(i);
+}
