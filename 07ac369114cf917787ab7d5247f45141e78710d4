@@ -22,6 +22,30 @@
       },
       "revId": "07ac369114cf917787ab7d5247f45141e78710d4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebb8856e_a34414f0",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-22T14:02:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12d0c45c_64211ffc",
+      "range": {
+        "startLine": 158,
+        "startChar": 7,
+        "endLine": 158,
+        "endChar": 93
+      },
+      "revId": "07ac369114cf917787ab7d5247f45141e78710d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
