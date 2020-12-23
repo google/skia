@@ -16,6 +16,24 @@
       "message": "Is this still impossible?",
       "revId": "1d24de81aa594187d14883d3c938481f9a7e25c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bec889f9_a97841db",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T16:01:21Z",
+      "side": 1,
+      "message": "We\u0027ve already bailed out if `other` isn\u0027t a constructor, so by the time we reach this point I think we\u0027ve already established the same preconditions as we used to have. The removed checks were about differences in kind, not differences in type. (I wish we had better terminology because these are so easy to mix up.)",
+      "parentUuid": "acdecd35_fa5c58cf",
+      "revId": "1d24de81aa594187d14883d3c938481f9a7e25c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
