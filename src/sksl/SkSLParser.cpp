@@ -707,8 +707,13 @@ ASTNode::ID Parser::parameter() {
         if (!this->expect(Token::Kind::TK_INT_LITERAL, "a positive integer", &sizeToken)) {
             return ASTNode::ID::Invalid();
         }
-        this->addChild(result, this->createNode(sizeToken.fOffset, ASTNode::Kind::kInt,
-                                                SkSL::stoi(this->text(sizeToken))));
+        StringFragment arraySizeFrag = this->text(sizeToken);
+        SKSL_INT arraySize;
+        if (!SkSL::stoi(arraySizeFrag, &arraySize)) {
+            this->error(sizeToken, "array size is too large: " + arraySizeFrag);
+            return ASTNode::ID::Invalid();
+        }
+        this->addChild(result, this->createNode(sizeToken.fOffset, ASTNode::Kind::kInt, arraySize));
         if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
             return ASTNode::ID::Invalid();
         }
@@ -724,10 +729,16 @@ int Parser::layoutInt() {
         return -1;
     }
     Token resultToken;
-    if (this->expect(Token::Kind::TK_INT_LITERAL, "a non-negative integer", &resultToken)) {
-        return SkSL::stoi(this->text(resultToken));
+    if (!this->expect(Token::Kind::TK_INT_LITERAL, "a non-negative integer", &resultToken)) {
+        return -1;
     }
-    return -1;
+    StringFragment resultFrag = this->text(resultToken);
+    SKSL_INT resultValue;
+    if (!SkSL::stoi(resultFrag, &resultValue)) {
+        this->error(resultToken, "value in layout is too large: " + resultFrag);
+        return -1;
+    }
+    return resultValue;
 }
 
 /** EQ IDENTIFIER */
@@ -2227,7 +2238,7 @@ ASTNode::ID Parser::term() {
         }
         default:
             this->nextToken();
-            this->error(t.fOffset,  "expected expression, but found '" + this->text(t) + "'");
+            this->error(t.fOffset, "expected expression, but found '" + this->text(t) + "'");
     }
     return ASTNode::ID::Invalid();
 }
@@ -2235,21 +2246,30 @@ ASTNode::ID Parser::term() {
 /* INT_LITERAL */
 bool Parser::intLiteral(SKSL_INT* dest) {
     Token t;
-    if (this->expect(Token::Kind::TK_INT_LITERAL, "integer literal", &t)) {
-        *dest = SkSL::stol(this->text(t));
-        return true;
+    if (!this->expect(Token::Kind::TK_INT_LITERAL, "integer literal", &t)) {
+        return false;
     }
-    return false;
+    StringFragment s = this->text(t);
+    if (!SkSL::stoi(s, dest)) {
+        this->error(t, "integer is too large: " + s);
+        return false;
+    }
+    return true;
 }
+
 
 /* FLOAT_LITERAL */
 bool Parser::floatLiteral(SKSL_FLOAT* dest) {
     Token t;
-    if (this->expect(Token::Kind::TK_FLOAT_LITERAL, "float literal", &t)) {
-        *dest = SkSL::stod(this->text(t));
-        return true;
+    if (!this->expect(Token::Kind::TK_FLOAT_LITERAL, "float literal", &t)) {
+        return false;
     }
-    return false;
+    StringFragment s = this->text(t);
+    if (!SkSL::stod(s, dest)) {
+        this->error(t, "floating-point value is too large: " + s);
+        return false;
+    }
+    return true;
 }
 
 /* TRUE_LITERAL | FALSE_LITERAL */

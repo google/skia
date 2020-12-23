@@ -1,0 +1,3 @@
+void main() {
+    sk_FragColor.x = half4(3.41e+38);
+}
