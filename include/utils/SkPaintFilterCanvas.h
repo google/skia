@@ -32,9 +32,6 @@ public:
     // Forwarded to the wrapped canvas.
     SkISize getBaseLayerSize() const override { return proxy()->getBaseLayerSize(); }
     GrRecordingContext* recordingContext() override { return proxy()->recordingContext(); }
-    GrSurfaceDrawContext* internal_private_accessTopLayerRenderTargetContext() override {
-        return proxy()->internal_private_accessTopLayerRenderTargetContext();
-    }
 
 protected:
     /**
@@ -96,6 +93,7 @@ private:
 
     SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
 
+    GrSurfaceDrawContext* topDeviceSurfaceDrawContext() override;
     SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const override {
         return const_cast<SkPaintFilterCanvas*>(this);
     }

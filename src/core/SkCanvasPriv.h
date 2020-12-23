@@ -47,6 +47,10 @@ public:
         canvas->androidFramework_replaceClip(rect);
     }
 
+    static GrSurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+        return canvas->topDeviceSurfaceDrawContext();
+    }
+
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,
     // where entries refer into them, but no explicit size is provided. Given a set of entries,
     // computes the minimum length for these arrays that would provide index access errors.
