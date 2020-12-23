@@ -94,6 +94,30 @@
       },
       "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d396ee77_668ccbb4",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-23T22:02:01Z",
+      "side": 1,
+      "message": "Zeroing out half a KB every time we stroke a path seems like a lot of overhead. Something like chalkboard wouldn\u0027t be as affected because each path has a lot of verbs. The torture case would be drawing a ton of paths where each one has a single verb. That being said, I tried to create a torture case like this to benchmark locally and it didn\u0027t seem that bad.\n\nThis solution should be fine, although I still don\u0027t love doing extra work just to silence our own internal valgrind runs. An alternative would be to just disable \"USE_SIMD\" when RUNNING_ON_VALGRIND is true.. Thoughts?",
+      "parentUuid": "2d24a906_049deb8b",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
