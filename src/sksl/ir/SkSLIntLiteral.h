@@ -51,8 +51,13 @@ public:
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
-        return this->value() == other.as<IntLiteral>().value();
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override {
+        if (!other.is<IntLiteral>()) {
+            return ComparisonResult::kUnknown;
+        }
+        return this->value() == other.as<IntLiteral>().value() ? ComparisonResult::kEqual
+                                                               : ComparisonResult::kNotEqual;
     }
 
     CoercionCost coercionCost(const Type& target) const override {

@@ -30,7 +30,11 @@ std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& ir
     return nullptr;
 }
 
-bool Constructor::compareConstant(const Context& context, const Expression& other) const {
+Expression::ComparisonResult Constructor::compareConstant(const Context& context,
+                                                          const Expression& other) const {
+    if (!other.is<Constructor>()) {
+        return ComparisonResult::kUnknown;
+    }
     const Constructor& c = other.as<Constructor>();
     const Type& myType = this->type();
     const Type& otherType = c.type();
@@ -41,13 +45,13 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
         for (int i = 0; i < myType.columns(); i++) {
             if (isFloat) {
                 if (this->getFVecComponent(i) != c.getFVecComponent(i)) {
-                    return false;
+                    return ComparisonResult::kNotEqual;
                 }
             } else if (this->getIVecComponent(i) != c.getIVecComponent(i)) {
-                return false;
+                return ComparisonResult::kNotEqual;
             }
         }
-        return true;
+        return ComparisonResult::kEqual;
     }
     // shouldn't be possible to have a constant constructor that isn't a vector or matrix;
     // a constant scalar constructor should have been collapsed down to the appropriate
@@ -56,11 +60,11 @@ bool Constructor::compareConstant(const Context& context, const Expression& othe
     for (int col = 0; col < myType.columns(); col++) {
         for (int row = 0; row < myType.rows(); row++) {
             if (getMatComponent(col, row) != c.getMatComponent(col, row)) {
-                return false;
+                return ComparisonResult::kNotEqual;
             }
         }
     }
-    return true;
+    return ComparisonResult::kEqual;
 }
 
 template <typename ResultType>

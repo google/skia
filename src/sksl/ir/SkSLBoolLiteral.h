@@ -45,9 +45,13 @@ public:
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
-        const BoolLiteral& b = other.as<BoolLiteral>();
-        return this->value() == b.value();
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override {
+        if (!other.is<BoolLiteral>()) {
+            return ComparisonResult::kUnknown;
+        }
+        return this->value() == other.as<BoolLiteral>().value() ? ComparisonResult::kEqual
+                                                                : ComparisonResult::kNotEqual;
     }
 
     std::unique_ptr<Expression> clone() const override {

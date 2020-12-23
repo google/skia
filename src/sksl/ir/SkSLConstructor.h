@@ -99,7 +99,8 @@ public:
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override;
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override;
 
     template <typename resultType>
     resultType getVecComponent(int index) const;
