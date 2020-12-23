@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "856be3c1_069c6b76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-23T19:30:35Z",
+      "side": 1,
+      "message": "https://i.giphy.com/media/q3AZiDWRj8mhW/giphy.webp",
+      "revId": "6da3c8bde745f861047f2b0ebd1ff496bf33703c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
