@@ -38,8 +38,9 @@ public:
         return true;
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
-        return true;
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override {
+        return ComparisonResult::kEqual;
     }
 
     std::unique_ptr<Expression> clone() const override {

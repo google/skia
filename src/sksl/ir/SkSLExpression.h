@@ -106,11 +106,16 @@ public:
 
     /**
      * Compares this constant expression against another constant expression of the same kind. (i.e.
-     * both sides must be IntLiterals, or BoolLiterals, or Constructors, etc.) It is an error to
-     * call this on non-constant expressions, or if the kinds of the expressions do not match.
+     * both sides must be IntLiterals, or BoolLiterals, or Constructors, etc.)
      */
-    virtual bool compareConstant(const Context& context, const Expression& other) const {
-        ABORT("cannot call compareConstant on this type");
+    enum class ComparisonResult {
+        kUnknown = -1,
+        kNotEqual,
+        kEqual
+    };
+    virtual ComparisonResult compareConstant(const Context& context,
+                                             const Expression& other) const {
+        return ComparisonResult::kUnknown;
     }
 
     /**

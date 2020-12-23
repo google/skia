@@ -1,0 +1,2 @@
+void n()    { -2 .L1==- -2 .L1; }
+void main() { n(); sk_FragColor = half4(0); }
