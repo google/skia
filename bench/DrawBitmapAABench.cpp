@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 #include "bench/Benchmark.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 
 /**
  * This bench measures the rendering time of SkCanvas::drawBitmap with different anti-aliasing /
@@ -23,8 +24,6 @@ public:
         , fName("draw_bitmap_") {
 
         fPaint.setAntiAlias(doAA);
-        // Most clients use filtering, so let's focus on this for now.
-        fPaint.setFilterQuality(kLow_SkFilterQuality);
         fName.appendf("%s_%s", doAA ? "aa" : "noaa", name);
     }
 
@@ -34,14 +33,16 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fBitmap.allocN32Pixels(200, 200);
-        fBitmap.eraseARGB(255, 0, 255, 0);
+        auto surf = SkSurface::MakeRasterN32Premul(200, 200);
+        surf->getCanvas()->clear(0xFF00FF00);
+        fImage = surf->makeImageSnapshot();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
+        SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNone);
         canvas->concat(fMatrix);
         for (int i = 0; i < loops; i++) {
-            canvas->drawBitmap(fBitmap, 0, 0, &fPaint);
+            canvas->drawImage(fImage.get(), 0, 0, sampling, &fPaint);
         }
     }
 
@@ -49,7 +50,7 @@ private:
     SkPaint  fPaint;
     SkMatrix fMatrix;
     SkString fName;
-    SkBitmap fBitmap;
+    sk_sp<SkImage> fImage;
 
     using INHERITED = Benchmark;
 };

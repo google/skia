@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "src/core/SkPaintPriv.h"
 
 namespace sksg {
 
@@ -31,7 +32,7 @@ void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
 
     SkPaint paint;
     paint.setAntiAlias(fAntiAlias);
-    paint.setFilterQuality(legacy_quality(fSamplingOptions));
+    SkPaintPriv::SetFQ(&paint, legacy_quality(fSamplingOptions));
 
     sksg::RenderNode::ScopedRenderContext local_ctx(canvas, ctx);
     if (ctx) {

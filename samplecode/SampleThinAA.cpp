@@ -208,7 +208,6 @@ public:
         // Use medium quality filter to get mipmaps when drawing smaller, or use nearest filtering
         // when upscaling
         SkPaint blit;
-        blit.setFilterQuality(scale > 1.f ? kNone_SkFilterQuality : kMedium_SkFilterQuality);
         if (debugMode) {
             // Makes anything that's > 1/255 alpha fully opaque and sets color to medium green.
             static constexpr float kFilter[] = {
@@ -222,7 +221,12 @@ public:
         }
 
         canvas->scale(scale, scale);
-        canvas->drawImageRect(fLastRendered, SkRect::MakeWH(kTileWidth, kTileHeight), &blit);
+        canvas->drawImageRect(fLastRendered.get(),
+                              SkRect::MakeWH(kTileWidth, kTileHeight),
+                              SkRect::MakeWH(kTileWidth, kTileHeight),
+                              SkSamplingOptions(scale > 1.f ? kNone_SkFilterQuality
+                                                            : kMedium_SkFilterQuality),
+                              &blit);
     }
 
 private:

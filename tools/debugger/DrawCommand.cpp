@@ -24,6 +24,7 @@
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintDefaults.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -824,7 +825,7 @@ static void apply_paint_join(const SkPaint& paint, SkJSONWriter& writer) {
 }
 
 static void apply_paint_filterquality(const SkPaint& paint, SkJSONWriter& writer) {
-    SkFilterQuality quality = paint.getFilterQuality();
+    SkFilterQuality quality = SkPaintPriv::GetFQ(paint);
     switch (quality) {
         case kNone_SkFilterQuality: break;
         case kLow_SkFilterQuality:
