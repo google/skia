@@ -70,6 +70,30 @@
       },
       "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d24a906_049deb8b",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-23T21:02:59Z",
+      "side": 1,
+      "message": "4 bools to track this seems like lots of complexity.",
+      "parentUuid": "f051e729_71471a8e",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
