@@ -131,12 +131,6 @@ public:
                                                         /*isArrayedTexture=*/false,
                                                         /*isMultisampled=*/false,
                                                         /*isSampled=*/true))
-            , fTextureBuffer_Type(Type::MakeTextureType("textureBuffer",
-                                                        SpvDimBuffer,
-                                                        /*isDepth=*/false,
-                                                        /*isArrayedTexture=*/false,
-                                                        /*isMultisampled=*/false,
-                                                        /*isSampled=*/true))
             , fITexture2D_Type(Type::MakeTextureType("itexture2D",
                                                      SpvDim2D,
                                                      /*isDepth=*/false,
@@ -148,27 +142,11 @@ public:
             , fSampler3D_Type(Type::MakeSamplerType("sampler3D", *fTexture3D_Type))
             , fSamplerExternalOES_Type(
                       Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES_Type))
-            , fSamplerCube_Type(Type::MakeSamplerType("samplerCube", *fTextureCube_Type))
             , fSampler2DRect_Type(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect_Type))
-            , fSampler1DArray_Type(Type::MakeOtherType("sampler1DArray"))
-            , fSampler2DArray_Type(Type::MakeOtherType("sampler2DArray"))
-            , fSamplerCubeArray_Type(Type::MakeOtherType("samplerCubeArray"))
-            , fSamplerBuffer_Type(Type::MakeSamplerType("samplerBuffer", *fTextureBuffer_Type))
-            , fSampler2DMS_Type(Type::MakeOtherType("sampler2DMS"))
-            , fSampler2DMSArray_Type(Type::MakeOtherType("sampler2DMSArray"))
-            , fSampler1DShadow_Type(Type::MakeOtherType("sampler1DShadow"))
-            , fSampler2DShadow_Type(Type::MakeOtherType("sampler2DShadow"))
-            , fSamplerCubeShadow_Type(Type::MakeOtherType("samplerCubeShadow"))
-            , fSampler2DRectShadow_Type(Type::MakeOtherType("sampler2DRectShadow"))
-            , fSampler1DArrayShadow_Type(Type::MakeOtherType("sampler1DArrayShadow"))
-            , fSampler2DArrayShadow_Type(Type::MakeOtherType("sampler2DArrayShadow"))
-            , fSamplerCubeArrayShadow_Type(Type::MakeOtherType("samplerCubeArrayShadow"))
 
-            // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
             , fISampler2D_Type(Type::MakeSamplerType("isampler2D", *fITexture2D_Type))
 
             , fSampler_Type(Type::MakeSimpleType("sampler", Type::TypeKind::kSeparateSampler))
-            // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
             , fImage2D_Type(Type::MakeTextureType("image2D",
                                                   SpvDim2D,
                                                   /*isDepth=*/false,
@@ -182,8 +160,6 @@ public:
                                                    /*isMultisampled=*/false,
                                                    /*isSampled=*/true))
 
-            // FIXME express these as "gsubpassInput" that expand to subpassInput, isubpassInput,
-            // and usubpassInput.
             , fSubpassInput_Type(Type::MakeTextureType("subpassInput",
                                                        SpvDimSubpassData,
                                                        /*isDepth=*/false,
@@ -335,28 +311,13 @@ public:
     const std::unique_ptr<Type> fTextureExternalOES_Type;
     const std::unique_ptr<Type> fTextureCube_Type;
     const std::unique_ptr<Type> fTexture2DRect_Type;
-    const std::unique_ptr<Type> fTextureBuffer_Type;
     const std::unique_ptr<Type> fITexture2D_Type;
 
     const std::unique_ptr<Type> fSampler1D_Type;
     const std::unique_ptr<Type> fSampler2D_Type;
     const std::unique_ptr<Type> fSampler3D_Type;
     const std::unique_ptr<Type> fSamplerExternalOES_Type;
-    const std::unique_ptr<Type> fSamplerCube_Type;
     const std::unique_ptr<Type> fSampler2DRect_Type;
-    const std::unique_ptr<Type> fSampler1DArray_Type;
-    const std::unique_ptr<Type> fSampler2DArray_Type;
-    const std::unique_ptr<Type> fSamplerCubeArray_Type;
-    const std::unique_ptr<Type> fSamplerBuffer_Type;
-    const std::unique_ptr<Type> fSampler2DMS_Type;
-    const std::unique_ptr<Type> fSampler2DMSArray_Type;
-    const std::unique_ptr<Type> fSampler1DShadow_Type;
-    const std::unique_ptr<Type> fSampler2DShadow_Type;
-    const std::unique_ptr<Type> fSamplerCubeShadow_Type;
-    const std::unique_ptr<Type> fSampler2DRectShadow_Type;
-    const std::unique_ptr<Type> fSampler1DArrayShadow_Type;
-    const std::unique_ptr<Type> fSampler2DArrayShadow_Type;
-    const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
 
     const std::unique_ptr<Type> fISampler2D_Type;
     const std::unique_ptr<Type> fSampler_Type;
