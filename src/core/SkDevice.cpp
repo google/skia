@@ -414,6 +414,70 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         SkSpan<const uint32_t>{}
     };
 
+    class ShaderMatrixAdjuster {
+    public:
+        explicit ShaderMatrixAdjuster(const SkPaint& paint)
+            : fPaint(paint)
+            , fShader(fPaint->refShader())
+        {
+            // Cache shader matrices for reuse.
+            if (fShader) {
+                // We have two sources of local matrices:
+                //   - the actual shader lm
+                //   - outer lms applied via SkLocalMatrixShader
+                SkMatrix outer_lm = SkMatrix::I();
+                if (auto nested_shader = as_SB(fShader)->makeAsALocalMatrixShader(&outer_lm)) {
+                    // unfurl the shader
+                    fShader = std::move(nested_shader);
+                }
+
+                const auto lm = *as_SB(fShader)->totalLocalMatrix(nullptr);
+                // Note: since we unfurled the shader above, we only need to undo the inner inverse
+                if (lm.invert(&fInvLM)) {
+                    fLM = lm * outer_lm;
+                } else {
+                    // Can't handle the local matrix.
+                    fShader = nullptr;
+                    fPaint.writable()->setShader(nullptr);
+                }
+            }
+        }
+
+        const SkPaint& adjustedPaint(const SkMatrix& m) {
+            if (fShader) {
+                fPaint.writable()->setShader(this->adjustedShader(m));
+            }
+            return *fPaint;
+        }
+
+    private:
+        sk_sp<SkShader> adjustedShader(const SkMatrix& m) const {
+            // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
+            // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
+            // with a localmatrixshader so that the shader draws as if there was no change to the
+            // ctm.
+            SkMatrix inverse;
+            if (!m.invert(&inverse)) {
+                return nullptr;
+            }
+
+            // Normal LMs pre-compose.  In order to push a post local matrix, we shoot for
+            // something along these lines (where all new components are pre-composed):
+            //
+            //   new_lm X current_lm == current_lm X inv(current_lm) X new_lm X current_lm
+            //
+            // TODO: This does not work for arbitrary shader DAGs (when there is no single leaf
+            // local matrix).  What we really need is proper post-LM plumbing for shaders.
+
+            return fShader->makeWithLocalMatrix(fInvLM * inverse * fLM);
+        }
+
+        SkTCopyOnFirstWrite<SkPaint> fPaint;
+        sk_sp<SkShader>              fShader;
+        SkMatrix                     fLM, fInvLM;
+    };
+
+    ShaderMatrixAdjuster adjuster(paint);
     for (int i = 0; i < count; i++) {
         glyphID = glyphs[i];
         // now "glyphRun" is pointing at the current glyphID
@@ -421,23 +485,9 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         SkMatrix glyphToDevice;
         glyphToDevice.setRSXform(xform[i]).postTranslate(origin.fX, origin.fY);
 
-        // We want to rotate each glyph by the rsxform, but we don't want to rotate "space"
-        // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
-        // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
-        SkPaint transformingPaint{paint};
-        auto shader = transformingPaint.getShader();
-        if (shader) {
-            SkMatrix inverse;
-            if (glyphToDevice.invert(&inverse)) {
-                transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
-            } else {
-                transformingPaint.setShader(nullptr);  // can't handle this xform
-            }
-        }
-
         this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToDevice));
 
-        this->drawGlyphRunList(SkGlyphRunList{glyphRun, transformingPaint});
+        this->drawGlyphRunList(SkGlyphRunList{glyphRun, adjuster.adjustedPaint(glyphToDevice)});
     }
     this->setLocalToDevice(originalLocalToDevice);
 }
