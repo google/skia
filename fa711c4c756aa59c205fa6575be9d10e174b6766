@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "000f32a0_5a0795f8",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-23T15:03:14Z",
+      "side": 0,
+      "message": "Note that it was just this _factory.cpp that was causing the issue (using SK_EMBEDDED_FONTS). Could have just excluded that one. However, if nothing is using this then there is little point in compiling it in.\n\nIn general at most one SkFontMgr_*_factory.cpp should be built into any binary (or one will get multiple definitions of SkFontMgr::Factory and violate ODR). I thought that would be complained about, so now the default factory should really be the do-nothing one I think.\n\nAlso, looks like SkFontMgr_New_Custom_Data should be split out of SkFontMgr_custom_embedded.cpp.",
+      "revId": "fa711c4c756aa59c205fa6575be9d10e174b6766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

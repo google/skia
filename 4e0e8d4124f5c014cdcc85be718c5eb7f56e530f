@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11376413_60a790d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-12-23T15:03:14Z",
+      "side": 1,
+      "message": "Seems fine by me, though feel free to bring back the SkFontMgr_custom_embedded.cpp if you want to use it (though probably not the _factory.cpp).",
+      "revId": "4e0e8d4124f5c014cdcc85be718c5eb7f56e530f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
