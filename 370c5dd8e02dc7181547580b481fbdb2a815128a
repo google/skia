@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e648bdb9_0e4cf13c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-23T18:34:12Z",
+      "side": 1,
+      "message": "Fixes link error for symbol in SkOSFile_Win.cpp",
+      "revId": "370c5dd8e02dc7181547580b481fbdb2a815128a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
