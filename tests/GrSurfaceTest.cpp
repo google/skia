@@ -9,6 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
@@ -546,7 +547,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 SkImageInfo info =
                         SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                 auto rt = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0, nullptr);
-                auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+                auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(rt->getCanvas());
                 auto singleUseLazyCB = [&texture](GrResourceProvider*,
                                                   const GrSurfaceProxy::LazySurfaceDesc&) {
                     auto mode = GrSurfaceProxy::LazyInstantiationKeyMode::kSynced;
@@ -585,7 +586,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(
                         backendFormat, GrColorType::kRGBA_8888);
                 GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);
-                rtc->drawTexture(nullptr,
+                sdc->drawTexture(nullptr,
                                  view,
                                  kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest,
@@ -608,7 +609,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(nullptr,
+                sdc->drawTexture(nullptr,
                                  std::move(view),
                                  kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest,
@@ -660,15 +661,14 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                                                  kPremul_SkAlphaType);
                             auto rt = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0,
                                                                   nullptr);
-                            auto rtc = rt->getCanvas()
-                                            ->internal_private_accessTopLayerRenderTargetContext();
+                            auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(rt->getCanvas());
                             auto proxy = dContext->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture);
                             GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(
                                     proxy->backendFormat(), GrColorType::kRGBA_8888);
                             GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
                                                     swizzle);
-                            rtc->drawTexture(nullptr,
+                            sdc->drawTexture(nullptr,
                                              std::move(view),
                                              kPremul_SkAlphaType,
                                              GrSamplerState::Filter::kNearest,
@@ -812,11 +812,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
         SkImageInfo info = SkImageInfo::Make(kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
         auto rt = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, nullptr);
-        auto rtc = rt->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(rt->getCanvas());
         auto proxy =
                 context->priv().proxyProvider()->testingOnly_createWrapped(std::move(idleTexture));
         context->flushAndSubmit();
-        SkAssertResult(rtc->testCopy(proxy.get()));
+        SkAssertResult(sdc->testCopy(proxy.get()));
         proxy.reset();
         REPORTER_ASSERT(reporter, !called);
 

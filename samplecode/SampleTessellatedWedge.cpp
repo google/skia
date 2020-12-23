@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -63,14 +64,14 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
     SkString error;
-    if (!rtc || !ctx) {
+    if (!sdc || !ctx) {
         error = "GPU Only.";
     } else if (!ctx->priv().caps()->drawInstancedSupport()) {
         error = "Instanced rendering not supported.";
-    } else if (1 == rtc->numSamples() && !ctx->priv().caps()->mixedSamplesSupport()) {
+    } else if (sdc->numSamples() == 1 && !ctx->priv().caps()->mixedSamplesSupport()) {
         error = "MSAA/mixed samples only.";
     }
     if (!error.isEmpty()) {
@@ -85,15 +86,15 @@ void TessellatedWedge::onDrawContent(SkCanvas* canvas) {
     paint.setColor4f({1,0,1,1});
 
     GrAAType aa;
-    if (rtc->numSamples() > 1) {
+    if (sdc->numSamples() > 1) {
         aa = GrAAType::kMSAA;
-    } else if (rtc->asRenderTargetProxy()->canUseMixedSamples(*ctx->priv().caps())) {
+    } else if (sdc->asRenderTargetProxy()->canUseMixedSamples(*ctx->priv().caps())) {
         aa = GrAAType::kCoverage;
     } else {
         aa = GrAAType::kNone;
     }
 
-    rtc->addDrawOp(GrOp::Make<GrPathTessellateOp>(ctx, canvas->getTotalMatrix(), fPath,
+    sdc->addDrawOp(GrOp::Make<GrPathTessellateOp>(ctx, canvas->getTotalMatrix(), fPath,
                                                   std::move(paint), aa, fOpFlags));
 
     // Draw the path points.

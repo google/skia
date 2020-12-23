@@ -75,7 +75,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                         mbet->releaseContext());
 
                 SkGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
-                proxy = device->accessRenderTargetContext()->asTextureProxyRef();
+                proxy = device->surfaceDrawContext()->asTextureProxyRef();
             } else {
                 image = SkImage::MakeFromTexture(dContext,
                                                  mbet->texture(),
@@ -292,7 +292,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             }
             REPORTER_ASSERT(reporter, surface);
             SkGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
-            GrTextureProxy* texProxy = device->accessRenderTargetContext()->asTextureProxy();
+            GrTextureProxy* texProxy = device->surfaceDrawContext()->asTextureProxy();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipmapped());
 
             texProxy->instantiate(resourceProvider);

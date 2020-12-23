@@ -24,6 +24,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -48,7 +49,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
 
-    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
+    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
     auto context = canvas->recordingContext();
 
@@ -80,13 +81,13 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
                 aa |= SkCanvas::kRight_QuadAAFlag;
             }
 
-            if (rtc) {
+            if (sdc) {
                 // Use non-public API to leverage general GrPaint capabilities
                 SkMatrix view = canvas->getTotalMatrix();
                 SkSimpleMatrixProvider matrixProvider(view);
                 GrPaint grPaint;
-                SkPaintToGrPaint(context, rtc->colorInfo(), paint, matrixProvider, &grPaint);
-                rtc->fillRectWithEdgeAA(nullptr, std::move(grPaint), GrAA::kYes,
+                SkPaintToGrPaint(context, sdc->colorInfo(), paint, matrixProvider, &grPaint);
+                sdc->fillRectWithEdgeAA(nullptr, std::move(grPaint), GrAA::kYes,
                                         static_cast<GrQuadAAFlags>(aa), view, tile);
             } else {
                 // Fallback to solid color on raster backend since the public API only has color

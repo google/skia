@@ -2440,9 +2440,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    // don't call
-    virtual GrSurfaceDrawContext* internal_private_accessTopLayerRenderTargetContext();
-
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
     // These methods exist to support WebView in Android Framework.
     SkIRect topLayerBounds() const;
@@ -2595,6 +2592,7 @@ private:
     // The top-most device in the stack, will change within saveLayer()'s. All drawing and clipping
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
+    virtual GrSurfaceDrawContext* topDeviceSurfaceDrawContext();
 
     class MCRec;
 

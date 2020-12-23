@@ -53,6 +53,11 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/SkGr.h"
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#   include "src/gpu/GrRenderTarget.h"
+#   include "src/gpu/GrRenderTargetProxy.h"
+#   include "src/gpu/GrSurfaceDrawContext.h"
+#endif
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
@@ -559,6 +564,10 @@ SkISize SkCanvas::getBaseLayerSize() const {
 SkBaseDevice* SkCanvas::topDevice() const {
     SkASSERT(fMCRec->fDevice);
     return fMCRec->fDevice;
+}
+
+GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
+    return this->topDevice()->surfaceDrawContext();
 }
 
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
@@ -1676,10 +1685,6 @@ SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
-GrSurfaceDrawContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
-    return this->topDevice()->accessRenderTargetContext();
-}
-
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && SK_SUPPORT_GPU
 
 #include "src/gpu/GrRenderTarget.h"
@@ -1691,13 +1696,13 @@ SkIRect SkCanvas::topLayerBounds() const {
 }
 
 GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
-    GrSurfaceDrawContext* sdc = this->topDevice()->accessRenderTargetContext();
+    const GrSurfaceDrawContext* sdc = const_cast<SkCanvas*>(this)->topDeviceSurfaceDrawContext();
     if (!sdc) {
         return {};
     }
-    GrRenderTargetProxy* proxy = sdc->asRenderTargetProxy();
+    const GrRenderTargetProxy* proxy = sdc->asRenderTargetProxy();
     SkASSERT(proxy);
-    GrRenderTarget* renderTarget = proxy->peekRenderTarget();
+    const GrRenderTarget* renderTarget = proxy->peekRenderTarget();
     return renderTarget ? renderTarget->getBackendRenderTarget() : GrBackendRenderTarget();
 }
 #endif

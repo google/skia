@@ -19,6 +19,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
 
@@ -200,8 +201,8 @@ void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
-    if (!ctx || !rtc) {
+    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!ctx || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
@@ -209,7 +210,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }
-    return this->onDraw(ctx, rtc, canvas, errorMsg);
+    return this->onDraw(ctx, sdc, canvas, errorMsg);
 }
 
 template <typename Fn>
