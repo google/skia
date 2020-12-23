@@ -6,23 +6,24 @@
  */
 
 #include "bench/Benchmark.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 
-static void draw_into_bitmap(const SkBitmap& bm) {
-    const int w = bm.width();
-    const int h = bm.height();
+static sk_sp<SkImage> make_image(int w, int h) {
+    auto surf = SkSurface::MakeRaster(SkImageInfo::Make(w, h,
+                                                        kN32_SkColorType, kOpaque_SkAlphaType));
+    auto canvas = surf->getCanvas();
+    canvas->clear(SK_ColorBLACK);
 
-    SkCanvas canvas(bm);
     SkPaint p;
     p.setAntiAlias(true);
     p.setColor(SK_ColorRED);
-    canvas.drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
+    canvas->drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
                       SkIntToScalar(std::min(w, h))*3/8, p);
 
     SkRect r;
@@ -30,7 +31,8 @@ static void draw_into_bitmap(const SkBitmap& bm) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(4));
     p.setColor(SK_ColorBLUE);
-    canvas.drawRect(r, p);
+    canvas->drawRect(r, p);
+    return surf->makeImageSnapshot();
 }
 
 /*  Variants for bitmaprect
@@ -40,39 +42,33 @@ static void draw_into_bitmap(const SkBitmap& bm) {
  */
 
 class BitmapRectBench : public Benchmark {
-    SkBitmap                fBitmap;
+    sk_sp<SkImage>          fImage;
     bool                    fSlightMatrix;
     uint8_t                 fAlpha;
-    SkFilterQuality         fFilterQuality;
+    SkSamplingOptions       fSampling;
     SkString                fName;
     SkRect                  fSrcR, fDstR;
 
     static const int kWidth = 128;
     static const int kHeight = 128;
 public:
-    BitmapRectBench(U8CPU alpha, SkFilterQuality filterQuality,
-                    bool slightMatrix)  {
-        fAlpha = SkToU8(alpha);
-        fFilterQuality = filterQuality;
-        fSlightMatrix = slightMatrix;
-
-        fBitmap.setInfo(SkImageInfo::MakeN32Premul(kWidth, kHeight));
-    }
+    BitmapRectBench(U8CPU alpha, SkFilterQuality filterQuality, bool slightMatrix)
+        : fSlightMatrix(slightMatrix)
+        , fAlpha(SkToU8(alpha))
+        , fSampling(filterQuality)
+    {}
 
 protected:
     const char* onGetName() override {
-        fName.printf("bitmaprect_%02X_%sfilter_%s",
+        fName.printf("imagerect_%02X_%sfilter_%s",
                      fAlpha,
-                     kNone_SkFilterQuality == fFilterQuality ? "no" : "",
+                     fSampling == SkSamplingOptions() ? "no" : "",
                      fSlightMatrix ? "trans" : "identity");
         return fName.c_str();
     }
 
     void onDelayedSetup() override {
-        fBitmap.allocPixels();
-        fBitmap.setAlphaType(kOpaque_SkAlphaType);
-        fBitmap.eraseColor(SK_ColorBLACK);
-        draw_into_bitmap(fBitmap);
+        fImage = make_image(kWidth, kHeight);
 
         fSrcR.setWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
         fDstR.setWH(SkIntToScalar(kWidth), SkIntToScalar(kHeight));
@@ -93,12 +89,11 @@ protected:
 
         SkPaint paint;
         this->setupPaint(&paint);
-        paint.setFilterQuality(fFilterQuality);
         paint.setAlpha(fAlpha);
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawBitmapRect(fBitmap, fSrcR, fDstR, &paint,
-                                   SkCanvas::kStrict_SrcRectConstraint);
+            canvas->drawImageRect(fImage.get(), fSrcR, fDstR, fSampling, &paint,
+                                  SkCanvas::kStrict_SrcRectConstraint);
         }
     }
 

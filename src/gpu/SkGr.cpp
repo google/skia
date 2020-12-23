@@ -222,7 +222,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
 
-    GrFPArgs fpArgs(context, matrixProvider, skPaint.getFilterQuality(), &dstColorInfo);
+    GrFPArgs fpArgs(context, matrixProvider, SkPaintPriv::GetFQ(skPaint), &dstColorInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -427,7 +427,7 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
-                    GrFPArgs(context, matrixProvider, paint.getFilterQuality(), &dstColorInfo));
+                    GrFPArgs(context, matrixProvider, SkPaintPriv::GetFQ(paint), &dstColorInfo));
             if (!shaderFP) {
                 return false;
             }

@@ -93,9 +93,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     surf->getCanvas()->clear(SK_ColorBLUE);
     surf->getCanvas()->save();
     surf->getCanvas()->scale(0.25, 0.25);
-    SkPaint paint;
-    paint.setFilterQuality(kHigh_SkFilterQuality);
-    surf->getCanvas()->drawImage(img, 0, 0, &paint);
+    surf->getCanvas()->drawImage(img.get(), 0, 0, SkSamplingOptions({1.0f/3, 1.0f/3}), nullptr);
     surf->getCanvas()->restore();
     surf->flushAndSubmit();
     dContext->resetGLTextureBindings();
