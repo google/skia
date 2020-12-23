@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92647c64_232efedc",
+        "filename": "site/user/modules/particles.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-23T14:29:11Z",
+      "side": 1,
+      "message": "Kevin: I pre-uploaded the fixed file to particles.skia.org. I\u0027m assuming there will only be a small window where this link exists, before the WASM module is updated (or vice-versa?). In either case, it will just be this effect that doesn\u0027t work correctly for that time - most of our example effects don\u0027t directly refer to the type of \u0027seed\u0027, so particle scripts that used to work will continue to do so. (I also checked all of the example links on particles.skia.org - I\u0027m fairly certain that all of those effects are unaffected).",
+      "revId": "1c4d1bbc5d3ebc34f338f3e5e817947cfa566376",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
