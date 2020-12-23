@@ -874,12 +874,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~Once", "~Shared") // Not sure what's up with these tests.
 	}
 
-	if b.extraConfig("TSAN") {
-		match = append(match, "~ReadWriteAlpha")      // Flaky on TSAN-covered on nvidia bots.
-		match = append(match, "~RGBA4444TextureTest", // Flakier than they are important.
-			"~RGB565TextureTest")
-	}
-
 	// By default, we test with GPU threading enabled, unless specifically
 	// disabled.
 	if b.extraConfig("NoGPUThreads") {

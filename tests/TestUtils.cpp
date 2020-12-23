@@ -97,34 +97,6 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);
 }
 
-void FillPixelData(int width, int height, GrColor* data) {
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            unsigned int red = (unsigned int)(256.f * (i / (float)width));
-            unsigned int green = (unsigned int)(256.f * (j / (float)height));
-            data[i + j * width] = GrColorPackRGBA(red - (red >> 8), green - (green >> 8),
-                                                  0xff, 0xff);
-        }
-    }
-}
-
-bool DoesFullBufferContainCorrectColor(const GrColor* srcBuffer,
-                                       const GrColor* dstBuffer,
-                                       int width, int height) {
-    const GrColor* srcPtr = srcBuffer;
-    const GrColor* dstPtr = dstBuffer;
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            if (srcPtr[i] != dstPtr[i]) {
-                return false;
-            }
-        }
-        srcPtr += width;
-        dstPtr += width;
-    }
-    return true;
-}
-
 bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
     SkPixmap pm;
     if (!bitmap.peekPixels(&pm)) {
