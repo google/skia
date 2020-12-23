@@ -76,7 +76,6 @@ public:
         kArray,
         kEnum,
         kGeneric,
-        kNullable,
         kMatrix,
         kOther,
         kSampler,
@@ -128,11 +127,6 @@ public:
     static std::unique_ptr<Type> MakeScalarType(const char* name, NumberKind numberKind,
                                                 int priority, bool highPrecision = false) {
         return std::unique_ptr<Type>(new Type(name, numberKind, priority, highPrecision));
-    }
-
-    // Create a nullable type.
-    static std::unique_ptr<Type> MakeNullableType(String name, const Type& componentType) {
-        return std::unique_ptr<Type>(new Type(std::move(name), componentType));
     }
 
     // Create a vector type.
@@ -308,16 +302,6 @@ public:
     }
 
     /**
-     * For nullable types, returns the base type, otherwise returns the type itself.
-     */
-    const Type& nonnullable() const {
-        if (fTypeKind == TypeKind::kNullable) {
-            return this->componentType();
-        }
-        return *this;
-    }
-
-    /**
      * For matrices and vectors, returns the number of columns (e.g. both mat3 and float3 return 3).
      * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1.
      * For all other types, causes an SkASSERTion failure.
@@ -488,19 +472,6 @@ private:
             , fTypeKind(TypeKind::kStruct)
             , fNumberKind(NumberKind::kNonnumeric)
             , fFields(std::move(fields)) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
-    }
-
-    // Constructor for MakeNullableType.
-    Type(String name, const Type& componentType)
-            : INHERITED(-1, kSymbolKind, "")
-            , fNameString(std::move(name))
-            , fTypeKind(Type::TypeKind::kNullable)
-            , fNumberKind(NumberKind::kNonnumeric)
-            , fComponentType(&componentType)
-            , fColumns(1)
-            , fRows(1)
-            , fDimensions(SpvDim1D) {
         fName = StringFragment(fNameString.c_str(), fNameString.length());
     }
 

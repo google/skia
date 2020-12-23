@@ -301,7 +301,7 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
     }
     if (fKind == Program::kRuntimeEffect_Kind) {
         if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
-            baseType->nonnullable() != *fContext.fFragmentProcessor_Type) {
+            *baseType != *fContext.fFragmentProcessor_Type) {
             fErrors.error(decls.fOffset, "'in' variables not permitted in runtime effects");
         }
     }
@@ -919,7 +919,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         // Only the (builtin) declarations of 'sample' are allowed to have FP parameters.
         // (You can pass other opaque types to functions safely; this restriction is
         // fragment-processor specific.)
-        if ((type->nonnullable() == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
+        if ((*type == *fContext.fFragmentProcessor_Type && !fIsBuiltinCode) ||
             !typeIsAllowed(type)) {
             fErrors.error(param.fOffset,
                           "parameters of type '" + type->displayName() + "' not allowed");
@@ -1243,9 +1243,8 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     int64_t currentValue = 0;
     Layout layout;
-    ASTNode enumType(
-            e.fNodes, e.fOffset, ASTNode::Kind::kType,
-            ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false, /*isNullable=*/false));
+    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
+                     ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false));
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
@@ -1305,17 +1304,6 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     }
     const Type* result = &symbol->as<Type>();
     const bool isArray = (type.begin() != type.end());
-    if (td.fIsNullable) {
-        if (*result == *fContext.fFragmentProcessor_Type) {
-            if (isArray) {
-                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
-            }
-            result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeNullableType(String(result->name()) + "?", *result));
-        } else {
-            fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
-        }
-    }
     if (*result == *fContext.fVoid_Type) {
         if (!allowVoid) {
             fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
@@ -1423,7 +1411,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                 !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
                 !modifiers.fLayout.fKey &&
                 modifiers.fLayout.fBuiltin == -1 &&
-                var->type().nonnullable() != *fContext.fFragmentProcessor_Type &&
+                var->type() != *fContext.fFragmentProcessor_Type &&
                 var->type().typeKind() != Type::TypeKind::kSampler) {
                 bool valid = false;
                 for (const auto& decl : fFile->root()) {

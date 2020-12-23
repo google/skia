@@ -14,16 +14,6 @@ CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
     }
-    if (this->typeKind() == TypeKind::kNullable && other.typeKind() != TypeKind::kNullable) {
-        CoercionCost result = this->componentType().coercionCost(other);
-        if (result.isPossible(/*allowNarrowing=*/true)) {
-            ++result.fNormalCost;
-        }
-        return result;
-    }
-    if (this->name() == "null" && other.typeKind() == TypeKind::kNullable) {
-        return CoercionCost::Free();
-    }
     if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());

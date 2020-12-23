@@ -192,14 +192,6 @@ const Symbol* Rehydrator::symbol() {
                     std::make_unique<Field>(/*offset=*/-1, owner, index));
             return result;
         }
-        case kNullableType_Command: {
-            uint16_t id = this->readU16();
-            const Type* base = this->type();
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeNullableType(base->name() + "?", *base));
-            this->addSymbol(id, result);
-            return result;
-        }
         case kStructType_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();

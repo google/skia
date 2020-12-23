@@ -50,9 +50,7 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
     if (layout.fCType != Layout::CType::kDefault) {
         return layout.fCType;
     }
-    if (type.typeKind() == Type::TypeKind::kNullable) {
-        return ParameterCType(context, type.componentType(), layout);
-    } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
+    if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
         return Layout::CType::kFloat;
     } else if (type == *context.fInt_Type ||
                type == *context.fShort_Type ||
@@ -200,8 +198,8 @@ void HCodeGenerator::writeMake() {
                      fFullName.c_str());
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type ||
-                param->type().nonnullable().typeKind() == Type::TypeKind::kSampler) {
+            if (param->type() == *fContext.fFragmentProcessor_Type ||
+                param->type().typeKind() == Type::TypeKind::kSampler) {
                 this->writef("%sstd::move(%s)", separator, String(param->name()).c_str());
             } else {
                 this->writef("%s%s", separator, String(param->name()).c_str());
@@ -249,7 +247,7 @@ void HCodeGenerator::writeConstructor() {
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->name());
         const char* name = nameString.c_str();
-        const Type& type = param->type().nonnullable();
+        const Type& type = param->type();
         if (type.typeKind() == Type::TypeKind::kSampler) {
             this->writef("\n    , %s(std::move(%s)", FieldName(name).c_str(), name);
             for (const Section* s : fSectionAndParameterHelper.getSections(
@@ -277,7 +275,7 @@ void HCodeGenerator::writeConstructor() {
         const Type& paramType = param->type();
         if (paramType.typeKind() == Type::TypeKind::kSampler) {
             ++samplerCount;
-        } else if (paramType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+        } else if (paramType == *fContext.fFragmentProcessor_Type) {
             SampleUsage usage = Analysis::GetSampleUsage(fProgram, *param);
 
             std::string perspExpression;
@@ -307,7 +305,7 @@ void HCodeGenerator::writeFields() {
     this->writeSection(kFieldsSection);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->name()).c_str());
-        if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
+        if (param->type() == *fContext.fFragmentProcessor_Type) {
             // Don't need to write any fields, FPs are held as children
         } else {
             this->writef("    %s %s;\n", FieldType(fContext, param->type(),

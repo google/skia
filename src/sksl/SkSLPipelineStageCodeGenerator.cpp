@@ -127,7 +127,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                         // Skip over fragmentProcessors (shaders).
                         // These are indexed separately from other globals.
                         if (var.modifiers().fFlags & flag &&
-                            var.type().nonnullable() != *fContext.fFragmentProcessor_Type) {
+                            var.type() != *fContext.fFragmentProcessor_Type) {
                             ++index;
                         }
                     }

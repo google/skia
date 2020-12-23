@@ -189,11 +189,6 @@ void Dehydrator::write(const Symbol& s) {
                     this->writeId(&t);
                     this->write(t.name());
                     break;
-                case Type::TypeKind::kNullable:
-                    this->writeCommand(Rehydrator::kNullableType_Command);
-                    this->writeId(&t);
-                    this->write(t.componentType());
-                    break;
                 case Type::TypeKind::kStruct:
                     this->writeCommand(Rehydrator::kStructType_Command);
                     this->writeId(&t);
