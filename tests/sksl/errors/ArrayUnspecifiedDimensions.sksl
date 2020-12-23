@@ -1,4 +1,3 @@
 in int arrUnsized[];
 in int arrFloat[1.];
 in int arrBool[true];
-in int arrNull[null];

@@ -40,7 +40,6 @@ public:
         kFunctionReference,
         kFunctionCall,
         kIndex,
-        kNullLiteral,
         kPrefix,
         kPostfix,
         kSetting,

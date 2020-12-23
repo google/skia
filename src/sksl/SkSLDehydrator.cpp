@@ -29,7 +29,6 @@
 #include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -335,9 +334,6 @@ void Dehydrator::write(const Expression* e) {
                 this->writeS32(i.value());
                 break;
             }
-            case Expression::Kind::kNullLiteral:
-                this->writeCommand(Rehydrator::kNullLiteral_Command);
-                break;
             case Expression::Kind::kPostfix: {
                 const PostfixExpression& p = e->as<PostfixExpression>();
                 this->writeCommand(Rehydrator::kPostfix_Command);

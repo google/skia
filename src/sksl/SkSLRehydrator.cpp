@@ -31,7 +31,6 @@
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -510,8 +509,6 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             int value = this->readS32();
             return std::make_unique<IntLiteral>(-1, value, type);
         }
-        case Rehydrator::kNullLiteral_Command:
-            return std::make_unique<NullLiteral>(fContext, -1);
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();

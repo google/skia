@@ -19,16 +19,9 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrNullableChildProcessor& _outer = args.fFp.cast<GrNullableChildProcessor>();
         (void) _outer;
-        fragBuilder->codeAppendf(
-R"SkSL(if (%s) {)SkSL"
-, _outer.childProcessor(0) ? "true" : "false");
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
-R"SkSL(
-    return %s;
-} else {
-    return half4(0.5);
-}
+R"SkSL(return %s;
 )SkSL"
 , _sample0.c_str());
     }

@@ -104,7 +104,6 @@ public:
         kModifiers_Command,
         // uint16 id, Type baseType
         kNullableType_Command,
-        kNullLiteral_Command,
         // uint8 op, Expression operand
         kPostfix_Command,
         // uint8 op, Expression operand

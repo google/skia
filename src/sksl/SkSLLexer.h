@@ -34,7 +34,6 @@ struct Token {
         TK_CONTINUE,
         TK_DISCARD,
         TK_RETURN,
-        TK_NULL_LITERAL,
         TK_IN,
         TK_OUT,
         TK_INOUT,

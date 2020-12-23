@@ -2180,7 +2180,7 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
     }
 }
 
-/* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | NULL_LITERAL | '(' expression ')' */
+/* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | '(' expression ')' */
 ASTNode::ID Parser::term() {
     Token t = this->peek();
     switch (t.fKind) {
@@ -2213,9 +2213,6 @@ ASTNode::ID Parser::term() {
             }
             break;
         }
-        case Token::Kind::TK_NULL_LITERAL:
-            this->nextToken();
-            return this->createNode(t.fOffset, ASTNode::Kind::kNull);
         case Token::Kind::TK_LPAREN: {
             this->nextToken();
             AutoDepth depth(this);

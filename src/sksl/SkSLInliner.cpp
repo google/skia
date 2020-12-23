@@ -38,7 +38,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLNop.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -390,7 +389,6 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kIntLiteral:
         case Expression::Kind::kFloatLiteral:
-        case Expression::Kind::kNullLiteral:
             return expression.clone();
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
@@ -1045,7 +1043,6 @@ public:
             case Expression::Kind::kFloatLiteral:
             case Expression::Kind::kFunctionReference:
             case Expression::Kind::kIntLiteral:
-            case Expression::Kind::kNullLiteral:
             case Expression::Kind::kSetting:
             case Expression::Kind::kTypeReference:
             case Expression::Kind::kVariableReference:
