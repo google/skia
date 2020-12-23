@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa16a438_b7fa50c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-23T18:15:04Z",
+      "side": 1,
+      "message": "This doesn\u0027t work with complex shader DAGs, where there is no single leaf local matrix.\n\nBut it does fix common cases and unblocks some SVG text work.",
+      "revId": "ffe986dcfdb340193e77858be86575f6fb2408e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
