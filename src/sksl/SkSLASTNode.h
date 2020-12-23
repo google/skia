@@ -184,14 +184,12 @@ struct ASTNode {
     struct TypeData {
         TypeData() {}
 
-        TypeData(StringFragment name, bool isStructDeclaration, bool isNullable)
+        TypeData(StringFragment name, bool isStructDeclaration)
             : fName(name)
-            , fIsStructDeclaration(isStructDeclaration)
-            , fIsNullable(isNullable) {}
+            , fIsStructDeclaration(isStructDeclaration) {}
 
         StringFragment fName;
         bool fIsStructDeclaration;
-        bool fIsNullable;
     };
 
     struct ParameterData {

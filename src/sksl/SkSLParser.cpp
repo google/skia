@@ -588,7 +588,7 @@ ASTNode::ID Parser::structDeclaration() {
     fSymbols.add(std::move(newType));
     return this->createNode(name.fOffset, ASTNode::Kind::kType,
                             ASTNode::TypeData(this->text(name),
-                                              /*isStructDeclaration=*/true, /*isNullable=*/false));
+                                              /*isStructDeclaration=*/true));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
@@ -1166,7 +1166,7 @@ ASTNode::ID Parser::type() {
         return ASTNode::ID::Invalid();
     }
     ASTNode::ID result = this->createNode(type.fOffset, ASTNode::Kind::kType);
-    ASTNode::TypeData td(this->text(type), /*isStructDeclaration=*/false, /*isNullable=*/false);
+    ASTNode::TypeData td(this->text(type), /*isStructDeclaration=*/false);
     bool isArray = false;
     while (this->checkNext(Token::Kind::TK_LBRACKET)) {
         if (isArray) {
@@ -1187,7 +1187,6 @@ ASTNode::ID Parser::type() {
         isArray = true;
         this->expect(Token::Kind::TK_RBRACKET, "']'");
     }
-    td.fIsNullable = this->checkNext(Token::Kind::TK_QUESTION);
     getNode(result).setTypeData(td);
     return result;
 }
