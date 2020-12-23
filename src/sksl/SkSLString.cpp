@@ -237,32 +237,22 @@ String to_string(double value) {
     return String(buffer.str().c_str());
 }
 
-SKSL_INT stoi(const String& s) {
-    char* p;
-    SkDEBUGCODE(errno = 0;)
-    long result = strtoul(s.c_str(), &p, 0);
-    SkASSERT(*p == 0);
-    SkASSERT(!errno);
-    return result;
-}
-
-SKSL_FLOAT stod(const String& s) {
-    double result;
-    std::string str(s.c_str(), s.size());
+bool stod(const StringFragment& s, SKSL_FLOAT* value) {
+    std::string str(s.data(), s.size());
     std::stringstream buffer(str);
     buffer.imbue(std::locale::classic());
-    buffer >> result;
-    SkASSERT(!buffer.fail());
-    return result;
+    buffer >> *value;
+    return !buffer.fail();
 }
 
-long stol(const String& s) {
+bool stoi(const StringFragment& s, SKSL_INT* value) {
     char* p;
-    SkDEBUGCODE(errno = 0;)
-    long result = strtoul(s.c_str(), &p, 0);
-    SkASSERT(*p == 0);
-    SkASSERT(!errno);
-    return result;
+    errno = 0;
+    unsigned long long result = strtoull(s.begin(), &p, /*base=*/0);
+    // TODO(skia:10932): SKSL_INT is still a signed 32-bit int. Values above 0x7FFFFFFF can be
+    // interpreted incorrectly depending on the types involved.
+    *value = static_cast<SKSL_INT>(result);
+    return p == s.end() && errno == 0 && result <= 0xFFFFFFFF;
 }
 
 }  // namespace SkSL
