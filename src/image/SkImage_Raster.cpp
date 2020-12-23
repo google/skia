@@ -267,7 +267,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectConte
                  subset.height());
 
     bitmap.setImmutable();
-    return MakeFromBitmap(bitmap);
+    return bitmap.asImage();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -399,7 +399,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(SkColorType targetCT
 
     SkAssertResult(dst.writePixels(src));
     dst.setImmutable();
-    return SkImage::MakeFromBitmap(dst);
+    return dst.asImage();
 }
 
 sk_sp<SkImage> SkImage_Raster::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {

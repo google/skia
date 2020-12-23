@@ -462,7 +462,7 @@ static ImageAndOffset to_image(SkGlyphID gid, SkBulkGlyphMetricsAndImages* small
                 }
             }
             bm.setImmutable();
-            return {SkImage::MakeFromBitmap(bm), {bounds.x(), bounds.y()}};
+            return {bm.asImage(), {bounds.x(), bounds.y()}};
         case SkMask::kA8_Format:
             bm.installPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()),
                              mask.fImage, mask.fRowBytes);

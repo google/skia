@@ -6,8 +6,8 @@ REG_FIDDLE(skbug_5648, 256, 256, true, 4) {
 void draw(SkCanvas*) {
     SkBitmap bitmap;
     source.extractSubset(&bitmap, {0, 0, source.width() - 1, source.height() - 1});
-    auto img0 = SkImage::MakeFromBitmap(bitmap);
-    auto img1 = SkImage::MakeFromBitmap(bitmap);
+    auto img0 = bitmap.asImage();
+    auto img1 = bitmap.asImage();
     SkDebugf("%u\n%u\n", img0->uniqueID(), img1->uniqueID());
 }
 }  // END FIDDLE

@@ -40,13 +40,13 @@ DEF_TEST(Shader_isAImage, reporter) {
     const int H = 100;
     SkBitmap bm;
     bm.allocN32Pixels(W, H);
-    auto img = SkImage::MakeFromBitmap(bm);
+    auto img = bm.asImage();
     const SkMatrix localM = SkMatrix::Scale(2, 3);
     const SkTileMode tmx = SkTileMode::kRepeat;
     const SkTileMode tmy = SkTileMode::kMirror;
 
     auto shader0 = bm.makeShader(tmx, tmy, SkSamplingOptions(), localM);
-    auto shader1 = SkImage::MakeFromBitmap(bm)->makeShader(tmx, tmy, SkSamplingOptions(), localM);
+    auto shader1 = bm.asImage()->makeShader(tmx, tmy, SkSamplingOptions(), localM);
 
     check_isaimage(reporter, shader0.get(), W, H, tmx, tmy, localM);
     check_isaimage(reporter, shader1.get(), W, H, tmx, tmy, localM);

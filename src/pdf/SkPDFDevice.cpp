@@ -136,7 +136,8 @@ sk_sp<SkImage> alpha_image_to_greyscale_image(const SkImage* mask) {
                           greyBitmap.getPixels(), greyBitmap.rowBytes(), 0, 0)) {
         return nullptr;
     }
-    return SkImage::MakeFromBitmap(greyBitmap);
+    greyBitmap.setImmutable();
+    return greyBitmap.asImage();
 }
 
 static int add_resource(SkTHashSet<SkPDFIndirectReference>& resources, SkPDFIndirectReference ref) {

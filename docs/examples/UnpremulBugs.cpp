@@ -15,7 +15,7 @@ void doCell(SkCanvas* canvas, float x, float y, SkAlphaType at, SkColor c, int n
     SkBitmap bmp;
     bmp.allocPixels(info);
     fill(bmp, c, n);
-    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bmp);
+    sk_sp<SkImage> img = bmp.asImage();
 
     SkPaint paint;
     const SkTileMode tile = SkTileMode::kRepeat;

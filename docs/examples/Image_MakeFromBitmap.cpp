@@ -13,9 +13,9 @@ void draw(SkCanvas* canvas) {
     SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);
     SkBitmap bitmap;
     bitmap.installPixels(pixmap);
-    sk_sp<SkImage> image1 = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> image1 = bitmap.asImage();
     bitmap.setImmutable();
-    sk_sp<SkImage> image2 = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> image2 = bitmap.asImage();
     *pixmap.writable_addr8(2, 2) = 0x00;
     canvas->scale(10, 10);
     canvas->drawImage(image1, 0, 0);

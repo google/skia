@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
         }
         left = right;
     }
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> image = bitmap.asImage();
     SkImage* imagePtr = image.get();
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
         canvas->drawImageNine(imagePtr, center, SkRect::MakeWH(dest, dest), nullptr);

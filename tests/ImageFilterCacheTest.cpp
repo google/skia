@@ -193,7 +193,7 @@ static void test_image_backed(skiatest::Reporter* reporter,
 DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     SkBitmap srcBM = create_bm();
 
-    sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
+    sk_sp<SkImage> srcImage(srcBM.asImage());
 
     test_image_backed(reporter, nullptr, srcImage);
 }

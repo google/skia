@@ -35,7 +35,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
         // Return something so the rest of the debugger can proceeed.
         SkBitmap bm;
         bm.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
-        return SkImage::MakeFromBitmap(bm);
+        return bm.asImage();
     }
     SkSharingDeserialContext* context = reinterpret_cast<SkSharingDeserialContext*>(ctx);
     uint32_t fid;

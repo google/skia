@@ -22,7 +22,7 @@ void draw(SkCanvas* canvas) {
                 image->isLazyGenerated() ? "is lazily generated" : "not lazily generated",
                 20, image->height() * 3 / 4, font, paint);
     };
-    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
+    sk_sp<SkImage> bitmapImage(source.asImage());
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(dContext, backEndTexture,
                                                          kTopLeft_GrSurfaceOrigin,
                                                          kRGBA_8888_SkColorType,

@@ -247,7 +247,7 @@ sk_sp<SkImage> SkMakeImageFromCGImage(CGImageRef src) {
     }
 
     bm.setImmutable();
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

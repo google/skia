@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
             *(premulBitmap.getAddr32(x, y)) = 0x80808080;
         }
     }
-    sk_sp<SkImage> premulImage = SkImage::MakeFromBitmap(premulBitmap);
+    sk_sp<SkImage> premulImage = premulBitmap.asImage();
 
     SkImageInfo unpremulInfo = premulInfo.makeAlphaType(kUnpremul_SkAlphaType);
     SkBitmap unpremulBitmap;
@@ -22,7 +22,7 @@ void draw(SkCanvas* canvas) {
             *(unpremulBitmap.getAddr32(x, y)) = 0x80FFFFFF;
         }
     }
-    sk_sp<SkImage> unpremulImage = SkImage::MakeFromBitmap(unpremulBitmap);
+    sk_sp<SkImage> unpremulImage = unpremulBitmap.asImage();
 
     SkPaint paint;
     const SkTileMode tile = SkTileMode::kRepeat;

@@ -25,7 +25,7 @@ static sk_sp<SkColorFilter> make_color_filter() {
 }
 
 void draw(SkCanvas* canvas) {
-    auto image = SkImage::MakeFromBitmap(make_alpha_image(96, 96));
+    auto image = make_alpha_image(96, 96).asImage();
     SkPaint paint;
 
     paint.setColorFilter(make_color_filter());

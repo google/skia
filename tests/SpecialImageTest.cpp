@@ -159,7 +159,7 @@ DEF_TEST(SpecialImage_Raster, reporter) {
 static void test_specialimage_image(skiatest::Reporter* reporter) {
     SkBitmap bm = create_bm();
 
-    sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
+    sk_sp<SkImage> fullImage(bm.asImage());
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
                                                             nullptr,
