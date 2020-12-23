@@ -238,7 +238,7 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& s
                                               SkRect::Make(dst.bounds()),
                                               SkMatrix::kFill_ScaleToFit);
 
-    sk_sp<SkShader> shader = SkImageShader::Make(SkImage::MakeFromBitmap(bitmap),
+    sk_sp<SkShader> shader = SkImageShader::Make(bitmap.asImage(),
                                                  SkTileMode::kClamp,
                                                  SkTileMode::kClamp,
                                                  &sampling,

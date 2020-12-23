@@ -271,7 +271,7 @@ static void fuzz_drawImage(Fuzz* fuzz) {
     SkBitmap bmp;
     init_bitmap(fuzz, &bmp);
 
-    sk_sp<SkImage> image(SkImage::MakeFromBitmap(bmp));
+    sk_sp<SkImage> image(bmp.asImage());
 
     bool bl;
     fuzz->next(&bl);

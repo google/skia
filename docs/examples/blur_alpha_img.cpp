@@ -23,7 +23,7 @@ sk_sp<SkImage> foo() {
     SkCanvas c(bm);
     c.clear(0);
     c.drawRect(bounds, paint);
-    return SkImage::MakeFromBitmap(bm);
+    return bm.asImage();
 }
 
 void draw(SkCanvas* canvas) {

@@ -239,10 +239,10 @@ public:
                 return nullptr;
             }
 
-            return SkImage::MakeFromBitmap(subsetBM);
+            return subsetBM.asImage();
         }
 
-        return SkImage::MakeFromBitmap(fBitmap);
+        return fBitmap.asImage();
     }
 
 sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType, const SkColorSpace* colorSpace,

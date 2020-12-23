@@ -721,7 +721,7 @@ static const char* alpha_type_name(SkAlphaType alphaType) {
 bool DrawCommand::flatten(const SkBitmap& bitmap,
                           SkJSONWriter&   writer,
                           UrlDataManager& urlDataManager) {
-    sk_sp<SkImage> image(SkImage::MakeFromBitmap(bitmap));
+    sk_sp<SkImage> image(bitmap.asImage());
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_COLOR, color_type_name(bitmap.colorType()));
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_ALPHA, alpha_type_name(bitmap.alphaType()));
     // Image will appear to have no uses, TODO(nifong): provide the user with a useful explanation

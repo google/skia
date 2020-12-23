@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     canvas->scale(16, 16);
     canvas->drawBitmap(redBorder, 0, 0, nullptr);
     canvas->resetMatrix();
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(redBorder);
+    sk_sp<SkImage> image = redBorder.asImage();
     SkPaint lowPaint;
     lowPaint.setFilterQuality(kLow_SkFilterQuality);
     for (auto constraint : { SkCanvas::kStrict_SrcRectConstraint,

@@ -221,7 +221,7 @@ protected:
             SkBitmap bm;
             bm.allocN32Pixels(256, 256);
             bm.eraseColor(fColors[i].toSkColor());
-            auto image = SkImage::MakeFromBitmap(bm);
+            auto image = bm.asImage();
 
             fImages[i] = direct ? image->makeTextureImage(direct) : std::move(image);
         }

@@ -1224,6 +1224,8 @@ public:
 
 private:
     SkImage(const SkImageInfo& info, uint32_t uniqueID);
+
+    friend class SkBitmap;
     friend class SkImage_Base;
     friend class SkMipmapBuilder;
 

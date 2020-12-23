@@ -244,7 +244,7 @@ sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) 
         pixmap.setColorSpace(this->refColorSpace());
         if (ScopedGenerator(fSharedGenerator)->getPixels(pixmap)) {
             bitmap.setImmutable();
-            return SkImage::MakeFromBitmap(bitmap);
+            return bitmap.asImage();
         }
     }
     return nullptr;

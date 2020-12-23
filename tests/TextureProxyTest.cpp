@@ -229,7 +229,7 @@ static void invalidation_test(GrDirectContext* dContext, skiatest::Reporter* rep
         SkBitmap bm;
         bm.allocPixels(ii);
 
-        rasterImg = SkImage::MakeFromBitmap(bm);
+        rasterImg = bm.asImage();
         REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     }

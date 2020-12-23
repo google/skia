@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     SkBitmap redBorder;
     redBorder.installPixels(SkImageInfo::MakeN32Premul(4, 4),
             (void*) pixels, sizeof(pixels[0]));
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(redBorder);
+    sk_sp<SkImage> image = redBorder.asImage();
     SkPaint lowPaint;
     for (auto constraint : {
             SkCanvas::kFast_SrcRectConstraint,

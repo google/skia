@@ -1943,7 +1943,7 @@ static sk_sp<SkImage> bitmap_as_image(const SkBitmap& bitmap) {
     if (bitmap.drawsNothing()) {
         return nullptr;
     }
-    return SkImage::MakeFromBitmap(bitmap);
+    return bitmap.asImage();
 }
 
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy, const SkPaint* paint) {

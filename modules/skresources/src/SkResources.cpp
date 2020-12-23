@@ -141,7 +141,7 @@ sk_sp<SkImage> MultiFrameImageAsset::generateFrame(float t) {
                                        SkSamplingOptions(SkFilterMode::kLinear,
                                                          SkMipmapMode::kNearest),
                                        SkImage::kDisallow_CachingHint)) {
-                image = SkImage::MakeFromBitmap(bm);
+                image = bm.asImage();
             }
         } else {
             // When the image size is OK, just force-decode.
