@@ -413,11 +413,11 @@ private:
     const float fWangsTermQuadratic;
     const float fWangsTermCubic;
 
-    SIMDQueue<2> fLineQueue;
-    SIMDQueue<3> fQuadQueue;
-    SIMDQueue<4> fCubicQueue;
-    SIMDQueue<4> fChoppedCubicQueue;
-    float fCubicChopTs[4];
+    SIMDQueue<2> fLineQueue{};
+    SIMDQueue<3> fQuadQueue{};
+    SIMDQueue<4> fCubicQueue{};
+    SIMDQueue<4> fChoppedCubicQueue{};
+    float fCubicChopTs[4]{};
 
 #endif
     int* const fResolveLevelCounts;
