@@ -16,6 +16,24 @@
       "message": "Wonder if we should add a formal way to post-concat matrices on shaders? Isn\u0027t that the more natural fix here?\n\ne.g. shader-\u003emakeWithPostConcat(mx)\n\n.. not sure I remember how all the virtuals work under the hood. This idea may just complicate them more.",
       "revId": "82466e53eb2cde88bf94b5b30eb5ca1856a14ced",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b939fc4_7df7553f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-12-23T22:08:00Z",
+      "side": 1,
+      "message": "Indeed, and I think we actually had something like that in place at some point.\n\n...\n\nOh, I guess it was never fully plumbed for shaders - but it was almost there: https://skia-review.googlesource.com/c/skia/+/276098",
+      "parentUuid": "38b2c85a_5fd5f759",
+      "revId": "82466e53eb2cde88bf94b5b30eb5ca1856a14ced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
