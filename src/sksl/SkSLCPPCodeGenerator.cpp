@@ -377,7 +377,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
                                   p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
             if (&decl.var() == &var) {
                 return index;
-            } else if (decl.var().type().nonnullable() == *fContext.fFragmentProcessor_Type) {
+            } else if (decl.var().type() == *fContext.fFragmentProcessor_Type) {
                 ++index;
             }
         }
@@ -761,7 +761,7 @@ void CPPCodeGenerator::writePrivateVarValues() {
 }
 
 static bool is_accessible(const Variable& var) {
-    const Type& type = var.type().nonnullable();
+    const Type& type = var.type();
     return Type::TypeKind::kSampler != type.typeKind() &&
            Type::TypeKind::kOther != type.typeKind();
 }
@@ -1136,7 +1136,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                         wroteProcessor = true;
                     }
 
-                    if (variable.type().nonnullable() != *fContext.fFragmentProcessor_Type) {
+                    if (variable.type() != *fContext.fFragmentProcessor_Type) {
                         this->writef("        auto %s = _outer.%s;\n"
                                         "        (void) %s;\n",
                                         name, name, name);
@@ -1183,7 +1183,7 @@ void CPPCodeGenerator::writeClone() {
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
-            if (param->type().nonnullable() != *fContext.fFragmentProcessor_Type) {
+            if (param->type() != *fContext.fFragmentProcessor_Type) {
                 this->writef("\n, %s(src.%s)",
                              fieldName.c_str(),
                              fieldName.c_str());
@@ -1227,7 +1227,7 @@ void CPPCodeGenerator::writeDumpInfo() {
 
         for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
             // dumpInfo() doesn't need to log child FPs.
-            if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
+            if (param->type() == *fContext.fFragmentProcessor_Type) {
                 continue;
             }
 
@@ -1438,7 +1438,7 @@ bool CPPCodeGenerator::generateCode() {
                  "    (void) that;\n",
                  fullName, fullName, fullName);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
+        if (param->type() == *fContext.fFragmentProcessor_Type) {
             continue;
         }
         String nameString(param->name());

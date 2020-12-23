@@ -102,8 +102,6 @@ public:
         kModifiers8Bit_Command,
         // Layout layout, uint32 flags
         kModifiers_Command,
-        // uint16 id, Type baseType
-        kNullableType_Command,
         // uint8 op, Expression operand
         kPostfix_Command,
         // uint8 op, Expression operand
