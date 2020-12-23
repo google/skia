@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acdecd35_fa5c58cf",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-23T15:33:21Z",
+      "side": 1,
+      "message": "Is this still impossible?",
+      "revId": "1d24de81aa594187d14883d3c938481f9a7e25c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
