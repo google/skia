@@ -256,10 +256,6 @@ public:
             , fVec_Type(Type::MakeGenericType("$vec",
                                               {fInvalid_Type.get(), fFloat2_Type.get(),
                                                fFloat3_Type.get(), fFloat4_Type.get()}))
-            , fGVec_Type(Type::MakeOtherType("$gvec"))
-            , fGVec2_Type(Type::MakeOtherType("$gfloat2"))
-            , fGVec3_Type(Type::MakeOtherType("$gfloat3"))
-            , fGVec4_Type(Type::MakeGenericType("$gfloat4", static_type(*fFloat4_Type)))
             , fHVec_Type(Type::MakeGenericType("$hvec",
                                                {fInvalid_Type.get(), fHalf2_Type.get(),
                                                 fHalf3_Type.get(), fHalf4_Type.get()}))
@@ -428,10 +424,6 @@ public:
 
     const std::unique_ptr<Type> fVec_Type;
 
-    const std::unique_ptr<Type> fGVec_Type;
-    const std::unique_ptr<Type> fGVec2_Type;
-    const std::unique_ptr<Type> fGVec3_Type;
-    const std::unique_ptr<Type> fGVec4_Type;
     const std::unique_ptr<Type> fHVec_Type;
     const std::unique_ptr<Type> fDVec_Type;
     const std::unique_ptr<Type> fIVec_Type;
