@@ -10,6 +10,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSurface.h"
 #include "samplecode/Sample.h"
+#include "src/core/SkPaintPriv.h"
 #include "tools/Resources.h"
 #include "tools/timer/Timer.h"
 
@@ -96,7 +97,7 @@ protected:
         }
 
         SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
+        SkPaintPriv::SetFQ(&paint, kLow_SkFilterQuality);
         paint.setColor(SK_ColorWHITE);
 
         SkScalar anchorX = fAtlas->width()*0.5f;

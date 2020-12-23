@@ -184,7 +184,6 @@ protected:
                       SkScalar dx, SkScalar dy) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setFilterQuality(filter);
 
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -194,7 +193,7 @@ protected:
         canvas->scale(fScale, fScale);
         canvas->rotate(fAngle);
         canvas->drawImage(fImage.get(), -SkScalarHalf(fImage->width()), -SkScalarHalf(fImage->height()),
-                          &paint);
+                          SkSamplingOptions(filter), &paint);
 
         if (false) {
             acr.restore();
