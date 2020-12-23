@@ -35,7 +35,7 @@
 #define SKSL_USE_THREAD_LOCAL 1
 #endif
 
-using SKSL_INT = int32_t;
+using SKSL_INT = int64_t;
 using SKSL_FLOAT = float;
 
 #endif
