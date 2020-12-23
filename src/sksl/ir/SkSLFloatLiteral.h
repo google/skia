@@ -56,8 +56,13 @@ public:
         return INHERITED::coercionCost(target);
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
-        return this->value() == other.as<FloatLiteral>().value();
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override {
+        if (!other.is<FloatLiteral>()) {
+            return ComparisonResult::kUnknown;
+        }
+        return this->value() == other.as<FloatLiteral>().value() ? ComparisonResult::kEqual
+                                                                 : ComparisonResult::kNotEqual;
     }
 
     SKSL_FLOAT getConstantFloat() const override {

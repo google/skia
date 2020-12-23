@@ -95,13 +95,16 @@ public:
         return -this->operand()->getConstantFloat();
     }
 
-    bool compareConstant(const Context& context, const Expression& other) const override {
-        // This expression and the other expression must be of the same kind. Since the only
-        // compile-time PrefixExpression we optimize for is negation, that means we're comparing
-        // -X == -Y. The negatives should cancel out, so we can just constant-compare the inner
-        // expressions.
+    ComparisonResult compareConstant(const Context& context,
+                                     const Expression& other) const override {
+        if (!other.is<PrefixExpression>()) {
+            return ComparisonResult::kUnknown;
+        }
+        // The only compile-time PrefixExpression we optimize for is negation, so we're comparing
+        // `-X == -Y`.
         SkASSERT(this->isNegationOfCompileTimeConstant());
         SkASSERT(other.as<PrefixExpression>().isNegationOfCompileTimeConstant());
+        // The negatives cancel out; constant-compare the inner expressions.
         return this->operand()->compareConstant(context, *other.as<PrefixExpression>().operand());
     }
 
