@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d668a419_fb87451e",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T15:16:23Z",
+      "side": 1,
+      "message": "Do we want to leave this as \"seed\"?",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 67,
+        "endChar": 20
+      },
+      "revId": "1c4d1bbc5d3ebc34f338f3e5e817947cfa566376",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8697c90_b386d855",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T15:16:23Z",
+      "side": 1,
+      "message": "`fract(abs(10*seed))` ?",
+      "range": {
+        "startLine": 194,
+        "startChar": 11,
+        "endLine": 194,
+        "endChar": 39
+      },
+      "revId": "1c4d1bbc5d3ebc34f338f3e5e817947cfa566376",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "92647c64_232efedc",
         "filename": "site/user/modules/particles.md",
         "patchSetId": 2
