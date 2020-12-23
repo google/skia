@@ -197,30 +197,6 @@ public:
                                                          /*isMultisampled=*/true,
                                                          /*isSampled=*/false))
 
-            // FIXME figure out what we're supposed to do with the gsampler et al. types)
-            , fGSampler1D_Type(Type::MakeGenericType("$gsampler1D", static_type(*fSampler1D_Type)))
-            , fGSampler2D_Type(Type::MakeGenericType("$gsampler2D", static_type(*fSampler2D_Type)))
-            , fGSampler3D_Type(Type::MakeGenericType("$gsampler3D", static_type(*fSampler3D_Type)))
-            , fGSamplerCube_Type(
-                      Type::MakeGenericType("$gsamplerCube", static_type(*fSamplerCube_Type)))
-            , fGSampler2DRect_Type(
-                      Type::MakeGenericType("$gsampler2DRect", static_type(*fSampler2DRect_Type)))
-            , fGSampler1DArray_Type(
-                      Type::MakeGenericType("$gsampler1DArray", static_type(*fSampler1DArray_Type)))
-            , fGSampler2DArray_Type(
-                      Type::MakeGenericType("$gsampler2DArray", static_type(*fSampler2DArray_Type)))
-            , fGSamplerCubeArray_Type(Type::MakeGenericType("$gsamplerCubeArray",
-                                                            static_type(*fSamplerCubeArray_Type)))
-            , fGSamplerBuffer_Type(
-                      Type::MakeGenericType("$gsamplerBuffer", static_type(*fSamplerBuffer_Type)))
-            , fGSampler2DMS_Type(
-                      Type::MakeGenericType("$gsampler2DMS", static_type(*fSampler2DMS_Type)))
-            , fGSampler2DMSArray_Type(Type::MakeGenericType("$gsampler2DMSArray",
-                                                            static_type(*fSampler2DMSArray_Type)))
-            , fGSampler2DArrayShadow_Type(Type::MakeGenericType(
-                      "$gsampler2DArrayShadow", static_type(*fSampler2DArrayShadow_Type)))
-            , fGSamplerCubeArrayShadow_Type(Type::MakeGenericType(
-                      "$gsamplerCubeArrayShadow", static_type(*fSamplerCubeArrayShadow_Type)))
             , fGenType_Type(Type::MakeGenericType("$genType",
                                                   {fFloat_Type.get(), fFloat2_Type.get(),
                                                    fFloat3_Type.get(), fFloat4_Type.get()}))
@@ -282,10 +258,6 @@ public:
             , fSkCaps_Type(Type::MakeOtherType("$sk_Caps"))
             , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
             , fDefined_Expression(new Defined(fInvalid_Type.get())) {}
-
-    static std::vector<const Type*> static_type(const Type& t) {
-        return { &t, &t, &t, &t };
-    }
 
     const std::unique_ptr<Type> fInvalid_Type;
     const std::unique_ptr<Type> fVoid_Type;
@@ -394,20 +366,6 @@ public:
 
     const std::unique_ptr<Type> fSubpassInput_Type;
     const std::unique_ptr<Type> fSubpassInputMS_Type;
-
-    const std::unique_ptr<Type> fGSampler1D_Type;
-    const std::unique_ptr<Type> fGSampler2D_Type;
-    const std::unique_ptr<Type> fGSampler3D_Type;
-    const std::unique_ptr<Type> fGSamplerCube_Type;
-    const std::unique_ptr<Type> fGSampler2DRect_Type;
-    const std::unique_ptr<Type> fGSampler1DArray_Type;
-    const std::unique_ptr<Type> fGSampler2DArray_Type;
-    const std::unique_ptr<Type> fGSamplerCubeArray_Type;
-    const std::unique_ptr<Type> fGSamplerBuffer_Type;
-    const std::unique_ptr<Type> fGSampler2DMS_Type;
-    const std::unique_ptr<Type> fGSampler2DMSArray_Type;
-    const std::unique_ptr<Type> fGSampler2DArrayShadow_Type;
-    const std::unique_ptr<Type> fGSamplerCubeArrayShadow_Type;
 
     const std::unique_ptr<Type> fGenType_Type;
     const std::unique_ptr<Type> fGenHType_Type;

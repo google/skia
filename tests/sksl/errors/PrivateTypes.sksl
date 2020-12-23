@@ -1,5 +1,5 @@
 InterfaceBlock {
-    layout(set=0) $gsampler2D g;
+    layout(set=0) $mat g;
 };
 
 struct S {
