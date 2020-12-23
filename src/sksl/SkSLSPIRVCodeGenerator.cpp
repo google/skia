@@ -1437,7 +1437,10 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
 SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStream& out) {
     const Type& type = c.type();
     SkASSERT(type.isVector());
-    if (c.isCompileTimeConstant()) {
+    // Constructing a vector from another vector (even if it's constant) requires our general
+    // case code, to deal with (possible) per-element type conversion.
+    bool vectorToVector = c.arguments().size() == 1 && c.arguments()[0]->type().isVector();
+    if (c.isCompileTimeConstant() && !vectorToVector) {
         return this->writeConstantVector(c);
     }
     // go ahead and write the arguments so we don't try to write new instructions in the middle of

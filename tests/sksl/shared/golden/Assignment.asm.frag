@@ -1,8 +1,3 @@
-### Compilation failed:
-
-error: SPIR-V validation error: OpConstantComposite Constituent <id> '99[%99]'s type does not match Result Type <id> '5[%v4float]'s vector element type.
-  %98 = OpConstantComposite %v4float %99 %99 %99 %99
-
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
@@ -45,10 +40,10 @@ OpMemberDecorate %S 3 Offset 112
 OpMemberDecorate %S 3 RelaxedPrecision
 OpDecorate %85 RelaxedPrecision
 OpDecorate %89 RelaxedPrecision
-OpDecorate %118 RelaxedPrecision
-OpDecorate %135 RelaxedPrecision
-OpDecorate %146 RelaxedPrecision
-OpDecorate %148 RelaxedPrecision
+OpDecorate %126 RelaxedPrecision
+OpDecorate %143 RelaxedPrecision
+OpDecorate %154 RelaxedPrecision
+OpDecorate %156 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -107,8 +102,7 @@ OpDecorate %148 RelaxedPrecision
 %93 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %95 = OpConstantComposite %v4float %float_2 %float_2 %float_2 %float_2
 %97 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
-%99 = OpConstantComposite %v4int %int_1 %int_2 %int_3 %int_4
-%98 = OpConstantComposite %v4float %99 %99 %99 %99
+%98 = OpConstantComposite %v4int %int_1 %int_2 %int_3 %int_4
 %mat3v3float = OpTypeMatrix %v3float 3
 %_ptr_Function_mat3v3float = OpTypePointer Function %mat3v3float
 %float_3_0 = OpConstant %float 3
@@ -119,7 +113,7 @@ OpDecorate %148 RelaxedPrecision
 %float_8_0 = OpConstant %float 8
 %float_9_0 = OpConstant %float 9
 %_ptr_Function_v3float = OpTypePointer Function %v3float
-%138 = OpConstantComposite %v4float %float_0_0 %float_0_0 %float_0_0 %float_0_0
+%146 = OpConstantComposite %v4float %float_0_0 %float_0_0 %float_0_0 %float_0_0
 %main = OpFunction %void None %11
 %12 = OpLabel
 %x = OpVariable %_ptr_Function_v4float Function
@@ -128,7 +122,7 @@ OpDecorate %148 RelaxedPrecision
 %ah2x4 = OpVariable %_ptr_Function__arr_mat2v4float_int_1 Function
 %af4 = OpVariable %_ptr_Function__arr_v4float_int_1 Function
 %s = OpVariable %_ptr_Function_S Function
-%100 = OpVariable %_ptr_Function_mat3v3float Function
+%108 = OpVariable %_ptr_Function_mat3v3float Function
 %16 = OpAccessChain %_ptr_Function_float %x %int_3
 OpStore %16 %float_0
 %22 = OpLoad %v4float %x
@@ -177,57 +171,64 @@ OpStore %94 %93
 %96 = OpAccessChain %_ptr_Function_v4float %s %int_3 %int_0
 OpStore %96 %95
 OpStore %sk_FragColor %97
-OpStore %sk_FragColor %98
-%111 = OpCompositeConstruct %v3float %float_1_0 %float_2_0 %float_3_0
-%112 = OpCompositeConstruct %v3float %float_4_0 %float_5_0 %float_6_0
-%113 = OpCompositeConstruct %v3float %float_7_0 %float_8_0 %float_9_0
-%110 = OpCompositeConstruct %mat3v3float %111 %112 %113
-OpStore %100 %110
-%114 = OpAccessChain %_ptr_Function_v3float %100 %int_0
-%116 = OpLoad %v3float %114
-%117 = OpVectorShuffle %v4float %116 %116 0 0 1 2
-OpStore %sk_FragColor %117
-%118 = OpLoad %v4float %x
-OpStore %sk_FragColor %118
-%120 = OpAccessChain %_ptr_Function_int %ai %int_0
-%121 = OpLoad %int %120
-%119 = OpConvertSToF %float %121
-%122 = OpCompositeConstruct %v4float %119 %119 %119 %119
-OpStore %sk_FragColor %122
-%123 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
-%124 = OpLoad %v4int %123
-%125 = OpCompositeExtract %int %124 0
-%126 = OpConvertSToF %float %125
-%127 = OpCompositeExtract %int %124 1
-%128 = OpConvertSToF %float %127
-%129 = OpCompositeExtract %int %124 2
-%130 = OpConvertSToF %float %129
-%131 = OpCompositeExtract %int %124 3
-%132 = OpConvertSToF %float %131
-%133 = OpCompositeConstruct %v4float %126 %128 %130 %132
-OpStore %sk_FragColor %133
-%134 = OpAccessChain %_ptr_Function_v4float %ah2x4 %int_0 %int_0
-%135 = OpLoad %v4float %134
-OpStore %sk_FragColor %135
-%136 = OpAccessChain %_ptr_Function_v4float %af4 %int_0
-%137 = OpLoad %v4float %136
-OpStore %sk_FragColor %137
-OpStore %sk_FragColor %138
-%139 = OpAccessChain %_ptr_Function_float %s %int_0
-%140 = OpLoad %float %139
-%141 = OpCompositeConstruct %v4float %140 %140 %140 %140
+%99 = OpCompositeExtract %int %98 0
+%100 = OpConvertSToF %float %99
+%101 = OpCompositeExtract %int %98 1
+%102 = OpConvertSToF %float %101
+%103 = OpCompositeExtract %int %98 2
+%104 = OpConvertSToF %float %103
+%105 = OpCompositeExtract %int %98 3
+%106 = OpConvertSToF %float %105
+%107 = OpCompositeConstruct %v4float %100 %102 %104 %106
+OpStore %sk_FragColor %107
+%119 = OpCompositeConstruct %v3float %float_1_0 %float_2_0 %float_3_0
+%120 = OpCompositeConstruct %v3float %float_4_0 %float_5_0 %float_6_0
+%121 = OpCompositeConstruct %v3float %float_7_0 %float_8_0 %float_9_0
+%118 = OpCompositeConstruct %mat3v3float %119 %120 %121
+OpStore %108 %118
+%122 = OpAccessChain %_ptr_Function_v3float %108 %int_0
+%124 = OpLoad %v3float %122
+%125 = OpVectorShuffle %v4float %124 %124 0 0 1 2
+OpStore %sk_FragColor %125
+%126 = OpLoad %v4float %x
+OpStore %sk_FragColor %126
+%128 = OpAccessChain %_ptr_Function_int %ai %int_0
+%129 = OpLoad %int %128
+%127 = OpConvertSToF %float %129
+%130 = OpCompositeConstruct %v4float %127 %127 %127 %127
+OpStore %sk_FragColor %130
+%131 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
+%132 = OpLoad %v4int %131
+%133 = OpCompositeExtract %int %132 0
+%134 = OpConvertSToF %float %133
+%135 = OpCompositeExtract %int %132 1
+%136 = OpConvertSToF %float %135
+%137 = OpCompositeExtract %int %132 2
+%138 = OpConvertSToF %float %137
+%139 = OpCompositeExtract %int %132 3
+%140 = OpConvertSToF %float %139
+%141 = OpCompositeConstruct %v4float %134 %136 %138 %140
 OpStore %sk_FragColor %141
-%142 = OpAccessChain %_ptr_Function_float %s %int_1 %int_1
-%143 = OpLoad %float %142
-%144 = OpCompositeConstruct %v4float %143 %143 %143 %143
-OpStore %sk_FragColor %144
-%145 = OpAccessChain %_ptr_Function_v4float %s %int_2
-%146 = OpLoad %v4float %145
+%142 = OpAccessChain %_ptr_Function_v4float %ah2x4 %int_0 %int_0
+%143 = OpLoad %v4float %142
+OpStore %sk_FragColor %143
+%144 = OpAccessChain %_ptr_Function_v4float %af4 %int_0
+%145 = OpLoad %v4float %144
+OpStore %sk_FragColor %145
 OpStore %sk_FragColor %146
-%147 = OpAccessChain %_ptr_Function_v4float %s %int_3 %int_0
-%148 = OpLoad %v4float %147
-OpStore %sk_FragColor %148
+%147 = OpAccessChain %_ptr_Function_float %s %int_0
+%148 = OpLoad %float %147
+%149 = OpCompositeConstruct %v4float %148 %148 %148 %148
+OpStore %sk_FragColor %149
+%150 = OpAccessChain %_ptr_Function_float %s %int_1 %int_1
+%151 = OpLoad %float %150
+%152 = OpCompositeConstruct %v4float %151 %151 %151 %151
+OpStore %sk_FragColor %152
+%153 = OpAccessChain %_ptr_Function_v4float %s %int_2
+%154 = OpLoad %v4float %153
+OpStore %sk_FragColor %154
+%155 = OpAccessChain %_ptr_Function_v4float %s %int_3 %int_0
+%156 = OpLoad %v4float %155
+OpStore %sk_FragColor %156
 OpReturn
 OpFunctionEnd
-
-1 error
