@@ -1836,7 +1836,11 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     this->onDrawImage(image, x, y, paint);
+#else
+    this->drawImage(image, x, y, SkSamplingOptions(), paint);
+#endif
 }
 
 // Returns true if the rect can be "filled" : non-empty and finite
@@ -1853,7 +1857,11 @@ void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRe
     if (!fillable(dst) || !fillable(src)) {
         return;
     }
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     this->onDrawImageRect(image, &src, dst, paint, constraint);
+#else
+    this->drawImageRect(image, src, dst, SkSamplingOptions(), paint, constraint);
+#endif
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
