@@ -46,6 +46,30 @@
       },
       "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f051e729_71471a8e",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-23T20:13:13Z",
+      "side": 1,
+      "message": "This really seems like something to measure rather than to just trust your gut about which is faster. If there is no measurable difference on something like chalkboard then surely simpler is better, right? What you have here adds non-trivial complexity and has conditionals. I\u0027m not saying perf isn\u0027t worth complexity but I think we should make that trade-off knowing that there is actual perf to be had.",
+      "parentUuid": "a88eadb5_2bb87805",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
