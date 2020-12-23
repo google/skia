@@ -136,19 +136,11 @@ Compiler::Compiler(const ShaderCapsClass* caps, Flags flags)
 
         TYPE(Sampler1D), TYPE(Sampler2D), TYPE(Sampler3D),
         TYPE(SamplerExternalOES),
-        TYPE(SamplerCube),
         TYPE(Sampler2DRect),
-        TYPE(Sampler1DArray), TYPE(Sampler2DArray), TYPE(SamplerCubeArray),
-        TYPE(SamplerBuffer),
-        TYPE(Sampler2DMS), TYPE(Sampler2DMSArray),
 
         TYPE(ISampler2D),
         TYPE(Image2D), TYPE(IImage2D),
         TYPE(SubpassInput), TYPE(SubpassInputMS),
-
-        TYPE(Sampler1DShadow), TYPE(Sampler2DShadow), TYPE(SamplerCubeShadow),
-        TYPE(Sampler2DRectShadow),
-        TYPE(Sampler1DArrayShadow), TYPE(Sampler2DArrayShadow), TYPE(SamplerCubeArrayShadow),
 
         TYPE(Sampler),
         TYPE(Texture2D),
