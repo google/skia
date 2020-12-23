@@ -41,7 +41,14 @@ void GrStrokeIndirectOp::onPrePrepare(GrRecordingContext* context,
 // Helpers for GrStrokeIndirectOp::prePrepareResolveLevels.
 namespace {
 
-#ifndef SKNX_NO_SIMD
+// Only use SIMD if SkVx will use a built-in compiler extensions for vectors.
+#if !defined(SKNX_NO_SIMD) && (defined(__clang__) || defined(__GNUC__))
+#define USE_SIMD 1
+#else
+#define USE_SIMD 0
+#endif
+
+#if USE_SIMD
 using grvx::vec;
 using grvx::ivec;
 using grvx::uvec;
@@ -83,7 +90,7 @@ public:
                         int* resolveLevelCounts)
             : fIsRoundJoin(stroke.getJoin() == SkPaint::kRound_Join)
             , fTolerances(tolerances)
-#ifndef SKNX_NO_SIMD
+#if USE_SIMD
             , fWangsTermQuadratic(
                     GrWangsFormula::length_term<2>(fTolerances.fParametricIntolerance))
             , fWangsTermCubic(GrWangsFormula::length_term<3>(fTolerances.fParametricIntolerance))
@@ -93,7 +100,7 @@ public:
 
     bool isRoundJoin() const { return fIsRoundJoin; }
 
-#ifdef SKNX_NO_SIMD
+#if !USE_SIMD
     bool SK_WARN_UNUSED_RESULT countLine(const SkPoint pts[2], SkPoint lastControlPoint,
                                          int8_t* resolveLevelPtr) {
         if (!fIsRoundJoin) {
@@ -150,7 +157,7 @@ private:
         ++fResolveLevelCounts[(*resolveLevelPtr = resolveLevel)];
     }
 
-#else // !defined(SKNX_NO_SIMD)
+#else  // USE_SIMD
     ~ResolveLevelCounter() {
         // Always call flush() when finished.
         SkASSERT(fLineQueue.fCount == 0);
@@ -402,7 +409,7 @@ private:
     const bool fIsRoundJoin;
     GrStrokeTessellateShader::Tolerances fTolerances;
 
-#ifndef SKNX_NO_SIMD
+#if USE_SIMD
     const float fWangsTermQuadratic;
     const float fWangsTermCubic;
 
