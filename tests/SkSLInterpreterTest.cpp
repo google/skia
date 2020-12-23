@@ -264,15 +264,6 @@ DEF_TEST(SkSLInterpreterBitwise, r) {
     test(r, "void main(inout half4 color) { color.r = half(~int(color.r) & 3); }",
          6, 0, 0, 0, 1, 0, 0, 0);
 
-    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) | 3); }",
-         5, 0, 0, 0, 7, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) & 3); }",
-         6, 0, 0, 0, 2, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(uint(color.r) ^ 3); }",
-         5, 0, 0, 0, 6, 0, 0, 0);
-    test(r, "void main(inout half4 color) { color.r = half(~uint(color.r) & 3); }",
-         6, 0, 0, 0, 1, 0, 0, 0);
-
     // Shift operators
     unsigned in = 0x80000011;
     unsigned out;
@@ -282,9 +273,6 @@ DEF_TEST(SkSLInterpreterBitwise, r) {
 
     out = 0xF0000002;
     test(r, "int main(int x) { return x >> 3; }", (float*)&in, (float*)&out);
-
-    out = 0x10000002;
-    test(r, "uint main(uint x) { return x >> 3; }", (float*)&in, (float*)&out);
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
@@ -389,7 +377,6 @@ DEF_TEST(SkSLInterpreterTernary, r) {
 DEF_TEST(SkSLInterpreterCast, r) {
     union Val {
         float    f;
-        uint32_t u;
         int32_t  s;
     };
 
@@ -402,13 +389,6 @@ DEF_TEST(SkSLInterpreterCast, r) {
     expected[1].f = -5.0f;
     test(r, "float  main(int  x) { return float (x); }", (float*)input, (float*)expected);
     test(r, "float2 main(int2 x) { return float2(x); }", (float*)input, (float*)expected);
-
-    input[0].u = 3;
-    input[1].u = 5;
-    expected[0].f = 3.0f;
-    expected[1].f = 5.0f;
-    test(r, "float  main(uint  x) { return float (x); }", (float*)input, (float*)expected);
-    test(r, "float2 main(uint2 x) { return float2(x); }", (float*)input, (float*)expected);
 
     input[0].f = 3.0f;
     input[1].f = -5.0f;

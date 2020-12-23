@@ -166,6 +166,7 @@ half3x3  inverse(half3x3 m);
 half4x4  inverse(half4x4 m);
 
 // 8.6 : Vector Relational Functions
+// TODO: Move ivec versions of these from sksl_interp.sksl to here, implement them in VM generator
 $bvec lessThan($vec  x, $vec  y);
 $bvec lessThan($hvec x, $hvec y);
 $bvec lessThanEqual($vec  x, $vec  y);
