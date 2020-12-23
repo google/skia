@@ -175,6 +175,7 @@ private:
         }
         if (fLineQueue.push(pts, fIsRoundJoin, lastControlPoint, resolveLevelPtr) == 3) {
             this->flushLines<4>();
+            fInitializedFullLineQueue = true;
         }
         return true;
     }
@@ -182,12 +183,14 @@ private:
     void countQuad(const SkPoint pts[3], SkPoint lastControlPoint, int8_t* resolveLevelPtr) {
         if (fQuadQueue.push(pts, fIsRoundJoin, lastControlPoint, resolveLevelPtr) == 3) {
             this->flushQuads<4>();
+            fInitializedFullQuadQueue = true;
         }
     }
 
     void countCubic(const SkPoint pts[4], SkPoint lastControlPoint, int8_t* resolveLevelPtr) {
         if (fCubicQueue.push(pts, fIsRoundJoin, lastControlPoint, resolveLevelPtr) == 3) {
             this->flushCubics<4>();
+            fInitializedFullCubicQueue = true;
         }
     }
 
@@ -197,6 +200,7 @@ private:
         fCubicChopTs[i] = chopT;
         if (i == 3) {
             this->flushChoppedCubics<4>();
+            fInitializedFullChoppedCubicQueue = true;
         }
     }
 
@@ -206,29 +210,59 @@ private:
         if (fLineQueue.fCount) {
             SkASSERT(fIsRoundJoin);
             if (fLineQueue.fCount <= 2) {
+                if (!fInitializedFullLineQueue && fLineQueue.fCount == 1) {
+                    fLineQueue.zeroInitializeAt(1);
+                }
                 this->flushLines<2>();
             } else {
+                if (!fInitializedFullLineQueue && fLineQueue.fCount == 3) {
+                    fLineQueue.zeroInitializeAt(3);
+                    fInitializedFullLineQueue = true;
+                }
                 this->flushLines<4>();
             }
         }
         if (fQuadQueue.fCount) {
             if (fQuadQueue.fCount <= 2) {
+                if (!fInitializedFullQuadQueue && fQuadQueue.fCount == 1) {
+                    fQuadQueue.zeroInitializeAt(1);
+                }
                 this->flushQuads<2>();
             } else {
+                if (!fInitializedFullQuadQueue && fQuadQueue.fCount == 3) {
+                    fQuadQueue.zeroInitializeAt(3);
+                    fInitializedFullQuadQueue = true;
+                }
                 this->flushQuads<4>();
             }
         }
         if (fCubicQueue.fCount) {
             if (fCubicQueue.fCount <= 2) {
+                if (!fInitializedFullCubicQueue && fCubicQueue.fCount == 1) {
+                    fCubicQueue.zeroInitializeAt(1);
+                }
                 this->flushCubics<2>();
             } else {
+                if (!fInitializedFullCubicQueue && fCubicQueue.fCount == 3) {
+                    fCubicQueue.zeroInitializeAt(3);
+                    fInitializedFullCubicQueue = true;
+                }
                 this->flushCubics<4>();
             }
         }
         if (fChoppedCubicQueue.fCount) {
             if (fChoppedCubicQueue.fCount <= 2) {
+                if (!fInitializedFullChoppedCubicQueue && fChoppedCubicQueue.fCount == 1) {
+                    fChoppedCubicQueue.zeroInitializeAt(1);
+                    fCubicChopTs[1] = 0;
+                }
                 this->flushChoppedCubics<2>();
             } else {
+                if (!fInitializedFullChoppedCubicQueue && fChoppedCubicQueue.fCount == 3) {
+                    fChoppedCubicQueue.zeroInitializeAt(3);
+                    fCubicChopTs[3] = 0;
+                    fInitializedFullChoppedCubicQueue = true;
+                }
                 this->flushChoppedCubics<4>();
             }
         }
@@ -259,6 +293,21 @@ private:
             }
             fResolveLevelPtrs[fCount] = resolveLevelPtr;
             return fCount++;
+        }
+
+        // Zeroes out the SIMD values at a given index. This is used to avoid "uninitialized value"
+        // errors when one of the SIMD lanes will be ignored.
+        void zeroInitializeAt(int idx) {
+            if constexpr (NumPts == 4) {
+                fXs[idx].fill(0);
+                fYs[idx].fill(0);
+            } else {
+                for (int i = 0; i < NumPts; ++i) {
+                    fXs[i][idx] = fYs[i][idx] = 0;
+                }
+            }
+            fLastControlPointsX[idx] = fLastControlPointsY[idx] = 0;
+            // No need to initialize fResolveLevelPtrs since it is not used in SIMD.
         }
 
         // Loads pts[idx] in SIMD for all 4 strokes, with the x values in the "vec.lo" and the y
@@ -418,6 +467,11 @@ private:
     SIMDQueue<4> fCubicQueue;
     SIMDQueue<4> fChoppedCubicQueue;
     float fCubicChopTs[4];
+
+    bool fInitializedFullLineQueue = false;
+    bool fInitializedFullQuadQueue = false;
+    bool fInitializedFullCubicQueue = false;
+    bool fInitializedFullChoppedCubicQueue = false;
 
 #endif
     int* const fResolveLevelCounts;
