@@ -55,7 +55,7 @@ protected:
 
             SkPathBuilder path;
             path.addArc(r, startAngle, sweepAngle);
-            canvas->drawPath(path.detach(), paint);
+            canvas->drawPath(path.detach().setIsVolatile(true), paint);
 
             r.inset(inset, inset);
             sign = -sign;
@@ -260,7 +260,7 @@ DEF_SIMPLE_GM(manyarcs, canvas, 620, 330) {
                 html_canvas_arc(&path, 18, 15, 10, startAngle, startAngle + (sweepAngles[j] * sign),
                                 anticlockwise, true);
                 path.lineTo(0, 28);
-                canvas->drawPath(path.detach(), paint);
+                canvas->drawPath(path.detach().setIsVolatile(true), paint);
                 canvas->translate(30, 0);
             }
             canvas->restore();

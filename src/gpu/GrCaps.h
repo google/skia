@@ -381,6 +381,9 @@ public:
     bool driverDisableCCPR() const { return fDriverDisableCCPR; }
     bool driverDisableMSAACCPR() const { return fDriverDisableMSAACCPR; }
 
+    // Should we disable GrTessellationPathRenderer due to a faulty driver?
+    bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
+
     // Returns how to sample the dst values for the passed in GrRenderTargetProxy.
     GrDstSampleType getDstSampleTypeForProxy(const GrRenderTargetProxy*) const;
 
@@ -510,6 +513,7 @@ protected:
     // Driver workaround
     bool fDriverDisableCCPR                          : 1;
     bool fDriverDisableMSAACCPR                      : 1;
+    bool fDisableTessellationPathRenderer            : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
