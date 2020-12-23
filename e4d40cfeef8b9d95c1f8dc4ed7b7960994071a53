@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25d3a4a2_0e3c07c7",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-23T19:20:54Z",
+      "side": 1,
+      "message": "What if you just put \u003d {}; after both of these?",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
