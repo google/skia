@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cec11e9e_f3df9ac9",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-23T18:36:07Z",
+      "side": 1,
+      "message": "Flipped signs so we don\u0027t accidentally get the right answer.",
+      "revId": "cb26fe944574d3e3d2147b9798daaf3ae58e8aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
