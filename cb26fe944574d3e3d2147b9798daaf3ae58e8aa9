@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "170ad813_417a5095",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T20:09:20Z",
+      "side": 1,
+      "message": "Looks like this shook out a SPIR-V error?\n\nfatal error: \"SPIR-V validation error: OpConstantComposite Constituent \u003cid\u003e \u002771[%71]\u0027s type does not match Result Type \u003cid\u003e \u002769[%v2int]\u0027s vector element type.\n   %70 \u003d OpConstantComposite %v2int %71 %71\n",
+      "revId": "cb26fe944574d3e3d2147b9798daaf3ae58e8aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "cec11e9e_f3df9ac9",
         "filename": "gm/runtimeintrinsics.cpp",
         "patchSetId": 1
@@ -14,6 +31,24 @@
       "writtenOn": "2020-12-23T18:36:07Z",
       "side": 1,
       "message": "Flipped signs so we don\u0027t accidentally get the right answer.",
+      "revId": "cb26fe944574d3e3d2147b9798daaf3ae58e8aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79af57df_098c6cb1",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T20:09:20Z",
+      "side": 1,
+      "message": "This\u0027d be a useful comment in the code.",
+      "parentUuid": "cec11e9e_f3df9ac9",
       "revId": "cb26fe944574d3e3d2147b9798daaf3ae58e8aa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
