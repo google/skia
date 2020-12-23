@@ -27,7 +27,6 @@
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -1204,8 +1203,6 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeFunctionCall(e.as<FunctionCall>());
         case Expression::Kind::kIntLiteral:
             return fBuilder->splat(static_cast<int>(e.as<IntLiteral>().value()));
-        case Expression::Kind::kNullLiteral:
-            return fBuilder->splat(0);
         case Expression::Kind::kPrefix:
             return this->writePrefixExpression(e.as<PrefixExpression>());
         case Expression::Kind::kPostfix:

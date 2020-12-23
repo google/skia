@@ -435,7 +435,6 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::Kind::kExternalValue: // fall through
         case Expression::Kind::kFloatLiteral:  // fall through
         case Expression::Kind::kIntLiteral:    // fall through
-        case Expression::Kind::kNullLiteral:   // fall through
         case Expression::Kind::kSetting:       // fall through
         case Expression::Kind::kVariableReference:
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));

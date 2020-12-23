@@ -23,7 +23,6 @@ public:
     Context()
             : fInvalid_Type(Type::MakeOtherType("<INVALID>"))
             , fVoid_Type(Type::MakeOtherType("void"))
-            , fNull_Type(Type::MakeOtherType("null"))
             , fFloatLiteral_Type(Type::MakeScalarType("$floatLiteral", Type::NumberKind::kFloat,
                                                                        /*priority=*/8))
             , fIntLiteral_Type(Type::MakeScalarType("$intLiteral", Type::NumberKind::kSigned,
@@ -290,7 +289,6 @@ public:
 
     const std::unique_ptr<Type> fInvalid_Type;
     const std::unique_ptr<Type> fVoid_Type;
-    const std::unique_ptr<Type> fNull_Type;
     const std::unique_ptr<Type> fFloatLiteral_Type;
     const std::unique_ptr<Type> fIntLiteral_Type;
 
