@@ -48,8 +48,7 @@ protected:
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e");
 
-        fCheckerboard = SkImage::MakeFromBitmap(
-                ToolUtils::create_checkerboard_bitmap(80, 80, 0xFFA0A0A0, 0xFF404040, 8));
+        fCheckerboard = ToolUtils::create_checkerboard_image(80, 80, 0xFFA0A0A0, 0xFF404040, 8);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -119,7 +118,7 @@ protected:
         SkRect clipRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width() + 4),
                                          SkIntToScalar(fBitmap.height() + 4));
         // Test offsets on SrcMode (uses fixed-function blend)
-        sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(fBitmap));
+        sk_sp<SkImage> bitmapImage(fBitmap.asImage());
         sk_sp<SkImageFilter> foreground(SkImageFilters::Image(std::move(bitmapImage)));
         sk_sp<SkImageFilter> offsetForeground(SkImageFilters::Offset(4, -4, foreground));
         sk_sp<SkImageFilter> offsetBackground(SkImageFilters::Offset(4, 4, background));

@@ -386,7 +386,7 @@ private:
                     *bmp.getAddr8(x, y) = SkToU8(sk_float_round2int(255.f * result));
                 }
             }
-            return SkImage::MakeFromBitmap(bmp);
+            return bmp.asImage();
         };
 
         // Number of times to subsample (in both X and Y). If fRecalcMasksForAnimation is true

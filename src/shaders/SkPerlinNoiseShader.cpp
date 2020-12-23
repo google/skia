@@ -7,6 +7,7 @@
 
 #include "include/effects/SkPerlinNoiseShader.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"

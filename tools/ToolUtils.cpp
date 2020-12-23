@@ -183,6 +183,11 @@ create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const 
     return result;
 }
 
+sk_sp<SkImage> create_string_image(int w, int h, SkColor c, int x, int y, int textSize,
+                                   const char* str) {
+    return create_string_bitmap(w, h, c, x, y, textSize, str).asImage();
+}
+
 void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
                             const char*        text,
                             size_t             len,

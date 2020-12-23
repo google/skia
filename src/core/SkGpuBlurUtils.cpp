@@ -7,6 +7,7 @@
 
 #include "src/core/SkGpuBlurUtils.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 
 #if SK_SUPPORT_GPU

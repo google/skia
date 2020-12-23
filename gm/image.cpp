@@ -329,7 +329,7 @@ DEF_SIMPLE_GPU_GM(new_texture_image, context, rtc, canvas, 280, 60) {
     std::function<sk_sp<SkImage>()> imageFactories[] = {
         // Create sw raster image.
         [bmp] {
-            return SkImage::MakeFromBitmap(bmp);
+            return bmp.asImage();
         },
         // Create encoded image.
         [bmp] {

@@ -1066,7 +1066,7 @@ protected:
             for (int opaque : { 0, 1 }) {
                 int y = kPad;
 
-                auto raster = SkImage::MakeFromBitmap(fOriginalBMs[opaque])
+                auto raster = fOriginalBMs[opaque].asImage()
                     ->makeColorSpace(fTargetColorSpace, nullptr);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;

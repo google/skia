@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRegion.h"
 #include "include/effects/SkImageFilters.h"

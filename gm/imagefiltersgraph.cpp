@@ -38,8 +38,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(600, 150); }
 
     void onOnceBeforeDraw() override {
-        fImage = SkImage::MakeFromBitmap(
-                ToolUtils::create_string_bitmap(100, 100, SK_ColorWHITE, 20, 70, 96, "e"));
+        fImage = ToolUtils::create_string_image(100, 100, SK_ColorWHITE, 20, 70, 96, "e");
     }
 
     void onDraw(SkCanvas* canvas) override {

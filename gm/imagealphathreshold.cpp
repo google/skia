@@ -186,7 +186,7 @@ static sk_sp<SkImage> make_img() {
         rect.inset(25, 25);
     }
 
-    return SkImage::MakeFromBitmap(bitmap);
+    return bitmap.asImage();
 }
 
 DEF_SIMPLE_GM_BG(imagealphathreshold_image, canvas, WIDTH * 2, HEIGHT, SK_ColorBLACK) {

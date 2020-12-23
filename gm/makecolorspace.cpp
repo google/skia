@@ -32,7 +32,7 @@ sk_sp<SkImage> make_raster_image(const char* path) {
     bitmap.allocPixels(codec->getInfo());
 
     codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes());
-    return SkImage::MakeFromBitmap(bitmap);
+    return bitmap.asImage();
 }
 
 sk_sp<SkImage> make_color_space(

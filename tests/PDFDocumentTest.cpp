@@ -6,6 +6,7 @@
  */
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkStream.h"

@@ -181,7 +181,7 @@ sk_sp<SkImage> make_not_native32_color_wheel() {
     static_assert(ct != kN32_SkColorType, "BRGA!=RGBA");
     SkAssertResult(ToolUtils::copy_to(&notN32bitmap, ct, n32bitmap));
     SkASSERT(notN32bitmap.colorType() == ct);
-    return SkImage::MakeFromBitmap(notN32bitmap);
+    return notN32bitmap.asImage();
 }
 
 DEF_SIMPLE_GM(not_native32_bitmap_config, canvas, SCALE, SCALE) {

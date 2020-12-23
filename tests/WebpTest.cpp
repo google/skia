@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"

@@ -617,3 +617,7 @@ bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     }
     return false;
 }
+
+sk_sp<SkImage> SkBitmap::asImage() const {
+    return SkImage::MakeFromBitmap(*this);
+}

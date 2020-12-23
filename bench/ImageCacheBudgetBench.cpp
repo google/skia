@@ -27,9 +27,7 @@ static constexpr int kS = 25;
 
 static void make_images(sk_sp<SkImage> imgs[], int cnt) {
     for (int i = 0; i < cnt; ++i) {
-        SkBitmap bmp =
-                ToolUtils::create_checkerboard_bitmap(kS, kS, SK_ColorBLACK, SK_ColorCYAN, 10);
-        imgs[i] = SkImage::MakeFromBitmap(bmp);
+        imgs[i] = ToolUtils::create_checkerboard_image(kS, kS, SK_ColorBLACK, SK_ColorCYAN, 10);
     }
 }
 

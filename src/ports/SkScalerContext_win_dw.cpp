@@ -12,6 +12,7 @@
 #undef GetGlyphIndices
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkMutex.h"
