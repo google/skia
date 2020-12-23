@@ -1024,7 +1024,7 @@ void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     } else if (type == *fContext.fUByte_Type) {
         this->write(to_string(i.value() & 0xff) + "u");
     } else {
-        this->write(to_string((int32_t) i.value()));
+        this->write(to_string(i.value()));
     }
 }
 

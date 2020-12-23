@@ -52,7 +52,7 @@ struct Swizzle final : public Expression {
                 const Type& type = this->type();
                 if (type.isInteger()) {
                     SkASSERT(this->components().size() == 1);
-                    int64_t value = constructor.getIVecComponent(this->components()[0]);
+                    SKSL_INT value = constructor.getIVecComponent(this->components()[0]);
                     return std::make_unique<IntLiteral>(irGenerator.fContext, constructor.fOffset,
                                                         value);
                 } else if (type.isFloat()) {
