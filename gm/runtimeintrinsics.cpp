@@ -275,11 +275,13 @@ DEF_SIMPLE_GM_BG(runtime_intrinsics_geometric,
   Specialized shader for testing relational operators.
 */
 static SkString make_bvec_sksl(const char* fn) {
+    // We use negative floats, to ensure that the integer variants are working with the correct
+    // interpretation of the data.
     return SkStringPrintf(
             "half4 main(float2 p) {"
-            "    float2 v1 = float2(1.0);"
-            "    p.x = p.x < 0.33 ? 0.0 : (p.x < 0.66 ? 1.0 : 2.0);"
-            "    p.y = p.y < 0.33 ? 0.0 : (p.y < 0.66 ? 1.0 : 2.0);"
+            "    float2 v1 = float2(-2.0);"
+            "    p.x = p.x < 0.33 ? -3.0 : (p.x < 0.66 ? -2.0 : -1.0);"
+            "    p.y = p.y < 0.33 ? -3.0 : (p.y < 0.66 ? -2.0 : -1.0);"
             "    bool2 cmp = %s;"
             "    return half4(cmp.x ? 1.0 : 0.0, cmp.y ? 1.0 : 0.0, 0, 1);"
             "}",
@@ -337,22 +339,26 @@ static void plot_bvec(SkCanvas* canvas, const char* fn, const char* label = null
 // The OpenGL ES Shading Language, Version 1.00, Section 8.6
 DEF_SIMPLE_GM_BG(runtime_intrinsics_relational,
                  canvas,
-                 columns_to_width(2),
+                 columns_to_width(4),
                  rows_to_height(6),
                  SK_ColorWHITE) {
     canvas->translate(kPadding, kPadding);
     canvas->save();
 
-    // TODO: ivec versions of these. (Not declared in sksl_public.sksl yet).
+    plot_bvec(canvas, "lessThan(p, v1)",                  "lessThan");           col(canvas);
+    plot_bvec(canvas, "lessThan(int2(p), int2(v1))",      "lessThan(int)");      col(canvas);
+    plot_bvec(canvas, "lessThanEqual(p, v1)",             "lessThanEqual");      col(canvas);
+    plot_bvec(canvas, "lessThanEqual(int2(p), int2(v1))", "lessThanEqual(int)"); row(canvas);
 
-    plot_bvec(canvas, "lessThan(p, v1)",      "lessThan");      col(canvas);
-    plot_bvec(canvas, "lessThanEqual(p, v1)", "lessThanEqual"); row(canvas);
+    plot_bvec(canvas, "greaterThan(p, v1)",                 "greaterThan");            col(canvas);
+    plot_bvec(canvas, "greaterThan(int2(p), int2(v1))",     "greaterThan(int)");       col(canvas);
+    plot_bvec(canvas, "greaterThanEqual(p, v1)",             "greaterThanEqual");      col(canvas);
+    plot_bvec(canvas, "greaterThanEqual(int2(p), int2(v1))", "greaterThanEqual(int)"); row(canvas);
 
-    plot_bvec(canvas, "greaterThan(p, v1)",      "greaterThan");      col(canvas);
-    plot_bvec(canvas, "greaterThanEqual(p, v1)", "greaterThanEqual"); row(canvas);
-
-    plot_bvec(canvas, "equal(p, v1)",    "equal");    col(canvas);
-    plot_bvec(canvas, "notEqual(p, v1)", "notEqual"); row(canvas);
+    plot_bvec(canvas, "equal(p, v1)",                "equal");         col(canvas);
+    plot_bvec(canvas, "equal(int2(p), int2(v1))",    "equal(int)");    col(canvas);
+    plot_bvec(canvas, "notEqual(p, v1)",             "notEqual");      col(canvas);
+    plot_bvec(canvas, "notEqual(int2(p), int2(v1))", "notEqual(int)"); row(canvas);
 
     plot_bvec(canvas, "equal(lessThanEqual(p, v1), greaterThanEqual(p, v1))",
                       "equal(bvec)"); col(canvas);
