@@ -230,7 +230,7 @@ private:
     void checkValid(const Expression& expr);
     bool typeContainsPrivateFields(const Type& type);
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
-    bool getConstantInt(const Expression& value, int64_t* out);
+    bool getConstantInt(const Expression& value, SKSL_INT* out);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
 

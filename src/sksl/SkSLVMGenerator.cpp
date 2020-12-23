@@ -489,7 +489,7 @@ SkVMGenerator::Slot SkVMGenerator::getSlot(const Expression& e) {
             const Expression& index = *i.index();
             SkASSERT(index.isCompileTimeConstant());
 
-            int64_t indexValue = index.getConstantInt();
+            SKSL_INT indexValue = index.getConstantInt();
             SkASSERT(indexValue >= 0 && indexValue < i.base()->type().columns());
 
             size_t stride = slot_count(i.type());
