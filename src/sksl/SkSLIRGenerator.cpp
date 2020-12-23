@@ -1791,11 +1791,19 @@ std::unique_ptr<Expression> IRGenerator::constantFoldVector(const Expression& le
 
     // Handle boolean operations: == !=
     if (op == Token::Kind::TK_EQEQ || op == Token::Kind::TK_NEQ) {
-        if (left.kind() == right.kind()) {
-            bool result = left.compareConstant(fContext, right) ^ (op == Token::Kind::TK_NEQ);
-            return std::make_unique<BoolLiteral>(fContext, left.fOffset, result);
+        bool equality = (op == Token::Kind::TK_EQEQ);
+
+        switch (left.compareConstant(fContext, right)) {
+            case Expression::ComparisonResult::kNotEqual:
+                equality = !equality;
+                [[fallthrough]];
+
+            case Expression::ComparisonResult::kEqual:
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset, equality);
+
+            case Expression::ComparisonResult::kUnknown:
+                return nullptr;
         }
-        return nullptr;
     }
 
     // Handle floating-point arithmetic: + - * /
@@ -1955,15 +1963,28 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             return constantFoldVector<SKSL_INT>(left, op, right);
         }
     }
-    if (leftType.isMatrix() && rightType.isMatrix() && left.kind() == right.kind()) {
+    if (leftType.isMatrix() && rightType.isMatrix()) {
+        bool equality;
         switch (op) {
             case Token::Kind::TK_EQEQ:
-                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                     left.compareConstant(fContext, right));
+                equality = true;
+                break;
             case Token::Kind::TK_NEQ:
-                return std::make_unique<BoolLiteral>(fContext, left.fOffset,
-                                                     !left.compareConstant(fContext, right));
+                equality = false;
+                break;
             default:
+                return nullptr;
+        }
+
+        switch (left.compareConstant(fContext, right)) {
+            case Expression::ComparisonResult::kNotEqual:
+                equality = !equality;
+                [[fallthrough]];
+
+            case Expression::ComparisonResult::kEqual:
+                return std::make_unique<BoolLiteral>(fContext, left.fOffset, equality);
+
+            case Expression::ComparisonResult::kUnknown:
                 return nullptr;
         }
     }
