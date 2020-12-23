@@ -44,7 +44,6 @@ private:
             , innerThreshold(innerThreshold)
             , outerThreshold(outerThreshold) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        SkASSERT(maskFP);
         this->registerChild(std::move(maskFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

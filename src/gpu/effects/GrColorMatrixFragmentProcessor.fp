@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 layout(ctype=SkM44, tracked) in uniform half4x4 m;
 layout(ctype=SkV4, tracked) in uniform half4 v;
 layout(key) in bool unpremulInput;

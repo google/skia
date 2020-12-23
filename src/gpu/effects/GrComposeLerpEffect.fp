@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? child1;
-in fragmentProcessor? child2;
+in fragmentProcessor child1;
+in fragmentProcessor child2;
 in uniform float weight;
 
 half4 main() {

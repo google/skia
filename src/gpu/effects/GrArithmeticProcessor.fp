@@ -9,7 +9,7 @@
     #include "include/effects/SkArithmeticImageFilter.h"
 }
 
-in fragmentProcessor? srcFP;
+in fragmentProcessor srcFP;
 in fragmentProcessor dstFP;
 layout(ctype=SkV4) in uniform float4 k;
 layout(key) in bool enforcePMColor;

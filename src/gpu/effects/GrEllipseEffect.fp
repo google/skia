@@ -9,7 +9,7 @@
     #include "src/gpu/GrShaderCaps.h"
 }
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float2 radii;

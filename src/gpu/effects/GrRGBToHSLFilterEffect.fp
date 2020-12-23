@@ -25,7 +25,7 @@
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 
 half4 main() {
     half4 c = sample(inputFP);
