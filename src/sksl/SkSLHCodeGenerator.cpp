@@ -278,10 +278,6 @@ void HCodeGenerator::writeConstructor() {
         if (paramType.typeKind() == Type::TypeKind::kSampler) {
             ++samplerCount;
         } else if (paramType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-            if (paramType.typeKind() != Type::TypeKind::kNullable) {
-                this->writef("        SkASSERT(%s);", String(param->name()).c_str());
-            }
-
             SampleUsage usage = Analysis::GetSampleUsage(fProgram, *param);
 
             std::string perspExpression;

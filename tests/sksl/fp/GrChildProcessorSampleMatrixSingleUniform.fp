@@ -1,4 +1,4 @@
-in fragmentProcessor? child;
+in fragmentProcessor child;
 uniform float3x3 matrix;
 
 half4 main() {

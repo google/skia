@@ -58,7 +58,6 @@ private:
             , useUniform(useUniform)
             , uniformColor(uniformColor)
             , literalColor(literalColor) {
-        SkASSERT(fp);
         this->registerChild(std::move(fp), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

@@ -399,8 +399,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Validity checks that are detected by function definition in sksl_fp.inc
         SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
-        SkASSERT("fragmentProcessor"  == arguments[0]->type().name() ||
-                 "fragmentProcessor?" == arguments[0]->type().name());
+        SkASSERT("fragmentProcessor"  == arguments[0]->type().name());
 
         // Actually fail during compilation if arguments with valid types are
         // provided that are not variable references, since sample() is a

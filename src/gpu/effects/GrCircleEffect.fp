@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float radius;

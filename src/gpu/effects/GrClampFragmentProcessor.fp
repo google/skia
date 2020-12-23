@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 layout(key) in bool clampToPremul;
 
 @optimizationFlags {

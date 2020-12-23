@@ -47,7 +47,6 @@ sksl_fp_tests = [
   "$_tests/sksl/fp/GrNestedCall.fp",
   "$_tests/sksl/fp/GrNestedChildProcessors.fp",
   "$_tests/sksl/fp/GrNonInlinedInUniform.fp",
-  "$_tests/sksl/fp/GrNullableChildProcessor.fp",
   "$_tests/sksl/fp/GrSectionClass.fp",
   "$_tests/sksl/fp/GrSectionConstructor.fp",
   "$_tests/sksl/fp/GrSectionConstructorParams.fp",

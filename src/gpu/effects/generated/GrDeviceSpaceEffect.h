@@ -33,7 +33,6 @@ private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(kGrDeviceSpaceEffect_ClassID,
                         (OptimizationFlags)ProcessorOptimizationFlags(fp.get())) {
-        SkASSERT(fp);
         this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

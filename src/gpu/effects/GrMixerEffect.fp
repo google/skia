@@ -7,9 +7,9 @@
 
 // Mixes the output of two FPs.
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 in fragmentProcessor  fp0;
-in fragmentProcessor? fp1;
+in fragmentProcessor fp1;
 in uniform half       weight;
 
 @class {

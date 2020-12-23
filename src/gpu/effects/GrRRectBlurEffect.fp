@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 in float sigma;
 layout(ctype=SkRect) in float4 rect;
 in uniform half cornerRadius;

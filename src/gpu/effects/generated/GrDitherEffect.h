@@ -37,7 +37,6 @@ private:
                                                     : kAll_OptimizationFlags) &
                                 kPreservesOpaqueInput_OptimizationFlag)
             , range(range) {
-        SkASSERT(inputFP);
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

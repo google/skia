@@ -1,4 +1,4 @@
-in fragmentProcessor? child;
+in fragmentProcessor child;
 in uniform float3x3 matrixA;
 in uniform float3x3 matrixB;
 

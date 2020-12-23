@@ -21,7 +21,7 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 }
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 in float4 rect;
 
 layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||

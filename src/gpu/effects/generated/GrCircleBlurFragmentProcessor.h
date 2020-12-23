@@ -45,7 +45,6 @@ private:
             , solidRadius(solidRadius)
             , textureRadius(textureRadius) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        SkASSERT(blurProfile);
         this->registerChild(std::move(blurProfile), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

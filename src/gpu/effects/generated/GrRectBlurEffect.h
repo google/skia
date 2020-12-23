@@ -173,7 +173,6 @@ private:
             , invVM(invVM)
             , isFast(isFast) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
-        SkASSERT(integral);
         this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

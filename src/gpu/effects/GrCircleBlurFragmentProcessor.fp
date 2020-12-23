@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 in half4 circleRect;
 in half solidRadius;
 in half textureRadius;
