@@ -787,7 +787,7 @@ if (skia_compile_sksl_tests) {
   compile_sksl("skvm_tests") {
     sources = sksl_skvm_tests_sources
     outputPatterns = [ [
-          "/golden",
+          "/golden/",
           ".skvm",
         ] ]
     lang = "--skvm"
