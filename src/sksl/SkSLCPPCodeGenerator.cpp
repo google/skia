@@ -820,8 +820,11 @@ void CPPCodeGenerator::flushEmittedCode() {
                 // fFormatArgs will be in a valid state for any future sksl
                 this->writeCodeAppend(toFlush);
 
-                int codeBlock = stoi(String(sksl.c_str() + tokenStart + 2, i - tokenStart - 2));
-                SkASSERT(codeBlock < (int) fExtraEmitCodeBlocks.size());
+                StringFragment str(sksl.c_str() + tokenStart + 2,
+                                   i - tokenStart - 2);
+                int codeBlock;
+                SkAssertResult(stoi(str, &codeBlock));
+                SkASSERT(codeBlock < (int)fExtraEmitCodeBlocks.size());
                 if (fExtraEmitCodeBlocks[codeBlock].size() > 0) {
                     this->write(fExtraEmitCodeBlocks[codeBlock].c_str());
                 }

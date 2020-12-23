@@ -35,6 +35,9 @@ struct StringFragment {
     : fChars(chars)
     , fLength(length) {}
 
+    const char* begin() const { return fChars; }
+    const char* end() const { return fChars + fLength; }
+
     const char* data() const { return fChars; }
     size_t size() const { return fLength; }
     size_t length() const { return fLength; }
@@ -111,11 +114,10 @@ String to_string(uint32_t value);
 String to_string(int64_t value);
 String to_string(uint64_t value);
 
-SKSL_INT stoi(const String& s);
-SKSL_FLOAT stod(const String& s);
-long stol(const String& s);
+bool stod(const StringFragment& s, SKSL_FLOAT* value);
+bool stoi(const StringFragment& s, SKSL_INT* value);
 
-} // namespace  SkSL
+} // namespace SkSL
 
 namespace std {
     template<> struct hash<SkSL::StringFragment> {
