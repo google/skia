@@ -22,6 +22,30 @@
       },
       "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a88eadb5_2bb87805",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-23T19:35:25Z",
+      "side": 1,
+      "message": "Is the idea to value-initialize them? (We would also need to value-initialize fLastControlPointsX and fLastControlPointsY if it\u0027s a round join.)\n\nI would rather not always initialize 40 floats * 2 queues, 32 floats * 1 queue, and 24 floats * 1 queue (544 bytes) every time we process a path. Especially since a lot of paths might not even use each queue, and as long as a queue gets filled up to 4 at least once, that queue doesn\u0027t need to be zero initialized anymore. I prefer the current method of only zero-initializing what\u0027s needed during the final flush.",
+      "parentUuid": "25d3a4a2_0e3c07c7",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
