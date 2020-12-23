@@ -43,7 +43,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLNop.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -1365,8 +1364,6 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
         case ASTNode::Kind::kInt:
             return std::unique_ptr<Expression>(new IntLiteral(fContext, expr.fOffset,
                                                               expr.getInt()));
-        case ASTNode::Kind::kNull:
-            return std::unique_ptr<Expression>(new NullLiteral(fContext, expr.fOffset));
         case ASTNode::Kind::kPostfix:
             return this->convertPostfixExpression(expr);
         case ASTNode::Kind::kPrefix:
@@ -1498,10 +1495,6 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         fErrors.error(offset, "expected '" + type.displayName() + "', but found '" +
                               expr->type().displayName() + "'");
         return nullptr;
-    }
-    if (expr->is<NullLiteral>()) {
-        SkASSERT(type.typeKind() == Type::TypeKind::kNullable);
-        return std::make_unique<NullLiteral>(offset, &type);
     }
     ExpressionArray args;
     args.push_back(std::move(expr));

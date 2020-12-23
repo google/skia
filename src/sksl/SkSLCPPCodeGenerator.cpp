@@ -85,31 +85,6 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         if (precedence >= parentPrecedence) {
             this->write(")");
         }
-    } else if (left.kind() == Expression::Kind::kNullLiteral ||
-               right.kind() == Expression::Kind::kNullLiteral) {
-        const Variable* var;
-        if (left.kind() != Expression::Kind::kNullLiteral) {
-            var = left.as<VariableReference>().variable();
-        } else {
-            var = right.as<VariableReference>().variable();
-        }
-        SkASSERT(var->type().typeKind() == Type::TypeKind::kNullable &&
-                 var->type().componentType() == *fContext.fFragmentProcessor_Type);
-        this->write("%s");
-        const char* prefix = "";
-        switch (op) {
-            case Token::Kind::TK_EQEQ:
-                prefix = "!";
-                break;
-            case Token::Kind::TK_NEQ:
-                prefix = "";
-                break;
-            default:
-                SkASSERT(false);
-        }
-        int childIndex = this->getChildFPIndex(*var);
-        fFormatArgs.push_back(String(prefix) + "_outer.childProcessor(" + to_string(childIndex) +
-                              ") ? \"true\" : \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
     }

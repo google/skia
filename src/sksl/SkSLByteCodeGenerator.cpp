@@ -1457,11 +1457,6 @@ void ByteCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     this->write32(i.value());
 }
 
-void ByteCodeGenerator::writeNullLiteral(const NullLiteral& n) {
-    // not yet implemented
-    abort();
-}
-
 bool ByteCodeGenerator::writePrefixExpression(const PrefixExpression& p, bool discard) {
     switch (p.getOperator()) {
         case Token::Kind::TK_PLUSPLUS: // fall through
@@ -1612,9 +1607,6 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
             break;
         case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(e.as<IntLiteral>());
-            break;
-        case Expression::Kind::kNullLiteral:
-            this->writeNullLiteral(e.as<NullLiteral>());
             break;
         case Expression::Kind::kPrefix:
             discard = this->writePrefixExpression(e.as<PrefixExpression>(), discard);

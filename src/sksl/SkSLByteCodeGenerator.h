@@ -34,7 +34,6 @@
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -270,7 +269,6 @@ private:
     bool writePrefixExpression(const PrefixExpression& p, bool discard);
     bool writePostfixExpression(const PostfixExpression& p, bool discard);
 
-    void writeNullLiteral(const NullLiteral& n);
     void writeBoolLiteral(const BoolLiteral& b);
     void writeIntLiteral(const IntLiteral& i);
     void writeFloatLiteral(const FloatLiteral& f);
