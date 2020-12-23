@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9595330b_625b98ff",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-23T19:17:37Z",
+      "side": 0,
+      "message": "This is the core change of this CL.",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 284,
+        "endChar": 0
+      },
+      "revId": "cb26fe944574d3e3d2147b9798daaf3ae58e8aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
