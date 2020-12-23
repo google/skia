@@ -23,7 +23,7 @@ public:
 private:
     GrChildProcessorWithInputExpression(std::unique_ptr<GrFragmentProcessor> child)
     : INHERITED(kGrChildProcessorWithInputExpression_ClassID, kNone_OptimizationFlags) {
-        SkASSERT(child);        this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());    }
+        this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());    }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

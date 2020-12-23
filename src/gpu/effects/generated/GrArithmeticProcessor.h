@@ -43,7 +43,6 @@ private:
             , k(k)
             , enforcePMColor(enforcePMColor) {
         this->registerChild(std::move(srcFP), SkSL::SampleUsage::PassThrough());
-        SkASSERT(dstFP);
         this->registerChild(std::move(dstFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

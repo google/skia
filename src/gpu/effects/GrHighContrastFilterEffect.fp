@@ -9,7 +9,7 @@
     #include "include/effects/SkHighContrastFilter.h"
 }
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 in uniform half contrastMod;
 layout(key) in bool hasContrast;
 layout(key) in bool grayscale;

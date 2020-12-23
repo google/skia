@@ -10,7 +10,7 @@ enum class Mode {
     kSmoothStep = 1
 };
 
-in fragmentProcessor? inputFP;
+in fragmentProcessor inputFP;
 layout(key) in Mode mode;
 
 half4 main() {

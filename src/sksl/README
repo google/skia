@@ -152,12 +152,8 @@ Within an '.fp' fragment processor file:
   The first variant emits the child with a solid white input color. The second
   variant emits the child with the result of the 2nd argument's expression,
   which must evaluate to a half4. The process function returns a half4.
-* The 'fragmentProcessor' type cannot hold a null. Nullable fragment processors
-  should use the 'fragmentProcessor?' type: 'in fragmentProcessor? <name>'. You
-  can check for null fragment processors by comparing them against 'null', as 
-  in: 'if (inputFP != null) { ... }'. Invoking 'sample()' on a null fragment
-  processor will return the inputColor unchanged (this defaults to solid white
-  if not explicitly specified).
+  Invoking 'sample()' on a null fragment processor will return the inputColor
+  unchanged (this defaults to solid white if not explicitly specified).
 
 
 Creating a new .fp file

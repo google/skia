@@ -44,7 +44,6 @@ private:
                              PMConversion pmConversion)
             : INHERITED(kGrConfigConversionEffect_ClassID, kNone_OptimizationFlags)
             , pmConversion(pmConversion) {
-        SkASSERT(inputFP);
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
