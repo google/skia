@@ -17,6 +17,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 
+class SkBitmap;
 struct SkMask;
 class SkMipmap;
 struct SkIRect;
@@ -1141,6 +1142,13 @@ public:
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
 #endif
+
+    /**
+     *  Returns a new image from the bitmap. If the bitmap is marked immutable, this will
+     *  share the pixel buffer. If not, it will make a copy of the pixels for the image.
+     */
+    sk_sp<SkImage> asImage() const;
+
     /** Asserts if internal values are illegal or inconsistent. Only available if
         SK_DEBUG is defined at compile time.
     */

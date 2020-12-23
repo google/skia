@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -119,7 +120,7 @@ DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
     downsized.allocPixels(image->imageInfo().makeWH(128, 128));
     image->scalePixels(downsized.pixmap(), SkSamplingOptions(SkFilterMode::kLinear,
                                                              SkMipmapMode::kNone));
-    image = SkImage::MakeFromBitmap(downsized);
+    image = downsized.asImage();
     SkRect imgRect = SkRect::MakeIWH(image->width(), image->height());
 
     // scale matrix

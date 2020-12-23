@@ -12,6 +12,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 
+class SkPixelRef;
+
 enum SkCopyPixelsMode {
     kIfMutable_SkCopyPixelsMode,  //!< only copy src pixels if they are marked mutable
     kAlways_SkCopyPixelsMode,     //!< always copy src pixels (even if they are marked immutable)

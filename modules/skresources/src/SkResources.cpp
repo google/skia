@@ -8,6 +8,7 @@
 #include "modules/skresources/include/SkResources.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/private/SkTPin.h"

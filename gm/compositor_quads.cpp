@@ -1007,7 +1007,7 @@ static SkTArray<sk_sp<ClipTileRenderer>> make_shader_renderers() {
     SkBitmap bm;
     bm.allocPixels(info);
     bm.eraseColor(SK_ColorWHITE);
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
+    sk_sp<SkImage> image = bm.asImage();
 
     SkTArray<sk_sp<ClipTileRenderer>> renderers;
     renderers.push_back(TextureSetRenderer::MakeShader("Gradient", image, gradient, false));
