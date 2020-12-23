@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0539701d_76899796",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T23:50:57Z",
+      "side": 0,
+      "message": "Guessing this is copy-paste from GLSLCodeGenerator in the past, and didn\u0027t get updated for additional types when GLSL\u0027s did.",
+      "range": {
+        "startLine": 1282,
+        "startChar": 0,
+        "endLine": 1285,
+        "endChar": 52
+      },
+      "revId": "b933eab4369989d53c801a1df5c1db317a55e69e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

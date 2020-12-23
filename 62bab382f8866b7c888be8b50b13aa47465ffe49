@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3e106ec_165db877",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1924,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-23T23:50:57Z",
+      "side": 1,
+      "message": "Couldn\u0027t see any reason that these should use URESULT. \n\u003e\u003e in GLSL is supposed to sign-extend AFAICS from the docs.",
+      "range": {
+        "startLine": 1918,
+        "startChar": 26,
+        "endLine": 1924,
+        "endChar": 33
+      },
+      "revId": "62bab382f8866b7c888be8b50b13aa47465ffe49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
