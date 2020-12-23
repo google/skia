@@ -16,6 +16,24 @@
       "message": "Seems fine by me, though feel free to bring back the SkFontMgr_custom_embedded.cpp if you want to use it (though probably not the _factory.cpp).",
       "revId": "4e0e8d4124f5c014cdcc85be718c5eb7f56e530f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f93fa7a_851b298d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-12-23T15:09:03Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s very easy to embed the default monospace font we include for our Google3 build, so omitting it is probably going to be the long-term play too.",
+      "parentUuid": "11376413_60a790d4",
+      "revId": "4e0e8d4124f5c014cdcc85be718c5eb7f56e530f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
