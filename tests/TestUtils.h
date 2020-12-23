@@ -31,14 +31,6 @@ void TestCopyFromSurface(skiatest::Reporter*, GrDirectContext*, GrSurfaceProxy* 
                          GrSurfaceOrigin origin, GrColorType colorType,
                          uint32_t expectedPixelValues[], const char* testName);
 
-// Fills data with a red-green gradient
-void FillPixelData(int width, int height, GrColor* data);
-
-// Checks srcBuffer and dstBuffer contain the same colors
-bool DoesFullBufferContainCorrectColor(const GrColor* srcBuffer,
-                                       const GrColor* dstBuffer,
-                                       int width, int height);
-
 // Encodes the bitmap into a data:/image/png;base64,... url suitable to view in a browser after
 // printing to a log. If false is returned, dst holds an error message instead of a URI.
 bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst);
