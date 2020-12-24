@@ -89,8 +89,6 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
     static constexpr int kSize = 256;
     SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
     uint32_t* srcData = data.get();
-    uint32_t* firstRead = data.get() + kSize * kSize;
-    uint32_t* secondRead = data.get() + 2 * kSize * kSize;
 
     // Fill with every possible premultiplied A, color channel value. There will be 256-y
     // duplicate values in row y. We set r, g, and b to the same value since they are handled
@@ -104,8 +102,6 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             color[0] = std::min(x, y);
         }
     }
-    std::fill_n(firstRead, kSize * kSize, 0);
-    std::fill_n(secondRead, kSize * kSize, 0);
 
     const SkImageInfo pmII =
             SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -130,6 +126,14 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
         return false;
     }
 
+    uint32_t* firstRead = data.get() + kSize * kSize;
+    uint32_t* secondRead = data.get() + 2 * kSize * kSize;
+    std::fill_n(firstRead, kSize * kSize, 0);
+    std::fill_n(secondRead, kSize * kSize, 0);
+
+    GrPixmap firstReadPM(upmII, firstRead, kSize * sizeof(uint32_t));
+    GrPixmap secondReadPM(upmII, secondRead, kSize * sizeof(uint32_t));
+
     // We do a PM->UPM draw from dataTex to readTex and read the data. Then we do a UPM->PM draw
     // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
     // We then verify that two reads produced the same values.
@@ -138,7 +142,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             GrTextureEffect::Make(std::move(dataView), bitmap.alphaType()),
             PMConversion::kToUnpremul);
     readSFC->fillRectWithFP(SkIRect::MakeWH(kSize, kSize), std::move(fp1));
-    if (!readSFC->readPixels(dContext, upmII, firstRead, 0, {0, 0})) {
+    if (!readSFC->readPixels(dContext, firstReadPM, {0, 0})) {
         return false;
     }
 
@@ -152,7 +156,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             PMConversion::kToUnpremul);
     readSFC->fillRectWithFP(SkIRect::MakeWH(kSize, kSize), std::move(fp3));
 
-    if (!readSFC->readPixels(dContext, upmII, secondRead, 0, {0, 0})) {
+    if (!readSFC->readPixels(dContext, secondReadPM, {0, 0})) {
         return false;
     }
 
