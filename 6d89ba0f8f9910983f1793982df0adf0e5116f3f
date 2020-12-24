@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006951268",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/347022?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "26364a31_34991e0d",
+        "filename": "src/core/SkOverdrawCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-24T14:15:45Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 210,
+        "startChar": 15,
+        "endLine": 210,
+        "endChar": 20
+      },
+      "revId": "6d89ba0f8f9910983f1793982df0adf0e5116f3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006951268",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/347022?revision\u003d8",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c76723ab_f28c5e46",
+        "filename": "src/core/SkOverdrawCanvas.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-24T14:15:45Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 211,
+        "startChar": 26,
+        "endLine": 211,
+        "endChar": 31
+      },
+      "revId": "6d89ba0f8f9910983f1793982df0adf0e5116f3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
