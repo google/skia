@@ -76,6 +76,7 @@ public:
     void verifyPrePrepareResolveLevels(skiatest::Reporter*, GrMeshDrawOp::Target*);
     void verifyPrepareBuffers(skiatest::Reporter*, GrMeshDrawOp::Target*);
     class Benchmark;
+    class SingleVerbPathsBenchmark;
 #endif
 };
 
