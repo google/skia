@@ -3631,7 +3631,7 @@ bool GrGLGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     bool result = false;
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
-        GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        GrColorType colorType = data->pixmap(0).colorType();
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};

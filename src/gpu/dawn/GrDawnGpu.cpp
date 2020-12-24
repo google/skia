@@ -386,7 +386,7 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     SkAutoMalloc defaultStorage(baseLayerSize);
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
-        GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        GrColorType colorType = data->pixmap(0).colorType();
         int numMipLevels = info.fLevelCount;
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {

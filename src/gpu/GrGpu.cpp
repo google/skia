@@ -791,10 +791,10 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif // GR_TEST_UTILS
 
 bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
-                              GrMipmapped mipMapped,
+                              GrMipmapped mipmapped,
                               const BackendTextureData* data) {
     int numMipLevels = 1;
-    if (mipMapped == GrMipmapped::kYes) {
+    if (mipmapped == GrMipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -812,7 +812,7 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
         return false;
     }
 
-    SkColorType colorType = data->pixmap(0).colorType();
+    GrColorType colorType = data->pixmap(0).colorType();
     for (int i = 1; i < numMipLevels; ++i) {
         dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
         if (dimensions != data->pixmap(i).dimensions()) {
@@ -883,7 +883,7 @@ bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
     }
 
     if (data->type() == BackendTextureData::Type::kPixmaps) {
-        auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        auto ct = data->pixmap(0).colorType();
         if (!caps->areColorTypeAndFormatCompatible(ct, backendTexture.getBackendFormat())) {
             return false;
         }
@@ -893,8 +893,8 @@ bool GrGpu::updateBackendTexture(const GrBackendTexture& backendTexture,
         return false;
     }
 
-    GrMipmapped mipMapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
-    if (!MipMapsAreCorrect(backendTexture.dimensions(), mipMapped, data)) {
+    GrMipmapped mipmapped = backendTexture.hasMipmaps() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    if (!MipMapsAreCorrect(backendTexture.dimensions(), mipmapped, data)) {
         return false;
     }
 
