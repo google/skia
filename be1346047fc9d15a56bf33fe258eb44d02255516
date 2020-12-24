@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e628d586_3f06abda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-24T19:42:45Z",
+      "side": 1,
+      "message": "modulo drawAtlas, and more plumbing (perhaps in follow-on CL) in GpuDevice, this is sort of ready.",
+      "revId": "be1346047fc9d15a56bf33fe258eb44d02255516",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
