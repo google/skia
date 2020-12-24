@@ -554,7 +554,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
 
     GrSurfaceContext surfaceContext(dContext, std::move(view), image->imageInfo().colorInfo());
 
-    surfaceContext.writePixels(dContext, pixmap.info(), pixmap.addr(), pixmap.rowBytes(), {0, 0});
+    surfaceContext.writePixels(dContext, pixmap, {0, 0});
 
     GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
     drawingManager->flush(p, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);
