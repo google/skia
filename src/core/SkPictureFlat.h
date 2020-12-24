@@ -109,7 +109,11 @@ enum DrawType {
     MARK_CTM,
     SET_M44,
 
-    LAST_DRAWTYPE_ENUM = SET_M44,
+    DRAW_IMAGE2,
+    DRAW_IMAGE_RECT2,
+    DRAW_IMAGE_LATTICE2,
+
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_LATTICE2,
 };
 
 enum DrawVertexFlags {
