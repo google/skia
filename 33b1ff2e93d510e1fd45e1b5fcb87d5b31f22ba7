@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b6231bd_5117ca28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-24T02:55:07Z",
+      "side": 1,
+      "message": "Just trying to finishing the pluming for explicit sampling params passed to device::drawImageRect.\n\nCPU works now, but GPU is still incomplete...",
+      "revId": "33b1ff2e93d510e1fd45e1b5fcb87d5b31f22ba7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
