@@ -118,6 +118,30 @@
       },
       "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a0615f1_349404fb",
+        "filename": "src/gpu/tessellate/GrStrokeIndirectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-24T01:13:42Z",
+      "side": 1,
+      "message": "RUNNING_ON_VALGRIND is a runtime check, so you\u0027d have to make USE_SIMD a runtime switch. I don\u0027t love the idea of running significantly different code when looking for memory errors. What about landing that benchmark, turning the stroke code on as is on some bot(s) but not the valgrind bot, then landing this change, and checking whether that benchmark (or any others) regress?",
+      "parentUuid": "d396ee77_668ccbb4",
+      "range": {
+        "startLine": 326,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 40
+      },
+      "revId": "e4d40cfeef8b9d95c1f8dc4ed7b7960994071a53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
