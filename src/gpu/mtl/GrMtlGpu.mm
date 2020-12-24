@@ -844,8 +844,12 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
     SkUNREACHABLE;
 }
 
-void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& individualMipOffsets,
-                   const SkPixmap srcData[], int numMipLevels, size_t bufferSize) {
+void copy_src_data(char* dst,
+                   size_t bytesPerPixel,
+                   const SkTArray<size_t>& individualMipOffsets,
+                   const GrPixmap srcData[],
+                   int numMipLevels,
+                   size_t bufferSize) {
     SkASSERT(srcData && numMipLevels);
     SkASSERT(individualMipOffsets.count() == numMipLevels);
 
