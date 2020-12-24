@@ -174,8 +174,7 @@ bool SkGpuDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
-    return fSurfaceDrawContext->readPixels(dContext, pm.info(), pm.writable_addr(), pm.rowBytes(),
-                                           {x, y});
+    return fSurfaceDrawContext->readPixels(dContext, pm, {x, y});
 }
 
 bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
@@ -187,7 +186,7 @@ bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
         return false;
     }
 
-    return fSurfaceDrawContext->writePixels(dContext, pm.info(), pm.addr(), pm.rowBytes(), {x, y});
+    return fSurfaceDrawContext->writePixels(dContext, pm, {x, y});
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
