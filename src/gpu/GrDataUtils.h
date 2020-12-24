@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrSwizzle.h"
 
 size_t GrNumBlocks(SkImage::CompressionType, SkISize baseDimensions);
@@ -38,9 +38,9 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                      bool flipY = false);
 
 // Convenience version for src/dst pixmaps.
-inline bool GrConvertPixels(const SkPixmap& dst, const SkPixmap& src, bool flipY = false) {
-    return GrConvertPixels(dst.info(), dst.writable_addr(), dst.rowBytes(),
-                           src.info(),          src.addr(), src.rowBytes(),
+inline bool GrConvertPixels(const GrPixmap& dst, const GrPixmap& src, bool flipY = false) {
+    return GrConvertPixels(dst.info(), dst.addr(), dst.rowBytes(),
+                           src.info(), src.addr(), src.rowBytes(),
                            flipY);
 }
 
