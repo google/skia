@@ -153,6 +153,7 @@ void SkOverdrawCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     fList[0]->onDrawPath(path, fPaint);
 }
 
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void SkOverdrawCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint*) {
     fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), fPaint);
 }
@@ -164,6 +165,38 @@ void SkOverdrawCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
 
 void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                           const SkRect& dst, const SkPaint*) {
+    SkIRect bounds;
+    Lattice latticePlusBounds = lattice;
+    if (!latticePlusBounds.fBounds) {
+        bounds = SkIRect::MakeWH(image->width(), image->height());
+        latticePlusBounds.fBounds = &bounds;
+    }
+
+    if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
+        SkLatticeIter iter(latticePlusBounds, dst);
+
+        SkRect dummy, iterDst;
+        while (iter.next(&dummy, &iterDst)) {
+            fList[0]->onDrawRect(iterDst, fPaint);
+        }
+    } else {
+        fList[0]->onDrawRect(dst, fPaint);
+    }
+}
+#endif
+
+void SkOverdrawCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
+                                    const SkSamplingOptions&, const SkPaint*) {
+    fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), fPaint);
+}
+
+void SkOverdrawCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                                        const SkSamplingOptions&, const SkPaint*, SrcRectConstraint) {
+    fList[0]->onDrawRect(dst, fPaint);
+}
+
+void SkOverdrawCanvas::onDrawImageLattice2(const SkImage* image, const Lattice& lattice,
+                                           const SkRect& dst, SkFilterMode, const SkPaint*) {
     SkIRect bounds;
     Lattice latticePlusBounds = lattice;
     if (!latticePlusBounds.fBounds) {

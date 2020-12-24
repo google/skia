@@ -344,6 +344,16 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->drawImage(image, loc.fX, loc.fY, paint);
         } break;
+        case DRAW_IMAGE2: {
+            const SkPaint* paint = fPictureData->optionalPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            SkPoint loc;
+            reader->readPoint(&loc);
+            SkSamplingOptions sampling = reader->readSampling();
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->drawImage(image, loc.fX, loc.fY, sampling, paint);
+        } break;
         case DRAW_IMAGE_LATTICE: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
@@ -353,6 +363,17 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->drawImageLattice(image, lattice, *dst, paint);
+        } break;
+        case DRAW_IMAGE_LATTICE2: {
+            const SkPaint* paint = fPictureData->optionalPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            SkCanvas::Lattice lattice;
+            (void)SkCanvasPriv::ReadLattice(*reader, &lattice);
+            const SkRect* dst = reader->skipT<SkRect>();
+            SkFilterMode filter = reader->read32LE(SkFilterMode::kLinear);
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->drawImageLattice(image, lattice, *dst, filter, paint);
         } break;
         case DRAW_IMAGE_NINE: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);
@@ -382,6 +403,17 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->legacy_drawImageRect(image, src, dst, paint, constraint);
+        } break;
+        case DRAW_IMAGE_RECT2: {
+            const SkPaint* paint = fPictureData->optionalPaint(reader);
+            const SkImage* image = fPictureData->getImage(reader);
+            SkRect src = reader->readRect();
+            SkRect dst = reader->readRect();
+            auto constraint = reader->read32LE(SkCanvas::kFast_SrcRectConstraint);
+            SkSamplingOptions sampling = reader->readSampling();
+            BREAK_ON_READ_ERROR(reader);
+
+            canvas->drawImageRect(image, src, dst, sampling, paint, constraint);
         } break;
         case DRAW_OVAL: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);
