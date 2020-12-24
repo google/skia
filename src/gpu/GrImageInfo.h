@@ -44,6 +44,10 @@ public:
         return {this->colorType(), at, this->refColorSpace(), this->width(), this->height()};
     }
 
+    GrImageInfo makeDimensions(SkISize dimensions) const {
+        return {this->colorType(), this->alphaType(), this->refColorSpace(), dimensions};
+    }
+
     GrImageInfo makeWH(int width, int height) const {
         return {this->colorType(), this->alphaType(), this->refColorSpace(), width, height};
     }
@@ -67,28 +71,6 @@ public:
     size_t bpp() const { return GrColorTypeBytesPerPixel(this->colorType()); }
 
     size_t minRowBytes() const { return this->bpp() * this->width(); }
-
-    /**
-     * Place this image rect in a surface of dimensions surfaceWidth x surfaceHeight size offset at
-     * surfacePt and then clip the pixel rectangle to the bounds of the surface. If the pixel rect
-     * does not intersect the rectangle or is empty then return false. If clipped, the input
-     * surfacePt, the width/height of this GrImageInfo, and the data pointer will be modified to
-     * reflect the clipped rectangle.
-     */
-    template <typename T>
-    bool clip(int surfaceWidth, int surfaceHeight, SkIPoint* surfacePt, T** data, size_t rowBytes) {
-        auto bounds = SkIRect::MakeWH(surfaceWidth, surfaceHeight);
-        auto rect = SkIRect::MakeXYWH(surfacePt->fX, surfacePt->fY, this->width(), this->height());
-        if (!rect.intersect(bounds)) {
-            return false;
-        }
-        *data = SkTAddOffset<T>(*data, (rect.fTop  - surfacePt->fY) * rowBytes +
-                                       (rect.fLeft - surfacePt->fX) * this->bpp());
-        surfacePt->fX = rect.fLeft;
-        surfacePt->fY = rect.fTop;
-        fDimensions = rect.size();
-        return true;
-    }
 
     bool isValid() const { return fColorInfo.isValid() && this->width() > 0 && this->height() > 0; }
 

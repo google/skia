@@ -97,9 +97,10 @@ static void run_test(skiatest::Reporter* reporter, GrDirectContext* directContex
                   SkRect::MakeWH(1,1));
 
     GrColor result;
-    rtc->readPixels(directContext,
-                    SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), &result,
-                    4, {0, 0});
+    GrPixmap resultPM(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+                      &result,
+                      sizeof(GrColor));
+    rtc->readPixels(directContext, resultPM, {0, 0});
 
     SkASSERT(expectedCrossProduct == a.cross(b));
     if (expectedCrossProduct > 0) {

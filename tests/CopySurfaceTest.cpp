@@ -78,12 +78,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                     for (const SkIRect& srcRect : kSrcRects) {
                         for (const SkIPoint& dstPoint : kDstPoints) {
                             for (const SkImageInfo& ii: kImageInfos) {
+                                GrPixmap srcPM(ii, srcPixels.get(), kRowBytes);
+                                GrPixmap dstPM(ii, dstPixels.get(), kRowBytes);
                                 auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(
-                                        dContext, sRenderable, sOrigin, ii, srcPixels.get(),
-                                        kRowBytes);
+                                        dContext, sRenderable, sOrigin, srcPM);
                                 auto dstView = sk_gpu_test::MakeTextureProxyViewFromData(
-                                        dContext, dRenderable, dOrigin, ii, dstPixels.get(),
-                                        kRowBytes);
+                                        dContext, dRenderable, dOrigin, dstPM);
 
                                 // Should always work if the color type is RGBA, but may not work
                                 // for BGRA
@@ -162,8 +162,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 sk_memset32(read.get(), 0, kW * kH);
-                                if (!dstContext->readPixels(
-                                        dContext, ii, read.get(), kRowBytes, {0, 0})) {
+                                GrPixmap readPM(ii, read.get(), kRowBytes);
+                                if (!dstContext->readPixels(dContext, readPM, {0, 0})) {
                                     ERRORF(reporter, "Error calling readPixels");
                                     continue;
                                 }

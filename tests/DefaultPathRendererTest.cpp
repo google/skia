@@ -47,7 +47,7 @@ static SkBitmap read_back(GrDirectContext* dContext, GrSurfaceDrawContext* rtc,
     SkBitmap bm;
     bm.allocPixels(dstII);
 
-    rtc->readPixels(dContext, dstII, bm.getAddr(0, 0), bm.rowBytes(), {0, 0});
+    rtc->readPixels(dContext, bm.pixmap(), {0, 0});
 
     return bm;
 }

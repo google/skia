@@ -587,7 +587,7 @@ static void run_test(GrDirectContext* dContext, const char* testName,
                      const std::unique_ptr<GrSurfaceDrawContext>& rtc, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn) {
-    const int w = gold.width(), h = gold.height(), rowBytes = gold.rowBytes();
+    const int w = gold.width(), h = gold.height();
     const uint32_t* goldPx = reinterpret_cast<const uint32_t*>(gold.getPixels());
     if (h != rtc->height() || w != rtc->width()) {
         ERRORF(reporter, "[%s] expectation and rtc not compatible (?).", testName);
@@ -598,11 +598,11 @@ static void run_test(GrDirectContext* dContext, const char* testName,
         return;
     }
 
-    SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
+    auto [resultPM, resultStorage] = GrPixmap::Allocate(gold.info());
     rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
     rtc->addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
 
-    rtc->readPixels(dContext, gold.info(), resultPx, rowBytes, {0, 0});
+    rtc->readPixels(dContext, resultPM, {0, 0});
 
 #ifdef WRITE_PNG_CONTEXT_TYPE
 #define STRINGIFY(X) #X
@@ -610,14 +610,13 @@ static void run_test(GrDirectContext* dContext, const char* testName,
     SkString filename;
     filename.printf("GrMeshTest_%s_%s.png", TOSTRING(WRITE_PNG_CONTEXT_TYPE), testName);
     SkDebugf("writing %s...\n", filename.c_str());
-    ToolUtils::EncodeImageToFile(filename.c_str(), SkPixmap(gold.info(), resultPx, rowBytes),
-                                 SkEncodedImageFormat::kPNG, 100);
+    ToolUtils::EncodeImageToFile(filename.c_str(), resultPM, SkEncodedImageFormat::kPNG, 100);
 #endif
 
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t expected = goldPx[y * kImageWidth + x];
-            uint32_t actual = resultPx[y * kImageWidth + x];
+            uint32_t actual = static_cast<uint32_t*>(resultPM.addr())[y * kImageWidth + x];
             if (expected != actual) {
                 ERRORF(reporter, "[%s] pixel (%i,%i): got 0x%x expected 0x%x",
                        testName, x, y, actual, expected);

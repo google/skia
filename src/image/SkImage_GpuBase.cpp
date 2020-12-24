@@ -126,8 +126,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
         return false;
     }
 
-    if (!sContext->readPixels(dContext, pmap.info(), pmap.writable_addr(), pmap.rowBytes(),
-                              {0, 0})) {
+    if (!sContext->readPixels(dContext, pmap, {0, 0})) {
         return false;
     }
 
@@ -166,8 +165,8 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
                                    int srcX,
                                    int srcY,
                                    CachingHint) const {
-    if (!fContext->priv().matches(dContext)
-            || !SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
+    if (!fContext->priv().matches(dContext) ||
+        !SkImageInfoValidConversion(dstInfo, this->imageInfo())) {
         return false;
     }
 
@@ -182,7 +181,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    return sContext->readPixels(dContext, dstInfo, dstPixels, dstRB, {srcX, srcY});
+    return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
 }
 
 GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,

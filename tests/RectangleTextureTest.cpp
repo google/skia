@@ -98,11 +98,15 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
 
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
         auto origin = dstContext->origin();
-        auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(
-                dContext, renderable, origin,
-                {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr, dstContext->width(),
-                 dstContext->height()},
-                pixels.get(), 0);
+        GrImageInfo info(GrColorType::kRGBA_8888,
+                         kPremul_SkAlphaType,
+                         nullptr,
+                         dstContext->dimensions());
+        GrPixmap pixmap(info, pixels.get(), dstContext->width()*sizeof(uint32_t));
+        auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(dContext,
+                                                                 renderable,
+                                                                 origin,
+                                                                 pixmap);
         // If this assert ever fails we can add a fallback to do copy as draw, but until then we can
         // be more restrictive.
         SkAssertResult(dstContext->testCopy(srcView.proxy()));

@@ -515,7 +515,11 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
         // We don't expect to have to convert from this format.
         return false;
     }
-    if (!srcInfo.isValid() || !dstInfo.isValid()) {
+    if (srcInfo.dimensions().isEmpty() || dstInfo.dimensions().isEmpty()) {
+        return false;
+    }
+    if (srcInfo.colorType() == GrColorType::kUnknown ||
+        dstInfo.colorType() == GrColorType::kUnknown) {
         return false;
     }
     if (!src || !dst) {

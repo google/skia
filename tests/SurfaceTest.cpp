@@ -729,8 +729,7 @@ static void test_surface_context_clear(skiatest::Reporter* reporter,
     readback.alloc(ii);
 
     readback.erase(~expectedValue);
-    surfaceContext->readPixels(dContext, readback.info(), readback.writable_addr(),
-                               readback.rowBytes(), {0, 0});
+    surfaceContext->readPixels(dContext, readback, {0, 0});
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t pixel = readback.addr32()[y * w + x];

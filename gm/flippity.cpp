@@ -28,6 +28,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrPixmap.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/ToolUtils.h"
@@ -133,7 +134,7 @@ static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
     auto view = sk_gpu_test::MakeTextureProxyViewFromData(context, GrRenderable::kNo, origin,
-                                                          bm.info(), bm.getPixels(), bm.rowBytes());
+                                                          bm.pixmap());
     if (!view) {
         return nullptr;
     }
