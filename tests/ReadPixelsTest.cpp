@@ -647,7 +647,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (readCT == kUnknown_SkColorType) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
-        } else if (readAT == kUnknown_SkAlphaType) {
+        } else if ((readAT == kUnknown_SkAlphaType) != (srcAT == kUnknown_SkAlphaType)) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
             REPORTER_ASSERT(reporter, result != GpuReadResult::kSuccess);
@@ -714,8 +714,22 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                        diffs[0], diffs[1], diffs[2], diffs[3]);
             });
             SkAutoPixmapStorage ref;
-            ref.alloc(readInfo.makeWH(dstWriteRect.width(), dstWriteRect.height()));
-            srcPixels.readPixels(ref, srcReadRect.x(), srcReadRect.y());
+            SkImageInfo refInfo = readInfo.makeDimensions(dstWriteRect.size());
+            ref.alloc(refInfo);
+            if (readAT == kUnknown_SkAlphaType) {
+                // Do a spoofed read where src and dst alpha type are both kUnpremul. This will
+                // allow SkPixmap readPixels to succeed and won't do any alpha type conversion.
+                SkPixmap unpremulRef(refInfo.makeAlphaType(kUnpremul_SkAlphaType),
+                                     ref.addr(),
+                                     ref.rowBytes());
+                SkPixmap unpremulSRc(srcPixels.info().makeAlphaType(kUnpremul_SkAlphaType),
+                                     srcPixels.addr(),
+                                     srcPixels.rowBytes());
+
+                unpremulSRc.readPixels(unpremulRef, srcReadRect.x(), srcReadRect.y());
+            } else {
+                srcPixels.readPixels(ref, srcReadRect.x(), srcReadRect.y());
+            }
             // This is the part of dstPixels that should have been updated.
             SkPixmap actual;
             SkAssertResult(dstPixels.extractSubset(&actual, dstWriteRect));
@@ -755,9 +769,13 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
     auto make_ref_f32_data = [](SkAlphaType srcAT, SkColorType srcCT) -> SkAutoPixmapStorage {
         // Make src data in F32 with srcAT. We will convert it to each color type we test to
         // initialize the src.
-        const auto refInfo =
+        auto surfInfo =
                 SkImageInfo::Make(kW, kH, kRGBA_F32_SkColorType, srcAT, SkColorSpace::MakeSRGB());
-        auto refSurf = SkSurface::MakeRaster(refInfo);
+        // Can't make a kUnknown_SkAlphaType surface.
+        if (srcAT == kUnknown_SkAlphaType) {
+            surfInfo = surfInfo.makeAlphaType(kUnpremul_SkAlphaType);
+        }
+        auto refSurf = SkSurface::MakeRaster(surfInfo);
         static constexpr SkPoint kPts1[] = {{0, 0}, {kW, kH}};
         static constexpr SkColor kColors1[] = {SK_ColorGREEN, SK_ColorRED};
         SkPaint paint;
@@ -795,7 +813,15 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         const auto srcInfo = SkImageInfo::Make(kW, kH, srcCT, srcAT, SkColorSpace::MakeSRGB());
         SkAutoPixmapStorage srcPixels;
         srcPixels.alloc(srcInfo);
-        refSurf->readPixels(srcPixels, 0, 0);
+        SkPixmap readPixmap = srcPixels;
+        // Spoof the alpha type to kUnpremul so the read will succeed without doing any conversion
+        // (because we made our surface also be kUnpremul).
+        if (srcAT == kUnknown_SkAlphaType) {
+            readPixmap.reset(srcPixels.info().makeAlphaType(kUnpremul_SkAlphaType),
+                             srcPixels.addr(),
+                             srcPixels.rowBytes());
+        }
+        refSurf->readPixels(readPixmap, 0, 0);
         return srcPixels;
     };
     const std::vector<SkIRect> longRectArray = {
@@ -864,8 +890,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                                                 readCTTestedThoroughly = {};
     for (int sat = 0; sat < kLastEnum_SkAlphaType; ++sat) {
         const auto srcAT = static_cast<SkAlphaType>(sat);
-        if (srcAT == kUnknown_SkAlphaType ||
-            (srcAT == kUnpremul_SkAlphaType && !rules.fAllowUnpremulSrc)) {
+        if (srcAT == kUnpremul_SkAlphaType && !rules.fAllowUnpremulSrc) {
             continue;
         }
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
@@ -933,11 +958,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIVector& offset, const SkPixmap& pixels) {
-                if (surface->readPixels(direct,
-                                        pixels.info(),
-                                        pixels.writable_addr(),
-                                        pixels.rowBytes(),
-                                        {offset.fX, offset.fY})) {
+                if (surface->readPixels(direct, pixels, {offset.fX, offset.fY})) {
                     return GpuReadResult::kSuccess;
                 } else {
                     // Reading from a non-renderable format is not guaranteed to work on GL.
@@ -968,11 +989,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
                                                           origin,
                                                           renderable);
                 if (surfContext) {
-                    surfContext->writePixels(direct,
-                                             src.info(),
-                                             src.addr(),
-                                             src.rowBytes(),
-                                             {0, 0});
+                    surfContext->writePixels(direct, src, {0, 0});
                 }
                 return surfContext;
             });

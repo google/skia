@@ -272,9 +272,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             auto texCtx = GrSurfaceContext::Make(dContext, std::move(view), info);
 
                             readback.erase(kClearColor);
-                            if (texCtx->readPixels(
-                                    dContext, readback.info(), readback.writable_addr(),
-                                    readback.rowBytes(), {0, 0})) {
+                            if (texCtx->readPixels(dContext, readback, {0, 0})) {
                                 for (int i = 0; i < kSize * kSize; ++i) {
                                     if (!checkColor(combo, readback.addr32()[i])) {
                                         break;
@@ -306,8 +304,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                         }
 
                         readback.erase(kClearColor);
-                        if (surfCtx->readPixels(dContext, readback.info(), readback.writable_addr(),
-                                                readback.rowBytes(), {0, 0})) {
+                        if (surfCtx->readPixels(dContext, readback, {0, 0})) {
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (!checkColor(combo, readback.addr32()[i])) {
                                     break;
@@ -376,8 +373,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         {
             SkAutoPixmapStorage read;
             read.alloc(srcPixmap.info());
-            auto readResult = surfContext->readPixels(dContext, srcPixmap.info(),
-                                                      read.writable_addr(), 0, { 0, 0 });
+            auto readResult = surfContext->readPixels(dContext, read, {0, 0});
             REPORTER_ASSERT(reporter, readResult);
             if (readResult) {
                 comparePixels(srcPixmap, read, reporter);
@@ -388,8 +384,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         SkAutoPixmapStorage write;
         write.alloc(srcPixmap.info());
         fillPixels(&write, [&srcPixmap](int x, int y) { return ~*srcPixmap.addr32(); });
-        auto writeResult = surfContext->writePixels(dContext, srcPixmap.info(), write.addr(),
-                                                    0, {0, 0});
+        auto writeResult = surfContext->writePixels(dContext, write, {0, 0});
         REPORTER_ASSERT(reporter, writeResult == (ioType == kRW_GrIOType));
         // Try the low level write.
         dContext->flushAndSubmit();
