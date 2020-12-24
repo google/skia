@@ -331,33 +331,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                        imageColorSpace);
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* ctx,
-                                             SkYUVColorSpace colorSpace,
-                                             const GrBackendTexture yuvaTextures[],
-                                             const SkYUVAIndex yuvaIndices[4],
-                                             SkISize imageSize,
-                                             GrSurfaceOrigin textureOrigin,
-                                             sk_sp<SkColorSpace> imageColorSpace,
-                                             TextureReleaseProc textureReleaseProc,
-                                             ReleaseContext releaseContext) {
-    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
-
-    int numTextures;
-    if (!SkYUVAIndex::AreValidIndices(yuvaIndices, &numTextures)) {
-        return nullptr;
-    }
-
-    GrSurfaceProxyView tempViews[4];
-    if (!SkImage_GpuYUVA::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
-                                                 textureOrigin, tempViews,
-                                                 std::move(releaseHelper))) {
-        return nullptr;
-    }
-
-    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(ctx), imageSize, kNeedNewImageUniqueID, colorSpace,
-                                       tempViews, numTextures, yuvaIndices, imageColorSpace);
-}
-
 sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
                                             const SkYUVAPixmaps& pixmaps,
                                             GrMipMapped buildMips,

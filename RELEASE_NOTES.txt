@@ -6,6 +6,9 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 89
 ------------
+  * Removed deperated version of MakeFromYUVATextures. Use the version
+    that takes GrYUVABackendTextures instead.
+    https://review.skia.org/345174
 
   * SkAnimatedImage: Always respect exif orientation
     Replace SkPixmapPriv::ShouldSwapWidthHeight with

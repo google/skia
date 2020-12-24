@@ -388,37 +388,6 @@ public:
                                                sk_sp<SkColorSpace> imageColorSpace = nullptr,
                                                TextureReleaseProc textureReleaseProc = nullptr,
                                                ReleaseContext releaseContext = nullptr);
-    /**
-        Deprecated. Use version that takes GrYUVABackendTextures.
-
-        Creates an SkImage by storing the specified YUVA planes into an image, to be rendered
-        via multitexturing.
-
-        When all the provided backend textures can be released 'textureReleaseProc' will be called
-        with 'releaseContext'. It will be called even if this method fails.
-
-        @param context            GPU context
-        @param yuvColorSpace      How the YUV values are converted to RGB
-        @param yuvaTextures       array of (up to four) YUVA textures on GPU which contain the,
-                                  possibly interleaved, YUVA planes
-        @param yuvaIndices        array indicating which texture in yuvaTextures, and channel
-                                  in that texture, maps to each component of YUVA.
-        @param imageSize          size of the resulting image
-        @param textureOrigin      origin of the input textures.
-        @param imageColorSpace    range of colors of the resulting image; may be nullptr
-        @param textureReleaseProc called when the backend textures can be released
-        @param releaseContext     state passed to textureReleaseProc
-        @return                   created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
-                                               SkYUVColorSpace yuvColorSpace,
-                                               const GrBackendTexture yuvaTextures[],
-                                               const SkYUVAIndex yuvaIndices[4],
-                                               SkISize imageSize,
-                                               GrSurfaceOrigin textureOrigin,
-                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
-                                               TextureReleaseProc textureReleaseProc = nullptr,
-                                               ReleaseContext releaseContext = nullptr);
 
     /** Creates SkImage from SkYUVAPixmaps.
 
