@@ -1041,9 +1041,11 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
-static void copy_src_data(char* mapPtr, DXGI_FORMAT dxgiFormat,
+static void copy_src_data(char* mapPtr,
+                          DXGI_FORMAT dxgiFormat,
                           D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
-                          const SkPixmap srcData[], int numMipLevels) {
+                          const GrPixmap srcData[],
+                          int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
     SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
     SkASSERT(mapPtr);

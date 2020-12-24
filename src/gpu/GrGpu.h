@@ -17,16 +17,18 @@
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOpsRenderPass.h"
+#include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrXferProcessor.h"
 
+class GrAttachment;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
+struct GrContextOptions;
 class GrDirectContext;
 class GrGpuBuffer;
-struct GrContextOptions;
 class GrGLContext;
 class GrPath;
 class GrPathRenderer;
@@ -38,7 +40,6 @@ class GrRenderTarget;
 class GrRingBuffer;
 class GrSemaphore;
 class GrStagingBufferManager;
-class GrAttachment;
 class GrStencilSettings;
 class GrSurface;
 class GrTexture;
@@ -564,7 +565,7 @@ public:
         enum class Type { kColor, kPixmaps, kCompressed };
         BackendTextureData() = default;
         BackendTextureData(const SkColor4f& color) : fType(Type::kColor), fColor(color) {}
-        BackendTextureData(const SkPixmap pixmaps[]) : fType(Type::kPixmaps), fPixmaps(pixmaps) {
+        BackendTextureData(const GrPixmap pixmaps[]) : fType(Type::kPixmaps), fPixmaps(pixmaps) {
             SkASSERT(pixmaps);
         }
         BackendTextureData(const void* data, size_t size) : fType(Type::kCompressed) {
@@ -579,11 +580,11 @@ public:
             return fColor;
         }
 
-        const SkPixmap& pixmap(int i) const {
+        const GrPixmap& pixmap(int i) const {
             SkASSERT(this->type() == Type::kPixmaps);
             return fPixmaps[i];
         }
-        const SkPixmap* pixmaps() const {
+        const GrPixmap* pixmaps() const {
             SkASSERT(this->type() == Type::kPixmaps);
             return fPixmaps;
         }
@@ -597,12 +598,11 @@ public:
             return fCompressed.fSize;
         }
 
-
     private:
         Type fType = Type::kColor;
         union {
             SkColor4f fColor = {0, 0, 0, 0};
-            const SkPixmap* fPixmaps;
+            const GrPixmap* fPixmaps;
             struct {
                 const void*  fData;
                 size_t       fSize;
