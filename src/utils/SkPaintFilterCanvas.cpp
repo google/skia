@@ -116,6 +116,7 @@ void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void SkPaintFilterCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                       const SkPaint* paint) {
     AutoPaintFilter apf(this, paint);
@@ -138,6 +139,33 @@ void SkPaintFilterCanvas::onDrawImageLattice(const SkImage* image, const Lattice
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
         this->SkNWayCanvas::onDrawImageLattice(image, lattice, dst, &apf.paint());
+    }
+}
+#endif
+
+void SkPaintFilterCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
+                                       const SkSamplingOptions& sampling, const SkPaint* paint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawImage2(image, left, top, sampling, &apf.paint());
+    }
+}
+
+void SkPaintFilterCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src,
+                                           const SkRect& dst, const SkSamplingOptions& sampling,
+                                           const SkPaint* paint, SrcRectConstraint constraint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawImageRect2(image, src, dst, sampling, &apf.paint(), constraint);
+    }
+}
+
+void SkPaintFilterCanvas::onDrawImageLattice2(const SkImage* image, const Lattice& lattice,
+                                              const SkRect& dst, SkFilterMode filter,
+                                              const SkPaint* paint) {
+    AutoPaintFilter apf(this, paint);
+    if (apf.shouldDraw()) {
+        this->SkNWayCanvas::onDrawImageLattice2(image, lattice, dst, filter, &apf.paint());
     }
 }
 

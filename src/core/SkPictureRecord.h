@@ -141,6 +141,7 @@ private:
     void addIRectPtr(const SkIRect* rect);
     void addRRect(const SkRRect&);
     void addRegion(const SkRegion& region);
+    void addSampling(const SkSamplingOptions&);
     void addText(const void* text, size_t byteLength);
     void addTextBlob(const SkTextBlob* blob);
     void addVertices(const SkVertices*);
@@ -187,11 +188,19 @@ protected:
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice(const SkImage*, const SkCanvas::Lattice& lattice, const SkRect& dst,
+    void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
                             const SkPaint*) override;
+#endif
+    void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
+                      const SkPaint*) override;
+    void onDrawImageRect2(const SkImage*, const SkRect&, const SkRect&, const SkSamplingOptions&,
+                          const SkPaint*, SrcRectConstraint) override;
+    void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect&, SkFilterMode,
+                             const SkPaint*) override;
 
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
