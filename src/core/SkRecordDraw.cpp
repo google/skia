@@ -108,6 +108,7 @@ DRAW(ClipShader, clipShader(r.shader, r.op));
 DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
 DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.paint));
+DRAW(DrawImage2, drawImage(r.image.get(), r.left, r.top, r.sampling, r.paint));
 
 template <> void Draw::draw(const DrawImageLattice& r) {
     SkCanvas::Lattice lattice;
@@ -121,7 +122,20 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
 }
 
+template <> void Draw::draw(const DrawImageLattice2& r) {
+    SkCanvas::Lattice lattice;
+    lattice.fXCount = r.xCount;
+    lattice.fXDivs = r.xDivs;
+    lattice.fYCount = r.yCount;
+    lattice.fYDivs = r.yDivs;
+    lattice.fRectTypes = (0 == r.flagCount) ? nullptr : r.flags;
+    lattice.fColors = (0 == r.flagCount) ? nullptr : r.colors;
+    lattice.fBounds = &r.src;
+    fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.filter, r.paint);
+}
+
 DRAW(DrawImageRect, legacy_drawImageRect(r.image.get(), r.src, r.dst, r.paint, r.constraint));
+DRAW(DrawImageRect2, drawImageRect(r.image.get(), r.src, r.dst, r.sampling, r.paint, r.constraint));
 DRAW(DrawOval, drawOval(r.oval, r.paint));
 DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
@@ -399,10 +413,22 @@ private:
 
         return this->adjustAndMap(rect, op.paint);
     }
+    Bounds bounds(const DrawImage2& op) const {
+        const SkImage* image = op.image.get();
+        SkRect rect = SkRect::MakeXYWH(op.left, op.top, image->width(), image->height());
+
+        return this->adjustAndMap(rect, op.paint);
+    }
     Bounds bounds(const DrawImageLattice& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
+    Bounds bounds(const DrawImageLattice2& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
     Bounds bounds(const DrawImageRect& op) const {
+        return this->adjustAndMap(op.dst, op.paint);
+    }
+    Bounds bounds(const DrawImageRect2& op) const {
         return this->adjustAndMap(op.dst, op.paint);
     }
     Bounds bounds(const DrawPath& op) const {
