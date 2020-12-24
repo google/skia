@@ -201,6 +201,26 @@ void SkReadBuffer::readRect(SkRect* rect) {
     }
 }
 
+SkRect SkReadBuffer::readRect() {
+    SkRect r;
+    if (!this->readPad32(&r, sizeof(SkRect))) {
+        r.setEmpty();
+    }
+    return r;
+}
+
+SkSamplingOptions SkReadBuffer::readSampling() {
+    if (this->readBool()) {
+        float B = this->readScalar();
+        float C = this->readScalar();
+        return SkSamplingOptions({B, C});
+    } else {
+        SkFilterMode filter = this->read32LE(SkFilterMode::kLinear);
+        SkMipmapMode mipmap = this->read32LE(SkMipmapMode::kLinear);
+        return SkSamplingOptions(filter, mipmap);
+    }
+}
+
 void SkReadBuffer::readRRect(SkRRect* rrect) {
     size_t size = 0;
     if (!fError) {

@@ -62,6 +62,9 @@ namespace SkRecords {
     M(DrawImage)                                                    \
     M(DrawImageLattice)                                             \
     M(DrawImageRect)                                                \
+    M(DrawImage2)                                                   \
+    M(DrawImageLattice2)                                            \
+    M(DrawImageRect2)                                               \
     M(DrawDRRect)                                                   \
     M(DrawOval)                                                     \
     M(DrawBehind)                                                   \
@@ -239,6 +242,12 @@ RECORD(DrawImage, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         sk_sp<const SkImage> image;
         SkScalar left;
         SkScalar top);
+RECORD(DrawImage2, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkImage> image;
+        SkScalar left;
+        SkScalar top;
+        SkSamplingOptions sampling);
 RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
@@ -251,11 +260,31 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         PODArray<SkColor> colors;
         SkIRect src;
         SkRect dst);
+RECORD(DrawImageLattice2, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkImage> image;
+        int xCount;
+        PODArray<int> xDivs;
+        int yCount;
+        PODArray<int> yDivs;
+        int flagCount;
+        PODArray<SkCanvas::Lattice::RectType> flags;
+        PODArray<SkColor> colors;
+        SkIRect src;
+        SkRect dst;
+        SkFilterMode filter);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
         Optional<SkRect> src;
         SkRect dst;
+        SkCanvas::SrcRectConstraint constraint);
+RECORD(DrawImageRect2, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+        Optional<SkPaint> paint;
+        sk_sp<const SkImage> image;
+        SkRect src;
+        SkRect dst;
+        SkSamplingOptions sampling;
         SkCanvas::SrcRectConstraint constraint);
 RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
