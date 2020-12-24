@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2f4b92e_e74de0ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-24T03:41:04Z",
+      "side": 1,
+      "message": "to reviewers: still need to make a decision about drawAtlas... if we want to add a new virtual for it.\n\nhttps://docs.google.com/document/d/1Q5drSnOXOXPYDFuge1z6XcfszMwWARSUfL0UQ5jx6Oc/edit?resourcekey\u003d0-wunqGIaMYZCi5Ur9-6qzmQ\n\n",
+      "revId": "02709763c7d8d2c20814ed69bc116dd7bf775e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
