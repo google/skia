@@ -283,7 +283,7 @@ protected:
 
     // default implementation calls drawPath
     virtual void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
-                           const SkColor[], int count, SkBlendMode, const SkPaint&);
+                           const SkColor[], int count, SkBlendMode, SkFilterMode, const SkPaint&);
 
     virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}
 
