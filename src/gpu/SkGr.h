@@ -159,12 +159,12 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
 std::tuple<GrSamplerState::Filter,
            GrSamplerState::MipmapMode,
            bool /*bicubic*/>
-GrInterpretFilterQuality(SkISize imageDims,
-                         SkFilterQuality paintFilterQuality,
-                         const SkMatrix& viewM,
-                         const SkMatrix& localM,
-                         bool sharpenMipmappedTextures,
-                         bool allowFilterQualityReduction);
+GrInterpretSamplingOptions(SkISize imageDims,
+                           const SkSamplingOptions&,
+                           const SkMatrix& viewM,
+                           const SkMatrix& localM,
+                           bool sharpenMipmappedTextures,
+                           bool allowFilterQualityReduction);
 
 //////////////////////////////////////////////////////////////////////////////
 
