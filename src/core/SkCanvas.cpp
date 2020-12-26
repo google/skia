@@ -2251,8 +2251,10 @@ static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
     return cleaned;
 }
 
-static SkSamplingOptions paint_to_sampling(const SkPaint* paint) {
-    return SkSamplingOptions(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+static SkSamplingOptions paint_to_sampling(const SkPaint* paint, GrRecordingContext* ctx) {
+    SkSamplingOptions::MediumBehavior mb = ctx ? SkSamplingOptions::kMedium_asMipmapLinear
+                                               : SkSamplingOptions::kMedium_asMipmapNearest;
+    return SkSamplingOptions(paint ? paint->getFilterQuality() : kNone_SkFilterQuality, mb);
 }
 
 void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
@@ -2263,8 +2265,7 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
         return;
     }
 
-    // TODO: this should be passed in directly by the client
-    const SkSamplingOptions sampling(paint ? paint->getFilterQuality() : kNone_SkFilterQuality);
+    const SkSamplingOptions sampling = paint_to_sampling(&realPaint, this->recordingContext());
 
     if (realPaint.getImageFilter() &&
         this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint)  &&
@@ -2294,7 +2295,8 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     }
 
     AutoLayerForImageFilter layer(this, realPaint, &bounds);
-    this->topDevice()->drawImageRect(image, nullptr, bounds, paint_to_sampling(&layer.paint()),
+    this->topDevice()->drawImageRect(image, nullptr, bounds,
+                                     paint_to_sampling(&layer.paint(), this->recordingContext()),
                                      layer.paint(), kStrict_SrcRectConstraint);
 }
 
@@ -2309,7 +2311,8 @@ void SkCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const Sk
     AutoLayerForImageFilter layer(this, realPaint, &dst, CheckForOverwrite::kYes,
                                   image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                     : kNotOpaque_ShaderOverrideOpacity);
-    this->topDevice()->drawImageRect(image, src, dst, paint_to_sampling(&layer.paint()),
+    this->topDevice()->drawImageRect(image, src, dst, paint_to_sampling(&layer.paint(),
+                                                                        this->recordingContext()),
                                      layer.paint(), constraint);
 }
 
@@ -2350,7 +2353,8 @@ void SkCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice, 
 
     AutoLayerForImageFilter layer(this, realPaint, &dst);
     this->topDevice()->drawImageLattice(image, lattice, dst,
-                                        paint_to_sampling(&layer.paint()).filter,
+                                        paint_to_sampling(&layer.paint(),
+                                                          this->recordingContext()).filter,
                                         layer.paint());
 }
 

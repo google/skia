@@ -396,7 +396,7 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     GrMockOptions options;
     auto context = GrDirectContext::MakeMock(&options);
 
-    GrFPArgs args(context.get(), provider, kNone_SkFilterQuality, &dstColorInfo);
+    GrFPArgs args(context.get(), provider, SkSamplingOptions(), &dstColorInfo);
     as_SB(gradient)->asFragmentProcessor(args);
 }
 

@@ -684,6 +684,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
                                 const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
                                 const SkMatrix* preViewMatrix, const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
+    // TODO: pass in sampling directly
+    SkSamplingOptions sampling(paint.getFilterQuality(), SkSamplingOptions::kMedium_asMipmapLinear);
+
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
@@ -707,9 +710,9 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     const SkMatrix& ctm(matrixProvider.localToDevice());
 
     bool sharpenMM = fContext->priv().options().fSharpenMipmappedTextures;
-    auto [fm, mm, bicubic] = GrInterpretFilterQuality(image->dimensions(), paint.getFilterQuality(),
-                                                      ctm, srcToDst, sharpenMM,
-                                                      /*allowFilterQualityReduction=*/true);
+    auto [fm, mm, bicubic] = GrInterpretSamplingOptions(image->dimensions(), sampling,
+                                                        ctm, srcToDst, sharpenMM,
+                                                        /*allowFilterQualityReduction=*/true);
 
     auto clip = this->clip();
 
