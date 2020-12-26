@@ -365,7 +365,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     }
 
     // We want to *reset* args.fPreLocalMatrix, not compose it.
-    GrFPArgs newArgs(args.fContext, args.fMatrixProvider, args.fFilterQuality, args.fDstColorInfo);
+    GrFPArgs newArgs(args.fContext, args.fMatrixProvider, args.fSampling, args.fDstColorInfo);
     newArgs.fPreLocalMatrix = lm.get();
 
     return as_SB(bitmapShader)->asFragmentProcessor(newArgs);

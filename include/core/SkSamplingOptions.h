@@ -9,6 +9,7 @@
 #define SkImageSampling_DEFINED
 
 #include "include/core/SkFilterQuality.h"
+#include <new>
 
 enum class SkFilterMode {
     kNearest,   // single sample point (nearest neighbor)

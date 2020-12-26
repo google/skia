@@ -160,7 +160,7 @@ std::tuple<GrSamplerState::Filter,
            GrSamplerState::MipmapMode,
            bool /*bicubic*/>
 GrInterpretFilterQuality(SkISize imageDims,
-                         SkFilterQuality paintFilterQuality,
+                         const SkSamplingOptions&,
                          const SkMatrix& viewM,
                          const SkMatrix& localM,
                          bool sharpenMipmappedTextures,
