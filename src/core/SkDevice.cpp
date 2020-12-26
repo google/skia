@@ -206,7 +206,7 @@ static SkPoint* quad_to_tris(SkPoint tris[6], const SkPoint quad[4]) {
 
 void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                              const SkRect tex[], const SkColor colors[], int quadCount,
-                             SkBlendMode mode, const SkPaint& paint) {
+                             SkBlendMode mode, SkFilterMode filter, const SkPaint& paint) {
     const int triCount = quadCount << 1;
     const int vertexCount = triCount * 3;
     uint32_t flags = SkVertices::kHasTexCoords_BuilderFlag;
@@ -232,7 +232,7 @@ void SkBaseDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
         }
     }
     SkPaint p(paint);
-    p.setShader(atlas->makeShader(SkSamplingOptions()));
+    p.setShader(atlas->makeShader(SkSamplingOptions(filter, SkMipmapMode::kNone)));
     this->drawVertices(builder.detach().get(), mode, p);
 }
 
