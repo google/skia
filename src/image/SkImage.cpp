@@ -641,13 +641,15 @@ sk_sp<SkImage> SkMipmapBuilder::attachTo(const SkImage* src) {
     return src->withMipmaps(fMM);
 }
 
-SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq) {
+SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq, MediumBehavior behavior) {
     switch (fq) {
         case SkFilterQuality::kHigh_SkFilterQuality:
             *this = SkSamplingOptions(SkCubicResampler{1/3.0f, 1/3.0f});
             break;
         case SkFilterQuality::kMedium_SkFilterQuality:
-            *this = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+            *this = SkSamplingOptions(SkFilterMode::kLinear,
+                                      behavior == kMedium_asMipmapNearest ? SkMipmapMode::kNearest
+                                                                          : SkMipmapMode::kLinear);
             break;
         case SkFilterQuality::kLow_SkFilterQuality:
             *this = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
