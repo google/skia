@@ -9,6 +9,7 @@
 #define SkImageSampling_DEFINED
 
 #include "include/core/SkFilterQuality.h"
+#include <new>
 
 enum class SkFilterMode {
     kNearest,   // single sample point (nearest neighbor)
@@ -65,7 +66,11 @@ struct SK_API SkSamplingOptions {
         : useCubic(true)
         , cubic(c) {}
 
-    explicit SkSamplingOptions(SkFilterQuality);
+    enum MediumBehavior {
+        kMedium_asMipmapNearest,    // historic cpu behavior
+        kMedium_asMipmapLinear,     // historic gpu behavior
+    };
+    explicit SkSamplingOptions(SkFilterQuality, MediumBehavior = kMedium_asMipmapNearest);
 
     bool operator==(const SkSamplingOptions& other) const {
         return useCubic == other.useCubic

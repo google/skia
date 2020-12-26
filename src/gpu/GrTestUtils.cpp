@@ -347,7 +347,7 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
                   GrColorType::kRGBA_8888, kPremul_SkAlphaType, TestColorSpace(d->fRandom)))
         , fArgs(d->context(),
                 fMatrixProvider,
-                kNone_SkFilterQuality,
+                SkSamplingOptions(),
                 fColorInfoStorage.get()) {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
