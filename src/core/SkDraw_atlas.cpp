@@ -47,8 +47,10 @@ static void load_color(SkRasterPipeline_UniformColorCtx* ctx, const float rgba[]
 }
 
 void SkDraw::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect textures[],
-                       const SkColor colors[], int count, SkBlendMode bmode, const SkPaint& paint) {
-    sk_sp<SkShader> atlasShader = atlas->makeShader(SkSamplingOptions(paint.getFilterQuality()));
+                       const SkColor colors[], int count, SkBlendMode bmode, SkFilterMode filter,
+                       const SkPaint& paint) {
+    sk_sp<SkShader> atlasShader = atlas->makeShader(SkSamplingOptions(filter,
+                                                                      SkMipmapMode::kNone));
     if (!atlasShader) {
         return;
     }
