@@ -12,6 +12,10 @@
 
 class SkSamplingPriv {
 public:
+    enum {
+        kFlatSize = 3 * sizeof(uint32_t)  // bool32 + [2 floats | 2 ints]
+    };
+
     // Returns true if the sampling can be ignored when the CTM is identity.
     static bool NoChangeWithIdentityMatrix(const SkSamplingOptions& sampling) {
     #ifdef SK_SUPPORT_LEGACY_SPRITE_IGNORE_HQ

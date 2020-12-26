@@ -73,7 +73,8 @@ class AnimatedTextView : public Sample {
             sk_sp<SkImage> image = direct->priv().testingOnly_getFontAtlasImage(
                                                                 GrMaskFormat::kA8_GrMaskFormat);
             const SkRect rect = SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0f);
-            canvas->drawImageRect(image.get(), rect, rect, sampling, &paint);
+            canvas->drawImageRect(image.get(), rect, rect, sampling, &paint,
+                                  SkCanvas::kFast_SrcRectConstraint);
         }
 #endif
         canvas->translate(180, 180);
