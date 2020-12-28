@@ -22,6 +22,30 @@
       },
       "revId": "85f4c55a9397b6e714c60fa19b1c180c421771e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "198fc974_2d2573ee",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 2542,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T16:44:17Z",
+      "side": 1,
+      "message": "Yup -- michael (at least) convinced me that clients still rely on this for drawImageRect.",
+      "parentUuid": "dc42bb71_9fe8db7f",
+      "range": {
+        "startLine": 2542,
+        "startChar": 76,
+        "endLine": 2542,
+        "endChar": 93
+      },
+      "revId": "85f4c55a9397b6e714c60fa19b1c180c421771e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
