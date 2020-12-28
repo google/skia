@@ -39,6 +39,30 @@
       },
       "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "889abd4b_06c9ed42",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T16:40:55Z",
+      "side": 1,
+      "message": "Partial change -- I have a separate effort to \"hide\" filter-quality from SkPaint, and to do that I need to update the (few) internal sites we have, so I can then \"hide\" the apis from our clients.",
+      "parentUuid": "aa3d07ee_babafe6b",
+      "range": {
+        "startLine": 223,
+        "startChar": 31,
+        "endLine": 223,
+        "endChar": 49
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
