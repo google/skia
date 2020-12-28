@@ -132,6 +132,7 @@ private:
     enum SpecialIntrinsic {
         kAtan_SpecialIntrinsic,
         kClamp_SpecialIntrinsic,
+        kMatrixCompMult_SpecialIntrinsic,
         kMax_SpecialIntrinsic,
         kMin_SpecialIntrinsic,
         kMix_SpecialIntrinsic,
