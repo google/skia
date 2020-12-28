@@ -410,6 +410,30 @@
       },
       "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f20d255_4cb9d062",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-28T14:28:24Z",
+      "side": 1,
+      "message": "Isn\u0027t 2^log2(nsegs) \u003d\u003d nsegs?\n\nI think we need to scale the tolerance by the magnitude of the control points, not the number of segments. I don\u0027t remember what I assumed \"i\" and \"j\" meant in that previous comment, but looking again, it appears that \"for_random_beziers\" keeps the exponent to itself. It does, however, give back all the control points in the range [2^i, 2^(i+1)). So maybe we could try something like:\n\n  fabsf(pts[0].fX) * SK_ScalarNearlyZero\n\nOr even better:\n\n  maxMagnitude \u003d 0;\n  for (int i \u003d 0; i \u003c 3; +i) {\n      maxMagnitude \u003d std::max(maxMagnitude, fabsf(pts[i].fX);\n      maxMagnitude \u003d std::max(maxMagnitude, fabsf(pts[i].fY);\n  }\n  threshold \u003d maxMagnitude * SK_ScalarNearlyZero;",
+      "parentUuid": "08341966_938e2e9d",
+      "range": {
+        "startLine": 164,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 33
+      },
+      "revId": "4695e0a082e44fdf0c3918d38b5ff9360376c655",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
