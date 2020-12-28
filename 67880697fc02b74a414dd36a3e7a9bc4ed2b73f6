@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3976f183_70ea3bf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T16:09:06Z",
+      "side": 1,
+      "message": "I\u0027m a little confused on the overall direction here. Is this a stop-gap? I would have thought we\u0027d be moving torwards having each shader carry it\u0027s own explicit sampling options and removing GrInterpretFilterQuality.",
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa3d07ee_babafe6b",
