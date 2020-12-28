@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa8104c5_3a08fc7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:30:22Z",
+      "side": 1,
+      "message": "Ok, that makes sense.",
+      "parentUuid": "88c0b900_2e939378",
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa3d07ee_babafe6b",
@@ -78,6 +96,98 @@
         "startChar": 31,
         "endLine": 223,
         "endChar": 49
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21fd4876_87a2d7ab",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:30:22Z",
+      "side": 1,
+      "message": "This could be CubicResampler and we just say some sentinel value, e.g. {-1, -1} means don\u0027t use bicubic.",
+      "range": {
+        "startLine": 462,
+        "startChar": 11,
+        "endLine": 462,
+        "endChar": 27
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6163037_cd3c837e",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:30:22Z",
+      "side": 1,
+      "message": "We drop kNearest MipmapMode input here?",
+      "range": {
+        "startLine": 491,
+        "startChar": 7,
+        "endLine": 491,
+        "endChar": 32
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2b6ac8e_d23628b2",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:30:22Z",
+      "side": 1,
+      "message": "I was tempted to suggest removing this whole \"if\". However, I think this still can wind up allowing us to skip lazy MIP map generation. So it probably needs to remain at least until we can enforce that SkImages must declare upfront if they are mipped.",
+      "range": {
+        "startLine": 492,
+        "startChar": 0,
+        "endLine": 492,
+        "endChar": 42
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af5f690d_f744562e",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:30:22Z",
+      "side": 1,
+      "message": "I don\u0027t think we want this now that our input has separately specified within and across level filtring.",
+      "range": {
+        "startLine": 506,
+        "startChar": 0,
+        "endLine": 506,
+        "endChar": 36
       },
       "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
