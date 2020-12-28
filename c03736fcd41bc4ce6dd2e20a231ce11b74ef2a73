@@ -16,6 +16,24 @@
       "message": "This is faster than value-initializing:\n\nCubic test: 9.52 -\u003e 8.73 ms (~10% faster this way)\n\nQuad test: 7.93 -\u003e 7.27 ms (~10% faster this way)",
       "revId": "c03736fcd41bc4ce6dd2e20a231ce11b74ef2a73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b53f1508_72adf569",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T15:58:33Z",
+      "side": 1,
+      "message": "I like it better than the first approach. How does it compare to what\u0027s checked in now?",
+      "parentUuid": "dce62297_248a2134",
+      "revId": "c03736fcd41bc4ce6dd2e20a231ce11b74ef2a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
