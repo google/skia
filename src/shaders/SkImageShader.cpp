@@ -467,8 +467,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         }
     } else {    // inherit filterquality from paint
         std::tie(fm, mm, bicubic) =
-                GrInterpretFilterQuality(fImage->dimensions(),
-                                         args.fFilterQuality,
+              GrInterpretSamplingOptions(fImage->dimensions(),
+                                         args.fSampling,
                                          args.fMatrixProvider.localToDevice(),
                                          *lm,
                                          sharpen,
