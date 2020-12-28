@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - Improper error returned when a WebGL context could not be used.
+
 ## [0.22.0] - 2020-12-17
 
 ### Added
