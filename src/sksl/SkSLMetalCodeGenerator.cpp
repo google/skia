@@ -545,7 +545,7 @@ String MetalCodeGenerator::getInverseHack(const Expression& mat) {
                 "                            a11 * b07 - a10 * b09 - a12 * b06,"
                 "                            a00 * b09 - a01 * b07 + a02 * b06,"
                 "                            a31 * b01 - a30 * b03 - a32 * b00,"
-                "                            a20 * b03 - a21 * b01 + a22 * b00) / det;"
+                "                            a20 * b03 - a21 * b01 + a22 * b00) * (1/det);"
                 "}"
             ).c_str());
         }
