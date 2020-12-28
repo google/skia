@@ -232,6 +232,7 @@ protected:
     void assembleMatrixFromMatrix(const Type& sourceMatrix, int rows, int columns);
     void assembleMatrixFromExpressions(const ExpressionArray& args, int rows, int columns);
 
+    void writeMatrixCompMult();
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
     void writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind);
