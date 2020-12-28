@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d28aec45_2b5f5966",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T17:25:17Z",
+      "side": 1,
+      "message": "... is it this easy (can clean up to remove the alias later).",
+      "revId": "7d2e3863c79292eaf87bb4aa79c27885087fa43b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
