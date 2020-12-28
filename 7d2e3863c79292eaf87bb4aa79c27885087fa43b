@@ -39,6 +39,30 @@
       },
       "revId": "7d2e3863c79292eaf87bb4aa79c27885087fa43b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cddb595_06abc9f1",
+        "filename": "src/gpu/GrSamplerState.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T18:56:12Z",
+      "side": 1,
+      "message": "OK to not do this, just wanted to reduce the mapping overhead that will happen as I plumb sampling further down. Your call.",
+      "parentUuid": "4fb987bd_c82e1933",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "7d2e3863c79292eaf87bb4aa79c27885087fa43b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
