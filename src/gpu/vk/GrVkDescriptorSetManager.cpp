@@ -39,6 +39,12 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
     return Create(gpu, type, visibilities, immutableSamplers);
 }
 
+GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateZeroSamplerManager(GrVkGpu* gpu) {
+    SkTArray<uint32_t> visibilities;
+    SkTArray<const GrVkSampler*> immutableSamplers;
+    return Create(gpu, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, visibilities, immutableSamplers);
+}
+
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateInputManager(GrVkGpu* gpu) {
     SkSTArray<1, uint32_t> visibilities;
     visibilities.push_back(kFragment_GrShaderFlag);
@@ -278,6 +284,16 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
             uniHandler->immutableSampler(i) != fImmutableSamplers[i]) {
             return false;
         }
+    }
+    return true;
+}
+
+bool GrVkDescriptorSetManager::isZeroSampler() const {
+    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER != fPoolManager.fDescType) {
+        return false;
+    }
+    if (fBindingVisibilities.count()) {
+        return false;
     }
     return true;
 }
