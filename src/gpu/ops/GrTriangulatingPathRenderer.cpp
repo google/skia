@@ -356,8 +356,10 @@ private:
         SkPath path;
         shape.asPath(&path);
 
-        return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator,
-                                               GrTriangulator::Mode::kNormal, isLinear);
+        GrTriangulator::Args args(path, tol, clipBounds, allocator, GrTriangulator::Mode::kNormal);
+        int count = GrTriangulator::PathToTriangles(&args);
+        *isLinear = args.fIsLinear;
+        return count;
     }
 
     void createNonAAMesh(Target* target) {
@@ -439,11 +441,10 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
-        bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int vertexCount = GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator,
-                                                          GrTriangulator::Mode::kEdgeAntialias,
-                                                          &isLinear);
+        GrTriangulator::Args args(path, tol, clipBounds, &allocator,
+                                  GrTriangulator::Mode::kEdgeAntialias);
+        int vertexCount = GrTriangulator::PathToTriangles(&args);
         if (vertexCount == 0) {
             return;
         }

@@ -8,6 +8,7 @@
 #ifndef GrPathTessellateOp_DEFINED
 #define GrPathTessellateOp_DEFINED
 
+#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -77,7 +78,7 @@ private:
     // Returns false if the inner triangles do not form a simple polygon (e.g., self intersection,
     // double winding). Non-simple polygons would need to split edges in order to avoid overlap,
     // and this is not an option as it would introduce T-junctions with the outer cubics.
-    bool prePrepareInnerPolygonTriangulation(const PrePrepareArgs&, bool* isLinear);
+    bool prePrepareInnerPolygonTriangulation(const PrePrepareArgs&, GrTriangulator::Args*);
 
     void prePrepareStencilTrianglesProgram(const PrePrepareArgs&);
     template<typename ShaderType> void prePrepareStencilCubicsProgram(const PrePrepareArgs&);
