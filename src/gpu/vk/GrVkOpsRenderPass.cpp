@@ -432,6 +432,7 @@ void GrVkOpsRenderPass::reset() {
     fSelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags::kNone;
 
     fLoadFromResolve = LoadFromResolve::kNo;
+    fOverridePipelinesForResolveLoad = false;
 
 #ifdef SK_DEBUG
     fIsActive = false;
@@ -552,6 +553,13 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     bool withStencil = fCurrentRenderPass->hasStencilAttachment();
     bool withResolve = fCurrentRenderPass->hasResolveAttachment();
 
+    // If we have a resolve attachment we must do a resolve load in the new render pass since we
+    // broke up the original one. GrProgramInfos were made without any knowledge that the render
+    // pass may be split up. Thus they may try to make VkPipelines that only use one subpass. We
+    // need to override that to make sure they are compatible with the extra load subpass.
+    fOverridePipelinesForResolveLoad |=
+            withResolve && fCurrentRenderPass->loadFromResolve() != LoadFromResolve::kLoad;
+
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                             VK_ATTACHMENT_STORE_OP_STORE);
     GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -654,7 +662,7 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     VkRenderPass compatibleRenderPass = fCurrentRenderPass->vkRenderPass();
 
     fCurrentPipelineState = fGpu->resourceProvider().findOrCreateCompatiblePipelineState(
-            fRenderTarget, programInfo, compatibleRenderPass);
+            fRenderTarget, programInfo, compatibleRenderPass, fOverridePipelinesForResolveLoad);
     if (!fCurrentPipelineState) {
         return false;
     }
