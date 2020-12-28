@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5ce1ddc_38af1988",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1888,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-28T16:11:35Z",
+      "side": 1,
+      "message": "nit: This (and below, in TK_PERCENT) should probably be SKSL_INT, too.",
+      "range": {
+        "startLine": 1888,
+        "startChar": 51,
+        "endLine": 1888,
+        "endChar": 58
+      },
+      "revId": "94f62c2bee9418f47da0da5daca65e9a7c83abdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
