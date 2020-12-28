@@ -1485,9 +1485,11 @@ if (skia_enable_tools) {
     "include/svg",
     "include/utils",
     "include/utils/mac",
+    "modules/particles/include",
+    "modules/skottie/include",
     "modules/skparagraph/include",
     "modules/skshaper/include",
-    "modules/skottie/include",
+    "modules/svg/include",
   ]
 
   # Used by gn_to_bp.py to list our public include dirs.
@@ -1531,8 +1533,11 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":skia",
         ":skia.h",
+        "modules/particles",
         "modules/skottie",
+        "modules/skparagraph",
         "modules/skshaper",
+        "modules/svg",
       ]
     }
   }
@@ -2559,8 +2564,11 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skia.h",
+        "modules/particles",
         "modules/skottie",
+        "modules/skparagraph",
         "modules/skshaper",
+        "modules/svg",
       ]
     }
   }
