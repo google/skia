@@ -16,6 +16,24 @@
       "message": "It is a shame we still need all the if(alphaOnly) { swizzle(\"aaaa\"); } stuff throughout the code. I wonder if there is any easy way to have all that logic be in SkSL. Right now I think it is a little fragile since if we add new code that wants to sample textures it needs to remember to put in this special check and swizzle change.\n\nBut as of now I think this is probably the best we can do.",
       "revId": "a12bf1f7e24bed0654d2d5126b2bfd892da7196a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e441b7dc_72db6ec8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:21:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure how SkSL would know what we want. I think we always want \"aaaa\" on the coverage side. For color it\u0027s often the case that we want kDstIn or kSrcIn depending on whether an SkImage is alpha-only. We implement this in in some places by manipulating paint colors and texture swizzles, particularly when using ops that sample textures in the GS. Just specifying a SkBlendMode might be cleaner and more flexible. Using FPs rather than GPs would make that easier.",
+      "parentUuid": "19a06be6_388207bb",
+      "revId": "a12bf1f7e24bed0654d2d5126b2bfd892da7196a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

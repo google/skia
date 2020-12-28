@@ -22,6 +22,30 @@
       },
       "revId": "e38beddbbf8a06c91bf704f5225dfe1e3cce2e6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9569f35c_6ce0212f",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:21:18Z",
+      "side": 0,
+      "message": "Done. Also RRRA was no longer used.",
+      "parentUuid": "3dffcefa_1f56d0a1",
+      "range": {
+        "startLine": 52,
+        "startChar": 32,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "e38beddbbf8a06c91bf704f5225dfe1e3cce2e6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
