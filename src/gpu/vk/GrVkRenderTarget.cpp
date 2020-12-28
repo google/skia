@@ -199,16 +199,18 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
 
         colorAttachmentView = sk_ref_sp<const GrVkImageView>(vkMSAAAttachment->view());
 
-        // Create Resolve attachment view
+        // Create Resolve attachment view. Attachment views on framebuffers must have a single mip
+        // level.
         resolveAttachmentView =
-                GrVkImageView::Make(gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type, 1,
-                                    GrVkYcbcrConversionInfo());
+                GrVkImageView::Make(gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type,
+                                    /*miplevels=*/1, GrVkYcbcrConversionInfo());
         if (!resolveAttachmentView) {
             return nullptr;
         }
     } else {
+        // Attachment views on framebuffers must have a single mip level.
         colorAttachmentView = GrVkImageView::Make(gpu, info.fImage, pixelFormat,
-                                                  GrVkImageView::kColor_Type, 1,
+                                                  GrVkImageView::kColor_Type, /*miplevels=*/1,
                                                   GrVkYcbcrConversionInfo());
     }
 

@@ -130,7 +130,7 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
         auto rp = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrAttachment> msaaAttachment =
                 rp->makeMSAAAttachment(dimensions, GrBackendFormat::MakeVk(info.fFormat),
-                                         sampleCnt, info.fProtected);
+                                       sampleCnt, info.fProtected);
         if (!msaaAttachment) {
             return {};
         }
@@ -140,16 +140,18 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
 
         views.colorAttachmentView = sk_ref_sp<const GrVkImageView>(views.msaaAttachment->view());
 
-        // Create resolve attachment view.
+        // Create resolve attachment view. Attachment views on framebuffers must have a single mip
+        // level.
         views.resolveAttachmentView =
                 GrVkImageView::Make(gpu, image, pixelFormat, GrVkImageView::kColor_Type,
-                                    info.fLevelCount, GrVkYcbcrConversionInfo());
+                                    /*miplevels=*/1, GrVkYcbcrConversionInfo());
         if (!views.resolveAttachmentView) {
             return {};
         }
     } else {
+        //Attachment views on framebuffers must have a single mip level.
         views.colorAttachmentView = GrVkImageView::Make(
-                gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type, 1,
+                gpu, info.fImage, pixelFormat, GrVkImageView::kColor_Type, /*miplevels=*/1,
                 GrVkYcbcrConversionInfo());
     }
 
