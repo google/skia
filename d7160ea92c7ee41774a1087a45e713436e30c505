@@ -16,6 +16,24 @@
       "message": "If you wanted to, you could test the new bots on this change with:\ngit cl try -B skia/skia.primary -b Test-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android",
       "revId": "d7160ea92c7ee41774a1087a45e713436e30c505",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e16af90_cadae93e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-12-28T15:39:39Z",
+      "side": 1,
+      "message": "It keeps getting killed by task scheduler?\n\nhttps://ci.chromium.org/p/skia/builders/skia.primary/Test-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android/b8859656758843852448?",
+      "parentUuid": "98edc581_b284828e",
+      "revId": "d7160ea92c7ee41774a1087a45e713436e30c505",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
