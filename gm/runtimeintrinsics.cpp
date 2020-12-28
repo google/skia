@@ -289,6 +289,94 @@ DEF_SIMPLE_GM(runtime_intrinsics_geometric,
     next_row(canvas);
 }
 
+#define SKSL_MATRIX_SELECTORS                       \
+            "inline float2 sel2(float x) {"         \
+            "    return float2("                    \
+            "      x <  0.5 ? 1 : 0,"               \
+            "      x >= 0.5 ? 1 : 0);"              \
+            "}"                                     \
+            "inline float3 sel3(float x) {"         \
+            "    return float3("                    \
+            "      x <  0.33             ? 1 : 0,"  \
+            "      x >= 0.33 && x < 0.66 ? 1 : 0,"  \
+            "      x >= 0.66             ? 1 : 0);" \
+            "}"                                     \
+            "inline float4 sel4(float x) {"         \
+            "    return float4("                    \
+            "      x <  0.25             ? 1 : 0,"  \
+            "      x >= 0.25 && x < 0.5  ? 1 : 0,"  \
+            "      x >= 0.5  && x < 0.75 ? 1 : 0,"  \
+            "      x >= 0.75             ? 1 : 0);" \
+            "}"
+
+// Shader for testing matrixCompMult intrinsic
+static SkString make_matrix_comp_mult_sksl(int dim) {
+    return SkStringPrintf(
+            "uniform float%dx%d m1;"                              // dim, dim
+            "uniform float%dx%d m2;"                              // dim, dim
+            SKSL_MATRIX_SELECTORS
+            "half4 main(float2 p) {"
+            "    float%d colSel = sel%d(p.x);"                    // dim, dim
+            "    float%d rowSel = sel%d(p.y);"                    // dim, dim
+            "    float%d col = matrixCompMult(m1, m2) * colSel;"  // dim
+            "    float  v = dot(col, rowSel);"
+            "    return v.xxx1;"
+            "}", dim, dim, dim, dim, dim, dim, dim, dim, dim);
+}
+
+template <int N>
+static void plot_matrix_comp_mult(SkCanvas* canvas,
+                                  std::array<float, N*N> mtx1,
+                                  std::array<float, N*N> mtx2,
+                                  const char* label) {
+    canvas->save();
+
+    draw_label(canvas, label);
+
+    auto [effect, error] = SkRuntimeEffect::Make(make_matrix_comp_mult_sksl(N));
+    if (!effect) {
+        SkDebugf("Error: %s\n", error.c_str());
+        return;
+    }
+
+    SkRuntimeShaderBuilder builder(effect);
+    builder.uniform("m1") = mtx1;
+    builder.uniform("m2") = mtx2;
+
+    draw_shader(canvas, builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false));
+
+    canvas->restore();
+    next_column(canvas);
+}
+
+// The OpenGL ES Shading Language, Version 1.00, Section 8.5
+DEF_SIMPLE_GM(runtime_intrinsics_matrix,
+              canvas,
+              columns_to_width(3),
+              rows_to_height(1)) {
+    canvas->translate(kPadding, kPadding);
+    canvas->save();
+
+    // Random pairs of matrices where the elements of matrixCompMult(m1, m2) lie in [0, 1]
+    plot_matrix_comp_mult<2>(canvas,
+                             {1.00f, 0.0f, 2.0f, 0.5f},
+                             {0.75f, 2.0f, 0.2f, 1.2f},
+                             "compMult(2x2)");
+
+    plot_matrix_comp_mult<3>(canvas,
+                             {1.00f, 0.0f, 2.0f, 0.5f, -1.0f, -2.0f, -0.5f, 4.00f, 0.25f},
+                             {0.75f, 2.0f, 0.2f, 1.2f, -0.8f, -0.1f, -1.8f, 0.25f, 2.00f},
+                             "compMult(3x3)");
+
+    plot_matrix_comp_mult<4>(canvas,
+                             {1.00f, 0.0f, 2.0f, 0.5f, -1.0f, -2.0f, -0.5f, 4.00f, 0.25f, 0.05f,
+                              10.00f, -0.66f, -1.0f, -0.5f, 0.5f, 0.66f},
+                             {0.75f, 2.0f, 0.2f, 1.2f, -0.8f, -0.1f, -1.8f, 0.25f, 2.00f, 2.00f,
+                              0.03f, -1.00f, -1.0f, -0.5f, 1.7f, 0.66f},
+                             "compMult(4x4)");
+    next_row(canvas);
+}
+
 /*
   Specialized shader for testing relational operators.
 */

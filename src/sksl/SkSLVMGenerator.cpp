@@ -153,6 +153,7 @@ private:
         kNormalize,
 
         // Matrix
+        kMatrixCompMult,
         kInverse,
 
         // Vector Relational
@@ -365,7 +366,8 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             { "dot",       Intrinsic::kDot },
             { "normalize", Intrinsic::kNormalize },
 
-            { "inverse", Intrinsic::kInverse },
+            { "matrixCompMult", Intrinsic::kMatrixCompMult },
+            { "inverse",        Intrinsic::kInverse },
 
             { "lessThan",         Intrinsic::kLessThan },
             { "lessThanEqual",    Intrinsic::kLessThanEqual },
@@ -1020,6 +1022,8 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
             return unary(args[0], [&](skvm::F32 x) { return x * invLen; });
         }
 
+        case Intrinsic::kMatrixCompMult:
+            return binary([](skvm::F32 x, skvm::F32 y) { return x * y; });
         case Intrinsic::kInverse: {
             switch (args[0].slots()) {
                 case  4: return this->writeMatrixInverse2x2(args[0]);

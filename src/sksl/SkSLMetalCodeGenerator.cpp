@@ -421,6 +421,8 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 this->write("-");
             }
             name = "dfdy";
+        } else if (name == "matrixCompMult") {
+            this->writeMatrixCompMult();
         }
     }
 
@@ -553,6 +555,25 @@ String MetalCodeGenerator::getInverseHack(const Expression& mat) {
         }
     }
     return name;
+}
+
+static constexpr char kMatrixCompMult[] = R"(
+template <int C, int R>
+matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b) {
+    matrix<float, C, R> result;
+    for (int c = 0; c < C; ++c) {
+        result[c] = a[c] * b[c];
+    }
+    return result;
+}
+)";
+
+void MetalCodeGenerator::writeMatrixCompMult() {
+    String name = "matrixCompMult";
+    if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+        fWrittenIntrinsics.insert(name);
+        fExtraFunctions.writeText(kMatrixCompMult);
+    }
 }
 
 String MetalCodeGenerator::getTempVariable(const Type& type) {

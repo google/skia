@@ -155,7 +155,8 @@ inline float4 refract(float4 I, float4 N, float eta) {
 }
 
 // 8.5 : Matrix Functions
-// TODO: matrixCompMult(x, y)
+$squareMat  matrixCompMult($squareMat  x, $squareMat  y);
+$squareHMat matrixCompMult($squareHMat x, $squareHMat y);
 
 // Not supported until GLSL 1.40. Poly-filled by SkSL:
 $squareMat  inverse($squareMat  m);
