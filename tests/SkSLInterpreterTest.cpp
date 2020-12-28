@@ -9,83 +9,136 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/utils/SkJSON.h"
 
 #include "tests/Test.h"
 
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
 
-static bool nearly_equal(const float a[], const float b[], int count) {
-    for (int i = 0; i < count; ++i) {
-        if (!SkScalarNearlyEqual(a[i], b[i])) {
-            return false;
+struct ProgramBuilder {
+    ProgramBuilder(skiatest::Reporter* r, const char* src)
+            : fCaps(GrContextOptions{}), fCompiler(&fCaps) {
+        SkSL::Program::Settings settings;
+        fProgram = fCompiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
+                                            settings);
+        if (!fProgram) {
+            ERRORF(r, "Program failed to compile:\n%s\n%s\n", src, fCompiler.errorText().c_str());
         }
     }
-    return true;
+
+    operator bool() const { return fProgram != nullptr; }
+    SkSL::Program& operator*() { return *fProgram; }
+
+    GrShaderCaps fCaps;
+    SkSL::Compiler fCompiler;
+    std::unique_ptr<SkSL::Program> fProgram;
+};
+
+struct ByteCodeBuilder {
+    ByteCodeBuilder(skiatest::Reporter* r, const char* src) : fProgram(r, src), fByteCode(nullptr) {
+        if (fProgram) {
+            fByteCode = fProgram.fCompiler.toByteCode(*fProgram);
+            if (!fByteCode) {
+                ERRORF(r, "Program failed to compile:\n%s\n%s\n", src,
+                       fProgram.fCompiler.errorText().c_str());
+            }
+        }
+    }
+
+    operator bool() const { return fByteCode != nullptr; }
+    SkSL::ByteCode* operator->() { return fByteCode.get(); }
+
+    ProgramBuilder fProgram;
+    std::unique_ptr<SkSL::ByteCode> fByteCode;
+};
+
+static void verify_values(skiatest::Reporter* r,
+                          const char* src,
+                          const float* actual,
+                          const float* expected,
+                          int N,
+                          bool bitwiseCompare) {
+    auto nearly_equal = [](const float a[], const float b[], int count) {
+        for (int i = 0; i < count; ++i) {
+            if (!SkScalarNearlyEqual(a[i], b[i])) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    bool valid = bitwiseCompare ? !memcmp(actual, expected, sizeof(float) * N)
+                                : nearly_equal(actual, expected, N);
+    if (!valid) {
+        printf("for program: %s\n", src);
+        printf("    expected (");
+        const char* separator = "";
+        for (int i = 0; i < N; ++i) {
+            printf("%s%f", separator, expected[i]);
+            separator = ", ";
+        }
+        printf("), but received (");
+        separator = "";
+        for (int i = 0; i < N; ++i) {
+            printf("%s%f", separator, actual[i]);
+            separator = ", ";
+        }
+        printf(")\n");
+    }
+    REPORTER_ASSERT(r, valid);
 }
 
-void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
-          bool exactCompare = true) {
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
-    if (program) {
-        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-        program.reset();
-        REPORTER_ASSERT(r, !compiler.errorCount());
-        if (compiler.errorCount() > 0) {
-            printf("%s\n%s", src, compiler.errorText().c_str());
-            return;
-        }
-        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-        int returnCount = main->getReturnCount();
-        std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[returnCount]);
-        SkAssertResult(byteCode->run(main, in, main->getParameterCount(), out.get(), returnCount,
-                                     nullptr, 0));
-        bool valid = exactCompare ? !memcmp(out.get(), expected, sizeof(float) * returnCount)
-                                  : nearly_equal(out.get(), expected, returnCount);
-        if (!valid) {
-            printf("for program: %s\n", src);
-            printf("    expected (");
-            const char* separator = "";
-            for (int i = 0; i < returnCount; ++i) {
-                printf("%s%f", separator, expected[i]);
-                separator = ", ";
-            }
-            printf("), but received (");
-            separator = "";
-            for (int i = 0; i < returnCount; ++i) {
-                printf("%s%f", separator, out.get()[i]);
-                separator = ", ";
-            }
-            printf(")\n");
-            main->disassemble();
-        }
-        REPORTER_ASSERT(r, valid);
-    } else {
-        printf("%s\n%s", src, compiler.errorText().c_str());
+void test_skvm(skiatest::Reporter* r, const char* src, float* in, const float* expected,
+               bool bitwiseCompare) {
+    ProgramBuilder program(r, src);
+    if (!program) { return; }
+
+    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    REPORTER_ASSERT(r, main);
+
+    skvm::Builder b;
+    SkSL::SkVMSignature sig;
+    SkSL::ProgramToSkVM(*program, *main, &b, &sig);
+    skvm::Program p = b.done();
+
+    REPORTER_ASSERT(r, p.nargs() == (int)(1 /*uniforms*/ + sig.fParameterSlots + sig.fReturnSlots));
+
+    auto out = std::make_unique<float[]>(sig.fReturnSlots);
+    auto args = std::make_unique<void*[]>(1 + sig.fParameterSlots + sig.fReturnSlots);
+    args[0] = nullptr;  // uniforms
+    for (size_t i = 0; i < sig.fParameterSlots; ++i) {
+        args[1+ i] = in + i;
     }
+    for (size_t i = 0; i < sig.fReturnSlots; ++i) {
+        args[1 + sig.fParameterSlots + i] = out.get() + i;
+    }
+
+    // TODO: Test with and without JIT?
+    p.eval(1, args.get());
+
+    verify_values(r, src, out.get(), expected, sig.fReturnSlots, bitwiseCompare);
+}
+
+void test(skiatest::Reporter* r, const char* src, float* in, const float* expected,
+          bool bitwiseCompare = true) {
+    test_skvm(r, src, in, expected, bitwiseCompare);
+
+    ByteCodeBuilder byteCode(r, src);
+    if (!byteCode) { return; }
+
+    const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
+    int returnCount = main->getReturnCount();
+    std::unique_ptr<float[]> out = std::unique_ptr<float[]>(new float[returnCount]);
+    SkAssertResult(byteCode->run(main, in, main->getParameterCount(), out.get(), returnCount,
+                                 nullptr, 0));
+
+    verify_values(r, src, out.get(), expected, returnCount, bitwiseCompare);
 }
 
 void vec_test(skiatest::Reporter* r, const char* src) {
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    if (!program) {
-        REPORT_FAILURE(r, "!program", SkString(compiler.errorText().c_str()));
-        return;
-    }
-
-    std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-    if (compiler.errorCount() > 0) {
-        REPORT_FAILURE(r, "!toByteCode", SkString(compiler.errorText().c_str()));
-        return;
-    }
+    ByteCodeBuilder byteCode(r, src);
+    if (!byteCode) { return; }
 
     const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
 
@@ -134,40 +187,49 @@ void vec_test(skiatest::Reporter* r, const char* src) {
     }
 }
 
-void test(skiatest::Reporter* r, const char* src, float inR, float inG, float inB, float inA,
-          float expectedR, float expectedG, float expectedB, float expectedA) {
-    GrShaderCaps caps(GrContextOptions{});
-    SkSL::Compiler compiler(&caps);
-    SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
-                                                                     SkSL::String(src), settings);
-    REPORTER_ASSERT(r, program);
-    if (program) {
-        std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
-        program.reset();
-        REPORTER_ASSERT(r, !compiler.errorCount());
-        if (compiler.errorCount() > 0) {
-            printf("%s\n%s", src, compiler.errorText().c_str());
-            return;
-        }
-        const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
-        float inoutColor[4] = { inR, inG, inB, inA };
-        SkAssertResult(byteCode->run(main, inoutColor, 4, nullptr, 0, nullptr, 0));
-        if (inoutColor[0] != expectedR || inoutColor[1] != expectedG ||
-            inoutColor[2] != expectedB || inoutColor[3] != expectedA) {
-            printf("for program: %s\n", src);
-            printf("    expected (%f, %f, %f, %f), but received (%f, %f, %f, %f)\n", expectedR,
-                   expectedG, expectedB, expectedA, inoutColor[0], inoutColor[1], inoutColor[2],
-                   inoutColor[3]);
-            main->disassemble();
-        }
-        REPORTER_ASSERT(r, inoutColor[0] == expectedR);
-        REPORTER_ASSERT(r, inoutColor[1] == expectedG);
-        REPORTER_ASSERT(r, inoutColor[2] == expectedB);
-        REPORTER_ASSERT(r, inoutColor[3] == expectedA);
-    } else {
-        printf("%s\n%s", src, compiler.errorText().c_str());
+void test_skvm(skiatest::Reporter* r, const char* src,
+               float inR, float inG, float inB, float inA,
+               float exR, float exG, float exB, float exA) {
+    ProgramBuilder program(r, src);
+    if (!program) { return; }
+
+    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    REPORTER_ASSERT(r, main);
+
+    skvm::Builder b;
+    SkSL::ProgramToSkVM(*program, *main, &b);
+    skvm::Program p = b.done();
+
+    // TODO: Test with and without JIT?
+    const void* uniforms = nullptr;
+    p.eval(1, uniforms, &inR, &inG, &inB, &inA);
+
+    float actual[4]   = { inR, inG, inB, inA };
+    float expected[4] = { exR, exG, exB, exA };
+
+    verify_values(r, src, actual, expected, 4, /*bitwiseCompare=*/true);
+
+    // TODO: vec_test with skvm
+}
+
+void test(skiatest::Reporter* r, const char* src,
+          float inR, float inG, float inB, float inA,
+          float exR, float exG, float exB, float exA,
+          bool testWithSkVM = true) {
+    if (testWithSkVM) {
+        test_skvm(r, src, inR, inG, inB, inA, exR, exG, exB, exA);
     }
+
+    ByteCodeBuilder byteCode(r, src);
+    if (!byteCode) { return; }
+
+    float inoutColor[4] = { inR, inG, inB, inA };
+    float expected[4]   = { exR, exG, exB, exA };
+
+    const SkSL::ByteCodeFunction* main = byteCode->getFunction("main");
+    SkAssertResult(byteCode->run(main, inoutColor, 4, nullptr, 0, nullptr, 0));
+
+    verify_values(r, src, inoutColor, expected, 4, /*bitwiseCompare=*/true);
 
     // Do additional testing of 4x1 vs 1x4 to stress divergent control flow, etc.
     vec_test(r, src);
@@ -224,12 +286,15 @@ DEF_TEST(SkSLInterpreterAnd, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
+    // TODO: SkVM function call support
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
-            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123,
+            /*testWithSkVM=*/false);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
-            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0,
+            /*testWithSkVM=*/false);
 }
 
 DEF_TEST(SkSLInterpreterOr, r) {
@@ -239,12 +304,15 @@ DEF_TEST(SkSLInterpreterOr, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
             "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
+    // TODO: SkVM function call support
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
-            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
+            "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123,
+            /*testWithSkVM=*/false);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
-            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
+            "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0,
+            /*testWithSkVM=*/false);
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
@@ -430,8 +498,11 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 }
 
 DEF_TEST(SkSLInterpreterFor, r) {
-    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }", 0, 0, 0,
-         0, 55, 0, 0, 0);
+    // TODO: SkVM for-loop support
+    test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }",
+         0, 0, 0, 0,
+         55, 0, 0, 0,
+         /*testWithSkVM=*/false);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
@@ -439,7 +510,8 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "            color.r += j;"
          "}",
          0, 0, 0, 0,
-         385, 0, 0, 0);
+         385, 0, 0, 0,
+         /*testWithSkVM=*/false);
     test(r,
          "void main(inout half4 color) {"
          "    for (int i = 1; i <= 10; ++i)"
@@ -450,7 +522,8 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "        }"
          "}",
          0, 0, 0, 0,
-         495, 0, 0, 0);
+         495, 0, 0, 0,
+         /*testWithSkVM=*/false);
 }
 
 DEF_TEST(SkSLInterpreterPrefixPostfix, r) {

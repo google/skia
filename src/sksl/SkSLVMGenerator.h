@@ -32,6 +32,29 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord local,
                           SampleChildFn sampleChild);
 
+struct SkVMSignature {
+    size_t fParameterSlots = 0;
+    size_t fReturnSlots    = 0;
+};
+
+/*
+ * Converts 'function' to skvm instructions in 'builder'. Always adds one arg for uniforms, then
+ * one per value in the parameter list, and finally one per value in the return type. For example:
+ *
+ *   uniform float u; uniform float v;
+ *   float2 fn(float2 a, float b) { ... }
+ *
+ * ... is mapped so that it can be called as:
+ *
+ *   p.eval(N, uniforms, &a.x, &a.y, &b, &return.x, &return.y);
+ *
+ * The number of parameter and return slots (pointers) is placed in 'outSignature', if provided.
+ */
+bool ProgramToSkVM(const Program& program,
+                   const FunctionDefinition& function,
+                   skvm::Builder* b,
+                   SkVMSignature* outSignature = nullptr);
+
 const FunctionDefinition* Program_GetFunction(const Program& program, const char* function);
 
 bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* builder);
