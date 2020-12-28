@@ -69,9 +69,6 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                    GrStyle::SimpleFill());
 
     GrSurfaceProxyView srcView = rtc->readSurfaceView();
-    if (!srcView) {
-        return false;
-    }
     SkASSERT(srcView.asTextureProxy());
     auto rtc2 = SkGpuBlurUtils::GaussianBlur(dContext,
                                              std::move(srcView),
@@ -382,7 +379,7 @@ half2 texCoord = translatedFragPosHalf / proxyDims;)SkSL",
         SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
-return %s * %s;
+return %s * %s.w;
 )SkSL",
                 _sample0.c_str(), _sample1.c_str());
     }

@@ -102,9 +102,9 @@ protected:
         static const SkRect kColorRect = SkRect::MakeLTRB(2.f, 2.f, 6.f, 6.f);
 
         SkYUVAIndex yuvaIndices[4] = {
-            { SkYUVAIndex::kY_Index, SkColorChannel::kR },
-            { SkYUVAIndex::kU_Index, SkColorChannel::kR },
-            { SkYUVAIndex::kV_Index, SkColorChannel::kR },
+            { SkYUVAIndex::kY_Index, SkColorChannel::kA },
+            { SkYUVAIndex::kU_Index, SkColorChannel::kA },
+            { SkYUVAIndex::kV_Index, SkColorChannel::kA },
             { -1, SkColorChannel::kA }
         };
         // Outset to visualize wrap modes.
