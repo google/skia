@@ -945,18 +945,20 @@ void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
                             SkBlendMode mode, const SkPaint& paint) {
+    SkSamplingOptions sampling(paint.getFilterQuality(), SkSamplingOptions::kMedium_asMipmapLinear);
+
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
 
     // Convert atlas to an image shader.
-    sk_sp<SkShader> shader = atlas->makeShader(SkSamplingOptions(paint.getFilterQuality()));
+    sk_sp<SkShader> shader = atlas->makeShader(sampling);
     if (!shader) {
         return;
     }
 
     // Create a fragment processor for atlas image. Filter-quality reduction is disabled because the
     // SkRSXform matrices might include scale or non-trivial rotation.
-    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), paint.getFilterQuality(),
+    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), sampling,
                     &fSurfaceDrawContext->colorInfo());
     fpArgs.fAllowFilterQualityReduction = false;
 

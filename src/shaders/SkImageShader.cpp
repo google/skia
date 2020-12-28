@@ -447,8 +447,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     bool sharpen = args.fContext->priv().options().fSharpenMipmappedTextures;
     GrSamplerState::Filter     fm = GrSamplerState::Filter::kNearest;
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    bool bicubic;
-    SkCubicResampler kernel = GrBicubicEffect::gMitchell;
+    bool bicubic = false;
+    SkCubicResampler kernel = kInvalidCubicResampler;
 
     if (fUseSamplingOptions) {
         bicubic = fSampling.useCubic;
@@ -466,13 +466,14 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             }
         }
     } else {    // inherit filterquality from paint
-        std::tie(fm, mm, bicubic) =
-                GrInterpretFilterQuality(fImage->dimensions(),
-                                         args.fFilterQuality,
+        std::tie(fm, mm, kernel) =
+              GrInterpretSamplingOptions(fImage->dimensions(),
+                                         args.fSampling,
                                          args.fMatrixProvider.localToDevice(),
                                          *lm,
                                          sharpen,
                                          args.fAllowFilterQualityReduction);
+        bicubic = GrValidCubicResampler(kernel);
     }
     std::unique_ptr<GrFragmentProcessor> fp;
     if (bicubic) {

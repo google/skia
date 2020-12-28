@@ -696,7 +696,8 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
-    GrFPArgs args(rContext, matrixProvider, SkFilterQuality::kLow_SkFilterQuality, &colorInfo);
+    GrFPArgs args(rContext, matrixProvider, SkSamplingOptions(SkFilterMode::kLinear,
+                                                              SkMipmapMode::kNone), &colorInfo);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 
