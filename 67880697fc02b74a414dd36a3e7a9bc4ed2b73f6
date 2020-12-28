@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "88c0b900_2e939378",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T16:42:03Z",
+      "side": 1,
+      "message": "We have that for shaders, but it is optional (until I can update all the clients\u0027 sites, which is done for android, but proving to be a bear for chrome and flutter). Thus our shaders can be in either mode: explicit or inherit-from-paint.",
+      "parentUuid": "3976f183_70ea3bf5",
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa3d07ee_babafe6b",
