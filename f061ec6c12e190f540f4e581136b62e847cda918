@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11d4fe16_9a0e272c",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:32:49Z",
+      "side": 1,
+      "message": "This was already pretty insane, maybe 1 arg per line?",
+      "range": {
+        "startLine": 439,
+        "startChar": 20,
+        "endLine": 441,
+        "endChar": 99
+      },
+      "revId": "f061ec6c12e190f540f4e581136b62e847cda918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
