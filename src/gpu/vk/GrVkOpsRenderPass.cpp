@@ -180,7 +180,13 @@ bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor,
     bool firstSubpassUsesSecondaryCB =
             loadFromResolve != LoadFromResolve::kLoad && SkToBool(fCurrentSecondaryCommandBuffer);
 
-    auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, vkRT->height(), fBounds);
+    bool useFullBounds = fCurrentRenderPass->hasResolveAttachment() &&
+                         fGpu->vkCaps().mustLoadFullImageWithDiscardableMSAA();
+
+    auto nativeBounds = GrNativeRect::MakeRelativeTo(
+            fOrigin, vkRT->height(),
+            useFullBounds ? SkIRect::MakeWH(vkRT->width(), vkRT->height()) : fBounds);
+
     // The bounds we use for the render pass should be of the granularity supported
     // by the device.
     const VkExtent2D& granularity = fCurrentRenderPass->granularity();
