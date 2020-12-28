@@ -9,9 +9,12 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
+#include "src/sksl/SkSLVMGenerator.h"
 #include "src/utils/SkJSON.h"
 
 #include "tests/Test.h"
+
+#define USE_SKVM 1
 
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
 
@@ -134,8 +137,9 @@ void vec_test(skiatest::Reporter* r, const char* src) {
     }
 }
 
-void test(skiatest::Reporter* r, const char* src, float inR, float inG, float inB, float inA,
-          float expectedR, float expectedG, float expectedB, float expectedA) {
+void test(skiatest::Reporter* r, const char* src,
+          float inR, float inG, float inB, float inA,
+          float exR, float exG, float exB, float exA) {
     GrShaderCaps caps(GrContextOptions{});
     SkSL::Compiler compiler(&caps);
     SkSL::Program::Settings settings;
@@ -143,6 +147,31 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
                                                                      SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
     if (program) {
+#if USE_SKVM
+        const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+        REPORTER_ASSERT(r, main);
+
+        skvm::Builder b;
+        SkSL::ProgramToSkVM(*program, *main, &b);
+        skvm::Program p = b.done();
+
+//        if (p.hasJIT()) { p.dropJIT(); }
+        const void* uniforms = nullptr;
+        p.eval(1, uniforms, &inR, &inG, &inB, &inA);
+
+        if (inR != exR || inG != exG || inB != exB || inA != exA) {
+            SkDebugf("Expected (%f, %f, %f, %f), but received (%f, %f, %f, %f)\n",
+                     exR, exG, exB, exA, inR, inG, inB, inA);
+            SkDebugf("SkSL:\n----\n%s\n", src);
+            SkDebugf("Optimized:\n---------\n%s\n", main->description().c_str());
+            SkDebugf("SkVM:\n----\n");
+            p.dump();
+        }
+        REPORTER_ASSERT(r, inR == exR);
+        REPORTER_ASSERT(r, inG == exG);
+        REPORTER_ASSERT(r, inB == exB);
+        REPORTER_ASSERT(r, inA == exA);
+#else
         std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
         program.reset();
         REPORTER_ASSERT(r, !compiler.errorCount());
@@ -165,6 +194,7 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
         REPORTER_ASSERT(r, inoutColor[1] == expectedG);
         REPORTER_ASSERT(r, inoutColor[2] == expectedB);
         REPORTER_ASSERT(r, inoutColor[3] == expectedA);
+#endif
     } else {
         printf("%s\n%s", src, compiler.errorText().c_str());
     }
@@ -224,12 +254,14 @@ DEF_TEST(SkSLInterpreterAnd, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 1, 1, 0, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g && color.g > color.b) "
             "color = half4(color.a); }", 2, 1, 1, 3, 2, 1, 1, 3);
+#if !USE_SKVM  // TODO function calls
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 123);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g && update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 1, 1, 1, 0);
+#endif
 }
 
 DEF_TEST(SkSLInterpreterOr, r) {
@@ -239,12 +271,14 @@ DEF_TEST(SkSLInterpreterOr, r) {
             "color = half4(color.a); }", 1, 1, 0, 3, 3, 3, 3, 3);
     test(r, "void main(inout half4 color) { if (color.r > color.g || color.g > color.b) "
             "color = half4(color.a); }", 1, 1, 1, 3, 1, 1, 1, 3);
+#if !USE_SKVM  // TODO function calls
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 1, 1, 1, 3, 3, 3, 3, 123);
     test(r, "int global; bool update() { global = 123; return true; }"
             "void main(inout half4 color) { global = 0;  if (color.r > color.g || update()) "
             "color = half4(color.a); color.a = global; }", 2, 1, 1, 3, 3, 3, 3, 0);
+#endif
 }
 
 DEF_TEST(SkSLInterpreterMatrix, r) {
@@ -430,6 +464,7 @@ DEF_TEST(SkSLInterpreterIfVector, r) {
 }
 
 DEF_TEST(SkSLInterpreterFor, r) {
+#if !USE_SKVM  // TODO for loops
     test(r, "void main(inout half4 color) { for (int i = 1; i <= 10; ++i) color.r += i; }", 0, 0, 0,
          0, 55, 0, 0, 0);
     test(r,
@@ -451,6 +486,7 @@ DEF_TEST(SkSLInterpreterFor, r) {
          "}",
          0, 0, 0, 0,
          495, 0, 0, 0);
+#endif
 }
 
 DEF_TEST(SkSLInterpreterPrefixPostfix, r) {
