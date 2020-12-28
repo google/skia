@@ -80,6 +80,8 @@ public:
     // V77: Explicit filtering options on imageshaders
     // V78: Serialize skmipmap data for images that have it
     // V79: Cubic Resampler option on imageshader
+    // V80: Smapling options on imageshader
+    // V81: sampling parameters on drawImage/drawImageRect/etc.
 
     enum Version {
         kEdgeAAQuadColor4f_Version          = 73,
@@ -90,10 +92,11 @@ public:
         kSerializeMipmaps_Version           = 78,
         kCubicResamplerImageShader_Version  = 79,
         kSamplingInImageShader_Version      = 80,
+        kSamplingInDrawImage_Version        = 81,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kEdgeAAQuadColor4f_Version,
-        kCurrent_Version = kSamplingInImageShader_Version
+        kCurrent_Version = kSamplingInDrawImage_Version
     };
 
     static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,
