@@ -1,25 +1,25 @@
-Android RoboCop Documentation
-===========================
+Android Gardener Documentation
+==============================
 
 ### Contents ###
 
-*   [What does a Android RoboCop do?](#what_is_a_robocop)
+*   [What does a Android Gardener do?](#what_is_a_android_gardener)
 *   [Android Autorollers](#autoroller_doc)
-*   [View current and upcoming RoboCops](#view_current_upcoming_robocops)
-*   [How to swap RoboCop shifts](#how_to_swap)
+*   [View current and upcoming rotations](#view_current_upcoming_rotations)
+*   [How to swap rotation shifts](#how_to_swap)
 
 
-<a name="what_is_a_robocop"></a>
-What does a Android RoboCop do?
------------------------
+<a name="what_is_a_android_gardener"></a>
+What does a Android Gardener do?
+--------------------------------
 
-The RoboCop has two primary jobs:
+The Android Gardener has two primary jobs:
 
 1) Monitor and approve the semi-autonomous [git merges](https://googleplex-android-review.git.corp.google.com/#/q/owner:31977622648%2540project.gserviceaccount.com+status:open) from Skia's repository into the Android source tree. See autoroller documentation <a href="#autoroller_doc">here</a> for details on how to interact with it.
 
 2) Stay on top of incoming Android-related bugs in both the [Skia](https://bugs.chromium.org/p/skia/issues/list?can=2&q=OpSys%3DAndroid&sort=-id&colspec=ID+Type+Status+Priority+Owner+Summary&cells=tiles) and [Android](https://buganizer.corp.google.com/issues?q=assignee:skia-android-triage%20status:open) bug trackers.  For Skia bugs, this means triaging and assigning all Android bugs that are currently unassigned.  For Android, this means following the [Android guidelines](go/android-buganizer) to verifying that all Skia bugs are TL-triaged (if not reach out to djsollen@).
 
-The RoboCop's job is NOT to address issues in Perf and Gold. You'll get your chance when you are the general Skia sheriff.
+The Android Gardener's job is NOT to address issues in Perf and Gold. You'll get your chance when you are the general Skia Gardener.
 
 
 <a name="autoroller_doc"></a>
@@ -49,16 +49,16 @@ The changes created by the release rollers:
 * Collects all 'Test: ' lines and carries them over to the merge change.
 
 
-<a name="view_current_upcoming_robocops"></a>
-View current and upcoming RoboCops
-----------------------------------
+<a name="view_current_upcoming_rotations"></a>
+View current and upcoming rotations
+-----------------------------------
 
-The list of RoboCops is specified in the [tree-status web app](http://tree-status.skia.org/robocop). The current RoboCop is highlighted in green.
-The banner on the top of the [status page](https://status.skia.org) also displays the current RoboCop.
+The list of Android Gardeners is specified [here](https://rotations.corp.google.com/rotation/5296436538245120).
+The gardeners widget on the [status page](https://status.skia.org) also displays the current gardeners.
 
 
 <a name="how_to_swap"></a>
-How to swap RoboCop shifts
+How to swap rotation shifts
 --------------------------
 
-If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with. Then send an email to skia-android@google.com and cc rmistry@.
+If you need to swap shifts with someone (because you are out sick or on vacation), please get approval from the person you want to swap with and directly make the swap via the [rotations page](https://rotations.corp.google.com/rotation/5296436538245120).
