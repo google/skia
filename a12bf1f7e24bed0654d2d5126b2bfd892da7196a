@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19a06be6_388207bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-28T15:36:09Z",
+      "side": 1,
+      "message": "It is a shame we still need all the if(alphaOnly) { swizzle(\"aaaa\"); } stuff throughout the code. I wonder if there is any easy way to have all that logic be in SkSL. Right now I think it is a little fragile since if we add new code that wants to sample textures it needs to remember to put in this special check and swizzle change.\n\nBut as of now I think this is probably the best we can do.",
+      "revId": "a12bf1f7e24bed0654d2d5126b2bfd892da7196a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
