@@ -87,15 +87,14 @@ template<int N> SK_ALWAYS_INLINE vec<N> unchecked_mix(vec<N> a, vec<N> b, vec<N>
 class ResolveLevelCounter {
 public:
     ResolveLevelCounter(const SkStrokeRec& stroke, GrStrokeTessellateShader::Tolerances tolerances,
-                        int* resolveLevelCounts)
-            : fIsRoundJoin(stroke.getJoin() == SkPaint::kRound_Join)
-            , fTolerances(tolerances)
+                        int* resolveLevelCounts) :
 #if USE_SIMD
-            , fWangsTermQuadratic(
-                    GrWangsFormula::length_term<2>(fTolerances.fParametricIntolerance))
-            , fWangsTermCubic(GrWangsFormula::length_term<3>(fTolerances.fParametricIntolerance))
+            fWangsTermQuadratic(GrWangsFormula::length_term<2>(tolerances.fParametricIntolerance)),
+            fWangsTermCubic(GrWangsFormula::length_term<3>(tolerances.fParametricIntolerance)),
 #endif
-            , fResolveLevelCounts(resolveLevelCounts) {
+            fIsRoundJoin(stroke.getJoin() == SkPaint::kRound_Join),
+            fTolerances(tolerances),
+            fResolveLevelCounts(resolveLevelCounts) {
     }
 
     bool isRoundJoin() const { return fIsRoundJoin; }
@@ -194,7 +193,7 @@ private:
     void countChoppedCubic(const SkPoint pts[4], const float chopT, SkPoint lastControlPoint,
                            int8_t* resolveLevelPtr) {
         int i = fChoppedCubicQueue.push(pts, fIsRoundJoin, lastControlPoint, resolveLevelPtr);
-        fCubicChopTs[i] = chopT;
+        fCubicChopTs[i] = fCubicChopTs[4 + i] = chopT;
         if (i == 3) {
             this->flushChoppedCubics<4>();
         }
@@ -241,44 +240,55 @@ private:
         SK_ALWAYS_INLINE int push(const SkPoint pts[NumPts], bool pushRoundJoin,
                                   SkPoint lastControlPoint, int8_t* resolveLevelPtr) {
             SkASSERT(0 <= fCount && fCount < 4);
-            if constexpr (NumPts == 4) {
-                // Store the points transposed in 4-point queues. The caller can use a strided load.
-                vec<4> x, y;
-                grvx::strided_load2(&pts[0].fX, x, y);
-                x.store(fXs[fCount].data());
-                y.store(fYs[fCount].data());
-            } else {
-                for (int i = 0; i < NumPts; ++i) {
-                    fXs[i][fCount] = pts[i].fX;
-                    fYs[i][fCount] = pts[i].fY;
-                }
+            for (int i = 0; i < NumPts; ++i) {
+                fPts[i][fCount] = pts[i].fX;
+                fPts[i][4 + fCount] = pts[i].fY;
             }
             if (pushRoundJoin) {
-                fLastControlPointsX[fCount] = lastControlPoint.fX;
-                fLastControlPointsY[fCount] = lastControlPoint.fY;
+                fLastControlPoints[fCount] = lastControlPoint.fX;
+                fLastControlPoints[4 + fCount] = lastControlPoint.fY;
             }
             fResolveLevelPtrs[fCount] = resolveLevelPtr;
             return fCount++;
         }
 
-        // Loads pts[idx] in SIMD for all 4 strokes, with the x values in the "vec.lo" and the y
+        // Loads pts[idx] in SIMD for fCount strokes, with the x values in the "vec.lo" and the y
         // values in "vec.hi".
-        template<int N> SK_ALWAYS_INLINE vec<N*2> loadPoint(int idx) const {
+        template<int N> vec<N*2> loadPoint(int idx) const {
             SkASSERT(0 <= idx && idx < NumPts);
-            static_assert(NumPts != 4, "4-point queues store transposed. Use grvx::strided_load4.");
-            return skvx::join(vec<N>::Load(fXs[idx].data()), vec<N>::Load(fYs[idx].data()));
+            return this->loadPointFromArray<N>(fPts[idx]);
         }
 
-        // Loads all 4 lastControlPoints in SIMD, with the x values in "vec.lo" and the y values in
+        // Loads fCount lastControlPoints in SIMD, with the x values in "vec.lo" and the y values in
         // "vec.hi".
-        template<int N> SK_ALWAYS_INLINE vec<N*2> loadLastControlPoint() const {
-            return skvx::join(vec<N>::Load(fLastControlPointsX), vec<N>::Load(fLastControlPointsY));
+        template<int N> vec<N*2> loadLastControlPoint() const {
+            return this->loadPointFromArray<N>(fLastControlPoints);
         }
 
-        std::array<float,4> fXs[NumPts];
-        std::array<float,4> fYs[NumPts];
-        float fLastControlPointsX[4];
-        float fLastControlPointsY[4];
+        // Loads fCount points from the given array in SIMD, with the x values in "vec.lo" and the y
+        // values in "vec.hi". The array must be ordered as: [x0,x1,x2,x3,y0,y1,y2,y3].
+        template<int N> vec<N*2> loadPointFromArray(const float array[8]) const {
+            if constexpr (N == 4) {
+                if (fCount == 4) {
+                    return vec<8>::Load(array);
+                } else {
+                    SkASSERT(fCount == 3);
+                    return {array[0], array[1], array[2], 0, array[4], array[5], array[6], 0};
+                }
+            } else {
+                if (fCount == 2) {
+                    return {array[0], array[1], array[4], array[5]};
+                } else {
+                    SkASSERT(fCount == 1);
+                    return {array[0], 0, array[4], 0};
+                }
+            }
+        }
+
+        struct alignas(sizeof(float) * 8) {
+            float fPts[NumPts][8];
+            float fLastControlPoints[8];
+        };
         int8_t* fResolveLevelPtrs[4];
         int fCount = 0;
     };
@@ -327,20 +337,23 @@ private:
 
     template<int N> void flushCubics() {
         SkASSERT(fCubicQueue.fCount > 0);
-        vec<N*2> p0, p1, p2, p3;
-        grvx::strided_load4(fCubicQueue.fXs[0].data(), p0.lo, p1.lo, p2.lo, p3.lo);
-        grvx::strided_load4(fCubicQueue.fYs[0].data(), p0.hi, p1.hi, p2.hi, p3.hi);
+        auto p0 = fCubicQueue.loadPoint<N>(0);
+        auto p1 = fCubicQueue.loadPoint<N>(1);
+        auto p2 = fCubicQueue.loadPoint<N>(2);
+        auto p3 = fCubicQueue.loadPoint<N>(3);
         this->flushCubics<N>(fCubicQueue, p0, p1, p2, p3, fIsRoundJoin, 0);
         fCubicQueue.fCount = 0;
     }
 
     template<int N> void flushChoppedCubics() {
         SkASSERT(fChoppedCubicQueue.fCount > 0);
-        vec<N*2> p0, p1, p2, p3;
-        grvx::strided_load4(fChoppedCubicQueue.fXs[0].data(), p0.lo, p1.lo, p2.lo, p3.lo);
-        grvx::strided_load4(fChoppedCubicQueue.fYs[0].data(), p0.hi, p1.hi, p2.hi, p3.hi);
+        auto p0 = fChoppedCubicQueue.loadPoint<N>(0);
+        auto p1 = fChoppedCubicQueue.loadPoint<N>(1);
+        auto p2 = fChoppedCubicQueue.loadPoint<N>(2);
+        auto p3 = fChoppedCubicQueue.loadPoint<N>(3);
+        auto T = fChoppedCubicQueue.loadPointFromArray<N>(fCubicChopTs);
+
         // Chop the cubic at its chopT and find the resolve level for each half.
-        auto T = skvx::join(vec<N>::Load(fCubicChopTs), vec<N>::Load(fCubicChopTs));
         auto ab = unchecked_mix(p0, p1, T);
         auto bc = unchecked_mix(p1, p2, T);
         auto cd = unchecked_mix(p2, p3, T);
@@ -349,6 +362,7 @@ private:
         auto abcd = unchecked_mix(abc, bcd, T);
         this->flushCubics<N>(fChoppedCubicQueue, p0, ab, abc, abcd, fIsRoundJoin, 0);
         this->flushCubics<N>(fChoppedCubicQueue, abcd, bcd, cd, p3, false/*countRoundJoin*/, 1);
+
         fChoppedCubicQueue.fCount = 0;
     }
 
@@ -405,21 +419,20 @@ private:
         }
     }
 
-#endif
-    const bool fIsRoundJoin;
-    GrStrokeTessellateShader::Tolerances fTolerances;
-
-#if USE_SIMD
-    const float fWangsTermQuadratic;
-    const float fWangsTermCubic;
-
     SIMDQueue<2> fLineQueue;
     SIMDQueue<3> fQuadQueue;
     SIMDQueue<4> fCubicQueue;
     SIMDQueue<4> fChoppedCubicQueue;
-    float fCubicChopTs[4];
+    struct alignas(sizeof(float) * 8) {
+        float fCubicChopTs[8];
+    };
+
+    const float fWangsTermQuadratic;
+    const float fWangsTermCubic;
 
 #endif
+    const bool fIsRoundJoin;
+    const GrStrokeTessellateShader::Tolerances fTolerances;
     int* const fResolveLevelCounts;
 };
 
@@ -429,6 +442,7 @@ void GrStrokeIndirectOp::prePrepareResolveLevels(SkArenaAlloc* alloc) {
     SkASSERT(!fTotalInstanceCount);
     SkASSERT(!fResolveLevels);
     SkASSERT(!fResolveLevelArrayCount);
+    SkASSERT(!fChopTsArrayCount);
 
     // The maximum potential number of values we will need in fResolveLevels is:
     //
@@ -615,6 +629,7 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
     SkASSERT(fResolveLevels);
     SkASSERT(!fDrawIndirectBuffer);
     SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fDrawIndirectCount);
 
     if (!fTotalInstanceCount) {
         return;
@@ -640,7 +655,6 @@ void GrStrokeIndirectOp::prepareBuffers(GrMeshDrawOp::Target* target) {
     }
 
     // Fill out our drawIndirect commands and determine the layout of the instance buffer.
-    fDrawIndirectCount = 0;
     int numExtraEdgesInJoin = IndirectInstance::NumExtraEdgesInJoin(fStroke.getJoin());
     int currentInstanceIdx = 0;
     float numEdgesPerResolveLevel[kMaxResolveLevel];

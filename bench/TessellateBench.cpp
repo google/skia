@@ -244,76 +244,130 @@ DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(1, ""); )
 DEF_BENCH( return new GrStrokeTessellateOp::TestingOnly_Benchmark(5, "_one_chop"); )
 
 class GrStrokeIndirectOp::Benchmark : public ::Benchmark {
-public:
-    Benchmark(const char* nameSuffix, SkPaint::Join join, std::vector<SkPoint> pts)
-            : fJoin(join), fPts(std::move(pts)) {
+protected:
+    Benchmark(const char* nameSuffix, SkPaint::Join join) : fJoin(join) {
         fName.printf("tessellate_GrStrokeIndirectOpBench%s", nameSuffix);
     }
 
-private:
-    const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    const SkPaint::Join fJoin;
 
-    void onDelayedSetup() override {
+private:
+    const char* onGetName() final { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    void onDelayedSetup() final {
         fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());
-        if (fJoin == SkPaint::kRound_Join) {
-            fPath.reset().moveTo(fPts.back());
-            for (size_t i = 0; i < kNumCubicsInChalkboard/fPts.size(); ++i) {
-                for (size_t j = 0; j < fPts.size(); ++j) {
-                    fPath.lineTo(fPts[j]);
-                }
-            }
-        } else {
-            fPath.reset().moveTo(fPts[0]);
-            for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-                if (fPts.size() == 4) {
-                    fPath.cubicTo(fPts[1], fPts[2], fPts[3]);
-                    fPath.cubicTo(fPts[2], fPts[1], fPts[0]);
-                } else {
-                    SkASSERT(fPts.size() == 3);
-                    fPath.quadTo(fPts[1], fPts[2]);
-                    fPath.quadTo(fPts[2], fPts[1]);
-                }
-            }
-        }
         fStrokeRec.setStrokeStyle(8);
         fStrokeRec.setStrokeParams(SkPaint::kButt_Cap, fJoin, 4);
+        this->setupPaths(&fPaths);
     }
-
     void onDraw(int loops, SkCanvas*) final {
         if (!fTarget->mockContext()) {
             SkDebugf("ERROR: could not create mock context.");
             return;
         }
         for (int i = 0; i < loops; ++i) {
-            GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), fPath, fStrokeRec, GrPaint());
-            op.prePrepareResolveLevels(fTarget->allocator());
-            op.prepareBuffers(fTarget.get());
+            for (const SkPath& path : fPaths) {
+                GrStrokeIndirectOp op(GrAAType::kMSAA, SkMatrix::I(), path, fStrokeRec, GrPaint());
+                op.prePrepareResolveLevels(fTarget->allocator());
+                op.prepareBuffers(fTarget.get());
+            }
+            fTarget->resetAllocator();
+        }
+    }
+    virtual void setupPaths(SkTArray<SkPath>*) = 0;
+
+    SkString fName;
+    std::unique_ptr<GrMockOpTarget> fTarget;
+    SkTArray<SkPath> fPaths;
+    SkStrokeRec fStrokeRec{SkStrokeRec::kHairline_InitStyle};
+};
+
+class StrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+public:
+    StrokeIndirectBenchmark(const char* nameSuffix, SkPaint::Join join, std::vector<SkPoint> pts)
+            : Benchmark(nameSuffix, join), fPts(std::move(pts)) {}
+
+private:
+    void setupPaths(SkTArray<SkPath>* paths) final {
+        SkPath& path = paths->push_back();
+        if (fJoin == SkPaint::kRound_Join) {
+            path.reset().moveTo(fPts.back());
+            for (size_t i = 0; i < kNumCubicsInChalkboard/fPts.size(); ++i) {
+                for (size_t j = 0; j < fPts.size(); ++j) {
+                    path.lineTo(fPts[j]);
+                }
+            }
+        } else {
+            path.reset().moveTo(fPts[0]);
+            for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
+                if (fPts.size() == 4) {
+                    path.cubicTo(fPts[1], fPts[2], fPts[3]);
+                    path.cubicTo(fPts[2], fPts[1], fPts[0]);
+                } else {
+                    SkASSERT(fPts.size() == 3);
+                    path.quadTo(fPts[1], fPts[2]);
+                    path.quadTo(fPts[2], fPts[1]);
+                }
+            }
         }
     }
 
-    SkString fName;
-    SkPaint::Join fJoin;
-    std::vector<SkPoint> fPts;
-    std::unique_ptr<GrMockOpTarget> fTarget;
-    SkPath fPath;
-    SkStrokeRec fStrokeRec = SkStrokeRec(SkStrokeRec::kFill_InitStyle);
+    const std::vector<SkPoint> fPts;
 };
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_inflect1", SkPaint::kBevel_Join, {{0,0}, {100,0}, {0,100}, {100,100}}); )
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_inflect2", SkPaint::kBevel_Join, {{37,162}, {412,160}, {249,65}, {112,360}}); )
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_loop", SkPaint::kBevel_Join, {{0,0}, {100,0}, {0,100}, {0,0}}); )
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_nochop", SkPaint::kBevel_Join, {{0,0}, {50,0}, {100,50}, {100,100}}); )
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_quad", SkPaint::kBevel_Join, {{0,0}, {50,100}, {100,0}}); )
 
-DEF_BENCH( return new GrStrokeIndirectOp::Benchmark(
+DEF_BENCH( return new StrokeIndirectBenchmark(
         "_roundjoin", SkPaint::kRound_Join, {{0,0}, {50,100}, {100,0}}); )
+
+class SingleVerbStrokeIndirectBenchmark : public GrStrokeIndirectOp::Benchmark {
+public:
+    SingleVerbStrokeIndirectBenchmark(const char* nameSuffix, SkPathVerb verb)
+            : Benchmark(nameSuffix, SkPaint::kBevel_Join), fVerb(verb) {}
+
+private:
+    void setupPaths(SkTArray<SkPath>* paths) override {
+        SkRandom rand;
+        for (int i = 0; i < kNumCubicsInChalkboard; ++i)   {
+            switch (fVerb) {
+                case SkPathVerb::kQuad:
+                    paths->push_back().quadTo(rand.nextF(), rand.nextF(), rand.nextF(),
+                                              rand.nextF());
+                    break;
+                case SkPathVerb::kCubic:
+                    switch (i % 3) {
+                        case 0:
+                            paths->push_back().cubicTo(100, 0, 0, 100, 100, 100);  // 1 inflection.
+                            break;
+                        case 1:
+                            paths->push_back().cubicTo(100, 0, 0, 100, 0, 0);  // loop.
+                            break;
+                        case 2:
+                            paths->push_back().cubicTo(50, 0, 100, 50, 100, 100);  // no chop.
+                            break;
+                    }
+                    break;
+                default:
+                    SkUNREACHABLE;
+            }
+        }
+    }
+
+    const SkPathVerb fVerb;
+};
+
+DEF_BENCH( return new SingleVerbStrokeIndirectBenchmark("_singlequads", SkPathVerb::kQuad); )
+DEF_BENCH( return new SingleVerbStrokeIndirectBenchmark("_singlecubics", SkPathVerb::kCubic); )
