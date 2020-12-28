@@ -70,33 +70,33 @@ var (
 
 	// Named caches used by tasks.
 	CACHES_GIT = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "git",
 			Path: "cache/git",
 		},
-		&specs.Cache{
+		{
 			Name: "git_cache",
 			Path: "cache/git_cache",
 		},
 	}
 	CACHES_GO = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "go_cache",
 			Path: "cache/go_cache",
 		},
-		&specs.Cache{
+		{
 			Name: "gopath",
 			Path: "cache/gopath",
 		},
 	}
 	CACHES_WORKDIR = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "work",
 			Path: "cache/work",
 		},
 	}
 	CACHES_CCACHE = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "ccache",
 			Path: "cache/ccache",
 		},
@@ -109,7 +109,7 @@ var (
 	// not also use the normal "work" cache, to prevent issues like
 	// https://bugs.chromium.org/p/skia/issues/detail?id=9749.
 	CACHES_DOCKER = []*specs.Cache{
-		&specs.Cache{
+		{
 			Name: "docker",
 			Path: "cache/docker",
 		},
@@ -123,7 +123,7 @@ var (
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
 		// This package is really just an installer for XCode.
-		&specs.CipdPackage{
+		{
 			Name: "infra/tools/mac_toolchain/${platform}",
 			Path: "mac_toolchain",
 			// When this is updated, also update
@@ -612,6 +612,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"Pixel3a":         {"sargo", "QP1A.190711.020"},
 				"Pixel4":          {"flame", "RPB2.200611.009"}, // R Preview
 				"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
+				"Pixel5":          {"redfin", "RD1A.200810.022.A4"},
 				"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 			}[b.parts["model"]]
 			if !ok {
