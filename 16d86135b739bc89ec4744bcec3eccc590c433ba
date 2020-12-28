@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "322171a8_6133317c",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-28T21:42:04Z",
+      "side": 0,
+      "message": "This isn\u0027t needed to be done for this change.\n\nSo I believe this call is now only used in GrDataUtils::GrClearImage. And in there it doesn\u0027t really even do anything with the alphaType so it could probably get removed from there as well. Then we can delete that functions (and GrColorInfo::isValid). Since we now allow GrImageInfo\u0027s that have unknown alphaType seems weird to have an isValid call that returns false for them.\n\nAlternatively we can update isValid to not check the alphaType and just use it directly in the places you changed.",
+      "range": {
+        "startLine": 518,
+        "startChar": 17,
+        "endLine": 518,
+        "endChar": 24
+      },
+      "revId": "16d86135b739bc89ec4744bcec3eccc590c433ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
