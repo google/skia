@@ -30,7 +30,7 @@ import (
 const (
 	g3CanaryBucketName = "g3-compile-tasks"
 
-	InfraFailureErrorMsg    = "Your run failed due to unknown infrastructure failures. Ask the trooper to investigate (or directly ping rmistry@)."
+	InfraFailureErrorMsg    = "Your run failed due to unknown infrastructure failures. Ask the Infra Gardener to investigate (or directly ping rmistry@)."
 	MissingApprovalErrorMsg = "To run the G3 tryjob, changes must be either owned and authored by Googlers or approved (Code-Review+1) by Googlers."
 	MergeConflictErrorMsg   = "G3 tryjob failed because the change is causing a merge conflict when applying it to the Skia hash in G3."
 

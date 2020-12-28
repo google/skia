@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	canaryRollNotCreatedErr        = errors.New("Canary roll could not be created. Ask the trooper to investigate (or directly ping rmistry@) if this happens consistently.")
+	canaryRollNotCreatedErr        = errors.New("Canary roll could not be created. Ask the Infra Gardener to investigate (or directly ping rmistry@) if this happens consistently.")
 	canaryRollSuccessTooQuicklyErr = fmt.Errorf("Canary roll returned success in less than %s. Failing canary due to skbug.com/10563.", MinWaitDuration)
 
 	// Lets add the roll link only once to step data.
