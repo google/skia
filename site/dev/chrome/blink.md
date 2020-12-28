@@ -69,7 +69,7 @@ See https://chromium.googlesource.com/chromium/src/+log/master/DEPS and search f
    Then the auto rebaseline bot will take care of the work of actually checking in the
    new images. This is generally acceptable for up to 600 or so rebaselined images.
    Above that you might still use [ NeedsRebaseline ], but it's best to coordinate with
-   the gardener/sheriff. This should go through the CQ cleanly.
+   the gardener. This should go through the CQ cleanly.
 3. Be careful with tests that are already failing or flakey. These may or may not need
    to be rebaselined and flakey tests should not be removed from TestExpectations
    regardless. In such cases revert the TestExpectations changes before committing.

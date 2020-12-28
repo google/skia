@@ -35,7 +35,7 @@ navigation on [gold.skia.org](https://gold.skia.org/).
 View access is public, triage access is granted to
 Skia contributors.  You must be logged in to triage.
 
-Problem #1: As sheriff, I need to triage and “assign” many incoming new images.
+Problem #1: As Skia Gardener, I need to triage and “assign” many incoming new images.
 -------------------------------------------------------------------------------
 Solution today:
 
