@@ -11,7 +11,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
@@ -113,11 +112,12 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
     float gpuFragmentWork = bounds.height() * scales[0] * bounds.width() * scales[1];
     float cpuTessellationWork = (float)numVerbs * SkNextLog2(numVerbs);  // N log N.
     if (cpuTessellationWork * 500 + (256 * 256) < gpuFragmentWork) {  // Don't try below 256x256.
-        bool isLinear;
         // This will fail if the inner triangles do not form a simple polygon (e.g., self
         // intersection, double winding).
-        if (this->prePrepareInnerPolygonTriangulation(args, &isLinear)) {
-            if (!isLinear) {
+        GrTriangulator::Args triArgs(fPath, 0, SkRect::MakeEmpty(), args.fInnerTriangleAllocator,
+                                     GrTriangulator::Mode::kSimpleInnerPolygons);
+        if (this->prePrepareInnerPolygonTriangulation(args, &triArgs)) {
+            if (!triArgs.fIsLinear) {
                 // Always use indirect draws for cubics instead of tessellation here. Our goal in
                 // this mode is to maximize GPU performance, and the middle-out topology used by our
                 // indirect draws is easier on the rasterizer than a tessellated fan. There also
@@ -166,18 +166,12 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
 }
 
 bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArgs& args,
-                                                             bool* isLinear) {
+                                                             GrTriangulator::Args* triArgs) {
     SkASSERT(!fTriangleBuffer);
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
     SkASSERT(!fFillTrianglesProgram);
-
-    using GrTriangulator::Mode;
-
-    fTriangleVertexCount = GrTriangulator::PathToTriangles(fPath, 0, SkRect::MakeEmpty(),
-                                                           args.fInnerTriangleAllocator,
-                                                           Mode::kSimpleInnerPolygons,
-                                                           isLinear);
+    fTriangleVertexCount = GrTriangulator::PathToTriangles(triArgs);
     if (fTriangleVertexCount == 0) {
         // Mode::kSimpleInnerPolygons causes PathToTriangles to fail if the inner polygon(s) are not
         // simple.
@@ -191,7 +185,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
         // stencilled.
         this->prePrepareStencilTrianglesProgram(args);
     }
-    this->prePrepareFillTrianglesProgram(args, *isLinear);
+    this->prePrepareFillTrianglesProgram(args, triArgs->fIsLinear);
     return true;
 }
 

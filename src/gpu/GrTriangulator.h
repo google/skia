@@ -8,12 +8,12 @@
 #ifndef GrTriangulator_DEFINED
 #define GrTriangulator_DEFINED
 
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrColor.h"
 
 class GrEagerVertexAllocator;
-class SkPath;
 struct SkRect;
 
 /**
@@ -23,18 +23,6 @@ struct SkRect;
 #define TRIANGULATOR_WIREFRAME 0
 
 namespace GrTriangulator {
-
-struct WindingVertex {
-    SkPoint fPos;
-    int fWinding;
-};
-
-// Triangulates a path to an array of vertices. Each triangle is represented as a set of three
-// WindingVertex entries, each of which contains the position and winding count (which is the same
-// for all three vertices of a triangle). The 'verts' out parameter is set to point to the resultant
-// vertex array. CALLER IS RESPONSIBLE for deleting this buffer to avoid a memory leak!
-int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                   WindingVertex** verts);
 
 enum class Mode {
     kNormal,
@@ -51,12 +39,46 @@ enum class Mode {
     kSimpleInnerPolygons
 };
 
+// Encapsulates the list of inputs for triangulating a path. fIsLinear gets set by GrTriangulator
+// internals and is valid to read once triangulation is finished.
+struct Args {
+    Args(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+         GrEagerVertexAllocator* vertexAllocator, Mode mode)
+            : fPath(path)
+            , fTolerance(tolerance)
+            , fClipBounds(clipBounds)
+            , fVertexAllocator(vertexAllocator)
+            , fMode(mode) {
+    }
+    const SkPath fPath;
+    const float fTolerance;
+    const SkRect fClipBounds;
+    GrEagerVertexAllocator* const fVertexAllocator;
+    const Mode fMode;
+    bool fIsLinear;
+};
+
+struct WindingVertex {
+    SkPoint fPos;
+    int fWinding;
+};
+
+// *DEPRECATED*: Once CCPR is removed this method will go away.
+//   - Args.fVertexAllocator must be null.
+//   - Args.fMode must be kNormal.
+//
+// Triangulates a path to an array of vertices. Each triangle is represented as a set of three
+// WindingVertex entries, each of which contains the position and winding count (which is the same
+// for all three vertices of a triangle). The 'verts' out parameter is set to point to the resultant
+// vertex array. CALLER IS RESPONSIBLE for deleting this buffer to avoid a memory leak!
+int PathToVertices(Args*, WindingVertex**);
+
 constexpr size_t GetVertexStride(Mode mode) {
     return sizeof(SkPoint) + ((Mode::kEdgeAntialias == mode) ? sizeof(float) : 0);
 }
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    GrEagerVertexAllocator*, Mode, bool *isLinear);
+int PathToTriangles(Args*);
+
 }  // namespace GrTriangulator
 
 #endif
