@@ -34,6 +34,24 @@
       "parentUuid": "dce62297_248a2134",
       "revId": "c03736fcd41bc4ce6dd2e20a231ce11b74ef2a73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6386c428_d8170e72",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-28T16:21:38Z",
+      "side": 1,
+      "message": "Basically the same, except the cubic benchmarks with chops sped up on SSE due to better alignment and ordering of values:\n\n  tessellate_GrStrokeIndirectOpBench_loop: 2.52 -\u003e 2.36 ms (6.8%)\n  tessellate_GrStrokeIndirectOpBench_inflect1: 2.68 -\u003e 2.59 ms (3.4%)\n\nNEON is about the same either way.\n\nThe \"singlecubics\" and \"singlequads\" benchmarks aren\u0027t checked in yet, but the care with alignment was especially important for those ones.",
+      "parentUuid": "b53f1508_72adf569",
+      "revId": "c03736fcd41bc4ce6dd2e20a231ce11b74ef2a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
