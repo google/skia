@@ -76,8 +76,6 @@
         }
 
         var ctx = this.GetWebGLContext(canvas, attrs);
-        var openGLversion = canvas.GLctxObject.version;
-
         if (!ctx || ctx < 0) {
           throw 'failed to create webgl context: err ' + ctx;
         }
@@ -102,7 +100,7 @@
         }
         surface._context = ctx;
         surface.grContext = grcontext;
-        surface.openGLversion = openGLversion;
+        surface.openGLversion = canvas.GLctxObject.version;
         return surface;
       };
       // Default to trying WebGL first.
