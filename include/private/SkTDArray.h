@@ -33,8 +33,8 @@ public:
         fReserve = fCount = 0;
         fArray = nullptr;
         if (count) {
-            fArray = (T*)sk_malloc_throw(count * sizeof(T));
-            memcpy(fArray, src, sizeof(T) * count);
+            fArray = (T*)sk_malloc_throw(SkToSizeT(count) * sizeof(T));
+            memcpy(fArray, src, sizeof(T) * SkToSizeT(count));
             fReserve = fCount = count;
         }
     }
@@ -56,7 +56,7 @@ public:
                 SkTDArray<T> tmp(src.fArray, src.fCount);
                 this->swap(tmp);
             } else {
-                sk_careful_memcpy(fArray, src.fArray, sizeof(T) * src.fCount);
+                sk_careful_memcpy(fArray, src.fArray, sizeof(T) * SkToSizeT(src.fCount));
                 fCount = src.fCount;
             }
         }
@@ -73,7 +73,7 @@ public:
     friend bool operator==(const SkTDArray<T>& a, const SkTDArray<T>& b) {
         return  a.fCount == b.fCount &&
                 (a.fCount == 0 ||
-                 !memcmp(a.fArray, b.fArray, a.fCount * sizeof(T)));
+                 !memcmp(a.fArray, b.fArray, SkToSizeT(a.fCount) * sizeof(T)));
     }
     friend bool operator!=(const SkTDArray<T>& a, const SkTDArray<T>& b) {
         return !(a == b);
