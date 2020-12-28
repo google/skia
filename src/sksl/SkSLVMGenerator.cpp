@@ -1412,6 +1412,68 @@ skvm::Color ProgramToSkVM(const Program& program,
                                     : skvm::Color{};
 }
 
+bool ProgramToSkVM(const Program& program,
+                   const FunctionDefinition& function,
+                   skvm::Builder* b,
+                   SkVMSignature* outSignature) {
+    DebugfErrorReporter errors;
+    SkVMSignature ignored,
+                  *signature = outSignature ? outSignature : &ignored;
+
+    skvm::Arg uniforms = b->uniform();
+    (void)uniforms;
+
+    std::vector<skvm::Arg> argPtrs;
+    std::vector<skvm::Val> argVals;
+
+    for (const Variable* p : function.declaration().parameters()) {
+        size_t slots = slot_count(p->type());
+        signature->fParameterSlots += slots;
+        for (size_t i = 0; i < slots; ++i) {
+            argPtrs.push_back(b->varying<float>());
+            argVals.push_back(b->loadF(argPtrs.back()).id);
+        }
+    }
+
+    std::vector<skvm::Arg> returnPtrs;
+    std::vector<skvm::Val> returnVals;
+
+    signature->fReturnSlots = slot_count(function.declaration().returnType());
+    for (size_t i = 0; i < signature->fReturnSlots; ++i) {
+        returnPtrs.push_back(b->varying<float>());
+        returnVals.push_back(b->splat(0.0f).id);
+    }
+
+    skvm::Coord zeroCoord = {b->splat(0.0f), b->splat(0.0f)};
+    SkVMGenerator generator(program, function, b, /*uniforms=*/{}, argVals, /*device=*/zeroCoord,
+                            /*local=*/zeroCoord, /*sampleChild=*/{}, returnVals, &errors);
+
+    if (!generator.generateCode()) {
+        return false;
+    }
+
+    // generateCode has updated the contents of 'argVals' for any 'out' or 'inout' parameters.
+    // Propagate those changes back to our varying buffers:
+    size_t argIdx = 0;
+    for (const Variable* p : function.declaration().parameters()) {
+        size_t nslots = slot_count(p->type());
+        if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
+            for (size_t i = 0; i < nslots; ++i) {
+                b->storeF(argPtrs[argIdx + i], skvm::F32{b, argVals[argIdx + i]});
+            }
+        }
+        argIdx += nslots;
+    }
+
+    // It's also updated the contents of 'returnVals' with the return value of the entry point.
+    // Store that as well:
+    for (size_t i = 0; i < signature->fReturnSlots; ++i) {
+        b->storeF(returnPtrs[i], skvm::F32{b, returnVals[i]});
+    }
+
+    return true;
+}
+
 const FunctionDefinition* Program_GetFunction(const Program& program, const char* function) {
     for (const ProgramElement* e : program.elements()) {
         if (e->is<FunctionDefinition>() &&
