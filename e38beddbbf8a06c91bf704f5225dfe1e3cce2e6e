@@ -46,6 +46,30 @@
       },
       "revId": "e38beddbbf8a06c91bf704f5225dfe1e3cce2e6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5218bf93_f44331ae",
+        "filename": "src/gpu/dawn/GrDawnCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T18:24:53Z",
+      "side": 0,
+      "message": "Oops. RRRA is used by Dawn. restored.",
+      "parentUuid": "9569f35c_6ce0212f",
+      "range": {
+        "startLine": 52,
+        "startChar": 32,
+        "endLine": 52,
+        "endChar": 38
+      },
+      "revId": "e38beddbbf8a06c91bf704f5225dfe1e3cce2e6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
