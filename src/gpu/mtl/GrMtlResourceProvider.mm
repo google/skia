@@ -122,7 +122,8 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
 
     const GrMtlCaps& caps = fGpu->mtlCaps();
 
-    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
+    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo,
+                                       GrCaps::ProgramDescOverrideFlags::kNone);
     if (!desc.isValid()) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;

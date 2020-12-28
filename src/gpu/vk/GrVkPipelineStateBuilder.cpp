@@ -25,7 +25,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        bool overrideSubpassForResolveLoad) {
 
     gpu->stats()->incShaderCompilations();
 
@@ -40,7 +41,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(desc, compatibleRenderPass);
+    return builder.finalize(desc, compatibleRenderPass, overrideSubpassForResolveLoad);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -162,7 +163,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
-                                                      VkRenderPass compatibleRenderPass) {
+                                                      VkRenderPass compatibleRenderPass,
+                                                      bool overrideSubpassForResolveLoad) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
@@ -319,9 +321,20 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
         }
     }
 
+    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
+    // However, if we need to load a resolve into msaa attachment for discardable msaa then the
+    // main subpass will be 1.
+    uint32_t subpass = 0;
+    if (overrideSubpassForResolveLoad ||
+        (fProgramInfo.colorLoadOp() == GrLoadOp::kLoad &&
+         fProgramInfo.targetSupportsVkResolveLoad() &&
+         fGpu->vkCaps().preferDiscardableMSAAAttachment())) {
+        subpass = 1;
+    }
+
     GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
                                                              numShaderStages, compatibleRenderPass,
-                                                             pipelineLayout);
+                                                             pipelineLayout, subpass);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
