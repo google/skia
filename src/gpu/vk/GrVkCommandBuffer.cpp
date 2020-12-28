@@ -497,6 +497,15 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
     fActiveRenderPass = nullptr;
 }
 
+
+void GrVkPrimaryCommandBuffer::nexSubpass(GrVkGpu* gpu, bool forSecondaryCB) {
+    SkASSERT(fIsActive);
+    SkASSERT(fActiveRenderPass);
+    VkSubpassContents contents = forSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+                                                : VK_SUBPASS_CONTENTS_INLINE;
+    GR_VK_CALL(gpu->vkInterface(), CmdNextSubpass(fCmdBuffer, contents));
+}
+
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
                                                std::unique_ptr<GrVkSecondaryCommandBuffer> buffer) {
     // The Vulkan spec allows secondary command buffers to be executed on a primary command buffer
