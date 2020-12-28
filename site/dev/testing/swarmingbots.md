@@ -24,7 +24,7 @@ Skia's Swarming bots are hosted in three places:
 Connecting to Swarming Bots
 ---------------------------
 
-If you need to make changes on a bot/device, please check with the Trooper or another Infra team member. Most
+If you need to make changes on a bot/device, please check with the Infra Gardener or another Infra team member. Most
 bots/devices can be flashed/imaged back to a clean state, but others can not.
 
 - Machine name like “skia-e-gce-NNN”, “skia-ct-gce-NNN”, “skia-i-gce-NNN”, “ct-gce-NNN”, “ct-xxx-builder-NNN” -> GCE
@@ -57,10 +57,10 @@ run tryjobs (after adding debugging output to the relevant code). In some cases 
 [create or modify tryjobs](automated_testing#adding-new-jobs).
 
 For Googlers: If you need more control (e.g. to run GDB) and need to run directly on a swarming bot then you can use [leasing.skia.org](https://leasing.skia.org).<br/>
-If that does not work then the [current trooper][current trooper] can help you bring the device back to your desk and connect
+If that does not work then the [current infra gardener][current infra gardener] can help you bring the device back to your desk and connect
 it to GoogleGuest Wifi or the [Google Test Network](http://go/gtn-criteria).
 
-If you need to make changes on a bot/device, please check with the Trooper or another Infra team member. Most
+If you need to make changes on a bot/device, please check with the Infra Gardener or another Infra team member. Most
 bots/devices can be flashed/imaged back to a clean state, but others can not.
 
 If a permanent change needs to be made on the machine (such as an OS or driver update), please [file
@@ -69,7 +69,7 @@ a bug][infra bug] and assign to jcgregorio for reassignment.
 For your convenience, the machine skolo-builder is available for checking out and compiling code within the Skolo. See
 more info in the [Skolo maintenance doc][remote access] remote access section.
 
-[current trooper]: http://tree-status.skia.org/trooper
+[current infra gardener]: https://rotations.corp.google.com/rotation/4617277386260480
 [remote access]:
     https://docs.google.com/document/d/1zTR1YtrIFBo-fRWgbUgvJNVJ-s_4_sNjTrHIoX2vulo/edit#heading=h.v77cmwbwc5la
 [infra bug]: https://bugs.chromium.org/p/skia/issues/entry?template=Infrastructure+Bug
