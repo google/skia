@@ -16,6 +16,29 @@
       "message": "... is it this easy (can clean up to remove the alias later).",
       "revId": "7d2e3863c79292eaf87bb4aa79c27885087fa43b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fb987bd_c82e1933",
+        "filename": "src/gpu/GrSamplerState.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-28T17:41:02Z",
+      "side": 1,
+      "message": "My only worry here is that these are supposed be tightly related to the modes allowed by sampler objects in 3D APIs (i.e. not to algorithms that require multiple samples + shader math). If we feel confident that the public values are set in stone then this seems fine. I don\u0027t want to wind up where only a subset of the possible values are valid in this class.\n\nAlso, \"using\" rather than \"typedef\"?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "7d2e3863c79292eaf87bb4aa79c27885087fa43b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
