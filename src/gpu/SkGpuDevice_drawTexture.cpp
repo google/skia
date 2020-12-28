@@ -323,7 +323,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
  */
 static bool can_use_draw_texture(const SkPaint& paint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality);
+            !paint.getImageFilter() && SkPaintPriv::GetFQ(paint) < kMedium_SkFilterQuality);
 }
 
 static SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType srcColorType,
@@ -342,6 +342,7 @@ static void draw_texture(GrSurfaceDrawContext* rtc,
                          const GrClip* clip,
                          const SkMatrix& ctm,
                          const SkPaint& paint,
+                         GrSamplerState::Filter filter,
                          const SkRect& srcRect,
                          const SkRect& dstRect,
                          const SkPoint dstClip[4],
@@ -357,18 +358,6 @@ static void draw_texture(GrSurfaceDrawContext* rtc,
     auto textureXform =
         GrColorSpaceXform::Make(srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
                                 dstInfo.colorSpace(), kPremul_SkAlphaType);
-    GrSamplerState::Filter filter;
-    switch (paint.getFilterQuality()) {
-        case kNone_SkFilterQuality:
-            filter = GrSamplerState::Filter::kNearest;
-            break;
-        case kLow_SkFilterQuality:
-            filter = GrSamplerState::Filter::kLinear;
-            break;
-        case kMedium_SkFilterQuality:
-        case kHigh_SkFilterQuality:
-            SK_ABORT("Quality level not allowed.");
-    }
     GrSurfaceProxy* proxy = view.proxy();
     // Must specify the strict constraint when the proxy is not functionally exact and the src
     // rect would access pixels outside the proxy's content area without the constraint.
@@ -450,8 +439,21 @@ static void draw_texture_producer(GrRecordingContext* context,
             return;
         }
 
-        draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     std::move(view), producer->colorInfo());
+        draw_texture(rtc,
+                     clip,
+                     ctm,
+                     paint,
+                     sampler.filter(),
+                     src,
+                     dst,
+                     dstClip,
+                     aa,
+                     aaFlags,
+                     constraint,
+                     std::move(view),
+                     {producer->colorType(),
+                      producer->alphaType(),
+                      sk_ref_sp(producer->colorSpace())});
         return;
     }
 
