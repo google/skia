@@ -126,6 +126,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5427a69f_88e99687",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T19:48:41Z",
+      "side": 1,
+      "message": "Note: then it \"becomes\" SkSamplingOptions (if we mapped the enums) :)",
+      "parentUuid": "21fd4876_87a2d7ab",
+      "range": {
+        "startLine": 462,
+        "startChar": 11,
+        "endLine": 462,
+        "endChar": 27
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c6163037_cd3c837e",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 7
@@ -137,6 +161,30 @@
       "writtenOn": "2020-12-28T17:30:22Z",
       "side": 1,
       "message": "We drop kNearest MipmapMode input here?",
+      "range": {
+        "startLine": 491,
+        "startChar": 7,
+        "endLine": 491,
+        "endChar": 32
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c961cd15_8c688390",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T19:48:41Z",
+      "side": 1,
+      "message": "? see line 510",
+      "parentUuid": "c6163037_cd3c837e",
       "range": {
         "startLine": 491,
         "startChar": 7,
@@ -183,6 +231,30 @@
       "writtenOn": "2020-12-28T17:30:22Z",
       "side": 1,
       "message": "I don\u0027t think we want this now that our input has separately specified within and across level filtring.",
+      "range": {
+        "startLine": 506,
+        "startChar": 0,
+        "endLine": 506,
+        "endChar": 36
+      },
+      "revId": "67880697fc02b74a414dd36a3e7a9bc4ed2b73f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b83ab2c9_0946f530",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-28T19:48:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af5f690d_f744562e",
       "range": {
         "startLine": 506,
         "startChar": 0,
