@@ -109,7 +109,11 @@ enum DrawType {
     MARK_CTM,
     SET_M44,
 
-    LAST_DRAWTYPE_ENUM = SET_M44,
+    DRAW_IMAGE2,
+    DRAW_IMAGE_RECT2,
+    DRAW_IMAGE_LATTICE2,
+
+    LAST_DRAWTYPE_ENUM = DRAW_IMAGE_LATTICE2,
 };
 
 enum DrawVertexFlags {
@@ -120,8 +124,9 @@ enum DrawVertexFlags {
 };
 
 enum DrawAtlasFlags {
-    DRAW_ATLAS_HAS_COLORS   = 1 << 0,
-    DRAW_ATLAS_HAS_CULL     = 1 << 1,
+    DRAW_ATLAS_HAS_COLORS     = 1 << 0,
+    DRAW_ATLAS_HAS_CULL       = 1 << 1,
+    DRAW_ATLAS_HAS_SAMPLING   = 1 << 2,
 };
 
 enum DrawTextRSXformFlags {
