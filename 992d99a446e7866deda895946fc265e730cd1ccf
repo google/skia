@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b14a7455_1c5a248c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T18:31:42Z",
+      "side": 1,
+      "message": "I like the approach. Even if it means writing multiple copies of some polyfills, it\u0027s worth it to centralize some of this stuff. I think certain backends benefit more than others, in terms of how difficult it is to emit the correct code for missing intrinsics within the generator. !/$ ranking:\n\nSPIR-V \u003e\u003e Metal \u003e SkVM ?",
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9182a968_bfc9e24d",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T18:31:42Z",
+      "side": 1,
+      "message": "... use a native intrinsic instead?",
+      "range": {
+        "startLine": 850,
+        "startChar": 33,
+        "endLine": 850,
+        "endChar": 41
+      },
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef299c27_7a574165",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T18:31:42Z",
+      "side": 1,
+      "message": "Maybe put this into Modifiers (or declaration/definition?) itself so all backends can avoid the chatty test, as something like:\n\nbool excludePolyfill(flag f) { return fFlags \u0026 kPolyFill \u0026\u0026 (!fFlags \u0026 f); }\n\nWith an SkASSERT(f \u0026 kPolyfill)?",
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "330458d3_f343a339",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T18:31:42Z",
+      "side": 1,
+      "message": "These could be declared using $vec and $hvec, right?",
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
