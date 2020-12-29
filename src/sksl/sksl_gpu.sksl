@@ -130,8 +130,8 @@ float length($genType x);
 half length($genHType x);
 float distance($genType p0, $genType p1);
 half distance($genHType p0, $genHType p1);
-float dot($genType x, $genType y);
-half dot($genHType x, $genHType y);
+float dot($vec x, $vec y);
+half dot($hvec x, $hvec y);
 float3 cross(float3 x, float3 y);
 half3 cross(half3 x, half3 y);
 $genType normalize($genType x);
@@ -279,6 +279,12 @@ $polyfill_metal float faceforward(float N, float I, float Nref) {
 }
 $polyfill_metal half faceforward(half N, half I, half Nref) {
     return ((Nref * I) < 0) ? N : -N;
+}
+$polyfill_metal float dot(float a, float b) {
+    return a * b;
+}
+$polyfill_metal half dot(half a, half b) {
+    return a * b;
 }
 
 // Definitions of functions implementing all of the SkBlendMode blends.

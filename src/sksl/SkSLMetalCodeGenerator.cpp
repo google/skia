@@ -47,7 +47,6 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("uintBitsToFloat")]    = SPECIAL(Bitcast);
     fIntrinsicMap[String("degrees")]            = SPECIAL(Degrees);
     fIntrinsicMap[String("distance")]           = SPECIAL(Distance);
-    fIntrinsicMap[String("dot")]                = SPECIAL(Dot);
     fIntrinsicMap[String("bitCount")]           = SPECIAL(BitCount);
     fIntrinsicMap[String("findLSB")]            = SPECIAL(FindLSB);
     fIntrinsicMap[String("findMSB")]            = SPECIAL(FindMSB);
@@ -604,22 +603,6 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
                 this->write(")");
             } else {
                 this->write("distance(");
-                this->writeExpression(*arguments[0], kSequence_Precedence);
-                this->write(", ");
-                this->writeExpression(*arguments[1], kSequence_Precedence);
-                this->write(")");
-            }
-            break;
-        }
-        case kDot_SpecialIntrinsic: {
-            if (arguments[0]->type().columns() == 1) {
-                this->write("(");
-                this->writeExpression(*arguments[0], kMultiplicative_Precedence);
-                this->write(" * ");
-                this->writeExpression(*arguments[1], kMultiplicative_Precedence);
-                this->write(")");
-            } else {
-                this->write("dot(");
                 this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write(", ");
                 this->writeExpression(*arguments[1], kSequence_Precedence);
