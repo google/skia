@@ -93,9 +93,19 @@ public:
     }
 
     /**
-     * Determine the effective types of this function's parameters and return value when called with
-     * the given arguments. This is relevant for functions with generic parameter types, where this
-     * will collapse the generic types down into specific concrete types.
+     * Returns true if this function is a polyfill, but is NOT a polyfill used by the passed-in
+     * backend. (e.g. it's a Metal-only polyfill, and backend is not kPolyfillMetal_Flag)
+     */
+    bool shouldPrunePolyfillFunction(int keepFlag) const {
+        SkASSERT(!(keepFlag & ~Modifiers::kPolyfill_Flag));
+        int flags = this->modifiers().fFlags;
+        return (flags & Modifiers::kPolyfill_Flag) && !(flags & keepFlag);
+    }
+
+    /**
+     * Determines the effective types of this function's parameters and return value when called
+     * with the given arguments. This is relevant for functions with generic parameter types, where
+     * this will collapse the generic types down into specific concrete types.
      *
      * Returns true if it was able to select a concrete set of types for the generic function, false
      * if there is no possible way this can match the argument types. Note that even a true return
