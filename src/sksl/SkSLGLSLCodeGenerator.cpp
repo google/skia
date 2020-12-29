@@ -1066,6 +1066,12 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
 }
 
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    // If this is a polyfill for a different backend, don't emit it.
+    if (f.declaration().modifiers().fFlags & Modifiers::kPolyfill_Flag &&
+        !(f.declaration().modifiers().fFlags & Modifiers::kPolyfillGlsl_Flag)) {
+        return;
+    }
+
     fSetupFragPositionLocal = false;
     fSetupFragCoordWorkaround = false;
 
