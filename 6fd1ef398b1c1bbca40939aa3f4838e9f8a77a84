@@ -50,6 +50,29 @@
       "message": "SkDebugf, because we\u0027re not in a unit test (so no reporter available). Could be an actual assert - though many other GMs tend to fail with this pattern.",
       "revId": "6fd1ef398b1c1bbca40939aa3f4838e9f8a77a84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc2c7bc6_5956b6b1",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T17:24:46Z",
+      "side": 1,
+      "message": "Any reason we don\u0027t have the various plot_ functions call col() on our behalf? AFAICS there\u0027s never any case where we don\u0027t want to advance the column. When we call row() it\u0027s unnecessary, but it\u0027s also harmless.",
+      "range": {
+        "startLine": 373,
+        "startChar": 47,
+        "endLine": 373,
+        "endChar": 59
+      },
+      "revId": "6fd1ef398b1c1bbca40939aa3f4838e9f8a77a84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
