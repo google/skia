@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49672a76_66e85410",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T17:25:03Z",
+      "side": 1,
+      "message": "Alternative to static-casts.\n\nIf we went with this, could make a lot more syntactic cleanups, but would be harder to undo later if we did.\n\nJust wanted to see it again, to compare with https://skia-review.googlesource.com/c/skia/+/348181",
+      "revId": "a4ffdb5e1e6258bb98fdfacb982bb1c1765a77d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
