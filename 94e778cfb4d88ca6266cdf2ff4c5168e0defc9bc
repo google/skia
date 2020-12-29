@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83b0a3ca_20eb1988",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T17:26:27Z",
+      "side": 1,
+      "message": "Reviewers: I think this has calmed down enum to review. I have spliced out the BitmapDevice changes to a separate CL, but I think the rest needs to be done as a unit. ptal.",
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
