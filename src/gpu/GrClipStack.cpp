@@ -1594,7 +1594,7 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
                                     const Element** elements, int count,
                                     std::unique_ptr<GrFragmentProcessor> clipFP) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    GrSurfaceProxyView maskView;
+    GrSurfaceProxyView maskProxy;
 
     SkIRect maskBounds; // may not be 'bounds' if we reuse a large clip mask
     // Check the existing masks from this save record for compatibility
@@ -1603,31 +1603,31 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
             break;
         }
         if (m.appliesToDraw(current, bounds)) {
-            maskView = proxyProvider->findCachedProxyWithColorTypeFallback(
-                    m.key(), kMaskOrigin, GrColorType::kAlpha_8, 1).makeSwizzle(GrSwizzle("aaaa"));
-            if (maskView) {
+            maskProxy = proxyProvider->findCachedProxyWithColorTypeFallback(
+                    m.key(), kMaskOrigin, GrColorType::kAlpha_8, 1);
+            if (maskProxy) {
                 maskBounds = m.bounds();
                 break;
             }
         }
     }
 
-    if (!maskView) {
+    if (!maskProxy) {
         // No existing mask was found, so need to render a new one
-        maskView = render_sw_mask(context, bounds, elements, count).makeSwizzle(GrSwizzle("aaaa"));
-        if (!maskView) {
+        maskProxy = render_sw_mask(context, bounds, elements, count);
+        if (!maskProxy) {
             // If we still don't have one, there's nothing we can do
             return GrFPFailure(std::move(clipFP));
         }
 
         // Register the mask for later invalidation
         Mask& mask = masks->emplace_back(current, bounds);
-        proxyProvider->assignUniqueKeyToProxy(mask.key(), maskView.asTextureProxy());
+        proxyProvider->assignUniqueKeyToProxy(mask.key(), maskProxy.asTextureProxy());
         maskBounds = bounds;
     }
 
     // Wrap the mask in an FP that samples it for coverage
-    SkASSERT(maskView && maskView.origin() == kMaskOrigin);
+    SkASSERT(maskProxy && maskProxy.origin() == kMaskOrigin);
 
     GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                 GrSamplerState::Filter::kNearest);
@@ -1639,8 +1639,8 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
     // We scissor to bounds. The mask's texel centers are aligned to device space
     // pixel centers. Hence this domain of texture coordinates.
     auto domain = subset.makeInset(0.5, 0.5);
-    auto fp = GrTextureEffect::MakeSubset(std::move(maskView), kPremul_SkAlphaType, m, samplerState,
-                                          subset, domain, *context->priv().caps());
+    auto fp = GrTextureEffect::MakeSubset(std::move(maskProxy), kPremul_SkAlphaType, m,
+                                          samplerState, subset, domain, *context->priv().caps());
     fp = GrDeviceSpaceEffect::Make(std::move(fp));
 
     // Must combine the coverage sampled from the texture effect with the previous coverage
