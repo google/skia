@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1ca0725_c58443f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T16:44:09Z",
+      "side": 1,
+      "message": "The inverse() CL is going to take some time to land, so I reversed the order and rebased the matrixCompMult tests against ToT. This is a separate CL, so I addressed some of the comments from the original...",
+      "revId": "6fd1ef398b1c1bbca40939aa3f4838e9f8a77a84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "689fdbc1_81c6af76",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T16:44:09Z",
+      "side": 1,
+      "message": "Tagged \u0027inline\u0027 because these are called twice (lines 301 and 302). Once the VM backend handles function calls, this won\u0027t be necessary.",
+      "revId": "6fd1ef398b1c1bbca40939aa3f4838e9f8a77a84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "989e952a_6ee79289",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T16:44:09Z",
+      "side": 1,
+      "message": "SkDebugf, because we\u0027re not in a unit test (so no reporter available). Could be an actual assert - though many other GMs tend to fail with this pattern.",
+      "revId": "6fd1ef398b1c1bbca40939aa3f4838e9f8a77a84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
