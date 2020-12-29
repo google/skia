@@ -46,6 +46,30 @@
       },
       "revId": "ffe5d545f009a67c528213aeafc5878b2f86d0f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2385305_294fc7d7",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T17:47:13Z",
+      "side": 1,
+      "message": "Oh definitely cleaner. But this basically assumes they\u0027re aliases with none of the safety (e.g. if we reorder either or extend the public one we get no warning).",
+      "parentUuid": "5581ca2d_3ab5688f",
+      "range": {
+        "startLine": 488,
+        "startChar": 19,
+        "endLine": 488,
+        "endChar": 55
+      },
+      "revId": "ffe5d545f009a67c528213aeafc5878b2f86d0f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
