@@ -49,6 +49,7 @@ struct Token {
         TK_BUFFER,
         TK_INLINE,
         TK_HASSIDEEFFECTS,
+        TK_POLYFILL,
         TK_PLS,
         TK_PLSIN,
         TK_PLSOUT,

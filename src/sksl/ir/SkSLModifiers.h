@@ -38,6 +38,7 @@ struct Modifiers {
         kPLSOut_Flag         = 1 << 15,
         kVarying_Flag        = 1 << 16,
         kInline_Flag         = 1 << 17,
+        kPolyfill_Flag       = 1 << 18,
     };
 
     Modifiers()
@@ -82,6 +83,9 @@ struct Modifiers {
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
+        }
+        if (fFlags & kPolyfill_Flag) {
+            result += "sk_polyfill ";
         }
         if (fFlags & kPLS_Flag) {
             result += "__pixel_localEXT ";

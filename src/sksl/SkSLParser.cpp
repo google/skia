@@ -1086,6 +1086,10 @@ Modifiers Parser::modifiers() {
                 this->nextToken();
                 flags |= Modifiers::kHasSideEffects_Flag;
                 break;
+            case Token::Kind::TK_POLYFILL:
+                this->nextToken();
+                flags |= Modifiers::kPolyfill_Flag;
+                break;
             case Token::Kind::TK_PLS:
                 this->nextToken();
                 flags |= Modifiers::kPLS_Flag;
