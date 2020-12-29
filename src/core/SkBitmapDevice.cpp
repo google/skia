@@ -398,7 +398,8 @@ void SkBitmapDevice::drawPath(const SkPath& path,
 }
 
 void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
-                                const SkRect* dstOrNull, const SkPaint& paint) {
+                                const SkRect* dstOrNull, const SkSamplingOptions& sampling,
+                                const SkPaint& paint) {
     const SkRect* bounds = dstOrNull;
     SkRect storage;
     if (!bounds && SkDrawTiler::NeedsTiling(this)) {
@@ -409,7 +410,6 @@ void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
             bounds = &storage;
         }
     }
-    SkSamplingOptions sampling(paint.getFilterQuality());   // TODO, pass this in directly
     LOOP_TILER(drawBitmap(bitmap, matrix, dstOrNull, sampling, paint), bounds)
 }
 
@@ -516,7 +516,7 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         if (CanApplyDstMatrixAsCTM(matrix, paint)) {
-            this->drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
+            this->drawBitmap(*bitmapPtr, matrix, dstPtr, sampling, paint);
             return;
         }
     }
@@ -529,10 +529,8 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
     // if its mutable, since that precaution is not needed (give the short lifetime of the shader).
 
     // construct a shader, so we can call drawRect with the dst
-    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp,
-                                        SkTileMode::kClamp,
-                                        SkSamplingOptions(paint.getFilterQuality()), &matrix,
-                                        kNever_SkCopyPixelsMode);
+    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp, SkTileMode::kClamp,
+                                        sampling, &matrix, kNever_SkCopyPixelsMode);
     if (!s) {
         return;
     }
