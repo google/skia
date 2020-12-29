@@ -38,7 +38,14 @@ struct Modifiers {
         kPLSOut_Flag         = 1 << 15,
         kVarying_Flag        = 1 << 16,
         kInline_Flag         = 1 << 17,
+        kPolyfillMetal_Flag  = 1 << 18,
+        kPolyfillSkvm_Flag   = 1 << 19,
+        kPolyfillSpirv_Flag  = 1 << 20,
     };
+
+    static constexpr int kPolyfill_Flag = kPolyfillMetal_Flag |
+                                          kPolyfillSkvm_Flag |
+                                          kPolyfillSpirv_Flag;
 
     Modifiers()
     : fLayout(Layout())
@@ -82,6 +89,15 @@ struct Modifiers {
         }
         if (fFlags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
+        }
+        if (fFlags & kPolyfillMetal_Flag) {
+            result += "$polyfill_metal ";
+        }
+        if (fFlags & kPolyfillSkvm_Flag) {
+            result += "$polyfill_skvm ";
+        }
+        if (fFlags & kPolyfillSpirv_Flag) {
+            result += "$polyfill_spirv ";
         }
         if (fFlags & kPLS_Flag) {
             result += "__pixel_localEXT ";
