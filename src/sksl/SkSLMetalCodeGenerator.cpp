@@ -108,7 +108,7 @@ String MetalCodeGenerator::typeName(const Type& type) {
             return this->typeName(type.componentType()) + to_string(type.columns()) + "x" +
                                   to_string(type.rows());
         case Type::TypeKind::kSampler:
-            return "texture2d<float>"; // FIXME - support other texture types;
+            return "texture2d<float>"; // FIXME - support other texture types
         case Type::TypeKind::kEnum:
             return "int";
         default:
@@ -1171,13 +1171,14 @@ MetalCodeGenerator::Precedence MetalCodeGenerator::GetBinaryPrecedence(Token::Ki
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
-    String key = "TimesEqual" + left.name() + right.name();
+    String key = "TimesEqual" + this->typeName(left) + this->typeName(right);
     if (fHelpers.find(key) == fHelpers.end()) {
-        fExtraFunctions.printf("%s operator*=(thread %s& left, thread const %s& right) {\n"
+        fExtraFunctions.printf("thread %s& operator*=(thread %s& left, thread const %s& right) {\n"
                                "    left = left * right;\n"
                                "    return left;\n"
-                               "}", String(result.name()).c_str(), String(left.name()).c_str(),
-                                    String(right.name()).c_str());
+                               "}\n",
+                               this->typeName(result).c_str(), this->typeName(left).c_str(),
+                               this->typeName(right).c_str());
     }
 }
 
