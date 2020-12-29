@@ -1066,6 +1066,11 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
 }
 
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    // GLSL doesn't need polyfills.
+    if (f.declaration().modifiers().fFlags & Modifiers::kPolyfill_Flag) {
+        return;
+    }
+
     fSetupFragPositionLocal = false;
     fSetupFragCoordWorkaround = false;
 

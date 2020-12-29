@@ -3173,16 +3173,14 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
     std::set<SpvId> interfaceVars;
+
     // assign IDs to functions
     for (const ProgramElement* e : program.elements()) {
-        switch (e->kind()) {
-            case ProgramElement::Kind::kFunction: {
-                const FunctionDefinition& f = e->as<FunctionDefinition>();
+        if (e->is<FunctionDefinition>()) {
+            const FunctionDefinition& f = e->as<FunctionDefinition>();
+            if (!f.declaration().shouldExcludePolyfillFunction(Modifiers::kPolyfillSpirv_Flag)) {
                 fFunctionMap[&f.declaration()] = this->nextId();
-                break;
             }
-            default:
-                break;
         }
     }
     for (const ProgramElement* e : program.elements()) {
@@ -3208,7 +3206,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const ProgramElement* e : program.elements()) {
         if (e->is<FunctionDefinition>()) {
-            this->writeFunction(e->as<FunctionDefinition>(), body);
+            const FunctionDefinition& f = e->as<FunctionDefinition>();
+            if (!f.declaration().shouldExcludePolyfillFunction(Modifiers::kPolyfillSpirv_Flag)) {
+                this->writeFunction(f, body);
+            }
         }
     }
     const FunctionDeclaration* main = nullptr;
