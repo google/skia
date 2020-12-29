@@ -33,6 +33,23 @@
       "message": "So looking more at how other suffixes are added, it seems like the generator automatically adds the suffix for things like EXT, OES, NV, etc. Is that something we should also be doing for APPLE? I\u0027m not entirely sure myself if all APPLE extensions have an APPLE suffix on their functions or not.",
       "revId": "7e333f0dbf4d76f37ced1dcdf863c7671e07bc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83f2fa65_728710ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-29T22:14:13Z",
+      "side": 1,
+      "message": "So looking more at how other suffixes are added, it seems like the generator automatically adds the suffix for things like EXT, OES, NV, etc. Is that something we should also be doing for APPLE? I\u0027m not entirely sure myself if all APPLE extensions have an APPLE suffix on their functions or not.",
+      "revId": "7e333f0dbf4d76f37ced1dcdf863c7671e07bc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
