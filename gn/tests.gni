@@ -215,6 +215,7 @@ tests_sources = [
   "$_tests/RTreeTest.cpp",
   "$_tests/RandomTest.cpp",
   "$_tests/ReadPixelsTest.cpp",
+  "$_tests/ReadWritePixelsGpuTest.cpp",
   "$_tests/RecordDrawTest.cpp",
   "$_tests/RecordOptsTest.cpp",
   "$_tests/RecordPatternTest.cpp",
