@@ -876,7 +876,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
     String name;
     name.appendf("float%dx%d_from", columns, rows);
     for (const std::unique_ptr<Expression>& expr : args) {
-        name.appendf("_%s", expr->type().displayName().c_str());
+        name.appendf("_%s", this->typeName(expr->type()).c_str());
     }
 
     // If a helper-method has already been synthesized, we don't need to synthesize it again.
@@ -894,7 +894,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
     const char* argSeparator = "";
     for (const std::unique_ptr<Expression>& expr : args) {
         fExtraFunctions.printf("%s%s x%zu", argSeparator,
-                               expr->type().displayName().c_str(), argIndex++);
+                               this->typeName(expr->type()).c_str(), argIndex++);
         argSeparator = ", ";
     }
 
