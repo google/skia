@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55ae5a1a_5b80a091",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-12-29T01:06:54Z",
+      "side": 1,
+      "message": "I guess there is a merge conflict,because of https://skia-review.googlesource.com/c/skia/+/347861\nMaybe it would be easier to fix the issue, instead of reverting a chain.",
+      "revId": "4141d660a6956efd6c912ba16537c6f3d5b961fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
