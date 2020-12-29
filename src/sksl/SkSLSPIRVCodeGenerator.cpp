@@ -2630,6 +2630,12 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
 }
 
 SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStream& out) {
+    // If this is a polyfill for a different backend, don't emit it.
+    if (f.declaration().modifiers().fFlags & Modifiers::kPolyfill_Flag &&
+        !(f.declaration().modifiers().fFlags & Modifiers::kPolyfillSpirv_Flag)) {
+        return -1;
+    }
+
     fVariableBuffer.reset();
     SpvId result = this->writeFunctionStart(f.declaration(), out);
     fCurrentBlock = 0;
