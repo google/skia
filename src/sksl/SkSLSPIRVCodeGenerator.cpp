@@ -3169,16 +3169,24 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
                            invocations, out);
 }
 
+static bool is_polyfill_for_non_spirv_backend(const FunctionDeclaration& funcDecl) {
+    return funcDecl.modifiers().fFlags & Modifiers::kPolyfill_Flag &&
+           !(funcDecl.modifiers().fFlags & Modifiers::kPolyfillSpirv_Flag);
+}
+
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
     std::set<SpvId> interfaceVars;
+
     // assign IDs to functions
     for (const ProgramElement* e : program.elements()) {
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
                 const FunctionDefinition& f = e->as<FunctionDefinition>();
-                fFunctionMap[&f.declaration()] = this->nextId();
+                if (!is_polyfill_for_non_spirv_backend(f.declaration())) {
+                    fFunctionMap[&f.declaration()] = this->nextId();
+                }
                 break;
             }
             default:
@@ -3208,7 +3216,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const ProgramElement* e : program.elements()) {
         if (e->is<FunctionDefinition>()) {
-            this->writeFunction(e->as<FunctionDefinition>(), body);
+            const FunctionDefinition& f = e->as<FunctionDefinition>();
+            if (!is_polyfill_for_non_spirv_backend(f.declaration())) {
+                this->writeFunction(f, body);
+            }
         }
     }
     const FunctionDeclaration* main = nullptr;

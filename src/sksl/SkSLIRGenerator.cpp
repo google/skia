@@ -860,6 +860,10 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kRestrict_Flag,       "restrict")
     CHECK(Modifiers::kBuffer_Flag,         "buffer")
     CHECK(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects")
+    CHECK(Modifiers::kPolyfillGlsl_Flag,   "$polyfill_glsl")
+    CHECK(Modifiers::kPolyfillMetal_Flag,  "$polyfill_metal")
+    CHECK(Modifiers::kPolyfillSkvm_Flag,   "$polyfill_skvm")
+    CHECK(Modifiers::kPolyfillSpirv_Flag,  "$polyfill_spirv")
     CHECK(Modifiers::kPLS_Flag,            "__pixel_localEXT")
     CHECK(Modifiers::kPLSIn_Flag,          "__pixel_local_inEXT")
     CHECK(Modifiers::kPLSOut_Flag,         "__pixel_local_outEXT")
@@ -897,7 +901,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
     this->checkModifiers(f.fOffset, funcData.fModifiers, Modifiers::kHasSideEffects_Flag |
-                                                         Modifiers::kInline_Flag);
+                                                         Modifiers::kInline_Flag |
+                                                         Modifiers::kPolyfill_Flag);
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
