@@ -16,6 +16,24 @@
       "message": "I was also going to point out that Matrices.asm.frag being detected as identical to both float and half seemed like a bug - but then I saw that it\u0027s got a SPIR-V validation error and no instructions at all?",
       "revId": "9adc9355c6cd99bc8526f4bb273fa4e6386698fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b02db860_5b3a3a33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T17:09:39Z",
+      "side": 1,
+      "message": "Yes, the test is broken in SPIR-V. (And our GLSL output doesn\u0027t have precision modifiers being emitted)",
+      "parentUuid": "82ee3cda_0e3fdb7b",
+      "revId": "9adc9355c6cd99bc8526f4bb273fa4e6386698fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
