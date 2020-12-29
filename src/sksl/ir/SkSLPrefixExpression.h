@@ -85,7 +85,7 @@ public:
         return Compiler::OperatorName(this->getOperator()) + this->operand()->description();
     }
 
-    int64_t getConstantInt() const override {
+    SKSL_INT getConstantInt() const override {
         SkASSERT(this->isNegationOfCompileTimeConstant());
         return -this->operand()->getConstantInt();
     }

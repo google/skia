@@ -122,7 +122,7 @@ public:
      * For an expression which evaluates to a constant int, returns the value. Otherwise calls
      * ABORT.
      */
-    virtual int64_t getConstantInt() const {
+    virtual SKSL_INT getConstantInt() const {
         ABORT("not a constant int");
     }
 

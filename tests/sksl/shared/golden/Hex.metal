@@ -15,7 +15,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     i2++;
     int i3 = 2147483647;
     i3++;
-    int i4 = -1;
+    int i4 = 4294967295;
     i4++;
     int i5 = -48879;
     i5++;
@@ -27,7 +27,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     u3++;
     uint u4 = 4294967295u;
     u4++;
-    ushort u5 = 65535;
+    ushort u5 = 65535u;
     u5++;
     return *_out;
 }

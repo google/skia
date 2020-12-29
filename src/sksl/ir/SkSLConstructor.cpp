@@ -14,7 +14,7 @@ std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& ir
     if (this->arguments().size() == 1 && this->arguments()[0]->is<IntLiteral>()) {
         const Context& context = irGenerator.fContext;
         const Type& type = this->type();
-        int64_t intValue = this->arguments()[0]->as<IntLiteral>().value();
+        SKSL_INT intValue = this->arguments()[0]->as<IntLiteral>().value();
 
         if (type.isFloat()) {
             // promote float(1) to 1.0
@@ -195,7 +195,7 @@ SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
     ABORT("can't happen, matrix component out of bounds");
 }
 
-int64_t Constructor::getConstantInt() const {
+SKSL_INT Constructor::getConstantInt() const {
     // We're looking for scalar integer constructors only, i.e. `int(1)`.
     SkASSERT(this->arguments().size() == 1);
     SkASSERT(this->type().columns() == 1);
@@ -204,7 +204,7 @@ int64_t Constructor::getConstantInt() const {
     // The inner argument might actually be a float! `int(1.0)` is a valid cast.
     const Expression& expr = *this->arguments().front();
     SkASSERT(expr.type().isScalar());
-    return expr.type().isInteger() ? expr.getConstantInt() : (int64_t)expr.getConstantFloat();
+    return expr.type().isInteger() ? expr.getConstantInt() : (SKSL_INT)expr.getConstantFloat();
 }
 
 SKSL_FLOAT Constructor::getConstantFloat() const {

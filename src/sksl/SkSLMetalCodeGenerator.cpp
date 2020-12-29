@@ -1279,10 +1279,15 @@ void MetalCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    if (i.type() == *fContext.fUInt_Type) {
+    const Type& type = i.type();
+    if (type == *fContext.fUInt_Type) {
         this->write(to_string(i.value() & 0xffffffff) + "u");
+    } else if (type == *fContext.fUShort_Type) {
+        this->write(to_string(i.value() & 0xffff) + "u");
+    } else if (type == *fContext.fUByte_Type) {
+        this->write(to_string(i.value() & 0xff) + "u");
     } else {
-        this->write(to_string((int32_t) i.value()));
+        this->write(to_string(i.value()));
     }
 }
 

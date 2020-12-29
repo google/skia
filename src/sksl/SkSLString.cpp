@@ -249,8 +249,6 @@ bool stoi(const StringFragment& s, SKSL_INT* value) {
     char* p;
     errno = 0;
     unsigned long long result = strtoull(s.begin(), &p, /*base=*/0);
-    // TODO(skia:10932): SKSL_INT is still a signed 32-bit int. Values above 0x7FFFFFFF can be
-    // interpreted incorrectly depending on the types involved.
     *value = static_cast<SKSL_INT>(result);
     return p == s.end() && errno == 0 && result <= 0xFFFFFFFF;
 }
