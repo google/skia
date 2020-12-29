@@ -158,9 +158,19 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(MemoryBarrier);
     }
 
-    GET_PROC(BindVertexArray);
-    GET_PROC(DeleteVertexArrays);
-    GET_PROC(GenVertexArrays);
+    if (glVer >= GR_GL_VER(3,0)) {
+        GET_PROC(BindVertexArray);
+        GET_PROC(DeleteVertexArrays);
+        GET_PROC(GenVertexArrays);
+    } else if (extensions.has("GL_ARB_vertex_array_object")) {
+        GET_PROC(BindVertexArray);
+        GET_PROC(DeleteVertexArrays);
+        GET_PROC(GenVertexArrays);
+    } else if (extensions.has("GL_APPLE_vertex_array_object")) {
+        GET_PROC_SUFFIX(BindVertexArray, APPLE);
+        GET_PROC_SUFFIX(DeleteVertexArrays, APPLE);
+        GET_PROC_SUFFIX(GenVertexArrays, APPLE);
+    }
 
     if (glVer >= GR_GL_VER(4,0)) {
         GET_PROC(PatchParameteri);
