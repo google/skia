@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3dc6750_93866506",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T22:13:39Z",
+      "side": 1,
+      "message": "I think you\u0027ll need to add the pipeline-stage exclusion, and an exclusion check to SkSLVMGenerator.cpp, too. (And ByteCodeGenerator, I guess?) That should cover all existing backends, so we don\u0027t leak polyfills into backends that don\u0027t need/expect them.",
+      "revId": "10d7f673483e4cc4fa2cd1e26f089c9a74d1ee65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dc7aaee_2904ddf2",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T22:13:39Z",
+      "side": 1,
+      "message": "Does this need to be reference? Seems non-idiomatic.",
+      "range": {
+        "startLine": 102,
+        "startChar": 17,
+        "endLine": 102,
+        "endChar": 18
+      },
+      "revId": "10d7f673483e4cc4fa2cd1e26f089c9a74d1ee65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
