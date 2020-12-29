@@ -8,6 +8,7 @@
 #ifndef GrSamplerState_DEFINED
 #define GrSamplerState_DEFINED
 
+#include "include/core/SkSamplingOptions.h"
 #include "include/gpu/GrTypes.h"
 #include <limits>
 
@@ -111,6 +112,15 @@ public:
                                             * (static_cast<int>(WrapMode::kLast  ) + 1)
                                             * (static_cast<int>(Filter::kLast    ) + 1)
                                             * (static_cast<int>(MipmapMode::kLast) + 1);
+
+    static GrSamplerState::Filter FromSk(SkFilterMode fm) {
+        return static_cast<Filter>(fm);
+    }
+
+    static GrSamplerState::MipmapMode FromSk(SkMipmapMode mm) {
+        return static_cast<MipmapMode>(mm);
+    }
+
 private:
     WrapMode fWrapModes[2] = {WrapMode::kClamp, WrapMode::kClamp};
     Filter fFilter = GrSamplerState::Filter::kNearest;
@@ -119,5 +129,13 @@ private:
 
 static_assert(GrSamplerState::kNumUniqueSamplers <=
               std::numeric_limits<decltype(GrSamplerState{}.asIndex())>::max());
+
+// Ensure that FromSk() conversions are safe
+static_assert((int)GrSamplerState::Filter::kNearest == (int)SkFilterMode::kNearest);
+static_assert((int)GrSamplerState::Filter::kLinear  == (int)SkFilterMode::kLinear);
+
+static_assert((int)GrSamplerState::MipmapMode::kNone    == (int)SkMipmapMode::kNone);
+static_assert((int)GrSamplerState::MipmapMode::kNearest == (int)SkMipmapMode::kNearest);
+static_assert((int)GrSamplerState::MipmapMode::kLinear  == (int)SkMipmapMode::kLinear);
 
 #endif
