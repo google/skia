@@ -557,13 +557,13 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
 
 void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                                const SkRect tex[], const SkColor colors[], int count,
-                               SkBlendMode mode, const SkPaint& paint) {
+                               SkBlendMode mode, SkFilterMode filter, const SkPaint& paint) {
     // set this to true for performance comparisons with the old drawVertices way
     if (false) {
-        this->INHERITED::drawAtlas(atlas, xform, tex, colors, count, mode, paint);
+        this->INHERITED::drawAtlas(atlas, xform, tex, colors, count, mode, filter, paint);
         return;
     }
-    BDDraw(this).drawAtlas(atlas, xform, tex, colors, count, mode, paint);
+    BDDraw(this).drawAtlas(atlas, xform, tex, colors, count, mode, filter, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

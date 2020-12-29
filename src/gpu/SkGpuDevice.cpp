@@ -941,11 +941,10 @@ void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: pass samplingoptions explicitly
 void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
-                            SkBlendMode mode, const SkPaint& paint) {
-    SkSamplingOptions sampling(paint.getFilterQuality(), SkSamplingOptions::kMedium_asMipmapLinear);
+                            SkBlendMode mode, SkFilterMode filter, const SkPaint& paint) {
+    SkSamplingOptions sampling(filter, SkMipmapMode::kNone);
 
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
