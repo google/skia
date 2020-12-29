@@ -36,7 +36,9 @@ constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPo
 constexpr static int kMaxAtlasPathHeight = 128;
 
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
-    return caps.drawInstancedSupport() && caps.shaderCaps()->vertexIDSupport();
+    return caps.drawInstancedSupport() &&
+           caps.shaderCaps()->vertexIDSupport() &&
+           !caps.disableTessellationPathRenderer();
 }
 
 GrTessellationPathRenderer::GrTessellationPathRenderer(GrRecordingContext* rContext)
@@ -313,7 +315,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 
     // Check if the path is too large for an atlas. Since we use "minDimension" for height in the
     // atlas, limiting to kMaxAtlasPathHeight^2 pixels guarantees height <= kMaxAtlasPathHeight.
-    if (maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
+    if ((uint64_t)maxDimenstion * minDimension > kMaxAtlasPathHeight * kMaxAtlasPathHeight ||
         maxDimenstion > fMaxAtlasPathWidth) {
         return false;
     }
