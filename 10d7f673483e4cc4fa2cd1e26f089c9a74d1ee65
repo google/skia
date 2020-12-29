@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a56054ea_89cfcb2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T23:21:56Z",
+      "side": 1,
+      "message": "Done, except SkSLVMGenerator. AFAICS the VM generator ignores all FunctionDefinitions except main(), so the presence of additional functions should be irrelevant.",
+      "parentUuid": "a3dc6750_93866506",
+      "revId": "10d7f673483e4cc4fa2cd1e26f089c9a74d1ee65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2dc7aaee_2904ddf2",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-12-29T22:13:39Z",
       "side": 1,
       "message": "Does this need to be reference? Seems non-idiomatic.",
+      "range": {
+        "startLine": 102,
+        "startChar": 17,
+        "endLine": 102,
+        "endChar": 18
+      },
+      "revId": "10d7f673483e4cc4fa2cd1e26f089c9a74d1ee65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd921371_42478caf",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T23:21:56Z",
+      "side": 1,
+      "message": "Rewritten, doesn\u0027t exist at all anymore.",
+      "parentUuid": "2dc7aaee_2904ddf2",
       "range": {
         "startLine": 102,
         "startChar": 17,
