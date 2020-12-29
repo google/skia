@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "af189fe0_6698524e",
+        "filename": "gm/image_shader.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T19:16:09Z",
+      "side": 1,
+      "message": "Left over from testing. Will remove.",
+      "parentUuid": "b3edec68_8ed41ede",
+      "range": {
+        "startLine": 184,
+        "startChar": 4,
+        "endLine": 184,
+        "endChar": 89
+      },
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3c41907b_39a940b8",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 25
@@ -54,6 +78,30 @@
       "writtenOn": "2020-12-29T18:23:45Z",
       "side": 1,
       "message": "Is this just to avoid changing anything? I guess we can just keep punting on resolving this discrepancy until FQ goes away.",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 92
+      },
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5aa1060f_35ea4828",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T19:16:09Z",
+      "side": 1,
+      "message": "Zackly -- wanted to preserve old behavior exactly. Once clients are off the enum, the entire mention of FQ as a sampling constructor arg will go away.",
+      "parentUuid": "3c41907b_39a940b8",
       "range": {
         "startLine": 71,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05c2526c_5cff0681",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T19:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dd5f1b8_86a6575e",
+      "range": {
+        "startLine": 442,
+        "startChar": 44,
+        "endLine": 442,
+        "endChar": 46
+      },
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1db6060b_49de36b7",
@@ -110,6 +182,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf047daf_127495cd",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T19:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1db6060b_49de36b7",
+      "range": {
+        "startLine": 474,
+        "startChar": 0,
+        "endLine": 474,
+        "endChar": 79
+      },
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d5426ca_03fa6162",
@@ -123,6 +219,30 @@
       "writtenOn": "2020-12-29T18:23:45Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 587,
+        "startChar": 31,
+        "endLine": 587,
+        "endChar": 65
+      },
+      "revId": "94e778cfb4d88ca6266cdf2ff4c5168e0defc9bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "059e9d74_0894fea4",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T19:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d5426ca_03fa6162",
       "range": {
         "startLine": 587,
         "startChar": 31,
