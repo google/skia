@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d186be8c_459da4fe",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T15:39:41Z",
+      "side": 1,
+      "message": "I don\u0027t know if it matters, but these could be constexpr?",
+      "range": {
+        "startLine": 475,
+        "startChar": 7,
+        "endLine": 475,
+        "endChar": 12
+      },
+      "revId": "62cd9dbad5003cefcbaed04628b0b1e372e89379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c8a92af_efc49408",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T15:39:41Z",
+      "side": 1,
+      "message": "tiny nit: extra space",
+      "range": {
+        "startLine": 476,
+        "startChar": 25,
+        "endLine": 476,
+        "endChar": 27
+      },
+      "revId": "62cd9dbad5003cefcbaed04628b0b1e372e89379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1e337e4_e1a83d44",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T15:39:41Z",
+      "side": 1,
+      "message": "tiny nit: extra space",
+      "range": {
+        "startLine": 482,
+        "startChar": 25,
+        "endLine": 482,
+        "endChar": 26
+      },
+      "revId": "62cd9dbad5003cefcbaed04628b0b1e372e89379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbc18ea4_209779a8",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T15:39:41Z",
+      "side": 1,
+      "message": "tiny nit: extra space",
+      "range": {
+        "startLine": 497,
+        "startChar": 9,
+        "endLine": 497,
+        "endChar": 10
+      },
+      "revId": "62cd9dbad5003cefcbaed04628b0b1e372e89379",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
