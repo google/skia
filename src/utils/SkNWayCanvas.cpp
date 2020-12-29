@@ -241,6 +241,7 @@ void SkNWayCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 void SkNWayCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                const SkPaint* paint) {
     Iter iter(fList);
@@ -262,6 +263,51 @@ void SkNWayCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     Iter iter(fList);
     while (iter.next()) {
         iter->drawImageLattice(image, lattice, dst, paint);
+    }
+}
+void SkNWayCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect tex[],
+                               const SkColor colors[], int count, SkBlendMode bmode,
+                               const SkRect* cull, const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawAtlas(image, xform, tex, colors, count, bmode, cull, paint);
+    }
+}
+#endif
+
+void SkNWayCanvas::onDrawImage2(const SkImage* image, SkScalar left, SkScalar top,
+                                const SkSamplingOptions& sampling, const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawImage(image, left, top, sampling, paint);
+    }
+}
+
+void SkNWayCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const SkRect& dst,
+                                    const SkSamplingOptions& sampling, const SkPaint* paint,
+                                    SrcRectConstraint constraint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawImageRect(image, src, dst, sampling, paint, constraint);
+    }
+}
+
+void SkNWayCanvas::onDrawImageLattice2(const SkImage* image, const Lattice& lattice,
+                                       const SkRect& dst, SkFilterMode filter,
+                                       const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawImageLattice(image, lattice, dst, filter, paint);
+    }
+}
+
+void SkNWayCanvas::onDrawAtlas2(const SkImage* image, const SkRSXform xform[], const SkRect tex[],
+                                const SkColor colors[], int count, SkBlendMode bmode,
+                                const SkSamplingOptions& sampling, const SkRect* cull,
+                                const SkPaint* paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawAtlas(image, xform, tex, colors, count, bmode, sampling, cull, paint);
     }
 }
 
@@ -302,15 +348,6 @@ void SkNWayCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPatch(cubics, colors, texCoords, bmode, paint);
-    }
-}
-
-void SkNWayCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect tex[],
-                               const SkColor colors[], int count, SkBlendMode bmode,
-                               const SkRect* cull, const SkPaint* paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawAtlas(image, xform, tex, colors, count, bmode, cull, paint);
     }
 }
 
