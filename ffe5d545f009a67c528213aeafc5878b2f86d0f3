@@ -22,6 +22,30 @@
       },
       "revId": "ffe5d545f009a67c528213aeafc5878b2f86d0f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5581ca2d_3ab5688f",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-12-29T16:41:15Z",
+      "side": 1,
+      "message": "I can do the alias, or I can easily write explicit mapping functions -- Not trying to force the alias-issue, just thought this rewrite was a lot clearer than the prev.",
+      "parentUuid": "dfdbdc3e_23b07908",
+      "range": {
+        "startLine": 488,
+        "startChar": 19,
+        "endLine": 488,
+        "endChar": 55
+      },
+      "revId": "ffe5d545f009a67c528213aeafc5878b2f86d0f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
