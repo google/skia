@@ -14,8 +14,7 @@ struct Globals {
 };
 
 template <int C, int R>
-matrix<float, C, R> matrixCompMult(thread const matrix<float, C, R>& a,
-                                   thread const matrix<float, C, R>& b) {
+matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b) {
     matrix<float, C, R> result;
     for (int c = 0; c < C; ++c) {
         result[c] = a[c] * b[c];
