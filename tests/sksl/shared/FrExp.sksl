@@ -1,9 +1,0 @@
-void main() {
-    int exp1;
-    float a = frexp(0.5, exp1);
-    sk_FragColor = half4(exp1);
-
-    int3 exp3;
-    sk_FragColor.rgb = frexp(half3(3.5), exp3);
-}
-
