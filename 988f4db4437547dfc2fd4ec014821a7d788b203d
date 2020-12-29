@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c40c224c_161f414e",
+        "filename": "tests/sksl/shared/golden/FrExp.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T17:07:41Z",
+      "side": 0,
+      "message": "Accidental delete?",
+      "revId": "988f4db4437547dfc2fd4ec014821a7d788b203d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

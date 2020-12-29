@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82ee3cda_0e3fdb7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T17:07:41Z",
+      "side": 1,
+      "message": "I was also going to point out that Matrices.asm.frag being detected as identical to both float and half seemed like a bug - but then I saw that it\u0027s got a SPIR-V validation error and no instructions at all?",
+      "revId": "9adc9355c6cd99bc8526f4bb273fa4e6386698fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
