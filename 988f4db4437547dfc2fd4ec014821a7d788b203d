@@ -34,6 +34,24 @@
       "parentUuid": "c40c224c_161f414e",
       "revId": "988f4db4437547dfc2fd4ec014821a7d788b203d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98b19ab4_f1a6db78",
+        "filename": "tests/sksl/shared/golden/FrExp.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T17:13:28Z",
+      "side": 0,
+      "message": "Hmm, I still have a FrExp.sksl in shared (as well as the copy in intrinsics), too.",
+      "parentUuid": "1e604c0b_ba2e4884",
+      "revId": "988f4db4437547dfc2fd4ec014821a7d788b203d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
