@@ -136,8 +136,8 @@ float3 cross(float3 x, float3 y);
 half3 cross(half3 x, half3 y);
 $genType normalize($genType x);
 $genHType normalize($genHType x);
-$genType faceforward($genType N, $genType I, $genType Nref);
-$genHType faceforward($genHType N, $genHType I, $genHType Nref);
+$vec faceforward($vec N, $vec I, $vec Nref);
+$hvec faceforward($hvec N, $hvec I, $hvec Nref);
 $genType reflect($genType I, $genType N);
 $genHType reflect($genHType I, $genHType N);
 $genType refract($genType I, $genType N, float eta);
@@ -273,6 +273,14 @@ float2 interpolateAtOffset(float2 interpolant, float2 offset);
 float3 interpolateAtOffset(float3 interpolant, float2 offset);
 float4 interpolateAtOffset(float4 interpolant, float2 offset);
 
+// Intrinsics that need to be polyfilled in Metal.
+$polyfill_metal float faceforward(float N, float I, float Nref) {
+    return ((Nref * I) < 0) ? N : -N;
+}
+$polyfill_metal half faceforward(half N, half I, half Nref) {
+    return ((Nref * I) < 0) ? N : -N;
+}
+
 // Definitions of functions implementing all of the SkBlendMode blends.
 
 half4 blend_clear(half4 src, half4 dst) { return half4(0); }
@@ -299,7 +307,7 @@ half4 blend_dst_out(half4 src, half4 dst) { return (1 - src.a)*dst; }
 
 half4 blend_src_atop(half4 src, half4 dst) { return dst.a*src + (1 - src.a)*dst; }
 
-half4 blend_dst_atop(half4 src, half4 dst)  { return  (1 - dst.a) * src + src.a*dst; }
+half4 blend_dst_atop(half4 src, half4 dst) { return (1 - dst.a) * src + src.a*dst; }
 
 half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.a)*dst; }
 
