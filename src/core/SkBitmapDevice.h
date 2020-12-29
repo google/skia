@@ -133,7 +133,7 @@ protected:
     SkIRect onDevClipBounds() const override;
 
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
-                    const SkPaint&);
+                    const SkSamplingOptions&, const SkPaint&);
 
 private:
     friend class SkCanvas;
