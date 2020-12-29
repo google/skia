@@ -1,0 +1,25 @@
+void main() {
+    half2x4 x = half2x4(1);
+    half3x2 y = half3x2(1, 0, 0, 1, half2(2, 2));
+    half3x4 z = x * y;
+    half3 v1 = half3x3(1) * half3(2);
+    half3 v2 = half3(2) * half3x3(1);
+    sk_FragColor = half4(half(z[0].x), half3(v1 + v2));
+
+    half2x2 m1 = half2x2(half4(1, 2, 3, 4));
+    half2x2 m2 = half2x2(half4(0));
+    half2x2 m3 = half2x2(m1);
+    half2x2 m4 = half2x2(1);
+    m3 *= m4;
+    half2x2 m5 = half2x2(m1[0][0]);
+    half2x2 m6 = half2x2(1, 2, 3, 4);
+    m6 += m5;
+    half2x2 m7 = half2x2(5, half3(6, 7, 8));
+    half3x2 m8 = half3x2(half2(1, 2), 3, half3(4, 5, 6));
+    half3x3 m9 = half3x3(1);
+    half4x4 m10 = half4x4(1);
+    half4x4 m11 = half4x4(2);
+    m11 -= m10;
+    sk_FragColor = half4(half(m1[0][0] + m2[0][0] + m3[0][0] + m4[0][0] + m5[0][0] +
+                              m6[0][0] + m7[0][0] + m8[0][0] + m9[0][0] + m10[0][0] + m11[0][0]));
+}
