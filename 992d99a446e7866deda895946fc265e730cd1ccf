@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ff87551_4a6365e9",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T21:08:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9182a968_bfc9e24d",
+      "range": {
+        "startLine": 850,
+        "startChar": 33,
+        "endLine": 850,
+        "endChar": 41
+      },
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ef299c27_7a574165",
@@ -58,6 +82,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "870c8ec6_a83282bb",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3172,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T21:08:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef299c27_7a574165",
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "330458d3_f343a339",
@@ -71,6 +113,24 @@
       "writtenOn": "2020-12-29T18:31:42Z",
       "side": 1,
       "message": "These could be declared using $vec and $hvec, right?",
+      "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bac668b4_f4b73e1a",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T21:08:57Z",
+      "side": 1,
+      "message": "/facepalm, yes of course :) \nDone",
+      "parentUuid": "330458d3_f343a339",
       "revId": "992d99a446e7866deda895946fc265e730cd1ccf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
