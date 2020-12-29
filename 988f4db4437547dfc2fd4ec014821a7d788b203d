@@ -52,6 +52,24 @@
       "parentUuid": "1e604c0b_ba2e4884",
       "revId": "988f4db4437547dfc2fd4ec014821a7d788b203d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a88317f5_08da83aa",
+        "filename": "tests/sksl/shared/golden/FrExp.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T17:23:10Z",
+      "side": 0,
+      "message": "Looks like the test source files weren\u0027t actually deleted when they were migrated to intrinsics/. PTAL http://review.skia.org/348183",
+      "parentUuid": "98b19ab4_f1a6db78",
+      "revId": "988f4db4437547dfc2fd4ec014821a7d788b203d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
