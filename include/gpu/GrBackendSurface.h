@@ -283,7 +283,7 @@ public:
     bool hasMipmaps() const { return fMipmapped == GrMipmapped::kYes; }
     /** deprecated alias of hasMipmaps(). */
     bool hasMipMaps() const { return this->hasMipmaps(); }
-    GrBackendApi backend() const {return fBackend; }
+    GrBackendApi backend() const { return fBackend; }
 
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
     // pointer and returns true. Otherwise returns false if the backend API is not GL.
