@@ -97,7 +97,7 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
-                   SkBlendMode, const SkPaint&) override;
+                   SkBlendMode, const SkSamplingOptions&, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
 
