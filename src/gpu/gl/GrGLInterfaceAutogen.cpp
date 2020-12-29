@@ -205,7 +205,10 @@ bool GrGLInterface::validate() const {
         // all functions were marked optional or test_only
     }
 
-    if (GR_IS_GR_GL(fStandard) ||
+    if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(3,0)) ||
+          fExtensions.has("GL_ARB_vertex_array_object") ||
+          fExtensions.has("GL_APPLE_vertex_array_object"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
           fExtensions.has("GL_OES_vertex_array_object"))) ||

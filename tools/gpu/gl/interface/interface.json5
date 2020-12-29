@@ -79,7 +79,9 @@
   },
 
   {
-    "GL":    [{"ext": "<core>"}],
+    "GL":    [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_vertex_array_object"},
+              {/*    else if      */  "ext": "GL_APPLE_vertex_array_object"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_OES_vertex_array_object"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"},
