@@ -46,6 +46,30 @@
       },
       "revId": "fee82132a96528ef870c4c2cc964be4893cc2be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "957884a5_9b515699",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T21:26:46Z",
+      "side": 1,
+      "message": "OK, hmm. We assume `thread` address space for the inputs on `writeMatrixTimesEqualHelper` ... is that code broken?",
+      "parentUuid": "3ac638b5_3df9c9cf",
+      "range": {
+        "startLine": 562,
+        "startChar": 35,
+        "endLine": 562,
+        "endChar": 54
+      },
+      "revId": "fee82132a96528ef870c4c2cc964be4893cc2be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
