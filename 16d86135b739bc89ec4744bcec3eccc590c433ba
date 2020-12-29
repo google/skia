@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91901ebf_377c2657",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2020-12-29T00:51:19Z",
+      "side": 1,
+      "message": "This CL may have broken android roll:\nhttps://android-build.googleplex.com/builds/tests/view?invocationId\u003dI61500006977266851\u0026redirect\u003dhttp%3A%2F%2Fsponge2%2F104587e0-6f5e-40da-b4e0-ff4dbb07e92d\u0026testResultId\u003dTR14316230405114054\nThere is a android.uirendering.cts.testclasses.PathClippingTests#testCircleWithCircle test failing.\n",
+      "revId": "16d86135b739bc89ec4744bcec3eccc590c433ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
