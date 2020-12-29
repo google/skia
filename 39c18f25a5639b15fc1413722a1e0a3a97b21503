@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb52d050_502602d9",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T21:03:48Z",
+      "side": 1,
+      "message": "Consider labeling.",
+      "range": {
+        "startLine": 383,
+        "startChar": 43,
+        "endLine": 383,
+        "endChar": 57
+      },
+      "revId": "39c18f25a5639b15fc1413722a1e0a3a97b21503",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
