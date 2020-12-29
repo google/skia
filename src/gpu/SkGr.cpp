@@ -485,29 +485,23 @@ GrInterpretSamplingOptions(SkISize imageDims,
         }
     }
 
-    Filter f = sampling.filter == SkFilterMode::kNearest ? Filter::kNearest
-                                                         : Filter::kLinear;
-    MipmapMode m = MipmapMode::kNone;
-    if (sampling.mipmap != SkMipmapMode::kNone) {
-        m = MipmapMode::kLinear;
-        if (allowFilterQualityReduction) {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, localM);
-            // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
-            // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
-            // 0.5?
-            //
-            // Want:  0       = log2(1/s) - 0.5
-            //        0.5     = log2(1/s)
-            //        2^0.5   = 1/s
-            //        1/2^0.5 = s
-            //        2^0.5/2 = s
-            SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
-            if (matrix.getMinScale() >= mipScale) {
-                m = MipmapMode::kNone;
-            }
-        } else if (sampling.mipmap == SkMipmapMode::kNearest) {
-            m = MipmapMode::kNearest;
+    Filter     f = static_cast<Filter>(sampling.filter);
+    MipmapMode m = static_cast<MipmapMode>(sampling.mipmap);
+    if (allowFilterQualityReduction && (sampling.mipmap != SkMipmapMode::kNone)) {
+        SkMatrix matrix;
+        matrix.setConcat(viewM, localM);
+        // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
+        // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+        // 0.5?
+        //
+        // Want:  0       = log2(1/s) - 0.5
+        //        0.5     = log2(1/s)
+        //        2^0.5   = 1/s
+        //        1/2^0.5 = s
+        //        2^0.5/2 = s
+        SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+        if (matrix.getMinScale() >= mipScale) {
+            m = MipmapMode::kNone;
         }
     }
     return {f, m, kInvalidCubicResampler};
