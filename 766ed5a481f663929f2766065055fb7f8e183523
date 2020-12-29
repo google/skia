@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4f4e2f6_63cb94a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-12-29T22:18:40Z",
+      "side": 1,
+      "message": "Okay turns out my thinking was right and the feature is already there for APPLE! Removed the explicit suffix and things still work",
+      "revId": "766ed5a481f663929f2766065055fb7f8e183523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
