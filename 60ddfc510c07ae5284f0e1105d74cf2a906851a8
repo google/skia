@@ -68,6 +68,30 @@
       },
       "revId": "60ddfc510c07ae5284f0e1105d74cf2a906851a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69313b11_4e612d96",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T14:42:11Z",
+      "side": 1,
+      "message": "Ah, \"3.2 Matrix Operators\" doesn\u0027t mention division at all. Not a thing in Metal, huh?",
+      "parentUuid": "3ff11a14_f39e670c",
+      "range": {
+        "startLine": 548,
+        "startChar": 79,
+        "endLine": 548,
+        "endChar": 89
+      },
+      "revId": "60ddfc510c07ae5284f0e1105d74cf2a906851a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
