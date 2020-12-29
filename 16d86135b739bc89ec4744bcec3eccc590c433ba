@@ -22,6 +22,30 @@
       },
       "revId": "16d86135b739bc89ec4744bcec3eccc590c433ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa29f70a_45af7fbb",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T14:50:54Z",
+      "side": 0,
+      "message": "Yeah I was thinking about getting rid of isValid() on grcolorinfo/grimageinfo, renaming, or changing the implementation in a separate change. Also, was planning to make GrClearImage either become GrClearPixmap, or more likely just a member function of pixmap and in either case work with unknown alpha type.",
+      "parentUuid": "322171a8_6133317c",
+      "range": {
+        "startLine": 518,
+        "startChar": 17,
+        "endLine": 518,
+        "endChar": 24
+      },
+      "revId": "16d86135b739bc89ec4744bcec3eccc590c433ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

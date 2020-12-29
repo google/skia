@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e8f6b58_08de1d81",
+        "filename": "src/gpu/GrPixmap.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T14:50:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d141c352_45f2625b",
+      "range": {
+        "startLine": 47,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 12
+      },
+      "revId": "c2421eb74579232dc1f46970775cdb5ba3d485e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1851d23e_62df0225",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-28T21:42:04Z",
       "side": 1,
       "message": "nit: are",
+      "range": {
+        "startLine": 185,
+        "startChar": 65,
+        "endLine": 185,
+        "endChar": 69
+      },
+      "revId": "c2421eb74579232dc1f46970775cdb5ba3d485e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5895ab54_7621384e",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T14:50:54Z",
+      "side": 1,
+      "message": "Removed this comment, redundant with comment in helper function.",
+      "parentUuid": "1851d23e_62df0225",
       "range": {
         "startLine": 185,
         "startChar": 65,
