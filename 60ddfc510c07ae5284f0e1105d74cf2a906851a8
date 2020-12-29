@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ac228b7_9f2ec937",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T14:39:19Z",
+      "side": 1,
+      "message": "FYI (no action needed): these are only called once, `inline` is implied",
+      "range": {
+        "startLine": 281,
+        "startChar": 13,
+        "endLine": 281,
+        "endChar": 19
+      },
+      "revId": "60ddfc510c07ae5284f0e1105d74cf2a906851a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d17d9bc_0e4e0d5e",
+        "filename": "gm/runtimeintrinsics.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T14:39:19Z",
+      "side": 1,
+      "message": "Not REPORTER_ASSERT?",
+      "range": {
+        "startLine": 325,
+        "startChar": 12,
+        "endLine": 325,
+        "endChar": 20
+      },
+      "revId": "60ddfc510c07ae5284f0e1105d74cf2a906851a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ff11a14_f39e670c",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-12-29T14:39:19Z",
+      "side": 1,
+      "message": "Why change this?\n\nAlso, optional: since we\u0027re here anyway and the output is gross, could you please change this to a R\"(...)\" string so we can get newlines?",
+      "range": {
+        "startLine": 548,
+        "startChar": 79,
+        "endLine": 548,
+        "endChar": 89
+      },
+      "revId": "60ddfc510c07ae5284f0e1105d74cf2a906851a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
