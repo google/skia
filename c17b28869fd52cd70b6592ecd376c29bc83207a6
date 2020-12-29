@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006986017",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/347958?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "113bcaf3_367a3eef",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-29T19:53:02Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 561,
+        "startChar": 23,
+        "endLine": 561,
+        "endChar": 24
+      },
+      "revId": "c17b28869fd52cd70b6592ecd376c29bc83207a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000006986017",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/347958?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "a1dd79ad_46f79cae",
+        "filename": "tests/sksl/intrinsics/golden/MatrixCompMult.metal",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-12-29T19:53:02Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 16,
+        "startChar": 23,
+        "endLine": 16,
+        "endChar": 24
+      },
+      "revId": "c17b28869fd52cd70b6592ecd376c29bc83207a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
