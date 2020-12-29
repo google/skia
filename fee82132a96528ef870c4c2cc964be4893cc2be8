@@ -22,6 +22,30 @@
       },
       "revId": "fee82132a96528ef870c4c2cc964be4893cc2be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ac638b5_3df9c9cf",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-29T21:18:09Z",
+      "side": 1,
+      "message": "This was me trying to fix the bot failures from PS4 - anything passed by pointer/ref needs an address space qualifier, and I wasn\u0027t sure we knew what the correct one would be, given that we don\u0027t know what\u0027s being passed to these?",
+      "parentUuid": "8d226f49_969c09ff",
+      "range": {
+        "startLine": 562,
+        "startChar": 35,
+        "endLine": 562,
+        "endChar": 54
+      },
+      "revId": "fee82132a96528ef870c4c2cc964be4893cc2be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
