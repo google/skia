@@ -25,9 +25,9 @@ class Literal<SKSL_INT> final : public Expression {
 public:
     static constexpr Kind kExpressionKind = Kind::kIntLiteral;
 
-    // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
-    // 64-bit integers, but for right now an int64_t will hold every value we care about
-    Literal(const Context& context, int offset, int64_t value)
+    // We will need to revisit this if we want full support for unsigned 64-bit integers,
+    // but for now an SKSL_INT (int64_t) will hold every value we care about.
+    Literal(const Context& context, int offset, SKSL_INT value)
         : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
         , fValue(value) {}
 
@@ -35,7 +35,7 @@ public:
         : INHERITED(offset, kExpressionKind, type)
         , fValue(value) {}
 
-    int64_t value() const {
+    SKSL_INT value() const {
         return fValue;
     }
 
@@ -68,7 +68,7 @@ public:
         return INHERITED::coercionCost(target);
     }
 
-    int64_t getConstantInt() const override {
+    SKSL_INT getConstantInt() const override {
         return this->value();
     }
 
@@ -77,7 +77,7 @@ public:
     }
 
 private:
-    int64_t fValue;
+    SKSL_INT fValue;
 
     using INHERITED = Expression;
 };

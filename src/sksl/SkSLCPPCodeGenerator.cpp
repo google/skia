@@ -257,7 +257,7 @@ String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
 }
 
 void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->write(to_string((int32_t) i.value()));
+    this->write(to_string(i.value()));
 }
 
 void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
@@ -819,11 +819,11 @@ void CPPCodeGenerator::flushEmittedCode() {
                 // fFormatArgs will be in a valid state for any future sksl
                 this->writeCodeAppend(toFlush);
 
-                int codeBlock;
+                SKSL_INT codeBlock;
                 SkAssertResult(
                         stoi(StringFragment(sksl.c_str() + tokenStart + 2, i - tokenStart - 2),
                              &codeBlock));
-                SkASSERT(codeBlock < (int)fExtraEmitCodeBlocks.size());
+                SkASSERT((size_t)codeBlock < fExtraEmitCodeBlocks.size());
                 if (fExtraEmitCodeBlocks[codeBlock].size() > 0) {
                     this->write(fExtraEmitCodeBlocks[codeBlock].c_str());
                 }

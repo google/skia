@@ -384,13 +384,11 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
                     if (!size) {
                         return {};
                     }
-                    String name(type->name());
-                    int64_t count;
                     if (!size->is<IntLiteral>()) {
                         fErrors.error(size->fOffset, "array size must be an integer");
                         return {};
                     }
-                    count = size->as<IntLiteral>().value();
+                    SKSL_INT count = size->as<IntLiteral>().value();
                     if (count <= 0) {
                         fErrors.error(size->fOffset, "array size must be positive");
                         return {};
@@ -613,7 +611,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             if (!caseValue) {
                 return nullptr;
             }
-            int64_t v = 0;
+            SKSL_INT v = 0;
             if (!this->getConstantInt(*caseValue, &v)) {
                 fErrors.error(caseValue->fOffset, "case value must be a constant integer");
                 return nullptr;
@@ -1211,7 +1209,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                             symbols);
 }
 
-bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
+bool IRGenerator::getConstantInt(const Expression& value, SKSL_INT* out) {
     switch (value.kind()) {
         case Expression::Kind::kIntLiteral:
             *out = value.as<IntLiteral>().value();
@@ -1241,7 +1239,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     }
 
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
-    int64_t currentValue = 0;
+    SKSL_INT currentValue = 0;
     Layout layout;
     ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
                      ASTNode::TypeData(e.getString(), /*isStructDeclaration=*/false));
@@ -1865,17 +1863,17 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     #define RESULT(t, op) std::make_unique<t ## Literal>(fContext, left.fOffset, \
                                                          leftVal op rightVal)
     #define URESULT(t, op) std::make_unique<t ## Literal>(fContext, left.fOffset, \
-                                                          (uint32_t) leftVal op   \
-                                                          (uint32_t) rightVal)
+                                                          (uint64_t) leftVal op   \
+                                                          (uint64_t) rightVal)
     if (left.is<IntLiteral>() && right.is<IntLiteral>()) {
-        int64_t leftVal  = left.as<IntLiteral>().value();
-        int64_t rightVal = right.as<IntLiteral>().value();
+        SKSL_INT leftVal  = left.as<IntLiteral>().value();
+        SKSL_INT rightVal = right.as<IntLiteral>().value();
         switch (op) {
             case Token::Kind::TK_PLUS:       return URESULT(Int, +);
             case Token::Kind::TK_MINUS:      return URESULT(Int, -);
             case Token::Kind::TK_STAR:       return URESULT(Int, *);
             case Token::Kind::TK_SLASH:
-                if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     fErrors.error(right.fOffset, "arithmetic overflow");
                     return nullptr;
                 }
@@ -1885,7 +1883,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 }
                 return RESULT(Int, /);
             case Token::Kind::TK_PERCENT:
-                if (leftVal == std::numeric_limits<int64_t>::min() && rightVal == -1) {
+                if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     fErrors.error(right.fOffset, "arithmetic overflow");
                     return nullptr;
                 }
@@ -1905,13 +1903,13 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
             case Token::Kind::TK_LTEQ:       return RESULT(Bool, <=);
             case Token::Kind::TK_SHL:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return URESULT(Int,  <<);
+                    return RESULT(Int,  <<);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return URESULT(Int,  >>);
+                    return RESULT(Int,  >>);
                 }
                 fErrors.error(right.fOffset, "shift value out of range");
                 return nullptr;
@@ -2291,8 +2289,8 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(int offset,
         return std::make_unique<FloatLiteral>(offset, value, &type);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
-        int64_t value = args[0]->as<IntLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, (float)value, &type);
+        SKSL_INT value = args[0]->as<IntLiteral>().value();
+        return std::make_unique<FloatLiteral>(offset, (SKSL_FLOAT)value, &type);
     }
     if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
                                       type == *fContext.fUInt_Type)) {
@@ -2794,7 +2792,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
     }
     // Perform compile-time bounds checking on constant indices.
     if (converted->is<IntLiteral>()) {
-        int64_t index = converted->as<IntLiteral>().value();
+        SKSL_INT index = converted->as<IntLiteral>().value();
 
         const int upperBound = (baseType.isArray() && baseType.columns() == Type::kUnsizedArray)
                                        ? INT_MAX
