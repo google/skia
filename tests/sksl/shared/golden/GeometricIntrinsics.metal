@@ -6,13 +6,16 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+float dot(float a, float b) {
+    return a * b;
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float _1_x = 1.0;
     _1_x = abs(1.0);
     _1_x = abs(_1_x - 2.0);
-    _1_x = (_1_x * 2.0);
+    _1_x = dot(_1_x, 2.0);
     _1_x = sign(_1_x);
     float x = _1_x;
 
