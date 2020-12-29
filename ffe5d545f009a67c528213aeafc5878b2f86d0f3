@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfdbdc3e_23b07908",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T16:25:26Z",
+      "side": 1,
+      "message": "Let\u0027s just do the type aliases. That seems safer than this.",
+      "range": {
+        "startLine": 488,
+        "startChar": 19,
+        "endLine": 488,
+        "endChar": 55
+      },
+      "revId": "ffe5d545f009a67c528213aeafc5878b2f86d0f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
