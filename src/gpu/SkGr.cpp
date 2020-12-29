@@ -487,9 +487,8 @@ GrInterpretSamplingOptions(SkISize imageDims,
 
     Filter f = sampling.filter == SkFilterMode::kNearest ? Filter::kNearest
                                                          : Filter::kLinear;
-    MipmapMode m = MipmapMode::kNone;
+    MipmapMode m = static_cast<MipmapMode>(sampling.mipmap);
     if (sampling.mipmap != SkMipmapMode::kNone) {
-        m = MipmapMode::kLinear;
         if (allowFilterQualityReduction) {
             SkMatrix matrix;
             matrix.setConcat(viewM, localM);
@@ -506,8 +505,6 @@ GrInterpretSamplingOptions(SkISize imageDims,
             if (matrix.getMinScale() >= mipScale) {
                 m = MipmapMode::kNone;
             }
-        } else if (sampling.mipmap == SkMipmapMode::kNearest) {
-            m = MipmapMode::kNearest;
         }
     }
     return {f, m, kInvalidCubicResampler};

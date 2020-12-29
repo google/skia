@@ -106,7 +106,7 @@ public:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
-                   const SkColor[], int count, SkBlendMode, const SkPaint&) override;
+                   const SkColor[], int count, SkBlendMode, SkFilterMode, const SkPaint&) override;
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,
@@ -205,7 +205,8 @@ private:
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
     void drawImageQuad(const SkImage*, const SkRect* src, const SkRect* dst,
                        const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                       const SkMatrix* preViewMatrix, const SkPaint&, SkCanvas::SrcRectConstraint);
+                       const SkMatrix* preViewMatrix, const SkSamplingOptions&,
+                       const SkPaint&, SkCanvas::SrcRectConstraint);
 
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to
     // for every element in the SkLatticeIter.
