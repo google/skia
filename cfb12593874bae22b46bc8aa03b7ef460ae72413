@@ -16,6 +16,23 @@
       "message": "Adding GPU gardener to provide comments for this PR.",
       "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8107fb0f_89afa926",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-12-29T16:18:45Z",
+      "side": 1,
+      "message": "I don\u0027t think this is the right way to fix this. Why do we crash when backgrounding? Is it that the GL context has been deleted by the OS but we\u0027re still trying to use it?",
+      "revId": "cfb12593874bae22b46bc8aa03b7ef460ae72413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
