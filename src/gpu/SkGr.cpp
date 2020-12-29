@@ -485,9 +485,9 @@ GrInterpretSamplingOptions(SkISize imageDims,
         }
     }
 
-    Filter     f = static_cast<Filter>(sampling.filter);
-    MipmapMode m = static_cast<MipmapMode>(sampling.mipmap);
-    if (allowFilterQualityReduction && (sampling.mipmap != SkMipmapMode::kNone)) {
+    Filter     f = sampling.filter;
+    MipmapMode m = sampling.mipmap;
+    if (allowFilterQualityReduction && (m != MipmapMode::kNone)) {
         SkMatrix matrix;
         matrix.setConcat(viewM, localM);
         // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until

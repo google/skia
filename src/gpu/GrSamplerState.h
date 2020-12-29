@@ -8,6 +8,7 @@
 #ifndef GrSamplerState_DEFINED
 #define GrSamplerState_DEFINED
 
+#include "include/core/SkSamplingOptions.h"
 #include "include/gpu/GrTypes.h"
 #include <limits>
 
@@ -16,8 +17,8 @@
  */
 class GrSamplerState {
 public:
-    enum class Filter     : uint8_t { kNearest, kLinear, kLast = kLinear };
-    enum class MipmapMode : uint8_t { kNone, kNearest, kLinear, kLast = kLinear };
+    using Filter = SkFilterMode;
+    using MipmapMode = SkMipmapMode;
 
     enum class WrapMode : uint8_t {
         kClamp,
