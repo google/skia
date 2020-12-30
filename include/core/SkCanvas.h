@@ -35,7 +35,6 @@
 
 // Working on allow this to be undefined
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
-//#define SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
@@ -1646,7 +1645,7 @@ public:
     void drawImage(const SkImage*, SkScalar x, SkScalar y, const SkSamplingOptions&,
                    const SkPaint* = nullptr);
     void drawImageRect(const SkImage*, const SkRect& src, const SkRect& dst,
-                       const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
+                       const SkSamplingOptions&, const SkPaint* = nullptr);
 
     /** Draws SkImage image stretched proportionally to fit into SkRect dst.
         SkIRect center divides the image into nine sections: four sides, four corners, and
@@ -2258,15 +2257,9 @@ public:
         @param colors    one per sprite, blended with sprite using SkBlendMode; may be nullptr
         @param count     number of sprites to draw
         @param mode      SkBlendMode combining colors and sprites
-        @param sampling  SkSamplingOptions used when sampling from the atlas image
         @param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr
         @param paint     SkColorFilter, SkImageFilter, SkBlendMode, and so on; may be nullptr
     */
-    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkBlendMode mode,
-                   const SkSamplingOptions& sampling, const SkRect* cullRect, const SkPaint* paint);
-
-    // DEPRECATED -- pass sampling
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                    const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
                    const SkPaint* paint);
@@ -2525,30 +2518,20 @@ protected:
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
 
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
+    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
+                                      const SkPaint& paint);
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                  const SkPaint* paint, SrcRectConstraint constraint);
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
+
+    // never called -- remove from clients' subclasses
+    virtual void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) {}
+
     virtual void onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect rect[],
                              const SkColor colors[], int count, SkBlendMode mode,
                              const SkRect* cull, const SkPaint* paint);
-    // never called -- remove from clients' subclasses
-    virtual void onDrawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*) {}
-#endif
-    virtual void onDrawImage2(const SkImage*, SkScalar dx, SkScalar dy, const SkSamplingOptions&,
-                              const SkPaint*);
-    virtual void onDrawImageRect2(const SkImage*, const SkRect& src, const SkRect& dst,
-                                  const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
-    virtual void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect& dst,
-                                     SkFilterMode, const SkPaint*);
-    virtual void onDrawAtlas2(const SkImage*, const SkRSXform[], const SkRect src[],
-                              const SkColor[], int count, SkBlendMode, const SkSamplingOptions&,
-                              const SkRect* cull, const SkPaint*);
-
-    virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint);
 
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);

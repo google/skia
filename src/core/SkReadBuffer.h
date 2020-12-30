@@ -96,7 +96,6 @@ public:
     void readMatrix(SkMatrix* matrix);
     void readIRect(SkIRect* rect);
     void readRect(SkRect* rect);
-    SkRect readRect();
     void readRRect(SkRRect* rrect);
     void readRegion(SkRegion* region);
 
@@ -196,8 +195,6 @@ public:
     }
 
     SkFilterQuality checkFilterQuality();
-
-    SkSamplingOptions readSampling();
 
 private:
     const char* readString(size_t* length);

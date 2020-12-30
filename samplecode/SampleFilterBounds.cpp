@@ -184,7 +184,7 @@ public:
         canvas->saveLayer(&localContentRect, &blurPaint);
         canvas->drawImageRect(fImage.get(), localContentRect, localContentRect,
                               SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone),
-                              nullptr, SkCanvas::kFast_SrcRectConstraint);
+                              nullptr);
         canvas->restore();
 
         // Now visualize the underlying bounds calculations used to determine the layer for the blur

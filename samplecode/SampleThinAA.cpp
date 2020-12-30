@@ -226,8 +226,7 @@ public:
                               SkRect::MakeWH(kTileWidth, kTileHeight),
                               SkSamplingOptions(scale > 1.f ? kNone_SkFilterQuality
                                                             : kMedium_SkFilterQuality),
-                              &blit,
-                              SkCanvas::kFast_SrcRectConstraint);
+                              &blit);
     }
 
 private:

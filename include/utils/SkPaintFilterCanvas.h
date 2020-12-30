@@ -57,24 +57,11 @@ protected:
     void onDrawOval(const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
-#ifdef SK_SUPPORT_LEGACY_ONDRAWIMAGERECT
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
     void onDrawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice(const SkImage*, const Lattice& lattice, const SkRect& dst,
+    void onDrawImageLattice(const SkImage*, const Lattice&, const SkRect&,
                             const SkPaint*) override;
-    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
-#endif
-    void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
-                      const SkPaint*) override;
-    void onDrawImageRect2(const SkImage*, const SkRect&, const SkRect&, const SkSamplingOptions&,
-                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect&, SkFilterMode,
-                             const SkPaint*) override;
-    void onDrawAtlas2(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                     SkBlendMode, const SkSamplingOptions&, const SkRect*, const SkPaint*) override;
-
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                              const SkPoint texCoords[4], SkBlendMode,
@@ -84,6 +71,8 @@ protected:
 
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
+    void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
+                     int, SkBlendMode, const SkRect*, const SkPaint*) override;
     void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
     void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override;
 
