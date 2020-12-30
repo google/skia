@@ -10,13 +10,15 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrPrimitiveProcessor.h"
+#include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
 class GrPipeline;
-class GrPrimitiveProcessor;
+class GrProgramInfo;
 class GrRenderTarget;
-class GrXferProcessor;
 class GrStencilSettings;
+class GrSwizzle;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
@@ -36,6 +38,7 @@ public:
                                 const GrXferProcessor::BlendInfo&,
                                 bool isWireframe,
                                 bool useConservativeRaster,
+                                uint32_t subpass,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
                                 VkRenderPass compatibleRenderPass,
@@ -51,7 +54,10 @@ public:
                                 VkPipelineCache cache);
 
     VkPipeline pipeline() const { return fPipeline; }
-    VkPipelineLayout layout() const { return fPipelineLayout; }
+    VkPipelineLayout layout() const {
+        SkASSERT(fPipelineLayout != VK_NULL_HANDLE);
+        return fPipelineLayout;
+    }
 
     static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
                                            GrSurfaceOrigin, const SkIRect& scissorRect);
