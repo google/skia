@@ -106,13 +106,9 @@ protected:
         kBitcast_SpecialIntrinsic,
         kBitCount_SpecialIntrinsic,
         kDegrees_SpecialIntrinsic,
-        kDistance_SpecialIntrinsic,
-        kDot_SpecialIntrinsic,
         kFindLSB_SpecialIntrinsic,
         kFindMSB_SpecialIntrinsic,
-        kLength_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
-        kNormalize_SpecialIntrinsic,
         kRadians_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
