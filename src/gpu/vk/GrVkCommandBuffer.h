@@ -222,6 +222,8 @@ public:
                          bool forSecondaryCB);
     void endRenderPass(const GrVkGpu* gpu);
 
+    void nexSubpass(GrVkGpu* gpu, bool forSecondaryCB);
+
     // Submits the SecondaryCommandBuffer into this command buffer. It is required that we are
     // currently inside a render pass that is compatible with the one used to create the
     // SecondaryCommandBuffer.
