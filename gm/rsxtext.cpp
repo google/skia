@@ -31,7 +31,7 @@ private:
                                 SkFontStyle::kNormal_Width,
                                 SkFontStyle::kUpright_Slant);
         SkFont font(ToolUtils::create_portable_typeface(nullptr, style), kFontSZ);
-        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setEdging(SkFont::Edging::kAlias);
 
         static constexpr char txt[] = "TEST";
         SkGlyphID glyphs[16];
@@ -95,8 +95,7 @@ private:
                ->drawRect({0, 0, kTileSize.width()*0.9f, kTileSize.height()*0.9f}, p);
 
         return surface->makeImageSnapshot()
-                ->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                             SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), &lm)
+                ->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(), &lm)
                 ->makeWithLocalMatrix(outer_lm);
     }
 

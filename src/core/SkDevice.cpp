@@ -395,43 +395,6 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 #include "src/core/SkUtils.h"
 
-
-// TODO: This does not work for arbitrary shader DAGs (when there is no single leaf local matrix).
-// What we really need is proper post-LM plumbing for shaders.
-static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& m) {
-    SkMatrix inverse;
-    if (!shader || !m.invert(&inverse)) {
-        return nullptr;
-    }
-
-    // Normal LMs pre-compose.  In order to push a post local matrix, we shoot for
-    // something along these lines (where all new components are pre-composed):
-    //
-    //   new_lm X current_lm == current_lm X inv(current_lm) X new_lm X current_lm
-    //
-    // We also have two sources of local matrices:
-    //   - the actual shader lm
-    //   - outer lms applied via SkLocalMatrixShader
-
-    SkMatrix outer_lm;
-    const auto nested_shader = as_SB(shader)->makeAsALocalMatrixShader(&outer_lm);
-    if (nested_shader) {
-        // unfurl the shader
-        shader = nested_shader.get();
-    } else {
-        outer_lm.reset();
-    }
-
-    const auto lm = *as_SB(shader)->totalLocalMatrix(nullptr);
-    SkMatrix lm_inv;
-    if (!lm.invert(&lm_inv)) {
-        return nullptr;
-    }
-
-    // Note: since we unfurled the shader above, we don't need to apply an outer_lm inverse
-    return shader->makeWithLocalMatrix(lm_inv * inverse * lm * outer_lm);
-}
-
 void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyphs[],
                                        const SkRSXform xform[], int count, SkPoint origin,
                                        const SkPaint& paint) {
@@ -463,7 +426,15 @@ void SkBaseDevice::drawGlyphRunRSXform(const SkFont& font, const SkGlyphID glyph
         // (i.e. the shader that cares about the ctm) so we have to undo our little ctm trick
         // with a localmatrixshader so that the shader draws as if there was no change to the ctm.
         SkPaint transformingPaint{paint};
-        transformingPaint.setShader(make_post_inverse_lm(paint.getShader(), glyphToDevice));
+        auto shader = transformingPaint.getShader();
+        if (shader) {
+            SkMatrix inverse;
+            if (glyphToDevice.invert(&inverse)) {
+                transformingPaint.setShader(shader->makeWithLocalMatrix(inverse));
+            } else {
+                transformingPaint.setShader(nullptr);  // can't handle this xform
+            }
+        }
 
         this->setLocalToDevice(originalLocalToDevice * SkM44(glyphToDevice));
 
