@@ -68,6 +68,7 @@ void MetalCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("radians")]            = kRadians_IntrinsicKind;
     fIntrinsicMap[String("reflect")]            = kReflect_IntrinsicKind;
     fIntrinsicMap[String("refract")]            = kRefract_IntrinsicKind;
+    fIntrinsicMap[String("roundEven")]          = kRoundEven_IntrinsicKind;
     fIntrinsicMap[String("sample")]             = kTexture_IntrinsicKind;
 }
 
@@ -720,6 +721,11 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             } else {
                 this->writeSimpleIntrinsic(c);
             }
+            break;
+        }
+        case kRoundEven_IntrinsicKind: {
+            this->write("rint");
+            this->writeArgumentList(c.arguments());
             break;
         }
         case kBitCount_IntrinsicKind: {

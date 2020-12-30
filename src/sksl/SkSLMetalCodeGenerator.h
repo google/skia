@@ -80,7 +80,7 @@ public:
     MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                       OutputStream* out)
     : INHERITED(program, errors, out)
-    , fReservedWords({"atan2", "rsqrt", "dfdx", "dfdy", "vertex", "fragment"})
+    , fReservedWords({"atan2", "rsqrt", "rint", "dfdx", "dfdy", "vertex", "fragment"})
     , fLineEnding("\n")
     , fContext(*context) {
         this->setupIntrinsics();
@@ -124,6 +124,7 @@ protected:
         kRadians_IntrinsicKind,
         kReflect_IntrinsicKind,
         kRefract_IntrinsicKind,
+        kRoundEven_IntrinsicKind,
         kTexture_IntrinsicKind,
     };
 
