@@ -12,6 +12,27 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSerialProcs.h"
 
+namespace {
+    sk_sp<SkData> collectNonTextureImagesProc(SkImage* img, void* ctx) {
+        SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
+        uint32_t originalId = img->uniqueID();
+        auto it = context->fNonTexMap.find(originalId);
+        if (it == context->fNonTexMap.end()) {
+            context->fNonTexMap[originalId] = img->makeNonTextureImage();
+        }
+        return SkData::MakeEmpty();
+    }
+}
+
+void SkSharingSerialContext::collectNonTextureImagesFromPicture(
+    const SkPicture* pic, SkSharingSerialContext* sharingCtx) {
+    SkSerialProcs tempProc;
+    tempProc.fImageCtx = sharingCtx;
+    tempProc.fImageProc = collectNonTextureImagesProc;
+    auto ns = SkNullWStream();
+    pic->serialize(&ns, &tempProc);
+}
+
 sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t id = img->uniqueID(); // get this process's id for the image. these are not hashes.
@@ -19,7 +40,12 @@ sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     auto iter = context->fImageMap.find(id);
     if (iter == context->fImageMap.end()) {
         // When not present, add its id to the map and return its usual serialized form.
-        context->fImageMap[id] = context->fImageMap.size();
+        context->fImageMap[id] = context->fImageMap.size(); // Next in-file id
+        // encode the image or it's non-texture replacement if one was collected
+        auto iter2 = context->fNonTexMap.find(id);
+        if (iter2 != context->fNonTexMap.end()) {
+            img = iter2->second.get();
+        }
         return img->encodeToData();
     }
     uint32_t fid = context->fImageMap[id];
@@ -32,7 +58,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
     if (!data || !length || !ctx) {
         SkDebugf("SkSharingDeserialContext::deserializeImage arguments invalid %p %d %p.\n",
             data, length, ctx);
-        // Return something so the rest of the debugger can proceeed.
+        // Return something so the rest of the debugger can proceed.
         SkBitmap bm;
         bm.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
         return bm.asImage();
@@ -43,7 +69,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
     if (length == sizeof(fid)) {
         memcpy(&fid, data, sizeof(fid));
         if (fid >= context->fImages.size()) {
-            SkDebugf("We do not have the data for image %d.\n", fid);
+            SkDebugf("Cannot deserialize using id, We do not have the data for image %d.\n", fid);
             return nullptr;
         }
         return context->fImages[fid];
