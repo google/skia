@@ -22,6 +22,30 @@
       },
       "revId": "0b621a3dbcb8ee502fb5f5226f59368585797cbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d86f7594_18b54910",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-30T21:17:32Z",
+      "side": 1,
+      "message": "Filed a bug about this specific issue (it\u0027s got some overlap with an existing bug, but this is enough of a standalone issue to have filed separately). Also adjusted the comment.\n\nYeah - the comment is talking about the previous uses of expect_failure, which actually assumed the front-end would parse ok, and the byte-code generator would produce an error. We need to get to a world where that kind of thing can\u0027t happen.",
+      "parentUuid": "d7b725c8_1b6c1d05",
+      "range": {
+        "startLine": 647,
+        "startChar": 0,
+        "endLine": 651,
+        "endChar": 5
+      },
+      "revId": "0b621a3dbcb8ee502fb5f5226f59368585797cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
