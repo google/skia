@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9949ba22_ac17a7f2",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-12-30T21:35:23Z",
+      "side": 1,
+      "message": "Not for this CL, but this reminds me of previous conversations, and the somewhat dangerous intrinsic handling in several backends (where we just check the map for a function name and assume it\u0027s the intrinsic). I think the actual logic we should be applying everywhere (for a function call) is roughly:\n\nif (function.isBuiltin() \u0026\u0026 !function.hasDefinition()) { /* look up in intrinsic map, etc... */ }\n\nelse { /* treat it as a normal function call */ }\n\nDoes that make sense? It should let us be much more confident that the calls we\u0027re handling when we get into our intrinsic-specific code in each backend will only see the signatures declared in sksl_gpu/sksl_public.sksl.",
+      "revId": "0a74a1e696c590db4f6ca53c54d2c2b1485d5856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
