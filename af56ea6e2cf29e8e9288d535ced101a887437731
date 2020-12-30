@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db73f213_64f2aca7",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "Is \"ZeroSampler\" a Vulkan term I should be familiar with? Or is it a GrVk concept that could use a comment?\n\nUpdate: I see the comment in GrVkResourceProvider now. Maybe something as simple as this could help:\n\n  // See GrVkResourceProvider::getZeroSamplerDescriptorSetHandle().",
+      "range": {
+        "startLine": 33,
+        "startChar": 37,
+        "endLine": 33,
+        "endChar": 61
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "352bc235_513ab2de",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "It might be easier to not have to deal with an input buffer. What if we did:\n\n  float2 position \u003d float2(sk_VertexID \u003e\u003e 1, sk_VertexID \u0026 1);",
+      "range": {
+        "startLine": 40,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ea40b05_e795a628",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "We don\u0027t need this if we use sk_VertexID",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 52
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3aa004f7_9db2a06e",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "src",
+      "range": {
+        "startLine": 225,
+        "startChar": 32,
+        "endLine": 225,
+        "endChar": 35
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "142fb690_5996aca1",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "Needed?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 26
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d948198e_5f05c45e",
+        "filename": "src/gpu/vk/GrVkMSAALoadManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "Needed?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 16
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf31443b_fa7dc115",
+        "filename": "src/gpu/vk/GrVkMSAALoadPipeline.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-12-30T16:47:24Z",
+      "side": 1,
+      "message": "I\u0027m wondering if it would be possible to create a simpler GrPipeline and then use existing GrVkPipeline code to convert it to vulkan?",
+      "range": {
+        "startLine": 33,
+        "startChar": 22,
+        "endLine": 33,
+        "endChar": 50
+      },
+      "revId": "af56ea6e2cf29e8e9288d535ced101a887437731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
