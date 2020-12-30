@@ -2907,6 +2907,13 @@ void IRGenerator::checkValid(const Expression& expr) {
         case Expression::Kind::kTypeReference:
             fErrors.error(expr.fOffset, "expected '(' to begin constructor invocation");
             break;
+        case Expression::Kind::kFunctionCall: {
+            const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
+            if (!decl.isBuiltin() && !decl.definition()) {
+                fErrors.error(expr.fOffset, "function '" + decl.description() + "' is not defined");
+            }
+            break;
+        }
         default:
             if (expr.type() == *fContext.fInvalid_Type) {
                 fErrors.error(expr.fOffset, "invalid expression");

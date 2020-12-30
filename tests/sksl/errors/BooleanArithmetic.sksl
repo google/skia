@@ -24,32 +24,3 @@ bool2 bitnot_boolean_vec() { return ~bool2(false, false); }
 bool2 bitand_boolean_vec() { return bool2(false, false) & bool2(true, true); }
 bool2 bitor_boolean_vec()  { return bool2(false, false) | bool2(true, true); }
 bool2 bitxor_boolean_vec() { return bool2(false, false) ^ bool2(true, true); }
-
-void main() {
-    add_boolean();
-    sub_boolean();
-    mul_boolean();
-    div_boolean();
-    mod_boolean();
-    shl_boolean();
-    shr_boolean();
-    neg_boolean();
-    bitnot_boolean();
-    bitand_boolean();
-    bitor_boolean();
-    bitxor_boolean();
-
-    add_boolean_vec();
-    sub_boolean_vec();
-    mul_boolean_vec();
-    div_boolean_vec();
-    mod_boolean_vec();
-    shl_boolean_vec();
-    shr_boolean_vec();
-    not_boolean_vec();
-    neg_boolean_vec();
-    bitnot_boolean_vec();
-    bitand_boolean_vec();
-    bitor_boolean_vec();
-    bitxor_boolean_vec();
-}
