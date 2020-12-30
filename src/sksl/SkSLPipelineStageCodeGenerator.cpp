@@ -181,6 +181,11 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
 }
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
+    // Pipeline stages don't need polyfills.
+    if (f.declaration().isPolyfill()) {
+        return;
+    }
+
     fFunctionHeader = "";
     StringStream buffer;
     Compiler::GLSLFunction result;

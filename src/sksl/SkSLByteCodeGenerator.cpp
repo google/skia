@@ -164,13 +164,17 @@ bool ByteCodeGenerator::generateCode() {
     for (const ProgramElement* e : fProgram.elements()) {
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
-                std::unique_ptr<ByteCodeFunction> f =
-                        this->writeFunction(e->as<FunctionDefinition>());
-                if (!f) {
+                // The bytecode generator currently doesn't use polyfills anywhere.
+                const FunctionDefinition& funcDef = e->as<FunctionDefinition>();
+                if (funcDef.declaration().isPolyfill()) {
+                    break;
+                }
+                std::unique_ptr<ByteCodeFunction> byteCodeFn = this->writeFunction(funcDef);
+                if (!byteCodeFn) {
                     return false;
                 }
-                fOutput->fFunctions.push_back(std::move(f));
-                fFunctions.push_back(&e->as<FunctionDefinition>());
+                fOutput->fFunctions.push_back(std::move(byteCodeFn));
+                fFunctions.push_back(&funcDef);
                 break;
             }
             case ProgramElement::Kind::kGlobalVar: {
@@ -190,7 +194,7 @@ bool ByteCodeGenerator::generateCode() {
                 break;
             }
             default:
-                ; // ignore
+                break; // ignore
         }
     }
     return 0 == fErrors.errorCount();
