@@ -95,9 +95,6 @@ uniform half blurRadius;
                        GrStyle::SimpleFill());
 
         GrSurfaceProxyView srcView = rtc->readSurfaceView();
-        if (!srcView) {
-            return false;
-        }
         SkASSERT(srcView.asTextureProxy());
         auto rtc2 = SkGpuBlurUtils::GaussianBlur(dContext,
                                                  std::move(srcView),
@@ -406,7 +403,7 @@ half4 main() {
     half2 proxyDims = half2(2.0 * edgeSize);
     half2 texCoord = translatedFragPosHalf / proxyDims;
 
-    return sample(inputFP) * sample(ninePatchFP, texCoord);
+    return sample(inputFP) * sample(ninePatchFP, texCoord).a;
 }
 
 @setData(pdman) {
